@@ -1,0 +1,43 @@
+{
+	"label": "BogusThing",
+
+	"inputs": {
+		"first_name": {
+			"maxLength": 100
+		},
+		"last_name_prefix": {
+			"maxLength": 20,
+			"required": false
+		},
+		"last_name": {
+			"maxLength": 124,
+			"required": false
+		},
+		"email": {
+			"required": false,
+			"unique": true
+		},
+		"role": {
+			"type": "enum",
+			"options": ["user", "admin", "developer"],
+			"default": "user",
+			"required": false
+		},
+		"complexEnum": {
+			"type": "enum",
+			"options": {
+				"-1": "negative",
+				"0": "neutral",
+				"1": "positive"
+			},
+			"default": "user",
+			"required": false
+		}
+	},
+
+	"behaviors": {
+		"Sluggable": {
+			"baseField": ["first_name", "last_name_prefix", "last_name"]
+		}
+	}
+}

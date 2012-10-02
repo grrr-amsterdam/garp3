@@ -1,0 +1,34 @@
+<?php
+	$props = array();
+	
+	if ($this->dataIndex)
+		$props['dataIndex'] = "'".$this->dataIndex."'";
+	if ($this->renderer)
+		$props['renderer'] = $this->renderer;
+	if ($this->width)
+		$props['width'] = $this->width;
+	if ($this->fixed)
+		$props['fixed'] = 'true';
+	if ($this->header)
+		$props['header'] = "__('{$this->header}')" . ($this->headerPostFix ? ' + "' . $this->headerPostFix . '"': '');
+	if ($this->hidden)
+		$props['hidden'] = 'true';
+	if (isset($this->hideable))
+		$props['hideable'] = $this->hideable ? 'true' : 'false';
+	if (isset($this->searchable))
+		$props['searchable'] = $this->searchable ? 'true' : 'false';
+	if (isset($this->sortable))
+		$props['sortable'] = $this->sortable ? 'true' : 'false';
+	if ($this->virtual)
+		$props['virtual'] = 'true';
+	if ($this->virtualSortField)
+		$props['virtualSortField'] = "'{$this->virtualSortField}'";
+	if ($this->convert)
+		$props['convert'] = $this->convert;
+
+	$propPairs = array();
+	foreach ($props as $propName => $propValue) {
+		$propPairs[] = $propName.': '.$propValue;
+	}
+
+	echo implode(",\n\t\t", $propPairs) ?>
