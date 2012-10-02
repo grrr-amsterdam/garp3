@@ -1,0 +1,39 @@
+<?php
+	if (!$this->model instanceof Garp_Model_Spawn_Model):
+		throw new Exception('This partial requires a Garp_Model_Spawn_Model instance as $model parameter.');
+	endif;
+
+	$latField = $this->model->fields->getFields('name', 'location_lat');
+	$longField = $this->model->fields->getFields('name', 'location_long');
+?>
+				xtype: 'fieldset',
+				style: 'padding: 0;',
+				fieldLabel: __('Location'),
+				layout: 'hbox',
+				items: [{
+					xtype: 'button',
+					iconCls: 'icon-map',
+					text: __('Map'),
+					flex: 0,
+					margins: '0 20 0 0',
+					handler: function(){
+						new Garp.MapWindow({
+							fieldRef: this.ownerCt,
+							'lat': 'location_lat',
+							'long': 'location_long'
+						}).show();
+					}
+				}, {
+		<?php echo $this->partial('partials/spawn/js/input-field.phtml', 'g', array(
+			'field' => current($latField)
+		)); ?>
+				}, {
+		<?php echo $this->partial('partials/spawn/js/input-field.phtml', 'g', array(
+			'field' => current($longField)
+		)); ?>
+				}, {
+					xtype: 'box',
+					ref: '../../location_address',
+					flex: 0,
+					margins: '4 20 0 0'
+				}]

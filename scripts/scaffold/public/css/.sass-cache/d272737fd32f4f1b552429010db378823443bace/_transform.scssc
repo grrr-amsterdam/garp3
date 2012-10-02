@@ -1,0 +1,1248 @@
+3.1.20 (Brainy Betty)
+c6b1622193f2b16b41d0238260d902d3a3b29ac0
+o:Sass::Tree::RootNode
+:@has_childrenT:
+@linei:@template"ïH@import "shared";
+
+// @doc off
+// Note ----------------------------------------------------------------------
+// Safari, Chrome, and Firefox all support 3D transforms. However,
+// only in the most recent builds. You should also provide fallback 2d support for
+// Opera and IE. IE10 is slated to have 3d enabled, but is currently unreleased.
+// To make that easy, all 2D transforms include an browser-targeting toggle ($only3d)
+// to switch between the two support lists. The toggle defaults to 'false' (2D),
+// and also accepts 'true' (3D). Currently the lists are as follows:
+// 2D: Mozilla, Webkit, Opera, Official
+// 3D: Webkit, Firefox.
+
+// Available Transforms ------------------------------------------------------
+// - Scale (2d and 3d)
+// - Rotate (2d and 3d)
+// - Translate (2d and 3d)
+// - Skew (2d only)
+
+// Transform Parameters ------------------------------------------------------
+// - Transform Origin (2d and 3d)
+// - Perspective (3d)
+// - Perspective Origin (3d)
+// - Transform Style (3d)
+// - Backface Visibility (3d)
+
+// Mixins --------------------------------------------------------------------
+// transform-origin
+//  - shortcuts:  transform-origin2d, transform-origin3d
+//  - helpers:    apply-origin
+// transform
+//  - shortcuts:  transform2d, transform3d
+//  - helpers:    simple-transform, create-transform
+// perspective
+//  - helpers:    perspective-origin
+// transform-style
+// backface-visibility
+// scale
+//  - shortcuts:  scaleX, scaleY, scaleZ, scale3d
+// rotate
+//  - shortcuts:  rotateX, rotateY, rotate3d
+// translate
+//  - shortcuts:  translateX, translateY, translateZ, translate3d
+// skew
+//  - shortcuts:  skewX, skewY
+
+// Defaults ------------------------------------------------------------------
+// @doc on
+
+// The default x-origin for transforms
+$default-origin-x    : 50%                   !default;
+// The default y-origin for transforms
+$default-origin-y    : 50%                   !default;
+// The default z-origin for transforms
+$default-origin-z    : 50%                   !default;
+
+
+// The default x-multiplier for scaling
+$default-scale-x     : 1.25                  !default;
+// The default y-multiplier for scaling
+$default-scale-y     : $default-scale-x      !default;
+// The default z-multiplier for scaling
+$default-scale-z     : $default-scale-x      !default;
+
+
+// The default angle for rotations
+$default-rotate      : 45deg                 !default;
+
+
+// The default x-vector for the axis of 3d rotations
+$default-vector-x    : 1                     !default;
+// The default y-vector for the axis of 3d rotations
+$default-vector-y    : 1                     !default;
+// The default z-vector for the axis of 3d rotations
+$default-vector-z    : 1                     !default;
+
+
+// The default x-length for translations
+$default-translate-x : 1em                   !default;
+// The default y-length for translations
+$default-translate-y : $default-translate-x  !default;
+// The default z-length for translations
+$default-translate-z : $default-translate-x  !default;
+
+
+// The default x-angle for skewing
+$default-skew-x      : 5deg                  !default;
+// The default y-angle for skewing
+$default-skew-y      : 5deg                  !default;
+
+
+// **Transform-origin**
+// Transform-origin sent as a complete string
+//
+//     @include apply-origin( origin [, 3D-only ] )
+//
+// where 'origin' is a space separated list containing 1-3 (x/y/z) coordinates
+// in percentages, absolute (px, cm, in, em etc..) or relative
+// (left, top, right, bottom, center) units
+//
+// @param only3d Set this to true to only apply this
+// mixin where browsers have 3D support.
+@mixin apply-origin($origin, $only3d) {
+  $only3d: $only3d or -compass-list-size(-compass-list($origin)) > 2;
+  @if $only3d {
+    @include experimental(transform-origin, $origin,
+      -moz, -webkit, -o, -ms, not -khtml, official
+    );
+  } @else {
+    @include experimental(transform-origin, $origin,
+      -moz, -webkit, -o, -ms, not -khtml, official
+    );
+  }
+}
+
+// Transform-origin sent as individual arguments:
+//
+//     @include transform-origin( [ origin-x, origin-y, origin-z, 3D-only ] )
+//
+// where the 3 'origin-' arguments represent x/y/z coordinates.
+//
+// **NOTE:** setting z coordinates triggers 3D support list, leave false for 2D support
+@mixin transform-origin(
+  $origin-x: $default-origin-x,
+  $origin-y: $default-origin-y,
+  $origin-z: false,
+  $only3d:   if($origin-z, true, false)
+) {
+  $origin: unquote('');
+  @if $origin-x or $origin-y or $origin-z {
+    @if $origin-x { $origin: $origin-x; } @else { $origin: 50%; }
+    @if $origin-y { $origin: $origin $origin-y; } @else { @if $origin-z { $origin: $origin 50%; }}
+    @if $origin-z { $origin: $origin $origin-z; }
+    @include apply-origin($origin, $only3d);
+  }
+}
+
+
+// Transform sent as a complete string:
+//
+//     @include transform( transforms [, 3D-only ] )
+//
+// where 'transforms' is a space separated list of all the transforms to be applied.
+@mixin transform(
+  $transform,
+  $only3d: false
+) {
+  @if $only3d {
+    @include experimental(transform, $transform,
+      -moz, -webkit, -o, -ms, not -khtml, official
+    );
+  } @else {
+    @include experimental(transform, $transform,
+      -moz, -webkit, -o, -ms, not -khtml, official
+    );
+  }
+}
+
+// Shortcut to target all browsers with 2D transform support
+@mixin transform2d($trans) {
+  @include transform($trans, false);
+}
+
+// Shortcut to target only browsers with 3D transform support
+@mixin transform3d($trans) {
+  @include transform($trans, true);
+}
+
+// @doc off
+// 3D Parameters -------------------------------------------------------------
+// @doc on
+
+// Set the perspective of 3D transforms on the children of an element:
+//
+//      @include perspective( perspective )
+//
+// where 'perspective' is a unitless number representing the depth of the
+// z-axis. The higher the perspective, the more exaggerated the foreshortening.
+// values from 500 to 1000 are more-or-less "normal" - a good starting-point.
+@mixin perspective($p) {
+  @include experimental(perspective, $p,
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// Set the origin position for the perspective
+//
+//      @include perspective-origin(origin-x [origin-y])
+//
+// where the two arguments represent x/y coordinates
+@mixin perspective-origin($origin: 50%) {
+  @include experimental(perspective-origin, $origin,
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// Determine whether a 3D objects children also live in the given 3D space
+//
+//      @include transform-style( [ style ] )
+//
+// where `style` can be either `flat` or `preserve-3d`.
+// Browsers default to `flat`, mixin defaults to `preserve-3d`.
+@mixin transform-style($style: preserve-3d) {
+  @include experimental(transform-style, $style,
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// Determine the visibility of an element when it's back is turned
+//
+//     @include backface-visibility( [ visibility ] )
+//
+// where `visibility` can be either `visible` or `hidden`.
+// Browsers default to visible, mixin defaults to hidden
+@mixin backface-visibility($visibility: hidden) {
+  @include experimental(backface-visibility, $visibility,
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// @doc off
+// Transform Partials --------------------------------------------------------
+// These work well on their own, but they don't add to each other, they override.
+// Use along with transform parameter mixins to adjust origin, perspective and style
+// ---------------------------------------------------------------------------
+
+
+// Scale ---------------------------------------------------------------------
+// @doc on
+
+// Scale an object along the x and y axis:
+//
+//      @include scale( [ scale-x, scale-y, perspective, 3D-only ] )
+//
+// where the 'scale-' arguments are unitless multipliers of the x and y dimensions
+// and perspective, which works the same as the stand-alone perspective property/mixin
+// but applies to the individual element (multiplied with any parent perspective)
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin scale(
+  $scale-x:     $default-scale-x,
+  $scale-y:     $scale-x,
+  $perspective: false,
+  $only3d:      false
+) {
+  $trans: scale($scale-x, $scale-y);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform($trans, $only3d);
+}
+
+// Scale an object along the x axis
+// @include scaleX( [ scale-x, perspective, 3D-only ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin scaleX(
+  $scale:       $default-scale-x,
+  $perspective: false,
+  $only3d:      false
+) {
+  $trans: scaleX($scale);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform($trans, $only3d);
+}
+
+// Scale an object along the y axis
+// @include scaleY( [ scale-y, perspective, 3D-only ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin scaleY(
+  $scale:       $default-scale-y,
+  $perspective: false,
+  $only3d:      false
+) {
+  $trans: scaleY($scale);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform($trans, $only3d);
+}
+
+// Scale an object along the z axis
+// @include scaleZ( [ scale-z, perspective ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin scaleZ(
+  $scale: $default-scale-z,
+  $perspective: false
+) {
+  $trans: scaleZ($scale);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform3d($trans);
+}
+
+// Scale and object along all three axis
+// @include scale3d( [ scale-x, scale-y, scale-z, perspective ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin scale3d(
+  $scale-x:     $default-scale-x,
+  $scale-y:     $default-scale-y,
+  $scale-z:     $default-scale-z,
+  $perspective: false
+) {
+  $trans: scale3d($scale-x, $scale-y, $scale-z);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform3d($trans);
+}
+
+// @doc off
+// Rotate --------------------------------------------------------------------
+// @doc on
+
+// Rotate an object around the z axis  (2D)
+// @include rotate( [ rotation, perspective, 3D-only ] )
+// where 'rotation' is an angle set in degrees (deg) or radian (rad) units
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin rotate(
+  $rotate:      $default-rotate,
+  $perspective: false,
+  $only3d:      false
+) {
+  $trans: rotate($rotate);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform($trans, $only3d);
+}
+
+// A longcut for 'rotate' in case you forget that 'z' is implied
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin rotateZ(
+  $rotate:      $default-rotate,
+  $perspective: false,
+  $only3d:      false
+) {
+  @include rotate($rotate, $perspective, $only3d);
+}
+
+// Rotate an object around the x axis (3D)
+// @include rotateX( [ rotation, perspective ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin rotateX(
+  $rotate: $default-rotate,
+  $perspective: false
+) {
+  $trans: rotateX($rotate);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform3d($trans);
+}
+
+// Rotate an object around the y axis (3D)
+// @include rotate( [ rotation, perspective ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin rotateY(
+  $rotate: $default-rotate,
+  $perspective: false
+) {
+  $trans: rotateY($rotate);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform3d($trans);
+}
+
+// Rotate an object around an arbitrary axis (3D)
+// @include rotate( [ vector-x, vector-y, vector-z, rotation, perspective ] )
+// where the 'vector-' arguments accept unitless numbers.
+// These numbers are not important on their own, but in relation to one another
+// creating an axis from your transform-origin, along the axis of Xx = Yy = Zz.
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin rotate3d(
+  $vector-x: $default-vector-x,
+  $vector-y: $default-vector-y,
+  $vector-z: $default-vector-z,
+  $rotate: $default-rotate,
+  $perspective: false
+) {
+  $trans: rotate3d($vector-x, $vector-y, $vector-z, $rotate);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform3d($trans);
+}
+
+// @doc off
+// Translate -----------------------------------------------------------------
+// @doc on
+
+// Move an object along the x or y axis (2D)
+// @include translate( [ translate-x, translate-y, perspective, 3D-only ] )
+// where the 'translate-' arguments accept any distance in percentages or absolute (px, cm, in, em etc..) units.
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin translate(
+  $translate-x: $default-translate-x,
+  $translate-y: $default-translate-y,
+  $perspective: false,
+  $only3d:      false
+) {
+  $trans: translate($translate-x, $translate-y);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform($trans, $only3d);
+}
+
+// Move an object along the x axis (2D)
+// @include translate( [ translate-x, perspective, 3D-only ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin translateX(
+  $trans-x:     $default-translate-x,
+  $perspective: false,
+  $only3d:      false
+) {
+  $trans: translateX($trans-x);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform($trans, $only3d);
+}
+
+// Move an object along the y axis (2D)
+// @include translate( [ translate-y, perspective, 3D-only ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin translateY(
+  $trans-y:     $default-translate-y,
+  $perspective: false,
+  $only3d:      false
+) {
+  $trans: translateY($trans-y);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform($trans, $only3d);
+}
+
+// Move an object along the z axis (3D)
+// @include translate( [ translate-z, perspective ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin translateZ(
+  $trans-z:     $default-translate-z,
+  $perspective: false
+) {
+  $trans: translateZ($trans-z);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform3d($trans);
+}
+
+// Move an object along the x, y and z axis (3D)
+// @include translate( [ translate-x, translate-y, translate-z, perspective ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin translate3d(
+  $translate-x: $default-translate-x,
+  $translate-y: $default-translate-y,
+  $translate-z: $default-translate-z,
+  $perspective: false
+) {
+  $trans: translate3d($translate-x, $translate-y, $translate-z);
+  @if $perspective { $trans: perspective($perspective) $trans; }
+  @include transform3d($trans);
+}
+
+// @doc off
+// Skew ----------------------------------------------------------------------
+// @doc on
+
+// Skew an element:
+//
+//     @include skew( [ skew-x, skew-y, 3D-only ] )
+//
+// where the 'skew-' arguments accept css angles in degrees (deg) or radian (rad) units.
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin skew(
+  $skew-x: $default-skew-x,
+  $skew-y: $default-skew-y,
+  $only3d: false
+) {
+  $trans: skew($skew-x, $skew-y);
+  @include transform($trans, $only3d);
+}
+
+// Skew an element along the x axiz
+//
+//     @include skew( [ skew-x, 3D-only ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin skewX(
+  $skew-x: $default-skew-x,
+  $only3d: false
+) {
+  $trans: skewX($skew-x);
+  @include transform($trans, $only3d);
+}
+
+// Skew an element along the y axis
+//
+//     @include skew( [ skew-y, 3D-only ] )
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin skewY(
+  $skew-y: $default-skew-y,
+  $only3d: false
+) {
+  $trans: skewY($skew-y);
+  @include transform($trans, $only3d);
+}
+
+
+// Full transform mixins
+// For settings any combination of transforms as arguments
+// These are complex and not highly recommended for daily use. They are mainly
+// here for backward-compatibility purposes.
+//
+// * they include origin adjustments
+// * scale takes a multiplier (unitless), rotate and skew take degrees (deg)
+//
+// **Note** This mixin cannot be combined with other transform mixins.
+@mixin create-transform(
+  $perspective: false,
+  $scale-x:     false,
+  $scale-y:     false,
+  $scale-z:     false,
+  $rotate-x:    false,
+  $rotate-y:    false,
+  $rotate-z:    false,
+  $rotate3d:    false,
+  $trans-x:     false,
+  $trans-y:     false,
+  $trans-z:     false,
+  $skew-x:      false,
+  $skew-y:      false,
+  $origin-x:    false,
+  $origin-y:    false,
+  $origin-z:    false,
+  $only3d:      false
+) {
+  $trans: unquote("");
+
+  // perspective
+  @if $perspective { $trans: perspective($perspective) ; }
+
+  // scale
+  @if $scale-x and $scale-y {
+    @if $scale-z { $trans: $trans scale3d($scale-x, $scale-y, $scale-z); }
+    @else { $trans: $trans scale($scale-x, $scale-y); }
+  } @else {
+    @if $scale-x { $trans: $trans scaleX($scale-x); }
+    @if $scale-y { $trans: $trans scaleY($scale-y); }
+    @if $scale-z { $trans: $trans scaleZ($scale-z); }
+  }
+
+  // rotate
+  @if $rotate-x { $trans: $trans rotateX($rotate-x); }
+  @if $rotate-y { $trans: $trans rotateY($rotate-y); }
+  @if $rotate-z { $trans: $trans rotateZ($rotate-z); }
+  @if $rotate3d { $trans: $trans rotate3d($rotate3d); }
+
+  // translate
+  @if $trans-x and $trans-y {
+    @if $trans-z { $trans: $trans translate3d($trans-x, $trans-y, $trans-z); }
+    @else { $trans: $trans translate($trans-x, $trans-y); }
+  } @else {
+    @if $trans-x { $trans: $trans translateX($trans-x); }
+    @if $trans-y { $trans: $trans translateY($trans-y); }
+    @if $trans-z { $trans: $trans translateZ($trans-z); }
+  }
+
+  // skew
+  @if $skew-x and $skew-y { $trans: $trans skew($skew-x, $skew-y); }
+  @else {
+    @if $skew-x { $trans: $trans skewX($skew-x); }
+    @if $skew-y { $trans: $trans skewY($skew-y); }
+  }
+
+  // apply it!
+  @include transform($trans, $only3d);
+  @include transform-origin($origin-x, $origin-y, $origin-z, $only3d);
+}
+
+
+// A simplified set of options
+// backwards-compatible with the previous version of the 'transform' mixin
+@mixin simple-transform(
+  $scale:    false,
+  $rotate:   false,
+  $trans-x:  false,
+  $trans-y:  false,
+  $skew-x:   false,
+  $skew-y:   false,
+  $origin-x: false,
+  $origin-y: false
+) {
+  @include create-transform(
+    false,
+    $scale, $scale, false,
+    false, false, $rotate, false,
+    $trans-x, $trans-y, false,
+    $skew-x, $skew-y,
+    $origin-x, $origin-y, false,
+    false
+  );
+}
+:@children[io:Sass::Tree::ImportNode
+;i:@imported_filename"shared;0;	[ :@options{ o:Sass::Tree::CommentNode:@value["p/* @doc off
+ * Note ----------------------------------------------------------------------
+ * Safari, Chrome, and Firefox all support 3D transforms. However,
+ * only in the most recent builds. You should also provide fallback 2d support for
+ * Opera and IE. IE10 is slated to have 3d enabled, but is currently unreleased.
+ * To make that easy, all 2D transforms include an browser-targeting toggle ($only3d)
+ * to switch between the two support lists. The toggle defaults to 'false' (2D),
+ * and also accepts 'true' (3D). Currently the lists are as follows:
+ * 2D: Mozilla, Webkit, Opera, Official
+ * 3D: Webkit, Firefox. */;i:
+@loud0;	[ ;@:@silenti o;;["Ø/* Available Transforms ------------------------------------------------------
+ * - Scale (2d and 3d)
+ * - Rotate (2d and 3d)
+ * - Translate (2d and 3d)
+ * - Skew (2d only) */;i;0;	[ ;@;i o;;["ﬁ/* Transform Parameters ------------------------------------------------------
+ * - Transform Origin (2d and 3d)
+ * - Perspective (3d)
+ * - Perspective Origin (3d)
+ * - Transform Style (3d)
+ * - Backface Visibility (3d) */;i;0;	[ ;@;i o;;["p/* Mixins --------------------------------------------------------------------
+ * transform-origin
+ *  - shortcuts:  transform-origin2d, transform-origin3d
+ *  - helpers:    apply-origin
+ * transform
+ *  - shortcuts:  transform2d, transform3d
+ *  - helpers:    simple-transform, create-transform
+ * perspective
+ *  - helpers:    perspective-origin
+ * transform-style
+ * backface-visibility
+ * scale
+ *  - shortcuts:  scaleX, scaleY, scaleZ, scale3d
+ * rotate
+ *  - shortcuts:  rotateX, rotateY, rotate3d
+ * translate
+ *  - shortcuts:  translateX, translateY, translateZ, translate3d
+ * skew
+ *  - shortcuts:  skewX, skewY */;i ;0;	[ ;@;i o;;["a/* Defaults ------------------------------------------------------------------
+ * @doc on */;i4;0;	[ ;@;i o;;["./* The default x-origin for transforms */;i7;0;	[ ;@;i o:Sass::Tree::VariableNode:@guarded"!default;i8:
+@name"default-origin-x:
+@expro:Sass::Script::Number:@denominator_units[ ;i7;i8:@numerator_units["%:@original"50%;@;	[ ;@o;;["./* The default y-origin for transforms */;i9;0;	[ ;@;i o;;"!default;i:;"default-origin-y;o;;[ ;i7;i:;["%;"50%;@;	[ ;@o;;["./* The default z-origin for transforms */;i;;0;	[ ;@;i o;;"!default;i<;"default-origin-z;o;;[ ;i7;i<;["%;"50%;@;	[ ;@o;;["//* The default x-multiplier for scaling */;i?;0;	[ ;@;i o;;"!default;i@;"default-scale-x;o;;[ ;f	1.25;i@;[ ;"	1.25;@;	[ ;@o;;["//* The default y-multiplier for scaling */;iA;0;	[ ;@;i o;;"!default;iB;"default-scale-y;o:Sass::Script::Variable	;iB;"default-scale-x;@:@underscored_name"default_scale_x;	[ ;@o;;["//* The default z-multiplier for scaling */;iC;0;	[ ;@;i o;;"!default;iD;"default-scale-z;o;	;iD;"default-scale-x;@;"default_scale_x;	[ ;@o;;["*/* The default angle for rotations */;iG;0;	[ ;@;i o;;"!default;iH;"default-rotate;o;;[ ;i2;iH;["deg;"
+45deg;@;	[ ;@o;;["</* The default x-vector for the axis of 3d rotations */;iK;0;	[ ;@;i o;;"!default;iL;"default-vector-x;o;;@O;i;iL;[ ;"1;@;	[ ;@o;;["</* The default y-vector for the axis of 3d rotations */;iM;0;	[ ;@;i o;;"!default;iN;"default-vector-y;o;;@O;i;iN;[ ;"1;@;	[ ;@o;;["</* The default z-vector for the axis of 3d rotations */;iO;0;	[ ;@;i o;;"!default;iP;"default-vector-z;o;;@O;i;iP;[ ;"1;@;	[ ;@o;;["0/* The default x-length for translations */;iS;0;	[ ;@;i o;;"!default;iT;"default-translate-x;o;;[ ;i;iT;["em;"1em;@;	[ ;@o;;["0/* The default y-length for translations */;iU;0;	[ ;@;i o;;"!default;iV;"default-translate-y;o;	;iV;"default-translate-x;@;"default_translate_x;	[ ;@o;;["0/* The default z-length for translations */;iW;0;	[ ;@;i o;;"!default;iX;"default-translate-z;o;	;iX;"default-translate-x;@;"default_translate_x;	[ ;@o;;["*/* The default x-angle for skewing */;i[;0;	[ ;@;i o;;"!default;i\;"default-skew-x;o;;[ ;i
+;i\;["deg;"	5deg;@;	[ ;@o;;["*/* The default y-angle for skewing */;i];0;	[ ;@;i o;;"!default;i^;"default-skew-y;o;;[ ;i
+;i^;["deg;"	5deg;@;	[ ;@o;;["ù/* **Transform-origin**
+ * Transform-origin sent as a complete string
+ *
+ *     @include apply-origin( origin [, 3D-only ] )
+ *
+ * where 'origin' is a space separated list containing 1-3 (x/y/z) coordinates
+ * in percentages, absolute (px, cm, in, em etc..) or relative
+ * (left, top, right, bottom, center) units
+ *
+ * @param only3d Set this to true to only apply this
+ * mixin where browsers have 3D support. */;ia;0;	[ ;@;i o:Sass::Tree::MixinDefNode;T;il;"apply-origin;	[o;;0;im;"only3d;o:Sass::Script::Operation
+;im:@operand2o;
+;im;o;;@O;i;im;[ ;"2;@:@operator:gt:@operand1o:Sass::Script::Funcall
+;im;"-compass-list-size:@keywords{ :
+@args[o;!
+;im;"-compass-list;"{ ;#[o;	;im;"origin;@;"origin;@;@;@;:or; o;	;im;"only3d;@;"only3d;@;	[ ;@u:Sass::Tree::IfNodeÍ[o:Sass::Script::Variable	:
+@linein:
+@name"only3d:@options{ :@underscored_name"only3du:Sass::Tree::IfNode⁄[00[o:Sass::Tree::MixinNode:
+@lineiu:
+@name"experimental:@keywords{ :@children[ :
+@args[o:Sass::Script::String	:@value"transform-origin;is:
+@type:identifier:@options{ o:Sass::Script::Variable	;is;"origin;@:@underscored_name"origino;	;"	-moz;it;;;@o;	;"-webkit;it;;;@o;	;"-o;it;;;@o;	;"-ms;it;;;@o:!Sass::Script::UnaryOperation	:@operando;	;"-khtml;it;;;@;it:@operator:not;@o;	;"official;it;;;@;@[o:Sass::Tree::MixinNode;iq;"experimental:@keywords{ :@children[ :
+@args[o:Sass::Script::String	:@value"transform-origin;io:
+@type:identifier;@o; 	;io;"origin;@;	"origino;	;"	-moz;ip;;;@o;	;"-webkit;ip;;;@o;	;"-o;ip;;;@o;	;"-ms;ip;;;@o:!Sass::Script::UnaryOperation	:@operando;	;"-khtml;ip;;;@;ip:@operator:not;@o;	;"official;ip;;;@;@;#[[o;;"origin;@;"origin0[o;;"only3d;@;"only3d0;@o;;["#/* Transform-origin sent as individual arguments:
+ *
+ *     @include transform-origin( [ origin-x, origin-y, origin-z, 3D-only ] )
+ *
+ * where the 3 'origin-' arguments represent x/y/z coordinates.
+ *
+ * **NOTE:** setting z coordinates triggers 3D support list, leave false for 2D support */;iy;0;	[ ;@;i o;;T;iÄ;"transform-origin;	[o;;0;iÅ;"origin;o;!
+;iÅ;"unquote;"{ ;#[o:Sass::Script::String	;" ;iÅ:
+@type:string;@;@;	[ ;@u;%ô[o:Sass::Script::Operation
+:
+@lineiÇ:@operand2o:Sass::Script::Variable	;iÇ:
+@name"origin-z:@options{ :@underscored_name"origin_z:@operator:or:@operand1o; 
+;iÇ;o;	;iÇ;	"origin-y;
+@	;"origin_y;;;o;	;iÇ;	"origin-x;
+@	;"origin_x;
+@	;
+@	0[	u:Sass::Tree::IfNodeæ[o:Sass::Script::Variable	:
+@lineiÉ:
+@name"origin-x:@options{ :@underscored_name"origin_xu:Sass::Tree::IfNode–[00[o:Sass::Tree::VariableNode:@guarded0:
+@lineiÉ:
+@name"origin:
+@expro:Sass::Script::Number:@denominator_units[ :@valuei7;iÉ:@numerator_units["%:@original"50%:@options{ :@children[ ;@[o:Sass::Tree::VariableNode:@guarded0;iÉ;"origin:
+@expro; 	;iÉ;"origin-x;@;	"origin_x:@children[ ;@u;ﬁ[o:Sass::Script::Variable	:
+@lineiÑ:
+@name"origin-y:@options{ :@underscored_name"origin_yu:Sass::Tree::IfNodeí[00[u:Sass::Tree::IfNoder[o:Sass::Script::Variable	:
+@lineiÑ:
+@name"origin-z:@options{ :@underscored_name"origin_z0[o:Sass::Tree::VariableNode:@guarded0;iÑ;"origin:
+@expro:Sass::Script::List	:@value[o; 	;iÑ;"origin;@;	"origino:Sass::Script::Number:@denominator_units[ ;i7;iÑ:@numerator_units["%:@original"50%;@;iÑ:@separator:
+space;@:@children[ ;@[o:Sass::Tree::VariableNode:@guarded0;iÑ;"origin:
+@expro:Sass::Script::List	:@value[o; 	;iÑ;"origin;@;	"origino; 	;iÑ;"origin-y;@;	"origin_y;iÑ:@separator:
+space;@:@children[ ;@u;5[o:Sass::Script::Variable	:
+@lineiÖ:
+@name"origin-z:@options{ :@underscored_name"origin_z0[o:Sass::Tree::VariableNode:@guarded0;iÖ;"origin:
+@expro:Sass::Script::List	:@value[o; 	;iÖ;"origin;@;	"origino; 	;iÖ;"origin-z;@;	"origin_z;iÖ:@separator:
+space;@:@children[ ;@o:Sass::Tree::MixinNode;iÜ;	"apply-origin:@keywords{ :@children[ :
+@args[o;	;iÜ;	"origin;
+@	;"origino;	;iÜ;	"only3d;
+@	;"only3d;
+@	;#[	[o;;"origin-x;@;"origin_xo;	;i|;"default-origin-x;@;"default_origin_x[o;;"origin-y;@;"origin_yo;	;i};"default-origin-y;@;"default_origin_y[o;;"origin-z;@;"origin_zo:Sass::Script::Bool;F;i~;@[o;;"only3d;@;"only3do;!
+;i;"if;"{ ;#[o;	;i;"origin-z;@;"origin_zo;);T;i;@o;);F;i;@;@;@o;;["∫/* Transform sent as a complete string:
+ *
+ *     @include transform( transforms [, 3D-only ] )
+ *
+ * where 'transforms' is a space separated list of all the transforms to be applied. */;iã;0;	[ ;@;i o;;T;iì;"transform;	[u;%˝[o:Sass::Script::Variable	:
+@lineiî:
+@name"only3d:@options{ :@underscored_name"only3du:Sass::Tree::IfNode„[00[o:Sass::Tree::MixinNode:
+@lineiõ:
+@name"experimental:@keywords{ :@children[ :
+@args[o:Sass::Script::String	:@value"transform;iô:
+@type:identifier:@options{ o:Sass::Script::Variable	;iô;"transform;@:@underscored_name"transformo;	;"	-moz;iö;;;@o;	;"-webkit;iö;;;@o;	;"-o;iö;;;@o;	;"-ms;iö;;;@o:!Sass::Script::UnaryOperation	:@operando;	;"-khtml;iö;;;@;iö:@operator:not;@o;	;"official;iö;;;@;@[o:Sass::Tree::MixinNode;ió;"experimental:@keywords{ :@children[ :
+@args[o:Sass::Script::String	:@value"transform;iï:
+@type:identifier;@o; 	;iï;"transform;@;	"transformo;	;"	-moz;iñ;;;@o;	;"-webkit;iñ;;;@o;	;"-o;iñ;;;@o;	;"-ms;iñ;;;@o:!Sass::Script::UnaryOperation	:@operando;	;"-khtml;iñ;;;@;iñ:@operator:not;@o;	;"official;iñ;;;@;@;#[[o;;"transform;@;"transform0[o;;"only3d;@;"only3do;);F;ií;@;@o;;["D/* Shortcut to target all browsers with 2D transform support */;iü;0;	[ ;@;i o;;T;i†;"transform2d;	[o:Sass::Tree::MixinNode;i°;"transform;"{ ;	[ ;#[o;	;i°;"
+trans;@;"
+transo;);F;i°;@;@;#[[o;;"
+trans;@;"
+trans0;@o;;["E/* Shortcut to target only browsers with 3D transform support */;i§;0;	[ ;@;i o;;T;i•;"transform3d;	[o;*;i¶;"transform;"{ ;	[ ;#[o;	;i¶;"
+trans;@;"
+transo;);T;i¶;@;@;#[[o;;"
+trans;@;"
+trans0;@o;;["m/* @doc off
+ * 3D Parameters -------------------------------------------------------------
+ * @doc on */;i©;0;	[ ;@;i o;;["c/* Set the perspective of 3D transforms on the children of an element:
+ *
+ *      @include perspective( perspective )
+ *
+ * where 'perspective' is a unitless number representing the depth of the
+ * z-axis. The higher the perspective, the more exaggerated the foreshortening.
+ * values from 500 to 1000 are more-or-less "normal" - a good starting-point. */;i≠;0;	[ ;@;i o;;T;i¥;"perspective;	[o;*;i∑;"experimental;"{ ;	[ ;#[o;&	;"perspective;iµ;':identifier;@o;	;iµ;"p;@;"po;&	;"	-moz;i∂;';+;@o;&	;"-webkit;i∂;';+;@o;&	;"-o;i∂;';+;@o;&	;"-ms;i∂;';+;@o:!Sass::Script::UnaryOperation	:@operando;&	;"-khtml;i∂;';+;@;i∂;:not;@o;&	;"official;i∂;';+;@;@;#[[o;;"p;@;"p0;@o;;["•/* Set the origin position for the perspective
+ *
+ *      @include perspective-origin(origin-x [origin-y])
+ *
+ * where the two arguments represent x/y coordinates */;i∫;0;	[ ;@;i o;;T;iø;"perspective-origin;	[o;*;i¬;"experimental;"{ ;	[ ;#[o;&	;"perspective-origin;i¿;';+;@o;	;i¿;"origin;@;"origino;&	;"	-moz;i¡;';+;@o;&	;"-webkit;i¡;';+;@o;&	;"-o;i¡;';+;@o;&	;"-ms;i¡;';+;@o;,	;-o;&	;"-khtml;i¡;';+;@;i¡;;.;@o;&	;"official;i¡;';+;@;@;#[[o;;"origin;@;"origino;;[ ;i7;iø;["%;"50%;@;@o;;["˘/* Determine whether a 3D objects children also live in the given 3D space
+ *
+ *      @include transform-style( [ style ] )
+ *
+ * where `style` can be either `flat` or `preserve-3d`.
+ * Browsers default to `flat`, mixin defaults to `preserve-3d`. */;i≈;0;	[ ;@;i o;;T;iÀ;"transform-style;	[o;*;iŒ;"experimental;"{ ;	[ ;#[o;&	;"transform-style;iÃ;';+;@o;	;iÃ;"
+style;@;"
+styleo;&	;"	-moz;iÕ;';+;@o;&	;"-webkit;iÕ;';+;@o;&	;"-o;iÕ;';+;@o;&	;"-ms;iÕ;';+;@o;,	;-o;&	;"-khtml;iÕ;';+;@;iÕ;;.;@o;&	;"official;iÕ;';+;@;@;#[[o;;"
+style;@;"
+styleo;&	;"preserve-3d;iÀ;';+;@;@o;;["ı/* Determine the visibility of an element when it's back is turned
+ *
+ *     @include backface-visibility( [ visibility ] )
+ *
+ * where `visibility` can be either `visible` or `hidden`.
+ * Browsers default to visible, mixin defaults to hidden */;i—;0;	[ ;@;i o;;T;i◊;"backface-visibility;	[o;*;i⁄;"experimental;"{ ;	[ ;#[o;&	;"backface-visibility;iÿ;';+;@o;	;iÿ;"visibility;@;"visibilityo;&	;"	-moz;iŸ;';+;@o;&	;"-webkit;iŸ;';+;@o;&	;"-o;iŸ;';+;@o;&	;"-ms;iŸ;';+;@o;,	;-o;&	;"-khtml;iŸ;';+;@;iŸ;;.;@o;&	;"official;iŸ;';+;@;@;#[[o;;"visibility;@;"visibilityo;&	;"hidden;i◊;';+;@;@o;;["S/* @doc off
+ * Transform Partials --------------------------------------------------------
+ * These work well on their own, but they don't add to each other, they override.
+ * Use along with transform parameter mixins to adjust origin, perspective and style
+ * --------------------------------------------------------------------------- */;i›;0;	[ ;@;i o;;["a/* Scale ---------------------------------------------------------------------
+ * @doc on */;i‰;0;	[ ;@;i o;;["æ/* Scale an object along the x and y axis:
+ *
+ *      @include scale( [ scale-x, scale-y, perspective, 3D-only ] )
+ *
+ * where the 'scale-' arguments are unitless multipliers of the x and y dimensions
+ * and perspective, which works the same as the stand-alone perspective property/mixin
+ * but applies to the individual element (multiplied with any parent perspective)
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iÁ;0;	[ ;@;i o;;T;iı;"
+scale;	[o;;0;iˆ;"
+trans;o;!
+;iˆ;"
+scale;"{ ;#[o;	;iˆ;"scale-x;@;"scale_xo;	;iˆ;"scale-y;@;"scale_y;@;	[ ;@u;%Ö[o:Sass::Script::Variable	:
+@linei˜:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i˜;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;i˜;"perspective:@keywords{ :
+@args[o; 	;i˜;"perspective;@;	"perspective;@o; 	;i˜;"
+trans;@;	"
+trans;i˜:@separator:
+space;@:@children[ ;@o;*;i¯;"transform;"{ ;	[ ;#[o;	;i¯;"
+trans;@;"
+transo;	;i¯;"only3d;@;"only3d;@;#[	[o;;"scale-x;@;"scale_xo;	;iÒ;"default-scale-x;@;"default_scale_x[o;;"scale-y;@;"scale_yo;	;iÚ;"scale-x;@;"scale_x[o;;"perspective;@;"perspectiveo;);F;iÛ;@[o;;"only3d;@;"only3do;);F;iÙ;@;@o;;["®/* Scale an object along the x axis
+ * @include scaleX( [ scale-x, perspective, 3D-only ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;i˚;0;	[ ;@;i o;;T;i;"scaleX;	[o;;0;i;"
+trans;o;!
+;i;"scaleX;"{ ;#[o;	;i;"
+scale;@;"
+scale;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@linei:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;i;"perspective:@keywords{ :
+@args[o; 	;i;"perspective;@;	"perspective;@o; 	;i;"
+trans;@;	"
+trans;i:@separator:
+space;@:@children[ ;@o;*;i;"transform;"{ ;	[ ;#[o;	;i;"
+trans;@;"
+transo;	;i;"only3d;@;"only3d;@;#[[o;;"
+scale;@;"
+scaleo;	;i ;"default-scale-x;@;"default_scale_x[o;;"perspective;@;"perspectiveo;);F;i;@[o;;"only3d;@;"only3do;);F;i;@;@o;;["®/* Scale an object along the y axis
+ * @include scaleY( [ scale-y, perspective, 3D-only ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;i	;0;	[ ;@;i o;;T;i;"scaleY;	[o;;0;i;"
+trans;o;!
+;i;"scaleY;"{ ;#[o;	;i;"
+scale;@;"
+scale;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@linei:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;i;"perspective:@keywords{ :
+@args[o; 	;i;"perspective;@;	"perspective;@o; 	;i;"
+trans;@;	"
+trans;i:@separator:
+space;@:@children[ ;@o;*;i;"transform;"{ ;	[ ;#[o;	;i;"
+trans;@;"
+transo;	;i;"only3d;@;"only3d;@;#[[o;;"
+scale;@;"
+scaleo;	;i;"default-scale-y;@;"default_scale_y[o;;"perspective;@;"perspectiveo;);F;i;@[o;;"only3d;@;"only3do;);F;i;@;@o;;["ü/* Scale an object along the z axis
+ * @include scaleZ( [ scale-z, perspective ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;i;0;	[ ;@;i o;;T;i;"scaleZ;	[o;;0;i;"
+trans;o;!
+;i;"scaleZ;"{ ;#[o;	;i;"
+scale;@;"
+scale;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@linei :
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i ;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;i ;"perspective:@keywords{ :
+@args[o; 	;i ;"perspective;@;	"perspective;@o; 	;i ;"
+trans;@;	"
+trans;i :@separator:
+space;@:@children[ ;@o;*;i!;"transform3d;"{ ;	[ ;#[o;	;i!;"
+trans;@;"
+trans;@;#[[o;;"
+scale;@;"
+scaleo;	;i;"default-scale-z;@;"default_scale_z[o;;"perspective;@;"perspectiveo;);F;i;@;@o;;["∑/* Scale and object along all three axis
+ * @include scale3d( [ scale-x, scale-y, scale-z, perspective ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;i$;0;	[ ;@;i o;;T;i-;"scale3d;	[o;;0;i.;"
+trans;o;!
+;i.;"scale3d;"{ ;#[o;	;i.;"scale-x;@;"scale_xo;	;i.;"scale-y;@;"scale_yo;	;i.;"scale-z;@;"scale_z;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@linei/:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i/;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;i/;"perspective:@keywords{ :
+@args[o; 	;i/;"perspective;@;	"perspective;@o; 	;i/;"
+trans;@;	"
+trans;i/:@separator:
+space;@:@children[ ;@o;*;i0;"transform3d;"{ ;	[ ;#[o;	;i0;"
+trans;@;"
+trans;@;#[	[o;;"scale-x;@;"scale_xo;	;i);"default-scale-x;@;"default_scale_x[o;;"scale-y;@;"scale_yo;	;i*;"default-scale-y;@;"default_scale_y[o;;"scale-z;@;"scale_zo;	;i+;"default-scale-z;@;"default_scale_z[o;;"perspective;@;"perspectiveo;);F;i,;@;@o;;["m/* @doc off
+ * Rotate --------------------------------------------------------------------
+ * @doc on */;i3;0;	[ ;@;i o;;["¸/* Rotate an object around the z axis  (2D)
+ * @include rotate( [ rotation, perspective, 3D-only ] )
+ * where 'rotation' is an angle set in degrees (deg) or radian (rad) units
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;i7;0;	[ ;@;i o;;T;i@;"rotate;	[o;;0;iA;"
+trans;o;!
+;iA;"rotate;"{ ;#[o;	;iA;"rotate;@;"rotate;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@lineiB:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;iB;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;iB;"perspective:@keywords{ :
+@args[o; 	;iB;"perspective;@;	"perspective;@o; 	;iB;"
+trans;@;	"
+trans;iB:@separator:
+space;@:@children[ ;@o;*;iC;"transform;"{ ;	[ ;#[o;	;iC;"
+trans;@;"
+transo;	;iC;"only3d;@;"only3d;@;#[[o;;"rotate;@;"rotateo;	;i=;"default-rotate;@;"default_rotate[o;;"perspective;@;"perspectiveo;);F;i>;@[o;;"only3d;@;"only3do;);F;i?;@;@o;;["ç/* A longcut for 'rotate' in case you forget that 'z' is implied
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iF;0;	[ ;@;i o;;T;iM;"rotateZ;	[o;*;iN;"rotate;"{ ;	[ ;#[o;	;iN;"rotate;@;"rotateo;	;iN;"perspective;@;"perspectiveo;	;iN;"only3d;@;"only3d;@;#[[o;;"rotate;@;"rotateo;	;iJ;"default-rotate;@;"default_rotate[o;;"perspective;@;"perspectiveo;);F;iK;@[o;;"only3d;@;"only3do;);F;iL;@;@o;;["®/* Rotate an object around the x axis (3D)
+ * @include rotateX( [ rotation, perspective ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iQ;0;	[ ;@;i o;;T;iX;"rotateX;	[o;;0;iY;"
+trans;o;!
+;iY;"rotateX;"{ ;#[o;	;iY;"rotate;@;"rotate;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@lineiZ:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;iZ;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;iZ;"perspective:@keywords{ :
+@args[o; 	;iZ;"perspective;@;	"perspective;@o; 	;iZ;"
+trans;@;	"
+trans;iZ:@separator:
+space;@:@children[ ;@o;*;i[;"transform3d;"{ ;	[ ;#[o;	;i[;"
+trans;@;"
+trans;@;#[[o;;"rotate;@;"rotateo;	;iV;"default-rotate;@;"default_rotate[o;;"perspective;@;"perspectiveo;);F;iW;@;@o;;["ß/* Rotate an object around the y axis (3D)
+ * @include rotate( [ rotation, perspective ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;i^;0;	[ ;@;i o;;T;ie;"rotateY;	[o;;0;if;"
+trans;o;!
+;if;"rotateY;"{ ;#[o;	;if;"rotate;@;"rotate;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@lineig:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;ig;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;ig;"perspective:@keywords{ :
+@args[o; 	;ig;"perspective;@;	"perspective;@o; 	;ig;"
+trans;@;	"
+trans;ig:@separator:
+space;@:@children[ ;@o;*;ih;"transform3d;"{ ;	[ ;#[o;	;ih;"
+trans;@;"
+trans;@;#[[o;;"rotate;@;"rotateo;	;ic;"default-rotate;@;"default_rotate[o;;"perspective;@;"perspectiveo;);F;id;@;@o;;["¶/* Rotate an object around an arbitrary axis (3D)
+ * @include rotate( [ vector-x, vector-y, vector-z, rotation, perspective ] )
+ * where the 'vector-' arguments accept unitless numbers.
+ * These numbers are not important on their own, but in relation to one another
+ * creating an axis from your transform-origin, along the axis of Xx = Yy = Zz.
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;ik;0;	[ ;@;i o;;T;ix;"rotate3d;	[o;;0;iy;"
+trans;o;!
+;iy;"rotate3d;"{ ;#[	o;	;iy;"vector-x;@;"vector_xo;	;iy;"vector-y;@;"vector_yo;	;iy;"vector-z;@;"vector_zo;	;iy;"rotate;@;"rotate;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@lineiz:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;iz;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;iz;"perspective:@keywords{ :
+@args[o; 	;iz;"perspective;@;	"perspective;@o; 	;iz;"
+trans;@;	"
+trans;iz:@separator:
+space;@:@children[ ;@o;*;i{;"transform3d;"{ ;	[ ;#[o;	;i{;"
+trans;@;"
+trans;@;#[
+[o;;"vector-x;@;"vector_xo;	;is;"default-vector-x;@;"default_vector_x[o;;"vector-y;@;"vector_yo;	;it;"default-vector-y;@;"default_vector_y[o;;"vector-z;@;"vector_zo;	;iu;"default-vector-z;@;"default_vector_z[o;;"rotate;@;"rotateo;	;iv;"default-rotate;@;"default_rotate[o;;"perspective;@;"perspectiveo;);F;iw;@;@o;;["m/* @doc off
+ * Translate -----------------------------------------------------------------
+ * @doc on */;i~;0;	[ ;@;i o;;["6/* Move an object along the x or y axis (2D)
+ * @include translate( [ translate-x, translate-y, perspective, 3D-only ] )
+ * where the 'translate-' arguments accept any distance in percentages or absolute (px, cm, in, em etc..) units.
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iÇ;0;	[ ;@;i o;;T;iå;"translate;	[o;;0;iç;"
+trans;o;!
+;iç;"translate;"{ ;#[o;	;iç;"translate-x;@;"translate_xo;	;iç;"translate-y;@;"translate_y;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@lineié:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;ié;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;ié;"perspective:@keywords{ :
+@args[o; 	;ié;"perspective;@;	"perspective;@o; 	;ié;"
+trans;@;	"
+trans;ié:@separator:
+space;@:@children[ ;@o;*;iè;"transform;"{ ;	[ ;#[o;	;iè;"
+trans;@;"
+transo;	;iè;"only3d;@;"only3d;@;#[	[o;;"translate-x;@;"translate_xo;	;ià;"default-translate-x;@;"default_translate_x[o;;"translate-y;@;"translate_yo;	;iâ;"default-translate-y;@;"default_translate_y[o;;"perspective;@;"perspectiveo;);F;iä;@[o;;"only3d;@;"only3do;);F;iã;@;@o;;["≥/* Move an object along the x axis (2D)
+ * @include translate( [ translate-x, perspective, 3D-only ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;ií;0;	[ ;@;i o;;T;iö;"translateX;	[o;;0;iõ;"
+trans;o;!
+;iõ;"translateX;"{ ;#[o;	;iõ;"trans-x;@;"trans_x;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@lineiú:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;iú;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;iú;"perspective:@keywords{ :
+@args[o; 	;iú;"perspective;@;	"perspective;@o; 	;iú;"
+trans;@;	"
+trans;iú:@separator:
+space;@:@children[ ;@o;*;iù;"transform;"{ ;	[ ;#[o;	;iù;"
+trans;@;"
+transo;	;iù;"only3d;@;"only3d;@;#[[o;;"trans-x;@;"trans_xo;	;ió;"default-translate-x;@;"default_translate_x[o;;"perspective;@;"perspectiveo;);F;iò;@[o;;"only3d;@;"only3do;);F;iô;@;@o;;["≥/* Move an object along the y axis (2D)
+ * @include translate( [ translate-y, perspective, 3D-only ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;i†;0;	[ ;@;i o;;T;i®;"translateY;	[o;;0;i©;"
+trans;o;!
+;i©;"translateY;"{ ;#[o;	;i©;"trans-y;@;"trans_y;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@linei™:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i™;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;i™;"perspective:@keywords{ :
+@args[o; 	;i™;"perspective;@;	"perspective;@o; 	;i™;"
+trans;@;	"
+trans;i™:@separator:
+space;@:@children[ ;@o;*;i´;"transform;"{ ;	[ ;#[o;	;i´;"
+trans;@;"
+transo;	;i´;"only3d;@;"only3d;@;#[[o;;"trans-y;@;"trans_yo;	;i•;"default-translate-y;@;"default_translate_y[o;;"perspective;@;"perspectiveo;);F;i¶;@[o;;"only3d;@;"only3do;);F;iß;@;@o;;["™/* Move an object along the z axis (3D)
+ * @include translate( [ translate-z, perspective ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iÆ;0;	[ ;@;i o;;T;iµ;"translateZ;	[o;;0;i∂;"
+trans;o;!
+;i∂;"translateZ;"{ ;#[o;	;i∂;"trans-z;@;"trans_z;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@linei∑:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i∑;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;i∑;"perspective:@keywords{ :
+@args[o; 	;i∑;"perspective;@;	"perspective;@o; 	;i∑;"
+trans;@;	"
+trans;i∑:@separator:
+space;@:@children[ ;@o;*;i∏;"transform3d;"{ ;	[ ;#[o;	;i∏;"
+trans;@;"
+trans;@;#[[o;;"trans-z;@;"trans_zo;	;i≥;"default-translate-z;@;"default_translate_z[o;;"perspective;@;"perspectiveo;);F;i¥;@;@o;;["Õ/* Move an object along the x, y and z axis (3D)
+ * @include translate( [ translate-x, translate-y, translate-z, perspective ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iª;0;	[ ;@;i o;;T;iƒ;"translate3d;	[o;;0;i≈;"
+trans;o;!
+;i≈;"translate3d;"{ ;#[o;	;i≈;"translate-x;@;"translate_xo;	;i≈;"translate-y;@;"translate_yo;	;i≈;"translate-z;@;"translate_z;@;	[ ;@u;%ã[o:Sass::Script::Variable	:
+@linei∆:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i∆;"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Funcall
+;i∆;"perspective:@keywords{ :
+@args[o; 	;i∆;"perspective;@;	"perspective;@o; 	;i∆;"
+trans;@;	"
+trans;i∆:@separator:
+space;@:@children[ ;@o;*;i«;"transform3d;"{ ;	[ ;#[o;	;i«;"
+trans;@;"
+trans;@;#[	[o;;"translate-x;@;"translate_xo;	;i¿;"default-translate-x;@;"default_translate_x[o;;"translate-y;@;"translate_yo;	;i¡;"default-translate-y;@;"default_translate_y[o;;"translate-z;@;"translate_zo;	;i¬;"default-translate-z;@;"default_translate_z[o;;"perspective;@;"perspectiveo;);F;i√;@;@o;;["m/* @doc off
+ * Skew ----------------------------------------------------------------------
+ * @doc on */;i ;0;	[ ;@;i o;;["Û/* Skew an element:
+ *
+ *     @include skew( [ skew-x, skew-y, 3D-only ] )
+ *
+ * where the 'skew-' arguments accept css angles in degrees (deg) or radian (rad) units.
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iŒ;0;	[ ;@;i o;;T;iŸ;"	skew;	[o;;0;i⁄;"
+trans;o;!
+;i⁄;"	skew;"{ ;#[o;	;i⁄;"skew-x;@;"skew_xo;	;i⁄;"skew-y;@;"skew_y;@;	[ ;@o;*;i€;"transform;"{ ;	[ ;#[o;	;i€;"
+trans;@;"
+transo;	;i€;"only3d;@;"only3d;@;#[[o;;"skew-x;@;"skew_xo;	;i÷;"default-skew-x;@;"default_skew_x[o;;"skew-y;@;"skew_yo;	;i◊;"default-skew-y;@;"default_skew_y[o;;"only3d;@;"only3do;);F;iÿ;@;@o;;["ü/* Skew an element along the x axiz
+ *
+ *     @include skew( [ skew-x, 3D-only ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iﬁ;0;	[ ;@;i o;;T;iÊ;"
+skewX;	[o;;0;iÁ;"
+trans;o;!
+;iÁ;"
+skewX;"{ ;#[o;	;iÁ;"skew-x;@;"skew_x;@;	[ ;@o;*;iË;"transform;"{ ;	[ ;#[o;	;iË;"
+trans;@;"
+transo;	;iË;"only3d;@;"only3d;@;#[[o;;"skew-x;@;"skew_xo;	;i‰;"default-skew-x;@;"default_skew_x[o;;"only3d;@;"only3do;);F;iÂ;@;@o;;["ü/* Skew an element along the y axis
+ *
+ *     @include skew( [ skew-y, 3D-only ] )
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;iÎ;0;	[ ;@;i o;;T;iÛ;"
+skewY;	[o;;0;iÙ;"
+trans;o;!
+;iÙ;"
+skewY;"{ ;#[o;	;iÙ;"skew-y;@;"skew_y;@;	[ ;@o;*;iı;"transform;"{ ;	[ ;#[o;	;iı;"
+trans;@;"
+transo;	;iı;"only3d;@;"only3d;@;#[[o;;"skew-y;@;"skew_yo;	;iÒ;"default-skew-y;@;"default_skew_y[o;;"only3d;@;"only3do;);F;iÚ;@;@o;;["ë/* Full transform mixins
+ * For settings any combination of transforms as arguments
+ * These are complex and not highly recommended for daily use. They are mainly
+ * here for backward-compatibility purposes.
+ *
+ * * they include origin adjustments
+ * * scale takes a multiplier (unitless), rotate and skew take degrees (deg)
+ *
+ * **Note** This mixin cannot be combined with other transform mixins. */;i˘;0;	[ ;@;i o;;T;i;"create-transform;	[o;;0;i;"
+trans;o;!
+;i;"unquote;"{ ;#[o;&	;" ;i;';(;@;@;	[ ;@o;;["/* perspective */;i;0;	[ ;@;i u;%.[o:Sass::Script::Variable	:
+@linei:
+@name"perspective:@options{ :@underscored_name"perspective0[o:Sass::Tree::VariableNode:@guarded0;i;"
+trans:
+@expro:Sass::Script::Funcall
+;i;"perspective:@keywords{ :
+@args[o; 	;i;"perspective;@;	"perspective;@:@children[ ;@o;;["/* scale */;i;0;	[ ;@;i u;% [o:Sass::Script::Operation
+:
+@linei:@operand2o:Sass::Script::Variable	;i:
+@name"scale-y:@options{ :@underscored_name"scale_y:@operator:and:@operand1o;	;i;	"scale-x;
+@	;"scale_x;
+@	u:Sass::Tree::IfNodeé[00[u:Sass::Tree::IfNodev[o:Sass::Script::Variable	:
+@linei:
+@name"scale-x:@options{ :@underscored_name"scale_x0[o:Sass::Tree::VariableNode:@guarded0;i;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i;"scaleX:@keywords{ :
+@args[o; 	;i;"scale-x;@;	"scale_x;@;i:@separator:
+space;@:@children[ ;@u; v[o:Sass::Script::Variable	:
+@linei :
+@name"scale-y:@options{ :@underscored_name"scale_y0[o:Sass::Tree::VariableNode:@guarded0;i ;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i ;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i ;"scaleY:@keywords{ :
+@args[o; 	;i ;"scale-y;@;	"scale_y;@;i :@separator:
+space;@:@children[ ;@u; v[o:Sass::Script::Variable	:
+@linei!:
+@name"scale-z:@options{ :@underscored_name"scale_z0[o:Sass::Tree::VariableNode:@guarded0;i!;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i!;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i!;"scaleZ:@keywords{ :
+@args[o; 	;i!;"scale-z;@;	"scale_z;@;i!:@separator:
+space;@:@children[ ;@[u;L[o:Sass::Script::Variable	:
+@linei:
+@name"scale-z:@options{ :@underscored_name"scale_zu:Sass::Tree::IfNodev[00[o:Sass::Tree::VariableNode:@guarded0:
+@linei:
+@name"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Variable	;i;"
+trans:@options{ :@underscored_name"
+transo:Sass::Script::Funcall
+;i;"
+scale:@keywords{ :
+@args[o;	;i;"scale-x;@;"scale_xo;	;i;"scale-y;@;"scale_y;@;i:@separator:
+space;@:@children[ ;@[o:Sass::Tree::VariableNode:@guarded0;i;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i;"scale3d:@keywords{ :
+@args[o; 	;i;"scale-x;@;	"scale_xo; 	;i;"scale-y;@;	"scale_yo; 	;i;"scale-z;@;	"scale_z;@;i:@separator:
+space;@:@children[ ;@o;;["/* rotate */;i$;0;	[ ;@;i u;%{[o:Sass::Script::Variable	:
+@linei%:
+@name"rotate-x:@options{ :@underscored_name"rotate_x0[o:Sass::Tree::VariableNode:@guarded0;i%;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i%;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i%;"rotateX:@keywords{ :
+@args[o; 	;i%;"rotate-x;@;	"rotate_x;@;i%:@separator:
+space;@:@children[ ;@u;%{[o:Sass::Script::Variable	:
+@linei&:
+@name"rotate-y:@options{ :@underscored_name"rotate_y0[o:Sass::Tree::VariableNode:@guarded0;i&;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i&;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i&;"rotateY:@keywords{ :
+@args[o; 	;i&;"rotate-y;@;	"rotate_y;@;i&:@separator:
+space;@:@children[ ;@u;%{[o:Sass::Script::Variable	:
+@linei':
+@name"rotate-z:@options{ :@underscored_name"rotate_z0[o:Sass::Tree::VariableNode:@guarded0;i';"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i';"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i';"rotateZ:@keywords{ :
+@args[o; 	;i';"rotate-z;@;	"rotate_z;@;i':@separator:
+space;@:@children[ ;@u;%|[o:Sass::Script::Variable	:
+@linei(:
+@name"rotate3d:@options{ :@underscored_name"rotate3d0[o:Sass::Tree::VariableNode:@guarded0;i(;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i(;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i(;"rotate3d:@keywords{ :
+@args[o; 	;i(;"rotate3d;@;	"rotate3d;@;i(:@separator:
+space;@:@children[ ;@o;;["/* translate */;i*;0;	[ ;@;i u;%ﬁ[o:Sass::Script::Operation
+:
+@linei+:@operand2o:Sass::Script::Variable	;i+:
+@name"trans-y:@options{ :@underscored_name"trans_y:@operator:and:@operand1o;	;i+;	"trans-x;
+@	;"trans_x;
+@	u:Sass::Tree::IfNodeö[00[u:Sass::Tree::IfNodez[o:Sass::Script::Variable	:
+@linei/:
+@name"trans-x:@options{ :@underscored_name"trans_x0[o:Sass::Tree::VariableNode:@guarded0;i/;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i/;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i/;"translateX:@keywords{ :
+@args[o; 	;i/;"trans-x;@;	"trans_x;@;i/:@separator:
+space;@:@children[ ;@u; z[o:Sass::Script::Variable	:
+@linei0:
+@name"trans-y:@options{ :@underscored_name"trans_y0[o:Sass::Tree::VariableNode:@guarded0;i0;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i0;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i0;"translateY:@keywords{ :
+@args[o; 	;i0;"trans-y;@;	"trans_y;@;i0:@separator:
+space;@:@children[ ;@u; z[o:Sass::Script::Variable	:
+@linei1:
+@name"trans-z:@options{ :@underscored_name"trans_z0[o:Sass::Tree::VariableNode:@guarded0;i1;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i1;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i1;"translateZ:@keywords{ :
+@args[o; 	;i1;"trans-z;@;	"trans_z;@;i1:@separator:
+space;@:@children[ ;@[u;T[o:Sass::Script::Variable	:
+@linei,:
+@name"trans-z:@options{ :@underscored_name"trans_zu:Sass::Tree::IfNodez[00[o:Sass::Tree::VariableNode:@guarded0:
+@linei-:
+@name"
+trans:
+@expro:Sass::Script::List	:@value[o:Sass::Script::Variable	;i-;"
+trans:@options{ :@underscored_name"
+transo:Sass::Script::Funcall
+;i-;"translate:@keywords{ :
+@args[o;	;i-;"trans-x;@;"trans_xo;	;i-;"trans-y;@;"trans_y;@;i-:@separator:
+space;@:@children[ ;@[o:Sass::Tree::VariableNode:@guarded0;i,;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i,;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i,;"translate3d:@keywords{ :
+@args[o; 	;i,;"trans-x;@;	"trans_xo; 	;i,;"trans-y;@;	"trans_yo; 	;i,;"trans-z;@;	"trans_z;@;i,:@separator:
+space;@:@children[ ;@o;;["/* skew */;i4;0;	[ ;@;i u;%[o:Sass::Script::Operation
+:
+@linei5:@operand2o:Sass::Script::Variable	;i5:
+@name"skew-y:@options{ :@underscored_name"skew_y:@operator:and:@operand1o;	;i5;	"skew-x;
+@	;"skew_x;
+@	u:Sass::Tree::IfNode[00[u:Sass::Tree::IfNodeq[o:Sass::Script::Variable	:
+@linei7:
+@name"skew-x:@options{ :@underscored_name"skew_x0[o:Sass::Tree::VariableNode:@guarded0;i7;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i7;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i7;"
+skewX:@keywords{ :
+@args[o; 	;i7;"skew-x;@;	"skew_x;@;i7:@separator:
+space;@:@children[ ;@u; q[o:Sass::Script::Variable	:
+@linei8:
+@name"skew-y:@options{ :@underscored_name"skew_y0[o:Sass::Tree::VariableNode:@guarded0;i8;"
+trans:
+@expro:Sass::Script::List	:@value[o; 	;i8;"
+trans;@;	"
+transo:Sass::Script::Funcall
+;i8;"
+skewY:@keywords{ :
+@args[o; 	;i8;"skew-y;@;	"skew_y;@;i8:@separator:
+space;@:@children[ ;@[o:Sass::Tree::VariableNode:@guarded0;i5;	"
+trans:
+@expro:Sass::Script::List	:@value[o;	;i5;	"
+trans;
+@	;"
+transo:Sass::Script::Funcall
+;i5;	"	skew:@keywords{ :
+@args[o;	;i5;	"skew-x;
+@	;"skew_xo;	;i5;	"skew-y;
+@	;"skew_y;
+@	;i5:@separator:
+space;
+@	:@children[ ;
+@	o;;["/* apply it! */;i;;0;	[ ;@;i o;*;i<;"transform;"{ ;	[ ;#[o;	;i<;"
+trans;@;"
+transo;	;i<;"only3d;@;"only3d;@o;*;i=;"transform-origin;"{ ;	[ ;#[	o;	;i=;"origin-x;@;"origin_xo;	;i=;"origin-y;@;"origin_yo;	;i=;"origin-z;@;"origin_zo;	;i=;"only3d;@;"only3d;@;#[[o;;"perspective;@;"perspectiveo;);F;i;@[o;;"scale-x;@;"scale_xo;);F;i;@[o;;"scale-y;@;"scale_yo;);F;i;@[o;;"scale-z;@;"scale_zo;);F;i;@[o;;"rotate-x;@;"rotate_xo;);F;i;@[o;;"rotate-y;@;"rotate_yo;);F;i;@[o;;"rotate-z;@;"rotate_zo;);F;i	;@[o;;"rotate3d;@;"rotate3do;);F;i
+;@[o;;"trans-x;@;"trans_xo;);F;i;@[o;;"trans-y;@;"trans_yo;);F;i;@[o;;"trans-z;@;"trans_zo;);F;i;@[o;;"skew-x;@;"skew_xo;);F;i;@[o;;"skew-y;@;"skew_yo;);F;i;@[o;;"origin-x;@;"origin_xo;);F;i;@[o;;"origin-y;@;"origin_yo;);F;i;@[o;;"origin-z;@;"origin_zo;);F;i;@[o;;"only3d;@;"only3do;);F;i;@;@o;;["q/* A simplified set of options
+ * backwards-compatible with the previous version of the 'transform' mixin */;iA;0;	[ ;@;i o;;T;iL;"simple-transform;	[o;*;iU;"create-transform;"{ ;	[ ;#[o;);F;iN;@o;	;iO;"
+scale;@;"
+scaleo;	;iO;"
+scale;@;"
+scaleo;);F;iO;@o;);F;iP;@o;);F;iP;@o;	;iP;"rotate;@;"rotateo;);F;iP;@o;	;iQ;"trans-x;@;"trans_xo;	;iQ;"trans-y;@;"trans_yo;);F;iQ;@o;	;iR;"skew-x;@;"skew_xo;	;iR;"skew-y;@;"skew_yo;	;iS;"origin-x;@;"origin_xo;	;iS;"origin-y;@;"origin_yo;);F;iS;@o;);F;iT;@;@;#[[o;;"
+scale;@;"
+scaleo;);F;iD;@[o;;"rotate;@;"rotateo;);F;iE;@[o;;"trans-x;@;"trans_xo;);F;iF;@[o;;"trans-y;@;"trans_yo;);F;iG;@[o;;"skew-x;@;"skew_xo;);F;iH;@[o;;"skew-y;@;"skew_yo;);F;iI;@[o;;"origin-x;@;"origin_xo;);F;iJ;@[o;;"origin-y;@;"origin_yo;);F;iK;@;@;@

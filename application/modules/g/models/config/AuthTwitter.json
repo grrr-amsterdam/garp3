@@ -1,0 +1,23 @@
+{
+	"visible": false,
+
+	"inputs": {
+		"twitter_uid": {
+			"maxLength": 20
+		},
+		"ip_address": {
+			"maxLength": 15
+		},
+		"last_login": {
+			"type": "datetime"
+		}
+	},
+
+	"listFields": ["id", "twitter_uid", "ip_address"],
+
+	"relations": {
+		"User": {
+			"type": "belongsTo"
+		}
+	}
+}
