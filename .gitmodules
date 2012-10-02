@@ -1,0 +1,3 @@
+[submodule "library/Garp/3rdParty/facebook"]
+	path = library/Garp/3rdParty/facebook
+	url = https://github.com/facebook/facebook-php-sdk
