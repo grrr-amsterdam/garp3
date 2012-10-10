@@ -1,0 +1,154 @@
+<div id="icon-loading-spinner"></div>
+<div id="app-loader"><?php echo __('Loading Garp'); ?>&hellip;</div>
+<!-- Required fields for history management -->
+<form id="history-form" class="x-hidden" action="">
+	<input type="hidden" id="x-history-field">
+	<iframe id="x-history-frame"></iframe>
+</form>
+
+<div id="welcome-panel-content" class="x-hidden">
+	<div class="garp-welcome-body">
+		<h1>Garp | Welkom</h1>
+		Gebruik de knop hierboven om te kiezen welke content je wilt bewerken
+	</div>
+</div>
+<div id="fb-root"></div>
+
+<!-- Ext & Garp locales -->
+<script type="text/javascript">
+	BASE = '<?php echo $this->baseUrl('/') ?>';
+	ASSET_URL = '<?php echo $this->assetUrl('/') ?>';
+	<?php
+		// $cdn = '';
+		// if ($this->config()->cdn->host):
+		// 	$cdn = $this->config()->cdn->host;
+		// 	if (!preg_match('~^https?://i~', $cdn)):
+		// 		$cdn = 'http://'.$cdn;
+		// 	endif;
+		// endif;
+	?>
+	IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
+	DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
+	ASSET_VERSION = <?php echo APP_VERSION ?>;
+	GARP_VERSION = <?php echo GARP_VERSION ?>;
+	<?php if (isset($this->config()->video->template->w)): ?>
+	VIDEO_WIDTH = <?php echo $this->config()->video->template->w ?>;
+	<?php endif; ?>
+	<?php if (isset($this->config()->video->template->h)): ?>
+	VIDEO_HEIGHT = <?php echo $this->config()->video->template->h ?>;
+	<?php endif; ?>
+	APP_TITLE = "<?php echo $this->escape($this->title) ?>";
+	DEBUG = window.location.hash.indexOf('debug') > -1;
+	
+</script>
+
+<!-- Ext Overrides include -->
+<script src="<?php echo $this->assetUrl('/js/garp/overrides.js') ?>"></script>
+
+<?php if ($this->locale && $this->locale != 'en'): ?>
+<script src="<?php echo $this->assetUrl('/js/garp/ext-3.4.0/src/locale/ext-lang-'.$this->locale.'.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/g/ext/getlocale/') ?>"></script>
+<?php endif; ?>
+<?php if(isset($this->config()->auth->adapters->facebook->appId)): ?>
+<script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
+<script>if(typeof FB != 'undefined' && FB.init){
+FB.init({ 
+  	 appId: "<?php echo $this->config()->auth->adapters->facebook->appId ?>",
+  	 cookie:true, 
+     status:true, 
+     xfbml:true
+ });
+}
+</script>
+<?php endif; ?>
+<?php if(isset($this->config()->auth->adapters->linkedin->appId)): ?>
+<script type="text/javascript">function emptyFunction(){};</script>
+<script type="text/javascript" src="http://platform.linkedin.com/in.js">
+/*
+  api_key: <?php echo $this->config()->auth->adapters->linkedin->appId ?>
+  
+  onLoad: emptyFunction
+  authorize: true
+*/</script>
+<?php endif; ?>
+<!-- Garp config include -->
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.config.js') ?>"></script>
+
+<!-- General utility functions -->
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.renderers.js') ?>"></script>
+
+<!-- Ext extensions include -->
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.searchbar.js') ?>"></script>
+
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.datetime.js') ?>"></script><script type="text/javascript">
+	Ext.apply(Ext.ux.form.DateTime.prototype, {
+		dateFormat : 'd F Y',
+		timeFormat : 'H:i:s'
+	});		
+</script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.mapwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.mapfield.js') ?>"></script>
+
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.rendereddisplayfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.fileuploadfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.uploadcombo.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.uploadfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.pagingsearchbar.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.searchfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.richtexteditor.js') ?>"></script>
+
+<!-- Garp components -->
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.filtermenu.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.tweetwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.imageeditor.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.imagepickerwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.modelpickerwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.relatecreatewindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.relationfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.relationpanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.superboxselect.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.metapanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.modelmenu.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.welcomepanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.gridpanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.formpanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.toolbar.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.infopanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.viewport.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.exportwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.importwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.passwordfieldset.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.datetimepicker.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.menu.datetimemenu.js') ?>"></script>
+<!-- Set localUser object here: -->
+<?php
+	if ($this->auth()->isLoggedIn()):
+		$userData = $this->auth()->getUserData();
+?>
+<script type="text/javascript">
+	Garp.localUser = {
+			role: '<?php echo $this->escape($userData['role']); ?>',
+			id: '<?php echo $this->escape($userData['id']); ?>',
+			nick: ''
+	};
+</script>
+<?php endif; ?>
+
+<!-- Inform front-end of ACL setup -->
+<script type="text/javascript">
+	Garp.ACL = <?php echo json_encode($this->auth()->getRoles(true)) ?>;
+</script>
+
+<!-- Garp Models include -->
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.datatype.js') ?>"></script>
+<?php echo $this->partial('partials/models.phtml', 'default'); ?>
+
+<!-- Main Garp JS include -->
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/overrides.postinit.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.js') ?>"></script>
+ 
+ 
+<!-- Garp init -->
+<script type="text/javascript">
+Ext.onReady(Garp.init);
+</script>

@@ -1,0 +1,29 @@
+<?php
+	if ($this->snippet->has_name):
+		$headerTag = $this->headerTag ?: 'h3';
+?>
+<?php echo '<'.$headerTag.'>'.nl2br($this->escape($this->snippet->name)).'</'.$headerTag.'>'; ?>
+<?php
+	endif;
+	
+	if ($this->snippet->has_image):
+		$scalingTpl = property_exists($this, 'scaling_template') ? $this->scaling_template : null;
+		echo $this->image()->render($this->snippet->image_id, $scalingTpl);
+	endif;
+	
+	if ($this->snippet->has_html || $this->snippet->has_text):
+		if ($this->snippet->has_text):
+			$theContent = nl2br($this->escape($this->snippet->text));
+			if ($this->linkify !== false):
+				$theContent = $this->string()->linkify($theContent);
+			endif;
+		elseif ($this->snippet->has_html):
+			$defaultBodyClass = 'rich';
+			$bodyClass = $this->bodyClass ?
+				($defaultBodyClass.' '.$this->bodyClass) :
+				$defaultBodyClass;
+			$theContent = '<div class="'.$bodyClass.'">'.$this->snippet->html.'</div>';
+		endif;
+		echo $theContent;
+	endif;
+?>
