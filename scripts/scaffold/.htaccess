@@ -1,0 +1,5 @@
+# redirect to main .htaccess, in case vhost cannot be set to /public
+<IfModule mod_rewrite.c>
+	RewriteEngine on
+	RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

@@ -1,0 +1,37 @@
+<?php
+	$params = array(
+		"xtype: 'relationpanel'",
+		"model: '{$this->relation->model}'"
+	);
+	
+	if ($this->relation->limit):
+		$params[] = "maxItems: '{$this->relation->limit}'";
+	endif;
+
+	switch ($this->relation->type):
+		case 'hasMany':
+			$params[] = "rule: '{$this->relation->oppositeRule}'";
+		break;
+		case 'hasAndBelongsToMany':
+			if ($this->relation->name === $this->modelId):
+				$params[] = "rule: '{$this->relation->name}1'";
+				$params[] = "rule2: '{$this->relation->name}2'";
+			else:
+				$params[] = "rule: '{$this->relation->oppositeRule}'";
+				$params[] = "rule2: '{$this->relation->name}'";
+			endif;		
+		break;
+		default:
+			$params[] = "rule: '{$this->relation->name}'";
+	endswitch;
+
+
+	if ($this->relation->type !== 'hasAndBelongsToMany'):
+		$params[] = "quickCreateReference: '{$this->relation->column}'";
+	endif;
+
+	if ($this->relation->weighable):
+		$params[] = "weighable: true";
+	endif;
+?>
+		<?php echo implode(",\n\t\t", $params) ?>
