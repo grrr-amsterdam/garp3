@@ -173,8 +173,17 @@ class Garp_Adobe_InDesign_Spread {
 		$textFrames = array();
 
 		foreach ($this->_spreadNodes as $tag => $nodeConfig) {
-			if ($tag === 'TextFrame') {
-				$textFrames[] = new Garp_Adobe_InDesign_TextFrame($this->_xml, $nodeConfig);
+			switch ($tag) {
+				case 'TextFrame':
+					$textFrames[] = new Garp_Adobe_InDesign_TextFrame($this->_xml, $nodeConfig);
+				break;
+				case 'Group':
+					foreach ($nodeConfig as $groupNodeTag => $groupNodeValue) {
+						if ($groupNodeTag === 'TextFrame') {
+							$textFrames[] = new Garp_Adobe_InDesign_TextFrame($this->_xml, $groupNodeValue);
+						}
+					}
+				break;
 			}
 		}
 		
