@@ -45,12 +45,15 @@ a:hover, a:focus { color: #f00; }
 a:hover, a:focus, a:active { outline: 0; }
 .block-link { display: block; overflow: hidden; }
 
+h1, h2, h3, h4, h5, h6 { margin: 0; }
 h1, .alpha { }
 h2, .beta { }
 h3, .gamma { }
 h4, .delta { }
 h5, .epsilon { }
 h6, .zeta { }
+
+img, object, iframe, video { max-width: 100%; }
 
 /* ==========================================================================
    layout
