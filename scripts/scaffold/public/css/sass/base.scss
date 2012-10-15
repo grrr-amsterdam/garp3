@@ -15,10 +15,10 @@ $color3: #a62422; /* red */
 $color4: lighten($color3, 55%); /* light red */
 
 /* grid units */
-$gridFullWidth: 1000px; /* sum of all columns + one extra gutter */
-$gridColumnWidth: 4%;
-$gridGutterWidth: 0.5%;
-$gridColumnCount: 13;
+$gridColumnWidth: 80px;
+$gridGutterWidth: 20px;
+$gridColumnCount: 10;
+$gridFullWidth: $gridColumnCount*($gridColumnWidth+$gridGutterWidth);
 
 $margin: 20px;
 $marginHalf: 10px;
@@ -45,12 +45,15 @@ a:hover, a:focus { color: #f00; }
 a:hover, a:focus, a:active { outline: 0; }
 .block-link { display: block; overflow: hidden; }
 
+h1, h2, h3, h4, h5, h6 { margin: 0; }
 h1, .alpha { }
 h2, .beta { }
 h3, .gamma { }
 h4, .delta { }
 h5, .epsilon { }
 h6, .zeta { }
+
+img, object, iframe, video { max-width: 100%; }
 
 /* ==========================================================================
    layout
@@ -60,10 +63,11 @@ h6, .zeta { }
 
 /* grid */
 .row { @extend .clearfix; }
-.grid { float: left; min-height: 1px; margin: 0 ($gridGutterWidth/2); }
+.grid { float: left; min-height: 1px; margin: 0 (($gridGutterWidth/2)/$gridFullWidth)*100%; }
 
 @for $i from 1 through $gridColumnCount {
-  .grid-col-#{$i}-#{$gridColumnCount} { width: $gridColumnWidth + ($gridColumnWidth+$gridGutterWidth)*(-1+$i); @extend .grid; }
+	$colWidth: ($gridColumnWidth*$i) + ((-1+$i)*$gridGutterWidth);
+	.grid-#{$i}-#{$gridColumnCount} { width: ($colWidth/$gridFullWidth)*100%; @extend .grid; }
 }
 
 .left { float: left; }
