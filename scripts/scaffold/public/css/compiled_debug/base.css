@@ -1,0 +1,680 @@
+/**
+ * @author       $Author: mattijs $
+ * @modifiedby   $LastChangedBy: mattijs $
+ * @version      $LastChangedRevision: 6486 $
+ * @lastmodified $LastChangedDate: 2012-09-28 16:14:58 +0200 (Fri, 28 Sep 2012) $
+ */
+/* ==|== html5 boilerplate normalize ======================================== */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\000032}}
+article, aside, details, figcaption, figure, footer, header, hgroup, nav, section {
+  display: block;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\000033}}
+audio, canvas, video {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\000034}}
+audio:not([controls]) {
+  display: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\000035}}
+[hidden] {
+  display: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\000036}}
+html {
+  overflow-y: scroll;
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\000037}}
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\000038}}
+b, strong {
+  font-weight: bold;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\000039}}
+blockquote {
+  margin: 1em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000310}}
+dfn {
+  font-style: italic;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000311}}
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000312}}
+ins {
+  background: #ff9;
+  color: #000;
+  text-decoration: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000313}}
+mark {
+  background: #ff0;
+  color: #000;
+  font-style: italic;
+  font-weight: bold;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000314}}
+pre, code, kbd, samp {
+  font-family: monospace, monospace;
+  _font-family: 'courier new', monospace;
+  font-size: 1em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000315}}
+pre {
+  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000316}}
+q {
+  quotes: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000317}}
+q:before, q:after {
+  content: "";
+  content: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000318}}
+small {
+  font-size: 85%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000319}}
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000320}}
+sup {
+  top: -0.5em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000321}}
+sub {
+  bottom: -0.25em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000322}}
+address {
+  font-style: normal;
+}
+
+/* style color on img differently to easily spot alt-text and thus a missing image */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000324}}
+img {
+  border: 0;
+  color: #CCC;
+  -ms-interpolation-mode: bicubic;
+  vertical-align: middle;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000325}}
+svg:not(:root) {
+  overflow: hidden;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000326}}
+figure {
+  margin: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000327}}
+form {
+  margin: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000328}}
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000329}}
+label {
+  cursor: pointer;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000330}}
+legend {
+  border: 0;
+  *margin-left: -7px;
+  padding: 0;
+  white-space: normal;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000331}}
+button, input, select, textarea {
+  font-size: 100%;
+  margin: 0;
+  vertical-align: baseline;
+  *vertical-align: middle;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000332}}
+button, input {
+  line-height: normal;
+  *overflow: visible;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000333}}
+table button, table input {
+  *overflow: auto;
+}
+
+/* @see http://24ways.org/2011/subliminal-user-experience for the "drag" and "select" specifics */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000335}}
+button, .btn, input[type="button"], input[type="reset"], input[type="submit"] {
+  cursor: pointer;
+  -moz-user-select: -moz-none;
+  -webkit-user-select: none;
+  user-select: none;
+  -moz-user-drag: -moz-none;
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000336}}
+button, input[type="button"], input[type="reset"], input[type="submit"] {
+  -webkit-appearance: button;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000337}}
+button[disabled], input[disabled] {
+  cursor: default;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000338}}
+input[type="checkbox"], input[type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+  *width: 13px;
+  *height: 13px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000339}}
+input[type="search"] {
+  -webkit-appearance: textfield;
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000340}}
+input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000341}}
+button::-moz-focus-inner, input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000342}}
+textarea {
+  overflow: auto;
+  vertical-align: top;
+  resize: vertical;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000343}}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/normalize\.scss}line{font-family:\0000344}}
+td {
+  vertical-align: top;
+}
+
+/* colors */
+/* grey */
+/* black */
+/* red */
+/* light red */
+/* grid units */
+/* ==========================================================================
+   primary styles
+   ========================================================================== */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000330}}
+html {
+  font-size: 16px;
+  line-height: 1.4em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000331}}
+body, button, input, select, textarea {
+  font-family: sans-serif;
+  font-size: 1em;
+  color: #000;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000332}}
+body {
+  background: #FFF;
+  margin: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000334}}
+ul, ol, dd {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000335}}
+.rich ul, .rich ol {
+  margin: 1em 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000336}}
+.rich ul li {
+  list-style: disc;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000337}}
+.rich ol li {
+  list-style: decimal;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000338}}
+.rich .figure {
+  margin-bottom: 1em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000339}}
+.rich .figure[style*="float:left"], .rich .figure[style*="float: left"] {
+  margin-right: 30px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000340}}
+.rich .figure[style*="float:right"], .rich .figure[style*="float: right"] {
+  margin-left: 30px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000341}}
+.rich .figure dd {
+  color: #808080;
+  font-size: .5625em;
+}
+
+/* 9/16 */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000343}}
+a, a:visited {
+  vertical-align: baseline;
+  color: #00f;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000344}}
+a:hover, a:focus {
+  color: #f00;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000345}}
+a:hover, a:focus, a:active {
+  outline: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000346}}
+.block-link {
+  display: block;
+  overflow: hidden;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000348}}
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000356}}
+img, object, iframe, video {
+  max-width: 100%;
+}
+
+/* ==========================================================================
+   layout
+   ========================================================================== */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000362}}
+#container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* grid */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000366}}
+.grid, .grid-1-10, .grid-2-10, .grid-3-10, .grid-4-10, .grid-5-10, .grid-6-10, .grid-7-10, .grid-8-10, .grid-9-10, .grid-10-10 {
+  float: left;
+  min-height: 1px;
+  margin: 0 1%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-1-10 {
+  width: 8%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-2-10 {
+  width: 18%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-3-10 {
+  width: 28.0%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-4-10 {
+  width: 38%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-5-10 {
+  width: 48%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-6-10 {
+  width: 58.0%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-7-10 {
+  width: 68%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-8-10 {
+  width: 78%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-9-10 {
+  width: 88%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
+.grid-10-10 {
+  width: 98%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000373}}
+.left {
+  float: left;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000374}}
+.right {
+  float: right;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000376}}
+.nm {
+  margin: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000377}}
+.mb {
+  margin-bottom: 20px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000378}}
+.mb-half {
+  margin-bottom: 10px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000379}}
+.mb-double {
+  margin-bottom: 40px;
+}
+
+/* ==========================================================================
+   modules
+   ========================================================================== */
+/* cookie-announcement */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000386}}
+#cookie-announcement {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 2000;
+  max-width: 160px;
+  padding: 20px;
+  color: #FFF;
+  background: #0AD;
+  -webkit-box-shadow: 7px 7px 0px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 7px 7px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 7px 7px 0px rgba(0, 0, 0, 0.3);
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000390}}
+#cookie-announcement, #cookie-announcement button {
+  font-family: Arial, Verdana, sans-serif;
+  font-size: 16px;
+  line-height: 19px;
+  font-weight: bold;
+  letter-spacing: normal;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000391}}
+#cookie-announcement a {
+  text-decoration: underline;
+  color: #FFF;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000392}}
+#cookie-announcement a:hover, #cookie-announcement a:focus {
+  text-decoration: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000393}}
+#cookie-announcement p {
+  margin: 0 0 20px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000394}}
+#cookie-announcement button {
+  width: 160px;
+  display: block;
+  padding: 10px 0;
+  text-align: center;
+  color: #0AD;
+  background: #FFF;
+  border: 0;
+  white-space: nowrap;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000398}}
+.no-boxshadow #cookie-announcement {
+  border: outset #ccc;
+  border-width: 0 5px 5px 0;
+}
+
+/* cookie-identification */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003102}}
+#cookie-info {
+  margin: 3em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003103}}
+#cookie-info dl {
+  border-top: 1px #ccc solid;
+  border-bottom: 1px #ccc solid;
+  padding: 1em 0 1em 0;
+  margin: 3em 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003104}}
+#cookie-info dt {
+  float: left;
+  width: 200px;
+  font-weight: bold;
+  clear: left;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003105}}
+#cookie-info dd {
+  float: left;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003106}}
+#cookie-info footer {
+  margin-top: 3em;
+}
+
+/* ==|== non-semantic helper classes ======================================== */
+/* Image replacement based on http://bit.ly/Aazp14 */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003111}}
+.ir {
+  display: block;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  border: 0;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003112}}
+.ir br {
+  display: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003113}}
+.hidden {
+  display: none !important;
+  visibility: hidden;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003114}}
+.offscreen {
+  position: absolute;
+  left: -999em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003115}}
+.invisible {
+  visibility: hidden;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003116}}
+.clearfix:after, .row:after {
+  height: 0;
+  visibility: hidden;
+  display: block;
+  clear: both;
+  content: '';
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003117}}
+.clearfix, .row {
+  zoom: 1;
+}
+
+/* ==|== print styles ======================================================= */
+@media print {
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003121}}
+  * {
+    background: transparent !important;
+    color: black !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -ms-filter: none !important;
+  }
+
+  /* Black prints faster: h5bp.com/s */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003122}}
+  a, a:visited {
+    text-decoration: underline;
+  }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003123}}
+  a[href]:after {
+    content: " (" attr(href) ")";
+  }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003124}}
+  abbr[title]:after {
+    content: " (" attr(title) ")";
+  }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003125}}
+  .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after {
+    content: "";
+  }
+
+  /* Don't show links for images, or javascript/internal links */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003126}}
+  pre, blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003127}}
+  thead {
+    display: table-header-group;
+  }
+
+  /* h5bp.com/t */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003128}}
+  tr, img {
+    page-break-inside: avoid;
+  }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003129}}
+  img {
+    max-width: 100% !important;
+  }
+
+  @page {
+    margin: 0.5cm;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003131}}
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\00003132}}
+  h2, h3 {
+    page-break-after: avoid;
+  }
+}

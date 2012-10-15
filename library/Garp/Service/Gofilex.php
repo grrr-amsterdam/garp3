@@ -160,6 +160,14 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 	 * @return Boolean
 	 */
 	protected function _printBooking($method, array $args) {
+		// Allow fake bookings on Staging servers as to not pollute the Gofilex database
+		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		if (!$ini->gofilex->realBookings) {
+			$response = new stdClass();
+			$response->SUCCESS = 1;
+			return $response;
+		}
+		
 		$args = $args instanceof Garp_Util_Configuration ? $args : new Garp_Util_Configuration($args);
 		$args->obligate('movieId')
 			->obligate('distributorId')
