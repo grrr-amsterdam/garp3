@@ -378,59 +378,59 @@ img, object, iframe, video {
 
 /* grid */
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000366}}
-.grid, .grid-col-1-10, .grid-col-2-10, .grid-col-3-10, .grid-col-4-10, .grid-col-5-10, .grid-col-6-10, .grid-col-7-10, .grid-col-8-10, .grid-col-9-10, .grid-col-10-10 {
+.grid, .grid-1-10, .grid-2-10, .grid-3-10, .grid-4-10, .grid-5-10, .grid-6-10, .grid-7-10, .grid-8-10, .grid-9-10, .grid-10-10 {
   float: left;
   min-height: 1px;
   margin: 0 1%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-1-10 {
+.grid-1-10 {
   width: 8%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-2-10 {
+.grid-2-10 {
   width: 18%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-3-10 {
+.grid-3-10 {
   width: 28.0%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-4-10 {
+.grid-4-10 {
   width: 38%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-5-10 {
+.grid-5-10 {
   width: 48%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-6-10 {
+.grid-6-10 {
   width: 58.0%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-7-10 {
+.grid-7-10 {
   width: 68%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-8-10 {
+.grid-8-10 {
   width: 78%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-9-10 {
+.grid-9-10 {
   width: 88%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/base\.scss}line{font-family:\0000370}}
-.grid-col-10-10 {
+.grid-10-10 {
   width: 98%;
 }
 
