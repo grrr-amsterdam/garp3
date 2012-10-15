@@ -67,7 +67,7 @@ img, object, iframe, video { max-width: 100%; }
 
 @for $i from 1 through $gridColumnCount {
 	$colWidth: ($gridColumnWidth*$i) + ((-1+$i)*$gridGutterWidth);
-	.grid-col-#{$i}-#{$gridColumnCount} { width: ($colWidth/$gridFullWidth)*100%; @extend .grid; }
+	.grid-#{$i}-#{$gridColumnCount} { width: ($colWidth/$gridFullWidth)*100%; @extend .grid; }
 }
 
 .left { float: left; }
