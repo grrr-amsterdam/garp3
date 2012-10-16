@@ -23,26 +23,33 @@ class Garp_Model_Spawn_MySql_Manager {
 		$progress->init($totalActions);
 		$progress->display("Initializing database...");
 
+		$priorityModel = 'User';
+
 		$this->_modelSet = $modelSet;
 		$this->_adapter = Zend_Db_Table::getDefaultAdapter();
 		$this->_adapter->query('SET NAMES utf8;');
 
 
-		//	Stage 1: Create base models
-		foreach ($modelSet as $model) {
-			$progress->display($model->id . " base table");
-			$this->_createBaseModelTableIfNotExists($model);
-			$progress->advance();
+		//	Stage 1: Spawn the prioritized table first
+		if (array_key_exists($priorityModel, $modelSet)) {
+			$this->_createBaseModelTableAndAdvance($modelSet[$priorityModel]);
 		}
 
-		//	Stage 2: Create base model views
+		//	Stage 2: Create the rest of the base models' tables
+		foreach ($modelSet as $model) {
+			if ($model->id !== $priorityModel) {
+				$this->_createBaseModelTableAndAdvance($model);
+			}
+		}
+
+		//	Stage 3: Create base model views
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " joint view");
 			$this->_createJointView($model);
 			$progress->advance();
 		}
 
-		//	Stage 3: Create binding models
+		//	Stage 4: Create binding models
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " many-to-many config reading");
 			$habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany');
@@ -57,7 +64,7 @@ class Garp_Model_Spawn_MySql_Manager {
 			$progress->advance();
 		}
 
-		//	Stage 4: Sync base and binding models
+		//	Stage 5: Sync base and binding models
 		foreach ($modelSet as $model) {
 			$this->_syncBaseModel($model);
 
@@ -73,12 +80,20 @@ class Garp_Model_Spawn_MySql_Manager {
 			$progress->advance();
 		}
 
-		//	Stage 5: Execute custom SQL
+		//	Stage 6: Execute custom SQL
 		$progress->display("Executing custom SQL");
 		$this->_executeCustomSql();
 
 
 		$progress->display("√ Done");
+	}
+	
+	
+	protected function _createBaseModelTableAndAdvance(Garp_Model_Spawn_Model $model) {
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress->display($model->id . " base table");
+		$this->_createBaseModelTableIfNotExists($model);
+		$progress->advance();
 	}
 	
 	
