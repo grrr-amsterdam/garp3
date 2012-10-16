@@ -5,7 +5,6 @@
 class Garp_Model_Spawn_Config_Storage_File implements Garp_Model_Spawn_Config_Storage_Interface {
 	protected $_directory;
 	protected $_extension;
-	protected $_ignoreFiles = array('.', '..', '.svn');
 
 
 	public function __construct($directory, $extension) {
@@ -29,18 +28,16 @@ class Garp_Model_Spawn_Config_Storage_File implements Garp_Model_Spawn_Config_St
 
 
 	public function listObjectIds() {
-		$filenames = array();
-		$suffixLength = strlen($this->_extension) + 1;
+		$modelNames 	= array();
+		$suffixLength 	= strlen($this->_extension) + 1;
+		$filePattern 	= '*.' . $this->_extension;
+		$filenames 		= glob($this->_directory . $filePattern);
 
-		if ($handle = opendir($this->_directory)) {
-			while (false !== ($filename = readdir($handle))) {
-				if (!in_array($filename, $this->_ignoreFiles)) {
-					$filenames[] = substr($filename, 0, -$suffixLength);
-				}
-			}
-		} else throw new Exception('Unable to open the configuration directory at '.$this->_directory);
+		foreach ($filenames as $filename) {
+			$modelNames[] = substr(basename($filename), 0, -$suffixLength);
+		}
 
-		return $filenames;
+		return $modelNames;
 	}
 	
 	
