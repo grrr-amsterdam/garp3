@@ -220,6 +220,7 @@ class Garp_Cli_Command_BuildProject_Strategy_Git implements Garp_Cli_Command_Bui
 		$ignoreThis .= "public/css/.sass-cache\n";
 		$ignoreThis .= "public/uploads/sandbox/*\n";
 		$ignoreThis .= ".DS_STORE\n";
+		$ignoreThis .= ".project\n";
 		file_put_contents('.gitignore', $ignoreThis);
 		passthru('git add .gitignore');
 	}
