@@ -33,12 +33,16 @@ class Garp_Model_Spawn_MySql_Manager {
 			$progress->display($model->id . " base table");
 			$this->_createBaseModelTableIfNotExists($model);
 			$progress->advance();
+		}
+
+		//	Stage 2: Create base model views
+		foreach ($modelSet as $model) {
 			$progress->display($model->id . " joint view");
 			$this->_createJointView($model);
 			$progress->advance();
 		}
 
-		//	Stage 2: Create binding models
+		//	Stage 3: Create binding models
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " many-to-many config reading");
 			$habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany');
@@ -53,7 +57,7 @@ class Garp_Model_Spawn_MySql_Manager {
 			$progress->advance();
 		}
 
-		//	Stage 3: Sync base and binding models
+		//	Stage 4: Sync base and binding models
 		foreach ($modelSet as $model) {
 			$this->_syncBaseModel($model);
 
@@ -69,7 +73,7 @@ class Garp_Model_Spawn_MySql_Manager {
 			$progress->advance();
 		}
 
-		//	Stage 4: Execute custom SQL
+		//	Stage 5: Execute custom SQL
 		$progress->display("Executing custom SQL");
 		$this->_executeCustomSql();
 
