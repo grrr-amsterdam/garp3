@@ -52,6 +52,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	
 	maxCols: 12,
 	
+	/**
+	 * ColClasses be gone
+	 * @param {Object} el
+	 */
 	removeColClasses: function(el){
 		if (!el) {
 			return;
@@ -61,11 +65,18 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		}
 	},
 	
+	/**
+	 * Fix all Rows
+	 */
 	fixRows: function(){
 		var rows = Ext.query('.wysiwyg-ct .row');
 		Ext.each(rows, this.fixRow, this);
 	},
 	
+	/**
+	 * Distributes rowWidth (col classes) according to number of items in a row. Removes unnecessary (empty) rows.  
+	 * @param {Object} el
+	 */
 	fixRow: function(el){
 		var rowElm = Ext.get(el);
 		var elms = rowElm.query('.wysiwyg-box');
@@ -92,6 +103,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		}
 	},
 	
+	/**
+	 * What width does this item have?
+	 * @param {Object} el
+	 */
 	getCurrentColCount: function(el){
 		for (var i = this.maxCols; i > 0; i--) {
 			if (el.hasClass('grid-col-' + i + '-' + this.maxCols)) {
@@ -101,11 +116,18 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		return this.maxCols;
 	},
 	
+	/**
+	 * Return all other items in this row
+	 * @param {Object} el
+	 */
 	getOtherCols: function(el){
 		var others = Ext.get(el.parent('.row').query('.wysiwyg-box'));
 		return others.removeElement(el);
 	},
 	
+	/**
+	 * Setup Drag 'n Drop handlers & Ext resizer for all 'boxes'
+	 */
 	setupDD: function(){
 		
 		var wysiwygct = this;
@@ -123,12 +145,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				dynamic: true,
 				listeners: {
 					'beforeresize': function(){
-						this.getEl().parent().setStyle('overflow','hidden');
 						w = this.getEl().getWidth();
 					},
 					'resize': function(){
 						var el = this.getEl();
-						el.parent().setStyle('overflow','');
 						var nw = el.getWidth();
 						var count = wysiwygct.getCurrentColCount(el);
 						var others = wysiwygct.getOtherCols(el);
@@ -294,6 +314,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		
 	},
 	
+	/**
+	 * I.N.I.T.
+	 * @param {Object} ct
+	 */
 	initComponent: function(ct){
 		Garp.Wysiwygct.superclass.initComponent.call(this, ct);
 		
@@ -327,11 +351,22 @@ Garp.Wysiwyg = Ext.extend(Ext.Panel, {
 		
 		this.on('afterrender', function(){
 			this.addClass('wysiwyg-box');
-			this.body.child('.contenteditable').dom.setAttribute('contentEditable', 'true');
+			//this.body.child('.contenteditable').dom.setAttribute('contentEditable', 'true');
 			this.body.select('.dd-handle, .target').each(function(el){
 				el.dom.setAttribute(id, Ext.id());
 			});
-			Ext.get(this.body.child('.contenteditable')).update(Math.floor(Math.random() * 1000));
+			//Ext.get(this.body.child('.contenteditable')).update(Math.floor(Math.random() * 1000));
+			var i = new Ext.form.FormPanel({
+				title: 'Lalala',
+				items: [{
+					xtype: 'textfield',
+					fieldLabel: 'Aap'
+				}, {
+					xtype: 'xdatetime',
+					fieldLabel: 'Datum'
+				}],
+				applyTo: this.body.child('.contenteditable')
+			});
 		}, this);
 	}
 });
