@@ -88,12 +88,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		this.getEl().addClass('disabled-targets');
 		
 		Ext.dd.ScrollManager.register(this.body);
-		this.body.ddScrollConfig = {
+		Ext.apply(Ext.dd.ScrollManager, {
 	        vthresh: 50,
 	        hthresh: -1,
-	        animate: true,
+	        animate: false, // important! Otherwise positioning will remain; resulting in off-set wysiwyg's
 	        increment: 200
-	    };
+	    });
 		
 		Ext.each(dragables, function(elm){
 		
