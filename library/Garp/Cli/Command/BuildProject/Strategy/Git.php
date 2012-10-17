@@ -176,6 +176,7 @@ class Garp_Cli_Command_BuildProject_Strategy_Git implements Garp_Cli_Command_Bui
 		passthru('git add public/media/images/garp');
 		passthru('ln -s ../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel library/PHPExcel');
 		passthru('git add library/PHPExcel');
+		passthru('ln -s ../../shared/uploads public/uploads/shared');
 		Garp_Cli::lineOut('Done.');
 		Garp_Cli::lineOut('');
 	}
@@ -216,9 +217,10 @@ class Garp_Cli_Command_BuildProject_Strategy_Git implements Garp_Cli_Command_Bui
 		$ignoreThis .= "application/data/cache/HTML/*\n";
 		$ignoreThis .= "application/data/cache/CSS/*\n";
 		$ignoreThis .= "application/data/cache/tags/*\n";
-		$ignoreThis .= "public/cached/*\n";
+		$ignoreThis .= "public/cached/**/*\n";
 		$ignoreThis .= "public/css/.sass-cache\n";
-		$ignoreThis .= "public/uploads/sandbox/*\n";
+		$ignoreThis .= "public/uploads/private/**/*\n";
+		$ignoreThis .= "public/uploads/shared/**/*\n";
 		$ignoreThis .= ".DS_STORE\n";
 		$ignoreThis .= ".project\n";
 		file_put_contents('.gitignore', $ignoreThis);
