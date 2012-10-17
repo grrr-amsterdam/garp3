@@ -176,7 +176,7 @@ class Garp_Cli_Command_BuildProject_Strategy_Git implements Garp_Cli_Command_Bui
 		passthru('git add public/media/images/garp');
 		passthru('ln -s ../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel library/PHPExcel');
 		passthru('git add library/PHPExcel');
-		passthru('ln -s ../../shared/uploads public/uploads/shared');
+		passthru('ln -s ../../../../shared/uploads public/uploads/shared');
 		Garp_Cli::lineOut('Done.');
 		Garp_Cli::lineOut('');
 	}
