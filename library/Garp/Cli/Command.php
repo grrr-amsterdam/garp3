@@ -18,15 +18,7 @@ abstract class Garp_Cli_Command {
 	 * @return Void
 	 */
 	public function main(array $args = array()) {
-		$reflect = new ReflectionClass($this);
-		$publicMethods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
-		$publicMethods = array_map(function($m) {
-			return $m->name;
-		}, $publicMethods);
-		$publicMethods = array_filter($publicMethods, function($m) {
-			return $m != 'main';
-		});
-
+		$publicMethods = $this->getPublicMethods();
 		if (!array_key_exists(1, $args)) {
 			if (in_array('help', $publicMethods)) {
 				$args[1] = 'help';
@@ -46,6 +38,23 @@ abstract class Garp_Cli_Command {
 		}
 	}
 
+
+	/**
+ 	 * Return a list of all public methods available on this command.
+ 	 * @return Array
+ 	 */
+	public function getPublicMethods() {
+		$reflect = new ReflectionClass($this);
+		$publicMethods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
+		$publicMethods = array_map(function($m) {
+			return $m->name;
+		}, $publicMethods);
+		$publicMethods = array_filter($publicMethods, function($m) {
+			$ignoreMethods = array('main', 'getPublicMethods');
+			return !in_array($m, $ignoreMethods);
+		});
+		return $publicMethods;
+	}
 
 	/**
 	 * Remap the numeric keys of a given arguments array, so they make sense in a different
