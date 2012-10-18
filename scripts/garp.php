@@ -79,5 +79,15 @@ if (!$command instanceof Garp_Cli_Command) {
 	Garp_Cli::errorOut('Error: '.$commandName.' is not a valid Command. Command must implement Garp_Cli_Command.');
 	exit;
 }
-$command->main($args);
-exit;
+
+/**
+ * Helper functionality for the bash-completion script: look for the --complete flag.
+ * If it's present, dump a space-separated list of public methods.
+ */
+if (array_key_exists('complete', $args)) {
+	$publicMethods = $command->getPublicMethods();
+	Garp_Cli::lineOut(implode(' ', $publicMethods));
+} else {
+	$command->main($args);
+}
+exit(0);
