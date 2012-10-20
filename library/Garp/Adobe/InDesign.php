@@ -26,7 +26,7 @@ class Garp_Adobe_InDesign {
 	protected $_storage;
 	
 	/**
-	 * @param	String	$sourceFilename	Name of the .idml file that will serve as a template for the dynamic .idml files
+	 * @param	String	$sourcePath		Name of the .idml file that will serve as a template for the dynamic .idml files
 	 * @param	String	$targetPath		Location of the target .idml file.
 	 * @param	Array	$newContent		Content parameters in the following format:
 	 *									array (
