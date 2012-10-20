@@ -64,8 +64,12 @@ class Garp_Adobe_InDesign_Story {
 			if (array_key_exists($tagId, $newContent)) {
 				if (is_scalar($newContent[$tagId])) {
 					$newContent[$tagId] = (array)$newContent[$tagId];
+				} elseif (is_null($newContent[$tagId])) {
+					$newContent[$tagId] = (array)'';
 				}
 
+// Zend_Debug::dump(gettype($newContent[$tagId]));
+// exit;
 				foreach ($newContent[$tagId] as $newContentNodeIndex => $newContentNode) {
 					if (array_key_exists(0, $charStyleRanges[$newContentNodeIndex]->Content)) {
 						$charStyleRanges[$newContentNodeIndex]->Content[0] = $newContentNode;
