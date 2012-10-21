@@ -31,7 +31,7 @@ class Garp_Adobe_InDesign_Story {
 	
 
 	/**
-	 * Returns the name of the (TextFrame) tag attached to this Story.
+	 * @return mixed Returns the name of the (TextFrame) tag attached to this Story, or false if no tag is attached.
 	 */
 	public function getTag() {
 		$tagElement = $this->_xml->xpath('//XMLElement');
@@ -40,7 +40,7 @@ class Garp_Adobe_InDesign_Story {
 			$tag = $firstTagElement->attributes()->MarkupTag;
 			$tag = str_replace('XMLTag/', '', $tag);
 			return $tag;
-		} else throw new Exception("No XMLElement was found in Story " . $this->_id);
+		} else return false;
 	}
 
 
@@ -68,8 +68,6 @@ class Garp_Adobe_InDesign_Story {
 					$newContent[$tagId] = (array)'';
 				}
 
-// Zend_Debug::dump(gettype($newContent[$tagId]));
-// exit;
 				foreach ($newContent[$tagId] as $newContentNodeIndex => $newContentNode) {
 					if (array_key_exists(0, $charStyleRanges[$newContentNodeIndex]->Content)) {
 						$charStyleRanges[$newContentNodeIndex]->Content[0] = $newContentNode;

@@ -21,7 +21,7 @@ abstract class Garp_Adobe_InDesign_SpreadNode {
 	
 
 	/**
-	 * @param Float	$y	Y-coordinate
+	 * @param float	$y	Y-coordinate
 	 */	
 	public $y;
 
@@ -42,14 +42,14 @@ abstract class Garp_Adobe_InDesign_SpreadNode {
  	 * @param String			$nodeConfig		The <Page> or <TextFrame> node within the Spread configuration.
  	 */
 	public function __construct(SimpleXMLElement $spreadConfig, $nodeConfig) {
-		$this->_spreadConfig = $spreadConfig;
-		$this->_nodeConfig = $nodeConfig;
+		$this->_spreadConfig 	= $spreadConfig;
+		$this->_nodeConfig 		= $nodeConfig;
 
-		$this->id = $this->_getId();
+		$this->id 				= $this->_getId();
 
-		$coordinates = $this->_getCoordinates();
-		$this->x = $coordinates['x'];
-		$this->y = $coordinates['y'];
+		$coordinates 			= $this->_getCoordinates();
+		$this->x 				= $coordinates['x'];
+		$this->y 				= $coordinates['y'];
 	}
 
 
