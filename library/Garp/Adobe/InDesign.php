@@ -58,7 +58,7 @@ class Garp_Adobe_InDesign {
 		if ($newContentCount !== $dynamicPageCount) {
 			throw new Exception("The number of dynamic pages in the InDesign file is {$dynamicPageCount}, "
 				. "but there are {$newContentCount} rows of data. Please "
-					. ($newContentCount > $dynamicPageCount ? 'duplicate' : 'remove')
+				. ($newContentCount > $dynamicPageCount ? 'duplicate' : 'remove')
 				. " some pages with tags to adjust this.");
 		}
 

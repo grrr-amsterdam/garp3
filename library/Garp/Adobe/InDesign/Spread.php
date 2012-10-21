@@ -102,13 +102,11 @@ class Garp_Adobe_InDesign_Spread {
 	 */
 	public function getStoriesWithTaggedTextFrames() {
 		$filteredStories = array();
-
 		foreach ($this->stories as $pageIndex => $storyNodes) {
 			$pageStories = array();
 
 			foreach ($storyNodes as $storyIndex => $storyId) {
 				if ($this->_storyHasTaggedTextFrame($storyId)) {
-					// $filteredStories[$pageIndex][$storyIndex] = $storyId;
 					$pageStories[$storyIndex] = $storyId;
 				}
 			}
@@ -150,22 +148,46 @@ class Garp_Adobe_InDesign_Spread {
 	 * This has be calculated by geometry, since a TextFrame is not directly linked to a Page, but to a Spread.
 	 */
 	protected function _buildStories() {
-		$storiesByPageIndex = array();
-		$reversePages = array_reverse($this->pages);
+		$storiesByPageNumber 	= array();
+		$storiesByTag			= array();
+		$pagesCount				= count($this->pages);
 
+		//	build an array with all textframe positions, divided into the accompanying story XML tags
 		foreach ($this->textFrames as $textFrame) {
-			foreach ($reversePages as $page) {
-				if ($textFrame->x >= $page->x) {
-					if (!array_key_exists($page->index, $storiesByPageIndex)) {
-						$storiesByPageIndex[$page->index] = array();
-					}
-					$storiesByPageIndex[$page->index][] = $textFrame->storyId;
-					break;
-				}
+			$story = new Garp_Adobe_InDesign_Story($textFrame->storyId, $this->_workingDir);
+			if ($tag = $story->getTag()) {
+				$storiesByTag[$tag][] = array(
+					'storyId' => $textFrame->storyId,
+					'x' => $textFrame->x
+				);
 			}
 		}
 
-		return $storiesByPageIndex;
+		//	sort the stories by horizontal position
+		$sortFunction = function($storyA, $storyB) {
+			if ($storyA['x'] == $storyB['x']) {
+				return 0;
+			}
+			return $storyA['x'] > $storyB['x'] ? 1 : -1;
+		};
+
+		foreach ($storiesByTag as &$stories) {
+			usort($stories, $sortFunction);
+		}
+
+		//	now divide the stories in pages
+		foreach ($storiesByTag as $tagStories) {
+			$tagStoriesCount 	= count($tagStories);
+			$tagStoriesPerPage 	= $tagStoriesCount / $pagesCount;
+			
+			foreach ($tagStories as $s => $tagStory) {
+				$page 			= floor($s / $tagStoriesPerPage);
+				$pageNumber 	= $this->pages[$page]->index;
+				$storiesByPageNumber[$pageNumber][] = $tagStory['storyId'];
+			}
+		}
+
+		return $storiesByPageNumber;
 	}
 	
 	
