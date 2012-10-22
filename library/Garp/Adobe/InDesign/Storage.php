@@ -53,17 +53,16 @@ class Garp_Adobe_InDesign_Storage {
 	}
 
 
-	public function zip() {
-		$source = $this->_workingDir;
-		$destination = $this->_targetPath;
-
-	    if (!extension_loaded('zip')) {
-			throw new Exception('Zip PHP extension is not installed :(');
+	/**
+	 * @param int $destination Target path of the zip, if you do not want to use $this->_targetPath
+	 */
+	public function zip($destination = null) {
+		$source 			= $this->_workingDir;
+		if (!$destination) {
+			$destination 	= $this->_targetPath;
 		}
-		
-		if (!file_exists($source)) {
-			throw new Exception("Specified source file {$source} does not exist.");
-	    }
+
+		$this->_preZipChecks();
 
 	    $zip = new ZipArchive();
 	    if (!$zip->open($destination, ZIPARCHIVE::CREATE)) {
@@ -95,6 +94,17 @@ class Garp_Adobe_InDesign_Storage {
 	    }
 
 	    $zip->close();
+	}
+	
+	
+	protected function _preZipChecks() {
+	    if (!extension_loaded('zip')) {
+			throw new Exception('Zip PHP extension is not installed :(');
+		}
+		
+		if (!file_exists($this->_workingDir)) {
+			throw new Exception("Specified source file {$this->_workingDir} does not exist.");
+	    }
 	}
 	
 	
