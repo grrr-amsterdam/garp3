@@ -49,19 +49,64 @@ class Garp_Adobe_InDesign {
 		$this->_workingDir 	= Garp_Adobe_InDesign_Storage::createTmpDir();
 		$this->_storage		= new Garp_Adobe_InDesign_Storage($this->_workingDir, $sourcePath, $targetPath);
 		$this->_storage->extract();
+
+
 		$this->_spreadSet	= new Garp_Adobe_InDesign_SpreadSet($this->_workingDir);
 		$storyIdsPerPage 	= $this->_spreadSet->getTaggedStoryIds();
 
 		$newContentCount 	= count($newContent);
 		$dynamicPageCount 	= count($storyIdsPerPage);
 
-		if ($newContentCount !== $dynamicPageCount) {
-			throw new Exception("The number of dynamic pages in the InDesign file is {$dynamicPageCount}, "
-				. "but there are {$newContentCount} rows of data. Please "
-				. ($newContentCount > $dynamicPageCount ? 'duplicate' : 'remove')
-				. " some pages with tags to adjust this.");
+		if ($newContentCount > $dynamicPageCount) {
+			/*	There is more content than there are slots in the InDesign source file.
+				Therefore, the output files need to be clustered, also for performance reasons.
+				These page clusters can be linked into an InDesign mother file.
+				The output path will be clustered, as this will result in multiple output files.
+				f.i.:
+					- there are 100 rows of data
+					- there are 25 slots in the InDesign source file
+					- this will result in 4 output files that should be linked into a mother file.
+			*/
+				
+			$numberOfClusters	= (int) ceil($newContentCount / $dynamicPageCount);
+			for ($c = 0; $c < $numberOfClusters; $c++) {
+				$clusteredTargetPath	= $this->_getClusteredPath($targetPath, $c, $numberOfClusters);
+				$clusterOffset			= $c * $dynamicPageCount;
+				$clusteredContent 		= array_slice($newContent, $clusterOffset, $dynamicPageCount);
+				if ($newAttribs) {
+					$clusteredAttribs	= array_slice($newAttribs, $clusterOffset, $dynamicPageCount);
+				}
+
+				$this->_injectSingleFile($storyIdsPerPage, $clusteredContent, $clusteredAttribs, $clusteredTargetPath);
+
+			}
+		} else {
+			$this->_injectSingleFile($storyIdsPerPage, $newContent, $newAttribs);
 		}
 
+		$this->_storage->removeWorkingDir();
+	}
+	
+	
+	/**
+	 * @param	String	$path		Full path to file
+	 * @param	Int		$iterator	Zero based iteration
+	 * @param	Int		$total		Total number of rows in the cluster
+	 */
+	protected function _getClusteredPath($path, $iterator, $total) {
+		$pathinfo 			= pathinfo($path);
+		$extension			= $pathinfo['extension'];
+		$pathMinusExt		= substr($path, 0, -(strlen($extension) + 1));
+		$clusterLabel 		= ($iterator + 1) . 'of' . $total;
+		$output				= $pathMinusExt . '-' . $clusterLabel . '.' . $extension;
+		return $output;
+	}
+	
+	
+	/**
+	 * @param int $iterator In case of a clustered (multipart) file, provide the (zero based) current position.
+	 */
+	protected function _injectSingleFile($storyIdsPerPage, $newContent, $newAttribs, $targetPath = null) {
 		$row = 0;
 		foreach ($storyIdsPerPage as $pageStories) {
 			foreach ($pageStories as $storyId) {
@@ -75,7 +120,6 @@ class Garp_Adobe_InDesign {
 			$this->_spreadSet->replaceAttribsInSpread($newAttribs, $storyIdsPerPage);
 		}
 		
-		$this->_storage->zip();
-		$this->_storage->removeWorkingDir();
+		$this->_storage->zip($targetPath);
 	}
 }
