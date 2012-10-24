@@ -19,6 +19,9 @@ class Garp_Application extends Zend_Application {
 	 * @return array
 	 */
 	protected function _loadConfig($file) {
-		return Garp_Cache_Ini::factory($file)->toArray();
+		$config = Garp_Cache_Ini::factory($file);
+		// Save the configuration in the registry so it can be accessed from anywhere
+		Zend_Registry::set('config', $config);
+		return $config->toArray();
 	}
 }
