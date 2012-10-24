@@ -106,13 +106,17 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	 * Also, the HTML tag itself should have the xmlns:fb="http://www.facebook.com/2008/fbml" attribute.
 	 */
 	public function facebookInit() {
-		$appId = $this->view->config()->auth->adapters->facebook->appId;
-		$channelUrl = $this->view->fullUrl("/js/garp/social/facebook/channel.php");
+		if ($appId = $this->view->config()->auth->adapters->facebook->appId) {
+			$channelUrl = $this->view->fullUrl("/js/garp/social/facebook/channel.php");
 
-		return $this->view->partial('partials/social/facebook/init.phtml', 'g', array(
-			'appId' => $appId,
-			'channelUrl' => $channelUrl
-		));
+			return $this->view->partial('partials/social/facebook/init.phtml', 'g', array(
+				'appId' => $appId,
+				'channelUrl' => $channelUrl
+			));
+		} else throw new Exception(
+			'Please fill out auth.adapters.facebook.appId with the id you'
+			.' retrieve from your friendly system administrator.'
+		);
 	}
 
 
