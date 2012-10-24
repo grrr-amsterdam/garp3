@@ -297,6 +297,8 @@ class Garp_Form extends Zend_Form {
 			}
 		}
 		$name = implode('-', $names);
+		// if the root form has no name, the id will start with "-"
+		$name = ltrim($name, '-');
 		$options['id'] = strtolower($name).'-field';
 	}
 
