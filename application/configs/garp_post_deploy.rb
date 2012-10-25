@@ -1,1 +1,0 @@
-set :document_root, "#{deploy_to}/current/public"

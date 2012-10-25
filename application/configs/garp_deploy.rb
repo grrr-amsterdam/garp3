@@ -16,6 +16,8 @@ set :git_enable_submodules, 1
 set :use_sudo, false
 set :keep_releases, 3
 
+set (:document_root) {"#{deploy_to}/current/public"}
+
 
 #   f l o w
 after "deploy:update_code", "deploy:cleanup"
