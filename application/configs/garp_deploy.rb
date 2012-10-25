@@ -81,8 +81,8 @@ task :ask_production_confirmation do
     ========================================================================
 
     WARN
-    answer = Capistrano::CLI.ui.ask "  Are you sure? (Y) "
-    if answer == 'Y' then true else false end
+    answer = Capistrano::CLI.ui.ask "  Are you sure? (y) "
+    if answer == 'y' then true else false end
   end
 
   unless fetch(:confirmed)
