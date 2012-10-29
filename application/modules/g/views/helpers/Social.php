@@ -142,7 +142,11 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	 */
 	public function facebookLikeButton(array $params = array(), $useFacebookPageAsUrl = false) {
 		$params = new Garp_Util_Configuration($params);
-		$params->setDefault('layout', 'button_count')
+		$params->setDefault('href', array_key_exists('href', $params) && $params['href'] ?
+					$params['href'] :
+					$this->_getCurrentUrl()
+				)
+				->setDefault('layout', 'button_count')
 			   ->setDefault('show_faces', 'false')
 			   ->setDefault('width', 450)
 			   ->setDefault('action', 'like')
@@ -200,7 +204,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		$params = new Garp_Util_Configuration($params);
 		$params->setDefault('href', array_key_exists('href', $params) && $params['href'] ?
 					$params['href'] :
-					$this->view->fullUrl($this->view->url())
+					$this->_getCurrentUrl()
 				)
 			   ->setDefault('max_rows', 1)
 			   ->setDefault('width', 450)
@@ -308,6 +312,20 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	public function tinyUrl($url) {
 		$tinyurl = file_get_contents('http://tinyurl.com/api-create.php?url='.$url);
 		return $tinyurl;
+	}
+	
+	
+	/**
+	 * Returns current url, stripped of any possible url queries.
+	 */
+	protected function _getCurrentUrl() {
+		$url = $this->view->fullUrl($this->view->url());
+		$quesPos = strpos($url, '?');
+		if ($quesPos !== false) {
+			$url = substr($url, 0, $quesPos);
+		}
+		
+		return $url;
 	}
 	
 	
