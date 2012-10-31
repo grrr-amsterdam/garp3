@@ -1,4 +1,15 @@
 
+
+/* 
+ * Note on saving content to the server:
+ * Can't use wysiwygct.items as their position doesn't change on D 'n D
+ * So have to traverse childNodes and grab content & classes & such like so:
+ * 
+ * Ext.getCmp(Ext.getCmp('rte-container').body.dom.childNodes[].id).content 
+ * 
+ */
+
+
 Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
 	cls: 'wysiwyg-ct',
