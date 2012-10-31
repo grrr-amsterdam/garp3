@@ -108,6 +108,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			elm.resizer = new Ext.Resizable(elm.id, {
 				handles: 'e',
 				dynamic: true,
+				transparent: true,
 				listeners: {
 					'beforeresize': function(){
 						w = this.getEl().getWidth();
@@ -209,9 +210,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						} else {
 							this.el.insertAfter(p);
 						}
-						this.el.frame();
-						
-						this.el.clearPositioning();
+						this.el.frame(null,1);
 						
 					} else {
 						this.el.moveTo(this.originalXY[0], this.originalXY[1]);
@@ -220,6 +219,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					
 					this.removeDropHiglight();
 					wysiwygct.setupDD();
+					this.el.clearPositioning();
 				}
 				
 			});
@@ -281,7 +281,7 @@ Garp.Wysiwyg = Ext.extend(Ext.Panel, {
 			var mdl = 'Snippet';
 			var items = Ext.apply({}, Garp.dataTypes[mdl].formConfig[0].items[0]); 
 			
-			var i = new Ext.form.FormPanel({
+			this.content = new Ext.form.FormPanel({
 				title: mdl,
 				layout: 'form',
 				ref: 'form',
