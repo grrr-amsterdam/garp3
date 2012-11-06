@@ -80,7 +80,7 @@ class G_View_Helper_Script extends Zend_View_Helper_Abstract {
 	 * @return String
 	 */
 	protected function _renderScript($code) {
-		$html = "<script type=\"text/javascript\">\n\t%s\n</script>";
+		$html = "<script>\n\t%s\n</script>";
 		return sprintf($html, $code);
 	}
 	
@@ -91,7 +91,7 @@ class G_View_Helper_Script extends Zend_View_Helper_Abstract {
 	 * @return String
 	 */
 	protected function _renderSrc($url) {
-		$html = '<script type="text/javascript" src="%s"></script>';
+		$html = '<script src="%s"></script>';
 		if ('http://' !== substr($url, 0, 7) && 'https://' !== substr($url, 0, 8) && '//' !== substr($url, 0, 2)) {
 			$url = $this->view->assetUrl($url);
 		}
