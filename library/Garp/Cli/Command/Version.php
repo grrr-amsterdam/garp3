@@ -17,7 +17,9 @@ class Garp_Cli_Command_Version extends Garp_Cli_Command {
 		$version = 0;
 
 		// read current version
-		if (is_readable($versionFilePath)) {
+		if (defined('APP_VERSION')) {
+			$version = APP_VERSION;
+		} elseif (is_readable($versionFilePath)) {
 			require_once $versionFilePath;
 			if (defined('APP_VERSION')) {
 				$version = APP_VERSION;
