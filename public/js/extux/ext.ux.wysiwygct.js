@@ -63,12 +63,20 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			
 			}, '-', {
 				text: '<b style="text-transform: none;">' + __('Bold') + '</b>',
-				handler: function(){
+				ref: 'boldBtn',
+				clickEvent: 'mousedown',
+				enableToggle: true,
+				handler: function(b, e){
+					e.preventDefault();
 					document.execCommand('Bold', false, null);
 				}
 			}, {
 				text: '<b style="text-transform: none;font-style: italic;">' + __('Italic') + '</b>',
-				handler: function(){
+				ref: 'italicBtn',
+				clickEvent: 'mousedown',
+				enableToggle: true,
+				handler: function(b, e){
+					e.preventDefault();
 					document.execCommand('Italic', false, null);
 				}
 			},{
@@ -76,6 +84,44 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				handler: this.saveItems
 			}]
 		});
+	},
+	
+	setupTbarWatcher: function(){
+		var states = ['bold','italic'];
+		var scope = this;
+		setInterval(function(){
+			var tbar = scope.getTopToolbar();
+			if(!tbar){
+				return;
+			}
+			for(var c=0, l = states.length; c<l; c++){
+				var state = states[c];
+				tbar[state+'Btn'].toggle(document.queryCommandState(state), false);
+			}
+		}, 100);
+	},
+	
+	setupKeyboardHandling: function(){
+		Ext.EventManager.on(document, 'keypress', function(e){
+			if (e.ctrlKey) {
+				var c = e.getCharCode(), cmd;
+				if (c > 0) {
+					c = String.fromCharCode(c);
+					switch (c) {
+						case 'b':
+							cmd = 'Bold';
+							break;
+						case 'i':
+							cmd = 'Italic';
+							break;
+					}
+					if(cmd){
+						document.execCommand(cmd, false, null);
+						e.preventDefault();
+					}
+				}
+			}
+		}, this);
 	},
 	
 	addWysiwygBox: function(){
@@ -311,6 +357,8 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	initComponent: function(ct){
 		
 		this.setupTbar();
+		this.setupTbarWatcher();
+		this.setupKeyboardHandling();
 		
 		Garp.Wysiwygct.superclass.initComponent.call(this, ct);
 		
