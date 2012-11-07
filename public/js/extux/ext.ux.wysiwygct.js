@@ -16,49 +16,85 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	autoScroll: true,
 	height: 300,
 	
-	tbar: new Ext.Toolbar({
-		scope: this,
-		defaults: {
-			scope: this,
-			xtype: 'button'
-		},
-		items: [{
-			iconCls: 'icon-new',
-			text: 'Add',
-			ref: 'addBtn'
-		
-		}, {
-			iconCls: 'icon-delete',
-			text: 'Remove',
-			ref: 'removeBtn'
-		
-		}, '-', {
-			text: '<b style="text-transform: none;">Bold</b>',
-			handler: function(){
-				document.execCommand('Bold', false, null);
-			}
-		},{
-			text: '<b style="text-transform: none;font-style: italic;">Italic</b>',
-			handler: function(){
-				document.execCommand('Italic', false, null);
-			}
-		}]
-	}),
+	setupTbar: function(){
+		this.tbar = new Ext.Toolbar({
+			defaults: {
+				xtype: 'button'
+			},
+			items: [{
+				iconCls: 'icon-new',
+				text: __('Add'),
+				ref: 'addBtn',
+				menu: [{
+					text: __('Text'),
+					iconCls: 'icon-text',
+					handler: this.addWysiwygBox,
+					scope: this
+				}, {
+					text: __('Image'),
+					iconCls: 'icon-image',
+					handler: this.addWysiwygImgBox,
+					scope: this
+				}]
+			}, {
+				iconCls: 'icon-delete',
+				text: __('Delete'),
+				ref: 'removeBtn'
+			
+			}, '-', {
+				text: '<b style="text-transform: none;">' + __('Bold') + '</b>',
+				handler: function(){
+					document.execCommand('Bold', false, null);
+				}
+			}, {
+				text: '<b style="text-transform: none;font-style: italic;">' + __('Italic') + '</b>',
+				handler: function(){
+					document.execCommand('Italic', false, null);
+				}
+			}]
+		});
+	},
 	
 	addWysiwygBox: function(){
+		console.info('add wysiwygBox');
 		var wysiwyg = new Garp.Wysiwyg({
 			cls: 'grid-col-12-12'
 		});
 		this.add(wysiwyg);
 		this.doLayout();
 		this.setupDD();
-		
+	},
+	
+	addWysiwygImgBox: function(){
+		console.info('add wysiwygImgBox');
+		var picker = new Garp.ModelPickerWindow({
+			model: 'Image',
+			listeners: {
+				select: function(sel){
+					if (sel.selected) {
+						var imgId = sel.selected.data.id;
+						var wysiwyg = new Garp.WysiwygImg({
+							cls: 'grid-col-12-12',
+							image: {
+								id: imgId
+							}
+						});
+						this.add(wysiwyg);
+						this.doLayout();
+						this.setupDD();
+					}
+					picker.close();
+				},
+				scope: this
+			}
+		});
+		picker.show();
 	},
 	
 	removeWysiwygBox: function(){
 		var box = Ext.get(Ext.get(window.getSelection().focusNode.parentNode).findParent('.wysiwyg-box'));
-		box.remove();
-		this.fixRows();
+		this.remove(box.id);
+		this.doLayout();
 	},
 	
 	maxCols: 12,
@@ -126,6 +162,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					},
 					'resize': function(){
 						var el = this.getEl();
+						
 						var nw = el.getWidth();
 						var count = wysiwygct.getCurrentColCount(el);
 						el.setStyle('width', '');
@@ -134,7 +171,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						if (newCol < 1) {
 							newCol = 1;
 						}
-						
 						if (w < nw) {
 							if (count >= wysiwygct.maxCols) {
 								return;
@@ -148,6 +184,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 							wysiwygct.removeColClasses(el);
 							el.addClass('grid-col-' + (newCol) + '-' + wysiwygct.maxCols);
 						}
+						Ext.getCmp(el.id).fireEvent('user-resize', w, nw);
 					}
 				}
 			});
@@ -231,6 +268,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					this.removeDropHiglight();
 					wysiwygct.setupDD();
 					this.el.clearPositioning();
+					this.el.setStyle('position','relative');
 				}
 				
 			});
@@ -253,13 +291,16 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	 * @param {Object} ct
 	 */
 	initComponent: function(ct){
+		
+		this.setupTbar();
+		
 		Garp.Wysiwygct.superclass.initComponent.call(this, ct);
 		
 		this.on('afterlayout', this.setupDD, this, {
 			single: true
 		});
 		this.on('render', function(){
-			this.getTopToolbar().addBtn.setHandler(this.addWysiwygBox.createDelegate(this));
+			/*this.getTopToolbar().addBtn.setHandler(this.addWysiwygBox.createDelegate(this));*/
 			this.getTopToolbar().removeBtn.setHandler(this.removeWysiwygBox.createDelegate(this));
 		}, this);
 	}
@@ -269,42 +310,103 @@ Ext.reg('wysiwygct', Garp.Wysiwygct);
 
 
 
-Garp.Wysiwyg = Ext.extend(Ext.Panel, {
+Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	
 	html: 
 		'<div class="dd-handle icon-move"></div>' + 
-		'<div class="contenteditable">Enter text</div>' + 
+		'<div class="contenteditable">' +
+		 	__('Enter text') + 
+		'</div>' + 
 		'<div class="target top"></div>' +
 		'<div class="target right"></div>' +
 		'<div class="target bottom"></div>' + 
 		'<div class="target left"></div>',
 		
+	contentEditableEl: null,
 	
 	initComponent: function(ct){
 		Garp.Wysiwyg.superclass.initComponent.call(this, ct);
 		
 		this.on('afterrender', function(){
 			this.addClass('wysiwyg-box');
-			this.body.select('.dd-handle, .target').each(function(el){
+			this.el.select('.dd-handle, .target').each(function(el){
 				el.dom.setAttribute(id, Ext.id());
 			});
-			
-			var mdl = 'Snippet';
-			var items = Ext.apply({}, Garp.dataTypes[mdl].formConfig[0].items[0]); 
-			
-			this.content = new Ext.form.FormPanel({
-				title: mdl,
-				layout: 'form',
-				ref: 'form',
-				defaults: {
-					autoWidth: true,
-					border: false,
-					bodyCssClass: 'garp-formpanel' // visual styling
-				},
-				items: items,
-				applyTo: this.body.child('.contenteditable')
-			});
+			this.contentEditableEl = this.el.child('.contenteditable'); 
+			this.contentEditableEl.dom.setAttribute('contenteditable', true);
 		}, this);
+		
 	}
 });
 Ext.reg('wysiwyg', Garp.Wysiwyg);
+
+Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
+	
+	imgage: null,
+	margin: 30,
+	
+	initComponent: function(ct){
+		
+		Garp.Wysiwyg.superclass.initComponent.call(this, ct); // !!
+		
+		this.on('user-resize', function(w, nw){
+			var i = this.image;
+			var aspct = i.height / i.width;
+			var nHeight = (nw * aspct) - this.margin;
+			this.contentEditableEl.setHeight(nHeight);
+			this.contentEditableEl.child('.img').setHeight(nHeight);
+			this.setHeight(nHeight);
+		});
+		
+		this.on('afterrender', function(){
+			this.addClass('wysiwyg-box');
+			this.addClass('wysiwyg-image');
+			this.el.select('.dd-handle, .target').each(function(el){
+				el.dom.setAttribute(id, Ext.id());
+			});
+			this.contentEditableEl = this.el.child('.contenteditable'); 
+			this.contentEditableEl.update('');
+			
+			var i = new Image();
+			var scope = this;
+			var path = IMAGES_CDN + 'scaled/cms_preview/' + this.image.id;
+			i.onload = function(){
+				
+				Ext.apply(scope.image, {
+					width: i.width,
+					height: i.height
+				});
+				
+				console.log(path);
+				
+				var aspct = i.height / i.width;
+				var nHeight = (scope.getWidth() * aspct) - scope.margin;
+				
+				scope.contentEditableEl.setStyle({
+					position: 'relative',
+					padding: 0,
+					height: nHeight + 'px'
+				});
+
+				scope.contentEditableEl.update('<div class="img"></div>');
+				scope.contentEditableEl.child('.img').setStyle({
+					position: 'absolute',
+					width: '100%',
+					height: nHeight + 'px',
+					backgroundColor: '#ccc',
+					backgroundImage: 'url("' + path + '")',
+					backgroundSize: 'cover'
+				});
+				
+				console.log(nHeight);
+				scope.setHeight(nHeight);
+				scope.ownerCt.doLayout();
+			};
+			i.src = path;
+			
+		}, this);
+	}
+});
+Ext.reg('wysiwygimg', Garp.WysiwygImg);
+
+
