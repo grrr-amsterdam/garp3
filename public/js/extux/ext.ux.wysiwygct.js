@@ -16,10 +16,30 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	autoScroll: true,
 	height: 300,
 	
+	saveItems: function(){
+		var output = [];
+		Ext.each(this.body.dom.childNodes, function(el){
+			var box = Ext.getCmp(el.id);
+			var item = {
+				col: box.col
+			};
+			
+			if (box.el.hasClass('wysiwyg-image')) {
+				item.image = box.image;
+			} else {
+				item.html = box.contentEditableEl.dom.innerHTML;
+			}
+			
+			output.push(item);
+		});
+		console.dir(output);
+	},
+	
 	setupTbar: function(){
 		this.tbar = new Ext.Toolbar({
 			defaults: {
-				xtype: 'button'
+				xtype: 'button',
+				scope: this
 			},
 			items: [{
 				iconCls: 'icon-new',
@@ -51,22 +71,21 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				handler: function(){
 					document.execCommand('Italic', false, null);
 				}
+			},{
+				text: __('Save'),
+				handler: this.saveItems
 			}]
 		});
 	},
 	
 	addWysiwygBox: function(){
-		console.info('add wysiwygBox');
-		var wysiwyg = new Garp.Wysiwyg({
-			cls: 'grid-col-12-12'
-		});
+		var wysiwyg = new Garp.Wysiwyg();
 		this.add(wysiwyg);
 		this.doLayout();
 		this.setupDD();
 	},
 	
 	addWysiwygImgBox: function(){
-		console.info('add wysiwygImgBox');
 		var picker = new Garp.ModelPickerWindow({
 			model: 'Image',
 			listeners: {
@@ -74,7 +93,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					if (sel.selected) {
 						var imgId = sel.selected.data.id;
 						var wysiwyg = new Garp.WysiwygImg({
-							cls: 'grid-col-12-12',
 							image: {
 								id: imgId
 							}
@@ -184,7 +202,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 							wysiwygct.removeColClasses(el);
 							el.addClass('grid-col-' + (newCol) + '-' + wysiwygct.maxCols);
 						}
-						Ext.getCmp(el.id).fireEvent('user-resize', w, nw);
+						Ext.getCmp(el.id).fireEvent('user-resize', w, nw, 'grid-col-' + newCol + '-' + wysiwygct.maxCols);
 					}
 				}
 			});
@@ -309,7 +327,9 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 Ext.reg('wysiwygct', Garp.Wysiwygct);
 
 
-
+/**
+ * Wysiwyg
+ */
 Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	
 	html: 
@@ -324,11 +344,18 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 		
 	contentEditableEl: null,
 	
+	col: 'grid-col-12-12',
+	
 	initComponent: function(ct){
 		Garp.Wysiwyg.superclass.initComponent.call(this, ct);
 		
+		this.on('user-resize', function(w, nw, nwCol){
+			this.col = nwCol;
+		}, this);
+		
 		this.on('afterrender', function(){
 			this.addClass('wysiwyg-box');
+			this.addClass(this.col);
 			this.el.select('.dd-handle, .target').each(function(el){
 				el.dom.setAttribute(id, Ext.id());
 			});
@@ -340,6 +367,11 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 });
 Ext.reg('wysiwyg', Garp.Wysiwyg);
 
+
+/**
+ * Wysiwyg Image
+ * @param {Object} ct
+ */
 Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 	
 	imgage: null,
@@ -347,7 +379,7 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 	
 	initComponent: function(ct){
 		
-		Garp.Wysiwyg.superclass.initComponent.call(this, ct); // !!
+		Garp.WysiwygImg.superclass.initComponent.call(this, ct); // !!
 		
 		this.on('user-resize', function(w, nw){
 			var i = this.image;
@@ -359,13 +391,10 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 		});
 		
 		this.on('afterrender', function(){
-			this.addClass('wysiwyg-box');
+			
 			this.addClass('wysiwyg-image');
-			this.el.select('.dd-handle, .target').each(function(el){
-				el.dom.setAttribute(id, Ext.id());
-			});
-			this.contentEditableEl = this.el.child('.contenteditable'); 
 			this.contentEditableEl.update('');
+			this.contentEditableEl.dom.setAttribute('contenteditable', false);
 			
 			var i = new Image();
 			var scope = this;
@@ -376,8 +405,6 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 					width: i.width,
 					height: i.height
 				});
-				
-				console.log(path);
 				
 				var aspct = i.height / i.width;
 				var nHeight = (scope.getWidth() * aspct) - scope.margin;
@@ -398,7 +425,6 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 					backgroundSize: 'cover'
 				});
 				
-				console.log(nHeight);
 				scope.setHeight(nHeight);
 				scope.ownerCt.doLayout();
 			};
@@ -408,5 +434,3 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 	}
 });
 Ext.reg('wysiwygimg', Garp.WysiwygImg);
-
-
