@@ -375,7 +375,7 @@ Ext.reg('wysiwyg', Garp.Wysiwyg);
 Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 	
 	imgage: null,
-	margin: 30,
+	margin: 0,
 	
 	initComponent: function(ct){
 		
@@ -422,7 +422,9 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 					height: nHeight + 'px',
 					backgroundColor: '#ccc',
 					backgroundImage: 'url("' + path + '")',
-					backgroundSize: 'cover'
+					backgroundSize: 'contain',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat'
 				});
 				
 				scope.setHeight(nHeight);
