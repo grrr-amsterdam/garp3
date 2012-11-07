@@ -25,11 +25,16 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			};
 			
 			if (box.el.hasClass('wysiwyg-image')) {
-				item.image = box.image;
+				Ext.apply(item,{
+					image: box.image,
+					model: 'Image'
+				});
 			} else {
-				item.html = box.contentEditableEl.dom.innerHTML;
+				Ext.apply(item, {
+					html: box.contentEditableEl.dom.innerHTML,
+					model: 'Text'
+				});
 			}
-			
 			output.push(item);
 		});
 		console.dir(output);
