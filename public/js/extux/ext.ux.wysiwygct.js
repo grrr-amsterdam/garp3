@@ -445,7 +445,8 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 			});
 			this.contentEditableEl = this.el.child('.contenteditable'); 
 			this.contentEditableEl.dom.setAttribute('contenteditable', true);
-			this.contentEditableEl.on('click', this.filterHtml, this);
+			this.contentEditableEl.on('focus', this.filterHtml, this);
+			this.contentEditableEl.on('blur', this.filterHtml, this);
 		}, this);
 		
 	}
