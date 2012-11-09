@@ -412,13 +412,17 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 				if(el.tagName){
 					var tag = el.tagName.toLowerCase();
 					if(scope.allowedTags.indexOf(tag) == -1){
-						while (el.childNodes.length > 0) {
-							var child = el.childNodes[el.childNodes.length - 1];
-							var clone = child.cloneNode(true);
-							el.parentNode.insertBefore(clone, el);
-							el.removeChild(child);
+						if (el.childNodes.length > 0) {
+							while (el.childNodes.length > 0 && el.parentNode) {
+								var child = el.childNodes[el.childNodes.length - 1];
+								var clone = child.cloneNode(true);
+								el.parentNode.insertBefore(clone, el);
+								el.removeChild(child);
+								el.parentNode.removeChild(el);
+								walk(scope.contentEditableEl.dom.childNodes);
+							}
+						} else if(el.parentNode){
 							el.parentNode.removeChild(el);
-							walk(scope.contentEditableEl.dom.childNodes);
 						}
 					}
 				}
@@ -446,6 +450,7 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 			this.contentEditableEl = this.el.child('.contenteditable'); 
 			this.contentEditableEl.dom.setAttribute('contenteditable', true);
 			this.contentEditableEl.on('focus', this.filterHtml, this);
+			this.contentEditableEl.on('click', this.filterHtml, this);
 			this.contentEditableEl.on('blur', this.filterHtml, this);
 		}, this);
 		
