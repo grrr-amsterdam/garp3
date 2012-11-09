@@ -14,8 +14,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
 	cls: 'wysiwyg-ct',
 	autoScroll: true,
-	height: 300,
-	
+	autoHeight: true,
+	padding: 30,
+	//height: '100%',
+	//height: 300,
 	saveItems: function(){
 		var output = [];
 		Ext.each(this.body.dom.childNodes, function(el){
@@ -467,6 +469,11 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 	
 	imgage: null,
 	margin: 0,
+	
+	// override: we don't need filtering for images:
+	filterHtml: function(){
+		return true;
+	},
 	
 	initComponent: function(ct){
 		
