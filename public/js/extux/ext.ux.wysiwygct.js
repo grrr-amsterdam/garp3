@@ -388,7 +388,10 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	html: 
 		'<div class="dd-handle icon-move"></div>' + 
 		'<div class="contenteditable">' +
-		 	__('Enter text') + 
+		 	__('Enter text') +
+			
+			'<table><tbody><tr><td>Bla</td><td>Blup</td></tr></tbody></table>' +
+			 
 		'</div>' + 
 		'<div class="target top"></div>' +
 		'<div class="target right"></div>' +
@@ -398,6 +401,34 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	contentEditableEl: null,
 	
 	col: 'grid-col-12-12',
+	
+	allowedTags: ['a','b','i','br','p','ul','ol','li'],
+	
+	filterHtml: function(){
+		var scope = this;
+		function walk(nodes){
+			Ext.each(nodes, function(el){
+				el.normalize();
+				if(el.tagName){
+					var tag = el.tagName.toLowerCase();
+					if(scope.allowedTags.indexOf(tag) == -1){
+						while (el.childNodes.length > 0) {
+							var child = el.childNodes[el.childNodes.length - 1];
+							var clone = child.cloneNode(true);
+							el.parentNode.insertBefore(clone, el);
+							el.removeChild(child);
+							el.parentNode.removeChild(el);
+							walk(scope.contentEditableEl.dom.childNodes);
+						}
+					}
+				}
+				if (el.childNodes) {
+					walk(el.childNodes);
+				}
+			});
+		}
+		walk(this.contentEditableEl.dom.childNodes);
+	},
 	
 	initComponent: function(ct){
 		Garp.Wysiwyg.superclass.initComponent.call(this, ct);
@@ -414,6 +445,7 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 			});
 			this.contentEditableEl = this.el.child('.contenteditable'); 
 			this.contentEditableEl.dom.setAttribute('contenteditable', true);
+			this.contentEditableEl.on('click', this.filterHtml, this);
 		}, this);
 		
 	}
@@ -484,6 +516,9 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 				scope.ownerCt.doLayout();
 			};
 			i.src = path;
+			if(i.complete){
+				i.onload();
+			}
 			
 		}, this);
 	}
