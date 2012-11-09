@@ -54,12 +54,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				ref: 'addBtn',
 				menu: [{
 					text: __('Text'),
-					iconCls: 'icon-text',
+					iconCls: 'icon-snippet',
 					handler: this.addWysiwygBox,
 					scope: this
 				}, {
 					text: __('Image'),
-					iconCls: 'icon-image',
+					iconCls: 'icon-img',
 					handler: this.addWysiwygImgBox,
 					scope: this
 				}]
