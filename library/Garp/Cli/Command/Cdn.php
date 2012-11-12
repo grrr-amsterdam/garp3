@@ -84,8 +84,11 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 			$fileOrFiles = $this->_printFileOrFiles($assetCount);
 			$progressBar->display("Processing {$firstFilename}. {$assetCount} {$fileOrFiles} left.");
 
-			foreach ($assetList as $asset) {
-				$s3 = new Garp_File_Storage_S3($ini->cdn, dirname($asset));
+
+			$s3 = new Garp_File_Storage_S3($ini->cdn, dirname(current($assetList)));
+
+			foreach ($assetList as $i => $asset) {
+				$s3->setPath(dirname($asset));
 				$fileData = file_get_contents($this->_baseDir . $asset);
 				$filename = basename($asset);
 				if ($s3->store($filename, $fileData, true, false)) {
