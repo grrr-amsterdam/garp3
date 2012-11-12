@@ -1,5 +1,5 @@
 /**
- * 
+ * Quick Create: RelateCreateWindow; simple form in a popup window to create a new record
  */
 Ext.ns('Garp');
 
@@ -76,36 +76,11 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 		
 		// Now hide disabled items, they have no function when adding a new item. It may otherwise confuse users:
 		// Also: if the field is not in the columnModel, it has no place here in this window
-		/*
-		 Ext.each(items.items,function(i){
-		 Ext.each(i.items,function(j){
-		 var inColumnModel = false
-		 
-		 delete j.tpl;
-		 
-		 Ext.each(cm, function(c){
-		 if(j.name == c.dataIndex){
-		 inColumnModel = true;
-		 return true;
-		 }
-		 });
-		 if(j.disabled || !inColumnModel || j.xtype == 'displayfield' &&  j.xtype != 'box'){
-		 Ext.apply(j,{
-		 hidden: true,
-		 fieldLabel: '',
-		 hideMode: 'display',
-		 hideFieldLabel: true
-		 });
-		 }
-		 });
-		 });
-		 */
 		this.items = [{
 			border: false,
 			xtype: 'form',
 			layout: 'form',
 			ref: 'form',
-			//height: 440,
 			defaults: {
 				autoWidth: true,
 				border: false,
@@ -114,7 +89,7 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			items: items
 		}];
 		
-		if(!this.buttons){
+		if (!this.buttons) {
 			this.buttons = [];
 		}
 		this.buttons.push([{
@@ -124,43 +99,60 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 				this.close();
 			},
 			scope: this
-		},{
+		}, {
 			text: __('Ok'),
 			ref: '../okBtn',
 			handler: function(){
-				if (this.form.getForm().isValid()) {
-					this.rec = this.rec || this.store.getAt(0);
-					this.form.getForm().updateRecord(this.rec);
+				this.form.getForm().updateRecord(this.rec);
+				if (this.store.getModifiedRecords().length) {
 					this.store.on({
 						'save': {
-							fn: function(){
-								this.rec = this.store.getAt(0);
-								this.fireEvent('aftersave', this, this.rec);
-								this.loadMask.hide();
-								this.close();
-							},
+							fn: this.close,
 							single: true,
 							scope: this
 						}
 					});
-					
-					
-					this.loadMask = new Ext.LoadMask(this.getEl(), {
-						store: this.store
-					});
-					this.rec.markDirty();
-					
-					this.store.removeAll(true);		// @TODO: @FIXME: Find out why this really is necessary... 
-					this.store.insert(0, this.rec); // Somehow, we need to insert the record again, cause the store doesn't see changes to the rec otherwise. Weird!
-					
-					this.loadMask.show();
-					this.store.save();
+					this.saveAll();
+				} else {
+					this.fireEvent('aftersave', this, this.rec);
+					this.close();
 				}
 			},
 			scope: this
 		}]);
 		
 		Garp.RelateCreateWindow.superclass.initComponent.call(this);
+	},
+	
+	saveAll: function(){
+	
+		this.rec.reject();
+		this.rec.beginEdit();
+		this.form.getForm().updateRecord(this.rec);
+		this.rec.endEdit();
+		this.store.on({
+			'save': {
+				fn: function(){
+					this.rec = this.store.getAt(0);
+					
+					this.formcontent.fireEvent('loaddata', this.rec, this);
+					this.fireEvent('aftersave', this, this.rec);
+					this.loadMask.hide();
+					//this.close();
+				},
+				single: true,
+				scope: this
+			}
+		});
+		
+		this.loadMask = new Ext.LoadMask(this.getEl(), {
+			store: this.store
+		});
+		
+		if (this.store.getModifiedRecords().length) {
+			this.loadMask.show();
+			this.store.save();
+		}
 	},
 	
 	afterRender: function(){
@@ -172,34 +164,13 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 		}
 		var rec = new this.store.recordType(Ext.apply({}, Garp.dataTypes[this.model].defaultData));
 		this.rec = rec;
-		this.store.add(rec);
+		this.store.insert(0, rec);
+		
 		this.getForm = function(){
 			return this.form.getForm();
 		};
-		this.on('save-all', function(){
 		
-			this.form.getForm().updateRecord(this.rec);
-			this.store.on({
-				'save': {
-					fn: function(){
-						this.rec = this.store.getAt(0);
-						this.fireEvent('aftersave', this, this.rec);
-						this.formcontent.fireEvent('loaddata', this.rec, this);
-						this.loadMask.hide();
-					},
-					single: true,
-					scope: this
-				}
-			});
-			
-			this.loadMask = new Ext.LoadMask(this.getEl(), {
-				store: this.store
-			});
-			
-			this.loadMask.show();
-			this.store.save();
-		}, this);
-		
+		this.on('save-all', this.saveAll, this);
 		
 		this.on('show', function(){
 			this.formcontent.fireEvent('loaddata', rec, this);
@@ -229,6 +200,5 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			this.keymap.stopEvent = true; // prevents browser key handling.
 			this.fireEvent('afterinit', this);
 		}, this);
-		
 	}
 });
