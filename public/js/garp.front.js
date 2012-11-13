@@ -878,7 +878,7 @@ Garp.FlashMessage = function(cfg){
 				}
 				var exp = new Date();
 				exp.setHours(exp.getHours() - 1);
-				Garp.setCookie(this.cookieName, '', exp, (typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : '.' + document.location.host);
+				Garp.setCookie(this.cookieName, '', exp, (typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : document.location.host);
 				return out;
 			}
 			return '';
@@ -1010,7 +1010,7 @@ Garp.setCookie = function(name, value, date, domain){
 	if (domain) {
 		value += "; domain=" + escape(domain);
 	} else {
-		value += "; domain=" + escape((typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : '.' + document.location.host);
+		value += "; domain=" + escape((typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : document.location.host);
 	}
 	value += (!date ? "" : "; expires=" + date.toGMTString());
 	document.cookie = name + "=" + value;
