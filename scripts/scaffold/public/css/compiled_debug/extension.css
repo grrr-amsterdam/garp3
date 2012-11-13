@@ -8,3 +8,41 @@
 /* ==========================================================================
    mixins and functions
    ========================================================================== */
+/* ==========================================================================
+   non-semantic helper classes
+   ========================================================================== */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/wewantcinema\/garp\/scripts\/scaffold\/public\/css\/sass\/extension\.scss}line{font-family:\0000349}}
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/wewantcinema\/garp\/scripts\/scaffold\/public\/css\/sass\/extension\.scss}line{font-family:\0000350}}
+.offscreen {
+  position: absolute !important;
+  left: -999em !important;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/wewantcinema\/garp\/scripts\/scaffold\/public\/css\/sass\/extension\.scss}line{font-family:\0000351}}
+.invisible {
+  visibility: hidden !important;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/wewantcinema\/garp\/scripts\/scaffold\/public\/css\/sass\/extension\.scss}line{font-family:\0000352}}
+.clearfix {
+  zoom: 1;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/wewantcinema\/garp\/scripts\/scaffold\/public\/css\/sass\/extension\.scss}line{font-family:\0000353}}
+.clearfix:after {
+  height: 0;
+  visibility: hidden;
+  display: block;
+  clear: both;
+  content: '';
+}
+
+/* Make sure Like buttons do not suffer from cut-off comment-box syndrome */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/wewantcinema\/garp\/scripts\/scaffold\/public\/css\/sass\/extension\.scss}line{font-family:\0000357}}
+.fb_iframe_widget span {
+  width: 450px !important;
+}
