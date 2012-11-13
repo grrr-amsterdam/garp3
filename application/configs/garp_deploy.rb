@@ -28,6 +28,7 @@ namespace :deploy do
     	transaction do
     		update_code
         set_cache_dirs
+        set_log_dir
         spawn
     		symlink
     	end
@@ -57,6 +58,12 @@ namespace :deploy do
         
         # static html cache
         run "if [ ! -d '#{current_release}/public/cached' ]; then mkdir -p #{current_release}/public/cached; fi";
+      end
+    end
+
+    task :set_log_dir do
+      transaction do
+        run "if [ ! -d '#{current_release}/application/data/logs' ]; then mkdir -p #{current_release}/application/data/logs; fi";
       end
     end
 
