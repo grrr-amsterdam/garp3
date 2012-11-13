@@ -18,7 +18,7 @@ body { background: #FFF; margin: 0; }
 
 ul, ol, dd { list-style: none; margin: 0; padding: 0; }
 
-a:link, a:visited, a:hover, a:active { vertical-align: baseline; color: #00f; }
+a:link, a:visited, a:hover, a:active { vertical-align: baseline; color: $link_color; }
 a:hover, a:focus { color: #f00; }
 a:hover, a:focus, a:active { outline: 0; }
 .block-link { display: block; overflow: hidden; }
