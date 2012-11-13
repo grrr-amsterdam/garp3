@@ -17,6 +17,7 @@ set :use_sudo, false
 set :keep_releases, 3
 
 set (:document_root) {"#{deploy_to}/current/public"}
+set (:server_cache_dir) {"#{current_release}/application/data/cache"}
 
 
 #   f l o w
@@ -26,7 +27,7 @@ namespace :deploy do
     task :update do
     	transaction do
     		update_code
-        set_permissions
+        set_cache_dirs
         spawn
     		symlink
     	end
@@ -41,13 +42,21 @@ namespace :deploy do
     task :symlink do
     	transaction do
     		run "ln -nfs #{current_release} #{deploy_to}/#{current_dir}"
-        run "ln -nfs #{deploy_to}/#{current_dir} #{document_root}"
     	end
     end
     
-    task :set_permissions do
+    task :set_cache_dirs do
       transaction do
-        run "echo '<?php' > #{current_release}/application/data/cache/pluginLoaderCache.php"
+        # backend cache
+        run "if [ ! -d '#{server_cache_dir}' ]; then mkdir -p #{server_cache_dir}; fi";
+        run "if [ ! -d '#{server_cache_dir}/URI' ]; then mkdir -p #{server_cache_dir}/URI; fi";
+        run "if [ ! -d '#{server_cache_dir}/HTML' ]; then mkdir -p #{server_cache_dir}/HTML; fi";
+        run "if [ ! -d '#{server_cache_dir}/CSS' ]; then mkdir -p #{server_cache_dir}/CSS; fi";
+        run "if [ ! -d '#{server_cache_dir}/tags' ]; then mkdir -p #{server_cache_dir}/tags; fi";
+        run "echo '<?php' > #{server_cache_dir}/pluginLoaderCache.php"
+        
+        # static html cache
+        run "if [ ! -d '#{current_release}/public/cached' ]; then mkdir -p #{current_release}/public/cached; fi";
       end
     end
 
