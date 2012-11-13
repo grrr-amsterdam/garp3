@@ -14,7 +14,7 @@ class Garp_Controller_Helper_Upload extends Zend_Controller_Action_Helper_Abstra
 	 * For optimalization purposes, we store file handlers, using
 	 * the uploadType (f.i. Garp_File::TYPE_IMAGES) as array key.
 	 */
-	$_fileHandlers = array();
+	protected $_fileHandlers = array();
 	
 	
 	/**
