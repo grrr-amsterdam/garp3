@@ -54,12 +54,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					handler: this.addWysiwygImgBox,
 					scope: this
 				}]
-			}, {
+			},/* {
 				iconCls: 'icon-delete',
 				text: __('Delete'),
 				ref: 'removeBtn'
 			
-			}, '-', {
+			}, '-',*/ {
 				text: '<b style="text-transform: none;">' + __('Bold') + '</b>',
 				ref: 'boldBtn',
 				clickEvent: 'mousedown',
@@ -89,12 +89,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		var scope = this;
 		setInterval(function(){
 			var tbar = scope.getTopToolbar();
-			if(!tbar){
+			if(!tbar || Ext.select('.wysiwyg-box').elements.length === 0) {
 				return;
 			}
 			for(var c=0, l = states.length; c<l; c++){
 				var state = states[c];
-				tbar[state+'Btn'].toggle(document.queryCommandState(state), false);
+				tbar[state + 'Btn'].toggle(document.queryCommandState(state), false);
 			}
 		}, 100);
 	},
@@ -153,8 +153,8 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		picker.show();
 	},
 	
-	removeWysiwygBox: function(){
-		var box = Ext.get(Ext.get(window.getSelection().focusNode.parentNode).findParent('.wysiwyg-box'));
+	removeWysiwygBox: function(box){
+		//var box = Ext.get(Ext.get(window.getSelection().focusNode.parentNode).findParent('.wysiwyg-box'));
 		this.remove(box.id);
 		this.doLayout();
 	},
@@ -363,10 +363,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		this.on('afterlayout', this.setupDD, this, {
 			single: true
 		});
+		/*
 		this.on('render', function(){
-			/*this.getTopToolbar().addBtn.setHandler(this.addWysiwygBox.createDelegate(this));*/
+			///this.getTopToolbar().addBtn.setHandler(this.addWysiwygBox.createDelegate(this));
 			this.getTopToolbar().removeBtn.setHandler(this.removeWysiwygBox.createDelegate(this));
 		}, this);
+		*/
 	}
 	
 });
@@ -431,6 +433,14 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 			});
 		}
 		walk(this.contentEditableEl.dom.childNodes);
+	},
+	
+	afterRender: function(ct){
+		Garp.Wysiwyg.superclass.afterRender.call(this, ct);
+		
+		this.el.select('.dd-handle.icon-delete').on('click', function(){
+			this.ownerCt.removeWysiwygBox(this);
+		},this);
 	},
 	
 	initComponent: function(ct){
