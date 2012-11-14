@@ -23,9 +23,13 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		Ext.each(this.body.dom.childNodes, function(el){
 			var box = Ext.getCmp(el.id);
 			var item = {
-				col: box.col
+				col: box.col,
+				columns: box.col.split('-')[1],
+				data: box.getData(),
+				model: box.model
 			};
 			
+			/*
 			if (box.el.hasClass('wysiwyg-image')) {
 				Ext.apply(item,{
 					image: box.image,
@@ -36,7 +40,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					html: box.contentEditableEl.dom.innerHTML,
 					model: 'Text'
 				});
-			}
+			}*/
 			output.push(item);
 		});
 		console.dir(output);
@@ -387,6 +391,7 @@ Ext.reg('wysiwygct', Garp.Wysiwygct);
  */
 Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	
+	model: 'Text',
 	html: 
 		'<div class="dd-handle icon-move"></div>' + 
 		'<div class="contenteditable">' +
@@ -406,6 +411,10 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	
 	allowedTags: ['a','b','i','br','p','ul','ol','li'],
 	
+	getData: function(){
+		return this.contentEditableEl.dom.innerHTML;
+	},
+
 	filterHtml: function(){
 		var scope = this;
 		function walk(nodes){
@@ -469,6 +478,11 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 	
 	imgage: null,
 	margin: 0,
+	model: 'Image',
+	
+	getData: function(){
+		return this.image;
+	},
 	
 	// override: we don't need filtering for images:
 	filterHtml: function(){
