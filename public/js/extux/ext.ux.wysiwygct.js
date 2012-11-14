@@ -23,20 +23,11 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		Ext.each(this.body.dom.childNodes, function(el){
 			var box = Ext.getCmp(el.id);
 			var item = {
-				col: box.col
+				col: box.col,
+				columns: box.col.split('-')[1],
+				data: box.getData(),
+				model: box.model
 			};
-			
-			if (box.el.hasClass('wysiwyg-image')) {
-				Ext.apply(item,{
-					image: box.image,
-					model: 'Image'
-				});
-			} else {
-				Ext.apply(item, {
-					html: box.contentEditableEl.dom.innerHTML,
-					model: 'Text'
-				});
-			}
 			output.push(item);
 		});
 		console.dir(output);
@@ -63,12 +54,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					handler: this.addWysiwygImgBox,
 					scope: this
 				}]
-			}, {
+			},/* {
 				iconCls: 'icon-delete',
 				text: __('Delete'),
 				ref: 'removeBtn'
 			
-			}, '-', {
+			}, '-',*/ {
 				text: '<b style="text-transform: none;">' + __('Bold') + '</b>',
 				ref: 'boldBtn',
 				clickEvent: 'mousedown',
@@ -98,12 +89,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		var scope = this;
 		setInterval(function(){
 			var tbar = scope.getTopToolbar();
-			if(!tbar){
+			if(!tbar || Ext.select('.wysiwyg-box').elements.length === 0) {
 				return;
 			}
 			for(var c=0, l = states.length; c<l; c++){
 				var state = states[c];
-				tbar[state+'Btn'].toggle(document.queryCommandState(state), false);
+				tbar[state + 'Btn'].toggle(document.queryCommandState(state), false);
 			}
 		}, 100);
 	},
@@ -162,8 +153,8 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		picker.show();
 	},
 	
-	removeWysiwygBox: function(){
-		var box = Ext.get(Ext.get(window.getSelection().focusNode.parentNode).findParent('.wysiwyg-box'));
+	removeWysiwygBox: function(box){
+		//var box = Ext.get(Ext.get(window.getSelection().focusNode.parentNode).findParent('.wysiwyg-box'));
 		this.remove(box.id);
 		this.doLayout();
 	},
@@ -179,7 +170,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			return;
 		}
 		for (var i = 1; i <= this.maxCols; i++) {
-			Ext.get(el).removeClass('grid-col-' + i + '-' + this.maxCols);
+			Ext.get(el).removeClass('grid-' + i + '-' + this.maxCols);
 		}
 	},
 	
@@ -189,7 +180,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	 */
 	getCurrentColCount: function(el){
 		for (var i = this.maxCols; i > 0; i--) {
-			if (el.hasClass('grid-col-' + i + '-' + this.maxCols)) {
+			if (el.hasClass('grid-' + i + '-' + this.maxCols)) {
 				return i;
 			}
 		}
@@ -247,15 +238,15 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 								return;
 							}
 							wysiwygct.removeColClasses(el);
-							el.addClass('grid-col-' + (newCol) + '-' + wysiwygct.maxCols);
+							el.addClass('grid-' + (newCol) + '-' + wysiwygct.maxCols);
 						} else {
 							if (count <= 1) {
 								return;
 							}
 							wysiwygct.removeColClasses(el);
-							el.addClass('grid-col-' + (newCol) + '-' + wysiwygct.maxCols);
+							el.addClass('grid-' + (newCol) + '-' + wysiwygct.maxCols);
 						}
-						Ext.getCmp(el.id).fireEvent('user-resize', w, nw, 'grid-col-' + newCol + '-' + wysiwygct.maxCols);
+						Ext.getCmp(el.id).fireEvent('user-resize', w, nw, 'grid-' + newCol + '-' + wysiwygct.maxCols);
 					}
 				}
 			});
@@ -372,10 +363,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		this.on('afterlayout', this.setupDD, this, {
 			single: true
 		});
+		/*
 		this.on('render', function(){
-			/*this.getTopToolbar().addBtn.setHandler(this.addWysiwygBox.createDelegate(this));*/
+			///this.getTopToolbar().addBtn.setHandler(this.addWysiwygBox.createDelegate(this));
 			this.getTopToolbar().removeBtn.setHandler(this.removeWysiwygBox.createDelegate(this));
 		}, this);
+		*/
 	}
 	
 });
@@ -387,8 +380,10 @@ Ext.reg('wysiwygct', Garp.Wysiwygct);
  */
 Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	
+	model: 'Text',
 	html: 
 		'<div class="dd-handle icon-move"></div>' + 
+		'<div class="dd-handle icon-delete"></div>' + 
 		'<div class="contenteditable">' +
 		 	__('Enter text') +
 			
@@ -402,10 +397,14 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 		
 	contentEditableEl: null,
 	
-	col: 'grid-col-12-12',
+	col: 'grid-12-12',
 	
 	allowedTags: ['a','b','i','br','p','ul','ol','li'],
 	
+	getData: function(){
+		return this.contentEditableEl.dom.innerHTML;
+	},
+
 	filterHtml: function(){
 		var scope = this;
 		function walk(nodes){
@@ -434,6 +433,14 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 			});
 		}
 		walk(this.contentEditableEl.dom.childNodes);
+	},
+	
+	afterRender: function(ct){
+		Garp.Wysiwyg.superclass.afterRender.call(this, ct);
+		
+		this.el.select('.dd-handle.icon-delete').on('click', function(){
+			this.ownerCt.removeWysiwygBox(this);
+		},this);
 	},
 	
 	initComponent: function(ct){
@@ -469,6 +476,11 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 	
 	imgage: null,
 	margin: 0,
+	model: 'Image',
+	
+	getData: function(){
+		return this.image;
+	},
 	
 	// override: we don't need filtering for images:
 	filterHtml: function(){
@@ -515,14 +527,8 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 
 				scope.contentEditableEl.update('<div class="img"></div>');
 				scope.contentEditableEl.child('.img').setStyle({
-					position: 'absolute',
-					width: '100%',
 					height: nHeight + 'px',
-					backgroundColor: '#ccc',
-					backgroundImage: 'url("' + path + '")',
-					backgroundSize: 'contain',
-					backgroundPosition: 'center',
-					backgroundRepeat: 'no-repeat'
+					backgroundImage: 'url("' + path + '")'
 				});
 				
 				scope.setHeight(nHeight);
