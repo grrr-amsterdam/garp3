@@ -284,21 +284,22 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 /* GARP WysiwygCt */
 .wysiwyg-ct { overflow: hidden; }
 
-			.grid-col-12-12 { width: 100%; }
-			.grid-col-11-12 { width: 91.666666%; }
-			.grid-col-10-12 { width: 83.333333%; }
-			.grid-col-9-12 { width: 75%; }
-			.grid-col-8-12 { width: 66.666666%; }
-			.grid-col-7-12 { width: 58.333333%; }
-			.grid-col-6-12 { width: 50%; }
-			.grid-col-5-12 { width: 41.666666%; }
-			.grid-col-4-12 { width: 33.333333%; }
-			.grid-col-3-12 { width: 25%; }
-			.grid-col-2-12 { width: 16.666666%; }
-			.grid-col-1-12 { width: 8.333333%; }
+			.grid-12-12 { width: 100%; }
+			.grid-11-12 { width: 91.666666%; }
+			.grid-10-12 { width: 83.333333%; }
+			.grid-9-12 { width: 75%; }
+			.grid-8-12 { width: 66.666666%; }
+			.grid-7-12 { width: 58.333333%; }
+			.grid-6-12 { width: 50%; }
+			.grid-5-12 { width: 41.666666%; }
+			.grid-4-12 { width: 33.333333%; }
+			.grid-3-12 { width: 25%; }
+			.grid-2-12 { width: 16.666666%; }
+			.grid-1-12 { width: 8.333333%; }
 			
 			.wysiwyg-box { position: relative; float: left; border: none; outline: none; clear: none;  }
 			.wysiwyg-box .dd-handle { display: none; position: absolute; right: 5px; top: 5px; background-color: #fff; width: 30px; height: 30px; border: 1px #ddd solid; border-radius: 4px;  background-position: 50% 50%; background-repeat: no-repeat; z-index: 3;}
+			.wysiwyg-box .dd-handle.icon-delete { right: 40px; }
 			.wysiwyg-box:hover .dd-handle { display: block; }
 			.wysiwyg-box .dd-handle:hover { background-color: #eee; }
 			.x-panel-body-noheader .wysiwyg-box .x-panel-body { border: none; }
@@ -320,10 +321,11 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.wysiwyg-box .target.bottom.active { height: 5px; }
 			.wysiwyg-box .target.left.active { width: 5px; }
 			
-			
 			.wysiwyg-box { z-index: 1; }
 			.wysiwyg-box.in-drag { z-index: 2; }
 			.wysiwyg-box.in-drag .contenteditable { border: 1px #888 dashed; opacity: .5}
+
+			.wysiwyg-box .img { position: absolute;	width: 100%; background-color: #ccc; background-size: contain; background-position: center;	background-repeat: no-repeat; }
 			
 			.row:before, .row:after { content: ""; display: table; }
 			.row:after { clear: both; }
