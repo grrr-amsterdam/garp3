@@ -28,19 +28,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				data: box.getData(),
 				model: box.model
 			};
-			
-			/*
-			if (box.el.hasClass('wysiwyg-image')) {
-				Ext.apply(item,{
-					image: box.image,
-					model: 'Image'
-				});
-			} else {
-				Ext.apply(item, {
-					html: box.contentEditableEl.dom.innerHTML,
-					model: 'Text'
-				});
-			}*/
 			output.push(item);
 		});
 		console.dir(output);
@@ -183,7 +170,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			return;
 		}
 		for (var i = 1; i <= this.maxCols; i++) {
-			Ext.get(el).removeClass('grid-col-' + i + '-' + this.maxCols);
+			Ext.get(el).removeClass('grid-' + i + '-' + this.maxCols);
 		}
 	},
 	
@@ -193,7 +180,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	 */
 	getCurrentColCount: function(el){
 		for (var i = this.maxCols; i > 0; i--) {
-			if (el.hasClass('grid-col-' + i + '-' + this.maxCols)) {
+			if (el.hasClass('grid-' + i + '-' + this.maxCols)) {
 				return i;
 			}
 		}
@@ -251,15 +238,15 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 								return;
 							}
 							wysiwygct.removeColClasses(el);
-							el.addClass('grid-col-' + (newCol) + '-' + wysiwygct.maxCols);
+							el.addClass('grid-' + (newCol) + '-' + wysiwygct.maxCols);
 						} else {
 							if (count <= 1) {
 								return;
 							}
 							wysiwygct.removeColClasses(el);
-							el.addClass('grid-col-' + (newCol) + '-' + wysiwygct.maxCols);
+							el.addClass('grid-' + (newCol) + '-' + wysiwygct.maxCols);
 						}
-						Ext.getCmp(el.id).fireEvent('user-resize', w, nw, 'grid-col-' + newCol + '-' + wysiwygct.maxCols);
+						Ext.getCmp(el.id).fireEvent('user-resize', w, nw, 'grid-' + newCol + '-' + wysiwygct.maxCols);
 					}
 				}
 			});
@@ -394,6 +381,7 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	model: 'Text',
 	html: 
 		'<div class="dd-handle icon-move"></div>' + 
+		'<div class="dd-handle icon-delete"></div>' + 
 		'<div class="contenteditable">' +
 		 	__('Enter text') +
 			
@@ -407,7 +395,7 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 		
 	contentEditableEl: null,
 	
-	col: 'grid-col-12-12',
+	col: 'grid-12-12',
 	
 	allowedTags: ['a','b','i','br','p','ul','ol','li'],
 	
@@ -529,14 +517,8 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 
 				scope.contentEditableEl.update('<div class="img"></div>');
 				scope.contentEditableEl.child('.img').setStyle({
-					position: 'absolute',
-					width: '100%',
 					height: nHeight + 'px',
-					backgroundColor: '#ccc',
-					backgroundImage: 'url("' + path + '")',
-					backgroundSize: 'contain',
-					backgroundPosition: 'center',
-					backgroundRepeat: 'no-repeat'
+					backgroundImage: 'url("' + path + '")'
 				});
 				
 				scope.setHeight(nHeight);
