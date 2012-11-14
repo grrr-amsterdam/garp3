@@ -55,15 +55,14 @@ class Garp_Cli {
 	 * @return Boolean Returns true if answer was 'y' or 'Y', no enter needed.
 	 */
 	public static function confirm($msg) {
-		echo INDENT.self::addStringColoring($msg)." > ";
+		print $msg.' > ';
 		system('stty -icanon');
-		$handle = fopen ("php://stdin","r");
+		$handle = fopen ('php://stdin', 'r');
 		$char = fgetc($handle);
 		system('stty icanon');
-		echo "\n";
+		print "\n";
 		return $char === 'y' || $char === 'Y';
 	}
-	
 	
 	
 	/**

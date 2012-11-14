@@ -1,0 +1,4 @@
+#!/bin/sh
+php garp/scripts/garp.php Version increment > /dev/null 2>&1
+git add application/configs/version.php
+exit 0

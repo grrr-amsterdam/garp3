@@ -12,6 +12,34 @@
  */
 class Garp_Cli_Command_Git extends Garp_Cli_Command {
 	/**
+ 	 * Setup Git as per Grrr conventions
+ 	 * @return Void
+ 	 */
+	public function setup() {
+		Garp_Cli::lineOut('Configuring Git...');
+		// configure core.fileMode
+		passthru('git config core.fileMode false');
+		// configure color.ui
+		passthru('git config color.ui auto');
+		
+		// setup git hook for incrementing version
+		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/pre-commit';
+		$hookTarget = APPLICATION_PATH.'/../.git/hooks/pre-commit';
+		$performTheMove = true;
+		if (file_exists($hookTarget)) {
+			// Warn use about existing hook. Might be accidental
+			$performTheMove = Garp_Cli::confirm('Pre-commit hook already in place. Overwrite?');
+		}
+		if ($performTheMove) {
+			passthru("cp $hookSource $hookTarget");
+			// Make hook executable
+			passthru("chmod u+x $hookTarget");
+		}
+		Garp_Cli::lineOut('Done.');
+	}
+
+
+	/**
  	 * Automatically pulls submodules as well.
  	 * @param Array $args No arguments required, passing some will result in error.
  	 * @return Void
