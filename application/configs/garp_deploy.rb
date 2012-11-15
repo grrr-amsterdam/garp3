@@ -27,9 +27,10 @@ namespace :deploy do
     task :update do
     	transaction do
     		update_code
-        set_cache_dirs
-        set_log_dir
-        spawn
+        	set_cache_dirs
+        	set_log_dir
+        	spawn
+    		increment_version
     		symlink
     	end
     end
@@ -37,6 +38,12 @@ namespace :deploy do
     task :finalize_update do
     	transaction do
     		run "chmod -R g+w #{releases_path}/#{release_name}"
+    	end
+    end
+
+    task :increment_version do
+    	transaction do
+        	run "php #{current_release}/garp/scripts/garp.php Version increment --e=#{garp_env}"
     	end
     end
 
