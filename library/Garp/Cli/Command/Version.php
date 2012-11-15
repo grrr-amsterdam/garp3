@@ -14,7 +14,7 @@ class Garp_Cli_Command_Version extends Garp_Cli_Command {
  	 */
 	public function update(array $args = array()) {
 		$versionFilePath = APPLICATION_PATH.'/configs/version.php';
-		$headGitHash = `git rev-parse --verify --short HEAD 2> /dev/null`;
+		$headGitHash = `git rev-parse --verify --short HEAD`; //  2> /dev/null
 		// This might be the case when working with an exported repo
 		// @todo Think about how to handle that
 		if (is_null($headGitHash)) {
