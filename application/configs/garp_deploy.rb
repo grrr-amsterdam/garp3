@@ -27,10 +27,10 @@ namespace :deploy do
     task :update do
     	transaction do
     		update_code
+    		update_version
         	set_cache_dirs
         	set_log_dir
         	spawn
-    		update_version
     		symlink
     	end
     end
