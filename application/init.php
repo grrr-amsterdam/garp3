@@ -44,8 +44,11 @@ if (
 	$isCli = true;
 }
 
-require_once(APPLICATION_PATH.'/configs/version.php');
-require_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+@include_once(APPLICATION_PATH.'/configs/version.php');
+if (!defined('APP_VERSION')) {
+	define('APP_VERSION', 1);
+}
+include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
 
 
 require 'Garp/Util/Loader.php';
