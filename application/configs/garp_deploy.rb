@@ -30,7 +30,7 @@ namespace :deploy do
         	set_cache_dirs
         	set_log_dir
         	spawn
-    		increment_version
+    		update_version
     		symlink
     	end
     end
@@ -41,9 +41,9 @@ namespace :deploy do
     	end
     end
 
-    task :increment_version do
+    task :update_version do
     	transaction do
-        	run "php #{current_release}/garp/scripts/garp.php Version increment --e=#{garp_env}"
+        	run "php #{current_release}/garp/scripts/garp.php Version update --e=#{garp_env}"
     	end
     end
 
