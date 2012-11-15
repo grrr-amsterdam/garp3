@@ -19,6 +19,7 @@ class Garp_Cli_Command_Version extends Garp_Cli_Command {
 		// @todo Think about how to handle that
 		if (is_null($headGitHash)) {
 			$headGitHash = substr(uniqid(), 0, 7);
+			Garp_Cli::errorOut('No git revision info available. Falling back to random id.');
 		}
 		$headGitHash = trim($headGitHash);
 		$phpStatement = '<?php define(\'APP_VERSION\', \''.$headGitHash.'\');';
