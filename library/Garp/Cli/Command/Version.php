@@ -28,14 +28,13 @@ class Garp_Cli_Command_Version extends Garp_Cli_Command {
 
 		// write incremented version
 		++$version;
-		if (is_writable($versionFilePath)) {
-			$phpStatement = '<?php define(\'APP_VERSION\', '.$version.');';
-			file_put_contents($versionFilePath, $phpStatement);
-			Garp_Cli::lineOut('Done.');
-			return true;
+		$phpStatement = '<?php define(\'APP_VERSION\', '.$version.');';
+		if (false === file_put_contents($versionFilePath, $phpStatement)) {
+			Garp_Cli::errorOut('Could not write contents to file.');
+			return false;
 		}
-		Garp_Cli::errorOut('Could not write version to file.');
-		return false;
+		Garp_Cli::lineOut('Done.');
+		return true;
 	}
 
 	/**
