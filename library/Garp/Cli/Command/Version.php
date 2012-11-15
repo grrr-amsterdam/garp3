@@ -1,7 +1,7 @@
 <?php
 /**
  * Garp_Cli_Command_Version
- * Increment Version constant. To be used by deploy script.
+ * Increment Version constant. To be used by deploy script and Git hooks.
  *
  * @author       Harmen Janssen | grrr.nl
  * @version      1.0
@@ -12,23 +12,16 @@ class Garp_Cli_Command_Version extends Garp_Cli_Command {
 	/**
  	 * Increment version
  	 */
-	public function increment(array $args = array()) {
+	public function update(array $args = array()) {
 		$versionFilePath = APPLICATION_PATH.'/configs/version.php';
-		$version = 0;
-
-		// read current version
-		if (defined('APP_VERSION')) {
-			$version = APP_VERSION;
-		} elseif (is_readable($versionFilePath)) {
-			require_once $versionFilePath;
-			if (defined('APP_VERSION')) {
-				$version = APP_VERSION;
-			}
+		$headGitHash = `git rev-parse --verify --short HEAD`;
+		// This might be the case when working with an exported repo
+		// @todo Think about how to handle that
+		if (is_null($headGitHash)) {
+			$headGitHash = substr(uniqid(), 0, 7);
 		}
-
-		// write incremented version
-		++$version;
-		$phpStatement = '<?php define(\'APP_VERSION\', '.$version.');';
+		$headGitHash = trim($headGitHash);
+		$phpStatement = '<?php define(\'APP_VERSION\', \''.$headGitHash.'\');';
 		if (false === file_put_contents($versionFilePath, $phpStatement)) {
 			Garp_Cli::errorOut('Could not write contents to file.');
 			return false;
