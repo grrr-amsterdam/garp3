@@ -22,13 +22,13 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 		// configure color.ui
 		passthru('git config color.ui auto');
 		
-		// setup git hook for incrementing version
-		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/pre-commit';
-		$hookTarget = APPLICATION_PATH.'/../.git/hooks/pre-commit';
+		// setup git hook for updating APP_VERSION
+		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/post-commit';
+		$hookTarget = APPLICATION_PATH.'/../.git/hooks/post-commit';
 		$performTheMove = true;
 		if (file_exists($hookTarget)) {
 			// Warn use about existing hook. Might be accidental
-			$performTheMove = Garp_Cli::confirm('Pre-commit hook already in place. Overwrite?');
+			$performTheMove = Garp_Cli::confirm('Post-commit hook already in place. Overwrite?');
 		}
 		if ($performTheMove) {
 			passthru("cp $hookSource $hookTarget");
