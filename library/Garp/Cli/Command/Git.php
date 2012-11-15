@@ -31,9 +31,9 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 			$performTheMove = Garp_Cli::confirm('Pre-commit hook already in place. Overwrite?');
 		}
 		if ($performTheMove) {
-			/* passthru("cp $hookSource $hookTarget"); */
+			passthru("cp $hookSource $hookTarget");
 			// Make hook executable
-			/* passthru("chmod u+x $hookTarget"); */
+			passthru("chmod u+x $hookTarget");
 		}
 		Garp_Cli::lineOut('Done.');
 	}
