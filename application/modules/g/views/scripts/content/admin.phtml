@@ -29,8 +29,8 @@
 	?>
 	IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
 	DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
-	ASSET_VERSION = <?php echo APP_VERSION ?>;
-	GARP_VERSION = <?php echo GARP_VERSION ?>;
+	ASSET_VERSION = '<?php echo APP_VERSION ?>';
+	GARP_VERSION = '<?php echo GARP_VERSION ?>';
 	<?php if (isset($this->config()->video->template->w)): ?>
 	VIDEO_WIDTH = <?php echo $this->config()->video->template->w ?>;
 	<?php endif; ?>
