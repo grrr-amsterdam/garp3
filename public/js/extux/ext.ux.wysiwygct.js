@@ -2,13 +2,75 @@
 
 /* 
  * Note on saving content to the server:
- * Can't use wysiwygct.items as their position doesn't change on D 'n D
- * So have to traverse childNodes and grab content & classes & such like so:
- * 
- * Ext.getCmp(Ext.getCmp('rte-container').body.dom.childNodes[].id).content 
+ *  
+ 
+Ext.getCmp('rte-container').refOwner.on('save-all',function(){
+Garp.formPanel.getForm().findField('chapters').setValue('!!!!!!');
+});
+ 
  * 
  */
 
+Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
+	
+	setValue: function(val){
+		console.log(val);
+		if (this.wysiwygct) {
+				var items = Ext.util.JSON.decode(val);
+				if (items) {
+					console.info(items);
+					
+					this.wysiwygct.removeAll();
+					this.wysiwygct.add(items);
+					this.wysiwygct.doLayout();
+				}
+		}
+		return true;
+	},
+	
+	getValue: function(){
+		console.log('getValue!');
+		if (this.rendered && this.wysiwygct && this.wysiwygct.body.dom.childNodes) {
+			var output = [];
+			Ext.each(this.wysiwygct.body.dom.childNodes, function(el){
+				var box = Ext.getCmp(el.id);
+				var item = {
+					col: box.col,
+					columns: box.col.split('-')[1],
+					data: box.getData(),
+					model: box.model
+				};
+				output.push(item);
+			});
+			console.info(output);
+			if (output && output.length) {
+				output = Ext.util.JSON.encode(output);
+				return output;
+			}
+		}
+		return true;
+	},
+	
+	afterRender: function(){
+		Garp.WysiwygField.superclass.afterRender.call(this);
+		this.wrap = this.resizeEl = this.positionEl = this.el.wrap();
+		this.wysiwygct = new Garp.Wysiwygct({
+			renderTo:this.wrap
+		});
+		this.el.hide();
+		
+	},
+	
+	initComponent: function(ct){
+		Garp.WysiwygField.superclass.initComponent.call(this, ct);
+		
+		if(this.value){
+			setValue(this.value);
+		}
+	}
+	
+});
+Ext.reg('wysiwygfield', Garp.WysiwygField);
 
 Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
@@ -18,7 +80,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	padding: 30,
 	//height: '100%',
 	//height: 300,
+	
+	/*
 	saveItems: function(){
+		console.log('saveItems!');
 		var output = [];
 		Ext.each(this.body.dom.childNodes, function(el){
 			var box = Ext.getCmp(el.id);
@@ -30,8 +95,27 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			};
 			output.push(item);
 		});
+		output = Ext.util.JSON.encode(output);
+		this.refOwner[this.contentField].setValue(output);
 		console.dir(output);
+		console.log();
+		
 	},
+	
+	loadItems: function(){
+		console.log('loadItems!');
+		var items;
+		try {
+			items = Ext.util.JSON.decode(this.refOwner[this.contentField].getValue());
+		} catch(e){
+		}
+		console.info(items);
+		if (items) {
+			this.removeAll();
+			this.add(items);
+			this.doLayout();
+		}
+	},*/
 	
 	setupTbar: function(){
 		this.tbar = new Ext.Toolbar({
@@ -353,7 +437,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	 * @param {Object} ct
 	 */
 	initComponent: function(ct){
-		
 		this.setupTbar();
 		this.setupTbarWatcher();
 		this.setupKeyboardHandling();
@@ -363,12 +446,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		this.on('afterlayout', this.setupDD, this, {
 			single: true
 		});
-		/*
-		this.on('render', function(){
-			///this.getTopToolbar().addBtn.setHandler(this.addWysiwygBox.createDelegate(this));
-			this.getTopToolbar().removeBtn.setHandler(this.removeWysiwygBox.createDelegate(this));
-		}, this);
-		*/
+		
 	}
 	
 });
@@ -402,7 +480,9 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	allowedTags: ['a','b','i','br','p','ul','ol','li'],
 	
 	getData: function(){
-		return this.contentEditableEl.dom.innerHTML;
+		return {
+			html: this.contentEditableEl.dom.innerHTML
+		};
 	},
 
 	filterHtml: function(){
