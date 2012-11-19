@@ -40,7 +40,7 @@ class Garp_Content_Export_Pdf extends Garp_Content_Export_Html {
  		 * loader to be chainable. That way the DOMPDF autoloader will take over 
  		 * when our loader cannot find the class.
  		 */
-		$loader = Garp_Util_Loader::getInstance();
+		$loader = Garp_Loader::getInstance();
 		$loader->checkIfFileExists(true);
 
 		$html = parent::_format($model, $rowset);
