@@ -1,6 +1,6 @@
 <?php
 /**
- * Garp_Util_Loader_Exception
+ * Garp_Loader_Exception
  * class description
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -9,6 +9,6 @@
  * @subpackage Loader
  * @lastmodified $Date: $
  */
-class Garp_Util_Loader_Exception extends Exception {
+class Garp_Loader_Exception extends Exception {
 	
 }
