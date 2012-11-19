@@ -2,13 +2,13 @@
 require_once 'Garp/Util/Configuration.php';
 
 /**
- * Garp_Util_Loader
+ * Garp_Loader
  * @author Harmen Janssen | grrr.nl
  * @version 1.0
  * @package Garp
  * @subpackage Util
  */
-class Garp_Util_Loader {
+class Garp_Loader {
 	/**
 	 * Namespace separator char
 	 * @var String
@@ -18,7 +18,7 @@ class Garp_Util_Loader {
 
 	/**
  	 * Singleton
- 	 * @var Garp_Util_Loader
+ 	 * @var Garp_Loader
  	 */
 	protected static $_instance;
 
@@ -83,7 +83,7 @@ class Garp_Util_Loader {
  	 */
 	public static function getInstance($options = array()) {
 		if (!self::$_instance) {
-			self::$_instance = new Garp_Util_Loader($options);
+			self::$_instance = new Garp_Loader($options);
 		}
 		return self::$_instance;
 	}
@@ -135,7 +135,7 @@ class Garp_Util_Loader {
 	 */
 	public function getIncludePath($namespace = '*') {
 		if (!array_key_exists($namespace, $this->_includePaths)) {
-			throw new Garp_Util_Loader_Exception("Namespace $namespace not registered");
+			throw new Garp_Loader_Exception("Namespace $namespace not registered");
 		}
 		return $this->_includePaths[$namespace];
 	}
@@ -172,7 +172,7 @@ class Garp_Util_Loader {
 	public function addFilter($alias, Closure $filter) {
 		$test = 'Garp_Foo_Bar';
 		if (!is_string($filter($test))) {
-			throw new Garp_Util_Loader_Exception('Filter "'.$alias.'" is invalid. Returntype MUST be \'string\'.');
+			throw new Garp_Loader_Exception('Filter "'.$alias.'" is invalid. Returntype MUST be \'string\'.');
 		}		
 		
 		$this->_filters[$alias] = $filter;
@@ -284,7 +284,7 @@ class Garp_Util_Loader {
 		}
 
 		if (is_null($includePath)) {
-			throw new Garp_Util_Loader_Exception("Could not resolve path for class $className.");
+			throw new Garp_Loader_Exception("Could not resolve path for class $className.");
 		}
 
 		// cut off an optional prefix
