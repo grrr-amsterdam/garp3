@@ -51,12 +51,12 @@ if (!defined('APP_VERSION')) {
 include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
 
 
-require 'Garp/Util/Loader.php';
+require 'Garp/Loader.php';
 
 /**
  * Set up class loading.
  */ 
-$classLoader = Garp_Util_Loader::getInstance(array(
+$classLoader = Garp_Loader::getInstance(array(
 	'paths' => array(
 		array(
 			'namespace' => '*',
