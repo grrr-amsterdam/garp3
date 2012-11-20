@@ -1949,7 +1949,7 @@ Garp.apply(Garp.FormHelper, {
 	 */
 	formatName: function(name) {
 		if (name) {
-			name = name.replace('[', '-sqb-open-').replace(']', '-sqb-close-');
+			name = name.replace('[', '\[').replace(']', '\]');
 		}
 		return name;
 	},
