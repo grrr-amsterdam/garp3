@@ -96,7 +96,7 @@ Ext.override(Ext.form.Checkbox,{
  */
 Ext.override(Ext.form.DateField, {
 	format: 'd F Y',
-	altFormats: 'Y-m-d|d F Y|j F Y'
+	altFormats: 'Y-m-d|d F Y|j F Y|d m Y|d n Y|d-m-Y|d-n-Y'
 });
 Ext.apply(Ext.form.TimeField.prototype, {
     altFormats: 'g:ia|g:iA|g:i a|g:i A|h:i|g:i|H:i|ga|ha|gA|h a|g a|g A|gi|hi|gia|hia|g|H|H:i:s'
