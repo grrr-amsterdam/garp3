@@ -27,6 +27,7 @@ class Garp_Cli_Command_Cache extends Garp_Cli_Command {
 
 		Garp_Cache_Manager::purgeStaticCache($args, $cacheDir);
 		Garp_Cache_Manager::purgeMemcachedCache($args);
+		Garp_Cache_Manager::purgePluginLoaderCache();
 		Garp_Cli::lineOut('All cache purged.');
 	}
 
