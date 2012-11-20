@@ -47,6 +47,7 @@ class Garp_Cache_Manager {
 		}
 		self::purgeStaticCache($tags);
 		self::purgeMemcachedCache($tags);
+		self::purgePluginLoaderCache();
 
 		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
 		if ($createClusterJob && $ini->app->clusteredHosting) {
@@ -124,6 +125,15 @@ class Garp_Cache_Manager {
 				}
 			}
 		}
+	}
+
+
+	/**
+ 	 * Remove pluginLoaderCache.php
+ 	 * @return Void
+ 	 */
+	public static function purgePluginLoaderCache() {
+		@unlink(APPLICATION_PATH.'/data/cache/pluginLoaderCache.php');
 	}
 
 
