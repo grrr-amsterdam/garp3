@@ -13,23 +13,68 @@ Garp.formPanel.getForm().findField('chapters').setValue('!!!!!!');
 
 Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	
+	initValue: function(){
+	console.warn('initValue');	
+	},
+	
 	setValue: function(val){
-		console.log(val);
-		if (this.wysiwygct) {
-				var items = Ext.util.JSON.decode(val);
-				if (items) {
-					console.info(items);
-					
-					this.wysiwygct.removeAll();
-					this.wysiwygct.add(items);
-					this.wysiwygct.doLayout();
-				}
+	
+		if (this.wysiwygct && val) {
+			//try {
+			var items = val;
+			var nItems;
+			TEMP = items;
+			console.info(items);
+			if (!items.length) {
+				return;
+			}
+			//console.log(items);
+			//console.log(this.initialValue);
+			//this.originalValue=items;
+			this.wysiwygct.removeAll();
+			if (typeof items == 'string') {
+				nItems = Ext.util.JSON.decode(items);
+			} else {
+				//var items = JSON.parse(val);
+				nItems = [];
+				Ext.each(items, function(item){
+					var col = 'grid-' + item.columns + '-12';
+					if (item.model == 'Text') {
+						nItems.push({
+							xtype: 'wysiwyg',
+							columns: item.columns,
+							col: col,
+							data: {
+								html: item.data.description
+							}
+						});
+					}
+					if (item.model == 'Image') {
+						nItems.push({
+							xtype: 'wysiwygimg',
+							columns: item.columns,
+							col: col,
+							image: {
+								id: item.data.id
+							}
+						});
+					}
+				});
+			}
+			this.originalValue=nItems;
+			console.info(nItems);
+			this.wysiwygct.add(nItems);
+			this.wysiwygct.doLayout();
+			this.wysiwygct.setupDD();
+		
+		//} catch(e){
+		//	console.warn(e);
+		//}
+		
 		}
-		return true;
 	},
 	
 	getValue: function(){
-		console.log('getValue!');
 		if (this.rendered && this.wysiwygct && this.wysiwygct.body.dom.childNodes) {
 			var output = [];
 			Ext.each(this.wysiwygct.body.dom.childNodes, function(el){
@@ -37,19 +82,26 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 				var item = {
 					col: box.col,
 					columns: box.col.split('-')[1],
-					data: box.getData(),
+					data: box.getData ? box.getData() : null,
 					model: box.model
 				};
 				output.push(item);
 			});
-			console.info(output);
 			if (output && output.length) {
 				output = Ext.util.JSON.encode(output);
 				return output;
 			}
 		}
+	},
+	
+	// override these methods for debugging and such:
+	isValid: function(){
 		return true;
 	},
+	
+	//isDirty: function(){
+	//	return false;
+	//},
 	
 	afterRender: function(){
 		Garp.WysiwygField.superclass.afterRender.call(this);
@@ -465,7 +517,7 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 		'<div class="contenteditable">' +
 		 	__('Enter text') +
 			
-			'<table><tbody><tr><td>Bla</td><td>Blup</td></tr></tbody></table>' +
+			//'<table><tbody><tr><td>Bla</td><td>Blup</td></tr></tbody></table>' +
 			 
 		'</div>' + 
 		'<div class="target top"></div>' +
@@ -541,6 +593,10 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 			this.contentEditableEl.on('focus', this.filterHtml, this);
 			this.contentEditableEl.on('click', this.filterHtml, this);
 			this.contentEditableEl.on('blur', this.filterHtml, this);
+			
+			if(this.data){
+				this.contentEditableEl.update(this.data.html);
+			}
 		}, this);
 		
 	}
