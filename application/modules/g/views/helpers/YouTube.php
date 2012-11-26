@@ -70,16 +70,15 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 		$config->setDefault('height', isset($options['width']) ? 30 + round($options['width']/1.78) : 300)
 			   ->setDefault('width', 480)
 			   ->setDefault('attribs', array())
-			   ->setDefault('color1', '0xFFFFFF')
-			   ->setDefault('color2', '0xFFFFFF')
 			   ->setDefault('wmode', 'opaque')
-			   ->setDefault('enablejsapi', '1')
-			   ->setDefault('hd', '1')
+			   /**
+ 				* The following are YouTube URL parameters (https://developers.google.com/youtube/player_parameters)
+ 				*/
 			   ->setDefault('rel', '0')
 			   ->setDefault('showinfo', '0')
-			   ->setDefault('showsearch', '0')
 			   ->setDefault('fs', '1')
-			   ->setDefault('egm', '0')
+			   ->setDefault('modestbranding', '1')
+			   ->setDefault('theme', 'light')
 			   ;
 		return $config;		
 	}
