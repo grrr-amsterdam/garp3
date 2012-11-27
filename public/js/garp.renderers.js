@@ -241,7 +241,8 @@ Ext.apply(Garp.renderers,{
 	 * @param {String} val image Id
 	 */
 	imageRelationRenderer: function(val){
-		return val ? '<div class="garp-image-renderct"><img src="' + IMAGES_CDN + 'scaled/cms_list/' + val + '" width="64" alt="" /></div>' : '';
+		var imgHtml = val ? '<img src="' + IMAGES_CDN + 'scaled/cms_list/' + val + '" width="64" alt="" />' : '&nbsp;';
+		return '<div class="garp-image-renderct">'+imgHtml+'</div>';
 	},
 	
 	/**
