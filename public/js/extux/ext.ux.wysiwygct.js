@@ -10,10 +10,10 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	},
 
 	setValue: function(items){
+		this.reset();
+
 		if (items) {
 			var nItems;
-			
-			this.reset();
 			if (typeof items == 'string') {
 				nItems = Ext.util.JSON.decode(items);
 			} else {
@@ -55,10 +55,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					single: true
 				});
 			}
-		} else {
-			// remove everything. start over. kill darlings.
-			this.reset();
-		}
+		} 
 	},
 	
 	getValue: function(){
