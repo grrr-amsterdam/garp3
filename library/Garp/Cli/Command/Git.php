@@ -21,6 +21,19 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 		passthru('git config core.fileMode false');
 		// configure color.ui
 		passthru('git config color.ui auto');
+		// checkout branch master in Garp submodule
+		// sanity check: do we have a garp folder?
+		if (is_dir('garp')) {
+			chdir('garp');
+			$branches = `git branch`;                                                               
+			$branches = explode("\n", $branches);
+			// only checkout master if it's currently not on any branch
+			if ($branches[0] == '* (no branch)') {
+				passthru('git checkout master');
+			}
+			// change dir back
+			chdir('..');
+		}
 		
 		// setup git hook for updating APP_VERSION
 		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/post-commit';
