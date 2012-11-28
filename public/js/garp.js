@@ -393,7 +393,7 @@
 		tb.extraMenu.menu.exportButton.show();
 		tb.extraMenu.menu.printButton.show();
 		
-		document.title = __(Garp.dataTypes[model].text) + ' | ' + APP_TITLE;
+		document.title = __(Garp.dataTypes[model].text) + ' | ' + (typeof APP_TITLE != 'undefined' ? APP_TITLE : '');
 		Garp.setFavicon(Garp.dataTypes[model].iconCls);
 		
 	};
