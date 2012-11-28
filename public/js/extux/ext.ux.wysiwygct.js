@@ -1,41 +1,22 @@
-
-
-/* 
- * Note on saving content to the server:
- *  
- 
-Ext.getCmp('rte-container').refOwner.on('save-all',function(){
-Garp.formPanel.getForm().findField('chapters').setValue('!!!!!!');
-});
- 
- * 
- */
-
 Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	
 	initValue: function(){
-	console.warn('initValue');	
+		console.warn('initValue');	
 	},
 	
-	setValue: function(val){
-	
-		if (this.wysiwygct && val) {
-			//try {
-			var items = val;
+	reset: function(){
+		this.wysiwygct.removeAll(true);
+		delete this.originalValue;
+	},
+
+	setValue: function(items){
+		this.reset();
+
+		if (items) {
 			var nItems;
-			TEMP = items;
-			console.info(items);
-			if (!items.length) {
-				return;
-			}
-			//console.log(items);
-			//console.log(this.initialValue);
-			//this.originalValue=items;
-			this.wysiwygct.removeAll();
 			if (typeof items == 'string') {
 				nItems = Ext.util.JSON.decode(items);
 			} else {
-				//var items = JSON.parse(val);
 				nItems = [];
 				Ext.each(items, function(item){
 					var col = 'grid-' + item.columns + '-12';
@@ -61,17 +42,20 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					}
 				});
 			}
-			this.originalValue=nItems;
-			console.info(nItems);
-			this.wysiwygct.add(nItems);
-			this.wysiwygct.doLayout();
-			this.wysiwygct.setupDD();
-		
-		//} catch(e){
-		//	console.warn(e);
-		//}
-		
-		}
+			if (nItems.length) {
+				this.wysiwygct.add(nItems);
+				this.wysiwygct.doLayout();
+				this.wysiwygct.setupDD();
+				
+				// now, because of initialization changes and parses of the initial data, we set originalValue to mark this field unDirty, 
+				// *after* the added items are layed-out
+				this.wysiwygct.on('afterlayout', function(){
+					this.originalValue = this.getValue();
+				}, this, {
+					single: true
+				});
+			}
+		} 
 	},
 	
 	getValue: function(){
@@ -91,6 +75,8 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 				output = Ext.util.JSON.encode(output);
 				return output;
 			}
+		} else {
+			return '';
 		}
 	},
 	
@@ -110,15 +96,13 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 			renderTo:this.wrap
 		});
 		this.el.hide();
-		
 	},
 	
 	initComponent: function(ct){
 		Garp.WysiwygField.superclass.initComponent.call(this, ct);
-		
-		if(this.value){
-			setValue(this.value);
-		}
+		//if(this.value){
+		//	setValue(this.value);
+		//}
 	}
 	
 });
