@@ -29,9 +29,10 @@ namespace :deploy do
     		update_code
         	set_cache_dirs
         	set_log_dir
-        	spawn
+          set_blackhole_path_symlink_fix
+          spawn
     		symlink
-    		update_version
+        update_version
     	end
     end
 
@@ -71,6 +72,13 @@ namespace :deploy do
     task :set_log_dir do
       transaction do
         run "if [ ! -d '#{current_release}/application/data/logs' ]; then mkdir -p #{current_release}/application/data/logs; fi";
+      end
+    end
+    
+    task :set_blackhole_path_symlink_fix do
+      transaction do
+        # fix casing
+    		run "ln -nfs BlackHole.php #{current_release}/library/Zend/Cache/Backend/Blackhole.php"
       end
     end
 
