@@ -62,7 +62,7 @@ namespace :deploy do
         run "if [ ! -d '#{server_cache_dir}/HTML' ]; then mkdir -p #{server_cache_dir}/HTML; fi";
         run "if [ ! -d '#{server_cache_dir}/CSS' ]; then mkdir -p #{server_cache_dir}/CSS; fi";
         run "if [ ! -d '#{server_cache_dir}/tags' ]; then mkdir -p #{server_cache_dir}/tags; fi";
-        run "echo '<?php' > #{server_cache_dir}/pluginLoaderCache.php"
+        # run "echo '<?php' > #{server_cache_dir}/pluginLoaderCache.php"
         
         # static html cache
         run "if [ ! -d '#{current_release}/public/cached' ]; then mkdir -p #{current_release}/public/cached; fi";
