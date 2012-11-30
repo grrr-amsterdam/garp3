@@ -797,10 +797,12 @@ Garp.FlashMessage = function(cfg){
 		/**
 		* @cfg {jQuery element}: Provide the element to use
 		*/
-		elm: (function(){
+		elm: null,
+		createElm: function(){
 			var id = 'flashMessage';
-			return $('#' + id).length ? $('#' + id) : $('body').append('<div id="' + id + '"></div>').find('#' + id);
-		})(this),
+			this.elm = $('#' + id).length ? $('#' + id) : $('body').append('<div id="' + id + '"></div>').find('#' + id);
+			return this.elm;
+		},
 		
 		/**
 		* @cfg {Boolean} Automatically hide?
@@ -894,8 +896,8 @@ Garp.FlashMessage = function(cfg){
 			if (!this.msg) {
 				return this;
 			}
-			if (!this.elm.length) {
-				$('body').append(this.elm);
+			if (!this.elm) {
+				this.createElm();
 			}
 			if (this.msg) {
 				this.elm.html(this.msg);

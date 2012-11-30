@@ -34,7 +34,7 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 	 */
 	makeQuery: function(queryStr){
 		if (!queryStr) {
-			this.grid.getStore().baseParams = this.originalBaseParams;
+			this.grid.getStore().baseParams = Ext.apply({},this.originalBaseParams);
 		} else {
 			var q = this.grid.getStore().baseParams ? this.grid.getStore().baseParams.query : '';
 			var dt = new Ext.util.MixedCollection();
