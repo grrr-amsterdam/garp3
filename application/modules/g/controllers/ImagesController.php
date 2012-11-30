@@ -36,16 +36,16 @@ class G_ImagesController extends Garp_Controller_Action {
 		if (
 			!$filename
 		) {
-			throw new Exception('No filename was provided.');
+			throw new Zend_Controller_Action_Exception('No filename was provided.', 404);
 		} elseif (
 			is_numeric($filename)
 		) {
 			if ($tpl = $request->getParam('tpl')) {
-				throw new Exception("Template-scaled images can no longer be acquired through this dynamic url. Please refer to the actual location of the file.");
+				throw new Zend_Controller_Action_Exception("Template-scaled images can no longer be acquired through this dynamic url. Please refer to the actual location of the file.", 404);
 			} else {
 				$this->_viewSourceById($filename);
 			}
-		} else throw new Exception("Referring to images by their filename is no longer supported on this dynamic url. Please use the image id.");
+		} else throw new Zend_Controller_Action_Exception("Referring to images by their filename is no longer supported in this url format. Please use the image id.", 404);
 	}
 
 
@@ -57,7 +57,7 @@ class G_ImagesController extends Garp_Controller_Action {
 			$url = $file->getUrl($imageRow->filename);
 			header("Location: ".$url);
 			exit;
-		} else throw new Exception("Sorry, I can't find the requested image.");
+		} else throw new Zend_Controller_Action_Exception("Sorry, I can't find the requested image.", 404);
 	}
 
 

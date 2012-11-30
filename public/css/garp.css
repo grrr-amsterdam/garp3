@@ -50,6 +50,7 @@ td.sort-asc .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner{ font-weight: bold
 div.x-grid3-row { border: 1px #fff solid !important; }
 .row-icon { width: 16px; height: 16px; display: inline-block; margin-right: 5px; opacity: .5; }
 .x-grid3-row .garp-image-renderct { display: inline-block; margin-top: 2px; }
+.garp-image-renderct .no-img { width: 64px; height: 49px; display: block; background: #ccc; }
 .garp-image-renderct img{ margin-right: 10px; }
 .x-grid3-row .garp-image-renderct img { opacity: .7;  }
 .x-grid3-row-selected .garp-image-renderct img, .x-grid3-row-over .garp-image-renderct img { opacity: 1; }
