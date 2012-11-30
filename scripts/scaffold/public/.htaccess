@@ -1,9 +1,9 @@
 # pass the default character set
 AddDefaultCharset UTF-8
 
-SetEnvIf Host ^loc\.(.*) APPLICATION_ENV=development
+SetEnvIf Host integration.grrr.nl$ APPLICATION_ENV=integration
 SetEnvIf Host ^dev\.(.*) APPLICATION_ENV=staging
-SetEnvIf Host gargamel.nl$ APPLICATION_ENV=staging
+SetEnvIf Host ^loc\.(.*) APPLICATION_ENV=development
 
 php_value upload_max_filesize 30M
 php_value post_max_size 30M

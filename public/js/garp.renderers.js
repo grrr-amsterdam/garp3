@@ -237,11 +237,20 @@ Ext.apply(Garp.renderers,{
 	},
 	
 	/**
-	 * 
+	 * Relation Renderer for buttons & columnModel
 	 * @param {String} val image Id
+	 * @param {Object} meta information. Only used in columnModel.renderer setup 
 	 */
-	imageRelationRenderer: function(val){
-		return val ? '<div class="garp-image-renderct"><img src="' + IMAGES_CDN + 'scaled/cms_list/' + val + '" width="64" alt="" /></div>' : '';
+	imageRelationRenderer: function(val, meta, record){
+		var imgHtml = '<img src="' + IMAGES_CDN + 'scaled/cms_list/' + val + '" width="64" alt="" />';
+		if (meta) {	// column model renderer
+			if (!val) {
+				imgHtml = '<div class="no-img"></div>';
+			}
+			return '<div class="garp-image-renderct">' + imgHtml + '</div>';
+		} else {	// button
+			return val ? imgHtml : null;
+		}
 	},
 	
 	/**
