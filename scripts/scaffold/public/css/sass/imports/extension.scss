@@ -1,0 +1,44 @@
+/* ==========================================================================
+   variables
+   ========================================================================== */
+
+// COLORS
+// The following is inspired by this article: http://sachagreif.com/sass-color-variables/
+$grey: #b3b3b3; /* grey */
+$black: #222; /* black */
+$red: #a62422; /* red */
+$lightRed: lighten($red, 55%); /* light red */
+
+$textColor: $black;
+$linkColor: $red;
+$primaryColor: $lightRed;
+$secondaryColor: $black;
+
+// GRID UNITS
+$gridColumnWidth: 80px;
+$gridGutterWidth: 20px;
+$gridColumnCount: 10;
+$gridFullWidth: $gridColumnCount*($gridColumnWidth+$gridGutterWidth);
+
+$margin: 20px;
+$marginHalf: 10px;
+$marginDouble: 40px;
+
+/* ==========================================================================
+   mixins and functions
+   ========================================================================== */
+
+// For image replacement
+@mixin hide-text {
+	font: 0/0 a;
+	text-shadow: none;
+	color: transparent;
+	background-color: transparent;
+	border: 0 none;
+}
+
+// For font-sizing in rem
+@mixin font-size($font-size) {
+	font-size: #{$font-size}px;
+	font-size: #{$font-size / 10}rem;
+}
