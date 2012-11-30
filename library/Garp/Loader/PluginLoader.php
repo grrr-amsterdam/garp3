@@ -95,22 +95,7 @@ class Garp_Loader_PluginLoader extends Zend_Loader_PluginLoader {
      * @return void
      */
     protected static function _appendIncFile($incFile) {
-        if (!file_exists(self::$_includeFileCache)) {
-            $file = '<?php';
-        } else {
-            $file = file_get_contents(self::$_includeFileCache);
-			$file = trim($file);
-			// Tweak 1: Never append include statements without checking if there are <?php tags
-			if (!$file) {
-				$file = '<?php';
-			}
-        }
-        if (!strstr($file, $incFile)) {
-            $file .= "\ninclude_once '$incFile';";
-            file_put_contents(self::$_includeFileCache, $file);
-
-			// Tweak 2: chmod cache file so it's readable by Apache and by the commandline user
-			chmod(self::$_includeFileCache, 0666);
-        }
+		$line = "<?php include_once '$incFile'; ?>\n";
+		file_put_contents(self::$_includeFileCache, $line, FILE_APPEND | LOCK_EX);
     }
 }
