@@ -20,8 +20,8 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
  		 * Suppress include error, to save file_exists check.
  		 * If it's not there, it's no problem, so a simple "@" will do.
  		 */
-		@include_once $classFileIncCache;
-		Zend_Loader_PluginLoader::setIncludeFileCache($classFileIncCache);
+		//@include_once $classFileIncCache;
+		//Zend_Loader_PluginLoader::setIncludeFileCache($classFileIncCache);
 	}
 
 
