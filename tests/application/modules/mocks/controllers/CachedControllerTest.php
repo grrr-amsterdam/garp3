@@ -11,8 +11,6 @@
  * @lastmodified $LastChangedDate: 2012-09-24 14:51:43 +0200 (Mon, 24 Sep 2012) $
  * @group        Controller
  *
- * @todo This test assumes static caching configured in application.ini... is 
- * that wise? Should we set it up at runtime?
  */
 class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	protected $_cachePath; 
@@ -51,8 +49,11 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 				throw new Exception('Cache dir is not writable. Cannot execute test.');
 			}
 		}
-		$pageCache = $this->_getCacheBackend();
-		$pageCache->getBackend()->setOption('public_dir', $this->_cachePath);
+		$pageCache = $this->getPageCache();
+		$pageCache->getBackend()
+			->setOption('public_dir', $this->_cachePath)
+			->setOption('disable_caching', false)
+		;
 
 		// start with an empty cache
 		Garp_Cache_Manager::purgeMemcachedCache();
@@ -105,7 +106,7 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		$dbAdapter->query('SET foreign_key_checks = 1;');
 	}
 
-	protected function _getCacheBackend() {
+	protected function getPageCache() {
 		$cacheManager = $this->getFrontController()
 			->getParam('bootstrap')
 			->getResource('cachemanager')
