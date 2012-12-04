@@ -1,17 +1,13 @@
 Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
-	
-	initValue: function(){
-		console.warn('initValue');	
-	},
-	
+
 	reset: function(){
 		this.wysiwygct.removeAll(true);
 		delete this.originalValue;
 	},
-
+	
 	setValue: function(items){
 		this.reset();
-
+		
 		if (items) {
 			var nItems;
 			if (typeof items == 'string') {
@@ -26,7 +22,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 							columns: item.columns,
 							col: col,
 							data: {
-								html: item.data.description
+								description: item.data.description
 							}
 						});
 					}
@@ -55,7 +51,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					single: true
 				});
 			}
-		} 
+		}
 	},
 	
 	getValue: function(){
@@ -71,40 +67,39 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 				};
 				output.push(item);
 			});
-			if (output && output.length) {
-				output = Ext.util.JSON.encode(output);
-				return output;
-			}
+			return output;
 		} else {
 			return '';
 		}
 	},
 	
-	// override these methods for debugging and such:
 	isValid: function(){
-		return true;
+		return true; // @TODO decide if this needs to go here!
 	},
 	
-	//isDirty: function(){
-	//	return false;
-	//},
+	isDirty: function(){
+		if (this.getValue() && this.originalValue) {
+			var f = Ext.util.JSON.encode;
+			return f(this.getValue()) != f(this.originalValue);
+		}
+	},
 	
 	afterRender: function(){
 		Garp.WysiwygField.superclass.afterRender.call(this);
 		this.wrap = this.resizeEl = this.positionEl = this.el.wrap();
 		this.wysiwygct = new Garp.Wysiwygct({
-			renderTo:this.wrap
+			renderTo: this.wrap
 		});
 		this.el.hide();
 	},
 	
 	initComponent: function(ct){
 		Garp.WysiwygField.superclass.initComponent.call(this, ct);
-		//if(this.value){
-		//	setValue(this.value);
-		//}
-	}
+	},
 	
+	onDestroy: function(ct){
+		this.wysiwygct.destroy();
+	}
 });
 Ext.reg('wysiwygfield', Garp.WysiwygField);
 
@@ -114,45 +109,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	autoScroll: true,
 	autoHeight: true,
 	padding: 30,
-	//height: '100%',
-	//height: 300,
-	
-	/*
-	saveItems: function(){
-		console.log('saveItems!');
-		var output = [];
-		Ext.each(this.body.dom.childNodes, function(el){
-			var box = Ext.getCmp(el.id);
-			var item = {
-				col: box.col,
-				columns: box.col.split('-')[1],
-				data: box.getData(),
-				model: box.model
-			};
-			output.push(item);
-		});
-		output = Ext.util.JSON.encode(output);
-		this.refOwner[this.contentField].setValue(output);
-		console.dir(output);
-		console.log();
-		
-	},
-	
-	loadItems: function(){
-		console.log('loadItems!');
-		var items;
-		try {
-			items = Ext.util.JSON.decode(this.refOwner[this.contentField].getValue());
-		} catch(e){
-		}
-		console.info(items);
-		if (items) {
-			this.removeAll();
-			this.add(items);
-			this.doLayout();
-		}
-	},*/
-	
 	setupTbar: function(){
 		this.tbar = new Ext.Toolbar({
 			defaults: {
@@ -174,12 +130,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					handler: this.addWysiwygImgBox,
 					scope: this
 				}]
-			},/* {
-				iconCls: 'icon-delete',
-				text: __('Delete'),
-				ref: 'removeBtn'
-			
-			}, '-',*/ {
+			}, {
 				text: '<b style="text-transform: none;">' + __('Bold') + '</b>',
 				ref: 'boldBtn',
 				clickEvent: 'mousedown',
@@ -207,7 +158,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	setupTbarWatcher: function(){
 		var states = ['bold','italic'];
 		var scope = this;
-		setInterval(function(){
+		this.tbWatcherInterval = setInterval(function(){
 			var tbar = scope.getTopToolbar();
 			if(!tbar || Ext.select('.wysiwyg-box').elements.length === 0) {
 				return;
@@ -274,7 +225,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	},
 	
 	removeWysiwygBox: function(box){
-		//var box = Ext.get(Ext.get(window.getSelection().focusNode.parentNode).findParent('.wysiwyg-box'));
 		this.remove(box.id);
 		this.doLayout();
 	},
@@ -482,7 +432,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		this.on('afterlayout', this.setupDD, this, {
 			single: true
 		});
-		
+	},
+	
+	onDestroy: function(ct){
+		if (this.tbWatcherInterval) {
+			clearInterval(this.tbWatcherInterval);
+		}
 	}
 	
 });
@@ -500,9 +455,6 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 		'<div class="dd-handle icon-delete"></div>' + 
 		'<div class="contenteditable">' +
 		 	__('Enter text') +
-			
-			//'<table><tbody><tr><td>Bla</td><td>Blup</td></tr></tbody></table>' +
-			 
 		'</div>' + 
 		'<div class="target top"></div>' +
 		'<div class="target right"></div>' +
@@ -517,7 +469,7 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 	
 	getData: function(){
 		return {
-			html: this.contentEditableEl.dom.innerHTML
+			description: this.contentEditableEl.dom.innerHTML
 		};
 	},
 
@@ -579,7 +531,7 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 			this.contentEditableEl.on('blur', this.filterHtml, this);
 			
 			if(this.data){
-				this.contentEditableEl.update(this.data.html);
+				this.contentEditableEl.update(this.data.description);
 			}
 		}, this);
 		
@@ -599,7 +551,9 @@ Garp.WysiwygImg = Ext.extend(Garp.Wysiwyg, {
 	model: 'Image',
 	
 	getData: function(){
-		return this.image;
+		return {
+			id: this.image.id
+		};
 	},
 	
 	// override: we don't need filtering for images:
