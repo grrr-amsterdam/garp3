@@ -25,8 +25,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 								description: item.data.description
 							}
 						});
-					}
-					if (item.model == 'Image') {
+					} else if (item.model == 'Image') {
 						nItems.push({
 							xtype: 'wysiwygimg',
 							columns: item.columns,
@@ -42,7 +41,6 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 				this.wysiwygct.add(nItems);
 				this.wysiwygct.doLayout();
 				this.wysiwygct.setupDD();
-				
 				// now, because of initialization changes and parses of the initial data, we set originalValue to mark this field unDirty, 
 				// *after* the added items are layed-out
 				this.wysiwygct.on('afterlayout', function(){
@@ -109,8 +107,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	autoScroll: true,
 	autoHeight: true,
 	padding: 30,
+	
 	setupTbar: function(){
 		this.tbar = new Ext.Toolbar({
+			width: '4000', // @FIXME: width doesnt seem to work
 			defaults: {
 				xtype: 'button',
 				scope: this
@@ -131,7 +131,13 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					scope: this
 				}]
 			}, {
-				text: '<b style="text-transform: none;">' + __('Bold') + '</b>',
+				text: __('Variant'),
+				ref: 'classMenu',
+				xtype: 'combo',
+				store: [['normal','normal']]
+			},
+			{
+				iconCls:'icon-wysiwyg-bold',
 				ref: 'boldBtn',
 				clickEvent: 'mousedown',
 				enableToggle: true,
@@ -140,7 +146,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					document.execCommand('Bold', false, null);
 				}
 			}, {
-				text: '<b style="text-transform: none;font-style: italic;">' + __('Italic') + '</b>',
+				iconCls:'icon-wysiwyg-italic',
 				ref: 'italicBtn',
 				clickEvent: 'mousedown',
 				enableToggle: true,
@@ -148,9 +154,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					e.preventDefault();
 					document.execCommand('Italic', false, null);
 				}
-			},{
-				text: __('Save'),
-				handler: this.saveItems
 			}]
 		});
 	},
@@ -255,6 +258,33 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			}
 		}
 		return this.maxCols;
+	},
+	
+	setupClassMenu: function(box){
+		var model = box.model;
+		var menu;
+		var val;
+		if (Garp.dataTypes[model].wysiwygConfig) {
+			menu = Garp.dataTypes[model].wysiwygConfig.classMenu;
+			Ext.each(Garp.dataTypes[model].wysiwygConfig.classMenu, function(cl){
+				if(box.el.hasClass(cl[0])){
+					val = cl[0];
+					return;
+				}
+			});
+		} else {
+			menu = [{
+				normal: 'normal'
+			}];
+		}
+		this.getTopToolbar().classMenu.store.loadData(menu);
+		this.getTopToolbar().classMenu.setValue(val || 'normal');
+		this.getTopToolbar().classMenu.un('change').on('change', function(menu, v){
+			Ext.each(Garp.dataTypes[model].wysiwygConfig.classMenu, function(cl){
+				box.el.removeClass(cl[0]);
+			});
+			box.el.addClass(v);
+		});
 	},
 	
 	/**
@@ -404,13 +434,19 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				}
 				
 			});
-			var handle = Ext.get(elm).child('.dd-handle').id;
+			var el = Ext.get(elm);
+			var handle = el.child('.dd-handle').id;
 			dd.setHandleElId(handle);
 			
-			var targetTop = new Ext.dd.DDTarget(Ext.get(elm).child('.top').id, 'wysiwyg-dragables-group', {});
-			var targetRight = new Ext.dd.DDTarget(Ext.get(elm).child('.right').id, 'wysiwyg-dragables-group', {});
-			var targetBottom = new Ext.dd.DDTarget(Ext.get(elm).child('.bottom').id, 'wysiwyg-dragables-group', {});
-			var targetLeft = new Ext.dd.DDTarget(Ext.get(elm).child('.left').id, 'wysiwyg-dragables-group', {});
+			var targetTop = new Ext.dd.DDTarget(el.child('.top').id, 'wysiwyg-dragables-group', {});
+			var targetRight = new Ext.dd.DDTarget(el.child('.right').id, 'wysiwyg-dragables-group', {});
+			var targetBottom = new Ext.dd.DDTarget(el.child('.bottom').id, 'wysiwyg-dragables-group', {});
+			var targetLeft = new Ext.dd.DDTarget(el.child('.left').id, 'wysiwyg-dragables-group', {});
+			
+			el.on('click', function(){
+				var clickedBox = Ext.getCmp(el.id);
+				wysiwygct.setupClassMenu(clickedBox);
+			});
 			
 		});
 		
@@ -534,7 +570,6 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 				this.contentEditableEl.update(this.data.description);
 			}
 		}, this);
-		
 	}
 });
 Ext.reg('wysiwyg', Garp.Wysiwyg);
