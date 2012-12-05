@@ -279,7 +279,8 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		}
 		this.getTopToolbar().classMenu.store.loadData(menu);
 		this.getTopToolbar().classMenu.setValue(val || 'normal');
-		this.getTopToolbar().classMenu.un('change').on('change', function(menu, v){
+		this.getTopToolbar().classMenu.purgeListeners();
+		this.getTopToolbar().classMenu.on('change', function(menu, v){
 			Ext.each(Garp.dataTypes[model].wysiwygConfig.classMenu, function(cl){
 				box.el.removeClass(cl[0]);
 			});
