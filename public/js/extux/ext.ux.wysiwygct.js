@@ -130,14 +130,14 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					handler: this.addWysiwygImgBox,
 					scope: this
 				}]
-			}, {
-				text: __('Variant'),
+			}, '-', {
 				ref: 'classMenu',
 				editable: false,
 				forceSelection: true,
 				triggerAction: 'all',
 				xtype: 'combo',
-				store: [['normal','normal']],
+				store: [['normal','Normal']],
+				value: 'normal',
 				focusedBox: null,
 				listeners:{
 					change: function(menu, v){
@@ -149,7 +149,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						}
 					}
 				}
-			},
+			},'-',
 			{
 				iconCls:'icon-wysiwyg-bold',
 				ref: 'boldBtn',
@@ -293,7 +293,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			});
 		} else {
 			menu = [{
-				normal: 'normal'
+				normal: 'Normal'
 			}];
 		}
 		this.getTopToolbar().classMenu.focusedBox = box;
