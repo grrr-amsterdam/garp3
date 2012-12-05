@@ -20,7 +20,8 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 						nItems.push({
 							xtype: 'wysiwyg',
 							columns: item.columns,
-							col: col,
+							//extraClass: item['class'],
+							col: col,// + ' ' + item['class'],
 							data: {
 								description: item.data.description
 							}
@@ -29,7 +30,8 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 						nItems.push({
 							xtype: 'wysiwygimg',
 							columns: item.columns,
-							col: col,
+							//extraClass: item['class'],
+							col: col,// + ' ' + item['class'],
 							image: {
 								id: item.data.id
 							}
@@ -59,6 +61,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 				var box = Ext.getCmp(el.id);
 				var item = {
 					col: box.col,
+					'class': box.extraClass || null,
 					columns: box.col.split('-')[1],
 					data: box.getData ? box.getData() : null,
 					model: box.model
@@ -136,16 +139,17 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				forceSelection: true,
 				triggerAction: 'all',
 				xtype: 'combo',
-				store: [['normal','Normal']],
+				store: [['normal', 'Normal']],
 				value: 'normal',
 				focusedBox: null,
-				listeners:{
+				listeners: {
 					change: function(menu, v){
 						if (menu.focusedBox) {
 							Ext.each(Garp.dataTypes[menu.focusedBox.model].wysiwygConfig.classMenu, function(cl){
 								menu.focusedBox.el.removeClass(cl[0]);
 							});
 							menu.focusedBox.el.addClass(v);
+							menu.focusedBox.extraClass = v;
 						}
 					}
 				}
