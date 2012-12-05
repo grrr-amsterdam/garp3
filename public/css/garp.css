@@ -331,3 +331,7 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.row:before, .row:after { content: ""; display: table; }
 			.row:after { clear: both; }
 			.row { zoom: 1; }
+			
+			/**** T E M P ****/
+			.attention { background: #fdd; }
+			.aside { font-size: 10px; background: #ddf;}
