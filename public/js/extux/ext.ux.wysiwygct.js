@@ -182,7 +182,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			}
 			for(var c=0, l = states.length; c<l; c++){
 				var state = states[c];
-				tbar[state + 'Btn'].toggle(document.queryCommandState(state), false);
+				try {
+					tbar[state + 'Btn'].toggle(document.queryCommandState(state), false);
+				} catch(e){
+					// querycommandstate doesnt always want to run.
+					// @TODO find solution??
+				}
 			}
 		}, 100);
 	},
