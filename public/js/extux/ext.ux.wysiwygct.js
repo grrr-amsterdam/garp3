@@ -133,8 +133,24 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			}, {
 				text: __('Variant'),
 				ref: 'classMenu',
+				editable: false,
+				forceSelection: true,
+				triggerAction: 'all',
 				xtype: 'combo',
-				store: [['normal','normal']]
+				store: [['normal','normal']],
+				focusedBox: null,
+				listeners:{
+					change: function(menu, v){
+						console.log(menu);
+						console.info(menu.focusedBox);
+						if (menu.focusedBox) {
+							Ext.each(Garp.dataTypes[menu.focusedBox.model].wysiwygConfig.classMenu, function(cl){
+								menu.focusedBox.el.removeClass(cl[0]);
+							});
+							menu.focusedBox.el.addClass(v);
+						}
+					}
+				}
 			},
 			{
 				iconCls:'icon-wysiwyg-bold',
@@ -277,15 +293,9 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				normal: 'normal'
 			}];
 		}
+		this.getTopToolbar().classMenu.focusedBox = box;
 		this.getTopToolbar().classMenu.store.loadData(menu);
 		this.getTopToolbar().classMenu.setValue(val || 'normal');
-		this.getTopToolbar().classMenu.purgeListeners();
-		this.getTopToolbar().classMenu.on('change', function(menu, v){
-			Ext.each(Garp.dataTypes[model].wysiwygConfig.classMenu, function(cl){
-				box.el.removeClass(cl[0]);
-			});
-			box.el.addClass(v);
-		});
 	},
 	
 	/**
