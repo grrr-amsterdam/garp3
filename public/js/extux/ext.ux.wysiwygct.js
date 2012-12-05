@@ -141,8 +141,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				focusedBox: null,
 				listeners:{
 					change: function(menu, v){
-						console.log(menu);
-						console.info(menu.focusedBox);
 						if (menu.focusedBox) {
 							Ext.each(Garp.dataTypes[menu.focusedBox.model].wysiwygConfig.classMenu, function(cl){
 								menu.focusedBox.el.removeClass(cl[0]);
