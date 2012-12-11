@@ -14,7 +14,7 @@
    ========================================================================== */
 html { font-size: 62.5%; line-height: 1.4em; }
 body, button, input, select, textarea { font-family: sans-serif; @include font-size(16); color: #000; }
-body { background: #FFF; margin: 0; }
+body { background: #FFF; margin: 0; @include hyphens(auto); }
 
 ul, ol, dd { list-style: none; margin: 0; padding: 0; }
 
