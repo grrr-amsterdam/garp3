@@ -1,6 +1,6 @@
 <?php
 /**
- * Garp_View_Helper_RenderChapter
+ * Garp_View_Helper_Chapter
  * Helper for rendering Chapters (as used in Garp's "magazine layout").
  *
  * @author       Harmen Janssen | grrr.nl
@@ -8,14 +8,28 @@
  * @package      Garp
  * @subpackage   View
  */
-class G_View_Helper_RenderChapter extends Zend_View_Helper_Abstract {
+class G_View_Helper_Chapter extends Zend_View_Helper_Abstract {
+	/**
+ 	 * For a fluent interface.
+ 	 * @return G_View_Helper_Chapter $this
+ 	 */
+	public function chapter() {
+		return $this;
+	}
+
+
 	/**
  	 * Render the chapter
  	 * @param Array $chapter
  	 * @return String
  	 */
-	public function renderChapter(array $chapter) {
-		$out = '<div class="chapter '.$chapter['type'].'">';
+	public function render(array $chapter) {
+		$partial = 'partials/chapters/'.($chapter['type'] ?: 'default').'.phtml';
+		return $this->view->partial($partial, 'default', array('content' => $chapter['content']));
+	}
+}
+
+/**
 		foreach ($chapter['content'] as $contentNode) {
 			// test for datatype
 			$out .= '<div class="grid-'.$contentNode['columns'].'-6">';
@@ -28,5 +42,4 @@ class G_View_Helper_RenderChapter extends Zend_View_Helper_Abstract {
 		}
 		$out .= '</div>';
 		return $out;
-	}
-}
+ */
