@@ -14,8 +14,8 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 	 * Distributes the public assets on the local server to the configured CDN servers.
 	 */
 	public function distribute(array $args) {
-		$distributor 		= new Garp_Content_Distributor();
-		$filterString 		= array_key_exists(2, $args) ? $args[2] : null;
+		$distributor 		= new Garp_Content_CDN_Distributor();
+		$filterString 		= array_key_exists(0, $args) ? $args[0] : null;
 		$assetList 			= $distributor->select($filterString);
 		$allEnvironments 	= $distributor->getEnvironments();
 
