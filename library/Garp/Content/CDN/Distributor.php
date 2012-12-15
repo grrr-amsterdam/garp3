@@ -1,6 +1,6 @@
 <?php
 /**
- * Garp_Content_Distributor
+ * Garp_Content_CDN_Distributor
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -8,10 +8,14 @@
  * @subpackage Content
  * @lastmodified $Date: $
  */
-class Garp_Content_Distributor {
+class Garp_Content_CDN_Distributor {
 	protected $_environments = array('development', 'integration', 'staging', 'production');
 
-	protected $_bannedNodeSubstrings = array('.php', '.psd', 'uploads', 'cached', 'sass');
+	/**
+	 * Where the baseDir for assets is located, relative to APPLICATION_PATH. Without trailing slash.
+	 */
+	const RELATIVE_BASEDIR_AFTER_APPLICATION_PATH = '/../public';
+
 
 	/**
 	 * System path without trailing slash.
@@ -21,7 +25,7 @@ class Garp_Content_Distributor {
 	
 
 	public function __construct() {
-		$this->_baseDir = realpath(APPLICATION_PATH . '/../public');
+		$this->_baseDir = realpath(APPLICATION_PATH . self::RELATIVE_BASEDIR_AFTER_APPLICATION_PATH);
 	}
 
 
@@ -31,7 +35,14 @@ class Garp_Content_Distributor {
 	public function getEnvironments() {
 		return $this->_environments;
 	}
-
+	
+	
+	/**
+	 * @return String This instance's baseDir, without trailing slash.
+	 */
+	public function getBaseDir() {
+		return $this->_baseDir;
+	}
 
 	
 	/**
@@ -40,10 +51,11 @@ class Garp_Content_Distributor {
 	 * @return 	Array 	$assetList A cumulative list of relative paths to the assets.
 	 */
 	public function select($filterString) {
-		$assetList = $this->_getAssetPaths($filterString);
+		// $assetList = $this->_getAssetPaths($filterString);
+		$assetList = new Garp_Content_CDN_AssetList($this->_baseDir, $filterString);
+		
 		return $assetList;
 	}
-	
 	
 	
 	/**
@@ -54,7 +66,10 @@ class Garp_Content_Distributor {
 		
 		$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', $env);
 
-		if ($ini->cdn->type === 's3') {
+		if (
+			$assetList &&
+			$ini->cdn->type === 's3'
+		) {
 			Garp_Cli::lineOut(ucfirst($env));
 			$progressBar = Garp_Cli_Ui_ProgressBar::getInstance();
 			$progressBar->init($assetCount);
@@ -131,21 +146,5 @@ class Garp_Content_Distributor {
 		} else throw new Exception('Unable to open the configuration directory at ' . $absDir);
 		
 		return $assetList;
-	}
-
-
-
-	protected function _isValidAssetName($filename) {
-		if ($filename[0] === '.') {
-			return false;
-		} else {
-			foreach ($this->_bannedNodeSubstrings as $bannedSubstring) {
-				if (strpos($filename, $bannedSubstring) !== false) {
-					return false;
-				}
-			}
-		}
-
-		return true;
 	}
 }
