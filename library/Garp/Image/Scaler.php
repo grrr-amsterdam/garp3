@@ -30,8 +30,8 @@ class Garp_Image_Scaler {
 	 */
 	private $params = array(
 		'quality'		=> 80,
-		'grow'			=> 0,
-		'crop'			=> 0,
+		'grow'			=> 1,
+		'crop'			=> 1,
 		'cropfocus'		=> 'face',
 		'bgcolor'		=> '000000',	//	can be overridden in the ini file
 		'mime'			=> null,

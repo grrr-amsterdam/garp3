@@ -15,7 +15,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 			} else {
 				nItems = [];
 				Ext.each(items, function(item){
-					var col = 'grid-' + item.columns + '-12';
+					var col = 'grid-' + item.columns + '-' + this.wysiwygct.maxCols;
 					if (item.model == 'Text') {
 						nItems.push({
 							xtype: 'wysiwyg',
@@ -37,7 +37,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 							}
 						});
 					}
-				});
+				}, this);
 			}
 			if (nItems.length) {
 				this.wysiwygct.add(nItems);
@@ -107,6 +107,7 @@ Ext.reg('wysiwygfield', Garp.WysiwygField);
 Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
 	cls: 'wysiwyg-ct',
+	bodyCssClass: 'wysiwyg-body',
 	autoScroll: true,
 	autoHeight: true,
 	padding: 30,
