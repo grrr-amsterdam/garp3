@@ -283,7 +283,8 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 
 
 /* GARP WysiwygCt */
-.wysiwyg-ct { overflow: hidden; }
+.wysiwyg-ct { overflow: hidden;}
+.wysiwyg-ct .x-panel-body {  background: url(../../js/garp/ext-3.4.0/resources/images/default/form/text-bg.gif) repeat-x; }
 
 			.grid-12-12 { width: 100%; }
 			.grid-11-12 { width: 91.666666%; }
@@ -331,3 +332,7 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.row:before, .row:after { content: ""; display: table; }
 			.row:after { clear: both; }
 			.row { zoom: 1; }
+			
+			/**** T E M P ****/
+			.attention { background: #fdd; }
+			.aside { font-family: serif; background: #ddf;}

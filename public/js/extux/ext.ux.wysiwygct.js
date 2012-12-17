@@ -15,34 +15,34 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 			} else {
 				nItems = [];
 				Ext.each(items, function(item){
-					var col = 'grid-' + item.columns + '-12';
+					var col = 'grid-' + item.columns + '-' + this.wysiwygct.maxCols;
 					if (item.model == 'Text') {
 						nItems.push({
 							xtype: 'wysiwyg',
 							columns: item.columns,
-							col: col,
+							//extraClass: item['class'],
+							col: col,// + ' ' + item['class'],
 							data: {
 								description: item.data.description
 							}
 						});
-					}
-					if (item.model == 'Image') {
+					} else if (item.model == 'Image') {
 						nItems.push({
 							xtype: 'wysiwygimg',
 							columns: item.columns,
-							col: col,
+							//extraClass: item['class'],
+							col: col,// + ' ' + item['class'],
 							image: {
 								id: item.data.id
 							}
 						});
 					}
-				});
+				}, this);
 			}
 			if (nItems.length) {
 				this.wysiwygct.add(nItems);
 				this.wysiwygct.doLayout();
 				this.wysiwygct.setupDD();
-				
 				// now, because of initialization changes and parses of the initial data, we set originalValue to mark this field unDirty, 
 				// *after* the added items are layed-out
 				this.wysiwygct.on('afterlayout', function(){
@@ -61,6 +61,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 				var box = Ext.getCmp(el.id);
 				var item = {
 					col: box.col,
+					'class': box.extraClass || null,
 					columns: box.col.split('-')[1],
 					data: box.getData ? box.getData() : null,
 					model: box.model
@@ -106,11 +107,14 @@ Ext.reg('wysiwygfield', Garp.WysiwygField);
 Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
 	cls: 'wysiwyg-ct',
+	bodyCssClass: 'wysiwyg-body',
 	autoScroll: true,
 	autoHeight: true,
 	padding: 30,
+	
 	setupTbar: function(){
 		this.tbar = new Ext.Toolbar({
+			width: '4000', // @FIXME: width doesnt seem to work
 			defaults: {
 				xtype: 'button',
 				scope: this
@@ -130,8 +134,29 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					handler: this.addWysiwygImgBox,
 					scope: this
 				}]
-			}, {
-				text: '<b style="text-transform: none;">' + __('Bold') + '</b>',
+			}, '-', {
+				ref: 'classMenu',
+				editable: false,
+				forceSelection: true,
+				triggerAction: 'all',
+				xtype: 'combo',
+				store: [['normal', 'Normal']],
+				value: 'normal',
+				focusedBox: null,
+				listeners: {
+					change: function(menu, v){
+						if (menu.focusedBox) {
+							Ext.each(Garp.dataTypes[menu.focusedBox.model].wysiwygConfig.classMenu, function(cl){
+								menu.focusedBox.el.removeClass(cl[0]);
+							});
+							menu.focusedBox.el.addClass(v);
+							menu.focusedBox.extraClass = v;
+						}
+					}
+				}
+			},'-',
+			{
+				iconCls:'icon-wysiwyg-bold',
 				ref: 'boldBtn',
 				clickEvent: 'mousedown',
 				enableToggle: true,
@@ -140,7 +165,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					document.execCommand('Bold', false, null);
 				}
 			}, {
-				text: '<b style="text-transform: none;font-style: italic;">' + __('Italic') + '</b>',
+				iconCls:'icon-wysiwyg-italic',
 				ref: 'italicBtn',
 				clickEvent: 'mousedown',
 				enableToggle: true,
@@ -148,9 +173,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					e.preventDefault();
 					document.execCommand('Italic', false, null);
 				}
-			},{
-				text: __('Save'),
-				handler: this.saveItems
 			}]
 		});
 	},
@@ -165,7 +187,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			}
 			for(var c=0, l = states.length; c<l; c++){
 				var state = states[c];
-				tbar[state + 'Btn'].toggle(document.queryCommandState(state), false);
+				try {
+					tbar[state + 'Btn'].toggle(document.queryCommandState(state), false);
+				} catch(e){
+					// querycommandstate doesnt always want to run.
+					// @TODO find solution??
+				}
 			}
 		}, 100);
 	},
@@ -255,6 +282,28 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			}
 		}
 		return this.maxCols;
+	},
+	
+	setupClassMenu: function(box){
+		var model = box.model;
+		var menu;
+		var val;
+		if (Garp.dataTypes[model].wysiwygConfig) {
+			menu = Garp.dataTypes[model].wysiwygConfig.classMenu;
+			Ext.each(Garp.dataTypes[model].wysiwygConfig.classMenu, function(cl){
+				if(box.el.hasClass(cl[0])){
+					val = cl[0];
+					return;
+				}
+			});
+		} else {
+			menu = [{
+				normal: 'Normal'
+			}];
+		}
+		this.getTopToolbar().classMenu.focusedBox = box;
+		this.getTopToolbar().classMenu.store.loadData(menu);
+		this.getTopToolbar().classMenu.setValue(val || 'normal');
 	},
 	
 	/**
@@ -404,13 +453,19 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				}
 				
 			});
-			var handle = Ext.get(elm).child('.dd-handle').id;
+			var el = Ext.get(elm);
+			var handle = el.child('.dd-handle').id;
 			dd.setHandleElId(handle);
 			
-			var targetTop = new Ext.dd.DDTarget(Ext.get(elm).child('.top').id, 'wysiwyg-dragables-group', {});
-			var targetRight = new Ext.dd.DDTarget(Ext.get(elm).child('.right').id, 'wysiwyg-dragables-group', {});
-			var targetBottom = new Ext.dd.DDTarget(Ext.get(elm).child('.bottom').id, 'wysiwyg-dragables-group', {});
-			var targetLeft = new Ext.dd.DDTarget(Ext.get(elm).child('.left').id, 'wysiwyg-dragables-group', {});
+			var targetTop = new Ext.dd.DDTarget(el.child('.top').id, 'wysiwyg-dragables-group', {});
+			var targetRight = new Ext.dd.DDTarget(el.child('.right').id, 'wysiwyg-dragables-group', {});
+			var targetBottom = new Ext.dd.DDTarget(el.child('.bottom').id, 'wysiwyg-dragables-group', {});
+			var targetLeft = new Ext.dd.DDTarget(el.child('.left').id, 'wysiwyg-dragables-group', {});
+			
+			el.on('click', function(){
+				var clickedBox = Ext.getCmp(el.id);
+				wysiwygct.setupClassMenu(clickedBox);
+			});
 			
 		});
 		
@@ -534,7 +589,6 @@ Garp.Wysiwyg = Ext.extend(Ext.BoxComponent, {
 				this.contentEditableEl.update(this.data.description);
 			}
 		}, this);
-		
 	}
 });
 Ext.reg('wysiwyg', Garp.Wysiwyg);

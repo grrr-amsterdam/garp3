@@ -1,0 +1,20 @@
+/* ==========================================================================
+   variables
+   ========================================================================== */
+/* grey */
+/* black */
+/* red */
+/* light red */
+/* ==========================================================================
+   mixins and functions
+   ========================================================================== */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/harmen\/Sites\/grrr\.nl\/garp\/scripts\/scaffold\/public\/css\/sass\/cms\.scss}line{font-family:\000033}}
+.wysiwyg-body {
+  /* To make the WYSIWYG editor look like the real deal, do something like
+  @import 'base' here */
+}
+
+/**
+ * To add icons to datatypes, use the following:
+ * .icon-blog-post {background-image:url(../media/images/garp/icons/newspaper.png);}
+ */

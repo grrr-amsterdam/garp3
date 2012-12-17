@@ -55,8 +55,8 @@ php_value post_max_size 30M
 	RewriteRule ^admin /g/content/admin [R,L]
 
 	# require no-www
-	RewriteCond %{HTTP_HOST} ^www\.muziekpakhuis\.nl$ [NC]
-	RewriteRule ^(.*)$ http://muziekpakhuis.nl/$1 [R=301,L]
+	# RewriteCond %{HTTP_HOST} ^www\.muziekpakhuis\.nl$ [NC]
+	# RewriteRule ^(.*)$ http://muziekpakhuis.nl/$1 [R=301,L]
 
 	# Disregard slash at the end of request
 	RewriteRule ^(.*)/$ /$1 [L]

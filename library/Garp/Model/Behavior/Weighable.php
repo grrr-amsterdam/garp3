@@ -107,7 +107,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		foreach ($this->_relationConfig as $foreignModel => $modelRelationConfig) {
 			$foreignKey = $modelRelationConfig[self::FOREIGN_KEY_COLUMN_KEY];
 			// only act if the foreign key column is filled
-			if ($data[$foreignKey]) {
+			if (!empty($data[$foreignKey])) {
 				$maxWeight = $this->findHighestWeight($model, $data[$foreignKey], $modelRelationConfig);
 				$data[$modelRelationConfig[self::WEIGHT_COLUMN_KEY]] = ($maxWeight+1);
 			}
