@@ -298,7 +298,14 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.grid-3-12 { width: 25%; }
 			.grid-2-12 { width: 16.666666%; }
 			.grid-1-12 { width: 8.333333%; }
-			
+
+			.grid-6-6 { width: 100%; }
+			.grid-5-6 { width: 83.333333%; }
+			.grid-4-6 { width: 66.666666%; }
+			.grid-3-6 { width: 50%; }
+			.grid-2-6 { width: 33.333333%; }
+			.grid-1-6 { width: 16.666666%; }
+						
 			.wysiwyg-box { position: relative; float: left; border: none; outline: none; clear: none;  }
 			.wysiwyg-box .dd-handle { display: none; position: absolute; right: 5px; top: 5px; background-color: #fff; width: 30px; height: 30px; border: 1px #ddd solid; border-radius: 4px;  background-position: 50% 50%; background-repeat: no-repeat; z-index: 3;}
 			.wysiwyg-box .dd-handle.icon-delete { right: 40px; }
