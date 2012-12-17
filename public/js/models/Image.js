@@ -133,8 +133,35 @@ Garp.dataTypes.Image.on('init', function(){
 			return true;
 		},
 		
-		initComponent: function(ct){
+		beforeInit: function(afterInitCb){
+			var args = arguments;
+			var picker = new Garp.ModelPickerWindow({
+				model: 'Image',
+				listeners: {
+					select: function(sel){
+						if (sel.selected) {
+							var imgId = sel.selected.data.id;
+							this.image = {
+								id: imgId
+							};
+							afterInitCb.call(this, args);
+						} else {
+							this.destroy();
+						}
+						picker.close();
+					},
+					scope: this
+				}
+			});
+			picker.show();
+		},
 		
+		initComponent: function(ct){
+			
+			this.addClass('wysiwyg-image');
+			this.addClass('wysiwyg-box');
+			this.addClass(this.col);
+				
 			this.on('user-resize', function(w, nw){
 				var i = this.image;
 				var aspct = i.height / i.width;
@@ -145,8 +172,8 @@ Garp.dataTypes.Image.on('init', function(){
 			});
 			
 			this.on('afterrender', function(){
-			
-				this.addClass('wysiwyg-image');
+				console.warn('afterrender img');
+				this.contentEditableEl = this.el.child('.contenteditable');
 				this.contentEditableEl.update('');
 				this.contentEditableEl.dom.setAttribute('contenteditable', false);
 				
@@ -154,14 +181,14 @@ Garp.dataTypes.Image.on('init', function(){
 				var scope = this;
 				var path = IMAGES_CDN + 'scaled/cms_preview/' + this.image.id;
 				i.onload = function(){
-				
 					Ext.apply(scope.image, {
 						width: i.width,
 						height: i.height
 					});
+					console.warn(scope.ownerCt.getWidth());
 					
 					var aspct = i.height / i.width;
-					var nHeight = (scope.getWidth() * aspct) - scope.margin;
+					var nHeight = (scope.ownerCt.getWidth() * aspct) - scope.margin;
 					
 					scope.contentEditableEl.setStyle({
 						position: 'relative',
@@ -177,6 +204,9 @@ Garp.dataTypes.Image.on('init', function(){
 					
 					scope.setHeight(nHeight);
 					scope.ownerCt.doLayout();
+					
+					console.warn(i);
+					
 				};
 				i.src = path;
 				if (i.complete) {
@@ -185,7 +215,8 @@ Garp.dataTypes.Image.on('init', function(){
 				
 			}, this);
 			
-			Garp.dataTypes.Image.Wysiwyg.superclass.initComponent.call(this, ct); // !!
+			Garp.dataTypes.Image.Wysiwyg.superclass.initComponent.call(this, arguments);
+			
 		}
 	});
 });

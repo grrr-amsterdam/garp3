@@ -72,17 +72,41 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 		walk(this.contentEditableEl.dom.childNodes);
 	},
 	
+	/**
+	 * 
+	 * @param {Object} ct
+	 */
 	afterRender: function(ct){
 		Garp.WysiwygAbstract.superclass.afterRender.call(this, arguments);
-		
 		this.el.select('.dd-handle.icon-delete').on('click', function(){
 			this.ownerCt.removeWysiwygBox(this);
 		},this);
 	},
 	
-	initComponent: function(){
-		Garp.WysiwygAbstract.superclass.initComponent.call(this, arguments);
+	/**
+	 * Override beforeInit to add setup -> callback
+	 */
+	beforeInit: false,
+	
+	/**
+	 * Aferinit gets called as callback after setup if beforeInit is overridden 
+	 */
+	afterInit: function(){
 		this.ct.add(this);
 		this.ct.afterAdd();
+	},
+	
+	/**
+	 * 
+	 */
+	initComponent: function(){
+		Garp.WysiwygAbstract.superclass.initComponent.call(this, arguments);
+		
+		if(this.beforeInit){
+			this.beforeInit(this.afterInit);
+		} else {
+			this.afterInit();
+		}
+		
 	}
 });
