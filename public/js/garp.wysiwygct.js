@@ -3,15 +3,20 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	reset: function(){
 		this.chapterct.removeAll(true);
 		delete this.originalValue;
+		if (this.chapterct.items.length === 0) {
+			this.chapterct.addWysiwygCt();
+		}
 	},
 	
 	setValue: function(items){
 		
 		this.reset();
 		
-		return;
 		
 		if (items) {
+			console.info(items);
+			return;
+			
 			var nItems;
 			if (typeof items == 'string') {
 				nItems = Ext.util.JSON.decode(items);
@@ -559,6 +564,7 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 	autoHeight: true,
 	border: false,
 	bodyBorder: false,
+	cls: 'chapter-ct',
 	
 	addWysiwygCt: function(){
 		this.add(new Garp.Wysiwygct());
@@ -570,8 +576,6 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 		items: ['->',{
 			text: 'Add',
 			handler: function(){
-				TEMP = this;
-				console.warn(TEMP);
 				this.ownerCt.ownerCt.addWysiwygCt();
 			}
 		}]
@@ -583,7 +587,6 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 	 */
 	initComponent: function(ct){
 		Garp.Chapterct.superclass.initComponent.call(this, arguments);
-		this.addWysiwygCt();
 	},
 	
 	afterRender: function(){
@@ -592,6 +595,7 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 				i.setWidth(this.getWidth());
 			}, this);
 		}, this);
+		this.addWysiwygCt();
 		Garp.Chapterct.superclass.afterRender.call(this, arguments);
 	}
 	
