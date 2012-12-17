@@ -21,38 +21,27 @@ class G_View_Helper_Chapter extends Zend_View_Helper_Abstract {
 	/**
  	 * Render the chapter
  	 * @param Array $chapter
+ 	 * @param Array $params Additional parameters for the partial.
  	 * @return String
  	 */
-	public function render(array $chapter) {
+	public function render(array $chapter, array $params = array()) {
 		$partial = 'partials/chapters/'.($chapter['type'] ?: 'default').'.phtml';
-		return $this->view->partial($partial, 'default', array('content' => $chapter['content']));
+		$params['content'] = $chapter['content'];
+		return $this->view->partial($partial, 'default', $params);
 	}
 
 
 	/**
  	 * Render a content node
  	 * @param Array $contentNode
+ 	 * @param Array $params Additional parameters for the partial
  	 * @return String
  	 */
-	public function renderContentNode(array $contentNode) {
+	public function renderContentNode(array $contentNode, array $params = array()) {
 		$model = strtolower($contentNode['model']);
 		$type  = $contentNode['type'] ?: 'default';
 		$partial = "partials/chapters/$model/$type.phtml";
-		return $this->view->partial($partial, 'default', array('contentNode' => $contentNode));
+		$params['contentNode'] = $contentNode;
+		return $this->view->partial($partial, 'default', $params);
 	}
 }
-
-/**
-		foreach ($chapter['content'] as $contentNode) {
-			// test for datatype
-			$out .= '<div class="grid-'.$contentNode['columns'].'-6">';
-			if ($contentNode['model'] == 'Image') {
-				$out .= $this->view->partial('partials/chapters/image.phtml', 'default', array('image' => $contentNode['data']));
-			} elseif ($contentNode['model'] == 'Text') {
-				$out .= $this->view->partial('partials/chapters/text.phtml', 'default', array('text' => $contentNode['data']));
-			}
-			$out .= '</div>';
-		}
-		$out .= '</div>';
-		return $out;
- */

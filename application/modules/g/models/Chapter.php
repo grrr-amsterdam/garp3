@@ -108,8 +108,7 @@ class G_Model_Chapter extends Model_Base_Chapter {
 			$contentNode['chapter_id'] = $chapterId;
 			$contentNodeId = $this->_insertContentNode($contentNode);
 
-			// @todo Move everything below here to G_Model_ContentNode, just
-			// like this came from the Article behavior?
+			// @todo Move everything below here to G_Model_ContentNode::afterInsert()
 
 			// Determine content type
 			$contentTypeModelName = 'Model_'.$contentNode['model'];
