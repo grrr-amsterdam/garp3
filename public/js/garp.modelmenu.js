@@ -51,7 +51,9 @@ Garp.ModelMenu = function(cfg){
 		var model, models = [];
 		Ext.each(this.menuItems, function(model){
 			if (model == '-') {
-				models.push('-');
+				if (!models[models.length - 1] == '-') {
+					models.push('-');
+				}
 			} else {
 				if(!Garp.dataTypes[model]){
 					throw 'Oops! JS model "' + model + '" not found! Is it spawned and bugfree?';

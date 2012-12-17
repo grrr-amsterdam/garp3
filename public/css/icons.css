@@ -60,6 +60,9 @@
 .icon-richtext-add-blockquote{background-image:url(../../media/images/garp/icons/text_signature.png)!important;}
 .icon-richtext-add-dl{background-image:url(../../media/images/garp/icons/pilcrow.png)!important;}
 
+.icon-wysiwyg-bold { background-image:url(../../media/images/garp/icons/text_bold.png)!important; }
+.icon-wysiwyg-italic { background-image:url(../../media/images/garp/icons/text_italic.png)!important; }
+
 .icon-move { background-image:url(../../media/images/garp/icons2/move.png)!important; }
 
 .icon-imageeditor-resize{background-image:url(../../media/images/garp/icons/shape_move_backwards.png);}
