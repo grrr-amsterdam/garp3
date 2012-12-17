@@ -27,6 +27,19 @@ class G_View_Helper_Chapter extends Zend_View_Helper_Abstract {
 		$partial = 'partials/chapters/'.($chapter['type'] ?: 'default').'.phtml';
 		return $this->view->partial($partial, 'default', array('content' => $chapter['content']));
 	}
+
+
+	/**
+ 	 * Render a content node
+ 	 * @param Array $contentNode
+ 	 * @return String
+ 	 */
+	public function renderContentNode(array $contentNode) {
+		$model = strtolower($contentNode['model']);
+		$type  = $contentNode['type'] ?: 'default';
+		$partial = "partials/chapters/$model/$type.phtml";
+		return $this->view->partial($partial, 'default', array('contentNode' => $contentNode));
+	}
 }
 
 /**
