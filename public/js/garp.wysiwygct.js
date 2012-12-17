@@ -1,12 +1,15 @@
 Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 
 	reset: function(){
-		this.wysiwygct.removeAll(true);
+		this.chapterct.removeAll(true);
 		delete this.originalValue;
 	},
 	
 	setValue: function(items){
+		
 		this.reset();
+		
+		return;
 		
 		if (items) {
 			var nItems;
@@ -55,7 +58,9 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	},
 	
 	getValue: function(){
+		
 		return '';
+		
 		if (this.rendered && this.wysiwygct && this.wysiwygct.body.dom.childNodes) {
 			var output = [];
 			Ext.each(this.wysiwygct.body.dom.childNodes, function(el){
@@ -80,6 +85,9 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	},
 	
 	isDirty: function(){
+		
+		return false;
+		
 		if (this.getValue() && this.originalValue) {
 			var f = Ext.util.JSON.encode;
 			return f(this.getValue()) != f(this.originalValue);
@@ -87,19 +95,27 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	},
 	
 	afterRender: function(){
-		Garp.WysiwygField.superclass.afterRender.call(this);
-		this.wrap = this.resizeEl = this.positionEl = this.el.wrap();
-		this.wysiwygct = new Garp.Wysiwygct({
+		this.wrap = this.el.wrap();
+		//this.wysiwygct = new Garp.Wysiwygct({
+		//	renderTo: this.wrap
+		//});
+		this.chapterct = new Garp.Chapterct({
 			renderTo: this.wrap
 		});
+		this.on('resize', function(){
+			this.chapterct.setWidth(this.getWidth());
+		}, this);
+		
 		this.el.hide();
+		Garp.WysiwygField.superclass.afterRender.call(this);
+
 	},
 	
-	initComponent: function(ct){
-		Garp.WysiwygField.superclass.initComponent.call(this, ct);
+	initComponent: function(){
+		Garp.WysiwygField.superclass.initComponent.call(this, arguments);
 	},
 	
-	onDestroy: function(ct){
+	onDestroy: function(){
 		this.wysiwygct.destroy();
 	}
 });
@@ -140,12 +156,11 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					scope: this
 				});
 			}, this);
-			console.info(menu);
 			return menu;
 		}
 		
 		this.tbar = new Ext.Toolbar({
-			width: '4000', // @FIXME: width doesnt seem to work
+			width: '100%', // @FIXME: width doesnt seem to work
 			defaults: {
 				xtype: 'button',
 				scope: this
@@ -204,7 +219,9 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					e.preventDefault();
 					document.execCommand('Italic', false, null);
 				}
-			}]
+			}, '->',{text:'remove', handler: function(){
+				this.ownerCt.remove(this);
+			}}]
 		});
 	},
 	
@@ -219,7 +236,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			for(var c=0, l = states.length; c<l; c++){
 				var state = states[c];
 				try {
-					tbar[state + 'Btn'].toggle(document.queryCommandState(state), false);
+					tbar[state + 'Btn'].toggle(this.body.dom.queryCommandState(state), false);
 				} catch(e){
 					// querycommandstate doesnt always want to run.
 					// @TODO find solution??
@@ -243,7 +260,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 							break;
 					}
 					if(cmd){
-						document.execCommand(cmd, false, null);
+						this.body.dom.execCommand(cmd, false, null);
 						e.preventDefault();
 					}
 				}
@@ -534,3 +551,50 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	
 });
 Ext.reg('wysiwygct', Garp.Wysiwygct);
+
+/* * * * */
+Garp.Chapterct = Ext.extend(Ext.Panel,{
+
+	autoScroll: true,
+	autoHeight: true,
+	border: false,
+	bodyBorder: false,
+	
+	addWysiwygCt: function(){
+		this.add(new Garp.Wysiwygct());
+		this.doLayout();
+	},
+	
+	bbar: new Ext.Toolbar({
+		width: '100%',
+		items: ['->',{
+			text: 'Add',
+			handler: function(){
+				TEMP = this;
+				console.warn(TEMP);
+				this.ownerCt.ownerCt.addWysiwygCt();
+			}
+		}]
+	}),
+		
+	/**
+	 * I.N.I.T.
+	 * @param {Object} ct
+	 */
+	initComponent: function(ct){
+		Garp.Chapterct.superclass.initComponent.call(this, arguments);
+		this.addWysiwygCt();
+	},
+	
+	afterRender: function(){
+		this.on('resize', function(){
+			this.items.each(function(i){
+				i.setWidth(this.getWidth());
+			}, this);
+		}, this);
+		Garp.Chapterct.superclass.afterRender.call(this, arguments);
+	}
+	
+	
+});
+Ext.reg('chapterct', Garp.Chapterct);
