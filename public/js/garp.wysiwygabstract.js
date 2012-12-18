@@ -14,7 +14,7 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	model: 'Text',
 	
 	/**
-	 * 
+	 * Retrieve contents
 	 */
 	getValue: function(){
 		if (this.getData()) {
@@ -41,51 +41,28 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 		'<div class="target right"></div>' +
 		'<div class="target bottom"></div>' + 
 		'<div class="target left"></div>',
-		
+	
+	/**
+	 * Shortcut reference, wil get set on init
+	 */	
 	contentEditableEl: null,
 	
 	/**
 	 * Default Col class
 	 */
-	col: 'grid-12-12',
+	col: (function(){
+		return 'grid-' + this.maxCols + '-' + this.maxCols;
+	})(),
 	
-	
+	/**
+	 * Get innerHtml data
+	 */
 	getData: function(){
 		return {
 			description: this.contentEditable ? this.contentEditableEl.dom.innerHTML : ''
 		};
 	},
 
-	filterHtml: function(){
-		var scope = this;
-		function walk(nodes){
-			Ext.each(nodes, function(el){
-				el.normalize();
-				if(el.tagName){
-					var tag = el.tagName.toLowerCase();
-					if(scope.allowedTags.indexOf(tag) == -1){
-						if (el.childNodes.length > 0) {
-							while (el.childNodes.length > 0 && el.parentNode) {
-								var child = el.childNodes[el.childNodes.length - 1];
-								var clone = child.cloneNode(true);
-								el.parentNode.insertBefore(clone, el);
-								el.removeChild(child);
-								el.parentNode.removeChild(el);
-								walk(scope.contentEditableEl.dom.childNodes);
-							}
-						} else if(el.parentNode){
-							el.parentNode.removeChild(el);
-						}
-					}
-				}
-				if (el.childNodes) {
-					walk(el.childNodes);
-				}
-			});
-		}
-		walk(this.contentEditableEl.dom.childNodes);
-	},
-	
 	/**
 	 * 
 	 * @param {Object} ct

@@ -26,7 +26,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 							data: node.data,
 							model: node.model,
 							type: node.type,
-							col: 'grid-' + node.columns + '-' + 6 // this.wysiwygct.maxCols
+							col: 'grid-' + node.columns + '-' + this.maxCols
 						});
 						currentWysiwygCt.add(box);
 						currentWysiwygCt.afterAdd();
