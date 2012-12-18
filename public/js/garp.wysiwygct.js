@@ -66,7 +66,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 		}, this);
 		
 		return output;
-		
+		/*
 		if (this.rendered && this.wysiwygct && this.wysiwygct.body.dom.childNodes) {
 			var output = [];
 			Ext.each(this.wysiwygct.body.dom.childNodes, function(el){
@@ -83,7 +83,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 			return output;
 		} else {
 			return '';
-		}
+		}*/
 	},
 	
 	isValid: function(){
