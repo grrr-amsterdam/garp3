@@ -6,7 +6,35 @@ Garp.dataTypes.Text.on('init', function(){
 	this.Wysiwyg = Ext.extend(Garp.WysiwygAbstract, {
 		
 		allowedTags: ['a','b','i','br','p','ul','ol','li'],
-		
+		filterHtml: function(){
+			var scope = this;
+			function walk(nodes){
+				Ext.each(nodes, function(el){
+					el.normalize();
+					if (el.tagName) {
+						var tag = el.tagName.toLowerCase();
+						if (scope.allowedTags.indexOf(tag) == -1) {
+							if (el.childNodes.length > 0) {
+								while (el.childNodes.length > 0 && el.parentNode) {
+									var child = el.childNodes[el.childNodes.length - 1];
+									var clone = child.cloneNode(true);
+									el.parentNode.insertBefore(clone, el);
+									el.removeChild(child);
+									el.parentNode.removeChild(el);
+									walk(scope.contentEditableEl.dom.childNodes);
+								}
+							} else if (el.parentNode) {
+								el.parentNode.removeChild(el);
+							}
+						}
+					}
+					if (el.childNodes) {
+						walk(el.childNodes);
+					}
+				});
+			}
+			walk(this.contentEditableEl.dom.childNodes);
+		},
 		data: null,
 		
 		getData: function(){
