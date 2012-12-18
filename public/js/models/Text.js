@@ -1,11 +1,13 @@
 /** EXTENDED MODEL **/
 Garp.dataTypes.Text.on('init', function(){
 	
+	this.iconCls = 'icon-text';
 	
 	// Wysiwyg Editor
 	this.Wysiwyg = Ext.extend(Garp.WysiwygAbstract, {
 		
 		allowedTags: ['a','b','i','br','p','ul','ol','li'],
+		
 		filterHtml: function(){
 			var scope = this;
 			function walk(nodes){
