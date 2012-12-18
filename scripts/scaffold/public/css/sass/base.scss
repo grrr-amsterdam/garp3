@@ -34,6 +34,10 @@ h6, .zeta { }
 
 img, object, iframe, video { max-width: 100%; }
 
+.rich .figure[style*="float:left"], .rich .figure[style*="float: left"] { margin: 0 10px 10px 0; }
+.rich .figure[style*="float:right"], .rich .figure[style*="float: right"] { margin: 0 0 10px 10px; }
+.rich .figure dd { @include font-size(14); }
+
 /* ==========================================================================
    layout
    ========================================================================== */
