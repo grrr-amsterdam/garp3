@@ -19,7 +19,7 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	getValue: function(){
 		if (this.getData()) {
 			return {
-				columns: this.col.split('-')[1],
+				columns: this.col ? this.col.split('-')[1] : null,
 				data: this.getData(),
 				model: this.model,
 				type: ''
@@ -50,9 +50,7 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	/**
 	 * Default Col class
 	 */
-	col: (function(){
-		return 'grid-' + this.maxCols + '-' + this.maxCols;
-	})(),
+	col: null,
 	
 	/**
 	 * Get innerHtml data
@@ -83,6 +81,9 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	 * Aferinit gets called as callback after setup if beforeInit is overridden 
 	 */
 	afterInit: function(){
+		if (!this.col) {
+			this.col = 'grid-' + this.maxCols + '-' + this.maxCols;
+		}
 		this.ct.add(this);
 		this.ct.afterAdd();
 	},
