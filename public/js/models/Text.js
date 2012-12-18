@@ -9,6 +9,16 @@ Garp.dataTypes.Text.on('init', function(){
 		
 		data: null,
 		
+		getData: function(){
+			if (this.contentEditableEl) {
+				return {
+					description: this.contentEditableEl.dom.innerHTML
+				};
+			} else {
+				return '';
+			}
+		},
+		
 		initComponent: function(){
 			this.on('user-resize', function(w, nw, nwCol){
 				this.col = nwCol;

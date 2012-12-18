@@ -3,68 +3,67 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	reset: function(){
 		this.chapterct.removeAll(true);
 		delete this.originalValue;
-		if (this.chapterct.items.length === 0) {
-			this.chapterct.addWysiwygCt();
-		}
+		//if (this.chapterct.items.length === 0) {
+		//	this.chapterct.addWysiwygCt();
+		//}
 	},
 	
 	setValue: function(items){
 		
 		this.reset();
-		
-		
+		console.dir(items);
 		if (items) {
-			console.info(items);
-			return;
 			
-			var nItems;
-			if (typeof items == 'string') {
-				nItems = Ext.util.JSON.decode(items);
-			} else {
-				nItems = [];
 				Ext.each(items, function(item){
-					var col = 'grid-' + item.columns + '-' + this.wysiwygct.maxCols;
-					if (item.model == 'Text') {
-						nItems.push({
-							xtype: 'wysiwyg',
-							columns: item.columns,
-							//extraClass: item['class'],
-							col: col,// + ' ' + item['class'],
-							data: {
-								description: item.data.description
-							}
+					
+					this.chapterct.addWysiwygCt();
+					var currentWysiwygCt = this.chapterct.items.last();
+					
+					Ext.each(item.content, function(node){
+					
+						var box = new Garp.dataTypes[node.model].Wysiwyg({
+							ct: currentWysiwygCt,
+							data: node.data,
+							model: node.model,
+							type: node.type,
+							col: 'grid-' + node.columns + '-' + 6 // this.wysiwygct.maxCols
 						});
-					} else if (item.model == 'Image') {
-						nItems.push({
-							xtype: 'wysiwygimg',
-							columns: item.columns,
-							//extraClass: item['class'],
-							col: col,// + ' ' + item['class'],
-							image: {
-								id: item.data.id
-							}
-						});
-					}
+						currentWysiwygCt.add(box);
+						currentWysiwygCt.afterAdd();
+					});
+					
 				}, this);
-			}
-			if (nItems.length) {
-				this.wysiwygct.add(nItems);
-				this.wysiwygct.doLayout();
-				this.wysiwygct.setupDD();
-				// now, because of initialization changes and parses of the initial data, we set originalValue to mark this field unDirty, 
+				/*
 				// *after* the added items are layed-out
 				this.wysiwygct.on('afterlayout', function(){
 					this.originalValue = this.getValue();
 				}, this, {
 					single: true
-				});
-			}
+				});*/
+			
 		}
 	},
 	
 	getValue: function(){
 		
-		return '';
+		var output = [];
+		this.chapterct.items.each(function(wysiwygct){
+			
+				var content = [];
+				wysiwygct.items.each(function(node){
+					if(node.getValue()){
+						content.push(node.getValue());
+					}
+				});
+				if (content.length) {
+					output.push({
+						content: content,
+						type: ''
+					});
+				}
+		});
+		
+		return output;
 		
 		if (this.rendered && this.wysiwygct && this.wysiwygct.body.dom.childNodes) {
 			var output = [];
@@ -91,7 +90,6 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	
 	isDirty: function(){
 		
-		return false;
 		
 		if (this.getValue() && this.originalValue) {
 			var f = Ext.util.JSON.encode;
@@ -241,7 +239,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			for(var c=0, l = states.length; c<l; c++){
 				var state = states[c];
 				try {
-					tbar[state + 'Btn'].toggle(this.body.dom.queryCommandState(state), false);
+					tbar[state + 'Btn'].toggle(document.queryCommandState(state), false);
 				} catch(e){
 					// querycommandstate doesnt always want to run.
 					// @TODO find solution??

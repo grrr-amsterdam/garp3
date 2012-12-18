@@ -13,6 +13,20 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	 */
 	model: 'Text',
 	
+	/**
+	 * 
+	 */
+	getValue: function(){
+		if (this.getData()) {
+			return {
+				columns: this.col.split('-')[1],
+				data: this.getData(),
+				model: this.model,
+				type: ''
+			};
+		}
+		return null;
+	},
 	
 	/**
 	 * innerHTML
