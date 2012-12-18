@@ -107,7 +107,6 @@ Garp.dataTypes.Image.on('init', function(){
 		}, {
 			xtype: 'box',
 			hidden: false,
-			// style: 'visibility:hidden',
 			ref: '../../../../download',
 			fieldLabel: ' ',
 			hideFieldLabel: false,
@@ -135,8 +134,8 @@ Garp.dataTypes.Image.on('init', function(){
 		
 		beforeInit: function(afterInitCb){
 			var args = arguments;
+			// Do we need to present a dialog or not?
 			if(this.data){
-				console.log('Image: data already present :)');
 				afterInitCb.call(this, args);
 				return;
 			}
@@ -190,7 +189,6 @@ Garp.dataTypes.Image.on('init', function(){
 						width: i.width,
 						height: i.height
 					});
-					console.warn(scope.ownerCt.getWidth());
 					
 					var aspct = i.height / i.width;
 					var nHeight = (scope.ownerCt.getWidth() * aspct) - scope.margin;
@@ -210,8 +208,6 @@ Garp.dataTypes.Image.on('init', function(){
 					scope.setHeight(nHeight);
 					scope.ownerCt.doLayout();
 					
-					console.warn(i);
-					
 				};
 				i.src = path;
 				if (i.complete) {
@@ -219,9 +215,7 @@ Garp.dataTypes.Image.on('init', function(){
 				}
 				
 			}, this);
-			
 			Garp.dataTypes.Image.Wysiwyg.superclass.initComponent.call(this, arguments);
-			
 		}
 	});
 });
