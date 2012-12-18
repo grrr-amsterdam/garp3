@@ -124,7 +124,7 @@ Garp.dataTypes.Image.on('init', function(){
 		
 		getData: function(){
 			return {
-				id: this.image.id
+				id: this.data.id
 			};
 		},
 		
@@ -135,13 +135,18 @@ Garp.dataTypes.Image.on('init', function(){
 		
 		beforeInit: function(afterInitCb){
 			var args = arguments;
+			if(this.data){
+				console.log('Image: data already present :)');
+				afterInitCb.call(this, args);
+				return;
+			}
 			var picker = new Garp.ModelPickerWindow({
 				model: 'Image',
 				listeners: {
 					select: function(sel){
 						if (sel.selected) {
 							var imgId = sel.selected.data.id;
-							this.image = {
+							this.data = {
 								id: imgId
 							};
 							afterInitCb.call(this, args);
@@ -163,7 +168,7 @@ Garp.dataTypes.Image.on('init', function(){
 			this.addClass(this.col);
 				
 			this.on('user-resize', function(w, nw){
-				var i = this.image;
+				var i = this.data;
 				var aspct = i.height / i.width;
 				var nHeight = (nw * aspct) - this.margin;
 				this.contentEditableEl.setHeight(nHeight);
@@ -179,9 +184,9 @@ Garp.dataTypes.Image.on('init', function(){
 				
 				var i = new Image();
 				var scope = this;
-				var path = IMAGES_CDN + 'scaled/cms_preview/' + this.image.id;
+				var path = IMAGES_CDN + 'scaled/cms_preview/' + this.data.id;
 				i.onload = function(){
-					Ext.apply(scope.image, {
+					Ext.apply(scope.data, {
 						width: i.width,
 						height: i.height
 					});
