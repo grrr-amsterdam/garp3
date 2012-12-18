@@ -101,6 +101,9 @@ class G_Model_Chapter extends Model_Base_Chapter {
 	 * @return Void
  	 */
 	public function relateContentNodes($contentNodeList, $chapterId) {
+		// Reverse node list because the Weighable behavior sorts different from the way
+		// the CMS sends us the nodes.
+		$contentNodeList = array_reverse($contentNodeList);
 		foreach ($contentNodeList as $contentNode) {
 			$contentNode = $this->_getValidContentNodeData($contentNode);
 			
