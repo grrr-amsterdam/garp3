@@ -1,31 +1,40 @@
 /** EXTENDED MODEL **/
 Garp.dataTypes.Text.on('init', function(){
-	/*
+	
+	
+	// Wysiwyg Editor
+	this.Wysiwyg = Ext.extend(Garp.WysiwygAbstract, {
+		
+		allowedTags: ['a','b','i','br','p','ul','ol','li'],
+		
+		data: null,
+		
+		initComponent: function(){
+			this.on('user-resize', function(w, nw, nwCol){
+				this.col = nwCol;
+			}, this);
+			
+			this.on('afterrender', function(){
+				this.addClass('wysiwyg-box');
+				this.addClass(this.col);
+				this.el.select('.dd-handle, .target').each(function(el){
+					el.dom.setAttribute(id, Ext.id());
+				});
 
-	this.iconCls = 'icon-other-bogus';
-	Ext.apply(this.getColumn('some_id'),{
-		hidden: true,
-		header: __('Related bla'),
-		renderer: Garp.renderers.remoteDisplayFieldRenderer
-	});
-	
-	Ext.apply(this.getField('description'), {
-		width: 200,
-		anchor: false, // Always set to false if width override is desired
-		ref: '../../../descriptionReference',
-		fieldLabel: __('{1} is required if {2} is set', __('some field'), __('this value')),
-		xtype: 'textfield'
-	});
-	
-	this.getField('description').fieldLabel = __('Content:');
-	this.removeField('year');
-	
-	this.addListener('loaddata', function(rec, formPanel){
-		if (rec.status === 'someSpecialValue') {
-			formPanel.descriptionReference.hide();
+				this.contentEditableEl = this.el.child('.contenteditable');
+				this.contentEditableEl.dom.setAttribute('contenteditable', true);
+				this.contentEditableEl.on('focus', this.filterHtml, this);
+				this.contentEditableEl.on('click', this.filterHtml, this);
+				this.contentEditableEl.on('blur', this.filterHtml, this);
+				
+				if (this.data) {
+					this.contentEditableEl.update(this.data.description);
+				}
+			}, this);
+			
+			Garp.dataTypes.Text.Wysiwyg.superclass.initComponent.call(this, arguments);
+
 		}
 	});
-
-
-	*/
+	
 });
