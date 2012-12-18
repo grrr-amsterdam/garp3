@@ -11,36 +11,34 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	setValue: function(items){
 		
 		this.reset();
-		console.dir(items);
+		
+		var maxCols = this.maxCols;
+		
 		if (items) {
-			
-				Ext.each(items, function(item){
-					
-					this.chapterct.addWysiwygCt();
-					var currentWysiwygCt = this.chapterct.items.last();
-					
-					Ext.each(item.content, function(node){
-					
-						var box = new Garp.dataTypes[node.model].Wysiwyg({
-							ct: currentWysiwygCt,
-							data: node.data,
-							model: node.model,
-							type: node.type,
-							col: 'grid-' + node.columns + '-' + this.maxCols
-						});
-						currentWysiwygCt.add(box);
-						currentWysiwygCt.afterAdd();
+			Ext.each(items, function(item){
+				this.chapterct.addWysiwygCt();
+				var currentWysiwygCt = this.chapterct.items.last();
+				Ext.each(item.content, function(node){
+					var box = new Garp.dataTypes[node.model].Wysiwyg({
+						ct: currentWysiwygCt,
+						data: node.data,
+						model: node.model,
+						type: node.type,
+						col: 'grid-' + node.columns + '-' + maxCols,
+						maxCols: maxCols
 					});
-					
-				}, this);
-				/*
-				// *after* the added items are layed-out
-				this.wysiwygct.on('afterlayout', function(){
-					this.originalValue = this.getValue();
-				}, this, {
-					single: true
-				});*/
-			
+					currentWysiwygCt.add(box);
+					currentWysiwygCt.afterAdd();
+				});
+				
+			}, this);
+		/*
+	 // *after* the added items are layed-out
+	 this.wysiwygct.on('afterlayout', function(){
+	 this.originalValue = this.getValue();
+	 }, this, {
+	 single: true
+	 });*/
 		}
 	},
 	
@@ -89,8 +87,6 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	},
 	
 	isDirty: function(){
-		
-		
 		if (this.getValue() && this.originalValue) {
 			var f = Ext.util.JSON.encode;
 			return f(this.getValue()) != f(this.originalValue);
@@ -103,7 +99,8 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 		//	renderTo: this.wrap
 		//});
 		this.chapterct = new Garp.Chapterct({
-			renderTo: this.wrap
+			renderTo: this.wrap,
+			maxCols: this.maxCols
 		});
 		this.on('resize', function(){
 			this.chapterct.setWidth(this.getWidth());
@@ -131,6 +128,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	autoScroll: true,
 	autoHeight: true,
 	padding: 30,
+	maxCols: null,
 	
 	getWysiwygDataTypes: function(){
 		var dataTypes = [];
@@ -153,6 +151,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					handler: function(){
 						var box = new model.Wysiwyg({
 							ct: this,
+							maxCols: this.maxCols,
 							data: false
 						});
 					},
@@ -172,17 +171,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				iconCls: 'icon-new',
 				text: __('Add'),
 				ref: 'addBtn',
-				menu: addMenuFactory.call(this)/*[{
-					text: __('Text'),
-					iconCls: 'icon-snippet',
-					handler: this.addWysiwygBox,
-					scope: this
-				}, {
-					text: __('Image'),
-					iconCls: 'icon-img',
-					handler: this.addWysiwygImgBox,
-					scope: this
-				}]*/
+				menu: addMenuFactory.call(this)
 			}, '-', {
 				ref: 'classMenu',
 				editable: false,
@@ -276,44 +265,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		this.setupDD();
 	},
 	
-	/*
-	addWysiwygBox: function(){
-		var wysiwyg = new Garp.Wysiwyg();
-		//this.add(wysiwyg);
-		//this.doLayout();
-		//this.setupDD();
-	},
-	
-	addWysiwygImgBox: function(){
-		var picker = new Garp.ModelPickerWindow({
-			model: 'Image',
-			listeners: {
-				select: function(sel){
-					if (sel.selected) {
-						var imgId = sel.selected.data.id;
-						var wysiwyg = new Garp.WysiwygImg({
-							image: {
-								id: imgId
-							}
-						});
-						this.add(wysiwyg);
-						this.doLayout();
-						this.setupDD();
-					}
-					picker.close();
-				},
-				scope: this
-			}
-		});
-		picker.show();
-	},*/
-	
 	removeWysiwygBox: function(box){
 		this.remove(box.id);
 		this.doLayout();
 	},
-	
-	maxCols: 12,
 	
 	/**
 	 * ColClasses be gone
@@ -563,9 +518,13 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 	border: false,
 	bodyBorder: false,
 	cls: 'chapter-ct',
+	maxCols: null,
 	
 	addWysiwygCt: function(){
-		this.add(new Garp.Wysiwygct());
+		this.add(new Garp.Wysiwygct({
+			ct: this,
+			maxCols: this.maxCols
+		}));
 		this.doLayout();
 	},
 	
