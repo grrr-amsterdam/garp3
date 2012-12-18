@@ -176,7 +176,6 @@ Garp.dataTypes.Image.on('init', function(){
 			});
 			
 			this.on('afterrender', function(){
-				console.warn('afterrender img');
 				this.contentEditableEl = this.el.child('.contenteditable');
 				this.contentEditableEl.update('');
 				this.contentEditableEl.dom.setAttribute('contenteditable', false);

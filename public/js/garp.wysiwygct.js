@@ -11,7 +11,6 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	setValue: function(items){
 		
 		this.reset();
-		console.dir(items);
 		if (items) {
 			
 				Ext.each(items, function(item){
