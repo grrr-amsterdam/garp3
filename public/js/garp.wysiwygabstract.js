@@ -33,7 +33,8 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	 */
 	html: 
 		'<div class="dd-handle icon-move"></div>' + 
-		'<div class="dd-handle icon-delete"></div>' + 
+		'<div class="dd-handle icon-delete"></div>' +
+		'<div class="dd-handle icon-settings"></div>' + 
 		'<div class="contenteditable">' +
 		 	__('Enter text') +
 		'</div>' + 
@@ -62,6 +63,15 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	},
 
 	/**
+	 * Overridable
+	 * @param {Object} component (this)
+	 * @param {Object} evt
+	 */
+	showSettingsMenu: function(cmp, e){
+		this.fireEvent('showsettings', cmp, e);
+	},
+
+	/**
 	 * 
 	 * @param {Object} ct
 	 */
@@ -69,7 +79,10 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 		Garp.WysiwygAbstract.superclass.afterRender.call(this, arguments);
 		this.el.select('.dd-handle.icon-delete').on('click', function(){
 			this.ownerCt.removeWysiwygBox(this);
-		},this);
+		}, this);
+		this.el.select('.dd-handle.icon-settings').on('click', function(cmp, e){
+			this.showSettingsMenu(this, e);
+		}, this);
 	},
 	
 	/**
