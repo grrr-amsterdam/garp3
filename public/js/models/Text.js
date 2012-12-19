@@ -44,7 +44,8 @@ Garp.dataTypes.Text.on('init', function(){
 		getData: function(){
 			if (this.contentEditableEl) {
 				return {
-					description: this.contentEditableEl.dom.innerHTML
+					description: this.contentEditableEl.dom.innerHTML,
+					type: this.data ? this.data.type || '' : '' 
 				};
 			} else {
 				return '';
