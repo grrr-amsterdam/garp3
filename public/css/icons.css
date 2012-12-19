@@ -42,6 +42,7 @@
 .icon-user { background-image: url(../../media/images/garp/icons2/user.png); }
 .icon-document { background-image: url(../../media/images/garp/icons2/page.png); }
 .icon-group { background-image: url(../../media/images/garp/icons2/user-group.png); }
+.icon-text {background-image: url(../../media/images/garp/icons2/page-edit.png); }
 
 .icon-richtext-add-link{background-image:url(../../media/images/garp/icons2/link.png)!important;}
 .icon-richtext-add-heading{background-image:url(../../media/images/garp/icons/text_heading_1.png)!important;}
