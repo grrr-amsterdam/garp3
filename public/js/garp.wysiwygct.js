@@ -64,26 +64,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					});
 				}
 		}, this);
-		
 		return output;
-		/*
-		if (this.rendered && this.wysiwygct && this.wysiwygct.body.dom.childNodes) {
-			var output = [];
-			Ext.each(this.wysiwygct.body.dom.childNodes, function(el){
-				var box = Ext.getCmp(el.id);
-				var item = {
-					col: box.col,
-					'class': box.extraClass || null,
-					columns: box.col.split('-')[1],
-					data: box.getData ? box.getData() : null,
-					model: box.model
-				};
-				output.push(item);
-			});
-			return output;
-		} else {
-			return '';
-		}*/
 	},
 	
 	isValid: function(){
@@ -99,9 +80,6 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	
 	afterRender: function(){
 		this.wrap = this.el.wrap();
-		//this.wysiwygct = new Garp.Wysiwygct({
-		//	renderTo: this.wrap
-		//});
 		this.chapterct = new Garp.Chapterct({
 			renderTo: this.wrap,
 			maxCols: this.maxCols,
@@ -125,6 +103,9 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	}
 });
 Ext.reg('wysiwygfield', Garp.WysiwygField);
+
+
+/* * * */
 
 Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
@@ -194,7 +175,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				text: __('Add'),
 				ref: 'addBtn',
 				menu: addMenuFactory.call(this)
-			}, '-', {
+			}, ' ', {
 				editable: false,
 				forceSelection: true,
 				triggerAction: 'all',
@@ -209,9 +190,8 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						return true;
 					}
 				}
-			},'-',
-			{
-				iconCls:'icon-wysiwyg-bold',
+			}, ' ', {
+				iconCls: 'icon-wysiwyg-bold',
 				ref: 'boldBtn',
 				clickEvent: 'mousedown',
 				enableToggle: true,
@@ -220,7 +200,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					document.execCommand('Bold', false, null);
 				}
 			}, {
-				iconCls:'icon-wysiwyg-italic',
+				iconCls: 'icon-wysiwyg-italic',
 				ref: 'italicBtn',
 				clickEvent: 'mousedown',
 				enableToggle: true,
@@ -228,9 +208,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					e.preventDefault();
 					document.execCommand('Italic', false, null);
 				}
-			}, '->',{text:'remove', handler: function(){
-				this.ownerCt.remove(this);
-			}}]
+			}, '->', {
+				text: 'remove',
+				handler: function(){
+					this.ownerCt.remove(this);
+				}
+			}]
 		});
 	},
 	
@@ -410,6 +393,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				wysiwygct: wysiwygct,
 				
 				possibleSuspect: null,
+				
+				b4Drag: function(){
+					if(!this.el){
+						return;
+					}
+				},
 				
 				b4StartDrag: function(){
 					if (!this.el) {
