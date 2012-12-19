@@ -212,7 +212,8 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					document.execCommand('Italic', false, null);
 				}
 			}, '->', {
-				text: 'remove',
+				text: __('Delete'),
+				iconCls: 'icon-wysiwyg-remove-chapter',
 				handler: function(){
 					this.ownerCt.remove(this);
 				}
@@ -491,30 +492,39 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		});
 		this.on('add', function(scope, comp){
 			comp.on('showsettings', function(cmp, e){
-				console.log('settings!');
-				console.dir(cmp);
-				/*
-				 setupClassMenu: function(box){
-				 var model = box.model;
-				 var menu;
-				 var val;
-				 if (Garp.dataTypes[model].wysiwygConfig) {
-				 menu = Garp.dataTypes[model].wysiwygConfig.classMenu;
-				 Ext.each(Garp.dataTypes[model].wysiwygConfig.classMenu, function(cl){
-				 if(box.el.hasClass(cl[0])){
-				 val = cl[0];
-				 return;
-				 }
-				 });
-				 } else {
-				 menu = [{
-				 normal: 'Normal'
-				 }];
-				 }
-				 this.getTopToolbar().classMenu.focusedBox = box;
-				 this.getTopToolbar().classMenu.store.loadData(menu);
-				 this.getTopToolbar().classMenu.setValue(val || 'normal');
-				 },*/
+				
+				// @TODO: decide if this needs to go to wysiwyg box ?
+				if (Garp.dataTypes[cmp.model].wysiwygConfig) {
+					var items = Garp.dataTypes[cmp.model].wysiwygConfig.classMenu;
+					var menuItems = [];
+					Ext.each(items, function(cl){
+						var item = {
+							text: cl[1],
+							val: cl[0]
+						};
+						if (cmp.el.hasClass(cl[0])) {
+							item.checked = true;
+						}
+						menuItems.push(item);
+					});
+					
+					var menu = new Ext.menu.Menu({
+						defaults: {
+							group: 'type',
+							handler: function(v){
+								Ext.each(items, function(cl){
+									this.el.removeClass(cl[0]);
+								}, this);
+								this.el.addClass(v.val);
+								this.data.type = v.val;
+							},
+							scope: this
+						},
+						items: menuItems
+					});
+					
+					menu.showAt(e.getXY());
+				}
 			});
 		});
 		
@@ -553,8 +563,10 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 	
 	bbar: new Ext.Toolbar({
 		width: '100%',
+		style: 'border: 0',
 		items: ['->',{
-			text: 'Add',
+			text: __('Add'),
+			iconCls: 'icon-wysiwyg-add-chapter',
 			handler: function(){
 				this.ownerCt.ownerCt.addWysiwygCt();
 			}

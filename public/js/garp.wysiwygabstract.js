@@ -55,7 +55,8 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	 */
 	getData: function(){
 		return {
-			description: this.contentEditable ? this.contentEditableEl.dom.innerHTML : ''
+			description: this.contentEditable ? this.contentEditableEl.dom.innerHTML : '',
+			type: this.type || ''
 		};
 	},
 
@@ -64,7 +65,7 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	 * @param {Object} component (this)
 	 * @param {Object} evt
 	 */
-	showSettingsMenu: function(cmp, e){
+	showSettingsMenu: function(cmp,e){
 		this.fireEvent('showsettings', cmp, e);
 	},
 
@@ -77,7 +78,7 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 		this.el.select('.dd-handle.icon-delete').on('click', function(){
 			this.ownerCt.removeWysiwygBox(this);
 		}, this);
-		this.el.select('.dd-handle.icon-settings').on('click', function(cmp, e){
+		this.el.select('.dd-handle.icon-settings').on('click', function(e){
 			this.showSettingsMenu(this, e);
 		}, this);
 	},
