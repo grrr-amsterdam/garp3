@@ -118,7 +118,10 @@ Garp.dataTypes.Image.on('init', function(){
 	// Wysiwyg Editor
 	this.Wysiwyg = Ext.extend(Garp.WysiwygAbstract, {
 	
+		model: 'Image',
+		
 		imgage: null,
+		
 		margin: 0,
 		
 		getData: function(){
@@ -161,6 +164,9 @@ Garp.dataTypes.Image.on('init', function(){
 		},
 		
 		initComponent: function(ct){
+			
+			this.html += '<div class="contenteditable"></div>'; 
+		
 			
 			this.addClass('wysiwyg-image');
 			this.addClass('wysiwyg-box');
