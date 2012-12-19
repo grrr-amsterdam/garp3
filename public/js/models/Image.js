@@ -167,10 +167,9 @@ Garp.dataTypes.Image.on('init', function(){
 			
 			this.html += '<div class="contenteditable"></div>'; 
 		
-			
 			this.addClass('wysiwyg-image');
 			this.addClass('wysiwyg-box');
-			this.addClass(this.col);
+			//this.addClass(this.col);
 				
 			this.on('user-resize', function(w, nw){
 				var i = this.data;

@@ -57,7 +57,11 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 			Ext.each(wysiwygct.body.dom.childNodes, function(elm){
 				var node = Ext.getCmp(elm.getAttribute('id'));
 				if (node.getValue()) {
-					content.push(node.getValue());
+					var o = node.getValue();
+					if(node.type){
+						o.type = node.getType();
+					}
+					content.push(o);
 				}
 			});
 			if (content.length) {
@@ -516,7 +520,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 									this.el.removeClass(cl[0]);
 								}, this);
 								this.el.addClass(v.val);
-								this.data.type = v.val;
+								this.type = v.val;
 							},
 							scope: this
 						},
