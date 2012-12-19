@@ -39,13 +39,13 @@ Garp.dataTypes.Text.on('init', function(){
 			}
 			walk(this.contentEditableEl.dom.childNodes);
 		},
+		
 		data: null,
 		
 		getData: function(){
 			if (this.contentEditableEl) {
 				return {
-					description: this.contentEditableEl.dom.innerHTML,
-					type: this.data ? this.data.type || '' : '' 
+					description: this.contentEditableEl.dom.innerHTML
 				};
 			} else {
 				return '';

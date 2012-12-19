@@ -55,9 +55,15 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	 */
 	getData: function(){
 		return {
-			description: this.contentEditable ? this.contentEditableEl.dom.innerHTML : '',
-			type: this.type || ''
+			description: this.contentEditable ? this.contentEditableEl.dom.innerHTML : ''
 		};
+	},
+	
+	/**
+	 * 
+	 */
+	getType: function(){
+		return this.type || '';
 	},
 
 	/**
@@ -94,6 +100,7 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	afterInit: function(){
 		if (!this.col) {
 			this.col = 'grid-' + this.maxCols + '-' + this.maxCols;
+			this.addClass(this.col);
 		}
 		this.ct.add(this);
 		this.ct.afterAdd();
