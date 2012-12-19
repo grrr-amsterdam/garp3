@@ -3,9 +3,6 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	reset: function(){
 		this.chapterct.removeAll(true);
 		delete this.originalValue;
-		//if (this.chapterct.items.length === 0) {
-		//	this.chapterct.addWysiwygCt();
-		//}
 	},
 	
 	extraTypes: null,
@@ -36,13 +33,6 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 				});
 				
 			}, this);
-		/*
-	 // *after* the added items are layed-out
-	 this.wysiwygct.on('afterlayout', function(){
-	 this.originalValue = this.getValue();
-	 }, this, {
-	 single: true
-	 });*/
 		}
 	},
 	
@@ -465,12 +455,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			var targetRight = new Ext.dd.DDTarget(el.child('.right').id, 'wysiwyg-dragables-group', {});
 			var targetBottom = new Ext.dd.DDTarget(el.child('.bottom').id, 'wysiwyg-dragables-group', {});
 			var targetLeft = new Ext.dd.DDTarget(el.child('.left').id, 'wysiwyg-dragables-group', {});
-			/*
-			el.on('click', function(){
-				var clickedBox = Ext.getCmp(el.id);
-				wysiwygct.setupClassMenu(clickedBox);
-			});*/
-			
 		});
 		
 		this.getEl().addClass('disabled-targets');
@@ -526,12 +510,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						},
 						items: menuItems
 					});
-					
 					menu.showAt(e.getXY());
 				}
 			});
 		});
-		
 	},
 	
 	onDestroy: function(ct){
@@ -594,7 +576,6 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 		this.addWysiwygCt();
 		Garp.Chapterct.superclass.afterRender.call(this, arguments);
 	}
-	
 	
 });
 Ext.reg('chapterct', Garp.Chapterct);
