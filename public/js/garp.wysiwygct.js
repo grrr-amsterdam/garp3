@@ -50,19 +50,22 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 		
 		var output = [];
 		this.chapterct.items.each(function(wysiwygct){
-			
-				var content = [];
-				wysiwygct.items.each(function(node){
-					if(node.getValue()){
-						content.push(node.getValue());
-					}
-				});
-				if (content.length) {
-					output.push({
-						content: content,
-						type: wysiwygct.getExtraType()
-					});
+			var content = [];
+			if (!wysiwygct.body.dom) {
+				return;
+			}
+			Ext.each(wysiwygct.body.dom.childNodes, function(elm){
+				var node = Ext.getCmp(elm.getAttribute('id'));
+				if (node.getValue()) {
+					content.push(node.getValue());
 				}
+			});
+			if (content.length) {
+				output.push({
+					content: content,
+					type: wysiwygct.getExtraType()
+				});
+			}
 		}, this);
 		return output;
 	},
@@ -295,28 +298,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		}
 		return this.maxCols;
 	},
-	/*
-	setupClassMenu: function(box){
-		var model = box.model;
-		var menu;
-		var val;
-		if (Garp.dataTypes[model].wysiwygConfig) {
-			menu = Garp.dataTypes[model].wysiwygConfig.classMenu;
-			Ext.each(Garp.dataTypes[model].wysiwygConfig.classMenu, function(cl){
-				if(box.el.hasClass(cl[0])){
-					val = cl[0];
-					return;
-				}
-			});
-		} else {
-			menu = [{
-				normal: 'Normal'
-			}];
-		}
-		this.getTopToolbar().classMenu.focusedBox = box;
-		this.getTopToolbar().classMenu.store.loadData(menu);
-		this.getTopToolbar().classMenu.setValue(val || 'normal');
-	},*/
 	
 	/**
 	 * Setup Drag 'n Drop handlers & Ext resizer for all 'boxes'
@@ -511,7 +492,29 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		this.on('add', function(scope, comp){
 			comp.on('showsettings', function(cmp, e){
 				console.log('settings!');
-				console.dir(e);
+				console.dir(cmp);
+				/*
+				 setupClassMenu: function(box){
+				 var model = box.model;
+				 var menu;
+				 var val;
+				 if (Garp.dataTypes[model].wysiwygConfig) {
+				 menu = Garp.dataTypes[model].wysiwygConfig.classMenu;
+				 Ext.each(Garp.dataTypes[model].wysiwygConfig.classMenu, function(cl){
+				 if(box.el.hasClass(cl[0])){
+				 val = cl[0];
+				 return;
+				 }
+				 });
+				 } else {
+				 menu = [{
+				 normal: 'Normal'
+				 }];
+				 }
+				 this.getTopToolbar().classMenu.focusedBox = box;
+				 this.getTopToolbar().classMenu.store.loadData(menu);
+				 this.getTopToolbar().classMenu.setValue(val || 'normal');
+				 },*/
 			});
 		});
 		
