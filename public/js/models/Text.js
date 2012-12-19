@@ -3,6 +3,8 @@ Garp.dataTypes.Text.on('init', function(){
 	
 	this.iconCls = 'icon-text';
 	
+	this.extraTypes = [['',__('Normal')],['aside',__('Aside')],['attention',__('Attention')]];
+	
 	// Wysiwyg Editor
 	this.Wysiwyg = Ext.extend(Garp.WysiwygAbstract, {
 		
@@ -50,6 +52,12 @@ Garp.dataTypes.Text.on('init', function(){
 		},
 		
 		initComponent: function(){
+
+			this.html += '<div class="contenteditable">' +
+				 			__('Enter text') +
+						'</div>'; 
+		
+
 			this.on('user-resize', function(w, nw, nwCol){
 				this.col = nwCol;
 			}, this);

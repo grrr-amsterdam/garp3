@@ -35,9 +35,6 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 		'<div class="dd-handle icon-move"></div>' + 
 		'<div class="dd-handle icon-delete"></div>' +
 		'<div class="dd-handle icon-settings"></div>' + 
-		'<div class="contenteditable">' +
-		 	__('Enter text') +
-		'</div>' + 
 		'<div class="target top"></div>' +
 		'<div class="target right"></div>' +
 		'<div class="target bottom"></div>' + 
