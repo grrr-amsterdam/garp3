@@ -81,7 +81,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 		$this->_namespace = $namespace;
 		$this->_cookieDuration = $cookieDuration;
 		$this->_cookiePath = $cookiePath;
-		$this->_cookieDomain = $cookieDomain ?: '.'.(!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : gethostname());
+		$this->_cookieDomain = $cookieDomain ?: (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : gethostname());
 
 		// fill internal array with existing cookie values
 		if (array_key_exists($namespace, $_COOKIE)) {
