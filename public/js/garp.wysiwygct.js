@@ -135,7 +135,8 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			Ext.each(this.extraTypes, function(t){
 				this.el.removeClass(t[0]);
 			}, this);
-			this.el.addClass(type);
+			TEMP = this;
+			this.el.select('.wysiwyg-body').addClass(type);
 			this.ownerCt.extraType = type;
 		} 
 	},
@@ -498,6 +499,14 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		this.on('afterlayout', this.setupDD, this, {
 			single: true
 		});
+		
+		this.on('afterrender', function(){
+			this.body.wrap({
+				tag: 'div',
+				cls: 'wysiwyg-wrap'
+			});
+		}, this);
+		
 		this.on('add', function(scope, comp){
 			comp.on('showsettings', function(cmp, e){
 				
