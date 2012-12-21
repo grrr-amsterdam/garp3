@@ -341,6 +341,7 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.wysiwyg-box.in-drag .contenteditable { border: 1px #888 dashed; opacity: .5}
 
 			.wysiwyg-box .img { position: absolute;	width: 100%; background-color: #ccc; background-size: contain; background-position: center;	background-repeat: no-repeat; }
+			.wysiwyg-wrap .wysiwyg-box.wysiwyg-image { margin-bottom: 20px; }
 			
 			.row:before, .row:after { content: ""; display: table; }
 			.row:after { clear: both; }

@@ -9,6 +9,11 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	ct: null,
 	
 	/**
+	 * Whether or not to show a settingsMenu
+	 */
+	settingsMenu: true,
+	
+	/**
 	 * Reference to Garp.dataType
 	 */
 	model: 'Text',
@@ -84,9 +89,13 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 		this.el.select('.dd-handle.icon-delete').on('click', function(){
 			this.ownerCt.removeWysiwygBox(this);
 		}, this);
-		this.el.select('.dd-handle.icon-settings').on('click', function(e){
-			this.showSettingsMenu(this, e);
-		}, this);
+		if (this.settingsMenu) {
+			this.el.select('.dd-handle.icon-settings').on('click', function(e){
+				this.showSettingsMenu(this, e);
+			}, this);
+		} else {
+			this.el.select('.dd-handle.icon-settings').hide();
+		}
 	},
 	
 	/**

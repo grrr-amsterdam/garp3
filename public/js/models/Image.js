@@ -122,6 +122,8 @@ Garp.dataTypes.Image.on('init', function(){
 		
 		imgage: null,
 		
+		settingsMenu: false,
+		
 		margin: 0,
 		
 		getData: function(){
