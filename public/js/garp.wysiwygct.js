@@ -111,11 +111,12 @@ Ext.reg('wysiwygfield', Garp.WysiwygField);
 Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
 	cls: 'wysiwyg-ct',
-	bodyCssClass: 'wysiwyg-body',
+	//bodyCssClass: 'wysiwyg-body',
+	
 	bodyBorder: false,
 	autoScroll: true,
 	autoHeight: true,
-	padding: 30,
+	padding: '30',
 	maxCols: null,
 	extraTypes: null,
 	
@@ -136,7 +137,6 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			Ext.each(this.extraTypes, function(t){
 				wrap.removeClass(t[0]);
 			}, this);
-			TEMP = this;
 			wrap.addClass(type);
 			this.ownerCt.extraType = type;
 		} 
@@ -179,6 +179,8 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		}
 		
 		this.tbar = new Ext.Toolbar({
+			cls: 'garp-formpanel-toolbar',
+			padding: '0 10 0 10',
 			width: '100%', // @FIXME: width doesnt seem to work
 			defaults: {
 				xtype: 'button',
