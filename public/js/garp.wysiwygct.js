@@ -132,11 +132,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	setExtraType: function(){
 		if (this.el) {
 			var type = this.getTopToolbar().extraTypesMenu.getValue();
+			var wrap = this.el.select('.wysiwyg-body');
 			Ext.each(this.extraTypes, function(t){
-				this.el.removeClass(t[0]);
+				wrap.removeClass(t[0]);
 			}, this);
 			TEMP = this;
-			this.el.select('.wysiwyg-body').addClass(type);
+			wrap.addClass(type);
 			this.ownerCt.extraType = type;
 		} 
 	},
