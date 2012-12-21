@@ -65,7 +65,9 @@ Garp.dataTypes.Text.on('init', function(){
 			
 			this.on('afterrender', function(){
 				this.addClass('wysiwyg-box');
-				this.addClass(this.col);
+				if (this.col) {
+					this.addClass(this.col);
+				}
 				this.el.select('.dd-handle, .target').each(function(el){
 					el.dom.setAttribute(id, Ext.id());
 				});

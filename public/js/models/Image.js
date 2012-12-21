@@ -169,8 +169,10 @@ Garp.dataTypes.Image.on('init', function(){
 		
 			this.addClass('wysiwyg-image');
 			this.addClass('wysiwyg-box');
-			//this.addClass(this.col);
-				
+			if (this.col) {
+				this.addClass(this.col);
+			}
+			
 			this.on('user-resize', function(w, nw){
 				var i = this.data;
 				var aspct = i.height / i.width;
