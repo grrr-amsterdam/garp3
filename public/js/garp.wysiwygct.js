@@ -111,7 +111,7 @@ Ext.reg('wysiwygfield', Garp.WysiwygField);
 Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
 	cls: 'wysiwyg-ct',
-	//bodyCssClass: 'wysiwyg-body',
+	bodyCssClass: 'wysiwyg-body',
 	
 	bodyBorder: false,
 	autoScroll: true,
@@ -149,8 +149,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	setupTbar: function(){
 		
 		function addMenuFactory(){
-			var menu = [];
-			menu.push({
+			var menu = [{
 				text: __('Add chapter'),
 				iconCls: 'icon-wysiwyg-add-chapter',
 				handler: function(){
@@ -159,8 +158,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					}, this);
 				},
 				scope: this
-			});
-			menu.push('-');
+			},'-'];
 			Ext.each(this.getWysiwygDataTypes(), function(model){
 				menu.push({
 					text: __(model.text),
