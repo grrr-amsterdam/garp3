@@ -3,17 +3,21 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	reset: function(){
 		this.chapterct.removeAll(true);
 		delete this.originalValue;
+		if(!this.chapterct.items.length){
+			this.chapterct.addWysiwygCt();
+		}
 	},
-	
+
+	hideMode: 'display',
+
 	extraTypes: null,
 	
 	setValue: function(items){
-		
 		this.reset();
-		
 		var maxCols = this.maxCols;
-		
-		if (items) {
+
+		if (items && items.length) {
+			this.chapterct.removeAll(true);
 			Ext.each(items, function(item){
 				this.chapterct.addWysiwygCt({
 					type: item.type
@@ -108,11 +112,11 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 
 	cls: 'wysiwyg-ct',
 	bodyCssClass: 'wysiwyg-body',
+	bodyBorder: false,
 	autoScroll: true,
 	autoHeight: true,
 	padding: 30,
 	maxCols: null,
-	
 	extraTypes: null,
 	
 	getWysiwygDataTypes: function(){
@@ -144,9 +148,20 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		
 		function addMenuFactory(){
 			var menu = [];
+			menu.push({
+				text: __('Add chapter'),
+				iconCls: 'icon-wysiwyg-add-chapter',
+				handler: function(){
+					this.ownerCt.addWysiwygCt({
+						type:''
+					}, this);
+				},
+				scope: this
+			});
+			menu.push('-');
 			Ext.each(this.getWysiwygDataTypes(), function(model){
 				menu.push({
-					text: model.text,
+					text: __(model.text),
 					iconCls: model.iconCls,
 					handler: function(){
 						var box = new model.Wysiwyg({
@@ -205,11 +220,16 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					e.preventDefault();
 					document.execCommand('Italic', false, null);
 				}
-			}, '->', {
+			}, '->',{
 				text: __('Delete'),
 				iconCls: 'icon-wysiwyg-remove-chapter',
 				handler: function(){
-					this.ownerCt.remove(this);
+					if (this.ownerCt.items.length > 1) {
+						this.ownerCt.remove(this);
+					} else {
+						this.ownerCt.addWysiwygCt();
+						this.ownerCt.remove(this);
+					}
 				}
 			}]
 		});
@@ -537,16 +557,29 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 	
 	extraTypes: null,
 	
-	addWysiwygCt: function(cfg){
-		this.add(new Garp.Wysiwygct({
+	addWysiwygCt: function(cfg, callerWysiwyg){
+		var idx = 0;
+		
+		if (callerWysiwyg) {
+			this.items.each(function(i,c){ // find index of caller to find inserting position
+				if(i == callerWysiwyg){
+					idx = c;
+					return false;
+				}
+			});
+		} 
+		
+		this.insert(idx + 1, new Garp.Wysiwygct({
 			ct: this,
 			extraTypes: this.extraTypes,
 			extraType: cfg && cfg.type ? cfg.type : '',
 			maxCols: this.maxCols
 		}));
+			
 		this.doLayout();
 	},
 	
+	/*
 	bbar: new Ext.Toolbar({
 		width: '100%',
 		style: 'border: 0',
@@ -557,7 +590,7 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 				this.ownerCt.ownerCt.addWysiwygCt();
 			}
 		}]
-	}),
+	}),*/
 		
 	/**
 	 * I.N.I.T.
