@@ -72,12 +72,12 @@ $classLoader = Garp_Loader::getInstance(array(
 		),
 		array(
 			'namespace' => 'G_Model',
-			'path' => APPLICATION_PATH.'/../garp/application/modules/g/models/',
+			'path' => GARP_APPLICATION_PATH.'/modules/g/models/',
 			'ignore' => 'G_Model_'
 		),
 		array(
 			'namespace' => 'Mocks_Model',
-			'path' => APPLICATION_PATH.'/../garp/application/modules/mocks/models/',
+			'path' => GARP_APPLICATION_PATH.'/modules/mocks/models/',
 			'ignore' => 'Mocks_Model_'
 		)
 	)
