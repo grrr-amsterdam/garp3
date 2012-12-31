@@ -35,20 +35,36 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 			chdir('..');
 		}
 		
-		// setup git hook for updating APP_VERSION
+		// setup git hook for updating APP_VERSION... 
 		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/post-commit';
 		$hookTarget = APPLICATION_PATH.'/../.git/hooks/post-commit';
+		$this->_moveGitHook($hookSource, $hookTarget);
+		// ...and GARP_VERSION
+		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/garp-post-commit';
+		$hookTarget = APPLICATION_PATH.'/../garp/.git/hooks/post-commit';
+		$this->_moveGitHook($hookSource, $hookTarget);
+
+		Garp_Cli::lineOut('Done.');
+	}
+
+
+	/**
+ 	 * Move Git Hook into place
+ 	 * @param String $hookSource Source file
+ 	 * @param String $hookTarget Target file
+ 	 * @return Void
+ 	 */
+	protected function _moveGitHook($hookSource, $hookTarget) {
 		$performTheMove = true;
 		if (file_exists($hookTarget)) {
-			// Warn use about existing hook. Might be accidental
-			$performTheMove = Garp_Cli::confirm('Post-commit hook already in place. Overwrite?');
+			// Warn user about existing hook. Might be accidental
+			$performTheMove = Garp_Cli::confirm('Hook '.$hookTarget.' already in place. Overwrite?');
 		}
 		if ($performTheMove) {
 			passthru("cp $hookSource $hookTarget");
 			// Make hook executable
 			passthru("chmod u+x $hookTarget");
-		}
-		Garp_Cli::lineOut('Done.');
+		}		
 	}
 
 
