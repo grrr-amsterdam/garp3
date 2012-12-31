@@ -6,8 +6,8 @@
  */
 
 @import 'compass/css3';
-@import 'normalize';
-@import 'extension';
+@import 'imports/normalize';
+@import 'imports/extension';
 
 /* ==========================================================================
    primary styles
@@ -65,10 +65,10 @@ img, object, iframe, video { max-width: 100%; }
    modules
    ========================================================================== */
 
-@import 'cookie-info';
+@import 'imports/cookie-info';
 
 /* ==========================================================================
    print styles
    ========================================================================== */
 
-@import 'print';
+@import 'imports/print';
