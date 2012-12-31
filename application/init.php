@@ -48,7 +48,10 @@ if (
 if (!defined('APP_VERSION')) {
 	define('APP_VERSION', 1);
 }
-include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+@include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+if (!defined('GARP_VERSION')) {
+	define('GARP_VERSION', 1);
+}
 
 
 require 'Garp/Loader.php';
