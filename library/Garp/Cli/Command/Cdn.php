@@ -9,6 +9,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
+	const FILTER_DATE_PARAM = 'since';
+	const FILTER_DATE_VALUE_NEGATION = 'forever';
+	
 	
 	/**
 	 * Distributes the public assets on the local server to the configured CDN servers.
@@ -16,7 +19,9 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 	public function distribute(array $args) {
 		$distributor 		= new Garp_Content_CDN_Distributor();
 		$filterString 		= array_key_exists(0, $args) ? $args[0] : null;
-		$assetList 			= $distributor->select($filterString);
+		$filterDate			= $this->_getFilterDate($args);
+			
+		$assetList 			= $distributor->select($filterString, $filterDate);
 		$allEnvironments 	= $distributor->getEnvironments();
 
 		if ($assetList) {
@@ -53,5 +58,25 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 		Garp_Cli::lineOut("\tgarp.php Cdn distribute --to=development");
 		Garp_Cli::lineOut("\tgarp.php Cdn distribute main.js --to=staging");
 		Garp_Cli::lineOut("");
+		
+		Garp_Cli::lineOut("Default only recently modified files will be distributed.");
+		Garp_Cli::lineOut("To distribute all files:");
+		Garp_Cli::lineOut("\tgarp.php Cdn distribute --since=forever");
+		Garp_Cli::lineOut("");
+		
+		Garp_Cli::lineOut("To distribute files modified since a specific date (use a 'strtotime' compatible argument):");
+		Garp_Cli::lineOut("\tgarp.php Cdn distribute --since=yesterday");
+		Garp_Cli::lineOut("");
+	}
+	
+	
+	protected function _setFilterDate(array $args) {
+		return array_key_exists(self::FILTER_DATE_PARAM, $args) ?
+			($args[self::FILTER_DATE_PARAM] === self::FILTER_DATE_VALUE_NEGATION ?
+				false :
+				$args[self::FILTER_DATE_PARAM]
+			) :
+			null
+		;
 	}
 }
