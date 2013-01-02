@@ -11,11 +11,11 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_CDN_AssetList_Test extends PHPUnit_Framework_TestCase {
-	const FILTER_STRING_MATCHING_MULTIPLE = 'css';
-	const FILTER_STRING_MATCHING_ONE_GARP = 'css/garp/images/garp.png';
-	const FILTER_STRING_MATCHING_ONE_APP = 'css/cms.css';
-	const FILTER_STRING_NOT_MATCHING = 'l3$#j@[hdv%@u2w2a9g08u.e3#d@c';
-
+	const FILTER_STRING_MATCHING_MULTIPLE 	= 'css';
+	const FILTER_STRING_MATCHING_ONE_GARP 	= 'css/garp/images/garp.png';
+	const FILTER_STRING_MATCHING_ONE_APP 	= 'css/cms.css';
+	const FILTER_STRING_NOT_MATCHING 		= 'l3$#j@[hdv%@u2w2a9g08u.e3#d@c';
+	const FILE_TIMESTAMP_THRESHOLD 			= '-2 weeks';
 
 
 	public function test_Base_Dir_Should_Not_Be_Empty() {
@@ -54,15 +54,21 @@ class Garp_Content_CDN_AssetList_Test extends PHPUnit_Framework_TestCase {
 	}
 	
 	
-	// public function test_Assets_Should_Not_Be_More_Than_2_Weeks_Old_If_No_Params_Given() {
-	// 	$assetList	= $this->_getListInstance(self::FILTER_STRING_MATCHING_MULTIPLE);
-	// 	
-	// 	foreach ($assetList as $assetPathRel) {
-	// 		$assetPathAbs = $this->_getBaseDir() . $assetPathRel;
-	// 		$timestamp = filemtime($assetPathAbs);
-	// 		
-	// 	}
-	// }
+	public function test_Assets_Should_Not_Be_Older_Than_Threshold_If_No_Params_Given() {
+		$assetList	= $this->_getListInstance(self::FILTER_STRING_MATCHING_MULTIPLE);
+		
+		foreach ($assetList as $assetPathRel) {
+			$assetPathAbs 	= $this->_getBaseDir() . $assetPathRel;
+			$fileTimestamp 	= filemtime($assetPathAbs);
+			$threshold		= strtotime(self::FILE_TIMESTAMP_THRESHOLD);
+			
+			$this->assertTrue(
+				$fileTimestamp >= $threshold, 
+				"Timestamp of {$assetPathRel}: " . strftime('%d-%m-%Y', $fileTimestamp) 
+				. ', should be: now ' . self::FILE_TIMESTAMP_THRESHOLD
+			);
+		}
+	}
 
 	
 	protected function _getBaseDir() {
