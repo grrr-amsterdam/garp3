@@ -107,7 +107,6 @@ Garp.dataTypes.Image.on('init', function(){
 		}, {
 			xtype: 'box',
 			hidden: false,
-			// style: 'visibility:hidden',
 			ref: '../../../../download',
 			fieldLabel: ' ',
 			hideFieldLabel: false,
@@ -115,86 +114,116 @@ Garp.dataTypes.Image.on('init', function(){
 		}]
 	});
 	
-	/*
-	text: 'Image',
 	
-	displayFieldRenderer : function(rec){
-		return rec.get('filename') || __('New Image');
-	},
+	// Wysiwyg Editor
+	this.Wysiwyg = Ext.extend(Garp.WysiwygAbstract, {
 	
-	// override: icon-image (GarpDataType default) is already in use by instances of Ext.ux.form.RichTextEditor.js
-	iconCls:'icon-img',
-	
-	defaultData: {
-		id: null,
-		filename: null,
-		caption: null,
-		created: null,
-		modified: null
-	},
-	
-	sortInfo: {
-		field: 'created',
-		direction: 'DESC'
-	},
-	
-	columnModel: [{
-				header: '<span class="hidden">' + __('Image') + '</span>',
-				dataIndex: 'id',
-				width: 84,
-				fixed: true,
-				renderer: Garp.renderers.imageRelationRenderer,
-				hidden: false
-			}, {
-				header: __('Filename'),
-				dataIndex: 'filename',
-				hidden: true
-			}, {
-				header: __('Caption'),
-				dataIndex: 'caption'
-			}, {
-				header: __('Created'),
-				dataIndex: 'created',
-				hidden: true,
-				renderer: Garp.renderers.dateTimeRenderer
-			},{
-				header: __('Modified'),
-				dataIndex: 'modified',
-				hidden: true,
-				renderer: Garp.renderers.dateTimeRenderer
-			}],
-			
-	formConfig: [{
-		layout: 'form',
+		model: 'Image',
 		
-		defaults: {
-			defaultType: 'textfield'
+		imgage: null,
+		
+		settingsMenu: false,
+		
+		margin: 0,
+		
+		getData: function(){
+			return {
+				id: this.data.id
+			};
 		},
 		
-		listeners: {
-			'loaddata': function(rec, formPanel){
-				function updateUI(){
-					formPanel.preview.update(Garp.renderers.imagePreviewRenderer(rec.get('filename'),null,rec));
-					formPanel.download.update({
-						filename: rec.get('filename')
-					});
-				}
-				if (formPanel.rendered) {
-					updateUI();
-				} else {
-					formPanel.on('show', updateUI, null, {
-						single: true
-					});
-				}
-				// if we're in a relateCreateWindow, set it height again, otherwise it might not fit.
-				if(typeof formPanel.center == 'function' && rec.get('filename')){
-					formPanel.setHeight(440);
-					formPanel.center();
-				}
+		// override: we don't need filtering for images:
+		filterHtml: function(){
+			return true;
+		},
+		
+		beforeInit: function(afterInitCb){
+			var args = arguments;
+			// Do we need to present a dialog or not?
+			if(this.data){
+				afterInitCb.call(this, args);
+				return;
 			}
+			var picker = new Garp.ModelPickerWindow({
+				model: 'Image',
+				listeners: {
+					select: function(sel){
+						if (sel.selected) {
+							var imgId = sel.selected.data.id;
+							this.data = {
+								id: imgId
+							};
+							afterInitCb.call(this, args);
+						} else {
+							this.destroy();
+						}
+						picker.close();
+					},
+					scope: this
+				}
+			});
+			picker.show();
 		},
 		
-		items:[
-		}]
-	}]*/
+		initComponent: function(ct){
+			
+			this.html += '<div class="contenteditable"></div>'; 
+		
+			this.addClass('wysiwyg-image');
+			this.addClass('wysiwyg-box');
+			if (this.col) {
+				this.addClass(this.col);
+			}
+			
+			this.on('user-resize', function(w, nw){
+				var i = this.data;
+				var aspct = i.height / i.width;
+				var nHeight = (nw * aspct) - this.margin;
+				this.contentEditableEl.setHeight(nHeight);
+				this.contentEditableEl.child('.img').setHeight(nHeight);
+				this.setHeight(nHeight);
+			});
+			
+			this.on('afterrender', function(){
+				this.contentEditableEl = this.el.child('.contenteditable');
+				this.contentEditableEl.update('');
+				this.contentEditableEl.dom.setAttribute('contenteditable', false);
+				
+				var i = new Image();
+				var scope = this;
+				var path = IMAGES_CDN + 'scaled/cms_preview/' + this.data.id;
+				i.onload = function(){
+					Ext.apply(scope.data, {
+						width: i.width,
+						height: i.height
+					});
+					
+					var aspct = i.height / i.width;
+					var nHeight = (scope.ownerCt.getWidth() * aspct) - scope.margin;
+					
+					scope.contentEditableEl.setStyle({
+						position: 'relative',
+						padding: 0,
+						height: nHeight + 'px'
+					});
+					
+					scope.contentEditableEl.update('<div class="img"></div>');
+					scope.contentEditableEl.child('.img').setStyle({
+						height: nHeight + 'px',
+						backgroundImage: 'url("' + path + '")'
+					});
+					
+					scope.setHeight(nHeight);
+					scope.ownerCt.doLayout();
+					
+				};
+				i.src = path;
+				if (i.complete) {
+					i.onload();
+				}
+				
+			}, this);
+			Garp.dataTypes.Image.Wysiwyg.superclass.initComponent.call(this, arguments);
+		}
+	});
 });
