@@ -404,3 +404,11 @@ Ext.menu.Menu.prototype.createScrollers = Ext.menu.Menu.prototype.createScroller
 	this.scroller.bottom.on('mouseleave', stopScroll);
 	
 });
+
+/** Fixes some el == null issues at D 'n D **/
+Ext.lib.Dom.getXY = Ext.lib.Dom.getXY.createInterceptor(function(el){
+	return el || false;
+});
+Ext.lib.Region.getRegion = Ext.lib.Region.getRegion.createInterceptor(function(el){
+	return el || false;
+});
