@@ -13,17 +13,24 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 	const FILTER_DATE_VALUE_NEGATION 	= 'forever';
 	const FILTER_ENV_PARAM 				= 'to';
 	
+	protected $_distributor;
+	
+	
+	
+	public function __construct() {
+		$this->_distributor = new Garp_Content_CDN_Distributor();
+	}
+	
 	
 	/**
 	 * Distributes the public assets on the local server to the configured CDN servers.
 	 */
 	public function distribute(array $args) {
-		$distributor 		= new Garp_Content_CDN_Distributor();
 		$filterString 		= $this->_getFilterString($args);
 		$filterDate			= $this->_getFilterDate($args);
 		$filterEnvironments = $this->_getFilterEnvironments($args);
 			
-		$assetList 			= $distributor->select($filterString, $filterDate);
+		$assetList 			= $this->_distributor->select($filterString, $filterDate);
 
 		if ($assetList) {
 			$assetCount = count($assetList);
@@ -31,7 +38,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 			Garp_Cli::lineOut("Distributing {$summary}\n");
 						
 			foreach ($filterEnvironments as $env) {
-				$distributor->distribute($env, $assetList, $assetCount);
+				$this->_distributor->distribute($env, $assetList, $assetCount);
 			}
 		} else Garp_Cli::errorOut("No files to distribute.");
 	}
@@ -83,7 +90,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 	
 	
 	protected function _getFilterEnvironments(array $args) {
-		$allEnvironments 	= $distributor->getEnvironments();
+		$allEnvironments 	= $this->_distributor->getEnvironments();
 		$environments 		= array_key_exists(self::FILTER_ENV_PARAM, $args) ?
 			(array)$args[self::FILTER_ENV_PARAM] :
 			$allEnvironments
