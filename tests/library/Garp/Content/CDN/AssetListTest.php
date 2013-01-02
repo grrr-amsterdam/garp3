@@ -37,13 +37,13 @@ class Garp_Content_CDN_AssetList_Test extends PHPUnit_Framework_TestCase {
 
 
 	public function test_One_Garp_Asset_Should_Be_Selected_If_Specific_Match() {
-		$assetList	= $this->_getListInstance(self::FILTER_STRING_MATCHING_ONE_GARP);
+		$assetList	= $this->_getListInstance(self::FILTER_STRING_MATCHING_ONE_GARP, false);
 		$this->assertSame(count($assetList), 1);
 	}
 
 
 	public function test_One_App_Asset_Should_Be_Selected_If_Specific_Match() {
-		$assetList	= $this->_getListInstance(self::FILTER_STRING_MATCHING_ONE_APP);
+		$assetList	= $this->_getListInstance(self::FILTER_STRING_MATCHING_ONE_APP, false);
 		$this->assertSame(count($assetList), 1);
 	}
 
@@ -77,8 +77,8 @@ class Garp_Content_CDN_AssetList_Test extends PHPUnit_Framework_TestCase {
 	}
 	
 	
-	protected function _getListInstance($filterString) {
-		return new Garp_Content_CDN_AssetList($this->_getBaseDir(), $filterString);
+	protected function _getListInstance($filterString, $filterByFileDate = null) {
+		return new Garp_Content_CDN_AssetList($this->_getBaseDir(), $filterString, $filterByFileDate);
 	}
 
 
