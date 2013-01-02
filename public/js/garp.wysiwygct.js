@@ -24,6 +24,12 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 				});
 				var currentWysiwygCt = this.chapterct.items.last();
 				Ext.each(item.content, function(node){
+					if(!node.model){
+						if (console && console.dir) {
+							console.dir(node);
+						}
+						throw 'Model type not found. DB corrupted or silly developer at work...';
+					}
 					var box = new Garp.dataTypes[node.model].Wysiwyg({
 						ct: currentWysiwygCt,
 						data: node.data,
@@ -283,12 +289,12 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					
 					function isAlreadyLink(){
 						var isLink = false;
-						if(scope.getCurrentTagName() == 'A'){ // now select node contents:
+						if (scope.getCurrentTagName() == 'A') { // now select node contents:
 							scope.getRange().selectNodeContents(scope.getRange().endContainer);
 							return true;
 						}
 						Ext.each(scope.getRange().endContainer.childNodes, function(node){
-							if(node.nodeName && node.nodeName == 'A'){
+							if (node.nodeName && node.nodeName == 'A') {
 								isLink = true;
 								return false;
 							}
@@ -304,7 +310,86 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						var txt = sel.toString();
 						if (txt) {
 							var range = scope.getRange();
-									
+							
+							var dialog = new Ext.Window({
+								title: __('Add link'),
+								iconCls: 'icon-richtext-add-link',
+								width: 445,
+								modal: true,
+								height: 240,
+								border: true,
+								layout: 'fit',
+								defaultButton: '_url', // defaultButton can focus anything ;-)
+								items: [{
+									xtype: 'fieldset',
+									bodyCssClass: 'garp-dialog-fieldset',
+									labelWidth: 160,
+									items: [{
+										xtype: 'textfield',
+										fieldLabel: __('Url'),
+										name: 'url',
+										id: '_url',
+										vtype: 'mailtoOrUrl',
+										allowBlank: false,
+										plugins: [Garp.mailtoOrUrlPlugin],
+										value: ''
+									}, {
+										xtype: 'textfield',
+										fieldLabel: __('Title'),
+										name: 'title',
+										value: ''
+									}, {
+										xtype: 'checkbox',
+										allowBlank: true,
+										fieldLabel: __('Open in new window'),
+										name: 'target',
+										checked: ''
+									}]
+								}],
+								buttonAlign: 'right',
+								buttons: [{
+									text: __('Cancel'),
+									handler: function(){
+										dialog.close();
+									}
+								}, {
+									text: __('Ok'),
+									ref: '../ok',
+									handler: function(){
+										var url = dialog.find('name', 'url')[0].getValue(), title = dialog.find('name', 'title')[0].getValue(), target = dialog.find('name', 'target')[0].getValue() == '1';
+										
+										var nwLink = document.createElement('a');
+										
+										nwLink.setAttribute('href', url);
+										if (target) {
+											nwLink.setAttribute('target', '_blank');
+										}
+										nwLink.setAttribute('title', title);
+										nwLink.appendChild(document.createTextNode(txt));
+										
+										range.deleteContents();
+										range.insertNode(nwLink);
+										range.selectNodeContents(nwLink);
+										sel.removeAllRanges();
+										sel.addRange(range);
+										
+										
+										dialog.close();
+									},
+									scope: this
+								}]
+							});
+							dialog.show();
+							dialog.items.get(0).items.get(0).clearInvalid();
+							
+							var map = new Ext.KeyMap([dialog.find('name', 'url')[0].getEl(), dialog.find('name', 'title')[0].getEl()], {
+								key: [10, 13],
+								fn: function(){
+									dialog.ok.handler.call(this);
+								},
+								scope: this
+							});
+/*							
 							Ext.Msg.prompt(__('Garp'), __('URL to link to'), function(btn, url){
 								if (btn == 'ok' && url) {
 									var nwLink = document.createElement('a');
@@ -320,7 +405,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 									sel.removeAllRanges();
 									sel.addRange(range);
 								}
-							});
+							});*/
 						}
 					}
 					
