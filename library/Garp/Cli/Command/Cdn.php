@@ -13,6 +13,8 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 	const FILTER_DATE_VALUE_NEGATION 	= 'forever';
 	const FILTER_ENV_PARAM 				= 'to';
 	
+	const DRY_RUN_PARAM					= 'dry';
+	
 	protected $_distributor;
 	
 	
@@ -29,6 +31,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 		$filterString 		= $this->_getFilterString($args);
 		$filterDate			= $this->_getFilterDate($args);
 		$filterEnvironments = $this->_getFilterEnvironments($args);
+		$isDryRun			= $this->_getDryRunParam($args);
 			
 		$assetList 			= $this->_distributor->select($filterString, $filterDate);
 
@@ -36,9 +39,13 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 			$assetCount = count($assetList);
 			$summary = $assetCount === 1 ? $assetList[0] : $assetCount . ' assets.';
 			Garp_Cli::lineOut("Distributing {$summary}\n");
-						
-			foreach ($filterEnvironments as $env) {
-				$this->_distributor->distribute($env, $assetList, $assetCount);
+
+			if (!$isDryRun) {
+				foreach ($filterEnvironments as $env) {
+					$this->_distributor->distribute($env, $assetList, $assetCount);
+				}
+			} else {
+				Garp_Cli::lineOut(implode("\n", (array)$assetList));
 			}
 		} else Garp_Cli::errorOut("No files to distribute.");
 	}
@@ -70,6 +77,11 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 		Garp_Cli::lineOut("To distribute files modified since a specific date (use a 'strtotime' compatible argument):");
 		Garp_Cli::lineOut("\tgarp.php Cdn distribute --since=yesterday");
 		Garp_Cli::lineOut("");
+
+		Garp_Cli::lineOut("To see which files will be distributed without actually distributing them, do a dry run:");
+		Garp_Cli::lineOut("\tgarp.php Cdn distribute --dry");
+		Garp_Cli::lineOut("");
+
 	}
 	
 	
@@ -97,5 +109,10 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 		;
 			
 		return $environments;
+	}
+	
+	
+	protected function _getDryRunParam(array $args) {
+		return array_key_exists(self::DRY_RUN_PARAM, $args);
 	}
 }
