@@ -589,10 +589,8 @@
 				elm.setHeight((cookie.messages.length-1) * 20 + 30);
 				
 				var value = "; path=/";
-				var domain = document.location.host;
 				var date = new Date();
 				date.setHours(date.getHours(-1));
-				value += "; domain="+escape(domain);
 				value += ((date===null) ? "" : "; expires="+date.toGMTString());
 				document.cookie='FlashMessenger' + "=" + value;
 				return true;
