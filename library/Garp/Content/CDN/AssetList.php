@@ -21,7 +21,7 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 	/**
 	 * A timestamp to be used as a filter for the file age.
 	 */
-	protected $_fileAgeThreshold;
+	protected $_filterDate;
 	
 	const ERROR_CANT_OPEN_DIRECTORY = "Unable to open the configuration directory: %s";
 	const HIDDEN_FILES_PREFIX = '.';
@@ -29,37 +29,37 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 	/**
 	 * Default age of files that are relevant for distribution.
 	 */
-	const DEFAULT_FILE_AGE_THRESHOLD = '-2 weeks';
-	const NEGATIVE_FILE_AGE_THRESHOLD = '-100 years';
+	const DEFAULT_FILTER_DATE = '-2 weeks';
+	const NEGATIVE_FILTER_DATE = '-100 years';
 	
 	
 	
 	/**
 	 * @param	$baseDir			The base directory
 	 * @param	$filterString		A search string to filter filenames by
-	 * @param	$fileAgeThreshold	An age threshold to use as a file filter, excluding old files for distribution.
+	 * @param	$filterDate	An age threshold to use as a file filter, excluding old files for distribution.
 	 *								This should be in a format that can be fed to strtotime().
-	 *								Defaults to self::DEFAULT_FILE_AGE_THRESHOLD. Can be set to false to disable the filter.
+	 *								Defaults to self::DEFAULT_FILTER_DATE. Can be set to false to disable the filter.
 	 */
-	public function __construct($baseDir, $filterString = null, $fileAgeThreshold = null) {
+	public function __construct($baseDir, $filterString = null, $filterDate = null) {
 		$distributor 				= new Garp_Content_CDN_Distributor();
 		$this->_baseDir				= $baseDir;
 		$this->_baseDirLength		= strlen($baseDir);
 		
 		$this->_filterString		= $filterString;
-		$this->_fileAgeThreshold	= $this->_setFileAgeThreshold($fileAgeThreshold);
+		$this->_filterDate	= $this->_setFilterDate($filterDate);
 
 		$this->_crawlDirectory($baseDir);
 	}
 	
 	
-	protected function _setFileAgeThreshold($fileAgeThreshold) {
-		if (is_null($fileAgeThreshold)) {
-			$relThreshold = self::DEFAULT_FILE_AGE_THRESHOLD;
-		} elseif ($fileAgeThreshold === false) {
-			$relThreshold = self::NEGATIVE_FILE_AGE_THRESHOLD;
+	protected function _setFilterDate($filterDate) {
+		if (is_null($filterDate)) {
+			$relThreshold = self::DEFAULT_FILTER_DATE;
+		} elseif ($filterDate === false) {
+			$relThreshold = self::NEGATIVE_FILTER_DATE;
 		} else {
-			$relThreshold = $fileAgeThreshold;
+			$relThreshold = $filterDate;
 		}
 
 		return strtotime($relThreshold);
@@ -114,7 +114,7 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 	protected function _isWithinTimeFrame($filePathAbs) {
 		$fileTimestamp 	= filemtime($filePathAbs);
 
-		return $fileTimestamp >= $this->_fileAgeThreshold;
+		return $fileTimestamp >= $this->_filterDate;
 	}
 	
 	
