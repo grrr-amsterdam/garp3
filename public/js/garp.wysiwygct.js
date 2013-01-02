@@ -146,6 +146,37 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		return this.getTopToolbar().extraTypesMenu.getValue();
 	},
 	
+	
+		/**
+		 * function getRange
+		 *
+		 * @experimental
+		 *
+		 * @return the current mouse selected range
+		 */
+		getRange: function(){
+			var range, sel, container;
+			
+			sel = window.getSelection();
+			if (sel.getRangeAt) {
+				if (sel.rangeCount > 0) {
+					range = sel.getRangeAt(0);
+				}
+			} else {
+				// Old WebKit
+				range = document.createRange();
+				range.setStart(sel.anchorNode, sel.anchorOffset);
+				range.setEnd(sel.focusNode, sel.focusOffset);
+				
+				// Handle the case when the selection was selected backwards (from the end to the start in the document)
+				if (range.collapsed !== sel.isCollapsed) {
+					range.setStart(sel.focusNode, sel.focusOffset);
+					range.setEnd(sel.anchorNode, sel.anchorOffset);
+				}
+			}
+			return range;
+		},
+	
 	setupTbar: function(){
 		
 		function addMenuFactory(){
@@ -204,7 +235,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						return true;
 					}
 				}
-			}, ' ', {
+			}, ' ', ' ', {
 				iconCls: 'icon-wysiwyg-bold',
 				ref: 'boldBtn',
 				clickEvent: 'mousedown',
@@ -222,7 +253,79 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					e.preventDefault();
 					document.execCommand('Italic', false, null);
 				}
-			}, '->',{
+			}, {
+				iconCls: 'icon-wysiwyg-orderedlist',
+				ref: 'insertorderedlistBtn',
+				clickEvent: 'mousedown',
+				enableToggle: true,
+				handler: function(b, e){
+					e.preventDefault();
+					document.execCommand('Insertorderedlist', false, null);
+				}
+			},{
+				iconCls: 'icon-wysiwyg-unorderedlist',
+				ref: 'insertunorderedlistBtn',
+				clickEvent: 'mousedown',
+				enableToggle: true,
+				handler: function(b, e){
+					e.preventDefault();
+					document.execCommand('Insertunorderedlist', false, null);
+				}
+			},{
+				iconCls: 'icon-wysiwyg-createlink',
+				ref: 'createlinkBtn',
+				clickEvent: 'mousedown',
+				enableToggle: true,
+				handler: function(b, e){
+					e.preventDefault();
+					
+					var scope = this;
+					
+					function isAlreadyLink(){
+						var isLink = false;
+						if(scope.getCurrentTagName() == 'A'){ // now select node contents:
+							scope.getRange().selectNodeContents(scope.getRange().endContainer);
+							return true;
+						}
+						Ext.each(scope.getRange().endContainer.childNodes, function(node){
+							if(node.nodeName && node.nodeName == 'A'){
+								isLink = true;
+								return false;
+							}
+						});
+						return isLink;
+					}
+					
+					
+					if (isAlreadyLink()) {
+						document.execCommand('Unlink', false, null);
+					} else {
+						var sel = this.getSelection();
+						var txt = sel.toString();
+						if (txt) {
+							var range = scope.getRange();
+									
+							Ext.Msg.prompt(__('Garp'), __('URL to link to'), function(btn, url){
+								if (btn == 'ok' && url) {
+									var nwLink = document.createElement('a');
+									
+									nwLink.setAttribute('href', url);
+									//nwLink.setAttribute('target', '_blank');
+									//nwLink.setAttribute('title', title);
+									nwLink.appendChild(document.createTextNode(txt));
+									
+									range.deleteContents();
+									range.insertNode(nwLink);
+									range.selectNodeContents(nwLink);
+									sel.removeAllRanges();
+									sel.addRange(range);
+								}
+							});
+						}
+					}
+					
+				}
+			},'->',{
 				text: __('Delete'),
 				iconCls: 'icon-wysiwyg-remove-chapter',
 				handler: function(){
@@ -237,14 +340,31 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 		});
 	},
 	
+	getSelection: function(){
+		var ds = (typeof document.selection !== 'undefined' ? document.selection.createRange().text : (typeof document.getSelection === 'function') ? document.getSelection() : false);
+		return ds;
+	},
+	
+	getCurrentTagName: function(){
+		var node = this.getSelection().focusNode;
+		if (!node) {
+			return;
+		}
+		return node.tagName ? node.tagName : (node.parentNode.tagName ? node.parentNode.tagName : '');
+	},
+	
+	
 	setupTbarWatcher: function(){
-		var states = ['bold','italic'];
+		var states = ['bold','italic','insertorderedlist','insertunorderedlist'];
 		var scope = this;
 		this.tbWatcherInterval = setInterval(function(){
 			var tbar = scope.getTopToolbar();
 			if(!tbar || Ext.select('.wysiwyg-box').elements.length === 0) {
 				return;
 			}
+			
+			tbar.createlinkBtn.toggle(scope.getCurrentTagName() == 'A', false);
+
 			for(var c=0, l = states.length; c<l; c++){
 				var state = states[c];
 				try {
