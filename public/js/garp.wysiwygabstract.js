@@ -129,6 +129,5 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 		this.on('user-resize', function(w, nw, nwCol){
 			this.col = nwCol;
 		}, this);
-		
 	}
 });
