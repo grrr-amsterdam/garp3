@@ -44,7 +44,9 @@ class Garp_Db_Table_Rowset_Iterator {
  	 */
 	public function walk() {
 		$this->_beforeWalk();
-		array_walk($this->_result, $this->_function);
+		foreach ($this->_result as $result) {
+			call_user_func($this->_function, $result);
+		}
 		$this->_afterWalk();
 	}
 
