@@ -58,11 +58,6 @@ Garp.dataTypes.Text.on('init', function(){
 				 			__('Enter text') +
 						'</div>'; 
 		
-
-			this.on('user-resize', function(w, nw, nwCol){
-				this.col = nwCol;
-			}, this);
-			
 			this.on('afterrender', function(){
 				this.addClass('wysiwyg-box');
 				if (this.col) {

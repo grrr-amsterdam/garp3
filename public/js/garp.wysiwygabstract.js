@@ -126,6 +126,9 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 		} else {
 			this.afterInit();
 		}
+		this.on('user-resize', function(w, nw, nwCol){
+			this.col = nwCol;
+		}, this);
 		
 	}
 });
