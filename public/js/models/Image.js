@@ -137,6 +137,10 @@ Garp.dataTypes.Image.on('init', function(){
 			return true;
 		},
 		
+		/**
+		 * 
+		 * @param {Object} afterInitCb
+		 */
 		beforeInit: function(afterInitCb){
 			var args = arguments;
 			// Do we need to present a dialog or not?
@@ -165,6 +169,25 @@ Garp.dataTypes.Image.on('init', function(){
 			picker.show();
 		},
 		
+		/**
+		 * Sets content height based on width (maintains aspect ratio)
+		 * @param {Number} new width
+		 * @returns height
+		 */
+		resizeContent: function(nw){
+			var i = this.data;
+			var aspct = i.height / i.width;
+			var nHeight = (nw * aspct) - this.margin;
+			this.contentEditableEl.setHeight(nHeight);
+			this.contentEditableEl.child('.img').setHeight(nHeight);
+			return nHeight;
+		},
+		
+		
+		/**
+		 * init!
+		 * @param {Object} ct
+		 */
 		initComponent: function(ct){
 			
 			this.html += '<div class="contenteditable"></div>'; 
@@ -176,12 +199,7 @@ Garp.dataTypes.Image.on('init', function(){
 			}
 			
 			this.on('user-resize', function(w, nw){
-				var i = this.data;
-				var aspct = i.height / i.width;
-				var nHeight = (nw * aspct) - this.margin;
-				this.contentEditableEl.setHeight(nHeight);
-				this.contentEditableEl.child('.img').setHeight(nHeight);
-				this.setHeight(nHeight);
+				this.setHeight(this.resizeContent(nw));
 			});
 			
 			this.on('afterrender', function(){
@@ -198,22 +216,17 @@ Garp.dataTypes.Image.on('init', function(){
 						height: i.height
 					});
 					
-					var aspct = i.height / i.width;
-					var nHeight = (scope.ownerCt.getWidth() * aspct) - scope.margin;
-					
 					scope.contentEditableEl.setStyle({
 						position: 'relative',
-						padding: 0,
-						height: nHeight + 'px'
+						padding: 0
 					});
 					
 					scope.contentEditableEl.update('<div class="img"></div>');
 					scope.contentEditableEl.child('.img').setStyle({
-						height: nHeight + 'px',
 						backgroundImage: 'url("' + path + '")'
 					});
 					
-					scope.setHeight(nHeight);
+					scope.resizeContent(scope.contentEditableEl.getWidth());
 					scope.ownerCt.doLayout();
 					
 				};
