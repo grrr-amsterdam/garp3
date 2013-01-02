@@ -16,7 +16,8 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 	protected $_baseDir;
 	protected $_baseDirLength;
 	
-	// protected $_filterString;
+	protected $_filterString;
+	
 	/**
 	 * A timestamp to be used as a filter for the file age.
 	 */
@@ -45,11 +46,10 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 		$this->_baseDir				= $baseDir;
 		$this->_baseDirLength		= strlen($baseDir);
 		
-		// $this->_filterString		= $filterString;
+		$this->_filterString		= $filterString;
 		$this->_fileAgeThreshold	= $this->_setFileAgeThreshold($fileAgeThreshold);
-		
-		$this->_setFileAgeThreshold($fileAgeThreshold);
-		$this->_crawlDirectory($filterString, $baseDir);
+
+		$this->_crawlDirectory($baseDir);
 	}
 	
 	
@@ -62,11 +62,11 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 			$relThreshold = $fileAgeThreshold;
 		}
 
-		$this->_fileAgeThreshold = strtotime($relThreshold);
+		return strtotime($relThreshold);
 	}
 	
 	
-	protected function _crawlDirectory($filterString, $dir) {
+	protected function _crawlDirectory($dir) {
 		if (!($dirList = scandir($dir))) {
 			$this->_throwDirAccessError($dir);
 		}
@@ -77,8 +77,8 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 			$nodePathAbs = $dir . DIRECTORY_SEPARATOR . $nodeName;
 
 			is_dir($nodePathAbs) 
-				? $this->_crawlDirectory($filterString, $nodePathAbs)
-				: $this->_addValidAssetFile($nodeName, $nodePathAbs, $filterString)
+				? $this->_crawlDirectory($nodePathAbs)
+				: $this->_addValidAssetFile($nodeName, $nodePathAbs)
 			;			
 		}
 	}
@@ -91,11 +91,11 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 
 
 
-	protected function _addValidAssetFile($fileName, $filePathAbs, $filterString) {
+	protected function _addValidAssetFile($fileName, $filePathAbs) {
 		$filePathRel = substr($filePathAbs, $this->_baseDirLength);
 
 		if (
-			(!$filterString || stripos($filePathRel, $filterString) !== false) &&
+			(!$this->_filterString || stripos($filePathRel, $this->_filterString) !== false) &&
 			$this->_isWithinTimeFrame($filePathAbs)
 		) {
 			$this[] = $filePathRel;
