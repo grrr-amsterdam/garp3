@@ -101,6 +101,9 @@ class G_Model_Chapter extends Model_Base_Chapter {
 	 * @return Void
  	 */
 	public function relateContentNodes($contentNodeList, $chapterId) {
+		// Reverse node list because the Weighable behavior sorts different from the way
+		// the CMS sends us the nodes.
+		$contentNodeList = array_reverse($contentNodeList);
 		foreach ($contentNodeList as $contentNode) {
 			$contentNode = $this->_getValidContentNodeData($contentNode);
 			
@@ -108,8 +111,7 @@ class G_Model_Chapter extends Model_Base_Chapter {
 			$contentNode['chapter_id'] = $chapterId;
 			$contentNodeId = $this->_insertContentNode($contentNode);
 
-			// @todo Move everything below here to G_Model_ContentNode, just
-			// like this came from the Article behavior?
+			// @todo Move everything below here to G_Model_ContentNode::afterInsert()
 
 			// Determine content type
 			$contentTypeModelName = 'Model_'.$contentNode['model'];

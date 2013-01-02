@@ -132,10 +132,11 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  	 * @return Void
  	 */
 	public function afterInsert(&$args) {
-		$pk = $args[2];
-		$this->_afterSave($pk);
+		$model      = &$args[0];
+		$data       = &$args[1];
+		$primaryKey = &$args[2];
+		$this->_afterSave($model, $primaryKey);
 	}
-
 
 	/**
  	 * AfterUpdate event listener.
@@ -147,7 +148,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 		$where = $args[3];
 		$primaryKey = $model->extractPrimaryKey($where);
 		$id = $primaryKey['id'];
-		$this->_afterSave($id);
+		$this->_afterSave($model, $id);
 	}
 
 
@@ -171,12 +172,13 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 
 	/**
  	 * Generic afterSave handler, called from afterInsert and afterUpdate
- 	 * @param Int $id The id of the involved Article
+ 	 * @param Garp_Model_Db $model The subject model
+ 	 * @param Int $id The id of the involved record
  	 * @return Void
  	 */
-	protected function _afterSave($id) {
+	protected function _afterSave(Garp_Model_Db $model, $id) {
 		if (!empty($this->_queuedChapters)) {
-			$this->relateChapters($this->_queuedChapters, $id);
+			$this->relateChapters($this->_queuedChapters, $model, $id);
 			// Reset queue.
 			$this->_queuedChapters = array();
 		}
@@ -226,14 +228,14 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  	 * Relate Chapters.
  	 * Called after insert and after update.
  	 * @param Array $chapters
- 	 * @param Int $articleId The id of the involved Article
+ 	 * @param Garp_Model_Db $model The subject model
+ 	 * @param Int $articleId The id of the involved article
  	 * @return Void
  	 */
-	public function relateChapters(array $chapters, $articleId) {
+	public function relateChapters(array $chapters, Garp_Model_Db $model, $articleId) {
 		// Start by unrelating all chapters
 		Garp_Content_Relation_Manager::unrelate(array(
-			// @todo Model_Article should be dynamic! Could be Model_Project!
-			'modelA' => 'Model_Article',
+			'modelA' => $model,
 			'modelB' => 'Model_Chapter',
 			'keyA'   => $articleId,
 		));
@@ -250,10 +252,15 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  			 */
 			$chapterModel = new Model_Chapter();
 			$chapterId = $chapterModel->insert(array(
-				// @todo article_id should be dynamic. Could be project_id for instance.
-				'article_id' => $articleId,
-				'type'       => $chapterData['type'],
-				'content'    => $chapterData['content'],
+				'type'    => $chapterData['type'],
+				'content' => $chapterData['content'],
+			));
+			
+			Garp_Content_Relation_Manager::relate(array(
+				'modelA' => $model,
+				'modelB' => 'Model_Chapter',
+				'keyA'   => $articleId,
+				'keyB'   => $chapterId,
 			));
 		}
 	}

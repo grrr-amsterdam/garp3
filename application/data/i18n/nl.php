@@ -155,6 +155,8 @@ $translationTable = array(
 	'New Image' => 'Nieuwe afbeelding',
 	'Add image' => 'Afbeelding toevoegen',
 	
+	'Add chapter' => 'Hoofdstuk toevoegen',
+
 	'Only {1} and {2} files with a maximum of {3} MB are allowed' => 'Alleen {1} en {2} bestanden van maximaal {3} MB zijn toegestaan',
 	
 	'Only jpg, png and gif files with a maximum of 20 MB are accepted' => 'Alleen jpg, png, en gif bestanden van maximaal 20 MB zijn toegestaan',
