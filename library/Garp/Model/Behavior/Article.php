@@ -174,7 +174,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  	 * @param Garp_Db_Table_Row $result
  	 * @return Void
  	 */
-	public function convertArticleLayout(&$result) {
+	public function convertArticleLayout($result) {
 		if (isset($result->chapters)) {
 			$result->chapters = array_map(array($this, '_convertChapterLayout'), $result->chapters->toArray());
 		}
