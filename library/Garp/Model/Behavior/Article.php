@@ -81,26 +81,9 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  	 */
 	public function afterFetch(&$args) {
 		$results = &$args[1];
-		$isArray = false;
-		// Create a single, loopable interface
-		if (!$results instanceof Garp_Db_Table_Rowset) {
-			$results = array($results);
-		}
-
-		foreach ($results as $result) {
-			if (!isset($result->chapters)) {
-				continue;
-			}
-			$result->chapters = array_map(array($this, '_convertChapterLayout'), $result->chapters->toArray());
-		}
-
-		// return the pointer to 0
-		if ($results instanceof Garp_Db_Table_Rowset) {
-			$results->rewind();
-		} else {
-			// also, return results to the original format if it was no Rowset to begin with.
-			$results = $results[0];
-		}
+		$iterator = new Garp_Db_Table_Rowset_Iterator($results, array($this, 'convertArticleLayout'));
+		$iterator->walk();
+		return true;
 	}
 
 
@@ -181,6 +164,19 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 			$this->relateChapters($this->_queuedChapters, $model, $id);
 			// Reset queue.
 			$this->_queuedChapters = array();
+		}
+	}
+
+
+	/**
+ 	 * Convert the article row to a more concise format.
+ 	 * Calls self::_convertChapterLayout().
+ 	 * @param Garp_Db_Table_Row $result
+ 	 * @return Void
+ 	 */
+	public function convertArticleLayout(&$result) {
+		if (isset($result->chapters)) {
+			$result->chapters = array_map(array($this, '_convertChapterLayout'), $result->chapters->toArray());
 		}
 	}
 
