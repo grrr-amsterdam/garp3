@@ -48,11 +48,13 @@ class Garp_Content_CDN_Distributor {
 	/**
 	 * Select assets to be distributed.
 	 * @param 	String 	$filterString
-	 * @return 	Array 	$assetList A cumulative list of relative paths to the assets.
+	 * @param 	Mixed 	$filterDate		Provide null for default date filter,
+	 *									false to disable filter, or a strtotime compatible
+	 *									value to set a specific date filter.
+	 * @return 	Array 	$assetList 		A cumulative list of relative paths to the assets.
 	 */
-	public function select($filterString) {
-		// $assetList = $this->_getAssetPaths($filterString);
-		$assetList = new Garp_Content_CDN_AssetList($this->_baseDir, $filterString);
+	public function select($filterString, $filterDate = null) {
+		$assetList = new Garp_Content_CDN_AssetList($this->_baseDir, $filterString, $filterDate);
 		
 		return $assetList;
 	}
@@ -111,40 +113,5 @@ class Garp_Content_CDN_Distributor {
 	
 	protected function _printFileOrFiles($count) {
 		return 'file' . ($count == 1 ? '' : 's');
-	}
-	
-
-	/**
-	 * Retrieves all the relative paths to the asset files in the provided folder, and the folders below that.
-	 * @param 	String	$filterString 		The string to filter the paths through.
-	 * @param 	String	$subDir 			Optional subfolder provided when crawling the tree, excluding preceding and trailing slash.
-	 * @return 	Array 	$assetList 			A cumulative list of relative paths to the assets.
-	 */
-	protected function _getAssetPaths($filterString, $subDir = null) {
-		$assetList 		= array();
-		$subDirPostfix	= $subDir ? (DIRECTORY_SEPARATOR . $subDir) : '';
-		$absDir 		= $this->_baseDir . $subDirPostfix;
-
-		if ($handle = opendir($absDir)) {
-			while (false !== ($nodeName = readdir($handle))) {
-				if ($this->_isValidAssetName($nodeName)) {
-					$relNodePath = $subDirPostfix . DIRECTORY_SEPARATOR . $nodeName;
-					$absNodePath = $this->_baseDir . DIRECTORY_SEPARATOR . $nodeName;
-
-					if (is_dir($absNodePath)) {
-						$assetList += $this->_getAssetPaths($filterString, $relNodePath);
-					} else {
-						if (
-							!$filterString ||
-							stripos($relNodePath, $filterString) !== false
-						) {
-							$assetList[] = DIRECTORY_SEPARATOR . $relNodePath;
-						}
-					}
-				}
-			}
-		} else throw new Exception('Unable to open the configuration directory at ' . $absDir);
-		
-		return $assetList;
 	}
 }
