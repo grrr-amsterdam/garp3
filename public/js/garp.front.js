@@ -1009,11 +1009,13 @@ Garp.getCookie = function(name) {
  */
 Garp.setCookie = function(name, value, date, domain){
 	value = escape(value) + "; path=/";
+	/*
 	if (domain) {
 		value += "; domain=" + escape(domain);
 	} else {
 		value += "; domain=" + escape((typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : document.location.host);
 	}
+	*/
 	value += (!date ? "" : "; expires=" + date.toGMTString());
 	document.cookie = name + "=" + value;
 };
@@ -1107,7 +1109,7 @@ Garp.hasCookiesAccepted = function(){
 Garp.acceptCookies = function(){
 	var exp = new Date();
 	exp.setYear(exp.getFullYear() + 1);
-	Garp.setCookie('Garp_Accept_Cookies', 'Garp_Accept_Cookies', exp, false);
+	Garp.setCookie('Garp_Accept_Cookies', 'Garp_Accept_Cookies', exp);
 };
 
 /**
