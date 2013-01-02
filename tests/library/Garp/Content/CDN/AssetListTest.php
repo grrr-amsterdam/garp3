@@ -1,16 +1,16 @@
 <?php
 /**
- * Garp_Content_CDN_AssetList
+ * Garp_Content_Cdn_AssetList
  * You can use an instance of this class as a numeric array, containing the paths to the selected assets.
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
  * @subpackage Content
- * @group CDN
+ * @group Cdn
  * @lastmodified $Date: $
  */
-class Garp_Content_CDN_AssetList_Test extends PHPUnit_Framework_TestCase {
+class Garp_Content_Cdn_AssetList_Test extends PHPUnit_Framework_TestCase {
 	const FILTER_STRING_MATCHING_MULTIPLE 	= 'css';
 	const FILTER_STRING_MATCHING_ONE_GARP 	= 'css/garp/images/garp.png';
 	const FILTER_STRING_MATCHING_ONE_APP 	= 'css/cms.css';
@@ -72,13 +72,13 @@ class Garp_Content_CDN_AssetList_Test extends PHPUnit_Framework_TestCase {
 
 	
 	protected function _getBaseDir() {
-		$distributor = new Garp_Content_CDN_Distributor();
+		$distributor = new Garp_Content_Cdn_Distributor();
 		return $distributor->getBaseDir();
 	}
 	
 	
 	protected function _getListInstance($filterString, $filterByFileDate = null) {
-		return new Garp_Content_CDN_AssetList($this->_getBaseDir(), $filterString, $filterByFileDate);
+		return new Garp_Content_Cdn_AssetList($this->_getBaseDir(), $filterString, $filterByFileDate);
 	}
 
 
