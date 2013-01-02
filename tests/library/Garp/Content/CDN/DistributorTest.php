@@ -17,7 +17,7 @@ class Garp_Content_CDN_Distributor_Test extends PHPUnit_Framework_TestCase {
 
 	public function test_No_Assets_Should_Be_Selected_If_No_Match() {
 		$distributor 		= new Garp_Content_CDN_Distributor();
-		$assetList 			= $distributor->select(self::FILTER_STRING_NOT_MATCHING);
+		$assetList 			= $distributor->select(self::FILTER_STRING_NOT_MATCHING, false);
 
 		$this->assertSame(count($assetList), 0);
 	}
@@ -25,7 +25,7 @@ class Garp_Content_CDN_Distributor_Test extends PHPUnit_Framework_TestCase {
 
 	public function test_Multiple_Assets_Should_Be_Selected_If_Match() {
 		$distributor 		= new Garp_Content_CDN_Distributor();
-		$assetList 			= $distributor->select(self::FILTER_STRING_MATCHING_MULTIPLE);
+		$assetList 			= $distributor->select(self::FILTER_STRING_MATCHING_MULTIPLE, false);
 
 		$this->assertTrue((bool)count($assetList));
 	}
@@ -33,7 +33,7 @@ class Garp_Content_CDN_Distributor_Test extends PHPUnit_Framework_TestCase {
 
 	public function test_One_Asset_Should_Be_Selected_If_Specific_Match() {
 		$distributor 		= new Garp_Content_CDN_Distributor();
-		$assetList 			= $distributor->select(self::FILTER_STRING_MATCHING_ONE);
+		$assetList 			= $distributor->select(self::FILTER_STRING_MATCHING_ONE, false);
 
 		$this->assertSame(count($assetList), 1);
 	}
