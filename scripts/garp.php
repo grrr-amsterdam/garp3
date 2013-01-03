@@ -22,13 +22,12 @@ if (!defined('APPLICATION_ENV')) {
 		define('APPLICATION_ENV', getenv('APPLICATION_ENV'));
 	} else {
 		require_once(dirname(__FILE__)."/../../library/Garp/Cli.php");
-		Garp_Cli::errorOut("APPLICATION_ENV is not set. Please set it as a shell variable or pass it along as an argument, like so: --APPLICATION_ENV=development");
+		Garp_Cli::errorOut("APPLICATION_ENV is not set. Please set it as a shell variable or pass it along as an argument, like so: --e=development");
 		exit;
 	} 
 }
 
 require_once(dirname(__FILE__)."/../application/init.php");
-
 
 // Create application, bootstrap, and run
 $application = new Garp_Application(
@@ -62,10 +61,11 @@ if (empty($args[0])) {
 }
 
 /* Construct command classname */
-$commandName = 'Garp_Cli_Command_'.$args[0];
+$classArgument = ucfirst($args[0]);
+$commandName = 'Garp_Cli_Command_' . $classArgument;
 if (isset($classLoader)) {
-	if ($classLoader->isLoadable('App_Cli_Command_'.$args[0])) {
-		$commandName = 'App_Cli_Command_'.$args[0];
+	if ($classLoader->isLoadable('App_Cli_Command_' . $classArgument)) {
+		$commandName = 'App_Cli_Command_' . $classArgument;
 	}
 }
 unset($args[0]);

@@ -315,8 +315,12 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$prevSelect = clone $select;
 		$nextSelect = clone $select;
 
-		$prevSelect->where($sortColumn.' < ?', $sortValue)->order($sortColumn.' DESC');
-		$nextSelect->where($sortColumn.' > ?', $sortValue)->order($sortColumn.' ASC');
+		$prevSortOrder = $sortColumn.' DESC';
+		$nextSortOrder = $sortColumn.' ASC';
+
+		$quotedSortColumn = $this->getAdapter()->quoteIdentifier($sortColumn);
+		$prevSelect->where($quotedSortColumn.' < ?', $sortValue)->order($prevSortOrder);
+		$nextSelect->where($quotedSortColumn.' > ?', $sortValue)->order($nextSortOrder);
 
 		$neighbours = array(
 			'prev' => $this->fetchRow($prevSelect),

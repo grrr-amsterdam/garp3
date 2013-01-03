@@ -1,20 +1,17 @@
 /**
- * @author       $Author: mattijs $
- * @modifiedby   $LastChangedBy: mattijs $
- * @version      $LastChangedRevision: 6486 $
- * @lastmodified $LastChangedDate: 2012-09-28 16:14:58 +0200 (Fri, 28 Sep 2012) $
+ * Main stylesheet
  */
-
 @import 'compass/css3';
-@import 'normalize';
-@import 'extension';
+@import 'imports/normalize';
+@import 'imports/extension';
 
 /* ==========================================================================
    primary styles
    ========================================================================== */
 html { font-size: 62.5%; line-height: 1.4em; }
 body, button, input, select, textarea { font-family: sans-serif; @include font-size(16); color: #000; }
-body { background: #FFF; margin: 0; }
+body { background: #FFF; margin: 0; @include hyphens(auto); }
+code, var, kbd, samp, tt, dir, listing, plaintext, xmp, abbr, acronym, { @include hyphens(none); }
 
 ul, ol, dd { list-style: none; margin: 0; padding: 0; }
 
@@ -32,6 +29,10 @@ h5, .epsilon { }
 h6, .zeta { }
 
 img, object, iframe, video { max-width: 100%; }
+
+.rich .figure[style*="float:left"], .rich .figure[style*="float: left"] { margin: 0 10px 10px 0; }
+.rich .figure[style*="float:right"], .rich .figure[style*="float: right"] { margin: 0 0 10px 10px; }
+.rich .figure dd { @include font-size(14); }
 
 /* ==========================================================================
    layout
@@ -60,10 +61,10 @@ img, object, iframe, video { max-width: 100%; }
    modules
    ========================================================================== */
 
-@import 'cookie-info';
+@import 'imports/cookie-info';
 
 /* ==========================================================================
    print styles
    ========================================================================== */
 
-@import 'print';
+@import 'imports/print';
