@@ -320,6 +320,7 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.x-panel-body-noheader .wysiwyg-box .x-panel-body { border: none; }
 
 			.wysiwyg-box .contenteditable { margin: 10px; padding: 10px; border: 1px #ccc dashed; z-index: 2;}
+			.wysiwyg-box .contenttitle { margin: 10px 10px -10px 10px; padding: 10px; border: 1px #ccc dashed; border-bottom: 0; z-index: 2;}
 			
 			.wysiwyg-box .contenteditable:-moz-focusring:not(input):not(button):not(select){ outline: none; }
 			
