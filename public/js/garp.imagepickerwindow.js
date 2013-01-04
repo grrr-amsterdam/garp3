@@ -364,9 +364,6 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 								listeners: {
 									scope: this,
 									'aftersave': function(rcwin, rec){
-										
-										console.warn('AFTERSAVE!');
-										
 										this.imgStore.insert(0, rec);
 										this.imgGrid.getSelectionModel().selectRecords([rec], true);
 										this.imgStore.reload();
