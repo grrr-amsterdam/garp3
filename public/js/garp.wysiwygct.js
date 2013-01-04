@@ -103,11 +103,8 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	
 	initComponent: function(cfg){
 		Garp.WysiwygField.superclass.initComponent.call(this, arguments);
-	},
-	
-	onDestroy: function(){
-		this.wysiwygct.destroy();
 	}
+	
 });
 Ext.reg('wysiwygfield', Garp.WysiwygField);
 
