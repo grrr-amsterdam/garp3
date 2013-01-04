@@ -721,19 +721,29 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				
 				// @TODO: decide if this needs to go to wysiwyg box ?
 				if (Garp.dataTypes[cmp.model].wysiwygConfig) {
-					var items = Garp.dataTypes[cmp.model].wysiwygConfig.classMenu;
+					var items;
 					var menuItems = [];
-					Ext.each(items, function(cl){
-						var item = {
-							text: cl[1],
-							val: cl[0]
-						};
-						if (cmp.el.hasClass(cl[0])) {
-							item.checked = true;
-						}
-						menuItems.push(item);
-					});
 					
+					
+					items = cmp.getMenuOptions ? cmp.getMenuOptions() : false;
+					if (items) {
+						menuItems = items;
+						menuItems.push('-');
+					}
+					
+					items = Garp.dataTypes[cmp.model].wysiwygConfig.classMenu;
+					if (items) {
+						Ext.each(items, function(cl){
+							var item = {
+								text: cl[1],
+								val: cl[0]
+							};
+							if (cmp.el.hasClass(cl[0])) {
+								item.checked = true;
+							}
+							menuItems.push(item);
+						});
+					}
 					var menu = new Ext.menu.Menu({
 						defaults: {
 							group: 'type',
