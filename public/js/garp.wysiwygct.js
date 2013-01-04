@@ -1,5 +1,11 @@
 Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 
+	region: 'center',
+
+	hideLabel: true,
+
+	bodyStyle: 'overflow-y: auto',
+
 	reset: function(){
 		this.chapterct.removeAll(true);
 		delete this.originalValue;
