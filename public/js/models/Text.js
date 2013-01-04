@@ -3,12 +3,14 @@ Garp.dataTypes.Text.on('init', function(){
 	
 	this.iconCls = 'icon-text';
 	
-	this.extraTypes = [['',__('Normal')],['aside',__('Aside')],['attention',__('Attention')]];
+	//this.extraTypes = [['',__('Normal')],['aside',__('Aside')],['attention',__('Attention')]];
 	
 	// Wysiwyg Editor
 	this.Wysiwyg = Ext.extend(Garp.WysiwygAbstract, {
 		
-		allowedTags: ['a','b','i','br','p','ul','ol','li'],
+		allowedTags: ['a','b','i','br','p','div','ul','ol','li'],
+		
+		data: null,
 		
 		filterHtml: function(){
 			var scope = this;
@@ -39,8 +41,6 @@ Garp.dataTypes.Text.on('init', function(){
 			}
 			walk(this.contentEditableEl.dom.childNodes);
 		},
-		
-		data: null,
 		
 		getData: function(){
 			if (this.contentEditableEl) {
