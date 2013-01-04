@@ -60,6 +60,11 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 			// Warn user about existing hook. Might be accidental
 			$performTheMove = Garp_Cli::confirm('Hook '.$hookTarget.' already in place. Overwrite?');
 		}
+		// Make sure the target path exists
+		$directory = dirname($hookTarget);
+		if (!file_exists($directory)) {
+			passthru("mkdir -p $directory");
+		}
 		if ($performTheMove) {
 			passthru("cp $hookSource $hookTarget");
 			// Make hook executable
