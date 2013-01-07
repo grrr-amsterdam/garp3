@@ -42,6 +42,7 @@
 .icon-user { background-image: url(../../media/images/garp/icons2/user.png); }
 .icon-document { background-image: url(../../media/images/garp/icons2/page.png); }
 .icon-group { background-image: url(../../media/images/garp/icons2/user-group.png); }
+.icon-text {background-image: url(../../media/images/garp/icons2/write-note.png); }
 
 .icon-richtext-add-link{background-image:url(../../media/images/garp/icons2/link.png)!important;}
 .icon-richtext-add-heading{background-image:url(../../media/images/garp/icons/text_heading_1.png)!important;}
@@ -62,8 +63,14 @@
 
 .icon-wysiwyg-bold { background-image:url(../../media/images/garp/icons/text_bold.png)!important; }
 .icon-wysiwyg-italic { background-image:url(../../media/images/garp/icons/text_italic.png)!important; }
+.icon-wysiwyg-orderedlist { background-image:url(../../media/images/garp/icons/text_list_numbers.png)!important; }
+.icon-wysiwyg-unorderedlist { background-image:url(../../media/images/garp/icons/text_list_bullets.png)!important; }
+.icon-wysiwyg-createlink { background-image:url(../../media/images/garp/icons/link.png)!important; }
+.icon-wysiwyg-add-chapter { background-image:url(../../media/images/garp/icons2/page-add.png)!important; }
+.icon-wysiwyg-remove-chapter { background-image:url(../../media/images/garp/icons2/page-delete.png)!important; }
 
 .icon-move { background-image:url(../../media/images/garp/icons2/move.png)!important; }
+.icon-settings { background-image:url(../../media/images/garp/icons2/setting.png)!important; }
 
 .icon-imageeditor-resize{background-image:url(../../media/images/garp/icons/shape_move_backwards.png);}
 .icon-imageeditor-crop{background-image:url(../../media/images/garp/icons/shape_handles.png);}
