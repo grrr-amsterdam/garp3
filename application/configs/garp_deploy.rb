@@ -45,6 +45,7 @@ namespace :deploy do
     task :update_version do
     	transaction do
         	run "php #{current_release}/garp/scripts/garp.php Version update --e=#{garp_env}"
+        	run "php #{current_release}/garp/scripts/garp.php Version update garp --e=#{garp_env}"
     	end
     end
 

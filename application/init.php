@@ -48,7 +48,10 @@ if (
 if (!defined('APP_VERSION')) {
 	define('APP_VERSION', 1);
 }
-include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+@include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+if (!defined('GARP_VERSION')) {
+	define('GARP_VERSION', 1);
+}
 
 
 require 'Garp/Loader.php';
@@ -69,12 +72,12 @@ $classLoader = Garp_Loader::getInstance(array(
 		),
 		array(
 			'namespace' => 'G_Model',
-			'path' => APPLICATION_PATH.'/../garp/application/modules/g/models/',
+			'path' => GARP_APPLICATION_PATH.'/modules/g/models/',
 			'ignore' => 'G_Model_'
 		),
 		array(
 			'namespace' => 'Mocks_Model',
-			'path' => APPLICATION_PATH.'/../garp/application/modules/mocks/models/',
+			'path' => GARP_APPLICATION_PATH.'/modules/mocks/models/',
 			'ignore' => 'Mocks_Model_'
 		)
 	)

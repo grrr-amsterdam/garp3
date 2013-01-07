@@ -81,26 +81,9 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  	 */
 	public function afterFetch(&$args) {
 		$results = &$args[1];
-		$isArray = false;
-		// Create a single, loopable interface
-		if (!$results instanceof Garp_Db_Table_Rowset) {
-			$results = array($results);
-		}
-
-		foreach ($results as $result) {
-			if (!isset($result->chapters)) {
-				continue;
-			}
-			$result->chapters = array_map(array($this, '_convertChapterLayout'), $result->chapters->toArray());
-		}
-
-		// return the pointer to 0
-		if ($results instanceof Garp_Db_Table_Rowset) {
-			$results->rewind();
-		} else {
-			// also, return results to the original format if it was no Rowset to begin with.
-			$results = $results[0];
-		}
+		$iterator = new Garp_Db_Table_Rowset_Iterator($results, array($this, 'convertArticleLayout'));
+		$iterator->walk();
+		return true;
 	}
 
 
@@ -132,10 +115,11 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  	 * @return Void
  	 */
 	public function afterInsert(&$args) {
-		$pk = $args[2];
-		$this->_afterSave($pk);
+		$model      = &$args[0];
+		$data       = &$args[1];
+		$primaryKey = &$args[2];
+		$this->_afterSave($model, $primaryKey);
 	}
-
 
 	/**
  	 * AfterUpdate event listener.
@@ -147,7 +131,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 		$where = $args[3];
 		$primaryKey = $model->extractPrimaryKey($where);
 		$id = $primaryKey['id'];
-		$this->_afterSave($id);
+		$this->_afterSave($model, $id);
 	}
 
 
@@ -171,14 +155,28 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 
 	/**
  	 * Generic afterSave handler, called from afterInsert and afterUpdate
- 	 * @param Int $id The id of the involved Article
+ 	 * @param Garp_Model_Db $model The subject model
+ 	 * @param Int $id The id of the involved record
  	 * @return Void
  	 */
-	protected function _afterSave($id) {
+	protected function _afterSave(Garp_Model_Db $model, $id) {
 		if (!empty($this->_queuedChapters)) {
-			$this->relateChapters($this->_queuedChapters, $id);
+			$this->relateChapters($this->_queuedChapters, $model, $id);
 			// Reset queue.
 			$this->_queuedChapters = array();
+		}
+	}
+
+
+	/**
+ 	 * Convert the article row to a more concise format.
+ 	 * Calls self::_convertChapterLayout().
+ 	 * @param Garp_Db_Table_Row $result
+ 	 * @return Void
+ 	 */
+	public function convertArticleLayout($result) {
+		if (isset($result->chapters)) {
+			$result->chapters = array_map(array($this, '_convertChapterLayout'), $result->chapters->toArray());
 		}
 	}
 
@@ -226,14 +224,14 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  	 * Relate Chapters.
  	 * Called after insert and after update.
  	 * @param Array $chapters
- 	 * @param Int $articleId The id of the involved Article
+ 	 * @param Garp_Model_Db $model The subject model
+ 	 * @param Int $articleId The id of the involved article
  	 * @return Void
  	 */
-	public function relateChapters(array $chapters, $articleId) {
+	public function relateChapters(array $chapters, Garp_Model_Db $model, $articleId) {
 		// Start by unrelating all chapters
 		Garp_Content_Relation_Manager::unrelate(array(
-			// @todo Model_Article should be dynamic! Could be Model_Project!
-			'modelA' => 'Model_Article',
+			'modelA' => $model,
 			'modelB' => 'Model_Chapter',
 			'keyA'   => $articleId,
 		));
@@ -250,10 +248,15 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  			 */
 			$chapterModel = new Model_Chapter();
 			$chapterId = $chapterModel->insert(array(
-				// @todo article_id should be dynamic. Could be project_id for instance.
-				'article_id' => $articleId,
-				'type'       => $chapterData['type'],
-				'content'    => $chapterData['content'],
+				'type'    => $chapterData['type'],
+				'content' => $chapterData['content'],
+			));
+			
+			Garp_Content_Relation_Manager::relate(array(
+				'modelA' => $model,
+				'modelB' => 'Model_Chapter',
+				'keyA'   => $articleId,
+				'keyB'   => $chapterId,
 			));
 		}
 	}
