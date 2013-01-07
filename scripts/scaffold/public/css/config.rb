@@ -1,3 +1,5 @@
+require 'animation'
+
 http_path = "/"
 
 sass_dir = "sass"
