@@ -33,6 +33,7 @@ class G_ContentController extends Garp_Controller_Action {
 	public function cookiesAction() {
 		$this->_helper->layout->setLayoutPath(APPLICATION_PATH.'/modules/default/views/layouts/');
 		$this->_helper->layout->setLayout('layout');
+		$this->view->title = 'Cookies';
 	}
 	
 	
