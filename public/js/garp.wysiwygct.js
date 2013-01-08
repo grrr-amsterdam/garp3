@@ -25,10 +25,9 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 		if (items && items.length) {
 			this.chapterct.removeAll(true);
 			Ext.each(items, function(item){
-				this.chapterct.addWysiwygCt({
+				var currentWysiwygCt = this.chapterct.addWysiwygCt({
 					type: item.type
-				});
-				var currentWysiwygCt = this.chapterct.items.last();
+				}, this.chapterct.items ? this.chapterct.items.last() : null);
 				Ext.each(item.content, function(node){
 					if(!node.model){
 						if (console && console.dir) {
@@ -786,7 +785,7 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 	extraTypes: null,
 	
 	addWysiwygCt: function(cfg, callerWysiwyg){
-		var idx = 0;
+		var idx = 0, ct;
 		
 		if (callerWysiwyg) {
 			this.items.each(function(i,c){ // find index of caller to find inserting position
@@ -797,7 +796,7 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 			});
 		} 
 		
-		this.insert(idx + 1, new Garp.Wysiwygct({
+		this.insert(idx + 1, ct = new Garp.Wysiwygct({
 			ct: this,
 			extraTypes: this.extraTypes,
 			extraType: cfg && cfg.type ? cfg.type : '',
@@ -805,6 +804,8 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 		}));
 			
 		this.doLayout();
+		
+		return ct;
 	},
 	
 	/*
