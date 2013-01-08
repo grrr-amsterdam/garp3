@@ -582,6 +582,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 							wysiwygct.removeColClasses(el);
 							el.addClass('grid-' + (newCol) + '-' + wysiwygct.maxCols);
 						}
+						el.setHeight('');
 						Ext.getCmp(el.id).fireEvent('user-resize', w, nw, 'grid-' + newCol + '-' + wysiwygct.maxCols);
 					}
 				}
