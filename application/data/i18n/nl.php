@@ -197,6 +197,8 @@ $translationTable = array(
 	'Role' => 'Rol',
 	'Author' => 'Auteur',
 	'Modifier' => 'Bewerker',
+	'Order' => 'Volgorde',
+	'New Video' => 'Nieuwe Video',
 		
 	'Clear selection' => 'Selectie opheffen',
 	'Search in:' => 'Zoeken in:',
