@@ -16,7 +16,7 @@
 			"required": false
 		},
 		"email": {
-			"required": false,
+			"required": true,
 			"unique": true
 		},
 		"role": {
