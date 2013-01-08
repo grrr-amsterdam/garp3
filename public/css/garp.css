@@ -336,6 +336,7 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.wysiwyg-box .target.right.active { width: 5px; }
 			.wysiwyg-box .target.bottom.active { height: 5px; }
 			.wysiwyg-box .target.left.active { width: 5px; }
+			.wysiwyg-box .x-resizable-handle-east { width: 20px; z-index: 2;}
 			
 			.wysiwyg-box { z-index: 1; }
 			.wysiwyg-box.in-drag { z-index: 2; }
