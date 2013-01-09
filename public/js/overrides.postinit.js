@@ -26,11 +26,27 @@ Ext.Direct.on({
 					
 				}
 				tid = e.tid;
-				transaction = e.getTransaction();
+				transaction = tid ? e.getTransaction() : null;
+				
 				if (Ext.isObject(transaction)) {
 					action = transaction.action;
 					method = transaction.method;
 				}
+				
+				// now undirty & remove loadmasks again:
+				// temporary!
+				Garp.undirty();
+				if (Garp.gridPanel && Garp.gridPanel.loadMask) {
+					Garp.gridPanel.loadMask.hide();
+					if (Garp.formPanel) {
+						// reset state
+						Garp.formPanel.state = 0;
+						Garp.formPanel.updateUI();
+						Garp.formPanel.fireEvent('dirty');
+					}
+				}
+				
+				
 			}
 			
 			this.msg = (

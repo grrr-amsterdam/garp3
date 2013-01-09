@@ -73,6 +73,7 @@ Garp.dataTypes.Text.on('init', function(){
 					}
 				});
 			}
+			this.titleEl.setDisplayed(true);
 			this.titleEditor.startEdit(this.titleEl, this.data.name);
 			this.titleEditor.on('complete', function(f, v){
 				this.setTitle(v);
