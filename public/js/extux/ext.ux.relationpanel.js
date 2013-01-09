@@ -105,7 +105,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	 * @param {Object} e
 	 */
 	getRowIndex: function(elm, e){
-		return index == elm.getView().findRowIndex(Ext.lib.Event.getTarget(e));
+		return elm.getView().findRowIndex(Ext.lib.Event.getTarget(e));
 	},
 	
 	/**
