@@ -59,7 +59,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
 		$config->set('HTML.Trusted', true);
 		$config->set('HTML.AllowedElements', array(
-			'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'dd', 'del', 'dfn', 'dl', 'dt', 'em', 'embed', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'iframe', 'img', 'ins', 'kbd', 'li', 'object', 'ol', 'p', 'param', 'pre', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul', 'var'
+			'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'dd', 'del', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'iframe', 'img', 'ins', 'kbd', 'li', 'object', 'ol', 'p', 'param', 'pre', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul', 'var'
 		));
 
 		$config->set('AutoFormat.RemoveEmpty', true);
