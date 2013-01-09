@@ -460,7 +460,7 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 						}, this);
 						return;
 					}
-					if(this.rec.phantom){
+					if(!this.rec || this.rec.phantom){
 						revertPhantom.call(this);
 						return;
 					}
