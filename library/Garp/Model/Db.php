@@ -505,7 +505,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
      */
 	public function insert(array $data) {
 		$this->notifyObservers('beforeInsert', array($this, &$data));
-		exit('xcvxccvcxvx');
 		$pkData = parent::insert($data);
 		$this->notifyObservers('afterInsert', array($this, $data, $pkData));		
 		return $pkData;
