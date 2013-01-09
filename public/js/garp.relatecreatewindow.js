@@ -107,7 +107,10 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 				if (this.store.getModifiedRecords().length) {
 					this.store.on({
 						'save': {
-							fn: this.close,
+							fn: function(){
+								this.fireEvent('aftersave', this, this.rec);
+								this.close();
+							},
 							single: true,
 							scope: this
 						}
