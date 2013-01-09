@@ -16,7 +16,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 
 	hideMode: 'display',
 
-	extraTypes: null,
+	extraTypes: [],
 	
 	setValue: function(items){
 		this.reset();
@@ -92,11 +92,15 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	
 	afterRender: function(){
 		this.wrap = this.el.wrap();
+	
+		this.extraTypes = Garp.dataTypes.ContentNode.getField('type').store;
+	
 		this.chapterct = new Garp.Chapterct({
 			renderTo: this.wrap,
 			maxCols: this.maxCols,
 			extraTypes: this.extraTypes
 		});
+		
 		this.on('resize', function(){
 			this.chapterct.setWidth(this.getWidth());
 		}, this);
@@ -229,10 +233,10 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				ref: 'addBtn',
 				menu: addMenuFactory.call(this)
 			}, ' ', {
+				xtype: 'combo',
 				editable: false,
 				forceSelection: true,
 				triggerAction: 'all',
-				xtype: 'combo',
 				ref: 'extraTypesMenu',
 				store: this.extraTypes,
 				value: '',
