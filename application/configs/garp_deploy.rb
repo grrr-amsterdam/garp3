@@ -20,7 +20,14 @@ set (:document_root) {"#{deploy_to}/current/public"}
 set (:server_cache_dir) {"#{current_release}/application/data/cache"}
 
 
-#   f l o w
+
+namespace :init do
+
+end
+
+
+
+#   d e p l o y
 after "deploy:update_code", "deploy:cleanup"
 
 namespace :deploy do
@@ -87,14 +94,6 @@ namespace :deploy do
       transaction do
         run "php #{current_release}/garp/scripts/garp.php Spawn --e=#{garp_env}"
       end
-    end
-
-    task :migrate do
-    	# nothing
-    end
-
-    task :restart do
-    	# nothing
     end
 end
 

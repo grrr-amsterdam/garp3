@@ -217,9 +217,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 			endif;
 		endforeach;
 
-		if (
-			$this->spawnJs()->modelHasFirstAndLastName($this->model)
-		):
+		if ($this->spawnJs()->modelHasFirstAndLastName($this->model)):
 			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
 				'dataIndex' => 'fullname',
 				'header' => 'Full name',
@@ -229,6 +227,16 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 				'hidden' => true
 			));
 		endif;
+		
+		/* Article / Chapter behavior */
+		if ($this->model->behaviors->displaysBehavior('Article')):
+			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
+				'dataIndex' => 'chapters',
+				'hidden' => true,
+				'visible' => false
+			));
+		endif;
+		
 
 		if ($columnModelNodes):
 			echo implode("}, {", $columnModelNodes);
@@ -331,7 +339,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 				'model' => $this->model
 			));
 		}
-
+		
 		/* _____InputFields */
 		foreach ($editableFields as $field) {
 			if (!in_array($field->name, $this->spawnJs()->getExcludedFormFields()))
@@ -339,6 +347,12 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 					'field' => $field
 				));
 		}
+		
+		/* _____Chapter / Article Fields */
+		if ($this->model->behaviors->displaysBehavior('Article')) {
+			$formFields[] = $this->partial('partials/spawn/js/article-field.phtml', 'g');
+		}
+
 
 		/* _____Single Relation Fields */
 		foreach ($singularRelations as $rel) {
@@ -363,7 +377,12 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 			$multiRelFields = array();
 
 			foreach ($multipleRelations as $rel):
-				if ($rel->isPlural() && $rel->editable):
+				if (
+					($rel->isPlural() && $rel->editable) &&
+					(!
+						($rel->model === 'Chapter' && $this->model->behaviors->displaysBehavior('Article'))
+					)
+				):
 					$multiRelFields[] = $this->partial('partials/spawn/js/multiple-relation-field.phtml', 'g', array(
 						'relation' => $rel,
 						'modelId' => $this->model->id
