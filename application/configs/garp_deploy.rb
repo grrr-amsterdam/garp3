@@ -84,7 +84,7 @@ namespace :deploy do
   
   desc "Create .htaccess file to reroute webroot"
   task :create_webroot_reroute_htaccess do
-    run "echo -e '<IfModule mod_rewrite.c>\n\tRewriteEngine on\n\tRewriteRule ^(.*)$ current/public/$1 [L] \n</IfModule>' > #{deploy_to}/.htaccess"
+    run "echo -e '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
   end
   
   desc "Output current server dir"
