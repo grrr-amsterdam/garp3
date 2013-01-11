@@ -9,56 +9,40 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Image extends Garp_Cli_Command {
-	/**
-	 * Central start method
-	 * @param Array $args Various options. Must contain;
-	 * ['t']	String	Table name.
-	 * @return Void
-	 */
-	public function main(array $args = array()) {
-		if (empty($args) || $args[1] == 'help') {
-			Garp_Cli::lineOut($this->_getHelpText());
-		} else {
-			if (!array_key_exists(1, $args)) {
-				Garp_Cli::lineOut("Please indicate what you want me to do.\n");
-				$this->_exit($this->_getHelpText());
-			} else {
-				$command = $args[1];
-
-				if (method_exists($this, '_'.$command)) {
-					$this->{'_'.$command}($args);
-				} else {
-					$this->_exit("Sorry, I don't know the command '{$command}'.\n\n".$this->_getHelpText());
-				}
-			}
-		}
-	}
-	
-
-	private function _generateScaled($args) {
+	 /**
+ 	  * Generate scaled versions of uploaded images
+ 	  * @param Array $args
+ 	  * @return Boolean success
+ 	  */
+	public function generateScaled($args) {
 		if (
 			array_key_exists('template', $args) &&
 			!empty($args['template'])
 		) {
-			$this->_generateScaledImagesForTemplate($args['template']);
+			return $this->_generateScaledImagesForTemplate($args['template']);
 		} elseif(
 			array_key_exists('filename', $args) &&
 			!empty($args['filename'])
 		) {
-			$this->_generateScaledImagesForFilename($args['filename']);
-		} else {
-			$this->_generateAllScaledImages();
+			return $this->_generateScaledImagesForFilename($args['filename']);
 		}
+		return $this->_generateAllScaledImages();
 	}
 
 
-	private function _generateAllScaledImages() {
+	/**
+ 	 * Generate scaled versions of all images in all templates.
+ 	 * @return Boolean
+ 	 */
+	protected function _generateAllScaledImages() {
 		$imageScaler = new Garp_Image_Scaler();
 		$templates = $imageScaler->getTemplateNames();
+		$success = 0;
 
 		foreach ($templates as $t) {
-			$this->_generateScaledImagesForTemplate($t);
+			$success += (int)$this->_generateScaledImagesForTemplate($t);
 		}
+		return $success == count($templates);
 	}
 
 
@@ -67,7 +51,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 	 * @param String $filename Filename of the source file in need of scaling
 	 * @return Void
 	 */
-	private function _generateScaledImagesForFilename($filename) {
+	protected function _generateScaledImagesForFilename($filename) {
 		Garp_Cli::lineOut('Generating scaled images for file "'.$filename.'".');
 
 		if ($filename) {
@@ -82,7 +66,9 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 
 			if ($record) {
 				$id = $record->id;
+				$success = 0;
 				foreach ($templates as $t) {
+					$success++;
 					if ($file->exists(
 						$scaler->getScaledPath($id, $t, true)
 					)) {
@@ -93,11 +79,15 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 							Garp_Cli::lineOut('Scaled image #'.$id.': '.$filename.' for template "'.$t.'"');
 						} catch(Exception $e) {
 							Garp_Cli::errorOut("Error scaling ".$filename." (#".$id."): ".$e->getMessage());
+							$success--;
 						}
 					}
 				}
-			} else Garp_Cli::errorOut('I couldn\'t find any records in the database, containing "'.$filename.'" as filename');
-		} else $this->_exit('Please provide a filename to scale.');
+				return $success == count($templates);
+			}
+			Garp_Cli::errorOut('I couldn\'t find any records in the database, containing "'.$filename.'" as filename');
+		}
+		return false;
 	}
 	
 	
@@ -106,17 +96,19 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 	 * @param String $template Template name, as it appears in configuration.
 	 * @return Void
 	 */
-	private function _generateScaledImagesForTemplate($template) {
+	protected function _generateScaledImagesForTemplate($template) {
 		Garp_Cli::lineOut('Generating scaled images for template "'.$template.'".');
 	
 		$imageModel = new G_Model_Image();
 		$records = $imageModel->fetchAll();
 		$file = new Garp_Image_File('upload');
 		$scaler = new Garp_Image_Scaler();
+		$success = 0;
 
 		foreach ($records as $record) {
 			$id = $record->id;
 			$filename = $record->filename;
+			$success++;
 
 			if ($file->exists($filename)) {
 				if ($file->exists(
@@ -129,24 +121,23 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 						Garp_Cli::lineOut('Scaled image #'.$id.': '.$filename);
 					} catch(Exception $e) {
 						Garp_Cli::errorOut("Error scaling ".$filename." (#".$id."): ".$e->getMessage());
+						$success--;
 					}
 				}
 			} else {
 				Garp_Cli::errorOut('Warning: '.$filename.' is in the database, but not on disk!');
+				$success--;
 			}
 		}
-	}
-	
-	
-	private function _exit($msg = null) {
-		if (!is_null($msg))
-			Garp_Cli::lineOut($msg);
-		exit;
+		return $success == count($records);
 	}
 
 
-	private function _getHelpText() {
-		return
+	/**
+ 	 * Show help
+ 	 */
+	public function help() {
+		Garp_Cli::lineOut(
 			"Usage:\n".
 			"php garp.php Image [command] [options]\n\n".
 			"Commands:\n".
@@ -156,6 +147,6 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 			"  generateScaled --template=[template name]\n".
 			"to generate scaled versions of a specific file for all templates:\n".
 			"  generateScaled --filename=[filename]\n"
-		;
+		);
 	}
 }

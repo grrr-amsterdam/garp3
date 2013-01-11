@@ -19,7 +19,7 @@
 		<meta name="description" content="<?php echo $this->escape($this->description ?: $this->config()->app->description); ?>">
 		<meta name="author" content="">
 		<?php echo $this->social()->facebookOgData($this->ogData ?: array()); ?>
-		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/compiled' . (APPLICATION_ENV !== 'production' ? '_debug' : '') . '/base.css') ?>">
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/compiled/base.css') ?>">
 		<script src="<?php echo $this->assetUrl('/js/libs/modernizr-2.6.2.min.js') ?>"></script>
 
 <?php /* Uncomment when applicable: (@see http://mathiasbynens.be/notes/touch-icons)

@@ -120,7 +120,7 @@ Garp.dataTypes.Image.on('init', function(){
 	
 		model: 'Image',
 		
-		imgage: null,
+		idProperty: 'id',
 		
 		settingsMenu: false,
 		
@@ -138,6 +138,18 @@ Garp.dataTypes.Image.on('init', function(){
 		},
 		
 		/**
+		 * After pick:
+		 */
+		pickerHandler: function(sel, afterInitCb){
+			this.data = {
+				id: sel.data.id
+			};
+			var args = Array.prototype.slice.call(arguments);
+			args.shift();
+			afterInitCb.call(this, args);
+		},
+		
+		/**
 		 * 
 		 * @param {Object} afterInitCb
 		 */
@@ -149,15 +161,11 @@ Garp.dataTypes.Image.on('init', function(){
 				return;
 			}
 			var picker = new Garp.ModelPickerWindow({
-				model: 'Image',
+				model: this.model,
 				listeners: {
 					select: function(sel){
 						if (sel.selected) {
-							var imgId = sel.selected.data.id;
-							this.data = {
-								id: imgId
-							};
-							afterInitCb.call(this, args);
+							this.pickerHandler(sel.selected, afterInitCb);
 						} else {
 							this.destroy();
 						}
@@ -209,7 +217,7 @@ Garp.dataTypes.Image.on('init', function(){
 				
 				var i = new Image();
 				var scope = this;
-				var path = IMAGES_CDN + 'scaled/cms_preview/' + this.data.id;
+				var path = IMAGES_CDN + 'scaled/cms_preview/' + this.data[this.idProperty];
 				i.onload = function(){
 					Ext.apply(scope.data, {
 						width: i.width,
