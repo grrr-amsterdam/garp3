@@ -67,8 +67,8 @@ namespace :deploy do
 
   desc "Find webroot dir"
   task :find_webroot do
-    if capture("[ -d #{deploy_to} ] && echo '1' || echo '0'").strip == '0'
-      # deploy_to webroot dir does not exist on the server
+    if deploy_to.start_with?('/u/apps/')
+      # deploy_to is not set yet
       set :pwd, capture("pwd").strip
 
       if capture("[ -d #{pwd}/web ] && echo '1' || echo '0'").strip == '1'
@@ -77,9 +77,14 @@ namespace :deploy do
       elsif capture("[ -d #{pwd}/public ] && echo '1' || echo '0'").strip == '1'
         set :deploy_to, "#{pwd}/public"
         set :unset_deploy_to, deploy_to
+      elsif capture("[ -d #{pwd}/html ] && echo '1' || echo '0'").strip == '1'
+        set :deploy_to, "#{pwd}/html"
+        set :unset_deploy_to, deploy_to
       elsif capture("[ -d #{pwd}/httpdocs ] && echo '1' || echo '0'").strip == '1'
         set :deploy_to, "#{pwd}/httpdocs"
         set :unset_deploy_to, deploy_to
+      else
+        raise "Oops! :deploy_to is not set, and I can't seem to find the webroot directory myself..."
       end
     end
   end
@@ -109,7 +114,7 @@ namespace :deploy do
   
   task :prompt_to_set_newly_found_deploy_dir do
     if exists?(:unset_deploy_to)
-      puts("\033[1;31mPlease set :deploy_to in deploy.rb to #{unset_deploy_to}\033[0m")
+      puts("\033[1;31mDone. Now please set :deploy_to in deploy.rb to #{unset_deploy_to}\033[0m")
     end
   end
 
