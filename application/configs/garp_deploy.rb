@@ -29,12 +29,13 @@ namespace :deploy do
   desc "Set up server instance"
   task :setup do
     transaction do
-      add_public_ssh_keys
-      mark_git_server_safe
-      create_deploy_dirs
-      set_shared_dirs_permissions
-      create_webroot_reroute_htaccess
-      output_current_dir
+      # add_public_ssh_keys
+      find_webroot
+      # mark_git_server_safe
+      # create_deploy_dirs
+      # set_shared_dirs_permissions
+      # create_webroot_reroute_htaccess
+      prompt_to_set_newly_found_deploy_dir
     end
   end
 
@@ -55,13 +56,32 @@ namespace :deploy do
 
 
   # ------- P R I V A T E   S E T U P   M E T H O D S
-
+  
   desc "Add public SSH keys"
   task :add_public_ssh_keys do
     run "if [ ! -d '~/.ssh' ]; then mkdir -p ~/.ssh; fi"
     run "chmod 700 ~/.ssh"
     run "echo -e \'#{ssh_keys}\' > ~/.ssh/authorized_keys"
     run "chmod 700 ~/.ssh/authorized_keys"
+  end
+
+  desc "Find webroot dir"
+  task :find_webroot do
+    if capture("[ -d #{deploy_to} ] && echo '1' || echo '0'").strip == '0'
+      # deploy_to webroot dir does not exist on the server
+      set :pwd, capture("pwd").strip
+
+      if capture("[ -d #{pwd}/web ] && echo '1' || echo '0'").strip == '1'
+        set :deploy_to, "#{pwd}/web"
+        set :unset_deploy_to, deploy_to
+      elsif capture("[ -d #{pwd}/public ] && echo '1' || echo '0'").strip == '1'
+        set :deploy_to, "#{pwd}/public"
+        set :unset_deploy_to, deploy_to
+      elsif capture("[ -d #{pwd}/httpdocs ] && echo '1' || echo '0'").strip == '1'
+        set :deploy_to, "#{pwd}/httpdocs"
+        set :unset_deploy_to, deploy_to
+      end
+    end
   end
 
   desc "Mark Git server as safe"
@@ -87,15 +107,16 @@ namespace :deploy do
     run "echo -e '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
   end
   
-  desc "Output current server dir"
-  task :output_current_dir do
-    run "pwd"
-    puts("\033[1;31mYou can use the path displayed above to base deploy.rb's webroot dir setting on.\nFor a Grrr integration server, just add '/web' to it.\033[0m")
+  task :prompt_to_set_newly_found_deploy_dir do
+    if exists?(:unset_deploy_to)
+      puts("\033[1;31mPlease set :deploy_to in deploy.rb to #{unset_deploy_to}\033[0m")
+    end
   end
 
 
 
   # ------- P R I V A T E   D E P L O Y   M E T H O D S
+  
   desc "Create backend cache directories"
   task :create_system_cache_dirs do
     run "if [ ! -d '#{server_cache_dir}' ]; then mkdir -p #{server_cache_dir}; fi";
