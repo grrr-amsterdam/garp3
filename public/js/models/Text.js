@@ -61,11 +61,23 @@ Garp.dataTypes.Text.on('init', function(){
 		},
 		
 		showTitleDialog: function(){
-			Ext.Msg.prompt(__('Garp'), __('Please specify a title or leave empty to remove title:'), function(btn, text){
-				if (btn == 'ok') {
-					this.setTitle(text);
-				}
-			}, this, 80, this.data.name);
+			if (!this.titleEditor) {
+				this.titleEditor = new Ext.Editor({
+					alignment: 'tl',
+					autoSize: true,
+					field: {
+						selectOnFocus: true,
+						xtype: 'textfield',
+						width: '100%',
+						anchor: '99%'
+					}
+				});
+			}
+			this.titleEl.setDisplayed(true);
+			this.titleEditor.startEdit(this.titleEl, this.data.name);
+			this.titleEditor.on('complete', function(f, v){
+				this.setTitle(v);
+			}, this);
 		},
 		
 		getMenuOptions: function(){
