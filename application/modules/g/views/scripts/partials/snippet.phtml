@@ -18,10 +18,10 @@
 				$theContent = $this->string()->linkify($theContent);
 			endif;
 		elseif ($this->snippet->has_html):
-			$defaultBodyClass = 'rich';
-			$bodyClass = $this->bodyClass ?
-				($defaultBodyClass.' '.$this->bodyClass) :
-				$defaultBodyClass;
+			$bodyClass = 'rich';
+			if ($this->bodyClass):
+				$bodyClass .= ' '.$this->bodyClass;
+			endif;
 			$theContent = '<div class="'.$bodyClass.'">'.$this->snippet->html.'</div>';
 		endif;
 		echo $theContent;
