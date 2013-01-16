@@ -23,6 +23,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 	protected $_scaler;
 	
 	const ERROR_SCALING_TEMPLATE_MISSING = 'You will need to provide a scaling template.';
+	const ERROR_ARGUMENT_IS_NOT_FILENAME = 'The provided argument is not a filename.';
 	
 	
 
@@ -67,6 +68,18 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 				return $this->_getImageScaler()->getScaledUrl($image, $template);
 			} else throw new Exception(self::ERROR_SCALING_TEMPLATE_MISSING);
 		}
+	}
+	
+	
+	/**
+	 * Returns the url to the source file of an upload.
+	 * @param String $filename The filename of the upload, without the path.
+	 */
+	public function getSourceUrl($filename) {
+		if ($this->_isFilename($filename)) {
+			$file = new Garp_Image_File();
+			return $file->getUrl($filename);
+		} else throw new Exception(self::ERROR_ARGUMENT_IS_NOT_FILENAME);
 	}
 
 
