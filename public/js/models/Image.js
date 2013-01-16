@@ -235,7 +235,9 @@ Garp.dataTypes.Image.on('init', function(){
 					});
 					
 					scope.resizeContent(scope.contentEditableEl.getWidth());
-					scope.ownerCt.doLayout();
+					if (scope.ownerCt) {
+						scope.ownerCt.doLayout();
+					}
 					
 				};
 				i.src = path;
