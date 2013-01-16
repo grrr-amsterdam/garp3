@@ -14,7 +14,7 @@ set :deploy_via, :remote_cache
 ssh_options[:forward_agent] = true
 set :git_enable_submodules, 1
 set :use_sudo, false
-set :keep_releases, 3
+set :keep_releases, 2
 
 set (:document_root) {"#{deploy_to}/current/public"}
 set (:server_cache_dir) {"#{current_release}/application/data/cache"}
