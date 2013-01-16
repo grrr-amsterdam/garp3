@@ -21,6 +21,10 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
  	 * @var Garp_Image_Scaler
  	 */
 	protected $_scaler;
+	
+	const ERROR_SCALING_TEMPLATE_MISSING = 'You will need to provide a scaling template.';
+	
+	
 
 
 	/**
@@ -43,7 +47,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 		} else {
 			if ($template) {
 				return $this->_renderUpload($image, $template);
-			} else throw new Exception('You will need to provide a scaling template.');
+			} else throw new Exception(self::ERROR_SCALING_TEMPLATE_MISSING);
 		}		
 	}
 
@@ -61,7 +65,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 		} else {
 			if ($template) {
 				return $this->_getImageScaler()->getScaledUrl($image, $template);
-			} else throw new Exception('You will need to provide a scaling template.');
+			} else throw new Exception(self::ERROR_SCALING_TEMPLATE_MISSING);
 		}
 	}
 
@@ -151,7 +155,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 		}
 
 		if (!$this->_config) {
-			$this->_config = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+			$this->_config = Zend_Registry::get('config');
 		}
 
 		if (
