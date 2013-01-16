@@ -9,13 +9,26 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli {
+	/**@#+
+ 	 * String coloring constants
+ 	 * @var String
+ 	 */
+	const RED = '2;31';
+	const GREEN = '2;32';
+    /**#@-*/
+
+
 	/**
 	 * Print line.
-	 * @param String $s
+	 * @param String $s The string.
+	 * @param String $color Show string in color?
 	 * @param Boolean $appendNewline Wether to add a newline character
 	 * @return Void
 	 */
-	public static function lineOut($s, $appendNewline = true) {
+	public static function lineOut($s, $color = null, $appendNewline = true) {
+		if ($color) {
+			self::addStringColoring($s, $color);
+		}
 		echo "{$s}".($appendNewline ? "\n" : '');
 	}
 
@@ -26,9 +39,24 @@ class Garp_Cli {
 	 * @return Void
 	 */
 	public static function errorOut($s) {
-		echo "\033[1;31m{$s}\033[0m\n";
+		self::addStringColoring($s, self::RED);
+		self::lineOut($s);
 	}
 	
+
+	/**
+ 	 * Print line in a certain color
+ 	 * Inspired by Garp_Model_Spawn_Util::addStringColoring()
+ 	 * @param String $s
+ 	 * @param String $color
+ 	 * @return Void
+ 	 */
+	public static function addStringColoring(&$s, $color) {
+		$prevEnc = mb_internal_encoding();
+		mb_internal_encoding("UTF-8");
+		$s = "\033[{$color}m{$s}\033[0m\n";
+		mb_internal_encoding($prevEnc);
+	}
 	
 	/**
 	 * Receive input from the commandline.
@@ -38,7 +66,7 @@ class Garp_Cli {
 	 */
 	public static function prompt($prompt = '', $trim = true) {
 		$prompt && self::lineOut($prompt);
-		self::lineOut('> ', false);
+		self::lineOut('> ', null, false);
 		$response = fgets(STDIN);
 		
 		if ($trim) {
@@ -46,7 +74,6 @@ class Garp_Cli {
 		}
 		return $response;
 	}
-	
 	
 	
 	/**
