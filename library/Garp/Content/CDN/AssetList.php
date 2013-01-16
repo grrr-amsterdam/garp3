@@ -42,12 +42,11 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 	 *								Defaults to self::DEFAULT_FILTER_DATE. Can be set to false to disable the filter.
 	 */
 	public function __construct($baseDir, $filterString = null, $filterDate = null) {
-		$distributor 				= new Garp_Content_CDN_Distributor();
 		$this->_baseDir				= $baseDir;
 		$this->_baseDirLength		= strlen($baseDir);
 		
 		$this->_filterString		= $filterString;
-		$this->_filterDate	= $this->_setFilterDate($filterDate);
+		$this->_filterDate			= $this->_setFilterDate($filterDate);
 
 		$this->_crawlDirectory($baseDir);
 	}
