@@ -94,7 +94,8 @@ class Garp_Db_Table_Rowset_Iterator {
  	 * @return Void
  	 */
 	public function setResult(&$result) {
-		if (!$result instanceof Garp_Db_Table_Row &&
+		if (!is_null($result) &&
+			!$result instanceof Garp_Db_Table_Row &&
 			!$result instanceof Garp_Db_Table_Rowset) {
 				throw new InvalidArgumentException(__METHOD__.' expects parameter 1 to be a'.
 					'Garp_Db_Table_Row or Garp_Db_Table_Rowset. '.gettype($result).' given.');
