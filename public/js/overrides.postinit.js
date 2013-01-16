@@ -3,15 +3,51 @@ Ext.enableListenerCollection = true;
 Ext.QuickTips.init();
 Ext.Direct.addProvider(Garp.API);
 
+window.onerror = function(msg){
+
+	if (this.msg) {
+		//if (this.msg.indexOf(msg) > -1) {
+		//} else {
+			this.msg = msg + this.msg + '<hr>';
+		//}
+	}
+	if (!this.win) {
+		this.win = new Ext.Window({
+			title: __('Error'),
+			html: '<div class="garp-error-dialog" style="min-height: 80px">' + msg + '</div>',
+			width: 500,
+			buttonAlign: 'center',
+			defaultButton: 'defaultButton',
+			buttons: [{
+				text: __('Ok'),
+				id: 'defaultButton',
+				handler: function(){
+					win.close();
+				}
+			}, {
+				hidden: true,
+				text: __('Login again'),
+				handler: function(){
+					win.close();
+					window.location = BASE + 'g/auth/login';
+				}
+			}],
+			fn: function(){
+				this.msg = '';
+			},
+			scope: this
+		});
+	} else {
+		this.win.update('<div class="garp-error-dialog">' + msg + '</div>');
+	}
+	this.win.show();
+};
+
 Ext.Direct.on({
 	'exception': {
 		fn: function(e, p){
 			
-			if(!this.msg){
-				this.msg = '';
-			}
-			
-			var transaction = '', action = '', method = '', message = '', tid = '', hideLoginAgain = true;
+			var transaction = '', action = '', method = '', message = '', tid = '';
 			
 			if (Ext.isObject(e)) {
 				if (e.error) {
@@ -22,8 +58,6 @@ Ext.Direct.on({
 					} else {
 						message = __('No connection');
 					}
-					hideLoginAgain = false;
-					
 				}
 				tid = e.tid;
 				transaction = tid ? e.getTransaction() : null;
@@ -49,40 +83,13 @@ Ext.Direct.on({
 				
 			}
 			
-			this.msg = (
-				'<b>' + __('Error trying to ') + __(method) + ' ' + (Garp.dataTypes[action] ? '<i>'+__(Garp.dataTypes[action].text)+'</i>' : action) + '</b><br><br>' +
-				__('Server response: ') + message + '<br>' +
-				(tid ? (__('Transaction id: ') + tid) : '') +
-				'<hr>'
-			) + this.msg;
+			throw (
+				'<b>' + (method ? __('Error trying to ') + __(method) : '' ) + ' ' + (Garp.dataTypes[action] ? '<i>'+__(Garp.dataTypes[action].text)+'</i>' : action) + '</b><br><br>' +
+				__('Server response: ') + message || __('Nothing. Nada.') + '<br>' +
+				(tid ? (__('Transaction id: ') + tid) : '') 
+			);
 			
-			var win = new Ext.Window({
-				title: __('Error'),
-				html: '<div class="garp-error-dialog">' + this.msg + '</div>',
-				width: 500,
-				minHeight: 150,
-				buttonAlign: 'center',
-				defaultButton: 'defaultButton',
-				buttons: [{
-					text: __('Ok'),
-					id: 'defaultButton',
-					handler: function(){
-						win.close();
-					}
-				}, {
-					hidden: hideLoginAgain,
-					text: __('Login again'),
-					handler: function(){
-						win.close();
-						window.location = BASE + 'g/auth/login';
-					}
-				}],
-				fn: function(){
-					this.msg = '';
-				},
-				scope: this
-			});
-			win.show();
+			
 		}
 	}
 });
