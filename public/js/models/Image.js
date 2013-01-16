@@ -192,6 +192,48 @@ Garp.dataTypes.Image.on('init', function(){
 		},
 		
 		
+		setContent: function(){
+			this.contentEditableEl = this.el.child('.contenteditable');
+			this.contentEditableEl.update('');
+			this.contentEditableEl.dom.setAttribute('contenteditable', false);
+			
+			var i = new Image();
+			var scope = this;
+			var path = IMAGES_CDN + 'scaled/cms_preview/' + this.data[this.idProperty];
+			i.onerror = function(){
+				scope.contentEditableEl.setStyle({
+					position: 'relative',
+					padding: 0
+				});
+				scope.contentEditableEl.update('<div class="img">' + __('Image not found') + '</div>');
+			};
+			i.onload = function(){
+				Ext.apply(scope.data, {
+					width: i.width,
+					height: i.height
+				});
+				
+				scope.contentEditableEl.setStyle({
+					position: 'relative',
+					padding: 0
+				});
+				
+				scope.contentEditableEl.update('<div class="img"></div>');
+				scope.contentEditableEl.child('.img').setStyle({
+					backgroundImage: 'url("' + path + '")'
+				});
+				
+				scope.resizeContent(scope.contentEditableEl.getWidth());
+				if (scope.ownerCt) {
+					scope.ownerCt.doLayout();
+				}
+			};
+			i.src = path;
+			if (i.complete) {
+				i.onload();
+			}
+		},
+			
 		/**
 		 * init!
 		 * @param {Object} ct
@@ -210,42 +252,7 @@ Garp.dataTypes.Image.on('init', function(){
 				this.setHeight(this.resizeContent(nw));
 			});
 			
-			this.on('afterrender', function(){
-				this.contentEditableEl = this.el.child('.contenteditable');
-				this.contentEditableEl.update('');
-				this.contentEditableEl.dom.setAttribute('contenteditable', false);
-				
-				var i = new Image();
-				var scope = this;
-				var path = IMAGES_CDN + 'scaled/cms_preview/' + this.data[this.idProperty];
-				i.onload = function(){
-					Ext.apply(scope.data, {
-						width: i.width,
-						height: i.height
-					});
-					
-					scope.contentEditableEl.setStyle({
-						position: 'relative',
-						padding: 0
-					});
-					
-					scope.contentEditableEl.update('<div class="img"></div>');
-					scope.contentEditableEl.child('.img').setStyle({
-						backgroundImage: 'url("' + path + '")'
-					});
-					
-					scope.resizeContent(scope.contentEditableEl.getWidth());
-					if (scope.ownerCt) {
-						scope.ownerCt.doLayout();
-					}
-					
-				};
-				i.src = path;
-				if (i.complete) {
-					i.onload();
-				}
-				
-			}, this);
+			this.on('afterrender', this.setContent, this);
 			Garp.dataTypes.Image.Wysiwyg.superclass.initComponent.call(this, arguments);
 		}
 	});
