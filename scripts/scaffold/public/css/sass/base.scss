@@ -8,7 +8,7 @@
 /* ==========================================================================
    primary styles
    ========================================================================== */
-html { font-size: 62.5%; line-height: 1.4em; }
+html { font-size: 62.5%; line-height: 1.4; }
 body, button, input, select, textarea { font-family: sans-serif; @include font-size(16); color: #000; }
 body { background: #FFF; margin: 0; @include hyphens(auto); }
 code, var, kbd, samp, tt, dir, listing, plaintext, xmp, abbr, acronym, { @include hyphens(none); }

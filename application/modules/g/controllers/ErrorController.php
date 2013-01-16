@@ -114,7 +114,8 @@ class G_ErrorController extends Garp_Controller_Action {
 		mail(
 			$to,
 			$subjectPrefix.'An application error occurred',
-			$message
+			$message,
+			'From: garp@grrr.nl'
 		);
 	}
 }
