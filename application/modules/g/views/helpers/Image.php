@@ -31,18 +31,29 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 	}
 
 
-	public function __call($method, $args) {
-		if ($method === 'render') {
-			//	if $image is a filename, call _renderStatic(), otherwise call _renderUpload().
-			if ($this->_isFilename($args[0])) {
-				return call_user_func_array(array($this, '_renderStatic'), $args);
-			} else {
-				return call_user_func_array(array($this, '_renderUpload'), $args);
-			}
-		}
+	/**
+	 * @param	mixed	$image		Database id for uploads, or a file name in case of a static image asset.
+	 * @param	String	$template	The id of the scaling template as defined in application.ini.
+	 *								For instance: 'cms_preview'
+	 * @return 	String				Html image tag
+	 */
+	public function render($image, $template = null) {
+		if ($this->_isFilename($image)) {
+			return $this->_renderStatic($image);
+		} else {
+			if ($template) {
+				return $this->_renderUpload($image, $template);
+			} else throw new Exception('You will need to provide a scaling template.');
+		}		
 	}
 
 
+	/**
+	 * @param	mixed	$image		Database id for uploads, or a file name in case of a static image asset.
+	 * @param	String	$template	The id of the scaling template as defined in application.ini.
+	 *								For instance: 'cms_preview'
+	 * @return 	String				Url to the image
+	 */
 	public function getUrl($image, $template = null) {
 		if ($this->_isFilename($image)) {
 			$file = new Garp_Image_File('static');
@@ -50,10 +61,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 		} else {
 			if ($template) {
 				return $this->_getImageScaler()->getScaledUrl($image, $template);
-			} else {
-				$file = new Garp_Image_File();
-				return $file->getUrl($image);
-			}
+			} else throw new Exception('You will need to provide a scaling template.');
 		}
 	}
 
