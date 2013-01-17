@@ -14,9 +14,9 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 	/**
  	 * Expiration time
  	 * @var Int
- 	 * @todo Make this configurable, right now it's set to 7 days
+ 	 * @todo Make this configurable, right now it's set to 30 days
  	 */
-	const DEFAULT_COOKIE_DURATION = 604800;
+	const DEFAULT_COOKIE_DURATION = 2592000;
 
 
 	/**
