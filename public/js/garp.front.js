@@ -1123,49 +1123,54 @@ Garp.relativeDate = function(oldest, newest){
 	if (typeof newest.getTime != 'function') {
 		newest = new Date(newest + '');
 	}
-	
 	var elapsed = Math.abs(oldest.getTime() - newest.getTime()); // milliseconds
-	
-	if(isNaN(elapsed)){
+	if (isNaN(elapsed)) {
 		return '';
 	}
 	
 	elapsed = elapsed / 60000; // minutes
 	var result = '';
+	// Date constants for readability
+	var MINUTE = 1;
+	var HOUR   = MINUTE*60;
+	var DAY    = HOUR*24;
+	var WEEK   = DAY*7;
+	var MONTH  = DAY*30;
+	var YEAR   = DAY*365;
 	
 	switch (true) {
-		case (elapsed < 1):
+		case (elapsed < MINUTE):
 			result = __('less than a minute');
 			break;
 			
-		case (elapsed < (60)):
+		case (elapsed < HOUR):
 			var minutes = Math.round(elapsed);
 			result = minutes + ' ' + (minutes == 1 ? __('minute') : __('minutes'));
 			break;
 			
-		case (elapsed < (60 * 24)):
+		case (elapsed < DAY):
 		
-			var hours = Math.round(elapsed / 60);
+			var hours = Math.round(elapsed / HOUR);
 			result = hours + ' ' + (hours == 1 ? __('hour') : __('hours'));
 			break;
 			
-		case (elapsed < (60 * 24 * 7)):
-			var days = Math.round(elapsed / (60 * 24));
+		case (elapsed < WEEK):
+			var days = Math.round(elapsed / DAY);
 			result = days + ' ' + (days == 1 ? __('day') : __('days'));
 			break;
 			
-		case (elapsed < (60 * 24 * 7 * 30)):
-			var weeks = Math.round(elapsed / (60 * 24 * 7));
+		case (elapsed < MONTH):
+			var weeks = Math.round(elapsed / WEEK);
 			result = weeks + ' ' + (weeks == 1 ? __('week') : __('weeks'));
 			break;
 			
-		case (elapsed < (60 * 24 * 7 * 30 * 12)):
-			var months = Math.round(elapsed / (60 * 24 * 7 * 30));
+		case (elapsed < YEAR):
+			var months = Math.round(elapsed / MONTH);
 			result = months + ' ' + (months == 1 ? __('month') : __('months'));
 			break;
 			
 		default:
-			var years = Math.round(elapsed / (60 * 24 * 7 * 30 * 365));
+			var years = Math.round(elapsed / YEAR);
 			result = years + ' ' + (years == 1 ? __('year') : __('years'));
 			break;
 			
@@ -2359,8 +2364,8 @@ Garp.FormHelper.Validator = function(cfg){
 		
 		// URL
 		url:{
-			mailtoOrUrlRe:  /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
-			stricter: 		/(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|(((^https?)|(^ftp)):\/\/([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
+			mailtoOrUrlRe: /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
+			stricter: /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|(((^https?)|(^ftp)):\/\/([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
 			init: function(field){
 				if(!field.attr('type') || field.attr('type') !== 'url'){
 					return;
