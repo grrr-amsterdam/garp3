@@ -1149,7 +1149,6 @@ Garp.relativeDate = function(oldest, newest){
 			break;
 			
 		case (elapsed < DAY):
-		
 			var hours = Math.round(elapsed / HOUR);
 			result = hours + ' ' + (hours == 1 ? __('hour') : __('hours'));
 			break;
@@ -1160,8 +1159,22 @@ Garp.relativeDate = function(oldest, newest){
 			break;
 			
 		case (elapsed < MONTH):
-			var weeks = Math.round(elapsed / WEEK);
-			result = weeks + ' ' + (weeks == 1 ? __('week') : __('weeks'));
+			/**
+			 * Here we use Math.ceil because the scope is so small. It makes no sense when 
+			 * it's 1 week and 2 days to say "1 week". It's more correct to say 2 weeks.
+			 */
+			var weeks = Math.ceil(elapsed / WEEK);
+			/**
+			 * And while we're at it: just say "days" when it's less than 2 weeks.
+			 * Weeks are an inaccurate depiction of a time period when it's only a few of 'em.
+			 * Better switch to days.
+			 */
+			if (weeks > 2) {
+				result = weeks + ' ' + (weeks == 1 ? __('week') : __('weeks'));
+			} else {
+				var days = Math.round(elapsed / DAY);
+				result = days + ' ' + (days == 1 ? __('day') : __('days'));
+			}
 			break;
 			
 		case (elapsed < YEAR):
