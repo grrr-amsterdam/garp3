@@ -37,17 +37,19 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 
 
 	/**
-	 * @param	mixed	$image		Database id for uploads, or a file name in case of a static image asset.
-	 * @param	String	$template	The id of the scaling template as defined in application.ini.
-	 *								For instance: 'cms_preview'
-	 * @return 	String				Html image tag
+	 * @param	mixed	$image		 Database id for uploads, or a file name in case of a static image asset.
+	 * @param	String	$template	 The id of the scaling template as defined in application.ini.
+	 *								 For instance: 'cms_preview'
+	 * @param   Array   $htmlAttribs HTML attributes on the image tag
+	 * @param   String  $partial     Custom partial for rendering an upload
+	 * @return 	String				 Html image tag
 	 */
-	public function render($image, $template = null) {
+	public function render($image, $template = null, $htmlAttribs = array(), $partial = null) {
 		if ($this->_isFilename($image)) {
-			return $this->_renderStatic($image);
+			return $this->_renderStatic($image, $htmlAttribs);
 		} else {
 			if ($template) {
-				return $this->_renderUpload($image, $template);
+				return $this->_renderUpload($image, $template, $htmlAttribs, $partial);
 			} else throw new Exception(self::ERROR_SCALING_TEMPLATE_MISSING);
 		}		
 	}
