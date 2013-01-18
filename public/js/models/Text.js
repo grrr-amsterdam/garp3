@@ -103,16 +103,21 @@ Garp.dataTypes.Text.on('init', function(){
 					el.dom.setAttribute(id, Ext.id());
 				});
 
-				this.contentEditableEl = this.el.child('.contenteditable');
+				this.contentEditableEl = this.el.select('.contenteditable').first();
 				this.contentEditableEl.dom.setAttribute('contenteditable', true);
 				this.contentEditableEl.removeAllListeners();
 				this.contentEditableEl.on('focus', this.filterHtml, this);
 				this.contentEditableEl.on('click', this.filterHtml, this);
 				this.contentEditableEl.on('blur', this.filterHtml, this);
 				
-				this.titleEl = this.el.child('.contenttitle');
+				this.titleEl = this.el.select('.contenttitle').first();
 				this.titleEl.removeAllListeners();
 				this.titleEl.on('click', this.showTitleDialog, this);
+				
+				
+				if(this.type){
+					this.el.addClass(this.type);
+				}
 				
 				if (this._data && this._data.description) {
 					this.contentEditableEl.update(this._data.description);
