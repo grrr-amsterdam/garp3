@@ -18,6 +18,9 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	 */
 	model: 'Text',
 	
+	data :{},
+	_data: {},
+	
 	/**
 	 * Retrieve contents
 	 */
