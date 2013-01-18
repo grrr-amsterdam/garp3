@@ -32,7 +32,7 @@ Garp.dataTypes.Video.on('init', function(){
 		xtype: 'box',
 		ref: '../../../preview',
 		fieldLabel: __('Preview'),
-		data: {
+		_data: {
 			player: '',
 			width: 0,
 			height: 0
@@ -94,7 +94,7 @@ Garp.dataTypes.Video.on('init', function(){
 		
 		pickerHandler: function(sel, afterInitCb){
 		
-			this.data = {
+			this._data = {
 				id: sel.data.id,
 				image: sel.data.image
 			};
@@ -105,8 +105,8 @@ Garp.dataTypes.Video.on('init', function(){
 		
 		getData: function(){
 			return {
-				id: this.data.id,
-				image: this.data.image
+				id: this._data.id,
+				image: this._data.image
 			};
 		},
 		
@@ -130,9 +130,9 @@ Garp.dataTypes.Video.on('init', function(){
 				
 				var i = new Image();
 				var scope = this;
-				var path = this.data.image;
+				var path = this._data.image;
 				i.onload = function(){
-					Ext.apply(scope.data, {
+					Ext.apply(scope._data, {
 						width: i.width,
 						height: i.height
 					});

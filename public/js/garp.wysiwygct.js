@@ -37,7 +37,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					}
 					var box = new Garp.dataTypes[node.model].Wysiwyg({
 						ct: currentWysiwygCt,
-						data: node.data,
+						_data: node.data,
 						model: node.model,
 						type: node.type,
 						col: 'grid-' + node.columns + '-' + maxCols,
@@ -210,7 +210,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						var box = new model.Wysiwyg({
 							ct: this,
 							maxCols: this.maxCols,
-							data: false
+							_data: {}
 						});
 					},
 					scope: this
