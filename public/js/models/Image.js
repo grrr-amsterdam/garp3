@@ -128,7 +128,7 @@ Garp.dataTypes.Image.on('init', function(){
 		
 		getData: function(){
 			return {
-				id: this.data.id
+				id: this._data.id
 			};
 		},
 		
@@ -141,7 +141,7 @@ Garp.dataTypes.Image.on('init', function(){
 		 * After pick:
 		 */
 		pickerHandler: function(sel, afterInitCb){
-			this.data = {
+			this._data = {
 				id: sel.data.id
 			};
 			var args = Array.prototype.slice.call(arguments);
@@ -156,7 +156,7 @@ Garp.dataTypes.Image.on('init', function(){
 		beforeInit: function(afterInitCb){
 			var args = arguments;
 			// Do we need to present a dialog or not?
-			if(this.data){
+			if(this._data && this._data[this.idProperty]){
 				afterInitCb.call(this, args);
 				return;
 			}
@@ -183,7 +183,7 @@ Garp.dataTypes.Image.on('init', function(){
 		 * @returns height
 		 */
 		resizeContent: function(nw){
-			var i = this.data;
+			var i = this._data;
 			var aspct = i.height / i.width;
 			var nHeight = (nw * aspct) - this.margin;
 			this.contentEditableEl.setHeight(nHeight);
@@ -199,7 +199,7 @@ Garp.dataTypes.Image.on('init', function(){
 			
 			var i = new Image();
 			var scope = this;
-			var path = IMAGES_CDN + 'scaled/cms_preview/' + this.data[this.idProperty];
+			var path = IMAGES_CDN + 'scaled/cms_preview/' + this._data[this.idProperty];
 			i.onerror = function(){
 				scope.contentEditableEl.setStyle({
 					position: 'relative',
@@ -208,7 +208,7 @@ Garp.dataTypes.Image.on('init', function(){
 				scope.contentEditableEl.update('<div class="img">' + __('Image not found') + '</div>');
 			};
 			i.onload = function(){
-				Ext.apply(scope.data, {
+				Ext.apply(scope._data, {
 					width: i.width,
 					height: i.height
 				});

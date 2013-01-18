@@ -8,7 +8,7 @@ Garp.dataTypes.Text.on('init', function(){
 		
 		allowedTags: ['a','b','i','br','p','div','ul','ol','li'],
 		
-		data: {
+		_data: {
 			description: null,
 			name: null
 		},
@@ -47,7 +47,7 @@ Garp.dataTypes.Text.on('init', function(){
 			if (this.contentEditableEl) {
 				return {
 					description: this.contentEditableEl.dom.innerHTML,
-					name: this.data.name || false
+					name: this._data.name || false
 				};
 			} else {
 				return '';
@@ -55,7 +55,7 @@ Garp.dataTypes.Text.on('init', function(){
 		},
 		
 		setTitle: function(text){
-			this.data.name = text;
+			this._data.name = text;
 			this.titleEl.update(text);
 			this.titleEl.setDisplayed( text ? true : false);
 		},
@@ -74,7 +74,7 @@ Garp.dataTypes.Text.on('init', function(){
 				});
 			}
 			this.titleEl.setDisplayed(true);
-			this.titleEditor.startEdit(this.titleEl, this.data.name);
+			this.titleEditor.startEdit(this.titleEl, this._data.name);
 			this.titleEditor.on('complete', function(f, v){
 				this.setTitle(v);
 			}, this);
@@ -114,11 +114,11 @@ Garp.dataTypes.Text.on('init', function(){
 				this.titleEl.removeAllListeners();
 				this.titleEl.on('click', this.showTitleDialog, this);
 				
-				if (this.data) {
-					this.contentEditableEl.update(this.data.description);
-					this.titleEl.update(this.data.name || '');
+				if (this._data && this._data.description) {
+					this.contentEditableEl.update(this._data.description);
+					this.titleEl.update(this._data.name || '');
 				}
-				this.titleEl.setDisplayed( (this.data && this.data.name) || false);
+				this.titleEl.setDisplayed( (this._data && this._data.name) || false);
 			}, this);
 			
 			Garp.dataTypes.Text.Wysiwyg.superclass.initComponent.call(this, arguments);
