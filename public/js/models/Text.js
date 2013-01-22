@@ -90,9 +90,9 @@ Garp.dataTypes.Text.on('init', function(){
 		
 		initComponent: function(){
 
-			this.html += '<h4 class="contenttitle"></h4>'+'<div class="contenteditable">' +
+			this.html += '<div><h4 class="contenttitle"></h4>'+'<div class="contenteditable">' +
 				 			__('Enter text') +
-						'</div>'; 
+						'</div></div>'; 
 		
 			this.on('afterrender', function(){
 				this.addClass('wysiwyg-box');
