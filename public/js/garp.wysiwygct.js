@@ -93,7 +93,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	afterRender: function(){
 		this.wrap = this.el.wrap();
 	
-		this.extraTypes = Garp.dataTypes.ContentNode.getField('type').store;
+		this.extraTypes = Garp.dataTypes.Chapter.getField('type').store;
 	
 		this.chapterct = new Garp.Chapterct({
 			renderTo: this.wrap,
@@ -724,7 +724,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 			comp.on('showsettings', function(cmp, e){
 				
 				// @TODO: decide if this needs to go to wysiwyg box ?
-				if (Garp.dataTypes[cmp.model].wysiwygConfig) {
+				if (Garp.dataTypes.ContentNode.getField('type').store) {
 					var items;
 					var menuItems = [];
 					
@@ -735,7 +735,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 						menuItems.push('-');
 					}
 					
-					items = Garp.dataTypes[cmp.model].wysiwygConfig.classMenu;
+					items = Garp.dataTypes.ContentNode.getField('type').store;
 					if (items) {
 						Ext.each(items, function(cl){
 							var item = {
