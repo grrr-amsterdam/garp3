@@ -698,6 +698,15 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	},
 	
 	/**
+	 * Utility function for vertical align
+	 */
+	verticalCenter: function(){
+		this.el.select('.vertical-center').each(function(el){
+			el.setHeight(el.parent().getHeight());
+		});
+	},
+	
+	/**
 	 * I.N.I.T.
 	 * @param {Object} ct
 	 */
@@ -718,9 +727,13 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				tag: 'div',
 				cls: 'wysiwyg-wrap'
 			});
+			this.verticalCenter();
 		}, this);
 		
 		this.on('add', function(scope, comp){
+			
+			scope.verticalCenter();
+			
 			comp.on('showsettings', function(cmp, e){
 				
 				// @TODO: decide if this needs to go to wysiwyg box ?
