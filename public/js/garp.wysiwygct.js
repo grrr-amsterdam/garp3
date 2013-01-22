@@ -770,6 +770,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 								this.type = v.val;
 								if(this.onSettingsMenu){
 									this.onSettingsMenu(v);
+									this.verticalCenter();
 								}
 							},
 							scope: this
