@@ -137,8 +137,9 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			'save': {
 				fn: function(){
 					this.rec = this.store.getAt(0);
-					
-					this.formcontent.fireEvent('loaddata', this.rec, this);
+					if (this.formcontent) {
+						this.formcontent.fireEvent('loaddata', this.rec, this);
+					}
 					this.fireEvent('aftersave', this, this.rec);
 					this.loadMask.hide();
 					//this.close();
