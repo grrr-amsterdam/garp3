@@ -311,11 +311,11 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.grid-1-6 { width: 16.666666%; }
 						
 			.wysiwyg-box { position: relative; float: left; border: none; outline: none; clear: none;  }
-			.wysiwyg-box .dd-handle { display: none; position: absolute; right: 5px; top: 5px; background-color: #fff; width: 30px; height: 30px; border: 1px #ddd solid; border-radius: 4px;  background-position: 50% 50%; background-repeat: no-repeat; z-index: 3;}
+			.wysiwyg-box > div.dd-handle { display: none; position: absolute; right: 5px; top: 5px; background-color: #fff; width: 30px; height: 30px; border: 1px #ddd solid; border-radius: 4px;  background-position: 50% 50%; background-repeat: no-repeat; z-index: 3;}
 			.wysiwyg-box .dd-handle.icon-delete { right: 40px; }
 			.wysiwyg-box .dd-handle.icon-settings { right: 75px; }
 			
-			.wysiwyg-box:hover .dd-handle { display: block; }
+			.wysiwyg-box:hover > div.dd-handle { display: block; }
 			.wysiwyg-box .dd-handle:hover { background-color: #eee; }
 			.x-panel-body-noheader .wysiwyg-box .x-panel-body { border: none; }
 
