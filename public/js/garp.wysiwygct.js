@@ -564,28 +564,26 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					},
 					'resize': function(){
 						var el = this.getEl();
-						
 						var nw = el.getWidth();
 						var count = wysiwygct.getCurrentColCount(el);
-						el.setStyle('width', '');
-						
 						var newCol = Math.ceil(wysiwygct.maxCols / (wysiwygct.getWidth() / nw));
 						if (newCol < 1) {
 							newCol = 1;
 						}
 						if (w < nw) {
 							if (count >= wysiwygct.maxCols) {
-								return;
+								newCol = wysiwygct.maxCols;
 							}
 							wysiwygct.removeColClasses(el);
 							el.addClass('grid-' + (newCol) + '-' + wysiwygct.maxCols);
 						} else {
 							if (count <= 1) {
-								return;
+								newCol = 1;
 							}
 							wysiwygct.removeColClasses(el);
 							el.addClass('grid-' + (newCol) + '-' + wysiwygct.maxCols);
 						}
+						el.setWidth('');
 						el.setHeight('');
 						Ext.getCmp(el.id).fireEvent('user-resize', w, nw, 'grid-' + newCol + '-' + wysiwygct.maxCols);
 					}
