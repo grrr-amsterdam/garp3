@@ -90,7 +90,7 @@ Garp.dataTypes.Text.on('init', function(){
 		
 		initComponent: function(){
 
-			this.html += '<div><h4 class="contenttitle"></h4>'+'<div class="contenteditable">' +
+			this.html += '<div class="vertical-content"><h4 class="contenttitle"></h4>'+'<div class="contenteditable">' +
 				 			__('Enter text') +
 						'</div></div>'; 
 		
