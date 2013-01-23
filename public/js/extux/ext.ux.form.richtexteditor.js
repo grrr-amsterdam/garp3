@@ -176,6 +176,10 @@ if (Ext.isIE) {
 		}
 	});
 
+// // // // // // // // // // // // // // // // // // // // // // // // // // //
+// // // // // // // // // // // // // // // // // // // // // // // // // // //
+// // // // // // // // // // // // // // // // // // // // // // // // // // //
+
 } else {
 
 	Ext.ux.form.RichTextEditor = Ext.extend(Ext.form.HtmlEditor, {
@@ -1069,6 +1073,10 @@ if (Ext.isIE) {
 		},
 		
 		addDefinitionList: function(){
+			if(Ext.isChrome || Ext.isWebkit){
+				throw "Unfortunately, your browser does not support this feature yet.";
+			}
+			
 			var t = this.getCurrentTagName().toLowerCase();
 			switch (t) {
 				case 'dl':
@@ -1223,8 +1231,7 @@ if (Ext.isIE) {
 				scope: this
 			});
 			
-			
-			tbar.insert(5, {
+			tbar.insert(8, {
 				tooltip: __('<b>Add Glossary</b><br>Creates a list of terms.'),
 				iconCls: 'icon-richtext-add-dl',
 				enableToggle: true,
