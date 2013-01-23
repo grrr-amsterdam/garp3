@@ -90,7 +90,9 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	afterRender: function(ct){
 		Garp.WysiwygAbstract.superclass.afterRender.call(this, arguments);
 		this.el.select('.dd-handle.icon-delete').on('click', function(){
-			this.ownerCt.removeWysiwygBox(this);
+			if (this.ownerCt) {
+				this.ownerCt.removeWysiwygBox(this);
+			}
 		}, this);
 		if (this.settingsMenu) {
 			this.el.select('.dd-handle.icon-settings').on('click', function(e){
