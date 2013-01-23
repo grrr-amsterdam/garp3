@@ -1,10 +1,8 @@
 /**
  * Garp CMS
- * 
  * Garp.js
- * 
  * Main setup for Garp CMS
-   
+ *  
  * @namespace Garp
  * @copyright (c) 2010 Grrr.nl / eenengelswoord.nl
  * @author Peter
