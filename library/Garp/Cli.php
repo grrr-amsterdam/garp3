@@ -15,6 +15,7 @@ class Garp_Cli {
  	 */
 	const RED = '2;31';
 	const GREEN = '2;32';
+	const BLUE = '2;34';
     /**#@-*/
 
 
