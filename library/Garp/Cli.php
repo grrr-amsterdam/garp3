@@ -211,4 +211,20 @@ class Garp_Cli {
 		$response = $front->dispatch($request);
 		return $response;
 	}
+
+
+	/**
+ 	 * On shell, you must return 0 on success, 1 on failure.
+ 	 * This method deals with that. Feed it any expression and 
+ 	 * it will exit the right way
+ 	 * @param Mixed $bool
+ 	 * @return Void
+ 	 */
+	public static function halt($bool) {
+		// Convert to boolean
+		$bool = !!$bool;
+		// Toggle it: PHP uses 0 for FALSE, shell uses 0 for TRUE
+		$bool = !$bool;
+		exit((int)$bool);
+	}
 }
