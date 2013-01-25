@@ -325,7 +325,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 								height: 240,
 								border: true,
 								layout: 'fit',
-								defaultButton: '_url', // defaultButton can focus anything ;-)
+								defaultButton: '_url',
 								items: [{
 									xtype: 'fieldset',
 									bodyCssClass: 'garp-dialog-fieldset',
@@ -395,23 +395,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 								},
 								scope: this
 							});
-/*							
-							Ext.Msg.prompt(__('Garp'), __('URL to link to'), function(btn, url){
-								if (btn == 'ok' && url) {
-									var nwLink = document.createElement('a');
-									
-									nwLink.setAttribute('href', url);
-									//nwLink.setAttribute('target', '_blank');
-									//nwLink.setAttribute('title', title);
-									nwLink.appendChild(document.createTextNode(txt));
-									
-									range.deleteContents();
-									range.insertNode(nwLink);
-									range.selectNodeContents(nwLink);
-									sel.removeAllRanges();
-									sel.addRange(range);
-								}
-							});*/
+
 						}
 					}
 					
