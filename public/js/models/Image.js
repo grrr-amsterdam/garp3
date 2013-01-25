@@ -128,7 +128,8 @@ Garp.dataTypes.Image.on('init', function(){
 		
 		getData: function(){
 			return {
-				id: this._data.id
+				id: this._data.id,
+				caption: this._data.caption
 			};
 		},
 		
@@ -137,12 +138,50 @@ Garp.dataTypes.Image.on('init', function(){
 			return true;
 		},
 		
+		
+		setCaption: function(text){
+			this._data.caption = text;
+			this.el.child('.caption').update(text);
+			this.el.child('.caption').setDisplayed( text ? true : false);
+		},
+		
+		showCaptionEditor: function(){
+			if (!this.captionEditor) {
+				this.captionEditor = new Ext.Editor({
+					alignment: 'tl',
+					autoSize: true,
+					field: {
+						selectOnFocus: true,
+						xtype: 'textfield',
+						width: '100%',
+						anchor: '99%'
+					}
+				});
+			}
+			this.el.child('.caption').setDisplayed(true);
+			this.captionEditor.startEdit(this.el.child('.caption'), this._data.caption);
+			this.captionEditor.on('complete', function(f, v){
+				this.setCaption(v);
+			}, this);
+		},
+		
+		getMenuOptions: function(){
+			return [{
+				group: '',
+				text: 'Add / remove caption',
+				handler: this.showCaptionEditor
+			}];
+		},
+		
+		
+		
 		/**
 		 * After pick:
 		 */
 		pickerHandler: function(sel, afterInitCb){
 			this._data = {
-				id: sel.data.id
+				id: sel.data.id,
+				caption: sel.data.caption
 			};
 			var args = Array.prototype.slice.call(arguments);
 			args.shift();
@@ -218,10 +257,18 @@ Garp.dataTypes.Image.on('init', function(){
 					padding: 0
 				});
 				
-				scope.contentEditableEl.update('<div class="img"></div>');
+				scope.contentEditableEl.update('<div class="img"></div><p class="caption"></p>');
 				scope.contentEditableEl.child('.img').setStyle({
 					backgroundImage: 'url("' + path + '")'
 				});
+				var captionEl = scope.contentEditableEl.child('.caption');
+				if (scope._data.caption) {
+					captionEl.update(scope._data.caption);
+					captionEl.show();
+					captionEl.on('click', scope.showCaptionEditor, scope);
+				} else {
+					captionEl.hide();
+				}
 				
 				scope.resizeContent(scope.contentEditableEl.getWidth());
 				if (scope.ownerCt) {
