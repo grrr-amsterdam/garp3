@@ -63,7 +63,7 @@ $classLoader = Garp_Loader::getInstance(array(
 	'paths' => array(
 		array(
 			'namespace' => '*',
-			'path' => APPLICATION_PATH.'/../library'
+			'path' => realpath(APPLICATION_PATH.'/../library')
 		),
 		array(
 			'namespace' => 'Model',
