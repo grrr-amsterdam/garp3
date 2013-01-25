@@ -1072,11 +1072,13 @@ if (Ext.isIE) {
 			this.updateToolbar();
 		},
 		
+		_insertTag: function(tag){
+			var r = this.getRange();
+			var elm = document.createElement(tag ? tag.toUpperCase() : 'DIV');
+			return r.insertNode(elm);
+		},
+		
 		addDefinitionList: function(){
-			if(Ext.isChrome || Ext.isWebkit){
-				throw "Unfortunately, your browser does not support this feature yet.";
-			}
-			
 			var t = this.getCurrentTagName().toLowerCase();
 			switch (t) {
 				case 'dl':
@@ -1086,7 +1088,11 @@ if (Ext.isIE) {
 					this.insertAtCursor('</dt></dl><p>');
 					break;
 				case 'dd':
-					this.insertAtCursor('</dd><dt>');
+					if (Ext.isChrome || Ext.isWebkit) {
+						this.insertAtCursor('</dd><dt>&hellip;</dt><dd>&hellip;</dd>');
+					} else {
+						this.insertAtCursor('</dd><dt>');
+					}
 					break;
 				default:
 					var sel = this.getSelection();
@@ -1094,7 +1100,11 @@ if (Ext.isIE) {
 					var txt = sel.toString() || '&hellip;';
 					var range = this.getRange();
 					range.deleteContents();
-					this.insertAtCursor('<dl><dt id="' + id + '">' + txt);
+					if (Ext.isChrome || Ext.isWebkit) {
+						this.insertAtCursor('<dl><dt id="' + id + '">' + txt + '</dt><dd>' + txt + '</dd></dl><p>&nbsp;</p>');
+					} else {
+						this.insertAtCursor('<dl><dt id="' + id + '">' + txt + '</dt>');
+					}
 					var elm = this.getDoc().getElementById(id);
 					range.selectNodeContents(elm);
 					sel.removeAllRanges();
