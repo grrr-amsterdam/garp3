@@ -1,4 +1,5 @@
 require 'animation'
+require 'compass/css3'
 
 http_path = "/"
 

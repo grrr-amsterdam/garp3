@@ -24,6 +24,13 @@ $margin: 20px;
 $marginHalf: 10px;
 $marginDouble: 40px;
 
+// BREAKPOINTS
+// The following is inspired by this article: http://css-tricks.com/media-queries-sass-3-2-and-codekit/
+$small: pxToEm(640);
+$medium: pxToEm(900);
+$large: pxToEm(1200);
+
+
 /* ==========================================================================
    mixins and functions
    ========================================================================== */
@@ -48,6 +55,88 @@ $marginDouble: 40px;
 @mixin font-size($font-size) {
 	font-size: #{$font-size}px;
 	font-size: #{$font-size / 10}rem;
+}
+
+/**
+ * For using breakpoints
+ * Usage:
+ * div { width: 60px;
+ *	@include breakpoint(small) { width: 80px; }
+ * }
+ * 
+ * Pass true as a second parameter to toggle high dpi screens
+ */
+@mixin breakpoint-min($point, $highDpi: false) {
+  @if $point == small {
+	if($highDpi = true) {
+		@media only screen and (min-width: $small) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $small) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $small) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $small) and (min-device-pixel-ratio: 2) { @content; }
+	} else {
+	    @media only screen and (min-width: $small) { @content; }
+	}
+  }
+  @else if $point == medium {
+	if($highDpi = true) {
+		only screen and (min-width: $medium) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $medium) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $medium) and (-o-min-device-pixel-ratio: 2/1),	only screen and (min-width: $medium) and (min-device-pixel-ratio: 2) { @content; }
+	} else {
+    	@media only screen and (min-width: $medium) { @content; }
+	}
+  }
+  @else if $point == large {
+	if($highDpi = true) {
+		only screen and (min-width: $large) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $large) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $large) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $large) and (min-device-pixel-ratio: 2) { @content; }
+	} else {
+	    @media only screen and (min-width: $large)  { @content; }
+	}
+  }
+}
+
+@mixin breakpoint-max($point, $highDpi: false) {
+  @if $point == small {
+	if($highDpi = true) {
+		@media only screen and (max-width: $small) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $small) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $small) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $small) and (min-device-pixel-ratio: 2) { @content; }
+	} else {
+	    @media only screen and (max-width: $small) { @content; }
+	}
+  }
+  @else if $point == medium {
+	if($highDpi = true) {
+		only screen and (max-width: $medium) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $medium) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $medium) and (-o-min-device-pixel-ratio: 2/1),	only screen and (max-width: $medium) and (min-device-pixel-ratio: 2) { @content; }
+	} else {
+    	@media only screen and (min-width: $medium) { @content; }
+	}
+  }
+  @else if $point == large {
+	if($highDpi = true) {
+		only screen and (max-width: $large) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $large) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $large) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $large) and (min-device-pixel-ratio: 2) { @content; }
+	} else {
+	    @media only screen and (max-width: $large)  { @content; }
+	}
+  }
+}
+
+
+/**
+ * For targetting high dpi screens
+ * Usage:
+ * div { 
+ *	width: 30px; height: 30px; background: url('img.jpg'); 
+ *	@include high-dpi() { background: url('image-2x.jpg'); @include background-size(30px 30px); }
+ * }
+ */
+@mixin high-dpi() {
+	@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and(min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2) { @content; }
+}
+
+/**
+ * For converting pixels to ems
+ * Based on a 10px font-size on the html
+ * Usage:
+ * div { width: pxToEm(300); }
+ * Returns:
+ * div { width: 30em; }
+ */
+@function pxToEm($pixels){
+	@return ($pixels/10)+0em;
 }
 
 /**
