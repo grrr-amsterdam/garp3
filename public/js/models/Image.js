@@ -122,7 +122,7 @@ Garp.dataTypes.Image.on('init', function(){
 		
 		idProperty: 'id',
 		
-		settingsMenu: false,
+		settingsMenu: true,
 		
 		margin: 0,
 		
@@ -153,8 +153,8 @@ Garp.dataTypes.Image.on('init', function(){
 					field: {
 						selectOnFocus: true,
 						xtype: 'textfield',
-						width: '100%',
-						anchor: '99%'
+						width: '100%'//,
+						//anchor: '99%'
 					}
 				});
 			}
@@ -247,6 +247,7 @@ Garp.dataTypes.Image.on('init', function(){
 				scope.contentEditableEl.update('<div class="img">' + __('Image not found') + '</div>');
 			};
 			i.onload = function(){
+				
 				Ext.apply(scope._data, {
 					width: i.width,
 					height: i.height
@@ -294,11 +295,9 @@ Garp.dataTypes.Image.on('init', function(){
 			if (this.col) {
 				this.addClass(this.col);
 			}
-			
 			this.on('user-resize', function(w, nw){
 				this.setHeight(this.resizeContent(nw));
 			});
-			
 			this.on('afterrender', this.setContent, this);
 			Garp.dataTypes.Image.Wysiwyg.superclass.initComponent.call(this, arguments);
 		}

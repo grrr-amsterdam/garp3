@@ -3,45 +3,50 @@ Ext.enableListenerCollection = true;
 Ext.QuickTips.init();
 Ext.Direct.addProvider(Garp.API);
 
-window.onerror = function(msg){
-
-	if (this.msg) {
-		//if (this.msg.indexOf(msg) > -1) {
-		//} else {
-			this.msg = msg + this.msg + '<hr>';
-		//}
+Garp.errorHandler = {
+	msg: null,
+	win: null,
+	handler: function(msg, s){
+		if (this.msg) {
+			this.msg = msg + '<hr>' + this.msg;
+		} else {
+			this.msg = msg;
+		}
+		if (!this.win) {
+			this.win = new Ext.Window({
+				title: __('Error'),
+				html: '<div class="garp-error-dialog" style="min-height: 80px;">' + this.msg + '</div>',
+				width: 500,
+				buttonAlign: 'center',
+				defaultButton: 'defaultButton',
+				buttons: [{
+					text: __('Ok'),
+					id: 'defaultButton',
+					handler: function(){
+						this.win.hide();
+					},
+					scope: this
+				}, {
+					hidden: true,
+					text: __('Login again'),
+					handler: function(){
+						this.win.close();
+						window.location = BASE + 'g/auth/login';
+					},
+					scope: this
+				}],
+				fn: function(){
+					this.msg = '';
+				},
+				scope: this
+			});
+		} else {
+			this.win.update('<div class="garp-error-dialog" style="min-height: 80px;">' + this.msg + '</div>');
+		}
+		this.win.show();
 	}
-	if (!this.win) {
-		this.win = new Ext.Window({
-			title: __('Error'),
-			html: '<div class="garp-error-dialog" style="min-height: 80px">' + msg + '</div>',
-			width: 500,
-			buttonAlign: 'center',
-			defaultButton: 'defaultButton',
-			buttons: [{
-				text: __('Ok'),
-				id: 'defaultButton',
-				handler: function(){
-					win.close();
-				}
-			}, {
-				hidden: true,
-				text: __('Login again'),
-				handler: function(){
-					win.close();
-					window.location = BASE + 'g/auth/login';
-				}
-			}],
-			fn: function(){
-				this.msg = '';
-			},
-			scope: this
-		});
-	} else {
-		this.win.update('<div class="garp-error-dialog">' + msg + '</div>');
-	}
-	this.win.show();
 };
+window.onerror = Garp.errorHandler.handler.createDelegate(Garp.errorHandler);
 
 Ext.Direct.on({
 	'exception': {
