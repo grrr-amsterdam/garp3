@@ -1137,6 +1137,7 @@ Garp.relativeDate = function(oldest, newest){
 	var WEEK   = DAY*7;
 	var MONTH  = DAY*30;
 	var YEAR   = DAY*365;
+	var days;
 	
 	switch (true) {
 		case (elapsed < MINUTE):
@@ -1154,7 +1155,7 @@ Garp.relativeDate = function(oldest, newest){
 			break;
 			
 		case (elapsed < WEEK):
-			var days = Math.round(elapsed / DAY);
+			days = Math.round(elapsed / DAY);
 			result = days + ' ' + (days == 1 ? __('day') : __('days'));
 			break;
 			
@@ -1172,7 +1173,7 @@ Garp.relativeDate = function(oldest, newest){
 			if (weeks > 2) {
 				result = weeks + ' ' + (weeks == 1 ? __('week') : __('weeks'));
 			} else {
-				var days = Math.round(elapsed / DAY);
+				days = Math.round(elapsed / DAY);
 				result = days + ' ' + (days == 1 ? __('day') : __('days'));
 			}
 			break;
@@ -1928,16 +1929,16 @@ Garp.apply(Garp.FormHelper, {
 			form: this.form,
 			listeners: {
 				'formvalid': function(validator){
-					$('button[type="submit"]', validator.form).bind('click.validator',disabler);
+					$('button[type="submit"]', validator.form).bind('click.validator', disabler);
 				},
 				'forminvalid': function(validator){
 					$('button[type="submit"]', validator.form).unbind('click.validator', disabler);
 				},
-				'fieldvalid':function(field){
-					field.closest('div').removeClass('invalid');
+				'fieldvalid': function(field){
+					field.closest('div').removeClass('invalid').addClass('valid');
 				},
 				'fieldinvalid': function(field){
-					field.closest('div').addClass('invalid');
+					field.closest('div').addClass('invalid').removeClass('valid');
 				}
 			}
 		}).bind();
