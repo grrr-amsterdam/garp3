@@ -75,16 +75,16 @@ $large: pxToEm(1200);
 	}
   }
   @else if $point == medium {
-	if($highDpi = true) {
-		only screen and (min-width: $medium) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $medium) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $medium) and (-o-min-device-pixel-ratio: 2/1),	only screen and (min-width: $medium) and (min-device-pixel-ratio: 2) { @content; }
-	} else {
+	@if($highDpi == true) {
+		@media only screen and (min-width: $medium) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $medium) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $medium) and (-o-min-device-pixel-ratio: 2/1),	only screen and (min-width: $medium) and (min-device-pixel-ratio: 2) { @content; }
+	} @else {
     	@media only screen and (min-width: $medium) { @content; }
 	}
   }
   @else if $point == large {
-	if($highDpi = true) {
-		only screen and (min-width: $large) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $large) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $large) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $large) and (min-device-pixel-ratio: 2) { @content; }
-	} else {
+	@if($highDpi == true) {
+		@media only screen and (min-width: $large) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $large) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $large) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $large) and (min-device-pixel-ratio: 2) { @content; }
+	} @else {
 	    @media only screen and (min-width: $large)  { @content; }
 	}
   }
@@ -92,24 +92,24 @@ $large: pxToEm(1200);
 
 @mixin breakpoint-max($point, $highDpi: false) {
   @if $point == small {
-	if($highDpi = true) {
+	@if($highDpi == true) {
 		@media only screen and (max-width: ($small-0.1em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $small) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $small) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $small) and (min-device-pixel-ratio: 2) { @content; }
-	} else {
+	} @else {
 	    @media only screen and (max-width: ($small-0.1em)) { @content; }
 	}
   }
   @else if $point == medium {
-	if($highDpi = true) {
-		only screen and (max-width: ($medium-0.1em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $medium) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $medium) and (-o-min-device-pixel-ratio: 2/1),	only screen and (max-width: $medium) and (min-device-pixel-ratio: 2) { @content; }
-	} else {
+	if($highDpi == true) {
+		@media only screen and (max-width: ($medium-0.1em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $medium) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $medium) and (-o-min-device-pixel-ratio: 2/1),	only screen and (max-width: $medium) and (min-device-pixel-ratio: 2) { @content; }
+	} @else {
     	@media only screen and (min-width: ($medium-0.1em)) { @content; }
 	}
   }
   @else if $point == large {
-	if($highDpi = true) {
-		only screen and (max-width: ($large-0.1em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $large) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $large) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $large) and (min-device-pixel-ratio: 2) { @content; }
-	} else {
-	    @media only screen and (max-width: ($large-0.1em))  { @content; }
+	@if($highDpi == true) {
+		@media only screen and (max-width: ($large-0.1em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $large) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $large) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $large) and (min-device-pixel-ratio: 2) { @content; }
+	} @else {
+	    @media only screen and (max-width: ($large-0.1em)) { @content; }
 	}
   }
 }
