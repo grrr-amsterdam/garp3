@@ -466,7 +466,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 							cmd = 'Italic';
 							break;
 					}
-					if(cmd){
+					if(cmd && this.body.dom && this.body.dom.execCommand){
 						this.body.dom.execCommand(cmd, false, null);
 						e.preventDefault();
 					}
