@@ -354,7 +354,7 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.active-chapter .wysiwyg-box .contenteditable { border-color: #08d; }
 			
 			.wysiwyg-image { margin-bottom: 50px; }
-			.wysiwyg-image .caption { position: absolute; bottom: -50px; height: 1.5em; overflow: hidden; } /* TODO: find better way to implement captions */
+			.wysiwyg-image .caption { position: absolute; bottom: -30px; height: 1.5em; overflow: hidden; } /* TODO: find better way to implement captions */
 			
 			/**** T E M P ****/
 			.attention { background: #fdd; }

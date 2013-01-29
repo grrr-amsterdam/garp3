@@ -153,15 +153,17 @@ Garp.dataTypes.Image.on('init', function(){
 					field: {
 						selectOnFocus: true,
 						xtype: 'textfield',
-						width: '100%'//,
-						//anchor: '99%'
+						width: '100%',
+						anchor: '99%'
 					}
 				});
 			}
 			this.el.child('.caption').setDisplayed(true);
+			this.el.child('.caption').setStyle('position', 'static');
 			this.captionEditor.startEdit(this.el.child('.caption'), this._data.caption);
 			this.captionEditor.on('complete', function(f, v){
 				this.setCaption(v);
+				this.el.child('.caption').setStyle('position','absolute');
 			}, this);
 		},
 		
