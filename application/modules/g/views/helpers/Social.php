@@ -260,7 +260,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			}
 		}
 		if (empty($ogData['image']) && !empty($this->view->config()->app->image)) {
-			$ogData['image'] = $this->view->fullUrl($this->view->config()->app->image);
+			$ogData['image'] = $this->view->assetUrl($this->view->config()->app->image);
 		}
 		if (empty($ogData['description'])) {
 			if ($this->view->description) {
