@@ -145,7 +145,7 @@ Garp.dataTypes.Image.on('init', function(){
 			this.el.child('.caption').setDisplayed( text ? true : false);
 		},
 		
-		showCaptionEditor: function(){
+		showCaptionEditor: function(setPosition){
 			if (!this.captionEditor) {
 				this.captionEditor = new Ext.Editor({
 					alignment: 'tl',
@@ -159,7 +159,11 @@ Garp.dataTypes.Image.on('init', function(){
 				});
 			}
 			this.el.child('.caption').setDisplayed(true);
-			this.el.child('.caption').setStyle('position', 'static');
+			// if the user clicks the upper 'settings' menu; the caption el should be displayed there, 
+			//... not below the image, where it might be "below the fold"
+			if (!setPosition) { 
+				this.el.child('.caption').setStyle('position', 'static');
+			}
 			this.captionEditor.startEdit(this.el.child('.caption'), this._data.caption);
 			this.captionEditor.on('complete', function(f, v){
 				this.setCaption(v);
@@ -171,7 +175,7 @@ Garp.dataTypes.Image.on('init', function(){
 			return [{
 				group: '',
 				text: 'Add / remove caption',
-				handler: this.showCaptionEditor
+				handler: this.showCaptionEditor.createDelegate(this, [false])
 			}];
 		},
 		
