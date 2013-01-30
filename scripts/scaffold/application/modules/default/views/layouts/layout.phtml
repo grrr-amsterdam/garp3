@@ -17,7 +17,6 @@
 		<?php endif; ?>
 
 		<meta name="description" content="<?php echo $this->escape($this->description ?: $this->config()->app->description); ?>">
-		<meta name="author" content="">
 		<?php echo $this->social()->facebookOgData($this->ogData ?: array()); ?>
 		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/compiled/base.css') ?>">
 		<script src="<?php echo $this->assetUrl('/js/libs/modernizr-2.6.2.min.js') ?>"></script>
