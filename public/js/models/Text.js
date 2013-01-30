@@ -13,10 +13,63 @@ Garp.dataTypes.Text.on('init', function(){
 			name: null
 		},
 		
+		/**
+		 * Returns tagNames for all childs of el. N.B. Doesn't recursively do so.
+		 * @param {Object} el
+		 */
+		getTagNames: function(el){
+			var out = [];
+			if (el.childNodes) {
+				Array.prototype.slice.call(el.childNodes).forEach(function(el){
+					if (el && el.tagName) {
+						out.push(el.tagName);
+					}
+				});
+				return out;
+			}
+		},
+		
+		/**
+		 * Chrome renders '<div>' whereas Firefox renders '<p>'. Make it behave the same:
+		 */
+		fixParagraphs: function(){
+			var el = this.contentEditableEl.dom;
+			var p;
+			if (!el.childNodes) {
+				return;
+			}
+			// deep search for div's and replace those for p's
+			Ext.DomQuery.jsSelect('DIV', el).reverse().forEach(function(elm){
+				var inner = elm.childNodes;
+				p = document.createElement('P');
+				Array.prototype.slice.call(inner).forEach(function(child){
+					p.appendChild(child.clone ? child.clone() : child);
+				});
+				elm.parentNode.replaceChild(p, elm);
+			});
+			// next see if we have a p as a surrounding tag. We need one:
+			if (this.getTagNames(el).indexOf('P') == -1) {
+				var range = document.createRange();
+				p = document.createElement('P');
+				if (range.selectNodeContents) {
+					range.selectNodeContents(el);
+				}
+				range.surroundContents(p);
+				range.collapse(true);
+				range.detach();
+			}
+		},
+		
+		/**
+		 * Cleanup this messy dom:
+		 */
 		filterHtml: function(){
 			var scope = this;
 			function walk(nodes){
 				Ext.each(nodes, function(el){
+					if(!el){
+						return;
+					}
 					el.normalize();
 					if (el.tagName) {
 						var tag = el.tagName.toLowerCase();
@@ -41,6 +94,7 @@ Garp.dataTypes.Text.on('init', function(){
 				});
 			}
 			walk(this.contentEditableEl.dom.childNodes);
+			this.fixParagraphs();
 		},
 		
 		getData: function(){
