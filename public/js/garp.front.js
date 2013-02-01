@@ -1952,7 +1952,7 @@ Garp.apply(Garp.FormHelper, {
 		var i = document.createElement('input');
 		if (typeof i.placeholder === 'undefined') {
 			Garp.asyncLoad(BASE + 'js/libs/jquery.addPlaceholder.js', 'js', function(){
-				if ($('input[placeholder], textarea[placeholder]', this.form).length) {
+				if ($('input[placeholder], textarea[placeholder]', this.form).length && $('input[placeholder], textarea[placeholder]', this.form).addPlaceholder) {
 					$('input[placeholder], textarea[placeholder]', this.form).addPlaceholder();
 				}
 				/*
