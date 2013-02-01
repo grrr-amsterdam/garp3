@@ -353,9 +353,3 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.wysiwyg-image { margin-bottom: 50px; }
 			.wysiwyg-image .caption { position: absolute; bottom: -30px; height: 1.5em; overflow: hidden; } /* TODO: find better way to implement captions */
 			
-			/**** T E M P ****/
-			.attention { background: #fdd; }
-			.aside { font-family: serif; background: #ddf;}
-			.special1 { background: #8d0; }
-			.special2 { background: #08d; }
-			
