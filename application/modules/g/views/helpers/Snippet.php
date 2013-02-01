@@ -62,6 +62,7 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
 		$params['snippet']  = $snippet;
 
 		//$output = "<!--//garp-snippet//".$snippet->id." -->";
+		$output = '';
 		$output .= $this->view->partial($partial, $module, $params);
 		return $output;
 	}
