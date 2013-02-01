@@ -68,7 +68,7 @@ $large: pxToEm(1200);
  */
 @mixin breakpoint-min($point, $highDpi: false) {
   @if $point == small {
-	if($highDpi = true) {
+	if($highDpi == true) {
 		@media only screen and (min-width: $small) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $small) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $small) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $small) and (min-device-pixel-ratio: 2) { @content; }
 	} else {
 	    @media only screen and (min-width: $small) { @content; }
