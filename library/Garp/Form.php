@@ -131,13 +131,26 @@ class Garp_Form extends Zend_Form {
 		}
 
 		// Set HTML5 required attribute
-		if (isset($options['required']) && $options['required'] && !$element instanceof Zend_Form_Element_Multi) {
+		if ($this->_elementNeedsRequiredAttribute($element, $options)) {
 			$element->setAttrib('required', 'required');
 		}
 
 		return $element;
 	}
 
+
+	/**
+ 	 * Check if an element needs required attribute
+ 	 * @param Zend_Form_Element $element
+ 	 * @param Array $options
+ 	 * @return Boolean
+ 	 */
+	protected function _elementNeedsRequiredAttribute(Zend_Form_Element $element, array $options) {
+		return isset($options['required']) &&
+			$options['required'] &&
+			!$element instanceof Zend_Form_Element_MultiCheckbox
+		;
+	}
 
 	/**
      * Add a display group
