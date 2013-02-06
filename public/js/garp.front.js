@@ -2700,6 +2700,31 @@ Garp.FormHelper.Validator = function(cfg){
 };
 
 /**
+ * Defered SocialButtons 
+ */
+(function(){
+	$('.social-defer').bind('mouseenter mouseleave click', function(){
+		if(!$(this).hasClass('social-defer')){
+			return;
+		}
+		if(!$(this).get(0).nextSibling){
+			return;
+		}
+		var domF = $(this).get(0).nextSibling.textContent.split('//garp-defer//');
+		if(domF && domF[1]){
+			$(this).removeClass('social-defer').addClass('active').html($(domF[1]));
+		}
+		if ($(this).hasClass('fb')) {
+			window.fbAsyncInit();
+		}
+		if ($(this).hasClass('twitter')){
+			Garp.asyncLoad('http://platform.twitter.com/widgets.js', 'js', function(){});
+		}
+	});
+})();
+
+
+/**
  * __ Utility function
  * @param {String} s
  * @return {String} s translated
