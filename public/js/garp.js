@@ -71,7 +71,10 @@
 			if(!Garp.gridPanel){
 				return;
 			}
-			sm = Garp.gridPanel.getSelectionModel();
+			sm = Garp.gridPanel.getSelectionModel ? Garp.gridPanel.getSelectionModel() : false;
+			if (!sm) {
+				return;
+			}
 		}
 		var count = sm.getCount();
 		if(count > 1){
