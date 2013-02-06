@@ -18,13 +18,39 @@ Garp.dataTypes.Video.on('init', function(){
 	// Move url field:
 	var urlField = this.getField('url');
 	this.removeField('url');
-	this.insertField(1, urlField);
+	this.insertField(1, Ext.apply(urlField,{
+		ref: 'urlField'
+	}));
 	// ..and put some infotexts near it:
 	this.insertField(2, {
 		xtype: 'box',
 		cls: 'garp-notification-boxcomponent',
 		html: __('YouTube and Vimeo Url\'s are supported'),
 		fieldLabel: ' '
+	});
+	this.insertField(3, {
+		xtype:'button',
+		ref: '../../../uploadBtn',
+		hidden: true,
+		width: 120,
+		allowBlank: true,
+		anchor: null,
+		fieldLabel: ' ',
+		handler: function(){
+			this.ownerCt.urlField.clearInvalid();
+			var win = new Garp.YouTubeUploadWindow({
+				listeners: {
+					uploadComplete: function(eventData){
+						win.close();
+						this.ownerCt.urlField.setValue('http://youtu.be/watch?v=' + eventData.data.videoId);
+						Garp.formPanel.fireEvent('save-all');
+					},
+					scope: this
+				}
+			});
+			win.show();
+		},
+		text: __('Upload a new video to YouTube')
 	});
 	
 	// Preview & other fields:
@@ -59,12 +85,14 @@ Garp.dataTypes.Video.on('init', function(){
 	this.addListener('loaddata', function(rec, formPanel){
 		function updateUI(){
 			if (rec.phantom) {
+				formPanel.uploadBtn.show();
 				formPanel.preview.update({
 					width: 0,
 					height: 0,
 					player: ''
 				});
 			} else {
+				formPanel.uploadBtn.hide();
 				var w = formPanel.preview.getWidth();
 				var h = Math.floor((9 * w) / 16);
 				if (rec.get('player')) {
