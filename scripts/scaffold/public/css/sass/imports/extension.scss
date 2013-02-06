@@ -1,18 +1,35 @@
 /* ==========================================================================
+   functions
+   ========================================================================== */
+
+/**
+ * For converting pixels to ems
+ * Based on a 10px font-size on the html
+ * Usage:
+ * div { width: pxToEm(300); }
+ * Returns:
+ * div { width: 30em; }
+ */
+@function pxToEm($pixels){
+	@return ($pixels/16)+0em;
+}
+
+
+/* ==========================================================================
    variables
    ========================================================================== */
 
 // COLORS
 // The following is inspired by this article: http://sachagreif.com/sass-color-variables/
-$grey: #b3b3b3; /* grey */
-$black: #222; /* black */
-$red: #a62422; /* red */
-$light_red: lighten($red, 55%); /* light red */
+$grey: #b3b3b3;
+$black: #222;
+$red: #a62422;
+$lightRed: lighten($red, 55%);
 
-$text_color: $black;
-$link_color: $red;
-$primary_something_color: $light_red;
-$secondary_other_color: $black;
+$textColor: $black;
+$linkColor: $red;
+$primaryColor: $lightRed;
+$secondaryColor: $black;
 
 // GRID UNITS
 $gridColumnWidth: 80px;
@@ -32,7 +49,7 @@ $large: pxToEm(1200);
 
 
 /* ==========================================================================
-   mixins and functions
+   mixins
    ========================================================================== */
 
 /**
@@ -61,58 +78,28 @@ $large: pxToEm(1200);
  * For using breakpoints
  * Usage:
  * div { width: 60px;
- *	@include breakpoint(small) { width: 80px; }
+ *	@include breakpoint($small) { width: 80px; }
+ *	@include breakpoint(pxToEm(200)) { width: 80px; }
  * }
  * 
  * Pass true as a second parameter to toggle high dpi screens
  */
-@mixin breakpoint-min($point, $highDpi: false) {
-  @if $point == small {
-	if($highDpi == true) {
-		@media only screen and (min-width: $small) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $small) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $small) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $small) and (min-device-pixel-ratio: 2) { @content; }
-	} else {
-	    @media only screen and (min-width: $small) { @content; }
-	}
-  }
-  @else if $point == medium {
+@mixin breakpoint-min($point: 0em, $highDpi: false) {
 	@if($highDpi == true) {
-		@media only screen and (min-width: $medium) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $medium) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $medium) and (-o-min-device-pixel-ratio: 2/1),	only screen and (min-width: $medium) and (min-device-pixel-ratio: 2) { @content; }
+		@media only screen and (min-width: $point) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $point) and (min-device-pixel-ratio: 2) { @content; }
 	} @else {
-    	@media only screen and (min-width: $medium) { @content; }
+	    @media only screen and (min-width: $point) { @content; }
 	}
-  }
-  @else if $point == large {
-	@if($highDpi == true) {
-		@media only screen and (min-width: $large) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $large) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $large) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $large) and (min-device-pixel-ratio: 2) { @content; }
-	} @else {
-	    @media only screen and (min-width: $large)  { @content; }
-	}
-  }
 }
 
 @mixin breakpoint-max($point, $highDpi: false) {
-  @if $point == small {
 	@if($highDpi == true) {
-		@media only screen and (max-width: ($small-0.1em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $small) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $small) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $small) and (min-device-pixel-ratio: 2) { @content; }
+		@media only screen and (max-width: ($point-.0625em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $point) and (min-device-pixel-ratio: 2) { @content; }
 	} @else {
-	    @media only screen and (max-width: ($small-0.1em)) { @content; }
+	    @media only screen and (max-width: ($point-.0625em)) { @content; }
 	}
-  }
-  @else if $point == medium {
-	if($highDpi == true) {
-		@media only screen and (max-width: ($medium-0.1em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $medium) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $medium) and (-o-min-device-pixel-ratio: 2/1),	only screen and (max-width: $medium) and (min-device-pixel-ratio: 2) { @content; }
-	} @else {
-    	@media only screen and (min-width: ($medium-0.1em)) { @content; }
-	}
-  }
-  @else if $point == large {
-	@if($highDpi == true) {
-		@media only screen and (max-width: ($large-0.1em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $large) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $large) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $large) and (min-device-pixel-ratio: 2) { @content; }
-	} @else {
-	    @media only screen and (max-width: ($large-0.1em)) { @content; }
-	}
-  }
 }
+
 
 
 /**
@@ -125,18 +112,6 @@ $large: pxToEm(1200);
  */
 @mixin high-dpi() {
 	@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and(min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2) { @content; }
-}
-
-/**
- * For converting pixels to ems
- * Based on a 10px font-size on the html
- * Usage:
- * div { width: pxToEm(300); }
- * Returns:
- * div { width: 30em; }
- */
-@function pxToEm($pixels){
-	@return ($pixels/10)+0em;
 }
 
 /**
