@@ -94,9 +94,9 @@ $large: pxToEm(1200);
 
 @mixin breakpoint-max($point, $highDpi: false) {
 	@if($highDpi == true) {
-		@media only screen and (max-width: ($point-.0625em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $point) and (min-device-pixel-ratio: 2) { @content; }
+		@media only screen and (max-width: ($point - 0.0625em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $point) and (min-device-pixel-ratio: 2) { @content; }
 	} @else {
-	    @media only screen and (max-width: ($point-.0625em)) { @content; }
+	    @media only screen and (max-width: ($point - 0.0625em)) { @content; }
 	}
 }
 
