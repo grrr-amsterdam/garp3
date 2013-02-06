@@ -53,16 +53,20 @@ img, object, iframe, video { max-width: 100%; }
 .left { float: left; }
 .right { float: right; }
 
-.nm { margin: 0; }
-.mb { margin-bottom: $margin; }
-.mb-half { margin-bottom: $marginHalf; }
-.mb-double { margin-bottom: $marginDouble; }
-
 /* ==========================================================================
    modules
    ========================================================================== */
 
 @import 'imports/cookie-info';
+
+/* ==========================================================================
+   non semantic helper classes
+   ========================================================================== */
+
+.nm { margin: 0; }
+.mb { margin-bottom: $margin; }
+.mb-half { margin-bottom: $marginHalf; }
+.mb-double { margin-bottom: $marginDouble; }
 
 /* ==========================================================================
    print styles
