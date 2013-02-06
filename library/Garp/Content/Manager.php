@@ -422,7 +422,7 @@ class Garp_Content_Manager {
 					The following condition prevents a 'relatable' list to include the current record,
 					because a record cannot be related to itself.
 				*/
-				$select->where($filterModel->getName().'.'.$filterColumn.' != ?', $filterValue);
+				$select->where($filterModel->getJointView().'.'.$filterColumn.' != ?', $filterValue);
 			}
 
 			try {
