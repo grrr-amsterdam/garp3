@@ -1,4 +1,4 @@
-var onYouTubeIframeAPIReady; // = that's YouTube being ugly here!
+window.onYouTubeIframeAPIReady = null; // = that's YouTube being ugly here!
 
 Garp.YouTubeUploadWindow = Ext.extend(Ext.Window,{
 
@@ -17,9 +17,6 @@ Garp.YouTubeUploadWindow = Ext.extend(Ext.Window,{
 	initComponent: function(arg){
 		this.addEvents(['uploadcomplete']);
 		Garp.YouTubeUploadWindow.superclass.initComponent.call(this, arg);
-		if(document.getElementById(this.scriptTagId)){
-			Ext.select('#' + this.scriptTagId).remove();
-		}
 	},
 	
 	afterRender: function(arg){
@@ -30,17 +27,17 @@ Garp.YouTubeUploadWindow = Ext.extend(Ext.Window,{
 		
 		this._lm.show();
 		
-		// load YT api and shizzle:
+		var alreadyLoaded = (document.getElementById(this.scriptTagId) || false);
 		var tag = document.createElement('script');
-		tag.src = "//www.youtube.com/iframe_api?noCache=" + new Date().getTime();
-		tag.id = this.scriptTagId;
+			tag.src = '//www.youtube.com/iframe_api';
+			tag.id = this.scriptTagId;
 		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(tag, s);
+			s.parentNode.insertBefore(tag, s);
 		
-		var widget;
 		var scope = this;
-		onYouTubeIframeAPIReady = function(){
-			widget = new YT.UploadWidget('widget', {
+
+		function createWidget(){
+			var widget = new YT.UploadWidget('widget', {
 				webcamOnly: false,
 				width: 600,
 				events: {
@@ -57,6 +54,12 @@ Garp.YouTubeUploadWindow = Ext.extend(Ext.Window,{
 				}
 			});
 			scope.el.select('iframe').first().show();
-		};
+		}
+		
+		if (alreadyLoaded) {
+			createWidget();
+		} else {
+			window.onYouTubeIframeAPIReady = createWidget;
+		}
 	}
 });
