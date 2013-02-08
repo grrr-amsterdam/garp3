@@ -623,7 +623,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
  	 * Return all observers
  	 * @return Array
  	 */
-	public function getObservers($params) {
+	public function getObservers() {
 		return $this->_observers;
 	}
 	
