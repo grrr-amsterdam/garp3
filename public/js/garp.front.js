@@ -2710,7 +2710,9 @@ Garp.FormHelper.Validator = function(cfg){
 		if(!$(this).get(0).nextSibling){
 			return;
 		}
-		var domF = $(this).get(0).nextSibling.textContent.split('//garp-defer//');
+		
+		var domF = $(this).get(0).nextSibling.textContent || $(this).get(0).nextSibling.nodeValue;  
+		domF = domF.split('//garp-defer//');
 		if(domF && domF[1]){
 			$(this).removeClass('social-defer').addClass('active').html($(domF[1]));
 		}
