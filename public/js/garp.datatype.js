@@ -286,7 +286,10 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 			previewLink: null,
 			
 			// the icon
-			iconCls: 'icon-' + this.text.toLowerCase()
+			iconCls: 'icon-' + this.text.toLowerCase(),
+			
+			// this datatype does not contain editable fields, so hide the form and focus on the first relation tab:
+			isRelationalDataType: false
 		});
 		
 		Ext.applyIf(this.defaultData, {
@@ -297,6 +300,17 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		Ext.applyIf(this, {
 			columnModel: []
 		});
+		
+		if (this.isRelationalDataType) {
+			Ext.apply(this, {
+				disableCreate: true,
+				disableDelete: true
+			});
+			this.addListener('loaddata', function(r, fp){
+				fp.items.get(0).activate(1);
+				fp.items.get(0).hideTabStripItem(0);
+			});
+		}
 		
 		for (var column in this.defaultData) {
 			var found = false;
