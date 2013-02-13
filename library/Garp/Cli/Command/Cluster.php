@@ -84,7 +84,7 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 	protected function _runRecurringJobs($serverId, $lastCheckIn) {
 		$recurringJobModel = new Model_ClusterRecurringJob();
 		$jobs = $recurringJobModel->fetchDue($serverId, $lastCheckIn);
-		$loader = Garp_Util_Loader::getInstance(array('paths' => array()));
+		$loader = Garp_Loader::getInstance(array('paths' => array()));
 
 		foreach ($jobs as $job) {
 			$commandParts = explode(' ', $job->command);

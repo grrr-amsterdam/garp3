@@ -14,9 +14,9 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 	/**
  	 * Expiration time
  	 * @var Int
- 	 * @todo Make this configurable
+ 	 * @todo Make this configurable, right now it's set to 30 days
  	 */
-	const DEFAULT_COOKIE_DURATION = 31536000;
+	const DEFAULT_COOKIE_DURATION = 2592000;
 
 
 	/**
@@ -56,7 +56,9 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
 
 	/**
- 	 * Cookie domain
+ 	 * Cookie domain.
+ 	 * Note: leave this empty to make the cookie only work on
+ 	 * the current domain.
  	 * @var String
  	 */
 	protected $_cookieDomain = '';
@@ -81,7 +83,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 		$this->_namespace = $namespace;
 		$this->_cookieDuration = $cookieDuration;
 		$this->_cookiePath = $cookiePath;
-		$this->_cookieDomain = $cookieDomain ?: '.'.(!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : gethostname());
+		/* $this->_cookieDomain = $cookieDomain ?: (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : gethostname()); */
 
 		// fill internal array with existing cookie values
 		if (array_key_exists($namespace, $_COOKIE)) {

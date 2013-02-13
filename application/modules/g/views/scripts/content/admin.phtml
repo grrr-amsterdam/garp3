@@ -1,3 +1,8 @@
+<noscript style="position:absolute;top:0;right:0;left:0;bottom:0;z-index:100000000000000;padding:25px;background:#000;color:#FFF;font-size:large;line-height:2;">
+	<p>Garp gebruikt Javascript om te functioneren. Javascript is op dit moment uitgeschakeld in je browser.</p>
+	<p>Op <a target="_blank" href="http://enable-javascript.com/">http://enable-javascript.com/</a> kun je zien hoe je Javascript inschakelt.</p>
+</noscript>
+
 <div id="icon-loading-spinner"></div>
 <div id="app-loader"><?php echo __('Loading Garp'); ?>&hellip;</div>
 <!-- Required fields for history management -->
@@ -29,8 +34,8 @@
 	?>
 	IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
 	DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
-	ASSET_VERSION = <?php echo APP_VERSION ?>;
-	GARP_VERSION = <?php echo GARP_VERSION ?>;
+	ASSET_VERSION = '<?php echo APP_VERSION ?>';
+	GARP_VERSION = '<?php echo GARP_VERSION ?>';
 	<?php if (isset($this->config()->video->template->w)): ?>
 	VIDEO_WIDTH = <?php echo $this->config()->video->template->w ?>;
 	<?php endif; ?>
@@ -96,14 +101,16 @@ FB.init({
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.pagingsearchbar.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.searchfield.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.richtexteditor.js') ?>"></script>
-<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.wysiwygct.js') ?>"></script>
 <!-- Garp components -->
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.wysiwygct.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.wysiwygabstract.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.filtermenu.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.tweetwindow.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.imageeditor.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.imagepickerwindow.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.modelpickerwindow.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.relatecreatewindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.youtubeuploadwindow.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.relationfield.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.relationpanel.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.superboxselect.js') ?>"></script>

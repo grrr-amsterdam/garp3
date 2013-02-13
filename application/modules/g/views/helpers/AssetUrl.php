@@ -66,6 +66,6 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 			require_once GARP_APPLICATION_PATH.'/modules/g/views/helpers/Exception.php';
 			throw new G_View_Helper_Exception('APP_VERSION is not set.');
 		}
-		return rtrim($baseUrl, '/').'/v'.$version.$file;
+		return rtrim($baseUrl, '/').'/'.$version.$file;
 	}
 }

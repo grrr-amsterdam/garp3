@@ -315,8 +315,12 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$prevSelect = clone $select;
 		$nextSelect = clone $select;
 
-		$prevSelect->where($sortColumn.' < ?', $sortValue)->order($sortColumn.' DESC');
-		$nextSelect->where($sortColumn.' > ?', $sortValue)->order($sortColumn.' ASC');
+		$prevSortOrder = $sortColumn.' DESC';
+		$nextSortOrder = $sortColumn.' ASC';
+
+		$quotedSortColumn = $this->getAdapter()->quoteIdentifier($sortColumn);
+		$prevSelect->where($quotedSortColumn.' < ?', $sortValue)->order($prevSortOrder);
+		$nextSelect->where($quotedSortColumn.' > ?', $sortValue)->order($nextSortOrder);
 
 		$neighbours = array(
 			'prev' => $this->fetchRow($prevSelect),
@@ -354,6 +358,35 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		array_walk($values, $quoteInto);
 	}
 
+
+	/**
+ 	 * Extract primary key information from a WHERE clause and construct a cache
+ 	 * key from it.
+ 	 * @param Mixed $where
+ 	 * @return String
+     */
+    public function extractPrimaryKey($where) {
+      	if (is_array($where)) {
+            $where = implode(' AND ', $where);
+        }
+        $pkColumns = $this->info(Zend_Db_Table_Abstract::PRIMARY);
+        $pkValues = array();
+        foreach ($pkColumns as $pk) {
+            $regexp = '/(?:`?'.preg_quote($this->getName()).'`?\.)?`?(?:'.preg_quote($pk).')`?\s?=\s?(?:(?P<q>[\'"])(?P<value>(?:(?!\k<q>).)*)\k<q>|(?P<rest>\w*))/';
+            if (preg_match($regexp, $where, $matches)) {
+                // Note: backreference "rest" is there to catch unquoted
+                // values. (id = 100 instead of id = "100")
+                if (!empty($matches['rest'])) {
+                    $value = $matches['rest'];
+        		} else {
+            		$value = $matches['value'];
+        		}
+        		$pkValues[$pk] = $value;
+        	}
+        }
+		return $pkValues;
+    }
+	
 
 	/**
  	 * Get wether this model caches queries
@@ -590,7 +623,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
  	 * Return all observers
  	 * @return Array
  	 */
-	public function getObservers($params) {
+	public function getObservers() {
 		return $this->_observers;
 	}
 	

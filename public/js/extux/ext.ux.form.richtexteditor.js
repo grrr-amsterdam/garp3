@@ -176,6 +176,10 @@ if (Ext.isIE) {
 		}
 	});
 
+// // // // // // // // // // // // // // // // // // // // // // // // // // //
+// // // // // // // // // // // // // // // // // // // // // // // // // // //
+// // // // // // // // // // // // // // // // // // // // // // // // // // //
+
 } else {
 
 	Ext.ux.form.RichTextEditor = Ext.extend(Ext.form.HtmlEditor, {
@@ -532,7 +536,7 @@ if (Ext.isIE) {
 			// Now calculate offsets. The iframe may be scrolled itself, but the containing formPanel may also be. 
 			// The mediaToolbarlayer is not aware of any of that, as it is positioned absolutely on the page.
 			if (elm.nodeName == 'IFRAME' || elm.nodeName == 'OBJECT') {
-				this.mediaToolbarLayer.setWidth(32);
+				this.mediaToolbarLayer.setWidth((32 * 3) + 4); // 3 items in this toolbar (no edit button)
 			} else {
 				this.mediaToolbarLayer.setWidth((32 * 4) + 4); // 4 items in this toolbar and some space. @TODO: refine this 'formulae' if necessary
 			}
@@ -550,43 +554,34 @@ if (Ext.isIE) {
 			}
 			
 			var tbarItems = [];
-			if (elm.nodeName == 'IFRAME' || elm.nodeName == 'OBJECT') {
-				tbarItems.push({
-					iconCls: 'icon-richtext-remove-image',
-					tooltip: __('Remove media'),
-					scope: this,
-					handler: this.hideMediaToolbar.createSequence(this.removeSelection.createDelegate(this, [el]))
-				});
-			} else {
-				tbarItems.push({
-					iconCls: 'icon-richtext-edit-image',
-					tooltip: __('Edit image'),
-					scope: this,
-					handler: this.hideMediaToolbar.createSequence(this.editImage.createDelegate(this, [el]))
-				}, {
-					iconCls: 'icon-richtext-remove-image',
-					tooltip: __('Remove image'),
-					scope: this,
-					handler: this.hideMediaToolbar.createSequence(this.removeSelection.createDelegate(this, [el]))
-				}, '-', {
-					iconCls: 'icon-richtext-align-left',
-					tooltip: 'Align left',
-					pressed: el.getStyle('float') == 'left',
-					enableToggle: true,
-					ref: 'left',
-					disabled: elm.nodeName == 'IFRAME' || elm.nodeName == 'OBJECT',
-					handler: setAlign.createDelegate(this, ['left'])
-				}, {
-					iconCls: 'icon-richtext-align-right',
-					tooltip: 'Align right',
-					pressed: el.getStyle('float') == 'right',
-					enableToggle: true,
-					ref: 'right',
-					disabled: elm.nodeName == 'IFRAME' || elm.nodeName == 'OBJECT',
-					handler: setAlign.createDelegate(this, ['right'])
-				});
-			}
-			
+			tbarItems.push({
+				iconCls: 'icon-richtext-edit-image',
+				tooltip: __('Edit image'),
+				scope: this,
+				hidden: elm.nodeName == 'IFRAME' || elm.nodeName == 'OBJECT',
+				handler: this.hideMediaToolbar.createSequence(this.editImage.createDelegate(this, [el]))
+			}, {
+				iconCls: 'icon-richtext-remove-image',
+				tooltip: __('Remove image'),
+				scope: this,
+				handler: this.hideMediaToolbar.createSequence(this.removeSelection.createDelegate(this, [el]))
+			}, '-', {
+				iconCls: 'icon-richtext-align-left',
+				tooltip: 'Align left',
+				pressed: el.getStyle('float') == 'left',
+				enableToggle: true,
+				ref: 'left',
+				//disabled: elm.nodeName == 'IFRAME' || elm.nodeName == 'OBJECT',
+				handler: setAlign.createDelegate(this, ['left'])
+			}, {
+				iconCls: 'icon-richtext-align-right',
+				tooltip: 'Align right',
+				pressed: el.getStyle('float') == 'right',
+				enableToggle: true,
+				ref: 'right',
+				//disabled: elm.nodeName == 'IFRAME' || elm.nodeName == 'OBJECT',
+				handler: setAlign.createDelegate(this, ['right'])
+			});
 			
 			// Now setup the toolbar
 			this.mediaToolbar = new Ext.Toolbar({
@@ -1077,6 +1072,12 @@ if (Ext.isIE) {
 			this.updateToolbar();
 		},
 		
+		_insertTag: function(tag){
+			var r = this.getRange();
+			var elm = document.createElement(tag ? tag.toUpperCase() : 'DIV');
+			return r.insertNode(elm);
+		},
+		
 		addDefinitionList: function(){
 			var t = this.getCurrentTagName().toLowerCase();
 			switch (t) {
@@ -1087,7 +1088,11 @@ if (Ext.isIE) {
 					this.insertAtCursor('</dt></dl><p>');
 					break;
 				case 'dd':
-					this.insertAtCursor('</dd><dt>');
+					if (Ext.isChrome || Ext.isWebkit) {
+						this.insertAtCursor('</dd><dt>&hellip;</dt><dd>&hellip;</dd>');
+					} else {
+						this.insertAtCursor('</dd><dt>');
+					}
 					break;
 				default:
 					var sel = this.getSelection();
@@ -1095,7 +1100,11 @@ if (Ext.isIE) {
 					var txt = sel.toString() || '&hellip;';
 					var range = this.getRange();
 					range.deleteContents();
-					this.insertAtCursor('<dl><dt id="' + id + '">' + txt);
+					if (Ext.isChrome || Ext.isWebkit) {
+						this.insertAtCursor('<dl><dt id="' + id + '">' + txt + '</dt><dd>' + txt + '</dd></dl><p>&nbsp;</p>');
+					} else {
+						this.insertAtCursor('<dl><dt id="' + id + '">' + txt + '</dt>');
+					}
 					var elm = this.getDoc().getElementById(id);
 					range.selectNodeContents(elm);
 					sel.removeAllRanges();
@@ -1232,8 +1241,7 @@ if (Ext.isIE) {
 				scope: this
 			});
 			
-			
-			tbar.insert(5, {
+			tbar.insert(8, {
 				tooltip: __('<b>Add Glossary</b><br>Creates a list of terms.'),
 				iconCls: 'icon-richtext-add-dl',
 				enableToggle: true,

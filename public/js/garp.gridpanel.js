@@ -76,6 +76,8 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	saveAll: function(){
 		this.fireEvent('beforesave');
 		
+		var scrollTop = this.getView().scroller.getScroll().top;
+				
 		// Let's not show a loadMask if there's no modified records, a save operation would appear to never end,
 		// because the listener to hide te loadMask will never be called:
 		if (this.getStore().getModifiedRecords().length > 0) {
@@ -99,6 +101,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 								scope: this,
 								single: true,
 								fn: function(){
+									
 									if (currentModified && currentModified.get && !store.getById(currentModified.get('id'))) {
 										this.getStore().on({
 											load: {
@@ -124,6 +127,10 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 										this.loadMask.hide();
 										this.fireEvent('after-save', this.getSelectionModel());
 										this.enable();
+										var scope = this;
+										setTimeout(function(){
+											scope.getView().scroller.dom.scrollTop = scrollTop;
+										}, 10); // ugly wait for DOM ready; view 'refresh' event fires way too early...
 									}
 								}
 							}
@@ -354,7 +361,8 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			viewConfig: {
 				scrollOffset: 20, // No reserved space for scrollbar. Share it with last column
 				emptyText: Ext.PagingToolbar.prototype.emptyMsg,
-				deferEmptyText: true,
+				deferEmptyText: false,
+				deferRowRender: false,
 				enableRowBody: true,
 				forceFit: true,
 				contextRowCls: 'garp-contextrow'

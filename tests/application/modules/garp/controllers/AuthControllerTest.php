@@ -29,10 +29,5 @@ class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 
 	public function testLoginAction() {
 		$this->assertRouteIsAlive('auth', 'login', 'g');
-		
-        $this->assertQueryContentContains(
-			'h1',
-			'log'
-		);
 	}
 }
