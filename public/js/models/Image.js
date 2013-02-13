@@ -75,6 +75,8 @@ Garp.dataTypes.Image.on('init', function(){
 						// because images won't reload if their ID is 
 						// still the same, we need to reload the page 
 						this.refOwner.formcontent.on('loaddata', function(){
+							var lm = new Ext.LoadMask(Ext.getBody());
+							lm.show();
 							document.location.href = url;
 						});
 						this.refOwner.fireEvent('save-all');
