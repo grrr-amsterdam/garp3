@@ -1,9 +1,9 @@
 # pass the default character set
 AddDefaultCharset UTF-8
 
+SetEnvIf Host ^staging\.(.*) APPLICATION_ENV=staging
+SetEnvIf Host integration.grrr.nl$ APPLICATION_ENV=integration
 SetEnvIf Host ^loc\.(.*) APPLICATION_ENV=development
-SetEnvIf Host ^dev\.(.*) APPLICATION_ENV=staging
-SetEnvIf Host gargamel.nl$ APPLICATION_ENV=staging
 
 php_value upload_max_filesize 30M
 php_value post_max_size 30M
@@ -49,14 +49,14 @@ php_value post_max_size 30M
 	RewriteEngine On
 
 	# allow versioning of asset files (e.g. /123/css/screen.css)
-	RewriteRule ^(v\d+)/(css|js|media)/(.*) $2/$3 [L]
+	RewriteRule ^([0-9a-z]+)/(css|js|media)/(.*) $2/$3 [L]
 
 	# admin route
 	RewriteRule ^admin /g/content/admin [R,L]
 
 	# require no-www
-	RewriteCond %{HTTP_HOST} ^www\.muziekpakhuis\.nl$ [NC]
-	RewriteRule ^(.*)$ http://muziekpakhuis.nl/$1 [R=301,L]
+	# RewriteCond %{HTTP_HOST} ^www\.muziekpakhuis\.nl$ [NC]
+	# RewriteRule ^(.*)$ http://muziekpakhuis.nl/$1 [R=301,L]
 
 	# Disregard slash at the end of request
 	RewriteRule ^(.*)/$ /$1 [L]

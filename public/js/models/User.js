@@ -24,19 +24,22 @@ Garp.dataTypes.User.on('init', function(){
 		xtype: 'passwordfieldset',
 		ref: '../../../changePassword',
 		callback: function(field, val){
-			var passwordField = field.refOwner.refOwner.passwordField; 
+			var passwordField = field.refOwner.refOwner.passwordField;
 			var email = field.refOwner.refOwner.getForm().findField('email');
-			if(val){
+			var keepAllowBlank = (email.allowBlank === false);
+			if (val) {
 				email.allowBlank = false;
 				email.label.addClass('required-field');
 				passwordField.setValue(val);
 			} else {
-				email.allowBlank = true;
-				email.label.removeClass('required-field');
+				if (!keepAllowBlank) {
+					email.allowBlank = true;
+					email.label.removeClass('required-field');
+				}
 				passwordField.setValue('');
 			}
 			field.refOwner.refOwner.getForm().items.each(function(){
-				if(this.validate){
+				if (this.validate) {
 					this.validate();
 				}
 			});

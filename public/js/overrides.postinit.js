@@ -3,15 +3,56 @@ Ext.enableListenerCollection = true;
 Ext.QuickTips.init();
 Ext.Direct.addProvider(Garp.API);
 
+Garp.errorHandler = {
+	msg: null,
+	win: null,
+	handler: function(msg, s){
+		if (this.msg) {
+			this.msg = msg + '<hr>' + this.msg;
+		} else {
+			this.msg = msg;
+		}
+		if (!this.win) {
+			this.win = new Ext.Window({
+				title: __('Error'),
+				html: '<div class="garp-error-dialog" style="min-height: 80px;">' + this.msg + '</div>',
+				width: 500,
+				buttonAlign: 'center',
+				defaultButton: 'defaultButton',
+				buttons: [{
+					text: __('Ok'),
+					id: 'defaultButton',
+					handler: function(){
+						this.win.hide();
+					},
+					scope: this
+				}, {
+					hidden: true,
+					text: __('Login again'),
+					handler: function(){
+						this.win.close();
+						window.location = BASE + 'g/auth/login';
+					},
+					scope: this
+				}],
+				fn: function(){
+					this.msg = '';
+				},
+				scope: this
+			});
+		} else {
+			this.win.update('<div class="garp-error-dialog" style="min-height: 80px;">' + this.msg + '</div>');
+		}
+		this.win.show();
+	}
+};
+window.onerror = Garp.errorHandler.handler.createDelegate(Garp.errorHandler);
+
 Ext.Direct.on({
 	'exception': {
 		fn: function(e, p){
 			
-			if(!this.msg){
-				this.msg = '';
-			}
-			
-			var transaction = '', action = '', method = '', message = '', tid = '', hideLoginAgain = true;
+			var transaction = '', action = '', method = '', message = '', tid = '';
 			
 			if (Ext.isObject(e)) {
 				if (e.error) {
@@ -22,51 +63,38 @@ Ext.Direct.on({
 					} else {
 						message = __('No connection');
 					}
-					hideLoginAgain = false;
-					
 				}
 				tid = e.tid;
-				transaction = e.getTransaction();
+				transaction = tid ? e.getTransaction() : null;
+				
 				if (Ext.isObject(transaction)) {
 					action = transaction.action;
 					method = transaction.method;
 				}
+				
+				// now undirty & remove loadmasks again:
+				// temporary!
+				Garp.undirty();
+				if (Garp.gridPanel && Garp.gridPanel.loadMask) {
+					Garp.gridPanel.loadMask.hide();
+					if (Garp.formPanel) {
+						// reset state
+						Garp.formPanel.state = 0;
+						Garp.formPanel.updateUI();
+						Garp.formPanel.fireEvent('dirty');
+					}
+				}
+				
+				
 			}
 			
-			this.msg = (
-				'<b>' + __('Error trying to ') + __(method) + ' ' + (Garp.dataTypes[action] ? '<i>'+__(Garp.dataTypes[action].text)+'</i>' : action) + '</b><br><br>' +
-				__('Server response: ') + message + '<br>' +
-				(tid ? (__('Transaction id: ') + tid) : '') +
-				'<hr>'
-			) + this.msg;
+			throw (
+				'<b>' + (method ? __('Error trying to ') + __(method) : '' ) + ' ' + (Garp.dataTypes[action] ? '<i>'+__(Garp.dataTypes[action].text)+'</i>' : action) + '</b><br><br>' +
+				__('Server response: ') + message || __('Nothing. Nada.') + '<br>' +
+				(tid ? (__('Transaction id: ') + tid) : '') 
+			);
 			
-			var win = new Ext.Window({
-				title: __('Error'),
-				html: '<div class="garp-error-dialog">' + this.msg + '</div>',
-				width: 500,
-				minHeight: 150,
-				buttonAlign: 'center',
-				defaultButton: 'defaultButton',
-				buttons: [{
-					text: __('Ok'),
-					id: 'defaultButton',
-					handler: function(){
-						win.close();
-					}
-				}, {
-					hidden: hideLoginAgain,
-					text: __('Login again'),
-					handler: function(){
-						win.close();
-						window.location = BASE + 'g/auth/login';
-					}
-				}],
-				fn: function(){
-					this.msg = '';
-				},
-				scope: this
-			});
-			win.show();
+			
 		}
 	}
 });
@@ -96,7 +124,7 @@ Ext.override(Ext.form.Checkbox,{
  */
 Ext.override(Ext.form.DateField, {
 	format: 'd F Y',
-	altFormats: 'Y-m-d|d F Y|j F Y'
+	altFormats: 'Y-m-d|d F Y|j F Y|d m Y|d n Y|d-m-Y|d-n-Y'
 });
 Ext.apply(Ext.form.TimeField.prototype, {
     altFormats: 'g:ia|g:iA|g:i a|g:i A|h:i|g:i|H:i|ga|ha|gA|h a|g a|g A|gi|hi|gia|hia|g|H|H:i:s'
@@ -403,4 +431,12 @@ Ext.menu.Menu.prototype.createScrollers = Ext.menu.Menu.prototype.createScroller
 	this.scroller.bottom.on('mouseenter', startScroll.createDelegate(this, [this.scroller.bottom]));
 	this.scroller.bottom.on('mouseleave', stopScroll);
 	
+});
+
+/** Fixes some el == null issues at D 'n D **/
+Ext.lib.Dom.getXY = Ext.lib.Dom.getXY.createInterceptor(function(el){
+	return el || false;
+});
+Ext.lib.Region.getRegion = Ext.lib.Region.getRegion.createInterceptor(function(el){
+	return el || false;
 });

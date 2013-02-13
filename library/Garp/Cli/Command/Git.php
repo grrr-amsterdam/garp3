@@ -12,6 +12,68 @@
  */
 class Garp_Cli_Command_Git extends Garp_Cli_Command {
 	/**
+ 	 * Setup Git as per Grrr conventions
+ 	 * @return Void
+ 	 */
+	public function setup() {
+		Garp_Cli::lineOut('Configuring Git...');
+		// configure core.fileMode
+		passthru('git config core.fileMode false');
+		// configure color.ui
+		passthru('git config color.ui auto');
+		// checkout branch master in Garp submodule
+		// sanity check: do we have a garp folder?
+		if (is_dir('garp')) {
+			chdir('garp');
+			$branches = `git branch`;                                                               
+			$branches = explode("\n", $branches);
+			// only checkout master if it's currently not on any branch
+			if ($branches[0] == '* (no branch)') {
+				passthru('git checkout master');
+			}
+			// change dir back
+			chdir('..');
+		}
+		
+		// setup git hook for updating APP_VERSION... 
+		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/post-commit';
+		$hookTarget = APPLICATION_PATH.'/../.git/hooks/post-commit';
+		$this->_moveGitHook($hookSource, $hookTarget);
+		// ...and GARP_VERSION
+		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/garp-post-commit';
+		$hookTarget = APPLICATION_PATH.'/../garp/.git/hooks/post-commit';
+		$this->_moveGitHook($hookSource, $hookTarget);
+
+		Garp_Cli::lineOut('Done.');
+	}
+
+
+	/**
+ 	 * Move Git Hook into place
+ 	 * @param String $hookSource Source file
+ 	 * @param String $hookTarget Target file
+ 	 * @return Void
+ 	 */
+	protected function _moveGitHook($hookSource, $hookTarget) {
+		$performTheMove = true;
+		if (file_exists($hookTarget)) {
+			// Warn user about existing hook. Might be accidental
+			$performTheMove = Garp_Cli::confirm('Hook '.$hookTarget.' already in place. Overwrite?');
+		}
+		// Make sure the target path exists
+		$directory = dirname($hookTarget);
+		if (!file_exists($directory)) {
+			passthru("mkdir -p $directory");
+		}
+		if ($performTheMove) {
+			passthru("cp $hookSource $hookTarget");
+			// Make hook executable
+			passthru("chmod u+x $hookTarget");
+		}		
+	}
+
+
+	/**
  	 * Automatically pulls submodules as well.
  	 * @param Array $args No arguments required, passing some will result in error.
  	 * @return Void

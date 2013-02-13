@@ -61,7 +61,7 @@ class Garp_Service_MailChimp extends Zend_Service_Abstract {
 				->obligate('id')
 				->setDefault('merge_vars', array('LNAME' => '', 'FNAME' => ''))
 				;
-		$options['method'] = 'listSubscribe';				
+		$options['method'] = 'listSubscribe';
 		return $this->_send((array)$options);
 	}
 	
@@ -116,7 +116,8 @@ class Garp_Service_MailChimp extends Zend_Service_Abstract {
 						 ->setUri($uri)
 						 ->request()
 		;
-		return Zend_Json::decode($response->getBody());
+		$response = Zend_Json::decode($response->getBody());
+		return $response;
 	}
 	
 	

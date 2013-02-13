@@ -60,6 +60,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			   ->setDefault('related', null)
 			   ->setDefault('lang', null)
 			   ->setDefault('count', 'horizontal')
+			   ->setDefault('loadScript', true)
 		;
 
 		// set required parameters
@@ -81,9 +82,11 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			$attributes
 		);
 
-		// Add the Twitter Javascript to the stack
-		// Must be rendered in the view using "$this->script()->render()"
-		$this->view->script()->src('http://platform.twitter.com/widgets.js');
+		if ($params['loadScript']) {
+			// Add the Twitter Javascript to the stack
+			// Must be rendered in the view using "$this->script()->render()"
+			$this->view->script()->src('http://platform.twitter.com/widgets.js');
+		}
 		return $html;
 	}
 
@@ -260,7 +263,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			}
 		}
 		if (empty($ogData['image']) && !empty($this->view->config()->app->image)) {
-			$ogData['image'] = $this->view->fullUrl($this->view->config()->app->image);
+			$ogData['image'] = $this->view->assetUrl($this->view->config()->app->image);
 		}
 		if (empty($ogData['description'])) {
 			if ($this->view->description) {

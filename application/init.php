@@ -44,20 +44,26 @@ if (
 	$isCli = true;
 }
 
-require_once(APPLICATION_PATH.'/configs/version.php');
-require_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+@include_once(APPLICATION_PATH.'/configs/version.php');
+if (!defined('APP_VERSION')) {
+	define('APP_VERSION', 1);
+}
+@include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+if (!defined('GARP_VERSION')) {
+	define('GARP_VERSION', 1);
+}
 
 
-require 'Garp/Util/Loader.php';
+require 'Garp/Loader.php';
 
 /**
  * Set up class loading.
  */ 
-$classLoader = Garp_Util_Loader::getInstance(array(
+$classLoader = Garp_Loader::getInstance(array(
 	'paths' => array(
 		array(
 			'namespace' => '*',
-			'path' => APPLICATION_PATH.'/../library'
+			'path' => realpath(APPLICATION_PATH.'/../library')
 		),
 		array(
 			'namespace' => 'Model',
@@ -66,12 +72,12 @@ $classLoader = Garp_Util_Loader::getInstance(array(
 		),
 		array(
 			'namespace' => 'G_Model',
-			'path' => APPLICATION_PATH.'/../garp/application/modules/g/models/',
+			'path' => GARP_APPLICATION_PATH.'/modules/g/models/',
 			'ignore' => 'G_Model_'
 		),
 		array(
 			'namespace' => 'Mocks_Model',
-			'path' => APPLICATION_PATH.'/../garp/application/modules/mocks/models/',
+			'path' => GARP_APPLICATION_PATH.'/modules/mocks/models/',
 			'ignore' => 'Mocks_Model_'
 		)
 	)

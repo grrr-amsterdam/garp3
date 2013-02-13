@@ -50,6 +50,7 @@ td.sort-asc .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner{ font-weight: bold
 div.x-grid3-row { border: 1px #fff solid !important; }
 .row-icon { width: 16px; height: 16px; display: inline-block; margin-right: 5px; opacity: .5; }
 .x-grid3-row .garp-image-renderct { display: inline-block; margin-top: 2px; }
+.garp-image-renderct .no-img { width: 64px; height: 49px; display: block; background: #ccc; }
 .garp-image-renderct img{ margin-right: 10px; }
 .x-grid3-row .garp-image-renderct img { opacity: .7;  }
 .x-grid3-row-selected .garp-image-renderct img, .x-grid3-row-over .garp-image-renderct img { opacity: 1; }
@@ -280,30 +281,43 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 .x-form-text.x-superboxselect.x-form-focus { -moz-box-shadow: 0px 0px 5px #46A; -webkit-box-shadow: 0px 0px 5px #46A; box-shadow: 0px 0px 5px #46A; border: 1px #68D solid; outline: 0; -webkit-transition: all .2s ease-out; }
 .x-form-text.x-superboxselect .x-form-field.x-form-focus { border:0; box-shadow: none; -moz-box-shadow: none; -webkit-box-shadow: none; }
 
-
 /* GARP WysiwygCt */
-.wysiwyg-ct { overflow: hidden; }
+.wysiwyg-ct { overflow: hidden;}
+.wysiwyg-ct ol li{ list-style: decimal inside ; }
+.wysiwyg-ct ul li{ list-style: disc inside; }
+.wysiwyg-ct .x-panel-body {  /*background: url(../../js/garp/ext-3.4.0/resources/images/default/form/text-bg.gif) repeat-x;*/ }
 
-			.grid-col-12-12 { width: 100%; }
-			.grid-col-11-12 { width: 91.666666%; }
-			.grid-col-10-12 { width: 83.333333%; }
-			.grid-col-9-12 { width: 75%; }
-			.grid-col-8-12 { width: 66.666666%; }
-			.grid-col-7-12 { width: 58.333333%; }
-			.grid-col-6-12 { width: 50%; }
-			.grid-col-5-12 { width: 41.666666%; }
-			.grid-col-4-12 { width: 33.333333%; }
-			.grid-col-3-12 { width: 25%; }
-			.grid-col-2-12 { width: 16.666666%; }
-			.grid-col-1-12 { width: 8.333333%; }
-			
+			.grid-12-12 { width: 100%; }
+			.grid-11-12 { width: 91.666666%; }
+			.grid-10-12 { width: 83.333333%; }
+			.grid-9-12 { width: 75%; }
+			.grid-8-12 { width: 66.666666%; }
+			.grid-7-12 { width: 58.333333%; }
+			.grid-6-12 { width: 50%; }
+			.grid-5-12 { width: 41.666666%; }
+			.grid-4-12 { width: 33.333333%; }
+			.grid-3-12 { width: 25%; }
+			.grid-2-12 { width: 16.666666%; }
+			.grid-1-12 { width: 8.333333%; }
+
+			.grid-6-6 { width: 100%; }
+			.grid-5-6 { width: 83.333333%; }
+			.grid-4-6 { width: 66.666666%; }
+			.grid-3-6 { width: 50%; }
+			.grid-2-6 { width: 33.333333%; }
+			.grid-1-6 { width: 16.666666%; }
+						
 			.wysiwyg-box { position: relative; float: left; border: none; outline: none; clear: none;  }
-			.wysiwyg-box .dd-handle { display: none; position: absolute; right: 5px; top: 5px; background-color: #fff; width: 30px; height: 30px; border: 1px #ddd solid; border-radius: 4px;  background-position: 50% 50%; background-repeat: no-repeat; z-index: 3;}
-			.wysiwyg-box:hover .dd-handle { display: block; }
+			.wysiwyg-box > div.dd-handle { display: none; position: absolute; right: 5px; top: 5px; background-color: #fff; width: 30px; height: 30px; border: 1px #ddd solid; border-radius: 4px;  background-position: 50% 50%; background-repeat: no-repeat; z-index: 3;}
+			.wysiwyg-box .dd-handle.icon-delete { right: 40px; }
+			.wysiwyg-box .dd-handle.icon-settings { right: 75px; }
+			
+			.wysiwyg-box:hover > div.dd-handle { display: block; }
 			.wysiwyg-box .dd-handle:hover { background-color: #eee; }
 			.x-panel-body-noheader .wysiwyg-box .x-panel-body { border: none; }
 
 			.wysiwyg-box .contenteditable { margin: 10px; padding: 10px; border: 1px #ccc dashed; z-index: 2;}
+			.wysiwyg-box .contenttitle { margin: 10px 10px -10px 10px; padding: 10px; border: 1px #ccc dashed; border-bottom: 0; z-index: 2;}
 			
 			.wysiwyg-box .contenteditable:-moz-focusring:not(input):not(button):not(select){ outline: none; }
 			
@@ -319,12 +333,23 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 			.wysiwyg-box .target.right.active { width: 5px; }
 			.wysiwyg-box .target.bottom.active { height: 5px; }
 			.wysiwyg-box .target.left.active { width: 5px; }
-			
+			.wysiwyg-box .x-resizable-handle-east { width: 20px; z-index: 2;}
 			
 			.wysiwyg-box { z-index: 1; }
 			.wysiwyg-box.in-drag { z-index: 2; }
 			.wysiwyg-box.in-drag .contenteditable { border: 1px #888 dashed; opacity: .5}
+
+			.wysiwyg-box .img { position: absolute;	width: 100%; background-color: #ccc; background-size: contain; background-position: center;	background-repeat: no-repeat; }
+			.wysiwyg-wrap .wysiwyg-box.wysiwyg-image { margin-bottom: 20px; }
+			.wysiwyg-box .partial { font-style: italic; }
 			
 			.row:before, .row:after { content: ""; display: table; }
 			.row:after { clear: both; }
 			.row { zoom: 1; }
+			
+			.wysiwyg-box .contenteditable { border-color: #ccc; }
+			.active-chapter .wysiwyg-box .contenteditable { border-color: #08d; }
+			
+			.wysiwyg-image { margin-bottom: 50px; }
+			.wysiwyg-image .caption { position: absolute; bottom: -30px; height: 1.5em; overflow: hidden; } /* TODO: find better way to implement captions */
+			

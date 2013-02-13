@@ -1,10 +1,8 @@
 /**
  * Garp CMS
- * 
  * Garp.js
- * 
  * Main setup for Garp CMS
-   
+ *  
  * @namespace Garp
  * @copyright (c) 2010 Grrr.nl / eenengelswoord.nl
  * @author Peter
@@ -73,7 +71,10 @@
 			if(!Garp.gridPanel){
 				return;
 			}
-			sm = Garp.gridPanel.getSelectionModel();
+			sm = Garp.gridPanel.getSelectionModel ? Garp.gridPanel.getSelectionModel() : false;
+			if (!sm) {
+				return;
+			}
 		}
 		var count = sm.getCount();
 		if(count > 1){
@@ -393,7 +394,7 @@
 		tb.extraMenu.menu.exportButton.show();
 		tb.extraMenu.menu.printButton.show();
 		
-		document.title = __(Garp.dataTypes[model].text) + ' | ' + APP_TITLE;
+		document.title = __(Garp.dataTypes[model].text) + ' | ' + (typeof APP_TITLE != 'undefined' ? APP_TITLE : '');
 		Garp.setFavicon(Garp.dataTypes[model].iconCls);
 		
 	};
@@ -589,10 +590,8 @@
 				elm.setHeight((cookie.messages.length-1) * 20 + 30);
 				
 				var value = "; path=/";
-				var domain = document.location.host;
 				var date = new Date();
 				date.setHours(date.getHours(-1));
-				value += "; domain="+escape(domain);
 				value += ((date===null) ? "" : "; expires="+date.toGMTString());
 				document.cookie='FlashMessenger' + "=" + value;
 				return true;

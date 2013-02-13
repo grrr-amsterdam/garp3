@@ -51,9 +51,17 @@ Garp.ModelMenu = function(cfg){
 		var model, models = [];
 		Ext.each(this.menuItems, function(model){
 			if (model == '-') {
-				models.push('-');
+				if (!models[models.length - 1] == '-') {
+					models.push('-');
+				}
 			} else {
+				if(!Garp.dataTypes[model]){
+					throw 'Oops! JS model "' + model + '" not found! Is it spawned and bugfree?';
+				}
 				var dataType = Garp.dataTypes[model];
+				if(!Garp[model]){
+					throw 'Oops! dataType "' + model + '" not found! Does it exist in the smd?';
+				}
 				if (dataType.setupACL(Garp[model])) {
 					dataType.fireEvent('init');	
 					models.push({

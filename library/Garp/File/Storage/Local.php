@@ -22,6 +22,11 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 	}
 
 
+	public function setPath($path) {
+		$this->_path = $path;
+	}
+
+
 	public function exists($filename) {
 		return file_exists($this->_getFilePath($filename));
 	}

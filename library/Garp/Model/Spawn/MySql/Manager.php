@@ -17,7 +17,7 @@ class Garp_Model_Spawn_MySql_Manager {
 	 * @param Garp_Model_Spawn_ModelSet 	$modelSet 		The model set to model the database after.
 	 * @param Array 						&$changelist 	An array of strings, describing the changes made to the database in this Spawn session.
 	 */
-	public function __construct(Garp_Model_Spawn_ModelSet $modelSet) {
+	public function __construct(Garp_Model_Spawn_ModelSet $modelSet, $TMP_FIX_CREATE_JOINT_VIEWS) {
 		$totalActions = count($modelSet) * 4;
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->init($totalActions);
@@ -45,7 +45,14 @@ class Garp_Model_Spawn_MySql_Manager {
 		//	Stage 3: Create base model views
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " joint view");
-			$this->_createJointView($model);
+			/**
+ 			 * @todo FIX ME!
+ 			 * In het CLI command wordt de MySQL Manager nu twee keer aangeroepen: één keer met $TMP_FIX_CREATE_JOINT_VIEWS = false en 
+ 			 * daarna nog een keer met $TMP_FIX_CREATE_JOINT_VIEWS = true.
+ 			 */
+			if ($TMP_FIX_CREATE_JOINT_VIEWS) {
+				$this->_createJointView($model);
+			}
 			$progress->advance();
 		}
 

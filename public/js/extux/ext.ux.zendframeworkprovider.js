@@ -31,8 +31,14 @@ Ext.ux.direct.ZendFrameworkProvider = Ext.extend(Ext.direct.RemotingProvider, {
     
 	// private
     onData: function(opt, success, xhr) {
-        var rpcresponse = Ext.decode(xhr.responseText);
-
+		try {
+			var rpcresponse = Ext.decode(xhr.responseText);
+		} catch(e){
+			if(console && console.error){
+				console.error('Non-valid JSON encountered. Ignoring: ' + e.message || '');
+			}	
+		}
+		
 		// batch of results:
 		if (Ext.isArray(rpcresponse)) {
 			var rpcresponses = rpcresponse;
@@ -55,10 +61,9 @@ Ext.ux.direct.ZendFrameworkProvider = Ext.extend(Ext.direct.RemotingProvider, {
 				tid: rpcresponse ? rpcresponse.id : null
 			};
 		}
-
         Ext.ux.direct.ZendFrameworkProvider.superclass.onData.apply(this, arguments);
     }
 
 });
 
-Ext.Direct.PROVIDERS['zfprovider'] = Ext.ux.direct.ZendFrameworkProvider;
+Ext.Direct.PROVIDERS.zfprovider = Ext.ux.direct.ZendFrameworkProvider;
