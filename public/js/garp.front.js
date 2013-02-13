@@ -797,10 +797,12 @@ Garp.FlashMessage = function(cfg){
 		/**
 		* @cfg {jQuery element}: Provide the element to use
 		*/
-		elm: (function(){
+		elm: null,
+		createElm: function(){
 			var id = 'flashMessage';
-			return $('#' + id).length ? $('#' + id) : $('body').append('<div id="' + id + '"></div>').find('#' + id);
-		})(this),
+			this.elm = $('#' + id).length ? $('#' + id) : $('body').append('<div id="' + id + '"></div>').find('#' + id);
+			return this.elm;
+		},
 		
 		/**
 		* @cfg {Boolean} Automatically hide?
@@ -878,7 +880,7 @@ Garp.FlashMessage = function(cfg){
 				}
 				var exp = new Date();
 				exp.setHours(exp.getHours() - 1);
-				Garp.setCookie(this.cookieName, '', exp, (typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : '.' + document.location.host);
+				Garp.setCookie(this.cookieName, '', exp, (typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : document.location.host);
 				return out;
 			}
 			return '';
@@ -894,8 +896,8 @@ Garp.FlashMessage = function(cfg){
 			if (!this.msg) {
 				return this;
 			}
-			if (!this.elm.length) {
-				$('body').append(this.elm);
+			if (!this.elm) {
+				this.createElm();
 			}
 			if (this.msg) {
 				this.elm.html(this.msg);
@@ -1007,11 +1009,13 @@ Garp.getCookie = function(name) {
  */
 Garp.setCookie = function(name, value, date, domain){
 	value = escape(value) + "; path=/";
+	/*
 	if (domain) {
 		value += "; domain=" + escape(domain);
 	} else {
-		value += "; domain=" + escape((typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : '.' + document.location.host);
+		value += "; domain=" + escape((typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : document.location.host);
 	}
+	*/
 	value += (!date ? "" : "; expires=" + date.toGMTString());
 	document.cookie = name + "=" + value;
 };
@@ -1105,7 +1109,7 @@ Garp.hasCookiesAccepted = function(){
 Garp.acceptCookies = function(){
 	var exp = new Date();
 	exp.setYear(exp.getFullYear() + 1);
-	Garp.setCookie('Garp_Accept_Cookies', 'Garp_Accept_Cookies', exp, false);
+	Garp.setCookie('Garp_Accept_Cookies', 'Garp_Accept_Cookies', exp);
 };
 
 /**
@@ -1119,49 +1123,68 @@ Garp.relativeDate = function(oldest, newest){
 	if (typeof newest.getTime != 'function') {
 		newest = new Date(newest + '');
 	}
-	
 	var elapsed = Math.abs(oldest.getTime() - newest.getTime()); // milliseconds
-	
-	if(isNaN(elapsed)){
+	if (isNaN(elapsed)) {
 		return '';
 	}
 	
 	elapsed = elapsed / 60000; // minutes
 	var result = '';
+	// Date constants for readability
+	var MINUTE = 1;
+	var HOUR   = MINUTE*60;
+	var DAY    = HOUR*24;
+	var WEEK   = DAY*7;
+	var MONTH  = DAY*30;
+	var YEAR   = DAY*365;
+	var days;
 	
 	switch (true) {
-		case (elapsed < 1):
+		case (elapsed < MINUTE):
 			result = __('less than a minute');
 			break;
 			
-		case (elapsed < (60)):
+		case (elapsed < HOUR):
 			var minutes = Math.round(elapsed);
 			result = minutes + ' ' + (minutes == 1 ? __('minute') : __('minutes'));
 			break;
 			
-		case (elapsed < (60 * 24)):
-		
-			var hours = Math.round(elapsed / 60);
+		case (elapsed < DAY):
+			var hours = Math.round(elapsed / HOUR);
 			result = hours + ' ' + (hours == 1 ? __('hour') : __('hours'));
 			break;
 			
-		case (elapsed < (60 * 24 * 7)):
-			var days = Math.round(elapsed / (60 * 24));
+		case (elapsed < WEEK):
+			days = Math.round(elapsed / DAY);
 			result = days + ' ' + (days == 1 ? __('day') : __('days'));
 			break;
 			
-		case (elapsed < (60 * 24 * 7 * 30)):
-			var weeks = Math.round(elapsed / (60 * 24 * 7));
-			result = weeks + ' ' + (weeks == 1 ? __('week') : __('weeks'));
+		case (elapsed < MONTH):
+			/**
+			 * Here we use Math.ceil because the scope is so small. It makes no sense when 
+			 * it's 1 week and 2 days to say "1 week". It's more correct to say 2 weeks.
+			 */
+			var weeks = Math.ceil(elapsed / WEEK);
+			/**
+			 * And while we're at it: just say "days" when it's less than 2 weeks.
+			 * Weeks are an inaccurate depiction of a time period when it's only a few of 'em.
+			 * Better switch to days.
+			 */
+			if (weeks > 2) {
+				result = weeks + ' ' + (weeks == 1 ? __('week') : __('weeks'));
+			} else {
+				days = Math.round(elapsed / DAY);
+				result = days + ' ' + (days == 1 ? __('day') : __('days'));
+			}
 			break;
 			
-		case (elapsed < (60 * 24 * 7 * 30 * 12)):
-			var months = Math.round(elapsed / (60 * 24 * 7 * 30));
+		case (elapsed < YEAR):
+			var months = Math.round(elapsed / MONTH);
 			result = months + ' ' + (months == 1 ? __('month') : __('months'));
 			break;
 			
 		default:
-			var years = Math.round(elapsed / (60 * 24 * 7 * 30 * 365));
+			var years = Math.round(elapsed / YEAR);
 			result = years + ' ' + (years == 1 ? __('year') : __('years'));
 			break;
 			
@@ -1906,16 +1929,16 @@ Garp.apply(Garp.FormHelper, {
 			form: this.form,
 			listeners: {
 				'formvalid': function(validator){
-					$('button[type="submit"]', validator.form).bind('click.validator',disabler);
+					$('button[type="submit"]', validator.form).bind('click.validator', disabler);
 				},
 				'forminvalid': function(validator){
 					$('button[type="submit"]', validator.form).unbind('click.validator', disabler);
 				},
-				'fieldvalid':function(field){
-					field.closest('div').removeClass('invalid');
+				'fieldvalid': function(field){
+					field.closest('div').removeClass('invalid').addClass('valid');
 				},
 				'fieldinvalid': function(field){
-					field.closest('div').addClass('invalid');
+					field.closest('div').addClass('invalid').removeClass('valid');
 				}
 			}
 		}).bind();
@@ -1929,7 +1952,9 @@ Garp.apply(Garp.FormHelper, {
 		var i = document.createElement('input');
 		if (typeof i.placeholder === 'undefined') {
 			Garp.asyncLoad(BASE + 'js/libs/jquery.addPlaceholder.js', 'js', function(){
-				$('input[placeholder], textarea[placeholder]', this.form).addPlaceholder();
+				if ($('input[placeholder], textarea[placeholder]', this.form).length && $('input[placeholder], textarea[placeholder]', this.form).addPlaceholder) {
+					$('input[placeholder], textarea[placeholder]', this.form).addPlaceholder();
+				}
 				/*
 				this.form.bind('submit', function(){
 					$('input[placeholder], textarea[placeholder]', this.form).each(function(){
@@ -1949,7 +1974,7 @@ Garp.apply(Garp.FormHelper, {
 	 */
 	formatName: function(name) {
 		if (name) {
-			name = name.replace('[', '-sqb-open-').replace(']', '-sqb-close-');
+			name = name.replace('[', '\[').replace(']', '\]');
 		}
 		return name;
 	},
@@ -2355,8 +2380,8 @@ Garp.FormHelper.Validator = function(cfg){
 		
 		// URL
 		url:{
-			mailtoOrUrlRe:  /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
-			stricter: 		/(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|(((^https?)|(^ftp)):\/\/([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
+			mailtoOrUrlRe: /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
+			stricter: /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|(((^https?)|(^ftp)):\/\/([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
 			init: function(field){
 				if(!field.attr('type') || field.attr('type') !== 'url'){
 					return;
@@ -2673,6 +2698,33 @@ Garp.FormHelper.Validator = function(cfg){
 	});
 	return this.init();
 };
+
+/**
+ * Defered SocialButtons 
+ */
+(function(){
+	$('.social-defer').bind('mouseenter mouseleave click', function(){
+		if(!$(this).hasClass('social-defer')){
+			return;
+		}
+		if(!$(this).get(0).nextSibling){
+			return;
+		}
+		
+		var domF = $(this).get(0).nextSibling.textContent || $(this).get(0).nextSibling.nodeValue;  
+		domF = domF.split('//garp-defer//');
+		if(domF && domF[1]){
+			$(this).removeClass('social-defer').addClass('active').html($(domF[1]));
+		}
+		if ($(this).hasClass('fb')) {
+			window.fbAsyncInit();
+		}
+		if ($(this).hasClass('twitter')){
+			Garp.asyncLoad('http://platform.twitter.com/widgets.js', 'js', function(){});
+		}
+	});
+})();
+
 
 /**
  * __ Utility function

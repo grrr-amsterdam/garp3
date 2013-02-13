@@ -11,6 +11,13 @@
  */
 class Garp_Controller_Helper_Upload extends Zend_Controller_Action_Helper_Abstract {
 	/**
+	 * For optimalization purposes, we store file handlers, using
+	 * the uploadType (f.i. Garp_File::TYPE_IMAGES) as array key.
+	 */
+	protected $_fileHandlers = array();
+	
+	
+	/**
  	 * Shortcut to self::uploadFromFiles().
  	 * Call from controller $this->_helper->upload()
  	 * @param String $uploadType The type of file being uploaded, either 
@@ -113,10 +120,13 @@ class Garp_Controller_Helper_Upload extends Zend_Controller_Action_Helper_Abstra
  	 * @return String The new filename
  	 */
 	protected function _store($uploadType, $name, $bytes) {
-		$file = $uploadType === Garp_File::TYPE_IMAGES ?
-			new Garp_Image_File() :
-			new Garp_File($uploadType)
-		;
-		return $file->store($name, $bytes);
+		if (!array_key_exists($uploadType, $this->_fileHandlers)) {
+			$this->_fileHandlers[$uploadType] = $uploadType === Garp_File::TYPE_IMAGES ?
+				new Garp_Image_File() :
+				new Garp_File($uploadType)
+			;			
+		}
+
+		return $this->_fileHandlers[$uploadType]->store($name, $bytes);
 	}
 }

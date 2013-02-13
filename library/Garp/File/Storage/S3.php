@@ -17,6 +17,11 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	
 	/** @var Zend_Service_Amazon_S3 $_api */
 	protected $_api;
+	
+	
+	protected $_apiInitialized = false;
+
+	protected $_bucketExists = false;
 
 
 	/** @const Int TIMEOUT Number of seconds after which to timeout the S3 action. Should support uploading large (20mb) files. */
@@ -34,6 +39,11 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			throw new Exception("Did not receive a valid path to store uploads.");
 		}
 		$this->_config['path'] = $path;
+	}
+
+
+	public function setPath($path) {
+		$this->_path = $path;
 	}
 
 
@@ -101,10 +111,11 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 	/**
 	* @param String $filename
-	* @param String $data Binary file data
-	* @param Boolean $overwrite Whether to overwrite this file, or create a unique name
-	* @param Boolean $formatFilename Whether to correct the filename, f.i. ensuring lowercase characters.
-	* @return String Destination filename.
+	* @param String $data				Binary file data
+	* @param Boolean $overwrite			Whether to overwrite this file, or create a unique name
+	* @param Boolean $formatFilename	Whether to correct the filename, f.i. ensuring lowercase characters.
+	* @param Boolean $initialize
+	* @return String					Destination filename.
 	*/
 	public function store($filename, $data, $overwrite = false, $formatFilename = true) {
 		$this->_initApi();
@@ -147,8 +158,12 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 
 	protected function _createBucketIfNecessary() {
-		if (!$this->_api->isBucketAvailable($this->_config['bucket'])) {
-			$this->_api->createBucket($this->_config['bucket']);
+		if (!$this->_bucketExists) {
+			if (!$this->_api->isBucketAvailable($this->_config['bucket'])) {
+				$this->_api->createBucket($this->_config['bucket']);
+			}
+
+			$this->_bucketExists = true;
 		}
 	}
 
@@ -175,15 +190,19 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	
 	
 	protected function _initApi() {
-		@ini_set('max_execution_time', self::TIMEOUT);
-		@set_time_limit(self::TIMEOUT);
-		if (!$this->_api) {
-			$this->_api = new Zend_Service_Amazon_S3(
-				$this->_config['apikey'],
-				$this->_config['secret']
-			);
-		}
+		if (!$this->_apiInitialized) {
+			@ini_set('max_execution_time', self::TIMEOUT);
+			@set_time_limit(self::TIMEOUT);
+			if (!$this->_api) {
+				$this->_api = new Zend_Service_Amazon_S3(
+					$this->_config['apikey'],
+					$this->_config['secret']
+				);
+			}
 		
-		$this->_api->getHttpClient()->setConfig(array('timeout' => self::TIMEOUT));
+			$this->_api->getHttpClient()->setConfig(array('timeout' => self::TIMEOUT));
+			
+			$this->_apiInitialized = true;
+		}
 	}
 }

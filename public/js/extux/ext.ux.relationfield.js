@@ -349,9 +349,15 @@ Ext.ux.JoinedRelationField = Ext.extend(Ext.ux.RelationField, {
 	bindedField: null,
 	
 	selectCallback: function(selected){
-		if(selected && selected.selected){
-			var val = selected.selected.get('id');
-			var disp = Garp.dataTypes[this.model].displayFieldRenderer(selected.selected);
+		var val, disp;
+		if(selected && typeof selected.selected !== 'undefined'){
+			if (selected.selected) {
+				val = selected.selected.get('id');
+				disp = Garp.dataTypes[this.model].displayFieldRenderer(selected.selected);
+			} else{
+				val = null;
+				disp = null;
+			}
 			this.form.findField(this.bindedField).setValue(val);
 			this.setValue(disp);
 			this.fireEvent('select', selected);

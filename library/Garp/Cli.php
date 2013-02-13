@@ -9,13 +9,27 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli {
+	/**@#+
+ 	 * String coloring constants
+ 	 * @var String
+ 	 */
+	const RED = '2;31';
+	const GREEN = '2;32';
+	const BLUE = '2;34';
+    /**#@-*/
+
+
 	/**
 	 * Print line.
-	 * @param String $s
+	 * @param String $s The string.
+	 * @param String $color Show string in color?
 	 * @param Boolean $appendNewline Wether to add a newline character
 	 * @return Void
 	 */
-	public static function lineOut($s, $appendNewline = true) {
+	public static function lineOut($s, $color = null, $appendNewline = true) {
+		if ($color) {
+			self::addStringColoring($s, $color);
+		}
 		echo "{$s}".($appendNewline ? "\n" : '');
 	}
 
@@ -26,9 +40,24 @@ class Garp_Cli {
 	 * @return Void
 	 */
 	public static function errorOut($s) {
-		echo "\033[1;31m{$s}\033[0m\n";
+		self::addStringColoring($s, self::RED);
+		self::lineOut($s);
 	}
 	
+
+	/**
+ 	 * Print line in a certain color
+ 	 * Inspired by Garp_Model_Spawn_Util::addStringColoring()
+ 	 * @param String $s
+ 	 * @param String $color
+ 	 * @return Void
+ 	 */
+	public static function addStringColoring(&$s, $color) {
+		$prevEnc = mb_internal_encoding();
+		mb_internal_encoding("UTF-8");
+		$s = "\033[{$color}m{$s}\033[0m\n";
+		mb_internal_encoding($prevEnc);
+	}
 	
 	/**
 	 * Receive input from the commandline.
@@ -38,7 +67,7 @@ class Garp_Cli {
 	 */
 	public static function prompt($prompt = '', $trim = true) {
 		$prompt && self::lineOut($prompt);
-		self::lineOut('> ', false);
+		self::lineOut('> ', null, false);
 		$response = fgets(STDIN);
 		
 		if ($trim) {
@@ -48,22 +77,20 @@ class Garp_Cli {
 	}
 	
 	
-	
 	/**
 	 * Force user to confirm a question with yes or no.
 	 * @param String $msg Question or message to display. A prompt (>) will be added.
 	 * @return Boolean Returns true if answer was 'y' or 'Y', no enter needed.
 	 */
 	public static function confirm($msg) {
-		echo INDENT.self::addStringColoring($msg)." > ";
+		print $msg.' > ';
 		system('stty -icanon');
-		$handle = fopen ("php://stdin","r");
+		$handle = fopen ('php://stdin', 'r');
 		$char = fgetc($handle);
 		system('stty icanon');
-		echo "\n";
+		print "\n";
 		return $char === 'y' || $char === 'Y';
 	}
-	
 	
 	
 	/**
@@ -183,5 +210,21 @@ class Garp_Cli {
 
 		$response = $front->dispatch($request);
 		return $response;
+	}
+
+
+	/**
+ 	 * On shell, you must return 0 on success, 1 on failure.
+ 	 * This method deals with that. Feed it any expression and 
+ 	 * it will exit the right way
+ 	 * @param Mixed $bool
+ 	 * @return Void
+ 	 */
+	public static function halt($bool) {
+		// Convert to boolean
+		$bool = !!$bool;
+		// Toggle it: PHP uses 0 for FALSE, shell uses 0 for TRUE
+		$bool = !$bool;
+		exit((int)$bool);
 	}
 }
