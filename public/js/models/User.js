@@ -26,7 +26,7 @@ Garp.dataTypes.User.on('init', function(){
 		callback: function(field, val){
 			var passwordField = field.refOwner.refOwner.passwordField;
 			var email = field.refOwner.refOwner.getForm().findField('email');
-			if (val) {
+			if (val || email._keepRequired) {
 				email.allowBlank = false;
 				email.label.addClass('required-field');
 				passwordField.setValue(val);
@@ -60,6 +60,12 @@ Garp.dataTypes.User.on('init', function(){
 				roleField.store.removeAt(idx);
 				// roleField.store.remove(disabledRole);
 			});
+		}
+		formPanel.getForm().findField('email');
+		if(email && email.allowBlank == false){
+			email._keepRequired = true;
+		} else if(email){
+			email._keepRequired = false;
 		}
 	});
 	
