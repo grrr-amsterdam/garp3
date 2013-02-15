@@ -110,8 +110,8 @@ namespace :deploy do
   
   desc "Set permissions on essential deploy directories"
   task :set_shared_dirs_permissions do
-      run "chmod -R g+w,o+r #{deploy_to}/shared/uploads/documents"
-      run "chmod -R g+w,o+r #{deploy_to}/shared/uploads/images"
+      run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/documents"
+      run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/images"
   end
   
   desc "Create .htaccess file to reroute webroot"
