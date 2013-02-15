@@ -40,6 +40,19 @@ Garp.dataTypes.Image.on('init', function(){
 	this.removeField('filename');
 	this.removeField('id');
 	
+	var fDesc = this.getField('filename-notification');
+	if (fDesc) {
+		this.removeField('filename-notification');
+	} else {
+		fDesc = {
+			xtype: 'box',
+			cls: 'garp-notification-boxcomponent',
+			name: 'filename-notification',
+			html: __('Only {1} and {2} files with a maximum of {3} MB are accepted', 'jpg, png', 'gif', '20'),
+			fieldLabel: ' '
+		};
+	}
+	
 	// ...include them again:
 	this.insertField(0, {
 		xtype: 'fieldset',
@@ -91,12 +104,7 @@ Garp.dataTypes.Image.on('init', function(){
 					return true;
 				}
 			}
-		}, {
-			xtype: 'box',
-			cls: 'garp-notification-boxcomponent',
-			html: __('Only {1} and {2} files with a maximum of {3} MB are accepted', 'jpg, png', 'gif', '20'),
-			fieldLabel: ' '
-		}, {
+		}, fDesc, {
 			name: 'caption',
 			xtype: 'textfield',
 			fieldLabel: __('Caption')
