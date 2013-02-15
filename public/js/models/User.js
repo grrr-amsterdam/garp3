@@ -61,8 +61,8 @@ Garp.dataTypes.User.on('init', function(){
 				// roleField.store.remove(disabledRole);
 			});
 		}
-		formPanel.getForm().findField('email');
-		if(email && email.allowBlank == false){
+		var email = formPanel.getForm().findField('email');
+		if(email && email.allowBlank === false){
 			email._keepRequired = true;
 		} else if(email){
 			email._keepRequired = false;
