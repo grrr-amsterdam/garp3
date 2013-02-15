@@ -116,7 +116,8 @@ namespace :deploy do
   
   desc "Create .htaccess file to reroute webroot"
   task :create_webroot_reroute_htaccess do
-    run "echo -e '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
+    #run "echo -e '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
+    run "printf '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
   end
   
   task :prompt_to_set_newly_found_deploy_dir do
