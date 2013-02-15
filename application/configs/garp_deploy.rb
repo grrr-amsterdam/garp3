@@ -61,7 +61,7 @@ namespace :deploy do
   task :add_public_ssh_keys do
     run "if [ ! -d '~/.ssh' ]; then mkdir -p ~/.ssh; fi"
     run "chmod 700 ~/.ssh"
-    run "echo -e \'#{ssh_keys}\' > ~/.ssh/authorized_keys"
+    run "printf \'#{ssh_keys}\' > ~/.ssh/authorized_keys"
     run "chmod 700 ~/.ssh/authorized_keys"
   end
 
@@ -116,7 +116,6 @@ namespace :deploy do
   
   desc "Create .htaccess file to reroute webroot"
   task :create_webroot_reroute_htaccess do
-    #run "echo -e '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
     run "printf '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
   end
   
