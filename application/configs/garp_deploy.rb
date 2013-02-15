@@ -112,6 +112,8 @@ namespace :deploy do
   task :set_shared_dirs_permissions do
       run "chmod -R g+w #{deploy_to}/shared/uploads/documents"
       run "chmod -R g+w #{deploy_to}/shared/uploads/images"
+      run "chmod -R o+r #{deploy_to}/shared/uploads/images/*"
+      run "chmod -R o+r #{deploy_to}/shared/uploads/documents/*"
   end
   
   desc "Create .htaccess file to reroute webroot"
