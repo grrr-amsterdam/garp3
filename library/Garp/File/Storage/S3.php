@@ -36,7 +36,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		$this->_setConfigParams($config);
 		
 		if (!$path) {
-			throw new Exception("Did not receive a valid path to store uploads.");
+			throw new Exception("Did not receive a valid path to store uploads (" . var_dump($path) . ')');
 		}
 		$this->_config['path'] = $path;
 	}
