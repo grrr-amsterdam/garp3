@@ -43,7 +43,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 
 	public function setPath($path) {
-		$this->_path = $path;
+		$this->_config['path'] = $path;
 	}
 
 
@@ -153,7 +153,13 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		// return $this->_bucket.$this->_path.'/'.$filename;
 		//	bucket should no longer be prefixed to the path, or perhaps this never should have been done in the first place.
 		//	david, 2012-01-30
-		return $this->_config['path'].'/'.$filename;
+		$p = $this->_config['path'];
+		
+		return 
+			$p
+			.($p[strlen($p)-1] === '/' ? null : '/')
+			.$filename
+		;
 	}
 
 

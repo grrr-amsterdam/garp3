@@ -37,7 +37,9 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 
 		if ($assetList) {
 			$assetCount = count($assetList);
-			$summary = $assetCount === 1 ? $assetList[0] : $assetCount . ' assets.';
+			$summary = $assetCount === 1 ? $assetList[0] : $assetCount . ' assets';
+			$filterDateLabel = $this->_getFilterDateLabel($filterDate, $assetList);
+			$summary .= " since {$filterDateLabel}.";
 			Garp_Cli::lineOut("Distributing {$summary}\n");
 
 			if (!$isDryRun) {
@@ -82,6 +84,15 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 		Garp_Cli::lineOut("\tgarp.php Cdn distribute --dry");
 		Garp_Cli::lineOut("");
 
+	}
+	
+	
+	protected function _getFilterDateLabel($filterDate, $assetList) {
+		if ($filterDate === false) {
+			return 'forever';
+		} elseif ($filterDate === null) {
+			return date('j-n-Y', $assetList->getFilterDate());
+		} else return $filterDate;
 	}
 	
 	
