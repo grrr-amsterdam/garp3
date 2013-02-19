@@ -49,9 +49,9 @@ Garp.TweetField = Ext.extend(Ext.Panel,{
 	
 	initComponent: function(ct){
 		
-		loadScript('http://platform.linkedin.com/in.js', true);
-		loadScript('http://connect.facebook.net/en_US/all.js', true);
-		loadScript("if(typeof FB != 'undefined' && FB.init){FB.init({ appId: FB_APP_ID,cookie:true, status:true, xfbml:true});}");
+		this.loadScript('http://platform.linkedin.com/in.js', true);
+		this.loadScript('http://connect.facebook.net/en_US/all.js', true);
+		this.loadScript("if(typeof FB != 'undefined' && FB.init){FB.init({ appId: FB_APP_ID,cookie:true, status:true, xfbml:true});}");
 		
 		this.twitterExcerpt = new Ext.form.TextArea({
 			name:'twitter_description',
