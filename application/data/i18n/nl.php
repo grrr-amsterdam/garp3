@@ -132,7 +132,8 @@ $translationTable = array(
 	
 	'You have {2} character(s) too few. The minimal length is {0}.' => 'Je hebt {2} karakter(s) te weinig. De minimum lengte is {0}.',
 	'You have {2} character(s) too many. The maximum length is {0}.' => 'Je hebt {2} karakter(s) te veel. De maximum lengte is {0}.',
-	
+	'"{0}" is not a valid date. Valid formats are a.o. "19 2 2013" and "19-02-2013"' => '"{0}" is geen geldige datum. Geldige datumformaten zijn o.a. "19 2 2013" en "19-02-2013"',	
+
 	'Description' => 'Beschrijving',
 	'Created' => 'Aangemaakt',
 	'Modified' => 'Bewerkt',
