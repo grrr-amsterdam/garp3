@@ -72,6 +72,21 @@ switch ($this->field->type) {
 		$allowedExtensionString = "'" . implode('\',\'', $allowedExtensions) . "'";
 		$props[] = 	"supportedExtensions: [{$allowedExtensionString}]";
 	break;
+	case 'imagefile':
+		$props[] = 'emptyText: __(\'Drag file here, or click browse button\')';
+		$props[] = 'uploadURL: BASE + \'g/content/upload/type/image\'';
+		$props[] = 'ref: \'../../../../filename\'';
+		
+		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$extensionString = $ini->cdn->extensions;
+		$extensions = explode(',', $extensionString);
+		$allowedExtensions = array_filter($extensions, function($element) {
+			$imageExtensions = array('jpg', 'jpeg', 'gif', 'png');
+			return in_array($element, $imageExtensions);
+		});
+		$allowedExtensionString = "'" . implode('\',\'', $allowedExtensions) . "'";
+		$props[] = 	"supportedExtensions: [{$allowedExtensionString}]";
+	break;
 }
 
 if ($this->field->maxLength && $this->field->type !== 'enum') {
@@ -95,7 +110,7 @@ if ($plugin)
 					'fieldName' => $this->field->name
 				));
 			endif; ?>
-				<?php if ($this->field->type === 'document'): ?>
+				<?php if ($this->field->type === 'document' || $this->field->type === 'imagefile'): ?>
 			}, {
 			<?php
 				$allowedExtensionsExceptLast = array_slice($allowedExtensions, 0, -1);
