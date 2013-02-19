@@ -2703,7 +2703,7 @@ Garp.FormHelper.Validator = function(cfg){
  * Defered SocialButtons 
  */
 (function(){
-	$('.social-defer').bind('mouseenter mouseleave click', function(){
+	$('.social-defer').live('mouseenter mouseleave click', function(){
 		if(!$(this).hasClass('social-defer')){
 			return;
 		}
