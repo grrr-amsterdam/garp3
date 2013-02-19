@@ -139,6 +139,7 @@ class Garp_Model_Spawn_MySql_Column {
 			case 'email':
 			case 'url':
 			case 'document':
+			case 'imagefile':
 				return 'varchar(255)';
 			case 'checkbox':
 				return 'tinyint(1)';
