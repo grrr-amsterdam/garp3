@@ -33,7 +33,7 @@ class Garp_Model_Spawn_Field {
 	public $origin;
 
 	
-	protected $_types = array('text', 'html', 'email', 'url', 'numeric', 'checkbox', 'datetime', 'date', 'time', 'enum', 'document');
+	protected $_types = array('text', 'html', 'email', 'url', 'numeric', 'checkbox', 'datetime', 'date', 'time', 'enum', 'document', 'imagefile');
 	protected $_defaultTypeByNameEnding = array(
 		'email' => 'email',
 		'url' => 'url',

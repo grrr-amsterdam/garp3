@@ -69,7 +69,7 @@ class Garp_Content_CDN_Distributor {
 		$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', $env);
 
 		if (
-			$assetList &&
+			count($assetList) &&
 			$ini->cdn->type === 's3'
 		) {
 			Garp_Cli::lineOut(ucfirst($env));
@@ -78,7 +78,6 @@ class Garp_Content_CDN_Distributor {
 			$firstFilename = basename($assetList[0]);
 			$fileOrFiles = $this->_printFileOrFiles($assetCount);
 			$progressBar->display("Processing {$firstFilename}. {$assetCount} {$fileOrFiles} left.");
-
 
 			$s3 = new Garp_File_Storage_S3($ini->cdn, dirname(current($assetList)));
 

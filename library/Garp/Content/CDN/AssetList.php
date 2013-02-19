@@ -52,6 +52,11 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 	}
 	
 	
+	public function getFilterDate() {
+		return $this->_filterDate;
+	}
+	
+	
 	protected function _setFilterDate($filterDate) {
 		if (is_null($filterDate)) {
 			$relThreshold = self::DEFAULT_FILTER_DATE;
