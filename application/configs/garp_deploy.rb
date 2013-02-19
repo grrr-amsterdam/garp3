@@ -61,7 +61,7 @@ namespace :deploy do
   task :add_public_ssh_keys do
     run "if [ ! -d '~/.ssh' ]; then mkdir -p ~/.ssh; fi"
     run "chmod 700 ~/.ssh"
-    run "echo -e \'#{ssh_keys}\' > ~/.ssh/authorized_keys"
+    run "printf \'#{ssh_keys}\' > ~/.ssh/authorized_keys"
     run "chmod 700 ~/.ssh/authorized_keys"
   end
 
@@ -110,13 +110,13 @@ namespace :deploy do
   
   desc "Set permissions on essential deploy directories"
   task :set_shared_dirs_permissions do
-      run "chmod -R g+w #{deploy_to}/shared/uploads/documents"
-      run "chmod -R g+w #{deploy_to}/shared/uploads/images"
+      run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/documents"
+      run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/images"
   end
   
   desc "Create .htaccess file to reroute webroot"
   task :create_webroot_reroute_htaccess do
-    run "echo -e '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
+    run "printf '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
   end
   
   task :prompt_to_set_newly_found_deploy_dir do
