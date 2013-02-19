@@ -50,6 +50,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 			case 'enum':
 				return 'combo';
 			case 'document':
+			case 'imagefile':
 				return 'uploadfield';
 			default:
 				throw new Exception("The '{$field->type}' field type can't be translated to an ExtJS field type as of yet.");

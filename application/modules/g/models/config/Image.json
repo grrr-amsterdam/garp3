@@ -7,7 +7,7 @@
 
 	"inputs": {
 		"filename": {
-			"type": "text",
+			"type": "imagefile",
 			"maxLength": 255
 		},
 		"caption": {
