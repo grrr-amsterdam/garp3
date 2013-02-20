@@ -40,14 +40,14 @@ Garp.dataTypes.Image.on('init', function(){
 	this.removeField('filename');
 	this.removeField('id');
 	
-	var fDesc = this.getField('filename-notification');
+	var fDesc = this.getField('filename_info');
 	if (fDesc) {
-		this.removeField('filename-notification');
+		this.removeField('filename_info');
 	} else {
 		fDesc = {
 			xtype: 'box',
 			cls: 'garp-notification-boxcomponent',
-			name: 'filename-notification',
+			name: 'filename_info',
 			html: __('Only {1} and {2} files with a maximum of {3} MB are accepted', 'jpg, png', 'gif', '20'),
 			fieldLabel: ' '
 		};
