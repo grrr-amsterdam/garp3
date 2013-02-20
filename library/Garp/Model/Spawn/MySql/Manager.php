@@ -157,7 +157,7 @@ class Garp_Model_Spawn_MySql_Manager {
 		$progress->display($bindingModel->id . " table comparison");
 		$configBindingTable = $this->_getBindingModelConfigTable($relation);
 		$liveBindingTable = $this->_getBindingModelLiveTable($relation);
-		$configBindingTable->syncBindingModel($liveBindingTable, $bindingModel);
+		$configBindingTable->syncModel($liveBindingTable, $bindingModel);
 	}
 
 
