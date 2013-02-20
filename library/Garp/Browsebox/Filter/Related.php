@@ -110,6 +110,9 @@ class Garp_Browsebox_Filter_Related extends Garp_Browsebox_Filter_Abstract {
 			$countSelect = $model->select()
 				->from($model->getName(), array('c' => 'COUNT(*)'))
 				->join($bindingModel->getName(), $joinConditions, array());
+			if ($where = $browsebox->getOption('conditions')) {
+				$countSelect->where($where);
+			}
 
 			foreach ($filterModelReference['columns'] as $i => $foreignKey) {
 				$countSelect->where($bindingModel->getAdapter()->quoteIdentifier($foreignKey).' = ?', $this->_params[$i]);
