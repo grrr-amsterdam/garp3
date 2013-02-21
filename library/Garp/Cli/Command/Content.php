@@ -19,8 +19,9 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		
 		$sourceFileList = Garp_Content_Upload_FileList_Factory::create($sourceEnv);
 		
-		Zend_Debug::dump((array)$sourceFileList);
-		exit;
+echo get_class($sourceFileList) . ':';
+Zend_Debug::dump((array)$sourceFileList);
+exit;
 	}
 
 
