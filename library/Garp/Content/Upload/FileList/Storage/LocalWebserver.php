@@ -27,9 +27,9 @@ class Garp_Content_Upload_FileList_Storage_LocalWebserver extends Garp_Content_U
 				if (!($dirList = scandir($absPath))) {
 					$this->_throwDirAccessError($absPath);
 				}
-			
+
 				foreach ($dirList as $baseName) {
-					$this->addEntry($relPath . '/' . $baseName);
+					$this->addEntry($relPath . '/' . $baseName, filemtime($absPath));
 				}
 			} else Garp_Cli::errorOut("Warning: {$absPath} does not exist.");			
 		}

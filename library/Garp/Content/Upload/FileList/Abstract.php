@@ -41,9 +41,16 @@ abstract class Garp_Content_Upload_FileList_Abstract extends ArrayObject {
 	}
 
 
-	public function addEntry($path) {
+	/**
+	 * @param $path			The relative path plus filename. F.i. '/uploads/images/pussy.gif'
+	 * @param $lastmodified	Timestamp of file's last modification date.
+	 */
+	public function addEntry($path, $lastmodified) {
 		if ($this->_isValidAssetName($path)) {
-			$this[] = $path;
+			$this[] = array(
+				'path' => $path,
+				'lastmodified' => $lastmodified
+			);
 		}
 	}
 
