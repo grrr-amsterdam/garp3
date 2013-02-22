@@ -17,10 +17,14 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		$sourceEnv = $this->_getSourceEnv($args);
 		$targetEnv = $this->_getTargetEnv($args);
 		
-		$sourceFileList = Garp_Content_Upload_FileList_Factory::create($sourceEnv);
+		$source = Garp_Content_Upload_Storage_Factory::create($sourceEnv);
+		$target = Garp_Content_Upload_Storage_Factory::create($targetEnv);
 		
-echo get_class($sourceFileList) . ':';
-Zend_Debug::dump((array)$sourceFileList);
+// echo get_class($sourceFileList) . ':';
+// Zend_Debug::dump((array)$sourceFileList);
+$srcFileList = $source->fetchFileList();
+$targetFileList = $target->fetchFileList();
+Zend_Debug::dump($targetFileList);
 exit;
 	}
 
