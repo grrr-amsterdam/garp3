@@ -30,6 +30,11 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 				}
 
 				foreach ($dirList as $baseName) {
+					/**
+					 * @todo: 	Dit net zo implementeren als RemoteWebserver,
+					 * 			zodat je geen aparte filemtime hoeft te doen, maar de
+					 *			ls-call in één keer uitleest.
+					 */
 					$fileList->addEntry($relPath . '/' . $baseName, filemtime($absPath));
 				}
 			} else Garp_Cli::errorOut("Warning: {$absPath} does not exist.");			
