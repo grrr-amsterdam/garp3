@@ -48,14 +48,14 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 	public function exists($filename) {
 		$this->_initApi();
-		return $this->_api->isObjectAvailable($this->_config['bucket'].$this->_getUri($filename));
+		return $this->_api->isObjectAvailable($this->_config['bucket'] . $this->_getUri($filename));
 	}
 
 
 	/** Fetches the url to the file, suitable for public access on the web. */
 	public function getUrl($filename) {
 		$this->_verifyPath();
-		return 'http://'.$this->_config['domain'] . $this->_config['path'] . '/' . $filename;
+		return 'http://' . $this->_config['domain'] . $this->_config['path'] . '/' . $filename;
 	}
 
 
