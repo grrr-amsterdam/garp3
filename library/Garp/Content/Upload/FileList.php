@@ -20,10 +20,11 @@ class Garp_Content_Upload_FileList extends ArrayObject {
 
 
 	/**
-	 * @param $path			The relative path plus filename. F.i. '/uploads/images/pussy.gif'
-	 * @param $lastmodified	Timestamp of file's last modification date.
+	 * @param $path				The relative path plus filename. F.i. '/uploads/images/pussy.gif'
+	 * @param [$lastmodified]	Timestamp of file's last modification date. Preferably this is
+	 *							provided right away, but this is not always possible performance-wise.
 	 */
-	public function addEntry($path, $lastmodified) {
+	public function addEntry($path, $lastmodified = null) {
 		if ($this->_isValidAssetName($path)) {
 			$this[] = array(
 				'path' => $path,
