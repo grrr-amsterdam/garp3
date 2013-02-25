@@ -10,25 +10,25 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Type_Abstract {
-	protected $_s3;
+	protected $_service;
 
 
 	public function __construct($environment) {
 		parent::__construct($environment);
-		$this->_setS3();
+		$this->_setService();
 	}
 
 
 	public function fetchFileList() {
 		$fileList = new Garp_Content_Upload_FileList();
 
-		$s3 = $this->_getS3();
+		$service = $this->_getService();
 
 		$uploadTypePaths = $this->_getConfiguredPaths();
 		
 		foreach ($uploadTypePaths as $dirPath) {
-			$s3->setPath($dirPath);
-			$dirList = $s3->getList();
+			$service->setPath($dirPath);
+			$dirList = $service->getList();
 			
 			foreach ($dirList as $filePath) {
 				if ($filePath[strlen($filePath) - 1] !== '/') {
@@ -41,15 +41,30 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 	}
 	
 	
-	protected function _getS3() {
-		return $this->_s3;
+	/**
+	 * Find the last modification date of the provided file.
+	 * @param 	String 	$path 	Relative path to the file
+	 * @return 	Int 			Unix timestamp of the last modification date.
+	 */
+	public function findLastModified($path) {
+		$service = $this->_getService();
+		$filename = basename($path);
+		$dir = substr($path, 0, strlen($path) - strlen($filename));
+		$service->setPath($dir);
+
+		return $service->getTimestamp($filename);
 	}
 	
 	
-	protected function _setS3() {
-		if (!$this->_s3) {
+	protected function _getService() {
+		return $this->_service;
+	}
+	
+	
+	protected function _setService() {
+		if (!$this->_service) {
 			$ini = $this->_getIni();
-			$this->_s3 = new Garp_File_Storage_S3($ini->cdn);
+			$this->_service = new Garp_File_Storage_S3($ini->cdn);
 		}
 	}
 }
