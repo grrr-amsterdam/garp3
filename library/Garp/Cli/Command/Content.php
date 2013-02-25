@@ -10,22 +10,17 @@
  */
 class Garp_Cli_Command_Content extends Garp_Cli_Command {
 	protected $_environments = array('development', 'integration', 'staging', 'production');
+	
+	protected $_sourceEnv;
+	protected $_targetEnv;
 
 	
 	public function sync(array $args) {
 		$this->_validateSyncArguments($args);
-		$sourceEnv = $this->_getSourceEnv($args);
-		$targetEnv = $this->_getTargetEnv($args);
+		$this->_setSourceEnv($args);
+		$this->_setTargetEnv($args);
 		
-		$source = Garp_Content_Upload_Storage_Factory::create($sourceEnv);
-		$target = Garp_Content_Upload_Storage_Factory::create($targetEnv);
-		
-// echo get_class($sourceFileList) . ':';
-// Zend_Debug::dump((array)$sourceFileList);
-$srcFileList = $source->fetchFileList();
-$targetFileList = $target->fetchFileList();
-Zend_Debug::dump($targetFileList);
-exit;
+		$this->_syncUploads();
 	}
 
 
@@ -38,6 +33,15 @@ exit;
 		Garp_Cli::lineOut("Example of synchronizing all content from staging to production:");
 		Garp_Cli::lineOut("\tg content sync staging production");
 		Garp_Cli::lineOut("");
+	}
+	
+	
+	protected function _syncUploads() {
+		$mediator = new Garp_Content_Upload_Mediator($this->_sourceEnv, $this->_targetEnv);
+		$diff = $mediator->fetchDiff();
+
+// Zend_Debug::dump($targetFileList);
+exit;
 	}
 	
 	
@@ -63,12 +67,12 @@ exit;
 	}
 
 
-	protected function _getSourceEnv(array $args) {
-		return $args[0];
+	protected function _setSourceEnv(array $args) {
+		$this->_sourceEnv = $args[0];
 	}
 
 
-	protected function _getTargetEnv(array $args) {
-		return $args[1];
+	protected function _setTargetEnv(array $args) {
+		$this->_targetEnv = $args[1];
 	}
 }
