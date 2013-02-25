@@ -1,6 +1,6 @@
 <?php
 /**
- * Garp_Content_Upload_FileList
+ * Garp_Content_Upload_Storage_Type_Abstract
  * You can use an instance of this class as a numeric array, containing an array per entry:
  * 		array(
  *			'path' => 'uploads/images/pussy.gif',
@@ -13,7 +13,7 @@
  * @subpackage Content
  * @lastmodified $Date: $
  */
-abstract class Garp_Content_Upload_Storage_Type_Abstract implements Garp_Content_Upload_Storage_Behavior_Listable {
+abstract class Garp_Content_Upload_Storage_Type_Abstract implements Garp_Content_Upload_Storage_Protocol {
 	const ERROR_CANT_OPEN_DIRECTORY = "Unable to open the configuration directory: %s";
 
 	protected $_uploadTypes = array('document', 'image');
@@ -47,6 +47,11 @@ abstract class Garp_Content_Upload_Storage_Type_Abstract implements Garp_Content
 	
 	protected function _setIni() {
 		$this->_ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', $this->_environment);
+	}
+
+
+	protected function _getIni() {
+		return $this->_ini;
 	}
 
 
