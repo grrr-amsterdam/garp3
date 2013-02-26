@@ -81,8 +81,6 @@ class Garp_Content_Upload_Mediator {
 			}
 			
 			if (!$matchFound) {
-Zend_Debug::dump($sourceFile);
-Zend_Debug::dump($targetFile);
 				$newFiles[] = $sourceFile;
 			}
 		}
@@ -104,12 +102,6 @@ Zend_Debug::dump($targetFile);
 
 					$sourceEtag = $this->_source->fetchEtag($sourceFile);
 					$targetEtag = $this->_target->fetchEtag($targetFile);
-// Zend_Debug::dump($sourceFile);
-// if ($sourceFile === '/uploads/images/taxipedestrian.jpg') {
-// Zend_Debug::dump($sourceFile);
-// Zend_Debug::dump($sourceEtag . " vs\n" . $targetEtag);
-// exit;
-// }
 
 					if ($sourceEtag != $targetEtag) {
 						$conflictingFiles[] = $sourceFile;
