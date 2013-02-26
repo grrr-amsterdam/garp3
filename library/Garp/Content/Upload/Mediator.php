@@ -47,6 +47,10 @@ class Garp_Content_Upload_Mediator {
 	}
 	
 	
+	/**
+	 * Finds out which files should be transferred.
+	 * @return Garp_Content_Upload_FileList List of file paths that should be transferred from source to target.
+	 */
 	public function fetchDiff() {
 		$diffList = new Garp_Content_Upload_FileList();
 		
