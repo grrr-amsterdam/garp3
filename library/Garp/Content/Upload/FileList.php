@@ -1,10 +1,10 @@
 <?php
 /**
  * Garp_Content_Upload_FileList
- * You can use an instance of this class as a numeric array, containing an array per entry:
+ * You can use an instance of this class as a numeric array, containing a relative path per entry:
  * 		array(
- *			'path' => 'uploads/images/pussy.gif',
- *			'lastmodified' => '1361378985'
+ *			'/uploads/images/pussy.gif',
+ *			'/uploads/images/kitten.jpg'
  *		)
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -20,16 +20,21 @@ class Garp_Content_Upload_FileList extends ArrayObject {
 
 
 	/**
-	 * @param $path				The relative path plus filename. F.i. '/uploads/images/pussy.gif'
-	 * @param [$lastmodified]	Timestamp of file's last modification date. Preferably this is
-	 *							provided right away, but this is not always possible performance-wise.
+	 * @param String $path The relative path plus filename. F.i. '/uploads/images/pussy.gif'
 	 */
-	public function addEntry($path, $lastmodified = null) {
+	public function addEntry($path) {
 		if ($this->_isValidAssetName($path)) {
-			$this[] = array(
-				'path' => $path,
-				'lastmodified' => $lastmodified
-			);
+			$this[] = $path;
+		}
+	}
+	
+
+	/**
+	 * @param Array $paths Numeric array of relative paths plus filename. F.i. array('/uploads/images/pussy.gif')
+	 */
+	public function addEntries(array $paths) {
+		foreach ($paths as $path) {
+			$this->addEntry($path);
 		}
 	}
 

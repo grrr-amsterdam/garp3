@@ -39,7 +39,22 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 
 		return $fileList;
 	}
-	
+
+
+	/**
+	 * Calculate the eTag of a file.
+	 * @param String $path 	Relative path to the file, starting with a slash.
+	 * @return String 		Content hash (md5 sum of the content)
+	 */
+	public function fetchEtag($path) {
+		$service = $this->_getService();
+		$filename = basename($path);
+		$dir = substr($path, 0, strlen($path) - strlen($filename));
+		$service->setPath($dir);
+
+		return $service->getEtag($filename);
+	}
+
 	
 	/**
 	 * Find the last modification date of the provided file.

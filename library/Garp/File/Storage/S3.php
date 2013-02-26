@@ -102,6 +102,17 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	}
 
 
+	public function getEtag($filename) {
+		$this->_initApi();
+		$info = $this->_api->getInfo($this->_config['bucket'].$this->_getUri($filename));
+
+		if (array_key_exists('etag', $info)) {
+			$info['etag'] = str_replace('"', '', $info['etag']);
+			return $info['etag'];
+		} else throw new Exception("Could not retrieve eTag of {$filename}.");
+	}
+
+
 	/** Returns last modified time of file, as a Unix timestamp. */
 	public function getTimestamp($filename) {
 		$this->_initApi();
