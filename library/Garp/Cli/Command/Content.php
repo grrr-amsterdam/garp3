@@ -14,11 +14,17 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 	protected $_sourceEnv;
 	protected $_targetEnv;
 
+	/**
+	 * Garp_Content_Upload_Mediator
+	 */		
+	protected $_mediator;
+
 	
 	public function sync(array $args) {
 		$this->_validateSyncArguments($args);
 		$this->_setSourceEnv($args);
 		$this->_setTargetEnv($args);
+		$this->_setMediator();
 		
 		$this->_syncUploads();
 	}
@@ -37,13 +43,18 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 	
 	
 	protected function _syncUploads() {
-		$mediator = new Garp_Content_Upload_Mediator($this->_sourceEnv, $this->_targetEnv);
-		$diff = $mediator->fetchDiff();
+		$diff = $this->_mediator->fetchDiff();
 
-// Zend_Debug::dump($targetFileList);
+echo 'Files to transfer:';
+Zend_Debug::dump($diff);
 exit;
 	}
+
 	
+	protected function _setMediator() {
+		$this->_mediator = new Garp_Content_Upload_Mediator($this->_sourceEnv, $this->_targetEnv);
+	}
+
 	
 	protected function _validateSyncArguments(array $args) {
 		$valid = false;
