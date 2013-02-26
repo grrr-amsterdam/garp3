@@ -48,17 +48,19 @@ class Garp_Content_Upload_Mediator {
 	
 	
 	public function fetchDiff() {
+		$diffList = new Garp_Content_Upload_FileList();
+		
 		$sourceList = $this->_source->fetchFileList();
 		$targetList = $this->_target->fetchFileList();
 
 		$newFiles = $this->_findNewFiles($sourceList, $targetList);
 
 		$conflictingFiles = $this->_findConflictingFiles($sourceList, $targetList);
-		
-		
-		Zend_Debug::dump($conflictingFiles);
-		exit;
-		//............
+
+		$diffList->addEntries($newFiles);
+		$diffList->addEntries($conflictingFiles);
+
+		return $diffList;
 	}
 	
 	
@@ -72,14 +74,16 @@ class Garp_Content_Upload_Mediator {
 			$matchFound = false;
 
 			foreach ($targetList as $targetFile) {
-				if ($sourceFile['path'] === $targetFile['path']) {
+				if ($sourceFile === $targetFile) {
 					$matchFound = true;
 					break;
 				}
 			}
 			
 			if (!$matchFound) {
-				$newFiles[] = $sourceFile['path'];
+Zend_Debug::dump($sourceFile);
+Zend_Debug::dump($targetFile);
+				$newFiles[] = $sourceFile;
 			}
 		}
 		
@@ -88,32 +92,29 @@ class Garp_Content_Upload_Mediator {
 
 
 	/**
-	 * @return Array 	Numeric array of file paths, referring to source files that exist on the target environment, but have a
-	 *					different last modified timestamp.
+	 * @return Array 	Numeric array of file paths, referring to source files that exist on the target environment, but have
+	 *					different content.
 	 */
 	protected function _findConflictingFiles(Garp_Content_Upload_FileList $sourceList, Garp_Content_Upload_FileList $targetList) {
 		$conflictingFiles = array();
 
 		foreach ($sourceList as $sourceFile) {
 			foreach ($targetList as $targetFile) {
-				if ($sourceFile['path'] === $targetFile['path']) {
-					/**
-					* @todo IF LAST MODIFIED IS ANDERS
-					*/
-					if (is_null($sourceFile['lastmodified'])) {
-						$sourceFile['lastmodified'] = $this->_source->findLastModified($sourceFile['path']);
-					}
-					
-					if (is_null($targetFile['lastmodified'])) {
-						$targetFile['lastmodified'] = $this->_target->findLastModified($targetFile['path']);
+				if ($sourceFile === $targetFile) {
+
+					$sourceEtag = $this->_source->fetchEtag($sourceFile);
+					$targetEtag = $this->_target->fetchEtag($targetFile);
+// Zend_Debug::dump($sourceFile);
+// if ($sourceFile === '/uploads/images/taxipedestrian.jpg') {
+// Zend_Debug::dump($sourceFile);
+// Zend_Debug::dump($sourceEtag . " vs\n" . $targetEtag);
+// exit;
+// }
+
+					if ($sourceEtag != $targetEtag) {
+						$conflictingFiles[] = $sourceFile;
 					}
 
-					if ($sourceFile['lastmodified'] != $targetFile['lastmodified']) {
-						$conflictingFiles[] = $sourceFile['path'];
-					}
-					/**
-					 * @todo: Moet dit toch met etags? Want last modification date lijkt wel altijd te veranderen...
-					 */
 					break;
 				}
 			}

@@ -35,12 +35,29 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 					 * 			zodat je geen aparte filemtime hoeft te doen, maar de
 					 *			ls-call in één keer uitleest.
 					 */
-					$fileList->addEntry($relPath . '/' . $baseName, filemtime($absPath));
+					$fileList->addEntry($relPath . '/' . $baseName);
 				}
 			} else Garp_Cli::errorOut("Warning: {$absPath} does not exist.");			
 		}
 		
 		return $fileList;
+	}
+	
+	
+	/**
+	 * Calculate the eTag of a file.
+	 * @param String $path 	Relative path to the file, starting with a slash.
+	 * @return String 		Content hash (md5 sum of the content)
+	 */
+	public function fetchEtag($path) {
+		$baseDir = $this->_getBaseDir();
+		$absPath = $baseDir . $path;
+		
+		$md5output = exec("cat {$absPath} | md5sum");
+		if ($md5output) {
+			$md5output = str_replace(array(' ', '-'), '', $md5output);
+			return $md5output;
+		} else throw new Exception("Could not fetch md5 sum of {$path}.");
 	}
 
 
