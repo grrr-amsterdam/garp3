@@ -15,29 +15,22 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	 * @return Garp_Content_Upload_FileList
 	 */
 	public function fetchFileList() {
-		$fileList = new Garp_Content_Upload_FileList();
-		
+		$fileList = new Garp_Content_Upload_FileList();		
 		$configuredPaths = $this->_getConfiguredPaths();
 
-		$baseDir = $this->_getBaseDir();
-
-
 		foreach ($configuredPaths as $relPath) {
-			$absPath = $baseDir . $relPath;
-			if (file_exists($absPath)) {
+			$absPath = $this->_getAbsPath($relPath);
+			if ($absPath !== false) {
 				if (!($dirList = scandir($absPath))) {
 					$this->_throwDirAccessError($absPath);
 				}
 
 				foreach ($dirList as $baseName) {
-					/**
-					 * @todo: 	Dit net zo implementeren als RemoteWebserver,
-					 * 			zodat je geen aparte filemtime hoeft te doen, maar de
-					 *			ls-call in één keer uitleest.
-					 */
 					$fileList->addEntry($relPath . '/' . $baseName);
 				}
-			} else Garp_Cli::errorOut("Warning: {$absPath} does not exist.");			
+			} else {				
+				Garp_Cli::errorOut("Warning: ". $this->_getBaseDir() . $relPath . " does not exist.");
+			}
 		}
 		
 		return $fileList;
@@ -50,8 +43,7 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	 * @return String 		Content hash (md5 sum of the content)
 	 */
 	public function fetchEtag($path) {
-		$baseDir = $this->_getBaseDir();
-		$absPath = $baseDir . $path;
+		$absPath = $this->_getAbsPath($path);
 		
 		$md5output = exec("cat {$absPath} | md5sum");
 		if ($md5output) {
@@ -59,9 +51,46 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 			return $md5output;
 		} else throw new Exception("Could not fetch md5 sum of {$path}.");
 	}
+	
+	
+	/**
+	 * Fetches the contents of the given file.
+	 * @param String $path 	Relative path to the file, starting with a slash.
+	 * @return String		Content of the file. Throws an exception if file could not be read.
+	 */
+	public function fetchData($path) {
+		$absPath = $this->_getAbsPath($path);
+		
+		$content = file_get_contents($absPath);
+		if ($content !== false) {
+			return $content;
+		} else throw new Exception("Could not read {$absPath} on " . $this->getEnvironment());
+	}
+	
+	
+	/**
+	 * Stores given data in the file, overwriting the existing bytes if necessary.
+	 * @param String $path 	Relative path to the file, starting with a slash.
+	 * @param String $data	File data to be stored.
+	 * @return Boolean		Success of storage.
+	 */
+	public function store($path, $data) {
+		$absPath = $this->_getAbsPath($path);
+		
+		$bytesWritten = file_put_contents($absPath, $data);
+		if ($bytesWritten !== false) {
+			return true;
+		} else throw new Exception("Could not write to {$absPath} on " . $this->getEnvironment());
+	}
 
 
+
+	protected function _getAbsPath($relPath) {
+		return realpath($this->_getBaseDir() . $relPath);
+	}
+	
+	
 	protected function _getBaseDir() {
-		return realpath(APPLICATION_PATH . '/../public');
+		return APPLICATION_PATH . '/../public';
 	}
 }

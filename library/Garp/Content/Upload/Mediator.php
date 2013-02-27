@@ -68,6 +68,16 @@ class Garp_Content_Upload_Mediator {
 	}
 	
 	
+	public function transfer(Garp_Content_Upload_FileList $fileList) {
+		foreach ($fileList as $filePath) {
+			$fileData = $this->_source->fetchData($filePath);
+			if (!$this->_target->store($filePath, $fileData)) {
+				throw new Exception("Could not store {$filePath} on " . $this->_target->getEnvironment());
+			}
+		}
+	}
+	
+	
 	/**
 	 * @return Array Numeric array of file paths, referring to files that are new to the target environment.
 	 */
