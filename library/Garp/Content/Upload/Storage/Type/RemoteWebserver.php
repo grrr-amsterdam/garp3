@@ -9,11 +9,7 @@
  * @subpackage Content
  * @lastmodified $Date: $
  */
-class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Upload_Storage_Type_Abstract {
-
-	const SSH_PRIVATE_KEY = '/Users/%s/.ssh/id_dsa';
-	const SSH_PUBLIC_KEY = '/Users/%s/.ssh/id_dsa.pub';
-	
+class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Upload_Storage_Type_Abstract {	
 	/**
 	 * Array $_deployParams Associative array containing 'server', 'deploy_to' and 'user'
 	 */
@@ -21,12 +17,15 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	
 	protected $_sshSession;
 	
+	protected $_sftpSession;
+	
 	
 	public function __construct($environment) {
 		parent::__construct($environment);
 		$this->_checkRequirements();
 		$this->setDeployParams($this->getDeployParams());
 		$this->setSshSession($this->_openSshSession($this->getServer()));
+		$this->setSftpSession($this->getSshSession());
 	}
 
 
@@ -87,6 +86,48 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 			return $md5output;
 		} else throw new Exception("Could not fetch md5 sum of {$path}.");
 	}
+
+
+	/**
+	 * Fetches the contents of the given file.
+	 * @param String $path 	Relative path to the file, starting with a slash.
+	 * @return String		Content of the file. Throws an exception if file could not be read.
+	 */
+	public function fetchData($path) {
+		$ini = $this->_getIni();
+		$cdnDomain = $ini->cdn->domain;
+		$url = 'http://' . $cdnDomain . $path;
+		
+		$content = file_get_contents($url);
+		if ($content !== false) {
+			return $content;
+		} else throw new Exception("Could not read {$url} on " . $this->getEnvironment());
+	}
+	
+	
+	/**
+	 * Stores given data in the file, overwriting the existing bytes if necessary.
+	 * @param String $path 	Relative path to the file, starting with a slash.
+	 * @param String $data	File data to be stored.
+	 * @return Boolean		Success of storage.
+	 */
+	public function store($path, $data) {
+		$sftpSession = $this->getSftpSession();
+		$remoteAbsPath = $this->_getBaseDir() . $path;
+
+		$sftpStream = @fopen('ssh2.sftp://' . $sftpSession . $remoteAbsPath, 'wb');
+
+	    if (!$sftpStream) {
+	        throw new Exception("Could not open remote file: $remoteAbsPath");
+	    }
+
+	    if (@fwrite($sftpStream, $data) === false) {
+	        throw new Exception("Could not store {$remoteAbsPath} by SFTP on " . $this->getEnvironment());
+	    }
+
+	    fclose($sftpStream);
+		return true;
+	}
 	
 	
 	/**
@@ -94,6 +135,14 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	 */
 	public function setSshSession($sshSession) {
 		$this->_sshSession = $sshSession;
+	}
+
+
+	/**
+	 * @param Resource $sshSession A session handler, as returned by ssh2_connect().
+	 */
+	public function setSftpSession($sshSession) {
+		$this->_sftpSession = ssh2_sftp($sshSession);
 	}
 
 
@@ -110,6 +159,11 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	public function getServer() {
 		return $this->_deployParams['server'];
 	}
+
+	
+	public function getUser() {
+		return $this->_deployParams['user'];
+	}
 	
 	
 	public function setDeployParams(array $deployParams) {
@@ -122,16 +176,14 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	}
 
 
+	public function getSftpSession() {
+		return $this->_sftpSession;
+	}
+
+
 	protected function _openSshSession($host) {
 		$session = ssh2_connect($host, 22, array('hostkey' => 'ssh-dss'));
-
-		$localUser = exec('whoami');
-		ssh2_auth_pubkey_file(
-			$session,
-			$localUser,
-			sprintf(self::SSH_PUBLIC_KEY, $localUser),
-			sprintf(self::SSH_PRIVATE_KEY, $localUser)
-		);
+		ssh2_auth_agent($session, $this->getUser());
 
 		return $session;
 	}
@@ -154,6 +206,13 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 				."Usually, 'sudo pecl install ssh2' should be enough,\n"
 				."But since the package is currently in beta, you can use:\n"
 				."sudo pecl install channel://pecl.php.net/ssh2-0.12\n\n"
+			);
+		}
+
+		if (!function_exists('ssh2_auth_agent')) {
+			throw new Exception(
+				"The ssh2 extension is compiled with libssh >= 1.2.3\n"
+				."to enable ssh2_auth_agent()."
 			);
 		}
 	}
