@@ -49,28 +49,57 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 	public function fetchEtag($path) {
 		$service = $this->_getService();
 		$filename = basename($path);
-		$dir = substr($path, 0, strlen($path) - strlen($filename));
+		$dir = $this->_getRelDir($path);
 		$service->setPath($dir);
 
 		return $service->getEtag($filename);
 	}
 
-	
-	/**
-	 * Find the last modification date of the provided file.
-	 * @param 	String 	$path 	Relative path to the file
-	 * @return 	Int 			Unix timestamp of the last modification date.
-	 */
-	public function findLastModified($path) {
-		$service = $this->_getService();
-		$filename = basename($path);
-		$dir = substr($path, 0, strlen($path) - strlen($filename));
-		$service->setPath($dir);
 
-		return $service->getTimestamp($filename);
+	/**
+	 * Fetches the contents of the given file.
+	 * @param String $path 	Relative path to the file, starting with a slash.
+	 * @return String		Content of the file. Throws an exception if file could not be read.
+	 */
+	public function fetchData($path) {
+		$ini = $this->_getIni();
+		$cdnDomain = $ini->cdn->domain;
+		$url = 'http://' . $cdnDomain . $path;
+		
+		$content = file_get_contents($url);
+		if ($content !== false) {
+			return $content;
+		} else throw new Exception("Could not read {$url} on " . $this->getEnvironment());
 	}
 	
 	
+	/**
+	 * Stores given data in the file, overwriting the existing bytes if necessary.
+	 * @param String $path 	Relative path to the file, starting with a slash.
+	 * @param String $data	File data to be stored.
+	 * @return Boolean		Success of storage.
+	 */
+	public function store($path, $data) {
+		$service = $this->_getService();
+		$filename = basename($path);
+		$dir = $this->_getRelDir($path);
+		$service->setPath($dir);
+
+		return $service->store($filename, $data, true, false);
+	}
+
+
+	/**
+	 * @param String $path 	Relative path to the file.
+	 * @return String 		The relative path to the directory where the file resides.
+	 */
+	protected function _getRelDir($path) {
+		$filename = basename($path);
+		$dir = substr($path, 0, strlen($path) - strlen($filename));
+		return $dir;
+	}
+
+
 	protected function _getService() {
 		return $this->_service;
 	}

@@ -43,11 +43,11 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 	
 	
 	protected function _syncUploads() {
-		$diff = $this->_mediator->fetchDiff();
+		$transferList = $this->_mediator->fetchDiff();
+		$this->_mediator->transfer($transferList);
 
-echo 'Files to transfer:';
-Zend_Debug::dump($diff);
-exit;
+		echo 'Transferred:';
+		Zend_Debug::dump((array)$transferList);
 	}
 
 	
