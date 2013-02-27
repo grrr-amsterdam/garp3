@@ -11,12 +11,11 @@
 html { font-size: 62.5%; line-height: 1.4; }
 body, button, input, select, textarea { font-family: sans-serif; @include font-size(16); color: #000; }
 body { background: #FFF; margin: 0; }
-code, var, kbd, samp, tt, dir, listing, plaintext, xmp, abbr, acronym, { @include hyphens(none); }
 
 .unstyled-list { list-style: none; padding-left: 0; }
 .nav ul, .nav ol { @extend .unstyled-list; }
 
-a:link, a:visited, a:hover, a:active { vertical-align: baseline; color: $link_color; }
+a:link, a:visited, a:hover, a:active { vertical-align: baseline; color: $linkColor; }
 a:hover, a:focus { color: #f00; }
 a:hover, a:focus, a:active { outline: 0; }
 .block-link { display: block; overflow: hidden; }
