@@ -52,14 +52,19 @@ class Garp_Content_Upload_Mediator {
 	 * @return Garp_Content_Upload_FileList List of file paths that should be transferred from source to target.
 	 */
 	public function fetchDiff() {
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();		
 		$diffList = new Garp_Content_Upload_FileList();
 		
 		$sourceList = $this->_source->fetchFileList();
 		$targetList = $this->_target->fetchFileList();
 
+		$progress->display("Looking for new files");
 		$newFiles = $this->_findNewFiles($sourceList, $targetList);
 
+		$progress->display("Looking for conflicting files");
 		$conflictingFiles = $this->_findConflictingFiles($sourceList, $targetList);
+
+		$progress->display("√ Done comparing.");
 
 		$diffList->addEntries($newFiles);
 		$diffList->addEntries($conflictingFiles);
@@ -69,9 +74,17 @@ class Garp_Content_Upload_Mediator {
 	
 	
 	public function transfer(Garp_Content_Upload_FileList $fileList) {
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+
 		foreach ($fileList as $filePath) {
+			$filename = basename($filePath);
+			$progress->display("Fetching ${filename}");
 			$fileData = $this->_source->fetchData($filePath);
-			if (!$this->_target->store($filePath, $fileData)) {
+			$progress->advance();
+			$progress->display("Uploading ${filename}");
+			if ($this->_target->store($filePath, $fileData)) {
+				$progress->advance();
+			} else {
 				throw new Exception("Could not store {$filePath} on " . $this->_target->getEnvironment());
 			}
 		}
@@ -108,21 +121,23 @@ class Garp_Content_Upload_Mediator {
 	 *					different content.
 	 */
 	protected function _findConflictingFiles(Garp_Content_Upload_FileList $sourceList, Garp_Content_Upload_FileList $targetList) {
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$conflictingFiles = array();
 
-		foreach ($sourceList as $sourceFile) {
-			foreach ($targetList as $targetFile) {
-				if ($sourceFile === $targetFile) {
+		$sourceListArray = (array)$sourceList;
+		$targetListArray = (array)$targetList;
+		$existingFiles = array_intersect($sourceListArray, $targetListArray);
+		$progress->init(count($existingFiles));
 
-					$sourceEtag = $this->_source->fetchEtag($sourceFile);
-					$targetEtag = $this->_target->fetchEtag($targetFile);
+		foreach ($existingFiles as $file) {
+			$progress->advance();
+			$filename = basename($file);
+			$progress->display("Comparing {$filename}");
+			$sourceEtag = $this->_source->fetchEtag($file);
+			$targetEtag = $this->_target->fetchEtag($file);
 
-					if ($sourceEtag != $targetEtag) {
-						$conflictingFiles[] = $sourceFile;
-					}
-
-					break;
-				}
+			if ($sourceEtag != $targetEtag) {
+				$conflictingFiles[] = $file;
 			}
 		}
 

@@ -28,8 +28,6 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 				foreach ($dirList as $baseName) {
 					$fileList->addEntry($relPath . '/' . $baseName);
 				}
-			} else {				
-				Garp_Cli::errorOut("Warning: ". $this->_getBaseDir() . $relPath . " does not exist.");
 			}
 		}
 		
@@ -60,6 +58,10 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	 */
 	public function fetchData($path) {
 		$absPath = $this->_getAbsPath($path);
+
+		if ($absPath === false) {
+			throw new Exception($absPath . ' does not exist');
+		}
 		
 		$content = file_get_contents($absPath);
 		if ($content !== false) {
@@ -75,8 +77,8 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	 * @return Boolean		Success of storage.
 	 */
 	public function store($path, $data) {
-		$absPath = $this->_getAbsPath($path);
-		
+		$absPath = $this->_getBaseDir() . $path;
+
 		$bytesWritten = file_put_contents($absPath, $data);
 		if ($bytesWritten !== false) {
 			return true;
