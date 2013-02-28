@@ -43,7 +43,9 @@
 	VIDEO_HEIGHT = <?php echo $this->config()->video->template->h ?>;
 	<?php endif; ?>
 	APP_TITLE = "<?php echo $this->escape($this->title) ?>";
+	<?php if (isset($this->config()->auth->adapters->facebook)): ?>
 	FB_APP_ID = "<?php echo $this->config()->auth->adapters->facebook->appId ?>";
+	<?php endif; ?>
 	DEBUG = window.location.hash.indexOf('debug') > -1;
 	
 </script>

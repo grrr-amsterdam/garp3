@@ -32,13 +32,12 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	 * @param Zend_Config $config The 'cdn' section from application.ini, containing S3 and general CDN configuration.
 	 * @param String $path Relative path to the location of the stored file, excluding trailing slash but always preceded by one.
 	 */
-	public function __construct(Zend_Config $config, $path) {
+	public function __construct(Zend_Config $config, $path = null) {
 		$this->_setConfigParams($config);
 		
-		if (!$path) {
-			throw new Exception("Did not receive a valid path to store uploads (" . var_dump($path) . ')');
+		if ($path) {
+			$this->_config['path'] = $path;
 		}
-		$this->_config['path'] = $path;
 	}
 
 
@@ -49,13 +48,14 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 	public function exists($filename) {
 		$this->_initApi();
-		return $this->_api->isObjectAvailable($this->_config['bucket'].$this->_getUri($filename));
+		return $this->_api->isObjectAvailable($this->_config['bucket'] . $this->_getUri($filename));
 	}
 
 
 	/** Fetches the url to the file, suitable for public access on the web. */
 	public function getUrl($filename) {
-		return 'http://'.$this->_config['domain'].$this->_config['path'].'/'.$filename;
+		$this->_verifyPath();
+		return 'http://' . $this->_config['domain'] . $this->_config['path'] . '/' . $filename;
 	}
 
 
@@ -70,7 +70,11 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	/** Lists all files in the upload directory. */
 	public function getList() {
 		$this->_initApi();
-		return $this->_api->getObjectsByBucket($this->_config['bucket']);
+		$this->_verifyPath();
+
+		// strip off preceding slash, add trailing one.
+		$path = substr($this->_config['path'], 1) . '/';
+		return $this->_api->getObjectsByBucket($this->_config['bucket'], array('prefix' => $path));
 	}
 
 
@@ -95,6 +99,17 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		) {
 			return $info['size'];
 		} else throw new Exception("Could not retrieve size of {$filename}.");
+	}
+
+
+	public function getEtag($filename) {
+		$this->_initApi();
+		$info = $this->_api->getInfo($this->_config['bucket'].$this->_getUri($filename));
+
+		if (array_key_exists('etag', $info)) {
+			$info['etag'] = str_replace('"', '', $info['etag']);
+			return $info['etag'];
+		} else throw new Exception("Could not retrieve eTag of {$filename}.");
 	}
 
 
@@ -153,6 +168,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		// return $this->_bucket.$this->_path.'/'.$filename;
 		//	bucket should no longer be prefixed to the path, or perhaps this never should have been done in the first place.
 		//	david, 2012-01-30
+		$this->_verifyPath();
 		$p = $this->_config['path'];
 		
 		return 
@@ -209,6 +225,13 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			$this->_api->getHttpClient()->setConfig(array('timeout' => self::TIMEOUT));
 			
 			$this->_apiInitialized = true;
+		}
+	}
+	
+	
+	protected function _verifyPath() {
+		if (!$this->_config['path']) {
+			throw new Exception("There is not path configured, please do this with setPath().");
 		}
 	}
 }
