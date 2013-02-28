@@ -11,7 +11,14 @@
 class Garp_Cli_Command_Content extends Garp_Cli_Command {
 	protected $_environments = array('development', 'integration', 'staging', 'production');
 	
+	/**
+	 * @param String $_sourceEnv The id of the source environment
+	 */
 	protected $_sourceEnv;
+
+	/**
+	 * @param String $_sourceEnv The id of the target environment
+	 */
 	protected $_targetEnv;
 
 	/**
@@ -24,9 +31,29 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		$this->_validateSyncArguments($args);
 		$this->_setSourceEnv($args);
 		$this->_setTargetEnv($args);
+
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress->init(1);
+		Garp_Cli::lineOut("\nAnalyzing {$this->_sourceEnv} → {$this->_targetEnv}");
+
 		$this->_setMediator();
-		
-		$this->_syncUploads();
+		$transferList = $this->_fetchDiff();
+
+		if ($transferTotal = count($transferList)) {
+			Garp_Cli::lineOut("\n\nTransferring {$transferTotal} files");
+
+			/*	total * 2, because both fetching the source and storing
+				on target count as an advance on the progressbar. */
+			$progress->init($transferTotal * 2);
+
+			$this->_syncUploads($transferList);
+			$progress->display("√ Transferred {$transferTotal} files.");
+		} else {
+			$progress->advance();
+			$progress->display("√ Done, no files to transfer.");
+		}
+
+		Garp_Cli::lineOut("\n");
 	}
 
 
@@ -42,12 +69,17 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 	}
 	
 	
-	protected function _syncUploads() {
-		$transferList = $this->_mediator->fetchDiff();
+	protected function _syncUploads(Garp_Content_Upload_FileList $transferList) {
 		$this->_mediator->transfer($transferList);
-
-		echo 'Transferred:';
-		Zend_Debug::dump((array)$transferList);
+	}
+	
+	
+	/**
+	 * Finds out which files should be transferred.
+	 * @return Garp_Content_Upload_FileList List of file paths that should be transferred from source to target.
+	 */
+	protected function _fetchDiff() {
+		return $this->_mediator->fetchDiff();
 	}
 
 	
@@ -74,6 +106,7 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		
 		if (!$valid) {
 			$this->help();
+			exit;
 		}
 	}
 
