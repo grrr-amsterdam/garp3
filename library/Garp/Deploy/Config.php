@@ -59,7 +59,7 @@ class Garp_Deploy_Config {
 	public function getContent($environment = null) {
 		if ($environment) {
 			$envEntryHead = "task :{$environment} do";
-			if (preg_match("/\n[^#]{$envEntryHead}/", $this->_content)) {
+			if ($this->isConfigured($environment)) {
 				$envStart 		= strpos($this->_content, $envEntryHead) + strlen($envEntryHead);
 				$envEnd 		= strpos($this->_content, "\nend", $envStart);
 				$envContent 	= trim(substr($this->_content, $envStart, $envEnd - $envStart));
@@ -69,6 +69,17 @@ class Garp_Deploy_Config {
 				throw new Exception("Environment configuration for '{$environment}' not found in {$this->_path}.");
 			}			
 		} else return $this->_content;
+	}
+	
+	
+	/**
+	 * Checks if there is a configuration entry for the provided environment.
+	 * @param 	String 	$environment 	The environment.
+	 * @return 	Bool					Whether this environment has deployment configuration.
+	 */
+	public function isConfigured($environment) {
+		$envEntryHead = "task :{$environment} do";
+		return (bool)preg_match("/\n[^#]{$envEntryHead}/", $this->_content);
 	}
 
 
