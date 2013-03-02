@@ -11,13 +11,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Db_Synchronizer {
-	protected $_environments = array('development', 'integration', 'staging', 'production');
-	
 	const PATH_CONFIG_APP = '/configs/application.ini';
 	const PATH_CONFIG_DEPLOY = '/configs/deploy.rb';
 
-	const DEFAULT_ENV_SOURCE = 'production';
-	
 	const COMMAND_DUMP = "mysqldump -u'%s' -p'%s' --add-drop-table --host='%s' --databases %s";
 	const COMMAND_RESTORE = "mysql -u'%s' -p'%s' --host='%s' < %s";
 	
@@ -26,45 +22,14 @@ class Garp_Db_Synchronizer {
 	const MSG_SERVER_NOT_ANSWERING = "I got no answer back from the remote server. How rude.";
 
 
-	public function __construct($sourceEnv = null, $targetEnv = null) {
-		list($sourceEnv, $targetEnv) = $this->_setEnvironments($sourceEnv, $targetEnv);
-		
+	public function __construct($sourceEnv = null, $targetEnv = null) {		
 		$mem = new Garp_Util_Memory();
 		$mem->useHighMemory();
 
-		$this->_warnAndDelay();
 		$this->_synchronize($sourceEnv, $targetEnv);
 	}
-	
-	
-	/**
-	 * Validate provided environments and fills out defaults if applicable.
-	 * @return Array Numeric array containing source environment, target environment.
-	 */
-	protected function _setEnvironments($sourceEnv, $targetEnv) {
-		if (!$sourceEnv) {
-			$sourceEnv = self::DEFAULT_ENV_SOURCE;
-		} else {
-			$this->_validateEnvironment($sourceEnv);
-		}
-		
-		if (!$targetEnv) {
-			$targetEnv = APPLICATION_ENV;
-		} else {
-			$this->_validateEnvironment($targetEnv);
-		}
-		
-		return array($sourceEnv, $targetEnv);
-	}
-	
-	
-	protected function _validateEnvironment($env) {
-		if (!in_array($env, $this->_environments)) {
-			throw new Exception($env . ' is not a valid environment. Try ' . implode(' / ', $this->_environments));
-		}
-	}
-	
-	
+
+
 	protected function _synchronize($sourceEnv, $targetEnv) {
 		$sourceConfig = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $sourceEnv);
 		$targetConfig = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $targetEnv);
@@ -172,25 +137,6 @@ class Garp_Db_Synchronizer {
 				throw $e;
 			}
 		}				
-	}
-
-
-	protected function _warnAndDelay() {
-		$delayInSeconds = 5;
-		$clearLine = function() {
-			echo "\033[2K";
-			echo str_repeat(chr(8), 1000);
-		};
-
-		echo "Your local database will be \033[2;31mwiped out!\033[0m\n";
-
-		for ($i = $delayInSeconds; $i > 0; $i--) {
-			$clearLine();
-			echo "\033[2;32mCTRL-C\033[0m within $i second" . ($i > 1 ? 's':''). " if that scares you.";
-			sleep(1);
-		}
-		$clearLine();
-		echo "\n";
 	}
 
 }
