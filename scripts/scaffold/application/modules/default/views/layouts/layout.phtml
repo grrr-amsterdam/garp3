@@ -17,8 +17,14 @@
 		<?php endif; ?>
 
 		<meta name="description" content="<?php echo $this->escape($this->description ?: $this->config()->app->description); ?>">
-		<?php echo $this->social()->facebookOgData($this->ogData ?: array()); ?>
+		<?php // echo $this->social()->facebookOgData($this->ogData ?: array()); ?>
+
+		<!--[if lte IE 8]>
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/compiled/ie-old.css') ?>">
+		<![endif]-->
+		<!--[if gt IE 8]><!-->
 		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/compiled/base.css') ?>">
+		<!--<![endif]-->
 		<script src="<?php echo $this->assetUrl('/js/libs/modernizr-2.6.2.min.js') ?>"></script>
 
 <?php /* Uncomment when applicable: (@see http://mathiasbynens.be/notes/touch-icons)
@@ -28,28 +34,14 @@
 		<link rel="shortcut icon" href="img/apple-touch-icon.png"><!-- For nokia devices: -->
 */ ?>
 		<link rel="shortcut icon" href="<?php echo $this->baseUrl('/favicon.ico') ?>">
-
-		<?php
-			if (APPLICATION_ENV !== 'production'):
-				$this->script()->src('/js/libs/hashgrid.js');
-		?>
-		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/hashgrid.css') ?>">
-		<?php
-			endif;
-		?>
 	</head>
 	<body>
 		<?php echo $this->partial('partials/cookie-announcement.phtml', 'default');?>
 		<div id="container">
-			<header role="banner">
-
-			</header>
+			<?php echo $this->partial('partials/header.phtml', 'default', array('currentPage' => $this->currentPage)); ?>
 			<div id="main" role="main">
 				<?php echo $this->layout()->content ?>
 			</div>
-			<footer>
-
-			</footer>
 		</div>
 
 		<!-- Grab Google CDN's jQuery. fall back to local if necessary -->
@@ -59,8 +51,10 @@
 		<script src="<?php echo $this->assetUrl('/js/main.js') ?>"></script>
 		<?php 
 			echo $this->script()->render();
-			echo $this->browsebox()->config();
-			echo $this->partial('partials/google-analytics.phtml', 'g', array('analyticsId' => 'UA-XXXXXXX'));
+			if ($browseboxConfig = $this->browsebox()->config()):
+				echo $browseboxConfig;
+			endif;
+			echo $this->partial('partials/google-analytics.phtml', 'g');
 		?>
 	</body>
 </html>
