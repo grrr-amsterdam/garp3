@@ -98,6 +98,15 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 
 		return $output;
 	}
+	
+	/**
+	 * Fetches an SQL dump for structure and content of this database.
+	 * @return String The SQL statements, creating structure and importing content.
+	 */
+	public function fetchDump() {
+		$command = $this->_renderDumpSqlCommand();
+		return $this->shellExec($command);
+	}
 
 	/**
 	 * @return Resource $sshSession A session handler, as returned by ssh2_connect()
