@@ -53,8 +53,14 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 			$this->_renderDumpShellCommand()
 		);
 
+		/**
+		 * @todo: verifiëren of:
+		 *			- backupbestand bestaat
+		 *			- backupbestand meer dan 0 bytes heeft
+		 */
+
 		foreach ($commands as $command) {
-			$this->_shellExec($command);
+			$this->shellExec($command);
 		}
 	}
 	
@@ -72,7 +78,6 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		return $this->_appConfigParams;
 	}
 
-		
 	/**
 	 * @return Zend_Config_Ini
 	 */
@@ -97,6 +102,38 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 */
 	public function setBackupPath($path) {
 		$this->_backupPath = $path;
+	}
+	
+	/**
+	 * 
+	 */
+	public function restore($dump) {
+		$dump = $this->_adjustDump($dump);
+		Zend_Debug::dump($dump);
+		exit;
+	}
+	
+	/**
+	 * Replace the environment values in the given MySQL dump with the environment values for the target.
+	 * @param 	String 	&$dump 	Output of MySQL dump.
+	 * @return 	String 			The dump output, adjusted with target values instead of source values.
+	 */
+	protected function _adjustDump(&$dump) {
+		$dbParams = $this->getDbConfigParams();
+
+		$patterns = array(
+			'/(USE `)(?P<dbname>[\w-]+)(`;)/',
+			'/(CREATE DATABASE [^`]+`)(?P<dbname>[\w-]+)(`)/',
+			'/(DEFINER=`)(?P<user>[\w-]+)(`@`)(?P<host>[\w-]+)(`)/'
+		);
+
+		$replacements = array(
+			"$1{$dbParams->dbname}$3",
+			"$1{$dbParams->dbname}$3",
+			"$1{$dbParams->username}\${3}{$dbParams->host}$5"
+		);
+
+		return preg_replace($patterns, $replacements, $dump);
 	}
 
 	protected function _renderDumpSqlCommand() {
