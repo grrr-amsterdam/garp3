@@ -10,12 +10,13 @@
  * @lastmodified $Date: $
  */
 abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server_Protocol {
-
-	const COMMAND_DUMP = "mysqldump -u'%s' -p'%s' --add-drop-table --host='%s' --databases %s";
-	
-	const COMMAND_CREATE_BACKUP_PATH = "mkdir -p -m 770 %s";
-
 	const PATH_CONFIG_APP = '/configs/application.ini';
+	
+	const RESTORE_FILE = 'tmp_restore.sql';
+	
+	// const QUERY_DROP = "DROP DATABASE IF EXISTS `%s`";
+	//	waarom apart droppen? Zit al in de query.
+
 
 	/**
 	 * @var String $_environment The environment this server runs in.
@@ -29,9 +30,9 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	protected $_appConfigParams;
 
 	/**
-	 * @var		String		Absolute path to write backup files to.
+	 * @var		String		Absolute path to directory where backup files should be written to.
 	 */
-	protected $_backupPath;
+	protected $_backupDir;
 
 
 	/**
@@ -40,28 +41,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	public function __construct($environment) {
 		$this->setEnvironment($environment);
 		$this->setAppConfigParams($this->_fetchAppConfigParams());
-		$this->setBackupPath($this->getBackupPath());
-	}
-
-
-	/**
-	 * Backs up the database and writes it to a file on the server itself.
-	 */
-	public function backup() {
-		$commands = array(
-			$this->_renderCreateBackupPath(),
-			$this->_renderDumpShellCommand()
-		);
-
-		/**
-		 * @todo: verifiëren of:
-		 *			- backupbestand bestaat
-		 *			- backupbestand meer dan 0 bytes heeft
-		 */
-
-		foreach ($commands as $command) {
-			$this->shellExec($command);
-		}
+		$this->setBackupDir($this->getBackupDir());
 	}
 	
 	/**
@@ -100,17 +80,85 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	/**
 	 * @param String $path
 	 */
-	public function setBackupPath($path) {
-		$this->_backupPath = $path;
+	public function setBackupDir($path) {
+		$this->_backupDir = $path;
+	}
+
+	/**
+	 * Retrieves the absolute path to the SQL dump that is to be restored.
+	 * @return String Absolute path to the SQL dump file.
+	 */
+	public function getRestoreFilePath() {
+		$backupDir = $this->getBackupDir();
+		return $backupDir . DIRECTORY_SEPARATOR . self::RESTORE_FILE;
+	}
+
+	/**
+	 * Backs up the database and writes it to a file on the server itself.
+	 */
+	public function backup() {
+		$backupDir 		= $this->getBackupDir();
+		$dbConfigParams = $this->getDbConfigParams();
+		$environment	= $this->getEnvironment();
+		
+		$commands = array(
+			new Garp_Content_Db_ShellCommand_CreateBackupDir($backupDir),
+			new Garp_Content_Db_ShellCommand_DumpToFile($dbConfigParams, $backupDir, $environment)
+		);
+
+
+		/**
+		 * @todo: verifiëren of:
+		 *			- backupbestand bestaat
+		 *			- backupbestand meer dan 0 bytes heeft
+		 */
+
+		foreach ($commands as $command) {
+			$this->shellExec($command);
+		}
 	}
 	
 	/**
-	 * 
+	 * Restores a database from a MySQL dump result, executing the contained SQL queries.
+	 * @param String $dump The MySQL dump output
 	 */
 	public function restore($dump) {
-		$dump = $this->_adjustDump($dump);
-		Zend_Debug::dump($dump);
+		$dump 			= $this->_adjustDumpToEnvironment($dump);
+		$dbConfig 		= $this->getDbConfigParams();
+
+		$restoreFile 	= $this->getRestoreFilePath();
+		if ($this->store($restoreFile, $dump)) {
+			$executeFile = new Garp_Content_Db_ShellCommand_ExecuteFile($dbConfig, $restoreFile);
+			$this->shellExec($executeFile);
+			
+			// $removeFile = new Garp_Content_Db_ShellCommand_RemoveFile($restoreFile);
+			// $this->shellExec($removeFile);
+			
+			
+		}
+
+		/**
+		 * @todo
+		 *
+		 * AHA! Zou het de casing zijn?
+		 * Probleem 1: hij gebruikt een VIEW statement, ipv CREATE VIEW
+		 * Probleem 2: hij verwijst naar lowercase tablenames en daardoor wordt de view niet aangemaakt? (server instelling)
+		 *
+		 *
+		 * - verifieer filesize van dump
+		 */
+
 		exit;
+	}
+	
+
+	/**
+	 * Fetches an SQL dump for structure and content of this database.
+	 * @return String The SQL statements, creating structure and importing content.
+	 */
+	public function fetchDump() {
+		$dumpToString = new Garp_Content_Db_ShellCommand_DumpToString($this->getDbConfigParams());
+		return $this->shellExec($dumpToString);
 	}
 	
 	/**
@@ -118,7 +166,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 * @param 	String 	&$dump 	Output of MySQL dump.
 	 * @return 	String 			The dump output, adjusted with target values instead of source values.
 	 */
-	protected function _adjustDump(&$dump) {
+	protected function _adjustDumpToEnvironment(&$dump) {
 		$dbParams = $this->getDbConfigParams();
 
 		$patterns = array(
@@ -136,42 +184,6 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		return preg_replace($patterns, $replacements, $dump);
 	}
 
-	protected function _renderDumpSqlCommand() {
-		$appConfigParams = $this->getAppConfigParams();
-
-		$dbConfig = $appConfigParams->resources->db->params;
-		
-		$dumpCommand = sprintf(
-			self::COMMAND_DUMP,
-			$dbConfig->username,
-			$dbConfig->password,
-			$dbConfig->host,
-			$dbConfig->dbname
-		);
-		
-		return $dumpCommand;
-	}
-	
-	
-	protected function _renderDumpShellCommand() {
-		$dumpSqlCommand 	= $this->_renderDumpSqlCommand();
-		$backupPath 		= $this->getBackupPath();
-		$dbConfigParams 	= $this->getDbConfigParams();
-		$dbName 			= $dbConfigParams->dbname;
-		$environment		= $this->getEnvironment();
-		$date				= date('Y-m-d-Hi');
-
-		$shellCommand		= $dumpSqlCommand . ' > ' . $backupPath . '/'
-							. $dbName . '-' . $environment . '-' . $date . '.sql';
-
-		return $shellCommand;
-	}
-	
-	
-	protected function _renderCreateBackupPath() {
-		$backupPath = $this->getBackupPath();
-		return sprintf(self::COMMAND_CREATE_BACKUP_PATH, $backupPath);
-	}
 
 	protected function _fetchAppConfigParams() {
 		$config = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $this->getEnvironment());

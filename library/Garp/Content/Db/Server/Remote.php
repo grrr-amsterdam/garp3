@@ -67,7 +67,7 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 		return $this->_deployParams;
 	}
 
-	public function getBackupPath() {
+	public function getBackupDir() {
 		$backupPath = $this->getRemotePath() . self::PATH_BACKUP;		
 		return $backupPath;
 	}
@@ -87,11 +87,11 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	}
 
 	/**
-	 * @param String $command Shell command
+	 * @param Garp_Content_Db_ShellCommand_Protocol $command Shell command
 	 */
-	public function shellExec($command) {
+	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command) {
 		$sshSession = $this->getSshSession();
-		if ($stream = ssh2_exec($sshSession, $command)) {
+		if ($stream = ssh2_exec($sshSession, $command->render())) {
 			stream_set_blocking($stream, true);
 			$output = stream_get_contents($stream);
 		} else return false;
@@ -100,22 +100,41 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	}
 	
 	/**
-	 * Fetches an SQL dump for structure and content of this database.
-	 * @return String The SQL statements, creating structure and importing content.
+	 * Stores data in a file.
+	 * @param String $path Absolute path within the server to a file where the data should be stored.
+	 * @param String $data The data to store.
+	 * @return Boolean		Success status of the storage process.
 	 */
-	public function fetchDump() {
-		$command = $this->_renderDumpSqlCommand();
-		return $this->shellExec($command);
+	public function store($path, $data) {
+		$ssh = $this->getSshSession();
+		$sftp = ssh2_sftp($ssh);
+
+		$sftpStream = @fopen('ssh2.sftp://' . $sftp . $path, 'wb');
+		
+	    if (!$sftpStream) {
+	        throw new Exception("Could not open remote file: $path");
+	    }
+
+	    if (@fwrite($sftpStream, $data) === false) {
+	        throw new Exception("Could not store {$path} by SFTP on " . $this->getEnvironment());
+	    }
+
+	    fclose($sftpStream);
+		return true;
 	}
 
 	/**
 	 * @return Resource $sshSession A session handler, as returned by ssh2_connect()
 	 */
 	protected function _openSshSession() {
+		$host = $this->getHost();
 		$session = ssh2_connect($this->getHost(), 22, array('hostkey' => 'ssh-dss'));
-		ssh2_auth_agent($session, $this->getUser());
 
-		return $session;
+		if ($session) {
+			if (ssh2_auth_agent($session, $this->getUser())) {
+				return $session;
+			} else throw new Exception("Could not authenticate a session to {$host} using the SSH agent.");
+		} else throw new Exception("Could not connect to {$host}.");
 	}
 
 	/**
