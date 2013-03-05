@@ -46,6 +46,11 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 	 */
 	public function render($image, $template = null, $htmlAttribs = array(), $partial = null) {
 		if ($this->_isFilename($image)) {
+			// When calling for a static image, you can use the second param as $htmlAttribs.
+			$htmlAttribs = $template;
+			if (is_null($htmlAttribs)) {
+				$htmlAttribs = array();
+			}
 			return $this->_renderStatic($image, $htmlAttribs);
 		} else {
 			if ($template) {
