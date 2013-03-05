@@ -43,12 +43,14 @@ class Garp_Content_Db_Mediator {
 		
 		$source = $this->getSource();
 		$dump = $source->fetchDump();
-
+// echo 'boterballen';
+// Zend_Debug::dump($dump);
+// exit;
 		// target drop?
 		$target->restore($dump);
 	
-		Zend_Debug::dump($dump);
-		exit;
+		// Zend_Debug::dump($dump);
+		// exit;
 		/**
 		 * @todo:
 		 * 	- ophalen db dump (in var, of kan dat slimmer?)
