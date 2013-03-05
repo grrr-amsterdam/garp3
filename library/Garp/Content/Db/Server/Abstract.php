@@ -141,8 +141,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		 * @todo
 		 *
 		 * AHA! Zou het de casing zijn?
-		 * Probleem 1: hij gebruikt een VIEW statement, ipv CREATE VIEW
-		 * Probleem 2: hij verwijst naar lowercase tablenames en daardoor wordt de view niet aangemaakt? (server instelling)
+		 * Probleem: hij verwijst naar lowercase tablenames en daardoor wordt de view niet aangemaakt? (server instelling)
 		 *
 		 *
 		 * - verifieer filesize van dump
