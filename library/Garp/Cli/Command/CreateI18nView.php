@@ -18,12 +18,12 @@ class Garp_Cli_Command_CreateI18nView extends Garp_Cli_Command {
 	 * @return Void
 	 */
 	public function main(array $args = array()) {
-		if (empty($args[1])) {
+		if (empty($args[0])) {
 			Garp_Cli::errorOut('Insufficient arguments.');
 			Garp_Cli::errorOut('Usage: php garp.php CreateI18nView <table-name> [<locale> <locale2> <localeN>...]');
 		} else {
-			$table = $args[1];
-			$locales = array_slice($args, 1);
+			$table = $args[0];
+			$locales = array_slice($args, 0);
 			if (empty($locales)) {
 				$locales = Garp_I18n::getAllPossibleLocales();
 			}
