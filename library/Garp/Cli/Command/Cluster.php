@@ -19,11 +19,11 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 		if (empty($args)) {
 			Garp_Cli::lineOut($this->_getHelpText());
 		} else {
-			if (!array_key_exists(1, $args)) {
+			if (!array_key_exists(0, $args)) {
 				Garp_Cli::lineOut("Please indicate what you want me to do.\n");
 				$this->_exit($this->_getHelpText());
 			} else {
-				$command = $args[1];
+				$command = $args[0];
 			
 				if (method_exists($this, '_'.$command)) {
 					$this->{'_'.$command}($args);
