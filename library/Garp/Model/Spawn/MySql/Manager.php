@@ -17,7 +17,7 @@ class Garp_Model_Spawn_MySql_Manager {
 	 * @param Garp_Model_Spawn_ModelSet 	$modelSet 		The model set to model the database after.
 	 * @param Array 						&$changelist 	An array of strings, describing the changes made to the database in this Spawn session.
 	 */
-	public function __construct(Garp_Model_Spawn_ModelSet $modelSet, $TMP_FIX_CREATE_JOINT_VIEWS) {
+	public function __construct(Garp_Model_Spawn_ModelSet $modelSet) {
 		$totalActions = count($modelSet) * 4;
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->init($totalActions);
@@ -30,33 +30,22 @@ class Garp_Model_Spawn_MySql_Manager {
 		$this->_adapter->query('SET NAMES utf8;');
 
 
-		//	Stage 1: Spawn the prioritized table first
+		//	Stage 0: Remove all joint views________
+		$this->_deleteAllJointViews();
+
+		//	Stage 1: Spawn the prioritized table first________
 		if (array_key_exists($priorityModel, $modelSet)) {
 			$this->_createBaseModelTableAndAdvance($modelSet[$priorityModel]);
 		}
 
-		//	Stage 2: Create the rest of the base models' tables
+		//	Stage 2: Create the rest of the base models' tables________
 		foreach ($modelSet as $model) {
 			if ($model->id !== $priorityModel) {
 				$this->_createBaseModelTableAndAdvance($model);
 			}
 		}
 
-		//	Stage 3: Create base model views
-		foreach ($modelSet as $model) {
-			$progress->display($model->id . " joint view");
-			/**
- 			 * @todo FIX ME!
- 			 * In het CLI command wordt de MySQL Manager nu twee keer aangeroepen: één keer met $TMP_FIX_CREATE_JOINT_VIEWS = false en 
- 			 * daarna nog een keer met $TMP_FIX_CREATE_JOINT_VIEWS = true.
- 			 */
-			if ($TMP_FIX_CREATE_JOINT_VIEWS) {
-				$this->_createJointView($model);
-			}
-			$progress->advance();
-		}
-
-		//	Stage 4: Create binding models
+		//	Stage 3: Create binding models________
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " many-to-many config reading");
 			$habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany');
@@ -71,7 +60,7 @@ class Garp_Model_Spawn_MySql_Manager {
 			$progress->advance();
 		}
 
-		//	Stage 5: Sync base and binding models
+		//	Stage 4: Sync base and binding models________
 		foreach ($modelSet as $model) {
 			$this->_syncBaseModel($model);
 
@@ -86,8 +75,15 @@ class Garp_Model_Spawn_MySql_Manager {
 			}
 			$progress->advance();
 		}
+		
+		//	Stage 5: Create base model views________
+		foreach ($modelSet as $model) {
+			$progress->display($model->id . " joint view");
+			$this->_createJointView($model);
+			$progress->advance();
+		}
 
-		//	Stage 6: Execute custom SQL
+		//	Stage 6: Execute custom SQL________
 		$progress->display("Executing custom SQL");
 		$this->_executeCustomSql();
 
@@ -121,6 +117,25 @@ class Garp_Model_Spawn_MySql_Manager {
 	}
 	
 	
+	/**
+	 * Deletes all the views that are generated for relational performance purposes.
+	 */
+	protected function _deleteAllJointViews() {
+		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$config = Zend_Registry::get('config');
+		$dbName = $config->resources->db->params->dbname;
+
+		$statement = "SELECT table_name FROM information_schema.views WHERE table_schema = '{$dbName}' and table_name like '%_joint';";
+
+		$views = $adapter->fetchAll($statement);
+		foreach ($views as $view) {
+			$viewName = $view['table_name'];
+			$dropStatement = "DROP VIEW IF EXISTS {$viewName};";
+			$adapter->query($dropStatement);
+		}
+	}
+	
+	
 	protected function _createBindingModelTableIfNotExists(Garp_Model_Spawn_Relation $relation) {
 		$configBindingTable = $this->_getBindingModelConfigTable($relation);
 		$this->_createTableIfNotExists($configBindingTable);
@@ -142,7 +157,7 @@ class Garp_Model_Spawn_MySql_Manager {
 		$progress->display($bindingModel->id . " table comparison");
 		$configBindingTable = $this->_getBindingModelConfigTable($relation);
 		$liveBindingTable = $this->_getBindingModelLiveTable($relation);
-		$configBindingTable->syncBindingModel($liveBindingTable, $bindingModel);
+		$configBindingTable->syncModel($liveBindingTable, $bindingModel);
 	}
 
 
