@@ -44,6 +44,7 @@ class Garp_Service_CinemaNl extends Zend_Service_Abstract {
 
 	/**
 	 * @param Int $id The cinema.nl movie id, for instance 269865.
+	 * @param Boolean $raw When you want the unaltered response from Cinema.nl (As SimpleXML element)
 	 * @return Array Associative array with movie data:
 	 * 					String name
 	 * 					String synopsis
@@ -56,7 +57,7 @@ class Garp_Service_CinemaNl extends Zend_Service_Abstract {
 	 * 					String countries
 	 * 					Boolean color
 	 */
-	public function fetchMovie($id) {
+	public function fetchMovie($id, $raw = false) {
 		try {
 			$response = $this->_getRequest("/movie/".$id);
 		} catch(Exception $e) {
@@ -67,6 +68,9 @@ class Garp_Service_CinemaNl extends Zend_Service_Abstract {
 			} else throw $e;
 		}
 
+		if ($raw) {
+			return $response;
+		}
 		$output = array();
 
 		if (

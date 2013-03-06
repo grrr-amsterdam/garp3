@@ -181,6 +181,8 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			this.quickCreatableInit();
 			this.getForm().clearInvalid();
 			if (this.quickCreateReference) {
+				console.info(this.quickCreateReference);
+				console.info(this.parentId);
 				var id = this.parentId || Garp.gridPanel.getSelectionModel().getSelected().get('id');
 				this.getForm().findField(this.quickCreateReference).store.on('load', function(){
 					this.getForm().findField(this.quickCreateReference).setValue(id);
