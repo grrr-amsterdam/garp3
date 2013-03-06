@@ -19,7 +19,7 @@ class Garp_Cli_Command_Test extends Garp_Cli_Command {
 	 * @return Void
 	 */
 	public function main(array $args = array()) {
-		if (1 === count($args) && !empty($args[1]) && 'help' === strtolower($args[1])) {
+		if (1 === count($args) && !empty($args[0]) && 'help' === strtolower($args[0])) {
 			$this->help();
 			return;
 		}

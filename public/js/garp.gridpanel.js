@@ -58,15 +58,16 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		}
 		
 		Ext.Msg.confirm(__('Garp'), count == 1 ? __('Are you sure you want to delete the selected item?') : __('Are you sure you want to delete the selected items?'), function(btn){
+			var sm = this.getSelectionModel();
 			if (btn == 'yes') {
-				//this.loadMask.show();
-				Ext.each(this.getSelectionModel().getSelections(), function(rec){
+				Ext.each(sm.getSelections(), function(rec){
 					this.store.remove(rec);
 				});
 				this.getStore().save();
-				this.getSelectionModel().clearSelections();
+				sm.clearSelections();
 				this.fireEvent('afterdelete');
 			}
+			sm.selectRow(sm.last); // focus gridpanel again.
 		}, this);
 	},
 	
@@ -193,12 +194,44 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		 */
 		var pagingToolbar = this.getBottomToolbar();
 		
+		function checkTarget(evt){
+			// We might possibly have focus in a textbox in this gridpanel; we don't want the KeyMap to interfere
+			return (!evt.getTarget('input') && !evt.getTarget('textarea') && !evt.getTarget('iframe'));
+		}
+		
 		var keyMap = new Ext.KeyMap(this.getEl(), [{
 			key: 'a',
 			ctrl: true,
 			fn: function(e, o){
-				if (!o.getTarget('input') && !o.getTarget('textarea')) {
+				if (checkTarget(o)) {
 					this.selectAll();
+					o.stopEvent();
+				}
+			},
+			scope: this
+		},{
+			key: Ext.EventObject.DELETE,
+			ctrl: true,
+			handler: function(e,o){
+				if (checkTarget(o)) {
+					if (Garp.dataTypes[Garp.currentModel].disableDelete || Garp.toolbar.deleteButton.disabled) {
+						return;
+					}
+					
+					this.fireEvent('delete');
+					o.stopEvent();
+				}
+			},
+			scope: this
+		},{
+			key: Ext.EventObject.BACKSPACE,
+			ctrl: false,
+			handler: function(e,o){
+				if (checkTarget(o)) {
+					if (Garp.dataTypes[Garp.currentModel].disableDelete || Garp.toolbar.deleteButton.disabled) {
+						return;
+					}
+					this.fireEvent('delete');
 					o.stopEvent();
 				}
 			},

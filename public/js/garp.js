@@ -547,15 +547,6 @@
 				Garp.eventManager.fireEvent('save-all');
 			}
 		},{
-			key: Ext.EventObject.DELETE,
-			ctrl: true,
-			handler: function(e){
-				if(Garp.dataTypes[Garp.currentModel].disableDelete || Garp.toolbar.deleteButton.disabled){
-					return;
-				}
-				Garp.eventManager.fireEvent('delete');
-			}
-		},{
 			key: 'N',
 			ctrl: true,
 			handler: function(e){

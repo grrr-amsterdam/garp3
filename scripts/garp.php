@@ -68,7 +68,8 @@ if (isset($classLoader)) {
 		$commandName = 'App_Cli_Command_' . $classArgument;
 	}
 }
-unset($args[0]);
+// Remove the command name from the argument list
+$args = array_splice($args, 1);
 
 if (isset($classLoader) && !$classLoader->isLoadable($commandName)) {
 	Garp_Cli::errorOut('Silly developer. This is not the command you\'re looking for.');
