@@ -124,6 +124,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 */
 	public function restore($dump) {
 		$dump 			= $this->_adjustDumpToEnvironment($dump);
+		$dump			= $this->_lowerCaseTableAndViewNames($dump);
 		$dbConfig 		= $this->getDbConfigParams();
 
 		$restoreFile 	= $this->getRestoreFilePath();
@@ -181,6 +182,57 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		);
 
 		return preg_replace($patterns, $replacements, $dump);
+	}
+	
+	
+	/**
+	 * Lowercase the table and view names, for compatibility's sake.
+	 * @param 	String 	&$dump 	Output of MySQL dump.
+	 * @return 	String 			The dump output, with adjusted casing.
+	 */
+	protected function _lowerCaseTableAndViewNames(&$dump) {
+		$configDir 		= APPLICATION_PATH."/modules/default/models/config/";
+		$extension 		= 'json';
+		$patterns 		= array();
+		$replacements 	= array();
+
+		$hardcodedTables = array('AuthFacebook', 'AuthLocal', 'Video');
+		foreach ($hardcodedTables as $hardcodedTable) {
+			$patterns[] 		= "`{$hardcodedTable}`";
+			$replacements[] 	= "`" . strtolower($hardcodedTable) ."`";
+		}
+
+		$modelConfig = new Garp_Model_Spawn_Config_Model_Set(
+			new Garp_Model_Spawn_Config_Storage_File($configDir, $extension),
+			new Garp_Model_Spawn_Config_Format_Json
+		);
+		$modelSet = new Garp_Model_Spawn_ModelSet($modelConfig);
+		
+		
+		foreach ($modelSet as $model) {
+			$lcModel			= strtolower($model->id);
+			$patterns[] 		= "`{$model->id}`";
+			$replacements[] 	= "`{$lcModel}`";
+		
+			$relations = $model->relations->getRelations();
+
+			foreach ($relations as $relation) {
+				if ($relation->type === 'hasAndBelongsToMany') {
+					$bindingModel 	= $relation->getBindingModel();
+					$bindingName	= '_' . $bindingModel->id;
+					$lcRelation		= strtolower($bindingName);
+					$patterns[] 	= "`{$bindingName}`";
+					$replacements[] = "`{$lcRelation}`";
+				} else {
+					$lcRelation		= strtolower($relation->name);
+					$patterns[] 	= "`{$relation->name}`";
+					$replacements[] = "`{$lcRelation}`";
+				}
+			}
+		}
+		
+		$dump = str_replace($patterns, $replacements, $dump);
+		return $dump;
 	}
 
 
