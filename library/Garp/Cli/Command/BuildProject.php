@@ -16,10 +16,10 @@ class Garp_Cli_Command_BuildProject extends Garp_Cli_Command {
 	 * @return Void
 	 */
 	public function main(array $args = array()) {
-		if (empty($args[1])) {
+		if (empty($args[0])) {
 			Garp_Cli::errorOut('Insufficient arguments.');
 			$this->help();
-		} elseif (strtolower($args[1]) === 'help') {
+		} elseif (strtolower($args[0]) === 'help') {
 			$this->help();
 			return;
 		} else {
@@ -29,8 +29,8 @@ class Garp_Cli_Command_BuildProject extends Garp_Cli_Command {
 				$versionControl = 'git';
 			}
 			
-			$projectName = $args[1];
-			$projectRepo = isset($args[2]) ? $args[2] : null;
+			$projectName = $args[0];
+			$projectRepo = isset($args[1]) ? $args[1] : null;
 			$strategyClassName = 'Garp_Cli_Command_BuildProject_Strategy_'.ucfirst(strtolower($versionControl));
 			$strategy = new $strategyClassName($projectName, $projectRepo);
 			return $strategy->build();
