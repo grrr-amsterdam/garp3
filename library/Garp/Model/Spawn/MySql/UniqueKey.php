@@ -21,13 +21,15 @@ class Garp_Model_Spawn_MySql_UniqueKey extends Garp_Model_Spawn_MySql_Key {
 
 
 	public static function add($tableName, Garp_Model_Spawn_MySql_UniqueKey $key) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$tableName 	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		return $adapter->query("ALTER TABLE `{$tableName}` ADD UNIQUE `{$key->name}`(`{$key->column}`);");
 	}
 
 
 	public static function delete($tableName, Garp_Model_Spawn_MySql_UniqueKey $key) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$tableName 	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		$adapter->query("SET FOREIGN_KEY_CHECKS = 0;");
 		$success = $adapter->query("ALTER TABLE `{$tableName}` DROP INDEX `{$key->name}`;");
 		$adapter->query("SET FOREIGN_KEY_CHECKS = 1;");

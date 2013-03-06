@@ -29,6 +29,8 @@ class Garp_Model_Spawn_MySql_ForeignKey extends Garp_Model_Spawn_MySql_Key {
 	 * @param String $relType The relation type, f.i. 'hasOne', 'belongsTo', 'hasAndBelongsToMany'.
 	 */
 	public static function renderSqlDefinition($fkName, $columnName, $modelName, $relType) {
+		$lcModelName = strtolower($modelName);
+
 		switch ($relType) {
 			case 'belongsTo':
 			case 'hasAndBelongsToMany':
@@ -38,26 +40,29 @@ class Garp_Model_Spawn_MySql_ForeignKey extends Garp_Model_Spawn_MySql_Key {
 				$events = 'ON DELETE SET NULL ON UPDATE CASCADE';
 		}
 
-		return "  CONSTRAINT `{$fkName}` FOREIGN KEY (`{$columnName}`) REFERENCES `{$modelName}` (`id`) " . $events;
+		return "  CONSTRAINT `{$fkName}` FOREIGN KEY (`{$columnName}`) REFERENCES `{$lcModelName}` (`id`) " . $events;
 	}
 
 
 	public static function add($tableName, Garp_Model_Spawn_MySql_ForeignKey $key) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$tableName 	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		return $adapter->query("ALTER TABLE `{$tableName}` ADD CONSTRAINT `{$key->name}` FOREIGN KEY (`{$key->localColumn}`) REFERENCES `{$key->remoteTable}`(`{$key->remoteColumn}`) {$key->events};");
 	}
 
 
 	/** Delete a foreign key, if it exists. */
 	public static function delete($tableName, Garp_Model_Spawn_MySql_ForeignKey $key) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$tableName 	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		return $adapter->query("ALTER TABLE `{$tableName}` DROP FOREIGN KEY `{$key->name}`;");
 	}
 	
 	
 	public static function modify($tableName, Garp_Model_Spawn_MySql_ForeignKey $key) {
-		$success = false;
-		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$tableName	= strtolower($tableName);
+		$success 	= false;
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		if (self::delete($tableName, $key)) {
 			$success = self::add($tableName, $key);
 		}

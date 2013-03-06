@@ -288,11 +288,12 @@ class Garp_Model_Spawn_Php_Renderer {
 	
 	
 	protected function _renderBindingBaseModel($bindingModelName, $modelId1, $habtmRelation) {
-		$tableName = Garp_Model_Spawn_MySql_Table::getBindingModelTableName($bindingModelName);
-		$modelId2 = $habtmRelation->model;
-		$isHomophile = $modelId1 === $modelId2;
-		$modelColumn1 = Garp_Model_Spawn_Relations::getRelationColumn($modelId1, $modelId1 === $modelId2 ? 1 : null);
-		$modelColumn2 = Garp_Model_Spawn_Relations::getRelationColumn($modelId2, $modelId1 === $modelId2 ? 2 : null);
+		$tableName 		= Garp_Model_Spawn_MySql_Table::getBindingModelTableName($bindingModelName);
+		$tableName 		= strtolower($tableName);
+		$modelId2 		= $habtmRelation->model;
+		$isHomophile 	= $modelId1 === $modelId2;
+		$modelColumn1 	= Garp_Model_Spawn_Relations::getRelationColumn($modelId1, $modelId1 === $modelId2 ? 1 : null);
+		$modelColumn2 	= Garp_Model_Spawn_Relations::getRelationColumn($modelId2, $modelId1 === $modelId2 ? 2 : null);
 
 		$alphabeticModelIds = array($modelId1, $modelId2);
 		$alphabeticModelColumns = array($modelColumn1, $modelColumn2);
