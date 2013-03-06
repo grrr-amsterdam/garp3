@@ -37,8 +37,9 @@ class Garp_Model_Spawn_MySql_IndexKey extends Garp_Model_Spawn_MySql_Key {
 
 
 	public static function add($tableName, Garp_Model_Spawn_MySql_IndexKey $key) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
-		$success = false;
+		$tableName	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
+		$success 	= false;
 
 		try {
 			$success = $adapter->query("ALTER TABLE `{$tableName}` ADD KEY `{$key->name}` (`{$key->column}`);");
@@ -53,7 +54,8 @@ class Garp_Model_Spawn_MySql_IndexKey extends Garp_Model_Spawn_MySql_Key {
 
 
 	public static function delete($tableName, Garp_Model_Spawn_MySql_IndexKey $key) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$tableName	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		return $adapter->query("ALTER TABLE `{$tableName}` DROP KEY `{$key->name}`;");
 	}
 	

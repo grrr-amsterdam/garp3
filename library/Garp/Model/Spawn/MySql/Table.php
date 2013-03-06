@@ -36,8 +36,9 @@ class Garp_Model_Spawn_MySql_Table {
 	
 	
 	static public function exists($tableName) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
-		$dbConfig = $adapter->getConfig();
+		$tableName 	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
+		$dbConfig 	= $adapter->getConfig();
 		return (bool)$adapter->query(
 			'SELECT * '
 			.'FROM information_schema.tables '
@@ -124,8 +125,9 @@ class Garp_Model_Spawn_MySql_Table {
 
 
 	static public function renderCreateFromLiveTable($tableName) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
-		$liveTable = $adapter->fetchAll("SHOW CREATE TABLE `{$tableName}`;");
+		$tableName 	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
+		$liveTable 	= $adapter->fetchAll("SHOW CREATE TABLE `{$tableName}`;");
 		return $liveTable[0]['Create Table'].';';
 	}
 
@@ -149,7 +151,7 @@ class Garp_Model_Spawn_MySql_Table {
 	
 	
 	static public function getBindingModelTableName($bindingModelName) {
-		return '_'.$bindingModelName;
+		return '_' . strtolower($bindingModelName);
 	}
 
 
@@ -162,7 +164,8 @@ class Garp_Model_Spawn_MySql_Table {
 	 * 							or at least an object with properties column, model, type.
 	 */
 	static protected function _renderCreateAbstract($tableName, array $fields, array $relations) {
-		$lines = array();
+		$tableName 	= strtolower($tableName);
+		$lines 		= array();
 
 		foreach ($fields as $field) {
 			$lines[] = Garp_Model_Spawn_MySql_Column::renderFieldSql($field);
@@ -299,16 +302,16 @@ class Garp_Model_Spawn_MySql_Table {
 			!count($this->columns)
 		) throw new Exception("I need at least a CREATE TABLE statement with a declaration of table columns.");
 
-		$this->name = $this->_getModelFromCreateStatement($createStatementLine);
+		$this->name = $this->_getTableFromCreateStatement($createStatementLine);
 		$this->keys = new Garp_Model_Spawn_MySql_Keys($createStatementLines, $this->name, $model);
 	}
 
 
-	static protected function _getModelFromCreateStatement($line) {
+	static protected function _getTableFromCreateStatement($line) {
 		$matches = array();
 		preg_match('/CREATE TABLE\s+`(?P<name>\w+)`/i', trim($line), $matches);
 		if (!array_key_exists('name', $matches))
-			throw new Exception("There was no model name found in the MySQL CREATE statement.");
+			throw new Exception("There was no table name found in the MySQL CREATE statement.");
 		return $matches['name'];
 	}
 }
