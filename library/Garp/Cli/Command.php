@@ -15,7 +15,7 @@ abstract class Garp_Cli_Command {
 	 * Central start method
 	 * By default expects the first parameter (index 1 in $args) to be the requested method.
 	 * @param Array $args Various options. Must contain at least a method name as the first parameter.
-	 * @return Void
+	 * @return Boolean
 	 */
 	public function main(array $args = array()) {
 		$publicMethods = $this->getPublicMethods();
@@ -24,7 +24,7 @@ abstract class Garp_Cli_Command {
 				$args[0] = 'help';
 			} else {
 				Garp_Cli::errorOut("No method selected. Available methods: \n ".implode("\n ", $publicMethods));
-				return;
+				return false;
 			}
 		}
 
@@ -32,10 +32,12 @@ abstract class Garp_Cli_Command {
 		if (in_array($methodName, $publicMethods)) {
 			unset($args[0]);
 			$args = $this->_remapArguments($args);
-			call_user_func_array(array($this, $methodName), array($args));
+			$result = call_user_func_array(array($this, $methodName), array($args));
+			return $result;
 		} else {
 			Garp_Cli::errorOut('Unknown command \''.$methodName.'\'');
 		}
+		return false;
 	}
 
 
