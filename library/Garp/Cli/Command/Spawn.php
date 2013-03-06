@@ -32,11 +32,11 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	 * @return Void
 	 */
 	public function main(array $args = array()) {
-		if (array_key_exists(1, $args)) {
-			if (strcasecmp($args[1], 'help') === 0) {
+		if (array_key_exists(0, $args)) {
+			if (strcasecmp($args[0], 'help') === 0) {
 				$this->_displayHelp();
 			} else {
-				Garp_Cli::errorOut("Sorry, I do not know the '{$args[1]}' argument. Try 'garp Spawn help' for an overview of options.");
+				Garp_Cli::errorOut("Sorry, I do not know the '{$args[0]}' argument. Try 'garp Spawn help' for an overview of options.");
 			}
 			exit;
 		}
