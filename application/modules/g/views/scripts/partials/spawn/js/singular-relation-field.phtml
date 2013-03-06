@@ -16,7 +16,18 @@
 				name: '<?php echo $this->relation->label ?>',
 				xtype: 'joinedrelationfield',
 				bindedField: '<?php echo $this->relation->column ?>',
-				fieldLabel: __('<?php echo $this->relation->label ?>'),
+				fieldLabel: __('<?php 
+					if ($this->relation->label === $this->relation->model):
+						foreach ($this->modelSet as $model):
+							if ($model->id === $this->relation->model):
+								echo $model->label;
+								break;
+							endif;
+						endforeach;
+					else:
+						echo $this->relation->label;
+					endif;
+				?>'),
 				allowBlank: <?php echo $this->relation->type === 'belongsTo' ? 'false' : 'true' ?>,
 				<?php if (!$this->relation->editable): ?>
 				disabled: true,

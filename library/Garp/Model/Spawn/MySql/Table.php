@@ -58,30 +58,38 @@ class Garp_Model_Spawn_MySql_Table {
 
 	/**
 	 * Returns this table with another table and try to resolve any conflicts.
+	 * @param Garp_Model_Spawn_MySql_Table 	$liveTable
+	 * @param Garp_Model_Spawn_Model 		[$bindingModel] 	Provide a binding model if the sync should not handle
+	 *															the local base model, but the given model instead.
 	 */
-	public function syncModel(Garp_Model_Spawn_MySql_Table $liveTable) {
+	public function syncModel(Garp_Model_Spawn_MySql_Table $liveTable, Garp_Model_Spawn_Model $bindingModel = null) {
+		$keysInSync = true;
+		$configuredKeys = $bindingModel == null ?
+			$this->keys :
+			new Garp_Model_Spawn_MySql_Keys(
+				explode("\n", $this->_createStatement),
+				$liveTable->name,
+				$bindingModel
+			)
+		;
+		
+		if (!$configuredKeys->removeKeys($liveTable->keys)) {
+			$keysInSync = false;
+		}
+		
 		$colsInSync = $this->_syncColumns($liveTable);
-		$keysInSync = $this->keys->sync($liveTable->keys);
-
+		
+		if (
+			!$configuredKeys->addKeys($liveTable->keys) ||
+			!$configuredKeys->modifyKeys($liveTable->keys)
+		) {
+			$keysInSync = false;
+		}
+		
 		return $colsInSync && $keysInSync;
 	}
-	
-	
-	public function syncBindingModel(Garp_Model_Spawn_MySql_Table $liveTable, Garp_Model_Spawn_Model $bindingModel) {
-		$colsInSync = $this->_syncColumns($liveTable);
 
-		$theseHabtmKeys = new Garp_Model_Spawn_MySql_Keys(
-			explode("\n", $this->_createStatement),
-			$liveTable->name,
-			$bindingModel
-		);
 
-		$keysInSync = $theseHabtmKeys->sync($liveTable->keys);
-
-		return $colsInSync && $keysInSync;
-	}
-	
-	
 	protected function _syncColumns(Garp_Model_Spawn_MySql_Table $liveTable) {
 		$sync = false;
 
@@ -205,7 +213,6 @@ class Garp_Model_Spawn_MySql_Table {
 	}
 
 
-
 	protected function _resolveColumnConflicts(Garp_Model_Spawn_MySql_Table $liveTable) {
 		$inSync = true;
 
@@ -254,10 +261,8 @@ class Garp_Model_Spawn_MySql_Table {
 			if (!$this->columnExists($liveCol->name)) {
 				$progress->display("Delete column {$liveTable->name}.{$liveCol->name}? ");
 				if (Garp_Model_Spawn_Util::confirm()) {
-					$alterQuery = "ALTER TABLE `{$this->name}` DROP COLUMN `{$liveCol->name}`";
-					if (!$this->_adapter->query($alterQuery)) {
-						throw new Exception("Could not delete column {$liveCol->name}. \n".$alterQuery."\n");
-					}
+					$alterQuery = "ALTER TABLE `{$this->name}` DROP COLUMN `{$liveCol->name}`;";
+					$this->_adapter->query($alterQuery);
 				}
 			}
 		}
