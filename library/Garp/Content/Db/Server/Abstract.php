@@ -132,23 +132,14 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 			$executeFile = new Garp_Content_Db_ShellCommand_ExecuteFile($dbConfig, $restoreFile);
 			$this->shellExec($executeFile);
 			
-			// $removeFile = new Garp_Content_Db_ShellCommand_RemoveFile($restoreFile);
-			// $this->shellExec($removeFile);
-			
-			
+			$removeFile = new Garp_Content_Db_ShellCommand_RemoveFile($restoreFile);
+			$this->shellExec($removeFile);
 		}
 
 		/**
 		 * @todo
-		 *
-		 * AHA! Zou het de casing zijn?
-		 * Probleem: hij verwijst naar lowercase tablenames en daardoor wordt de view niet aangemaakt? (server instelling)
-		 *
-		 *
-		 * - verifieer filesize van dump
+		 * - verifieer filesize van dump?
 		 */
-
-		exit;
 	}
 	
 
