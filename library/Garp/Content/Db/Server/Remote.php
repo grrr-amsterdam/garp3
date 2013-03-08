@@ -29,6 +29,7 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	public function __construct($environment) {
 		parent::__construct($environment);
 		
+		$this->_checkPlatformRequirements();
 		$this->_verifyCapified();
 		
 		$this->setDeployParams($this->_fetchDeployParams());
@@ -154,6 +155,24 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 		
 		if (!$deployConfig->isConfigured($environment)) {
 			throw new Exception("Could not find deploy information for {$environment}.");
+		}
+	}
+	
+	protected function _checkPlatformRequirements() {
+		if (!function_exists('ssh2_connect')) {
+			throw new Exception(
+				"The required PECL ssh2 extension is not installed.\n"
+				."Usually, 'sudo pecl install ssh2' should be enough,\n"
+				."But since the package is currently in beta, you can use:\n"
+				."sudo pecl install channel://pecl.php.net/ssh2-0.12\n\n"
+			);
+		}
+
+		if (!function_exists('ssh2_auth_agent')) {
+			throw new Exception(
+				"The ssh2 extension is compiled with libssh >= 1.2.3\n"
+				."to enable ssh2_auth_agent()."
+			);
 		}
 	}
 
