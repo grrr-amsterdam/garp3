@@ -97,9 +97,10 @@ Ext.ns('Ext.ux.form');
 				form.dom.submit();				
 				
 			} else {
-			
-				var file = fileInput.dom.files[0];
-				
+				var file = fileInput;//.dom.files[0];
+				if (!file.name) {
+					return;
+				}
 				if (this.validateExtension(file.name)) {
 				
 					function error(){
