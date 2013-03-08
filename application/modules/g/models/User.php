@@ -27,7 +27,7 @@ class G_Model_User extends Model_Base_User {
  	 * Table
  	 * @var String
  	 */
-	protected $_name = 'User';
+	protected $_name = 'user';
 
 
 	/**

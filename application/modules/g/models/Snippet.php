@@ -14,7 +14,7 @@ class G_Model_Snippet extends Model_Base_Snippet {
 	 * The table name
 	 * @var String
 	 */
-	protected $_name = 'Snippet';
+	protected $_name = 'snippet';
 	
 	
 	/**
