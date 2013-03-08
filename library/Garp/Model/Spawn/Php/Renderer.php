@@ -171,10 +171,9 @@ class Garp_Model_Spawn_Php_Renderer {
 					$relation->type === 'hasOne' ||
 					$relation->type === 'belongsTo'
 				) {
-					$lcRelationModel = strtolower($relation->model);
 					$referenceMapOutput[] =
 						 $this->_rl("'{$relationName}' => array(", 2)
-						.$this->_rl("'refTableClass' => 'Model_{$lcRelationModel}',", 3)
+						.$this->_rl("'refTableClass' => 'Model_{$relation->model}',", 3)
 						.$this->_rl("'columns' => '{$relation->column}',", 3)
 						.$this->_rl("'refColumns' => 'id'", 3)
 						.$this->_rl(")", 2, 0)
