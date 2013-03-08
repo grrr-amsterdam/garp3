@@ -377,8 +377,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 			$multiRelFields = array();
 
 			foreach ($multipleRelations as $rel):
-				if (
-					($rel->isPlural() && $rel->editable) &&
+				if ( $rel->isPlural() &&
 					(!
 						($rel->model === 'Chapter' && $this->model->behaviors->displaysBehavior('Article'))
 					)
