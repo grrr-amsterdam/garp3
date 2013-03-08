@@ -229,7 +229,7 @@ class Garp_Model_Spawn_Php_Renderer {
 			$recordLabelFieldDefs[] = $addLabelFieldDef('id');
 		}
 
-		$out .= $this->_rl("\$tableAlias = \$tableAlias ?: '{$this->_model->id}';", 2);
+		$out .= $this->_rl("\$tableAlias = \$tableAlias ?: '{$lcModelId}';", 2);
 		$labelColumnsListSql = implode(', ', $recordLabelFieldDefs);
 		$glue = $this->_modelHasFirstAndLastNameListFields() ? ' ' : ', ';
 		$sql = "CONVERT(CONCAT_WS('{$glue}', " . $labelColumnsListSql . ') USING utf8)';
