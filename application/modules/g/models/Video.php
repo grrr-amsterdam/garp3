@@ -13,7 +13,7 @@ class G_Model_Video extends Model_Base_Video {
 	 * The table name
 	 * @var String
 	 */
-	protected $_name = 'Video';
+	protected $_name = 'video';
 	
 	
 	/**
