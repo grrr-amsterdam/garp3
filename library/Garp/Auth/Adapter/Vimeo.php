@@ -90,7 +90,7 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
  		   	$sessionColumns = explode(',', $sessionColumns);
 		}
 		$userModel = new Model_User();
-		$userConditions = $userModel->select()->from('User', $sessionColumns);
+		$userConditions = $userModel->select()->from('user', $sessionColumns);
 
 		$model = new G_Model_AuthVimeo();
 		$model->bindModel('Model_User', array('conditions' => $userConditions));
