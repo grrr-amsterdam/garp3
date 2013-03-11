@@ -10,7 +10,6 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_Db_Mediator {	
-	
 	/**
 	 * @var Garp_Content_Db_Server_*
 	 */
@@ -30,35 +29,7 @@ class Garp_Content_Db_Mediator {
 		$this->setSource($sourceEnv);
 		$this->setTarget($targetEnv);
 	}
-	
 
-	/**
-	 * Transfers database structure and data from source to target.
-	 */
-	public function transfer() {
-		$target = $this->getTarget();
-		$target->backup();
-		
-		$this->_enableHighMemory();
-		
-		$source = $this->getSource();
-		$dump = $source->fetchDump();
-// echo 'boterballen';
-// Zend_Debug::dump($dump);
-// exit;
-		// target drop?
-		$target->restore($dump);
-	
-		// Zend_Debug::dump($dump);
-		// exit;
-		/**
-		 * @todo:
-		 * 	- ophalen db dump (in var, of kan dat slimmer?)
-		 * 	- db drop
-		 * 	- db restore op target
-		 */
-	}
-	
 	/**
 	 * @param String $environment
 	 */
@@ -79,13 +50,7 @@ class Garp_Content_Db_Mediator {
 
 	public function getTarget() {
 		return $this->_target;
-	}
-
-	protected function _enableHighMemory() {
-		$mem = new Garp_Util_Memory();
-		$mem->useHighMemory();
-	}
-	
+	}	
 	
 
 }
