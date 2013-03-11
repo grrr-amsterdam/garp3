@@ -35,6 +35,10 @@ class Garp_Content_Db_Server_Local extends Garp_Content_Db_Server_Abstract {
 	 * @return Boolean		Success status of the storage process.
 	 */
 	public function store($path, $data) {
-		throw new Exception("Not yet implemented: Local::store()");
+		if (false === file_put_contents($path, $data)) {
+			throw new Exception("Could not store data at {$path}");
+		}
+		
+		return true;
 	}		
 }
