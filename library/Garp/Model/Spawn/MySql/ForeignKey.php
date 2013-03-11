@@ -47,7 +47,10 @@ class Garp_Model_Spawn_MySql_ForeignKey extends Garp_Model_Spawn_MySql_Key {
 	public static function add($tableName, Garp_Model_Spawn_MySql_ForeignKey $key) {
 		$tableName 	= strtolower($tableName);
 		$adapter 	= Zend_Db_Table::getDefaultAdapter();
-		return $adapter->query("ALTER TABLE `{$tableName}` ADD CONSTRAINT `{$key->name}` FOREIGN KEY (`{$key->localColumn}`) REFERENCES `{$key->remoteTable}`(`{$key->remoteColumn}`) {$key->events};");
+		$adapter->query("SET FOREIGN_KEY_CHECKS = 0;");
+		$success 	= $adapter->query("ALTER TABLE `{$tableName}` ADD CONSTRAINT `{$key->name}` FOREIGN KEY (`{$key->localColumn}`) REFERENCES `{$key->remoteTable}`(`{$key->remoteColumn}`) {$key->events};");
+		$adapter->query("SET FOREIGN_KEY_CHECKS = 1;");
+		return $success;
 	}
 
 
@@ -55,7 +58,10 @@ class Garp_Model_Spawn_MySql_ForeignKey extends Garp_Model_Spawn_MySql_Key {
 	public static function delete($tableName, Garp_Model_Spawn_MySql_ForeignKey $key) {
 		$tableName 	= strtolower($tableName);
 		$adapter 	= Zend_Db_Table::getDefaultAdapter();
-		return $adapter->query("ALTER TABLE `{$tableName}` DROP FOREIGN KEY `{$key->name}`;");
+		$adapter->query("SET FOREIGN_KEY_CHECKS = 0;");
+		$success 	= $adapter->query("ALTER TABLE `{$tableName}` DROP FOREIGN KEY `{$key->name}`;");
+		$adapter->query("SET FOREIGN_KEY_CHECKS = 1;");
+		return $success;
 	}
 	
 	
