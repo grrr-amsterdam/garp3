@@ -26,14 +26,16 @@ class Garp_Cli_Command_Assets extends Garp_Cli_Command {
 			return false;
 		}
 		
+		$jsRoot = ltrim($ini->assets->js->basePath ?: 'js', '/');
 		$assets = $ini->assets->js->toArray();
+		unset($assets['basePath']);
 		foreach ($assets as $key => $assetSettings) {
 			if (empty($assetSettings['sourcefiles']) ||
 				empty($assetSettings['filename'])) {
 				Garp_Cli::errorOut($key.' is not configured correctly. "sourcefiles" and "filename" are required keys.');
 				return false;
 			}
-			$minifier = new Garp_Assets_Minifier(APPLICATION_PATH.'/../public/js');
+			$minifier = new Garp_Assets_Minifier(APPLICATION_PATH.'/../public/'.$jsRoot);
 			$minifier->minifyJs($assetSettings['sourcefiles'], $assetSettings['filename']);
 		}
 		return true;
