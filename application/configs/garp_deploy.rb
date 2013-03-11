@@ -42,6 +42,7 @@ namespace :deploy do
   desc "Deploy project"
   task :update do
     transaction do
+      minify_js
       update_code
       create_system_cache_dirs
       create_static_cache_dir
@@ -128,6 +129,11 @@ namespace :deploy do
 
 
   # ------- P R I V A T E   D E P L O Y   M E T H O D S
+  
+  desc "Minify local JS"
+  task :minify_js do
+      system('php garp/scripts/garp.php assets minifyJs')
+  end
   
   desc "Create backend cache directories"
   task :create_system_cache_dirs do
