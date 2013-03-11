@@ -78,7 +78,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
  		   	$sessionColumns = explode(',', $sessionColumns);
 		}
 		$userModel = new Model_User();
-		$userConditions = $userModel->select()->from('user', $sessionColumns);
+		$userConditions = $userModel->select()->from($userModel->getName(), $sessionColumns);
 		$model = new G_Model_AuthFacebook();
 		$model->bindModel('Model_User', array('conditions' => $userConditions));
 		$userData = $model->fetchRow(
