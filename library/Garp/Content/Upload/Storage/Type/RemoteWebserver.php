@@ -38,8 +38,8 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 		$session = $this->getSshSession();
 		$baseDir = $this->_getBaseDir();
 
-		foreach ($configuredPaths as $uploadTypePath) {
-			$lsCommand = "ls -og {$baseDir}{$uploadTypePath}";
+		foreach ($configuredPaths as $type => $relDir) {
+			$lsCommand = "ls -og {$baseDir}{$relDir}";
 
 			$stream = ssh2_exec($session, $lsCommand);
 			stream_set_blocking($stream, true);
@@ -54,7 +54,8 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 				if ($permission[0] !== 'd') {
 					//	this is a file, no directory
 					$fileList->addEntry(
-						$uploadTypePath . '/' . $matches['filename'][$index]
+						$matches['filename'][$index],
+						$type
 					);
 				}
 			}
@@ -66,12 +67,16 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	
 	/**
 	 * Calculate the eTag of a file.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @return String 		Content hash (md5 sum of the content)
+	 * @param String $filename 	Filename
+	 * @param String $type		File type, i.e. 'document' or 'image'
+	 * @return String 			Content hash (md5 sum of the content)
 	 */
-	public function fetchEtag($path) {
+	public function fetchEtag($filename, $type) {
 		$baseDir = $this->_getBaseDir();
-		$absPath = $baseDir . $path;
+		$absPath = $baseDir . $this->_getRelPath($filename, $type);
+
+Zend_Debug::dump($absPath);
+exit;
 		$session = $this->getSshSession();
 		
 		$md5command = "cat {$absPath} | md5sum";
@@ -90,14 +95,19 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 
 	/**
 	 * Fetches the contents of the given file.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @return String		Content of the file. Throws an exception if file could not be read.
+	 * @param String $filename 	Filename
+	 * @param String $type		File type, i.e. 'document' or 'image'
+	 * @return String			Content of the file. Throws an exception if file could not be read.
 	 */
-	public function fetchData($path) {
-		$ini = $this->_getIni();
-		$cdnDomain = $ini->cdn->domain;
-		$url = 'http://' . $cdnDomain . $path;
-		
+	public function fetchData($filename, $type) {
+		$ini 		= $this->_getIni();
+		$baseDir 	= $this->_getBaseDir();
+		$relPath 	= $this->_getRelPath($filename, $type);
+		$absPath 	= $baseDir . $relPath;
+
+		$cdnDomain 	= $ini->cdn->domain;
+		$url 		= 'http://' . $cdnDomain . $relPath;
+
 		$content = file_get_contents($url);
 		if ($content !== false) {
 			return $content;
@@ -107,13 +117,14 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	
 	/**
 	 * Stores given data in the file, overwriting the existing bytes if necessary.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @param String $data	File data to be stored.
-	 * @return Boolean		Success of storage.
+	 * @param String $filename 	Filename
+	 * @param String $type		File type, i.e. 'document' or 'image'
+	 * @param String $data		File data to be stored.
+	 * @return Boolean			Success of storage.
 	 */
-	public function store($path, $data) {
+	public function store($filename, $type, $data) {
 		$sftpSession = $this->getSftpSession();
-		$remoteAbsPath = $this->_getBaseDir() . $path;
+		$remoteAbsPath = $this->_getAbsPath($filename, $type);
 
 		$sftpStream = @fopen('ssh2.sftp://' . $sftpSession . $remoteAbsPath, 'wb');
 
@@ -188,6 +199,17 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 		return $session;
 	}
 	
+
+	/**
+	 * @param 	String $filename 	Filename
+	 * @param 	String $type		File type, i.e. 'document' or 'image'
+	 * @return 	String				The absolute path to this file for use on the local file system
+	 */
+	protected function _getAbsPath($filename, $type) {
+		$baseDir 		= $this->_getBaseDir();
+		$absPath 		= $this->_getBaseDir() . $this->_getRelPath($filename, $type);
+		return $absPath;
+	}
 	
 	/**
 	 * @return String Absolute path on the server, exluding trailing slash.
