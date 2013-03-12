@@ -76,16 +76,19 @@ class Garp_Content_Upload_Mediator {
 	public function transfer(Garp_Content_Upload_FileList $fileList) {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 
-		foreach ($fileList as $filePath) {
-			$filename = basename($filePath);
-			$progress->display("Fetching ${filename}");
-			$fileData = $this->_source->fetchData($filePath);
+		foreach ($fileList as $file) {
+			$filename 	= $file[Garp_Content_Upload_FileList::LABEL_FILENAME];
+			$type 		= $file[Garp_Content_Upload_FileList::LABEL_TYPE];
+			
+			$progress->display("Fetching {$filename}");
+			$fileData = $this->_source->fetchData($filename, $type);
 			$progress->advance();
-			$progress->display("Uploading ${filename}");
-			if ($this->_target->store($filePath, $fileData)) {
+
+			$progress->display("Uploading {$filename}");
+			if ($this->_target->store($filename, $type, $fileData)) {
 				$progress->advance();
 			} else {
-				throw new Exception("Could not store {$filePath} on " . $this->_target->getEnvironment());
+				throw new Exception("Could not store {$type} {$filename} on " . $this->_target->getEnvironment());
 			}
 		}
 	}
@@ -126,7 +129,7 @@ class Garp_Content_Upload_Mediator {
 
 		$sourceListArray = (array)$sourceList;
 		$targetListArray = (array)$targetList;
-		$existingFiles = array_intersect($sourceListArray, $targetListArray);
+		$existingFiles = array_intersect_assoc($sourceListArray, $targetListArray);
 		$progress->init(count($existingFiles));
 
 		foreach ($existingFiles as $file) {

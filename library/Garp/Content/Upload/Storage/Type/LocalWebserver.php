@@ -10,6 +10,8 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Upload_Storage_Type_Abstract {
+	const NEW_DIR_PERMISSIONS = 0774;
+
 
 	/**
 	 * @return Garp_Content_Upload_FileList
@@ -18,16 +20,19 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 		$fileList = new Garp_Content_Upload_FileList();		
 		$configuredPaths = $this->_getConfiguredPaths();
 
-		foreach ($configuredPaths as $relPath) {
-			$absPath = $this->_getAbsPath($relPath);
-			if ($absPath !== false) {
-				if (!($dirList = scandir($absPath))) {
-					$this->_throwDirAccessError($absPath);
-				}
+		foreach ($configuredPaths as $type => $relDir) {
+			$absDir = $this->_getBaseDir() . $relDir;
 
-				foreach ($dirList as $baseName) {
-					$fileList->addEntry($relPath . '/' . $baseName);
-				}
+			if (!file_exists($absDir)) {
+				mkdir($absDir, self::NEW_DIR_PERMISSIONS, true);
+			}
+
+			if (!($dirList = scandir($absDir))) {
+				$this->_throwDirAccessError($absDir);
+			}
+
+			foreach ($dirList as $baseName) {
+				$fileList->addEntry($baseName, $type);
 			}
 		}
 		
@@ -37,11 +42,12 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	
 	/**
 	 * Calculate the eTag of a file.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @return String 		Content hash (md5 sum of the content)
+	 * @param 	String $filename 	Filename
+	 * @param 	String $type		File type, i.e. 'document' or 'image'
+	 * @return 	String 				Content hash (md5 sum of the content)
 	 */
-	public function fetchEtag($path) {
-		$absPath = $this->_getAbsPath($path);
+	public function fetchEtag($filename, $path) {
+		$absPath = $this->_getAbsPath($filename, $path);
 		
 		$md5output = exec("cat {$absPath} | md5sum");
 		if ($md5output) {
@@ -53,10 +59,11 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	
 	/**
 	 * Fetches the contents of the given file.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @return String		Content of the file. Throws an exception if file could not be read.
+	 * @param String $filename 	Filename
+	 * @param String $type		File type, i.e. 'document' or 'image'
+	 * @return String			Content of the file. Throws an exception if file could not be read.
 	 */
-	public function fetchData($path) {
+	public function fetchData($filename, $type) {
 		$absPath = $this->_getAbsPath($path);
 
 		if ($absPath === false) {
@@ -72,12 +79,13 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	
 	/**
 	 * Stores given data in the file, overwriting the existing bytes if necessary.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @param String $data	File data to be stored.
-	 * @return Boolean		Success of storage.
+	 * @param String $filename 	Filename
+	 * @param String $type		File type, i.e. 'document' or 'image'
+	 * @param String $data		File data to be stored.
+	 * @return Boolean			Success of storage.
 	 */
-	public function store($path, $data) {
-		$absPath = $this->_getBaseDir() . $path;
+	public function store($filename, $type, $data) {
+		$absPath = $this->_getAbsPath($filename, $type);
 
 		$bytesWritten = file_put_contents($absPath, $data);
 		if ($bytesWritten !== false) {
@@ -85,10 +93,15 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 		} else throw new Exception("Could not write to {$absPath} on " . $this->getEnvironment());
 	}
 
-
-
-	protected function _getAbsPath($relPath) {
-		return realpath($this->_getBaseDir() . $relPath);
+	/**
+	 * @param 	String $filename 	Filename
+	 * @param 	String $type		File type, i.e. 'document' or 'image'
+	 * @return 	String				The absolute path to this file for use on the local file system
+	 */
+	protected function _getAbsPath($filename, $type) {
+		$baseDir 		= $this->_getBaseDir();
+		$absPath 		= $this->_getBaseDir() . $this->_getRelPath($filename, $type);
+		return $absPath;
 	}
 	
 	
