@@ -12,7 +12,7 @@ final class Garp_Version {
  	 * Garp version identification - see compareVersion()
  	 * @var String
      */
-    const VERSION = '3.6';
+    const VERSION = '3.7';
 
 
     /**
