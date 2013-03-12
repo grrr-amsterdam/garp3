@@ -107,7 +107,7 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		$progress->advance();
 		
 		//	3.
-		$progress->display("Uploading data");
+		$progress->display("Injecting data");
 		$target->restore($dump);
 		$progress->advance();
 		
