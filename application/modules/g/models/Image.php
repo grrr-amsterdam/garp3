@@ -10,7 +10,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_Image extends Model_Base_Image {
-	protected $_name = 'Image';
+	protected $_name = 'image';
 	
 	public function init() {
 		$this->registerObserver(new Garp_Model_Behavior_Timestampable())

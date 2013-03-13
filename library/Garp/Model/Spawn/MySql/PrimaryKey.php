@@ -22,7 +22,8 @@ class Garp_Model_Spawn_MySql_PrimaryKey extends Garp_Model_Spawn_MySql_Key {
 	
 	
 	public static function modify($tableName, Garp_Model_Spawn_MySql_PrimaryKey $newPrimaryKey) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$tableName 	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 
 		$sql = 	 "ALTER TABLE `{$tableName}` ";
 		if (self::_liveTableHasPrimaryKey($tableName)) {
@@ -35,7 +36,8 @@ class Garp_Model_Spawn_MySql_PrimaryKey extends Garp_Model_Spawn_MySql_Key {
 	
 	
 	protected static function _liveTableHasPrimaryKey($tableName) {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
+		$tableName 	= strtolower($tableName);
+		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		return (bool)$adapter->query("SHOW INDEXES FROM `{$tableName}` WHERE Key_name = 'PRIMARY'")->fetch();
 	}
 

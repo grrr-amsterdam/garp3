@@ -1,11 +1,8 @@
 <?php
 /**
  * Garp_Content_Upload_FileList
- * You can use an instance of this class as a numeric array, containing a relative path per entry:
- * 		array(
- *			'/uploads/images/pussy.gif',
- *			'/uploads/images/kitten.jpg'
- *		)
+ * You can use an instance of this class as a numeric array, containing Garp_Content_Upload_FileNode elements.
+ *
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -14,36 +11,68 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_Upload_FileList extends ArrayObject {
-	const HIDDEN_FILES_PREFIX = '.';
-
-	protected $_bannedBaseNames = array('scaled');
-
-
 	/**
-	 * @param String $path The relative path plus filename. F.i. '/uploads/images/pussy.gif'
+	 * @param String $filename 	The filename, f.i. 'pussy.gif'
+	 * @param String $type		The upload type, i.e. 'document' or 'image'.
 	 */
-	public function addEntry($path) {
-		if ($this->_isValidAssetName($path)) {
-			$this[] = $path;
+	public function addEntry(Garp_Content_Upload_FileNode $file) {
+		if ($file->isValid()) {
+			$this[] = $file;
 		}
 	}
 	
-
 	/**
-	 * @param Array $paths Numeric array of relative paths plus filename. F.i. array('/uploads/images/pussy.gif')
+	 * @param Garp_Content_Upload_FileList $files List of Garp_Content_Upload_FileNode elements.
 	 */
-	public function addEntries(array $paths) {
-		foreach ($paths as $path) {
-			$this->addEntry($path);
+	public function addEntries(Garp_Content_Upload_FileList $files) {
+		foreach ($files as $file) {
+			$this->addEntry($file);
 		}
 	}
+	
+	/**
+	 * @return Garp_Content_Upload_FileList Intersecting files, matching filenames and types
+	 */
+	public function findIntersecting(Garp_Content_Upload_FileList $thoseFiles) {
+		$intersecting = new Garp_Content_Upload_FileList();
 
+		foreach ($this as $thisFile) {
+			foreach ($thoseFiles as $thatFile) {
+				if ($thisFile == $thatFile) {
+					$intersecting->addEntry($thisFile);
+				}
+			}
+		}
+		
+		return $intersecting;
+	}
 
-	protected function _isValidAssetName($path) {
-		$baseName = basename($path);
-		return (
-			!($baseName[0] === self::HIDDEN_FILES_PREFIX) &&
-			!in_array($baseName, $this->_bannedBaseNames)
-		);
+	/**
+	 * @param	Garp_Content_Upload_FileList $thoseFiles	The file list to check for corresponding files
+	 * @return 	Garp_Content_Upload_FileList 				Files that are unique and do not exist in $thoseFiles
+	 */
+	public function findUnique(Garp_Content_Upload_FileList $thoseFiles) {
+		$unique = new Garp_Content_Upload_FileList();
+
+		foreach ($this as $thisFile) {
+			if (!$thoseFiles->nodeExists($thisFile)) {
+				$unique->addEntry($thisFile);
+			}
+		}
+
+		return $unique;
+	}
+	
+	/**
+	 * @return 	Bool	Whether the file node exists in this list
+	 */
+	public function nodeExists(Garp_Content_Upload_FileNode $thatFile) {
+		foreach ($this as $thisFile) {
+			if ($thisFile == $thatFile) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

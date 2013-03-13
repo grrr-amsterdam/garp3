@@ -4,6 +4,10 @@
 		"model: '{$this->relation->model}'"
 	);
 	
+	if (!$this->relation->editable):
+		$params[] = "minimalUI: true";
+	endif;
+	
 	if ($this->relation->limit):
 		$params[] = "maxItems: '{$this->relation->limit}'";
 	endif;

@@ -24,13 +24,6 @@ class G_Model_User extends Model_Base_User {
 
 
 	/**
- 	 * Table
- 	 * @var String
- 	 */
-	protected $_name = 'User';
-
-
-	/**
  	 * A password might be passed, but that belongs in G_Model_AuthLocal.
  	 * Since no primary key exists yet beforeInsert, save the password beforeInsert here,
  	 * and read it again afterInsert.

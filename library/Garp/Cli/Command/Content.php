@@ -17,14 +17,9 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 	protected $_sourceEnv;
 
 	/**
-	 * @param String $_sourceEnv The id of the target environment
+	 * @param String $_targetEnv The id of the target environment
 	 */
 	protected $_targetEnv;
-
-	/**
-	 * Garp_Content_Upload_Mediator
-	 */		
-	protected $_mediator;
 
 	
 	public function sync(array $args) {
@@ -32,62 +27,96 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		$this->_setSourceEnv($args);
 		$this->_setTargetEnv($args);
 
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
-		$progress->init(1);
-		Garp_Cli::lineOut("\nAnalyzing {$this->_sourceEnv} → {$this->_targetEnv}");
-
-		$this->_setMediator();
-		$transferList = $this->_fetchDiff();
-
-		if ($transferTotal = count($transferList)) {
-			Garp_Cli::lineOut("\n\nTransferring {$transferTotal} files");
-
-			/*	total * 2, because both fetching the source and storing
-				on target count as an advance on the progressbar. */
-			$progress->init($transferTotal * 2);
-
-			$this->_syncUploads($transferList);
-			$progress->display("√ Transferred {$transferTotal} files.");
-		} else {
-			$progress->advance();
-			$progress->display("√ Done, no files to transfer.");
+		if (!$this->_parameterIsSetTo($args, 'skip', 'uploads')) {
+			Garp_Cli::lineOut("\nComparing uploads");
+			$this->_syncUploads();
+			Garp_Cli::lineOut('');
 		}
 
-		Garp_Cli::lineOut("\n");
+		if (
+			!$this->_parameterIsSetTo($args, 'skip', 'database') &&
+			!$this->_parameterIsSetTo($args, 'skip', 'db')
+		) {
+			Garp_Cli::lineOut("\nSyncing database");
+			$this->_syncDb();
+			Garp_Cli::lineOut('');
+		}
+		
+		Garp_Cli::lineOut('');
 	}
 
 
 	public function help() {
 		Garp_Cli::lineOut("☞  U s a g e :\n");
 		Garp_Cli::lineOut("Synchronizing content:");
-		Garp_Cli::lineOut("\tg content sync [source environment] [target environment]");
+		Garp_Cli::lineOut("\n  g content sync [source environment] [target environment]");
 		Garp_Cli::lineOut("");
 		
 		Garp_Cli::lineOut("Example of synchronizing all content from staging to production:");
-		Garp_Cli::lineOut("\tg content sync staging production");
-		Garp_Cli::lineOut("");
+		Garp_Cli::lineOut("\n  g content sync staging production");
+		Garp_Cli::lineOut("\n");
+		
+		Garp_Cli::lineOut("☞  O p t i o n s :\n");
+		Garp_Cli::lineOut("  --skip=uploads");
+		Garp_Cli::lineOut("  --skip=database");
+
+		Garp_Cli::lineOut('');
 	}
 	
 	
-	protected function _syncUploads(Garp_Content_Upload_FileList $transferList) {
-		$this->_mediator->transfer($transferList);
-	}
-	
-	
-	/**
-	 * Finds out which files should be transferred.
-	 * @return Garp_Content_Upload_FileList List of file paths that should be transferred from source to target.
-	 */
-	protected function _fetchDiff() {
-		return $this->_mediator->fetchDiff();
+	protected function _syncUploads() {
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress->init(1);
+		$progress->display('Analyzing');
+
+		$mediator = new Garp_Content_Upload_Mediator($this->_sourceEnv, $this->_targetEnv);
+		$transferList = $mediator->fetchDiff();
+		$progress->display("√ Done comparing");
+
+		if ($transferTotal = count($transferList)) {
+			Garp_Cli::lineOut("\n\nSyncing uploads");
+
+			/*	total * 2, because both fetching the source and storing
+				on target count as an advance on the progressbar. */
+			$progress->init($transferTotal * 2);
+
+			$mediator->transfer($transferList);
+			$progress->display("√ Transferred {$transferTotal} files");
+		} else {
+			$progress->advance();
+			$progress->display("√ Done, no files to transfer");
+		}
 	}
 
-	
-	protected function _setMediator() {
-		$this->_mediator = new Garp_Content_Upload_Mediator($this->_sourceEnv, $this->_targetEnv);
+	protected function _syncDb() {
+		$mediator 	= new Garp_Content_Db_Mediator($this->_sourceEnv, $this->_targetEnv);
+		$source 	= $mediator->getSource();
+		$target 	= $mediator->getTarget();
+
+		$this->_enableHighMemory();
+
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress->init(3);
+
+
+		//	1.
+		$progress->display("Backing up");
+		$target->backup();
+		$progress->advance();
+
+		//	2.
+		$progress->display("Fetching data");
+		$dump = $source->fetchDump();
+		$progress->advance();
+		
+		//	3.
+		$progress->display("Injecting data");
+		$target->restore($dump);
+		$progress->advance();
+		
+		$progress->display("√ Database in sync");
 	}
 
-	
 	protected function _validateSyncArguments(array $args) {
 		$valid = false;
 		$argCount = count($args);
@@ -118,5 +147,24 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 
 	protected function _setTargetEnv(array $args) {
 		$this->_targetEnv = $args[1];
+	}
+
+	/**
+	 * @param 	Array	$args		Commandline arguments
+	 * @param	String	$parameter	Parameter / flag name
+	 * @param	String	$value		Value of the set parameter
+	 * @return 	Bool
+	 */
+	protected function _parameterIsSetTo(array $args, $parameter, $value) {
+		return (
+			array_key_exists($parameter, $args) &&
+			strcasecmp($args[$parameter], $value) === 0
+		);
+	}
+
+	
+	protected function _enableHighMemory() {
+		$mem = new Garp_Util_Memory();
+		$mem->useHighMemory();
 	}
 }

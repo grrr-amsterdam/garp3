@@ -35,50 +35,61 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	public function fetchFileList() {
 		$fileList = new Garp_Content_Upload_FileList();		
 		$configuredPaths = $this->_getConfiguredPaths();
-		$session = $this->getSshSession();
+
+		foreach ($configuredPaths as $type => $relDir) {
+			$fileListByType = $this->fetchFileListByType($type, $relDir);
+			$fileList->addEntries($fileListByType);
+		}
+
+		return $fileList;
+	}
+
+	/**
+	 * @return Garp_Content_Upload_FileList
+	 */	
+	public function fetchFileListByType($type, $relDir) {
+		$fileList = new Garp_Content_Upload_FileList();		
 		$baseDir = $this->_getBaseDir();
-
-		foreach ($configuredPaths as $uploadTypePath) {
-			$lsCommand = "ls -og {$baseDir}{$uploadTypePath}";
-
-			$stream = ssh2_exec($session, $lsCommand);
-			stream_set_blocking($stream, true);
-			$dirListing = stream_get_contents($stream) . "\n";
-			fclose($stream);
+		$lsCommand = "ls -ogl {$baseDir}{$relDir}";
+		
+		$session = $this->getSshSession();
+		$stream = ssh2_exec($session, $lsCommand);
+		$dirListing = $this->_fetchAndCloseStream($stream) . "\n";
 			
-			$matches = array();
-			$pattern = '/(?P<permissions>[rwx\-+@]+)\s+\d+\s+(?P<filesize>\d+)\s+(?P<lastmodified>\w{3}\s+\d+\s+\d+:?\d+)\s+(?P<filename>[^ \n]+)\n+/';
-			preg_match_all($pattern, $dirListing, $matches);
+		$matches = array();
+		$pattern = '/(?P<permissions>[drwx\-+@]+)\s+\d+\s+(?P<filesize>\d+)\s+(?P<lastmodified>\w{3}\s+\d+\s+\d+:?\d+)\s+(?P<filename>[^ \n]+)\n+/';
+		preg_match_all($pattern, $dirListing, $matches);
 			
-			foreach ($matches['permissions'] as $index => $permission) {
-				if ($permission[0] !== 'd') {
-					//	this is a file, no directory
-					$fileList->addEntry(
-						$uploadTypePath . '/' . $matches['filename'][$index]
-					);
-				}
+		foreach ($matches['permissions'] as $index => $permission) {
+			if ($permission[0] !== 'd') {
+				//	this is a file, no directory
+				$fileNode = new Garp_Content_Upload_FileNode(
+					$matches['filename'][$index],
+					$type
+				);
+
+				$fileList->addEntry($fileNode);
 			}
 		}
 		
 		return $fileList;
 	}
 	
-	
 	/**
 	 * Calculate the eTag of a file.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @return String 		Content hash (md5 sum of the content)
+	 * @param String $filename 	Filename
+	 * @param String $type		File type, i.e. 'document' or 'image'
+	 * @return String 			Content hash (md5 sum of the content)
 	 */
-	public function fetchEtag($path) {
-		$baseDir = $this->_getBaseDir();
-		$absPath = $baseDir . $path;
-		$session = $this->getSshSession();
+	public function fetchEtag($filename, $type) {
+		$baseDir 	= $this->_getBaseDir();
+		$absPath 	= $baseDir . $this->_getRelPath($filename, $type);
+
+		$session 	= $this->getSshSession();
 		
 		$md5command = "cat {$absPath} | md5sum";
-		$stream = ssh2_exec($session, $md5command);
-		stream_set_blocking($stream, true);
-		$md5output = stream_get_contents($stream);
-		fclose($stream);
+		$stream 	= ssh2_exec($session, $md5command);
+		$md5output 	= $this->_fetchAndCloseStream($stream);
 
 		if ($md5output) {
 			$baddies = array(' ', '-', "\n");
@@ -90,36 +101,32 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 
 	/**
 	 * Fetches the contents of the given file.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @return String		Content of the file. Throws an exception if file could not be read.
+	 * @param String $filename 	Filename
+	 * @param String $type		File type, i.e. 'document' or 'image'
+	 * @return String			Content of the file. Throws an exception if file could not be read.
 	 */
-	public function fetchData($path) {
-		$ini = $this->_getIni();
-		$cdnDomain = $ini->cdn->domain;
-		$url = 'http://' . $cdnDomain . $path;
+	public function fetchData($filename, $type) {
+		$absPath 	= $this->_getAbsPath($filename, $type);
+		$sftpStream = $this->getSftpStream($absPath, 'rb');
 		
-		$content = file_get_contents($url);
+		$content 	= $this->_fetchAndCloseStream($sftpStream);
+		
 		if ($content !== false) {
 			return $content;
-		} else throw new Exception("Could not read {$url} on " . $this->getEnvironment());
+		} else throw new Exception("Could not read {$absPath} on " . $this->getEnvironment());
 	}
 	
 	
 	/**
 	 * Stores given data in the file, overwriting the existing bytes if necessary.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @param String $data	File data to be stored.
-	 * @return Boolean		Success of storage.
+	 * @param String $filename 	Filename
+	 * @param String $type		File type, i.e. 'document' or 'image'
+	 * @param String $data		File data to be stored.
+	 * @return Boolean			Success of storage.
 	 */
-	public function store($path, $data) {
-		$sftpSession = $this->getSftpSession();
-		$remoteAbsPath = $this->_getBaseDir() . $path;
-
-		$sftpStream = @fopen('ssh2.sftp://' . $sftpSession . $remoteAbsPath, 'wb');
-
-	    if (!$sftpStream) {
-	        throw new Exception("Could not open remote file: $remoteAbsPath");
-	    }
+	public function store($filename, $type, $data) {
+		$remoteAbsPath 	= $this->_getAbsPath($filename, $type);
+		$sftpStream 	= $this->getSftpStream($remoteAbsPath);
 
 	    if (@fwrite($sftpStream, $data) === false) {
 	        throw new Exception("Could not store {$remoteAbsPath} by SFTP on " . $this->getEnvironment());
@@ -129,6 +136,9 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 		return true;
 	}
 	
+	public function setDeployParams(array $deployParams) {
+		$this->_deployParams = $deployParams;
+	}
 	
 	/**
 	 * @param Resource $sshSession A session handler, as returned by ssh2_connect().
@@ -163,13 +173,7 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	
 	public function getUser() {
 		return $this->_deployParams['user'];
-	}
-	
-	
-	public function setDeployParams(array $deployParams) {
-		$this->_deployParams = $deployParams;
-	}
-	
+	}	
 	
 	public function getSshSession() {
 		return $this->_sshSession;
@@ -180,6 +184,16 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 		return $this->_sftpSession;
 	}
 
+	public function getSftpStream($absPath, $mode = 'wb') {
+		$sftpSession 	= $this->getSftpSession();
+		$sftpStream 	= @fopen('ssh2.sftp://' . $sftpSession . $absPath, $mode);
+		
+	    if (!$sftpStream) {
+	        throw new Exception("Could not open remote location: $absPath");
+	    }
+		
+		return $sftpStream;
+	}
 
 	protected function _openSshSession($host) {
 		$session = ssh2_connect($host, 22, array('hostkey' => 'ssh-dss'));
@@ -188,6 +202,23 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 		return $session;
 	}
 	
+	protected function _fetchAndCloseStream($stream) {
+		stream_set_blocking($stream, true);
+		$content = stream_get_contents($stream);
+		fclose($stream);
+		return $content;
+	}
+
+	/**
+	 * @param 	String $filename 	Filename
+	 * @param 	String $type		File type, i.e. 'document' or 'image'
+	 * @return 	String				The absolute path to this file for use on the local file system
+	 */
+	protected function _getAbsPath($filename, $type) {
+		$baseDir 		= $this->_getBaseDir();
+		$relPath 		= $this->_getRelPath($filename, $type);
+		return $baseDir . $relPath;
+	}
 	
 	/**
 	 * @return String Absolute path on the server, exluding trailing slash.

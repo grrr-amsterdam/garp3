@@ -52,6 +52,8 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 		if (!is_null($newValue)) {
 			$this->_currentValue = $newValue;
 		} else $this->_currentValue++;
+
+		$this->_preventOverflow();
 	}
 
 
@@ -80,6 +82,11 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 		return $this->_currentValue;
 	}
 
+	protected function _preventOverflow() {
+		if ($this->_currentValue > $this->_totalValue) {
+			$this->_currentValue = $this->_totalValue;
+		}		
+	}
 
 	protected function _verifyTotalValue() {
 		if (is_null($this->_totalValue)) {

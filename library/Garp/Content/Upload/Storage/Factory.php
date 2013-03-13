@@ -2,11 +2,6 @@
 /**
  * Garp_Content_Upload_Storage_Factory
  * Produces a Garp_Content_Upload_Storage_* instance.
- * You can use an instance of this class as a numeric array, containing an array per entry:
- * 		array(
- *			'path' => 'uploads/images/pussy.gif',
- *			'lastmodified' => '1361378985'
- *		)
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -15,6 +10,10 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_Upload_Storage_Factory {
+
+	/**
+	 * @param String $environment The environment id, f.i. 'development' or 'production'.
+	 */
 	public static function create($environment) {
 		$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', $environment);
 		$cdnType = $ini->cdn->type;
