@@ -63,15 +63,17 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 				break;
 				case 'published':
 					tpl.push('<h3>', __('Published'), '</h3>', 
-						'<a class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</a>',
-						'<tpl if="values.published">', 
-							' <a class="remove-published-date" title="', __('Delete'), '"> </a>', 
-						'</tpl>', 
-						'<div id="online-status">', __('Online'), ': ', 
-						'<tpl if="typeof online_status !== &quot;undefined&quot; && online_status === &quot;0&quot;">', 
+						'<tpl if="typeof online_status !== &quot;undefined&quot;  && online_status === &quot;1&quot;">',
+							'<a class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</a>',
+							'<tpl if="values.published">', 
+								' <a class="remove-published-date" title="', __('Delete'), '"> </a>', 
+							'</tpl>', 
+						'</tpl>',
+						'<div id="online-status">', __('Draft'), ': ', 
+						'<tpl if="typeof online_status !== &quot;undefined&quot; && online_status === &quot;1&quot;">', 
 							'<input type="checkbox">',
 						'</tpl>', 
-						'<tpl if="typeof online_status !== &quot;undefined&quot;  && online_status === &quot;1&quot;">',
+						'<tpl if="typeof online_status !== &quot;undefined&quot;  && online_status === &quot;0&quot;">',
 							'<input type="checkbox" checked>', 
 						'</tpl></div>');
 				break;
@@ -118,7 +120,7 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			this.authorIdEditor.el.hide();
 		}, this);
 		this.el.select('#online-status input').un('click').on('click', function(e, el){
-			this.setVal('online_status', Ext.get(el).getAttribute('checked') ? '1' : '0', true);
+			this.setVal('online_status', Ext.get(el).getAttribute('checked') ? '0' : '1', true);
 		}, this);
 		this.el.select('#created-date').un('click').on('click', function(e, el){
 			this.createdDateEditor.startEdit(el, this.rec.get('created'));

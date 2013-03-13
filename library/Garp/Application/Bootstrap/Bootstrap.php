@@ -42,17 +42,26 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 
 
 	/**
- 	 * Combine the info found in application.ini with the info found in the Info table
+ 	 * Combine the static info found in application.ini with the dynamic info found in the Info table.
  	 * @return Void
  	 */
 	protected function _initConfig() {
-		return;
 		$this->bootstrap('db');
 		$loader = Garp_Loader::getInstance();
 		if ($loader->isLoadable('Model_Info')) {
-			$config = Zend_Registry::get('config');
+			$staticConfig = Zend_Registry::get('config');
+
 			$infoModel = new Model_Info();
-			$data = $infoModel->fetchAsConfig();
+			$dynamicConfig = $infoModel->fetchAsConfig(null, APPLICATION_ENV);
+
+			// Very sneakily bypass 'readOnly'
+			if ($staticConfig->readOnly()) {
+				$staticConfig = new Zend_Config($staticConfig->toArray(), APPLICATION_ENV, true);
+			}
+			$staticConfig->merge($dynamicConfig);
+			$staticConfig->setReadOnly();
+
+			Zend_Registry::set('config', $staticConfig);
 		}
 	}
 }
