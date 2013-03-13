@@ -111,15 +111,6 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 		
 		$content 	= $this->_fetchAndCloseStream($sftpStream);
 		
-		// Zend_Debug::dump($absPath);
-		// 
-		// Zend_Debug::dump($content);
-		// exit;
-		
-		// $cdnDomain 	= $ini->cdn->domain;
-		// $url 		= 'http://' . $cdnDomain . $relPath;
-
-		// $content = file_get_contents($url);
 		if ($content !== false) {
 			return $content;
 		} else throw new Exception("Could not read {$absPath} on " . $this->getEnvironment());

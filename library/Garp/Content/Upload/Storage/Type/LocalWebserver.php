@@ -58,7 +58,7 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	 * @return String			Content of the file. Throws an exception if file could not be read.
 	 */
 	public function fetchData($filename, $type) {
-		$absPath = $this->_getAbsPath($path);
+		$absPath = $this->_getAbsPath($filename, $type);
 
 		if ($absPath === false) {
 			throw new Exception($absPath . ' does not exist');

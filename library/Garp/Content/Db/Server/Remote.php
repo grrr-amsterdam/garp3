@@ -31,33 +31,36 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 		
 		$this->_checkPlatformRequirements();
 		$this->_verifyCapified();
-		
-		$this->setDeployParams($this->_fetchDeployParams());
-		$this->setSshSession($this->_openSshSession());
 	}
 
 	/**
 	 * @return String The SSH user id to use in connecting
 	 */
 	public function getUser() {
-		return $this->_deployParams['user'];
+		$deployParams = $this->getDeployParams();
+		return $deployParams['user'];
 	}
 
 	/**
 	 * @return String The SSH host to connect to
 	 */
 	public function getHost() {
-		return $this->_deployParams['server'];
+		$deployParams = $this->getDeployParams();
+		return $deployParams['server'];
 	}
 
 	public function getRemotePath() {
-		return $this->_deployParams['deploy_to'];
+		$deployParams = $this->getDeployParams();
+		return $deployParams['deploy_to'];
 	}
 
 	/**
 	 * @return 	Resource 	A session handler, as returned by ssh2_connect()
 	 */
 	public function getSshSession() {
+		if (!$this->_sshSession) {
+			$this->setSshSession($this->_openSshSession());
+		}
 		return $this->_sshSession;
 	}
 
@@ -65,6 +68,9 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	 * @return Array
 	 */
 	public function getDeployParams() {
+		if (!$this->_deployParams) {
+			$this->setDeployParams($this->_fetchDeployParams());
+		}
 		return $this->_deployParams;
 	}
 
@@ -91,8 +97,11 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	 * @param Garp_Content_Db_ShellCommand_Protocol $command Shell command
 	 */
 	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command) {
-		$sshSession = $this->getSshSession();
-		if ($stream = ssh2_exec($sshSession, $command->render())) {
+		$sshSession 	= $this->getSshSession();
+		// $commandString	= $this->_renderModulatorPrefix() . $command->render();
+		$commandString	= $command->render();
+		
+		if ($stream = ssh2_exec($sshSession, $commandString)) {
 			stream_set_blocking($stream, true);
 			$output = stream_get_contents($stream);
 		} else return false;
