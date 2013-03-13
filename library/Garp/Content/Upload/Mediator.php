@@ -54,8 +54,10 @@ class Garp_Content_Upload_Mediator {
 	public function fetchDiff() {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();		
 		$diffList = new Garp_Content_Upload_FileList();
-		
+
 		$sourceList = $this->_source->fetchFileList();
+		// Zend_Debug::dump($sourceList);
+		// exit;
 		$targetList = $this->_target->fetchFileList();
 
 		$progress->display("Looking for new files");
@@ -77,14 +79,16 @@ class Garp_Content_Upload_Mediator {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 
 		foreach ($fileList as $file) {
-			$filename 	= $file[Garp_Content_Upload_FileList::LABEL_FILENAME];
-			$type 		= $file[Garp_Content_Upload_FileList::LABEL_TYPE];
-			
+			$filename 	= $file->getFilename();
+			$type 		= $file->getType();
+Zend_Debug::dump($file);
+exit;
 			$progress->display("Fetching {$filename}");
 			$fileData = $this->_source->fetchData($filename, $type);
 			$progress->advance();
 
 			$progress->display("Uploading {$filename}");
+
 			if ($this->_target->store($filename, $type, $fileData)) {
 				$progress->advance();
 			} else {
@@ -95,57 +99,63 @@ class Garp_Content_Upload_Mediator {
 	
 	
 	/**
-	 * @return Array Numeric array of file paths, referring to files that are new to the target environment.
+	 * @return Array Numeric array of files, with keys 'filename' and 'type'.
 	 */
 	protected function _findNewFiles(Garp_Content_Upload_FileList $sourceList, Garp_Content_Upload_FileList $targetList) {
-		$newFiles = array();
-
-		foreach ($sourceList as $sourceFile) {
-			$matchFound = false;
-
-			foreach ($targetList as $targetFile) {
-				if ($sourceFile === $targetFile) {
-					$matchFound = true;
-					break;
-				}
-			}
-			
-			if (!$matchFound) {
-				$newFiles[] = $sourceFile;
-			}
-		}
-		
-		return $newFiles;
+		$unique = $sourceList->findUnique($targetList);
+		return $unique;
 	}
 
 
 	/**
-	 * @return Array 	Numeric array of file paths, referring to source files that exist on the target environment, but have
-	 *					different content.
+	 * @return Garp_Content_Upload_FileList Conflicting files
 	 */
 	protected function _findConflictingFiles(Garp_Content_Upload_FileList $sourceList, Garp_Content_Upload_FileList $targetList) {
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
-		$conflictingFiles = array();
-
-		$sourceListArray = (array)$sourceList;
-		$targetListArray = (array)$targetList;
-		$existingFiles = array_intersect_assoc($sourceListArray, $targetListArray);
-		$progress->init(count($existingFiles));
-
-		foreach ($existingFiles as $file) {
-			$progress->advance();
-			$filename = basename($file);
-			$progress->display("Comparing {$filename}");
-			$sourceEtag = $this->_source->fetchEtag($file);
-			$targetEtag = $this->_target->fetchEtag($file);
-
-			if ($sourceEtag != $targetEtag) {
-				$conflictingFiles[] = $file;
-			}
-		}
+		$existingFiles 		= $sourceList->findIntersecting($targetList);
+		$conflictingFiles 	= $this->_findConflictingFilesByEtag($existingFiles);
 
 		return $conflictingFiles;
 	}
 
+	protected function _findConflictingFilesByEtag(Garp_Content_Upload_FileList $conflictsByName) {
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress->init(count($conflictsByName));
+
+		$conflictsByEtag = new Garp_Content_Upload_FileList();
+		
+		foreach ($conflictsByName as $file) {
+			$this->_addEtagConflictingFile($conflictsByEtag, $file);
+		}
+
+		return $conflictsByEtag;
+	}
+
+	/**
+	 * @param	Garp_Content_Upload_FileList	&$conflictsByEtag	A reference to the list that a matching entry should be added to
+	 * @param	Garp_Content_Upload_FileNode	$file	The current file node within the Garp_Content_Upload_FileList
+	 * @return 	Void
+	 */
+	protected function _addEtagConflictingFile(Garp_Content_Upload_FileList &$conflictsByEtag, Garp_Content_Upload_FileNode $file) {
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$filename	= $file->getFilename();
+		$progress->display("Comparing {$filename}");
+
+		if (!$this->_matchEtags($file)) {
+			$conflictsByEtag->addEntry($file);
+		}
+
+		$progress->advance();
+	}
+	
+	
+	protected function _matchEtags(Garp_Content_Upload_FileNode $file) {
+		$filename	= $file->getFilename();
+		$type		= $file->getType();
+
+		$sourceEtag = $this->_source->fetchEtag($filename, $type);
+		$targetEtag = $this->_target->fetchEtag($filename, $type);
+
+		return $sourceEtag == $targetEtag;
+	}
 
 }

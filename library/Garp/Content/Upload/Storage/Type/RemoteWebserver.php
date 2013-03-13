@@ -35,35 +35,45 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	public function fetchFileList() {
 		$fileList = new Garp_Content_Upload_FileList();		
 		$configuredPaths = $this->_getConfiguredPaths();
-		$session = $this->getSshSession();
-		$baseDir = $this->_getBaseDir();
 
 		foreach ($configuredPaths as $type => $relDir) {
-			$lsCommand = "ls -og {$baseDir}{$relDir}";
+			$fileListByType = $this->fetchFileListByType($type, $relDir);
+			$fileList->addEntries($fileListByType);
+		}
 
-			$stream = ssh2_exec($session, $lsCommand);
-			stream_set_blocking($stream, true);
-			$dirListing = stream_get_contents($stream) . "\n";
-			fclose($stream);
+		return $fileList;
+	}
+
+	/**
+	 * @return Garp_Content_Upload_FileList
+	 */	
+	public function fetchFileListByType($type, $relDir) {
+		$fileList = new Garp_Content_Upload_FileList();		
+		$baseDir = $this->_getBaseDir();
+		$lsCommand = "ls -ogl {$baseDir}{$relDir}";
+		
+		$session = $this->getSshSession();
+		$stream = ssh2_exec($session, $lsCommand);
+		$dirListing = $this->_fetchAndCloseStream($stream) . "\n";
 			
-			$matches = array();
-			$pattern = '/(?P<permissions>[rwx\-+@]+)\s+\d+\s+(?P<filesize>\d+)\s+(?P<lastmodified>\w{3}\s+\d+\s+\d+:?\d+)\s+(?P<filename>[^ \n]+)\n+/';
-			preg_match_all($pattern, $dirListing, $matches);
+		$matches = array();
+		$pattern = '/(?P<permissions>[drwx\-+@]+)\s+\d+\s+(?P<filesize>\d+)\s+(?P<lastmodified>\w{3}\s+\d+\s+\d+:?\d+)\s+(?P<filename>[^ \n]+)\n+/';
+		preg_match_all($pattern, $dirListing, $matches);
 			
-			foreach ($matches['permissions'] as $index => $permission) {
-				if ($permission[0] !== 'd') {
-					//	this is a file, no directory
-					$fileList->addEntry(
-						$matches['filename'][$index],
-						$type
-					);
-				}
+		foreach ($matches['permissions'] as $index => $permission) {
+			if ($permission[0] !== 'd') {
+				//	this is a file, no directory
+				$fileNode = new Garp_Content_Upload_FileNode(
+					$matches['filename'][$index],
+					$type
+				);
+
+				$fileList->addEntry($fileNode);
 			}
 		}
 		
 		return $fileList;
 	}
-	
 	
 	/**
 	 * Calculate the eTag of a file.
@@ -72,18 +82,14 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	 * @return String 			Content hash (md5 sum of the content)
 	 */
 	public function fetchEtag($filename, $type) {
-		$baseDir = $this->_getBaseDir();
-		$absPath = $baseDir . $this->_getRelPath($filename, $type);
+		$baseDir 	= $this->_getBaseDir();
+		$absPath 	= $baseDir . $this->_getRelPath($filename, $type);
 
-Zend_Debug::dump($absPath);
-exit;
-		$session = $this->getSshSession();
+		$session 	= $this->getSshSession();
 		
 		$md5command = "cat {$absPath} | md5sum";
-		$stream = ssh2_exec($session, $md5command);
-		stream_set_blocking($stream, true);
-		$md5output = stream_get_contents($stream);
-		fclose($stream);
+		$stream 	= ssh2_exec($session, $md5command);
+		$md5output 	= $this->_fetchAndCloseStream($stream);
 
 		if ($md5output) {
 			$baddies = array(' ', '-', "\n");
@@ -100,18 +106,23 @@ exit;
 	 * @return String			Content of the file. Throws an exception if file could not be read.
 	 */
 	public function fetchData($filename, $type) {
-		$ini 		= $this->_getIni();
-		$baseDir 	= $this->_getBaseDir();
-		$relPath 	= $this->_getRelPath($filename, $type);
-		$absPath 	= $baseDir . $relPath;
+		$absPath 	= $this->_getAbsPath($filename, $type);
+		$sftpStream = $this->getSftpStream($absPath, 'rb');
+		
+		$content 	= $this->_fetchAndCloseStream($sftpStream);
+		
+		// Zend_Debug::dump($absPath);
+		// 
+		// Zend_Debug::dump($content);
+		// exit;
+		
+		// $cdnDomain 	= $ini->cdn->domain;
+		// $url 		= 'http://' . $cdnDomain . $relPath;
 
-		$cdnDomain 	= $ini->cdn->domain;
-		$url 		= 'http://' . $cdnDomain . $relPath;
-
-		$content = file_get_contents($url);
+		// $content = file_get_contents($url);
 		if ($content !== false) {
 			return $content;
-		} else throw new Exception("Could not read {$url} on " . $this->getEnvironment());
+		} else throw new Exception("Could not read {$absPath} on " . $this->getEnvironment());
 	}
 	
 	
@@ -123,14 +134,8 @@ exit;
 	 * @return Boolean			Success of storage.
 	 */
 	public function store($filename, $type, $data) {
-		$sftpSession = $this->getSftpSession();
-		$remoteAbsPath = $this->_getAbsPath($filename, $type);
-
-		$sftpStream = @fopen('ssh2.sftp://' . $sftpSession . $remoteAbsPath, 'wb');
-
-	    if (!$sftpStream) {
-	        throw new Exception("Could not open remote file: $remoteAbsPath");
-	    }
+		$remoteAbsPath 	= $this->_getAbsPath($filename, $type);
+		$sftpStream 	= $this->getSftpStream($remoteAbsPath);
 
 	    if (@fwrite($sftpStream, $data) === false) {
 	        throw new Exception("Could not store {$remoteAbsPath} by SFTP on " . $this->getEnvironment());
@@ -140,6 +145,9 @@ exit;
 		return true;
 	}
 	
+	public function setDeployParams(array $deployParams) {
+		$this->_deployParams = $deployParams;
+	}
 	
 	/**
 	 * @param Resource $sshSession A session handler, as returned by ssh2_connect().
@@ -174,13 +182,7 @@ exit;
 	
 	public function getUser() {
 		return $this->_deployParams['user'];
-	}
-	
-	
-	public function setDeployParams(array $deployParams) {
-		$this->_deployParams = $deployParams;
-	}
-	
+	}	
 	
 	public function getSshSession() {
 		return $this->_sshSession;
@@ -191,6 +193,16 @@ exit;
 		return $this->_sftpSession;
 	}
 
+	public function getSftpStream($absPath, $mode = 'wb') {
+		$sftpSession 	= $this->getSftpSession();
+		$sftpStream 	= @fopen('ssh2.sftp://' . $sftpSession . $absPath, $mode);
+		
+	    if (!$sftpStream) {
+	        throw new Exception("Could not open remote location: $absPath");
+	    }
+		
+		return $sftpStream;
+	}
 
 	protected function _openSshSession($host) {
 		$session = ssh2_connect($host, 22, array('hostkey' => 'ssh-dss'));
@@ -199,6 +211,12 @@ exit;
 		return $session;
 	}
 	
+	protected function _fetchAndCloseStream($stream) {
+		stream_set_blocking($stream, true);
+		$content = stream_get_contents($stream);
+		fclose($stream);
+		return $content;
+	}
 
 	/**
 	 * @param 	String $filename 	Filename
@@ -207,8 +225,8 @@ exit;
 	 */
 	protected function _getAbsPath($filename, $type) {
 		$baseDir 		= $this->_getBaseDir();
-		$absPath 		= $this->_getBaseDir() . $this->_getRelPath($filename, $type);
-		return $absPath;
+		$relPath 		= $this->_getRelPath($filename, $type);
+		return $baseDir . $relPath;
 	}
 	
 	/**
