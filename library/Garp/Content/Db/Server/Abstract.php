@@ -10,13 +10,15 @@
  * @lastmodified $Date: $
  */
 abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server_Protocol {
-	const PATH_CONFIG_APP = '/configs/application.ini';
-	
-	const RESTORE_FILE = 'tmp_restore.sql';
-	
-	// const QUERY_DROP = "DROP DATABASE IF EXISTS `%s`";
-	//	waarom apart droppen? Zit al in de query.
+	const PATH_CONFIG_APP 		= '/configs/application.ini';
+	const RESTORE_FILE 			= 'tmp_restore.sql';
+	const COMMAND_PREFIX_IONICE = 'ionice -c3 ';
+	const COMMAND_PREFIX_NICE 	= 'nice -19 ';
 
+	/**
+	 * @var Bool $_ioNiceEnabled
+	 */
+	protected $_ioNiceEnabled;
 
 	/**
 	 * @var String $_environment The environment this server runs in.
@@ -83,6 +85,29 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	public function setBackupDir($path) {
 		$this->_backupDir = $path;
 	}
+	
+	/**
+	 * @return Bool
+	 */
+	// public function getIoNiceEnabled() {
+	// 	if (is_null($this->_ioNiceEnabled)) {
+	// 		$this->setIoNiceEnabled($this->_fetchIoNiceSupport());
+	// 		Zend_Debug::dump(			$this->_ioNiceEnabled);
+	// 		exit;
+	// 
+	// 	}
+	// 	// Zend_Debug::dump($this->_ioNiceEnabled);
+	// 	// exit;
+	// 	return $this->_ioNiceEnabled;
+	// }
+	
+	/**
+	 * @param Bool $ioNiceEnabled
+	 */
+	// public function setIoNiceEnabled($ioNiceEnabled) {
+	// 	$this->_ioNiceEnabled = (bool)$ioNiceEnabled;
+	// }
+	
 
 	/**
 	 * Retrieves the absolute path to the SQL dump that is to be restored.
@@ -97,25 +122,37 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 * Backs up the database and writes it to a file on the server itself.
 	 */
 	public function backup() {
-		$backupDir 		= $this->getBackupDir();
-		$dbConfigParams = $this->getDbConfigParams();
-		$environment	= $this->getEnvironment();
+		$dbConfigParams 	= $this->getDbConfigParams();
+		$backupDir 			= $this->getBackupDir();
+		$environment		= $this->getEnvironment();
+
+		if (!$this->databaseExists()) {
+			return;
+		}
+
+		$createBackupDir	= new Garp_Content_Db_ShellCommand_CreateBackupDir($backupDir);
+		$dumpToFile			= new Garp_Content_Db_ShellCommand_DumpToFile($dbConfigParams, $backupDir, $environment);
 		
 		$commands = array(
-			new Garp_Content_Db_ShellCommand_CreateBackupDir($backupDir),
-			new Garp_Content_Db_ShellCommand_DumpToFile($dbConfigParams, $backupDir, $environment)
+			$createBackupDir,
+			$dumpToFile
 		);
 
+		foreach ($commands as $command) {
+			$this->shellExec($command);
+		}
 
 		/**
 		 * @todo: verifiëren of:
 		 *			- backupbestand bestaat
 		 *			- backupbestand meer dan 0 bytes heeft
 		 */
-
-		foreach ($commands as $command) {
-			$this->shellExec($command);
-		}
+	}
+	
+	public function databaseExists() {
+		$dbConfigParams = $this->getDbConfigParams();
+		$dbExists 		= new Garp_Content_Db_ShellCommand_DatabaseExists($dbConfigParams);
+		return (bool)$this->shellExec($dbExists);
 	}
 	
 	/**
@@ -128,6 +165,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$dbConfig 		= $this->getDbConfigParams();
 
 		$restoreFile 	= $this->getRestoreFilePath();
+
 		if ($this->store($restoreFile, $dump)) {
 			$executeFile = new Garp_Content_Db_ShellCommand_ExecuteFile($dbConfig, $restoreFile);
 			$this->shellExec($executeFile);
@@ -178,6 +216,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	
 	/**
 	 * Lowercase the table and view names, for compatibility's sake.
+	 * Can we deprecate this method already?
 	 * @param 	String 	&$dump 	Output of MySQL dump.
 	 * @return 	String 			The dump output, with adjusted casing.
 	 */
@@ -226,10 +265,31 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		return $dump;
 	}
 
-
 	protected function _fetchAppConfigParams() {
 		$config = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $this->getEnvironment());
 		return $config;
 	}
-
+	
+	// protected function _renderModulatorPrefix() {
+	// 	$prefix = $this->_getNicePrefix();
+	// 	$prefix .= $this->_getIoNicePrefix();
+	// 
+	// 	return $prefix;
+	// }
+	// 
+	// protected function _fetchIoNiceSupport() {
+	// 	$command 		= new Garp_Content_Db_ShellCommand_IoNiceExists();
+	// 	$ioNiceExists 	= (bool)$this->shellExec($command);
+	// 	return $ioNiceExists;
+	// }
+	// 
+	// protected function _getIoNicePrefix() {
+	// 	if ($this->getIoNiceEnabled()) {
+	// 		return self::COMMAND_PREFIX_IONICE;
+	// 	}
+	// }
+	// 
+	// protected function _getNicePrefix() {
+	// 	return self::COMMAND_PREFIX_NICE;
+	// }
 }
