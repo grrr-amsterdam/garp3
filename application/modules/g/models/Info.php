@@ -21,20 +21,35 @@ class G_Model_Info extends Model_Base_Info {
 	/**
  	 * Fetch results and converts to Zend_Config object
  	 * @param Zend_Db_Select $select A select object to filter results
+ 	 * @param String $env Which application env to use
  	 * @return Zend_Config
  	 */
-	public function fetchAsConfig(Zend_Db_Select $select = null) {
+	public function fetchAsConfig(Zend_Db_Select $select = null, $env = APPLICATION_ENV) {
 		if (is_null($select)) {
 			$select = $this->select();
 		}
 		$results = $this->fetchAll($select);
 
-		// Create a multi-dimensional array from the ini-style keys
-		$config = array();
+		$ini = $this->_createIniFromResults($results, $env);
+		return $ini;
+	}
+
+
+	/**
+ 	 * Create a Zend_Config instance from database results
+ 	 * @param Zend_Db_Table_Rowset $results
+ 	 * @param Array $config The array that's recursively filled with the right keys
+ 	 * @return Zend_Config
+ 	 */
+	protected function _createIniFromResults($results, $env) {
+		// Create a parse_ini_string() compatible string.
+		$ini = "[$env]\n";
 		foreach ($results as $result) {
 			$keyValue = "{$result->key} = \"{$result->value}\"\n";
-			//$config[] = $this->_explodeIniKey($
+			$ini .= $keyValue;
 		}
 
+		$iniObj = Garp_Config_Ini::fromString($ini);
+		return $iniObj;
 	}
 }
