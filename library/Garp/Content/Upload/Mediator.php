@@ -81,8 +81,8 @@ class Garp_Content_Upload_Mediator {
 		foreach ($fileList as $file) {
 			$filename 	= $file->getFilename();
 			$type 		= $file->getType();
-Zend_Debug::dump($file);
-exit;
+//Zend_Debug::dump($file);
+//exit;
 			$progress->display("Fetching {$filename}");
 			$fileData = $this->_source->fetchData($filename, $type);
 			$progress->advance();
