@@ -4,9 +4,6 @@
  * @author David Spreekmeester | Grrr.nl
  */
 class Garp_Content_Db_ShellCommand_DumpToString implements Garp_Content_Db_ShellCommand_Protocol {
-	/**
-	 * @todo
-	 */
 	const COMMAND_DUMP = "mysqldump -u'%s' -p'%s' --host='%s' --databases %s --add-drop-table --skip-comments --single-transaction --quick";
 
 	/**

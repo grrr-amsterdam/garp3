@@ -133,8 +133,14 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$dump 			= $this->_adjustDumpToEnvironment($dump);
 		$dump			= $this->_lowerCaseTableAndViewNames($dump);
 		$dbConfig 		= $this->getDbConfigParams();
-
 		$restoreFile 	= $this->getRestoreFilePath();
+
+		$executeFile 	= new Garp_Content_Db_ShellCommand_CreateDatabase($dbConfig);
+		$this->shellExec($executeFile);
+
+		if (!$this->_validateDump($dump)) {
+			throw new Exception("The fetched database seems invalid.");
+		}
 
 		if ($this->store($restoreFile, $dump)) {
 			$executeFile = new Garp_Content_Db_ShellCommand_ExecuteFile($dbConfig, $restoreFile);
@@ -143,11 +149,18 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 			$removeFile = new Garp_Content_Db_ShellCommand_RemoveFile($restoreFile);
 			$this->shellExec($removeFile);
 		}
-
-		/**
-		 * @todo
-		 * - verifieer filesize van dump?
-		 */
+	}
+	
+	/**
+	 * @param 	String 	$dump 	The MySQL dump output
+	 * @return 	Bool			Whether this database dump is valid
+	 */
+	protected function _validateDump($dump) {
+		if (strlen($dump) > 0) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 
@@ -166,7 +179,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 */
 	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command) {
 		$command = $this->_addShellCommandModulators($command);
-		$this->shellExecString($command->render());
+		return $this->shellExecString($command->render());
 	}
 	
 	public function _addShellCommandModulators(Garp_Content_Db_ShellCommand_Protocol $command) {

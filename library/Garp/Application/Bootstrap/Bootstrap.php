@@ -49,19 +49,28 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 		$this->bootstrap('db');
 		$loader = Garp_Loader::getInstance();
 		if ($loader->isLoadable('Model_Info')) {
-			$staticConfig = Zend_Registry::get('config');
+			try {
+				$infoModel 		= new Model_Info();
+				$dynamicConfig 	= $infoModel->fetchAsConfig(null, APPLICATION_ENV);
+				$staticConfig 	= Zend_Registry::get('config');
 
-			$infoModel = new Model_Info();
-			$dynamicConfig = $infoModel->fetchAsConfig(null, APPLICATION_ENV);
+				// Very sneakily bypass 'readOnly'
+				if ($staticConfig->readOnly()) {
+					$staticConfig = new Zend_Config($staticConfig->toArray(), APPLICATION_ENV, true);
+				}
+				$staticConfig->merge($dynamicConfig);
+				$staticConfig->setReadOnly();
 
-			// Very sneakily bypass 'readOnly'
-			if ($staticConfig->readOnly()) {
-				$staticConfig = new Zend_Config($staticConfig->toArray(), APPLICATION_ENV, true);
+				Zend_Registry::set('config', $staticConfig);
+			} catch(Exception $e) {
+				$msg = $e->getMessage();
+				if (
+					strpos($msg, 'Unknown database') === false &&
+					strpos($msg, "doesn't exist") === false
+				) {
+					throw $e;
+				}
 			}
-			$staticConfig->merge($dynamicConfig);
-			$staticConfig->setReadOnly();
-
-			Zend_Registry::set('config', $staticConfig);
 		}
 	}
 }

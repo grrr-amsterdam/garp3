@@ -98,7 +98,6 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->init(3);
 
-
 		//	1.
 		$progress->display("Backing up");
 		$target->backup();
@@ -108,7 +107,7 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		$progress->display("Fetching data");
 		$dump = $source->fetchDump();
 		$progress->advance();
-		
+
 		//	3.
 		$progress->display("Injecting data");
 		$target->restore($dump);
