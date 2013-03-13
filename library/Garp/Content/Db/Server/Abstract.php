@@ -14,11 +14,6 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	const RESTORE_FILE 			= 'tmp_restore.sql';
 
 	/**
-	 * @var Bool $_ioNiceEnabled
-	 */
-	protected $_ioNiceEnabled;
-
-	/**
 	 * @var String $_environment The environment this server runs in.
 	 */
 	protected $_environment;
@@ -82,30 +77,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 */
 	public function setBackupDir($path) {
 		$this->_backupDir = $path;
-	}
-	
-	/**
-	 * @return Bool
-	 */
-	// public function getIoNiceEnabled() {
-	// 	if (is_null($this->_ioNiceEnabled)) {
-	// 		$this->setIoNiceEnabled($this->_fetchIoNiceSupport());
-	// 		Zend_Debug::dump(			$this->_ioNiceEnabled);
-	// 		exit;
-	// 
-	// 	}
-	// 	// Zend_Debug::dump($this->_ioNiceEnabled);
-	// 	// exit;
-	// 	return $this->_ioNiceEnabled;
-	// }
-	
-	/**
-	 * @param Bool $ioNiceEnabled
-	 */
-	// public function setIoNiceEnabled($ioNiceEnabled) {
-	// 	$this->_ioNiceEnabled = (bool)$ioNiceEnabled;
-	// }
-	
+	}	
 
 	/**
 	 * Retrieves the absolute path to the SQL dump that is to be restored.
@@ -287,27 +259,4 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$config = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $this->getEnvironment());
 		return $config;
 	}
-	
-	// protected function _renderModulatorPrefix() {
-	// 	$prefix = $this->_getNicePrefix();
-	// 	$prefix .= $this->_getIoNicePrefix();
-	// 
-	// 	return $prefix;
-	// }
-	// 
-	// protected function _fetchIoNiceSupport() {
-	// 	$command 		= new Garp_Content_Db_ShellCommand_IoNiceExists();
-	// 	$ioNiceExists 	= (bool)$this->shellExec($command);
-	// 	return $ioNiceExists;
-	// }
-	// 
-	// protected function _getIoNicePrefix() {
-	// 	if ($this->getIoNiceEnabled()) {
-	// 		return self::COMMAND_PREFIX_IONICE;
-	// 	}
-	// }
-	// 
-	// protected function _getNicePrefix() {
-	// 	return self::COMMAND_PREFIX_NICE;
-	// }
 }
