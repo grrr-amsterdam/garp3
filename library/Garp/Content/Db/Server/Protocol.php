@@ -20,6 +20,11 @@ interface Garp_Content_Db_Server_Protocol {
 	 * @param Garp_Content_Db_ShellCommand_Protocol $command Shell command
 	 */
 	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command);
+
+	/**
+	 * @param String $command Shell command
+	 */
+	public function shellExecString($command);
 	
 	/**
 	 * Fetches an SQL dump for structure and content of this database.

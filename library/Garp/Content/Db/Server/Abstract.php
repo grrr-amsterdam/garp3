@@ -12,8 +12,6 @@
 abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server_Protocol {
 	const PATH_CONFIG_APP 		= '/configs/application.ini';
 	const RESTORE_FILE 			= 'tmp_restore.sql';
-	const COMMAND_PREFIX_IONICE = 'ionice -c3 ';
-	const COMMAND_PREFIX_NICE 	= 'nice -19 ';
 
 	/**
 	 * @var Bool $_ioNiceEnabled
@@ -188,6 +186,26 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	public function fetchDump() {
 		$dumpToString = new Garp_Content_Db_ShellCommand_DumpToString($this->getDbConfigParams());
 		return $this->shellExec($dumpToString);
+	}
+	
+	/**
+	 * @param Garp_Content_Db_ShellCommand_Protocol $command Shell command
+	 * @return Void
+	 */
+	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command) {
+		$command = $this->_addShellCommandModulators($command);
+		$this->shellExecString($command->render());
+	}
+	
+	public function _addShellCommandModulators(Garp_Content_Db_ShellCommand_Protocol $command) {
+		$command = new Garp_Content_Db_ShellCommand_Decorator_Nice($command);
+
+		$ioNiceExists = new Garp_Content_Db_ShellCommand_IoNiceExists();
+		if ($this->shellExecString($ioNiceExists->render())) {
+			$command = new Garp_Content_Db_ShellCommand_Decorator_IoNice($command);
+		}
+
+		return $command;
 	}
 	
 	/**
