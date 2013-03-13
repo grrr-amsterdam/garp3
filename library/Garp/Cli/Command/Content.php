@@ -28,7 +28,7 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 		$this->_setTargetEnv($args);
 
 		if (!$this->_parameterIsSetTo($args, 'skip', 'uploads')) {
-			Garp_Cli::lineOut("\nSyncing uploads");
+			Garp_Cli::lineOut("\nComparing uploads");
 			$this->_syncUploads();
 			Garp_Cli::lineOut('');
 		}
@@ -71,8 +71,11 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
 
 		$mediator = new Garp_Content_Upload_Mediator($this->_sourceEnv, $this->_targetEnv);
 		$transferList = $mediator->fetchDiff();
+		$progress->display("√ Done comparing");
 
 		if ($transferTotal = count($transferList)) {
+			Garp_Cli::lineOut("\n\nSyncing uploads");
+
 			/*	total * 2, because both fetching the source and storing
 				on target count as an advance on the progressbar. */
 			$progress->init($transferTotal * 2);

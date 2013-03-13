@@ -56,8 +56,6 @@ class Garp_Content_Upload_Mediator {
 		$diffList = new Garp_Content_Upload_FileList();
 
 		$sourceList = $this->_source->fetchFileList();
-		// Zend_Debug::dump($sourceList);
-		// exit;
 		$targetList = $this->_target->fetchFileList();
 
 		$progress->display("Looking for new files");
@@ -65,8 +63,6 @@ class Garp_Content_Upload_Mediator {
 
 		$progress->display("Looking for conflicting files");
 		$conflictingFiles = $this->_findConflictingFiles($sourceList, $targetList);
-
-		$progress->display("√ Done comparing.");
 
 		$diffList->addEntries($newFiles);
 		$diffList->addEntries($conflictingFiles);
@@ -81,8 +77,7 @@ class Garp_Content_Upload_Mediator {
 		foreach ($fileList as $file) {
 			$filename 	= $file->getFilename();
 			$type 		= $file->getType();
-Zend_Debug::dump($file);
-exit;
+
 			$progress->display("Fetching {$filename}");
 			$fileData = $this->_source->fetchData($filename, $type);
 			$progress->advance();
