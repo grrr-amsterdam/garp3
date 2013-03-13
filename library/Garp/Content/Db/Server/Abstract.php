@@ -81,7 +81,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 
 	/**
 	 * Retrieves the absolute path to the SQL dump that is to be restored.
-	 * @return String Absolute path to the SQL dump file.
+	 * @return String Absolute path to the SQL dump file
 	 */
 	public function getRestoreFilePath() {
 		$backupDir = $this->getBackupDir();
@@ -100,17 +100,11 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 			return;
 		}
 
-		$createBackupDir	= new Garp_Content_Db_ShellCommand_CreateBackupDir($backupDir);
+		$createBackupDir	= new Garp_Content_Db_ShellCommand_CreateDir($backupDir);
 		$dumpToFile			= new Garp_Content_Db_ShellCommand_DumpToFile($dbConfigParams, $backupDir, $environment);
 		
-		$commands = array(
-			$createBackupDir,
-			$dumpToFile
-		);
-
-		foreach ($commands as $command) {
-			$this->shellExec($command);
-		}
+		$this->shellExec($createBackupDir);
+		$this->shellExec($dumpToFile);
 
 		/**
 		 * @todo: verifiëren of:
@@ -134,6 +128,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$dump			= $this->_lowerCaseTableAndViewNames($dump);
 		$dbConfig 		= $this->getDbConfigParams();
 		$restoreFile 	= $this->getRestoreFilePath();
+		$restoreDir		= $this->getBackupDir();
 
 		$executeFile 	= new Garp_Content_Db_ShellCommand_CreateDatabase($dbConfig);
 		$this->shellExec($executeFile);
@@ -141,28 +136,22 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		if (!$this->_validateDump($dump)) {
 			throw new Exception("The fetched database seems invalid.");
 		}
+		
+		$createRestoreDir = new Garp_Content_Db_ShellCommand_CreateDir($restoreDir);
+		$this->shellExec($createRestoreDir);
 
 		if ($this->store($restoreFile, $dump)) {
 			$executeFile = new Garp_Content_Db_ShellCommand_ExecuteFile($dbConfig, $restoreFile);
+// Zend_Debug::dump($executeFile->render());
+// exit;
 			$this->shellExec($executeFile);
-			
+exit('jawoel');
 			$removeFile = new Garp_Content_Db_ShellCommand_RemoveFile($restoreFile);
+Zend_Debug::dump($removeFile->render());
+exit;
 			$this->shellExec($removeFile);
 		}
-	}
-	
-	/**
-	 * @param 	String 	$dump 	The MySQL dump output
-	 * @return 	Bool			Whether this database dump is valid
-	 */
-	protected function _validateDump($dump) {
-		if (strlen($dump) > 0) {
-			return true;
-		}
-		
-		return false;
-	}
-	
+	}	
 
 	/**
 	 * Fetches an SQL dump for structure and content of this database.
@@ -178,7 +167,15 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 * @return Void
 	 */
 	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command) {
+if (get_class($command) === 'Garp_Content_Db_ShellCommand_ExecuteFile') {
+	$command = $this->_addShellCommandModulators($command);
+	Zend_Debug::dump($command->render());
+	exit;
+	exit('POEP');
+}
+
 		$command = $this->_addShellCommandModulators($command);
+
 		return $this->shellExecString($command->render());
 	}
 	
@@ -271,5 +268,17 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	protected function _fetchAppConfigParams() {
 		$config = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $this->getEnvironment());
 		return $config;
+	}
+	
+	/**
+	 * @param 	String 	$dump 	The MySQL dump output
+	 * @return 	Bool			Whether this database dump is valid
+	 */
+	protected function _validateDump($dump) {
+		if (strlen($dump) > 0) {
+			return true;
+		}
+		
+		return false;
 	}
 }
