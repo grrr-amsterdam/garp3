@@ -105,8 +105,9 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 		/* __images in column model */
 		foreach ($fields as $field):
 			if ($this->spawnJs()->isImageField($field, $this->model)):
+				$lcFieldName = strtolower($field->name);
 				$nodeParams = array(
-					'dataIndex' => $field->name,
+					'dataIndex' => $lcFieldName,
 					'renderer' => 'Garp.renderers.imageRelationRenderer',
 					'width' => 84,
 					'fixed' => true,
@@ -126,10 +127,11 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 		/* __textual columns */
 		foreach ($fields as $field):
 			$isSingularRelationField = $this->spawnJs()->isSingularRelationField($field, $this->model);
+			$lcFieldName = strtolower($field->name);
 			
 			if (!$this->spawnJs()->isImageField($field, $this->model)):
 				$nodeParams = array(
-					'dataIndex' => $field->name,
+					'dataIndex' => $lcFieldName,
 					'header' => $field->label
 				);
 
@@ -205,9 +207,10 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 				if ($isSingularRelationField):
 					$relations = $this->model->relations->getRelations('column', $field->name);
 					$relModelName = key($relations);
+					$lcRelModelName = strtolower($relModelName);
 
 					$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
-						'dataIndex' => $relModelName,
+						'dataIndex' => $lcRelModelName,
 						'header' => $relModelName,
 						'hidden' => true,
 						'sortable' => true,
@@ -377,8 +380,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 			$multiRelFields = array();
 
 			foreach ($multipleRelations as $rel):
-				if (
-					($rel->isPlural() && $rel->editable) &&
+				if ( $rel->isPlural() &&
 					(!
 						($rel->model === 'Chapter' && $this->model->behaviors->displaysBehavior('Article'))
 					)

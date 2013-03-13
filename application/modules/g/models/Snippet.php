@@ -9,14 +9,7 @@
  * @subpackage Model
  * @lastmodified $Date: $
  */
-class G_Model_Snippet extends Model_Base_Snippet {
-	/**
-	 * The table name
-	 * @var String
-	 */
-	protected $_name = 'Snippet';
-	
-	
+class G_Model_Snippet extends Model_Base_Snippet {	
 	/**
      * Initialize object
      * Called from {@link __construct()} as final step of object instantiation.

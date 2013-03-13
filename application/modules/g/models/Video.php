@@ -10,17 +10,10 @@
  */
 class G_Model_Video extends Model_Base_Video {
 	/**
-	 * The table name
-	 * @var String
+	 * Initialize object
+	 * Called from {@link __construct()} as final step of object instantiation.
+	 * @return Void
 	 */
-	protected $_name = 'Video';
-	
-	
-	/**
-   * Initialize object
-   * Called from {@link __construct()} as final step of object instantiation.
-   * @return Void
-   */
 	public function init() {
 		$this->registerObserver(new Garp_Model_Behavior_Timestampable())
 			->registerObserver(new Garp_Model_Behavior_Videoable())
