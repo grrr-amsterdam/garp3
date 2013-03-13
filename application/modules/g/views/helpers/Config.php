@@ -21,7 +21,10 @@ class G_View_Helper_Config extends Zend_View_Helper_Abstract {
 
 
 	public function __get($key) {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		if (!Zend_Registry::isRegistered('config')) {
+			throw new Exception('config is not found in the registry.');
+		}
+		$ini = Zend_Registry::get('config');
 		return $ini->{$key};
 	}
 }
