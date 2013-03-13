@@ -23,16 +23,16 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 		$fileList = new Garp_Content_Upload_FileList();
 
 		$service = $this->_getService();
-
 		$uploadTypePaths = $this->_getConfiguredPaths();
 		
-		foreach ($uploadTypePaths as $dirPath) {
+		foreach ($uploadTypePaths as $type => $dirPath) {
 			$service->setPath($dirPath);
 			$dirList = $service->getList();
-			
+
 			foreach ($dirList as $filePath) {
 				if ($filePath[strlen($filePath) - 1] !== '/') {
-					$fileList->addEntry('/' . $filePath);
+					$filename = basename($filePath);
+					$fileList->addEntry($filename, $type);
 				}
 			}
 		}
@@ -43,13 +43,15 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 
 	/**
 	 * Calculate the eTag of a file.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @return String 		Content hash (md5 sum of the content)
+	 * @param 	String $filename 	Filename
+	 * @param 	String $type		File type, i.e. 'document' or 'image'
+	 * @return 	String 				Content hash (md5 sum of the content)
 	 */
-	public function fetchEtag($path) {
-		$service = $this->_getService();
-		$filename = basename($path);
-		$dir = $this->_getRelDir($path);
+	public function fetchEtag($filename, $type) {
+		$relPath 	= $this->_getRelPath($filename, $type);
+		$dir 		= $this->_getRelDir($relPath);
+		$service 	= $this->_getService();
+
 		$service->setPath($dir);
 
 		return $service->getEtag($filename);
@@ -58,13 +60,15 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 
 	/**
 	 * Fetches the contents of the given file.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @return String		Content of the file. Throws an exception if file could not be read.
+	 * @param 	String $filename 	Filename
+	 * @param 	String $type		File type, i.e. 'document' or 'image'
+	 * @return 	String				Content of the file. Throws an exception if file could not be read.
 	 */
-	public function fetchData($path) {
-		$ini = $this->_getIni();
-		$cdnDomain = $ini->cdn->domain;
-		$url = 'http://' . $cdnDomain . $path;
+	public function fetchData($filename, $type) {
+		$relPath	= $this->_getRelPath($filename, $type);
+		$ini 		= $this->_getIni();
+		$cdnDomain 	= $ini->cdn->domain;
+		$url 		= 'http://' . $cdnDomain . $relPath;
 		
 		$content = file_get_contents($url);
 		if ($content !== false) {
@@ -75,23 +79,23 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 	
 	/**
 	 * Stores given data in the file, overwriting the existing bytes if necessary.
-	 * @param String $path 	Relative path to the file, starting with a slash.
-	 * @param String $data	File data to be stored.
-	 * @return Boolean		Success of storage.
+	 * @param 	String $filename 	Filename
+	 * @param 	String $type		File type, i.e. 'document' or 'image'
+	 * @param 	String $data		File data to be stored.
+	 * @return 	Boolean				Success of storage.
 	 */
-	public function store($path, $data) {
-		$service = $this->_getService();
-		$filename = basename($path);
-		$dir = $this->_getRelDir($path);
-		$service->setPath($dir);
+	public function store($filename, $type, $data) {
+		$dir 		= $this->_getRelDir($path);
+		$service 	= $this->_getService();
 
+		$service->setPath($dir);
 		return $service->store($filename, $data, true, false);
 	}
 
 
 	/**
-	 * @param String $path 	Relative path to the file.
-	 * @return String 		The relative path to the directory where the file resides.
+	 * @param 	String $path 	Relative path to the file.
+	 * @return 	String 			The relative path to the directory where the file resides.
 	 */
 	protected function _getRelDir($path) {
 		$filename = basename($path);
