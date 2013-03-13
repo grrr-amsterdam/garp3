@@ -28,7 +28,6 @@ class Garp_Content_Upload_FileNode {
 	public function __construct($filename, $type) {
 		$this->setFilename($filename);
 		$this->setType($type);
-		$this->_validate();
 	}
 
 	
@@ -60,29 +59,23 @@ class Garp_Content_Upload_FileNode {
 		$this->_type = $type;
 	}
 	
-	protected function _hasValidName() {
+	public function isValid() {
+		$isValid = 
+			$this->getFilename() &&
+			$this->hasValidName() &&
+			$this->getType()
+		;
+		
+		return $isValid;
+	}
+	
+	protected function hasValidName() {
 		$filename = $this->getFilename();
 
 		return (
 			!($filename[0] === self::HIDDEN_FILES_PREFIX) &&
 			!in_array($filename, $this->_bannedBaseNames)
 		);
-	}
-	
-	protected function _validate() {
-		$filename = $this->getFilename();
-
-		if (!$filename) {
-			throw new Exception("The filename is required.");
-		}
-		
-		if (!$this->_hasValidName()) {
-			throw new Exception("The filename is invalid ('{$filename}').");
-		}
-		
-		if (!$this->getType()) {
-			throw new Exception("The upload type ('type') property is required.");
-		}
 	}
 }
 
