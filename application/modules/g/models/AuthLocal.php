@@ -10,7 +10,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_AuthLocal extends G_Model_Auth {
-	protected $_name = 'AuthLocal';
+	protected $_name = 'authlocal';
 	
 	
 	protected $_referenceMap = array(

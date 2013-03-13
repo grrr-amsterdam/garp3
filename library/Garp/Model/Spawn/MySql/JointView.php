@@ -33,25 +33,31 @@ class Garp_Model_Spawn_MySql_JointView {
 
 
 	protected function _renderSql() {
+		$lcModelId = strtolower($this->_model->id);
+
 		if ($singularRelations = $this->_model->relations->getRelations('type', array('hasOne', 'belongsTo'))) {
 			$sql = 
-				"DROP VIEW IF EXISTS {$this->_model->id}_joint;\n"
-				. "CREATE SQL SECURITY INVOKER VIEW {$this->_model->id}_joint AS "
-				. "SELECT `{$this->_model->id}`.*,\n"
+				"DROP VIEW IF EXISTS {$lcModelId}_joint;\n"
+				. "CREATE SQL SECURITY INVOKER VIEW {$lcModelId}_joint AS "
+				. "SELECT `{$lcModelId}`.*,\n"
 			;
 
 			$relNodes = array();
 			foreach ($singularRelations as $relName => $rel) {
-				$modelName = 'Model_' . $rel->model;
-				$relModel = new $modelName;
-				$relNodes[] = $relModel->getRecordLabelSql($relName) . " AS `{$relName}`";
+				$lcRelName		= strtolower($relName);
+				$lcRelModelId 	= strtolower($rel->model);
+				$modelName 		= 'Model_' . $rel->model;
+				$relModel 		= new $modelName;
+				$relNodes[] 	= $relModel->getRecordLabelSql($lcRelName) . " AS `{$lcRelName}`";
 			}
 			$sql .= implode(",\n", $relNodes);
 			
-			$sql .= "\nFROM `{$this->_model->id}`";
+			$sql .= "\nFROM `{$lcModelId}`";
 			
 			foreach ($singularRelations as $relName => $rel) {
-				$sql .= "\nLEFT JOIN `{$rel->model}` AS `{$relName}` ON `{$this->_model->id}`.`{$rel->column}` = `{$relName}`.`id`";
+				$lcRelName 		= strtolower($relName);
+				$lcRelModelId 	= strtolower($rel->model);
+				$sql .= "\nLEFT JOIN `{$lcRelModelId}` AS `{$lcRelName}` ON `{$lcModelId}`.`{$rel->column}` = `{$lcRelName}`.`id`";
 			}
 
 			return $sql;
