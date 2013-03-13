@@ -23,7 +23,6 @@ class Garp_Content_Db_Server_Local extends Garp_Content_Db_Server_Abstract {
 	 */
 	public function shellExecString($commandString) {
 		$output 		= null;
-		// $commandString 	= $this->_renderModulatorPrefix() . $command->render();
 		
 		exec($commandString, $output);
 		$output = implode("\n", $output);
