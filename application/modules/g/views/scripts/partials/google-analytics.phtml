@@ -1,10 +1,11 @@
 <?php
-$analyticsId = $this->analyticsId;
-if (!$analyticsId && !$analyticsId = $this->config()->google->analytics->id):
-	throw new Exception('No Google Analytics ID found in application.ini. Please configure google.analytics.id.');
-endif;
-
 if (APPLICATION_ENV === 'production'):
+
+	$analyticsId = $this->analyticsId;
+	if (!$analyticsId && !$analyticsId = $this->config()->google->analytics->id):
+		throw new Exception('No Google Analytics ID found in application.ini. Please configure google.analytics.id.');
+	endif;
+
 ?>
 <script>
     var _gaq=[['_setAccount','<?php echo $analyticsId ?>'],['_trackPageview'],['_trackPageLoadTime']];
