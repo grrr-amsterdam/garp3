@@ -7,8 +7,7 @@ class Garp_Content_Db_ShellCommand_DumpToString implements Garp_Content_Db_Shell
 	/**
 	 * @todo
 	 */
-	const COMMAND_DUMP = "nice -19 mysqldump -u'%s' -p'%s' --host='%s' --databases %s --add-drop-table --skip-comments --single-transaction --quick";
-
+	const COMMAND_DUMP = "mysqldump -u'%s' -p'%s' --host='%s' --databases %s --add-drop-table --skip-comments --single-transaction --quick";
 
 	/**
 	 * @var Zend_Config $_dbConfigParams

@@ -13,7 +13,7 @@ class Garp_Content_Db_ShellCommand_DumpToFile extends Garp_Content_Db_ShellComma
 	 * @var String $_environment
 	 */
 	protected $_environment;
-			
+
 
 
 	public function __construct(Zend_Config $dbConfigParams, $backupDir, $environment) {

@@ -22,8 +22,11 @@ class Garp_Content_Db_Server_Local extends Garp_Content_Db_Server_Abstract {
 	 * @param Garp_Content_Db_ShellCommand_Protocol $command Shell command
 	 */
 	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command) {
-		$output = null;
-		exec($command->render(), $output);
+		$output 		= null;
+		// $commandString 	= $this->_renderModulatorPrefix() . $command->render();
+		$commandString 	= $command->render();
+		
+		exec($commandString, $output);
 		$output = implode("\n", $output);
 		return $output;
 	}
