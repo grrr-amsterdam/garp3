@@ -16,7 +16,9 @@ class Garp_Content_Upload_FileList extends ArrayObject {
 	 * @param String $type		The upload type, i.e. 'document' or 'image'.
 	 */
 	public function addEntry(Garp_Content_Upload_FileNode $file) {
-		$this[] = $file;
+		if ($file->isValid()) {
+			$this[] = $file;
+		}
 	}
 	
 	/**
