@@ -23,22 +23,15 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 		foreach ($configuredPaths as $type => $relDir) {
 			$absDir = $this->_getBaseDir() . $relDir;
 
-			if (!file_exists($absDir)) {
-				mkdir($absDir, self::NEW_DIR_PERMISSIONS, true);
-			}
-
-			if (!($dirList = scandir($absDir))) {
-				$this->_throwDirAccessError($absDir);
-			}
-
-			foreach ($dirList as $baseName) {
-				$fileList->addEntry($baseName, $type);
-			}
+			$this->_createDir($absDir);
+			$dirList 		= $this->_getDirList($absDir);
+			$fileListByType = $this->_addFilesByType($dirList, $type);
+			
+			$fileList->addEntries($fileListByType);
 		}
 		
 		return $fileList;
 	}
-	
 	
 	/**
 	 * Calculate the eTag of a file.
@@ -53,9 +46,10 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 		if ($md5output) {
 			$md5output = str_replace(array(' ', '-'), '', $md5output);
 			return $md5output;
-		} else throw new Exception("Could not fetch md5 sum of {$path}.");
+		}
+		
+		throw new Exception("Could not fetch md5 sum of {$path}.");
 	}
-	
 	
 	/**
 	 * Fetches the contents of the given file.
@@ -71,11 +65,11 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 		}
 		
 		$content = file_get_contents($absPath);
+
 		if ($content !== false) {
 			return $content;
 		} else throw new Exception("Could not read {$absPath} on " . $this->getEnvironment());
 	}
-	
 	
 	/**
 	 * Stores given data in the file, overwriting the existing bytes if necessary.
@@ -85,12 +79,51 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	 * @return Boolean			Success of storage.
 	 */
 	public function store($filename, $type, $data) {
-		$absPath = $this->_getAbsPath($filename, $type);
+		$absPath 		= $this->_getAbsPath($filename, $type);
+		$bytesWritten 	= file_put_contents($absPath, $data);
 
-		$bytesWritten = file_put_contents($absPath, $data);
 		if ($bytesWritten !== false) {
 			return true;
 		} else throw new Exception("Could not write to {$absPath} on " . $this->getEnvironment());
+	}
+
+	/**
+	 * @return Void
+	 */
+	protected function _createDir($absDir) {
+		if (!file_exists($absDir)) {
+			mkdir($absDir, self::NEW_DIR_PERMISSIONS, true);
+		}
+	}
+	
+	/**
+	 * @return Array List of node names
+	 */
+	protected function _getDirList($absDir) {
+		if (!($dirList = scandir($absDir))) {
+			$this->_throwDirAccessError($absDir);
+		}
+
+		return $dirList;
+	}
+	
+	/**
+	 * @param Array 	$dirList	Array of filenames, f.i. the result of php's scandir()
+	 * @param String 	$type		Upload type
+	 */
+	protected function _addFilesByType(array $dirList, $type) {
+		$fileList = new Garp_Content_Upload_FileList();
+
+		foreach ($dirList as $baseName) {
+			$absPath = $this->_getAbsPath($baseName, $type);
+
+			if (is_file($absPath)) {
+				$fileNode = new Garp_Content_Upload_FileNode($baseName, $type);
+				$fileList->addEntry($fileNode);
+			}
+		}
+		
+		return $fileList;
 	}
 
 	/**
