@@ -105,12 +105,14 @@ namespace :deploy do
   desc "Create essential deploy directories"
   task :create_deploy_dirs do
     run "if [ ! -d '#{deploy_to}/releases' ]; then mkdir -p #{deploy_to}/releases; fi"
+    run "if [ ! -d '#{deploy_to}/shared/backup/db' ]; then mkdir -p #{deploy_to}/shared/backup/db; fi"
     run "if [ ! -d '#{deploy_to}/shared/uploads/documents' ]; then mkdir -p #{deploy_to}/shared/uploads/documents; fi"
     run "if [ ! -d '#{deploy_to}/shared/uploads/images' ]; then mkdir -p #{deploy_to}/shared/uploads/images; fi"
   end
   
   desc "Set permissions on essential deploy directories"
   task :set_shared_dirs_permissions do
+      run "chmod -R g+w #{deploy_to}/shared/backup/db"
       run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/documents"
       run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/images"
   end
