@@ -98,14 +98,28 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	 */
 	public function shellExecString($commandString) {
 		$sshSession 	= $this->getSshSession();
-		// $commandString	= $this->_renderModulatorPrefix() . $command->render();
 
 		if ($stream = ssh2_exec($sshSession, $commandString)) {
 			stream_set_blocking($stream, true);
-			$output = stream_get_contents($stream);
-		} else return false;
+			$content = stream_get_contents($stream);		
+			$this->_interceptErrors($stream);
+			fclose($stream);
 
-		return $output;
+			return $content;
+		}
+
+		return false;
+	}
+	
+	protected function _interceptErrors($sshStream) {
+		$errorStream = ssh2_fetch_stream($sshStream, SSH2_STREAM_STDERR);
+		stream_set_blocking($errorStream, true);
+		$error = stream_get_contents($errorStream);
+		fclose($errorStream);
+
+		if ($error) {
+			throw new Exception($error);
+		}
 	}
 	
 	/**
