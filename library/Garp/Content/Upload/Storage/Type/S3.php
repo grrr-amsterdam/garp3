@@ -88,10 +88,12 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 		$cdnDomain 	= $ini->cdn->domain;
 		$url 		= 'http://' . $cdnDomain . $relPath;
 
-		$content = file_get_contents($url);
+		$content = @file_get_contents($url);
 		if ($content !== false) {
 			return $content;
-		} else throw new Exception("Could not read {$url} on " . $this->getEnvironment());
+		}
+		
+		throw new Exception("Could not read {$url} on " . $this->getEnvironment());
 	}
 	
 	

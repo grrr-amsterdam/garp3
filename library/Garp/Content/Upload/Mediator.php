@@ -72,24 +72,43 @@ class Garp_Content_Upload_Mediator {
 	
 	
 	public function transfer(Garp_Content_Upload_FileList $fileList) {
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
-
 		foreach ($fileList as $file) {
-			$filename 	= $file->getFilename();
-			$type 		= $file->getType();
-
-			$progress->display("Fetching {$filename}");
-			$fileData = $this->_source->fetchData($filename, $type);
-			$progress->advance();
-
-			$progress->display("Uploading {$filename}");
-
-			if ($this->_target->store($filename, $type, $fileData)) {
-				$progress->advance();
-			} else {
-				throw new Exception("Could not store {$type} {$filename} on " . $this->_target->getEnvironment());
-			}
+			$this->_transferSingle($file);
 		}
+	}
+	
+	protected function _transferSingle(Garp_Content_Upload_FileNode $file) {
+		$progress 	= Garp_Cli_Ui_ProgressBar::getInstance();
+		$filename 	= $file->getFilename();
+		$type 		= $file->getType();
+
+		$progress->display("Fetching {$filename}");
+		$data = $this->_fetchSourceData($filename, $type);
+		$progress->advance();
+			
+		if (!$data) {
+			$progress->advance();
+			continue;
+		}
+
+		$progress->display("Uploading {$filename}");			
+		if (!$this->_target->store($filename, $type, $data)) {
+			throw new Exception(
+				"Could not store {$type} {$filename} on " 
+				. $this->_target->getEnvironment()
+			);
+		}
+		$progress->advance();
+	}
+	
+	protected function _fetchSourceData($filename, $type) {
+		try {
+			$fileData = $this->_source->fetchData($filename, $type);
+			return $fileData ?: false;
+
+		} catch (Exception $e) {}
+		
+		return false;
 	}
 	
 	
