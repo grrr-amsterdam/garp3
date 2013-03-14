@@ -10,7 +10,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_AuthFacebook extends G_Model_Auth {
-	protected $_name = 'AuthFacebook';
+	protected $_name = 'authfacebook';
 	
 	
 	/**
