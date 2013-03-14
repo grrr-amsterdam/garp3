@@ -10,7 +10,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_AuthTwitter extends G_Model_Auth {
-	protected $_name = 'AuthTwitter';
+	protected $_name = 'authtwitter';
 	
 	
 	/**

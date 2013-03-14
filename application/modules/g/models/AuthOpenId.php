@@ -10,7 +10,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_AuthOpenId extends G_Model_Auth {
-	protected $_name = 'AuthOpenId';
+	protected $_name = 'authopenid';
 	
 	
 	/**

@@ -10,7 +10,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_AuthVimeo extends G_Model_Auth {
-	protected $_name = 'AuthVimeo';
+	protected $_name = 'authvimeo';
 	
 	
 	/**

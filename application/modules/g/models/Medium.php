@@ -14,13 +14,6 @@
  */
 class G_Model_Medium extends Model_Base_Medium {
 	/**
-	 * Name of the view
-	 * @var String
-	 */
-	protected $_name = 'Medium';
-	
-	
-	/**
 	 * Primary key
 	 * @var String
 	 */
