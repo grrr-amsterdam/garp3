@@ -32,10 +32,10 @@ class Garp_Content_Db_Server_Local extends Garp_Content_Db_Server_Abstract {
 	/**
 	 * Stores data in a file.
 	 * @param String $path 	Absolute path within the server to a file where the data should be stored.
-	 * @param String $data 	The data to store.
+	 * @param String &$data The data to store.
 	 * @return Boolean		Success status of the storage process.
 	 */
-	public function store($path, $data) {
+	public function store($path, &$data) {
 		if (false === file_put_contents($path, $data)) {
 			throw new Exception("Could not store data at {$path}");
 		}
