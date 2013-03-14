@@ -111,17 +111,6 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 		return false;
 	}
 	
-	protected function _interceptErrors($sshStream) {
-		$errorStream = ssh2_fetch_stream($sshStream, SSH2_STREAM_STDERR);
-		stream_set_blocking($errorStream, true);
-		$error = stream_get_contents($errorStream);
-		fclose($errorStream);
-
-		if ($error) {
-			throw new Exception($error);
-		}
-	}
-	
 	/**
 	 * Stores data in a file.
 	 * @param String $path Absolute path within the server to a file where the data should be stored.
@@ -177,6 +166,21 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 		
 		if (!$deployConfig->isConfigured($environment)) {
 			throw new Exception("Could not find deploy information for {$environment}.");
+		}
+	}
+	
+	/**
+	 * Throws an exception when errors occur executing ssh commands on the given ssh stream.
+	 * @param Resource $sshStream A stream as returned by ssh2_exec()
+	 */
+	protected function _interceptErrors($sshStream) {
+		$errorStream = ssh2_fetch_stream($sshStream, SSH2_STREAM_STDERR);
+		stream_set_blocking($errorStream, true);
+		$error = stream_get_contents($errorStream);
+		fclose($errorStream);
+
+		if ($error) {
+			throw new Exception($error);
 		}
 	}
 	

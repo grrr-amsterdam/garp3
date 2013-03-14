@@ -126,6 +126,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	public function restore($dump) {
 		$dump 			= $this->_adjustDumpToEnvironment($dump);
 		$dump			= $this->_lowerCaseTableAndViewNames($dump);
+		$dump			= $this->_removeDefinerCalls($dump);
 		$dbConfig 		= $this->getDbConfigParams();
 		$restoreFile 	= $this->getRestoreFilePath();
 		$restoreDir		= $this->getBackupDir();
@@ -142,13 +143,9 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 
 		if ($this->store($restoreFile, $dump)) {
 			$executeFile = new Garp_Content_Db_ShellCommand_ExecuteFile($dbConfig, $restoreFile);
-// Zend_Debug::dump($executeFile->render());
-// exit;
 			$this->shellExec($executeFile);
-exit('jawoel');
+
 			$removeFile = new Garp_Content_Db_ShellCommand_RemoveFile($restoreFile);
-Zend_Debug::dump($removeFile->render());
-exit;
 			$this->shellExec($removeFile);
 		}
 	}	
@@ -167,23 +164,17 @@ exit;
 	 * @return Void
 	 */
 	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command) {
-if (get_class($command) === 'Garp_Content_Db_ShellCommand_ExecuteFile') {
-	$command = $this->_addShellCommandModulators($command);
-	Zend_Debug::dump($command->render());
-	exit;
-	exit('POEP');
-}
-
 		$command = $this->_addShellCommandModulators($command);
-
 		return $this->shellExecString($command->render());
 	}
 	
 	public function _addShellCommandModulators(Garp_Content_Db_ShellCommand_Protocol $command) {
 		$command = new Garp_Content_Db_ShellCommand_Decorator_Nice($command);
 
-		$ioNiceExists = new Garp_Content_Db_ShellCommand_IoNiceExists();
-		if ($this->shellExecString($ioNiceExists->render())) {
+		$ioNiceCommand = new Garp_Content_Db_ShellCommand_IoNiceIsAvailable();
+		$ioNiceIsAvailable = (int)$this->shellExecString($ioNiceCommand->render());
+
+		if ($ioNiceIsAvailable) {
 			$command = new Garp_Content_Db_ShellCommand_Decorator_IoNice($command);
 		}
 
@@ -200,14 +191,12 @@ if (get_class($command) === 'Garp_Content_Db_ShellCommand_ExecuteFile') {
 
 		$patterns = array(
 			'/(USE `)(?P<dbname>[\w-]+)(`;)/',
-			'/(CREATE DATABASE [^`]+`)(?P<dbname>[\w-]+)(`)/',
-			'/(DEFINER=`)(?P<user>[\w-]+)(`@`)(?P<host>[\w-]+)(`)/'
+			'/(CREATE DATABASE [^`]+`)(?P<dbname>[\w-]+)(`)/'
 		);
 
 		$replacements = array(
 			"$1{$dbParams->dbname}$3",
-			"$1{$dbParams->dbname}$3",
-			"$1{$dbParams->username}\${3}{$dbParams->host}$5"
+			"$1{$dbParams->dbname}$3"
 		);
 
 		return preg_replace($patterns, $replacements, $dump);
@@ -281,4 +270,12 @@ if (get_class($command) === 'Garp_Content_Db_ShellCommand_ExecuteFile') {
 		
 		return false;
 	}
+	
+	protected function _removeDefinerCalls($dump) {
+		/*!50013 DEFINER=`garp_remote`@`db.gargamel.nl` SQL SECURITY INVOKER */
+		$pattern 		= '#([/*!\s\d]+DEFINER=`[\w-.]+`@`[\w-.]+`\s*(SQL SECURITY INVOKER)?\s*\*/)#';
+		$replacement 	= '';
+		return preg_replace($pattern, $replacement, $dump);
+	}
 }
+
