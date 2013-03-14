@@ -13,7 +13,7 @@ class G_Model_YouTubeVideo extends Garp_Model_Db {
 	 * The table name
 	 * @var String
 	 */
-	protected $_name = 'YoutubeVideo';
+	protected $_name = 'youtubevideo';
 	
 	
 	/**
