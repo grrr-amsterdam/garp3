@@ -121,10 +121,10 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 	 * Stores given data in the file, overwriting the existing bytes if necessary.
 	 * @param String $filename 	Filename
 	 * @param String $type		File type, i.e. 'document' or 'image'
-	 * @param String $data		File data to be stored.
+	 * @param String &$data		File data to be stored.
 	 * @return Boolean			Success of storage.
 	 */
-	public function store($filename, $type, $data) {
+	public function store($filename, $type, &$data) {
 		$remoteAbsPath 	= $this->_getAbsPath($filename, $type);
 		$sftpStream 	= $this->getSftpStream($remoteAbsPath);
 

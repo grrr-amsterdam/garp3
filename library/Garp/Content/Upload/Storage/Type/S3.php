@@ -88,10 +88,12 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 		$cdnDomain 	= $ini->cdn->domain;
 		$url 		= 'http://' . $cdnDomain . $relPath;
 
-		$content = file_get_contents($url);
+		$content = @file_get_contents($url);
 		if ($content !== false) {
 			return $content;
-		} else throw new Exception("Could not read {$url} on " . $this->getEnvironment());
+		}
+		
+		throw new Exception("Could not read {$url} on " . $this->getEnvironment());
 	}
 	
 	
@@ -99,10 +101,10 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 	 * Stores given data in the file, overwriting the existing bytes if necessary.
 	 * @param 	String $filename 	Filename
 	 * @param 	String $type		File type, i.e. 'document' or 'image'
-	 * @param 	String $data		File data to be stored.
+	 * @param 	String &$data		File data to be stored.
 	 * @return 	Boolean				Success of storage.
 	 */
-	public function store($filename, $type, $data) {
+	public function store($filename, $type, &$data) {
 		$dir 		= $this->_getRelDir($path);
 		$service 	= $this->_getService();
 
