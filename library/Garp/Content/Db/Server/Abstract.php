@@ -123,10 +123,10 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 * Restores a database from a MySQL dump result, executing the contained SQL queries.
 	 * @param String $dump The MySQL dump output
 	 */
-	public function restore($dump) {
-		$dump 			= $this->_adjustDumpToEnvironment($dump);
-		$dump			= $this->_lowerCaseTableAndViewNames($dump);
-		$dump			= $this->_removeDefinerCalls($dump);
+	public function restore(&$dump) {
+		$this->_adjustDumpToEnvironment($dump);
+		//$dump			= $this->_lowerCaseTableAndViewNames($dump);
+		$this->_removeDefinerCalls($dump);
 		$dbConfig 		= $this->getDbConfigParams();
 		$restoreFile 	= $this->getRestoreFilePath();
 		$restoreDir		= $this->getBackupDir();
@@ -184,7 +184,8 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	/**
 	 * Replace the environment values in the given MySQL dump with the environment values for the target.
 	 * @param 	String 	&$dump 	Output of MySQL dump.
-	 * @return 	String 			The dump output, adjusted with target values instead of source values.
+	 * @return 	Void 			The dump input is changed and not returned, for 
+	 * 							the sake of memory conservation.
 	 */
 	protected function _adjustDumpToEnvironment(&$dump) {
 		$dbParams = $this->getDbConfigParams();
@@ -199,7 +200,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 			"$1{$dbParams->dbname}$3"
 		);
 
-		return preg_replace($patterns, $replacements, $dump);
+		$dump = preg_replace($patterns, $replacements, $dump);
 	}
 	
 	
@@ -263,7 +264,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 * @param 	String 	$dump 	The MySQL dump output
 	 * @return 	Bool			Whether this database dump is valid
 	 */
-	protected function _validateDump($dump) {
+	protected function _validateDump(&$dump) {
 		if (strlen($dump) > 0) {
 			return true;
 		}
@@ -271,11 +272,11 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		return false;
 	}
 	
-	protected function _removeDefinerCalls($dump) {
+	protected function _removeDefinerCalls(&$dump) {
 		/*!50013 DEFINER=`garp_remote`@`db.gargamel.nl` SQL SECURITY INVOKER */
 		$pattern 		= '#([/*!\s\d]+DEFINER=`[\w-.]+`@`[\w-.]+`\s*(SQL SECURITY INVOKER)?\s*\*/)#';
 		$replacement 	= '';
-		return preg_replace($pattern, $replacement, $dump);
+		$dump = preg_replace($pattern, $replacement, $dump);
 	}
 }
 
