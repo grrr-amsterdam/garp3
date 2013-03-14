@@ -110,6 +110,7 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	/**
 	 * @param Array 	$dirList	Array of filenames, f.i. the result of php's scandir()
 	 * @param String 	$type		Upload type
+	 * @return Garp_Content_Upload_FileList
 	 */
 	protected function _addFilesByType(array $dirList, $type) {
 		$fileList = new Garp_Content_Upload_FileList();
