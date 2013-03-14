@@ -10,8 +10,6 @@
  * @lastmodified $Date: $
  */
 class G_Model_Document extends Model_Base_Document {
-	protected $_name = 'Document';
-	
 	public function init() {
 		$this->registerObserver(new Garp_Model_Behavior_Timestampable())
 			 ->registerObserver(new Garp_Model_Validator_NotEmpty(array('filename')))
