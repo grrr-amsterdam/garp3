@@ -78,7 +78,7 @@ class Garp_Content_Upload_Storage_Type_LocalWebserver extends Garp_Content_Uploa
 	 * @param String $data		File data to be stored.
 	 * @return Boolean			Success of storage.
 	 */
-	public function store($filename, $type, $data) {
+	public function store($filename, $type, &$data) {
 		$absPath 		= $this->_getAbsPath($filename, $type);
 		$bytesWritten 	= file_put_contents($absPath, $data);
 

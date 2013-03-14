@@ -38,7 +38,7 @@ interface Garp_Content_Db_Server_Protocol {
 	 * Restores a database from a MySQL dump result, executing the contained SQL queries.
 	 * @param String $dump The MySQL dump output
 	 */
-	public function restore($dump);
+	public function restore(&$dump);
 	
 	/**
 	 * Stores data in a file.
@@ -46,5 +46,5 @@ interface Garp_Content_Db_Server_Protocol {
 	 * @param String $data The data to store.
 	 * @return Boolean		Success status of the storage process.
 	 */
-	public function store($path, $data);
+	public function store($path, &$data);
 }

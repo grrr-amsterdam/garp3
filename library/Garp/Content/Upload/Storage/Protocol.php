@@ -32,5 +32,5 @@ interface Garp_Content_Upload_Storage_Protocol {
 	 * @param String $data			File data to be stored.
 	 * @return Boolean				Success of storage.
 	 */
-	public function store($filename, $type, $data);
+	public function store($filename, $type, &$data);
 }
