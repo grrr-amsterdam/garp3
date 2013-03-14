@@ -114,10 +114,10 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	/**
 	 * Stores data in a file.
 	 * @param String $path Absolute path within the server to a file where the data should be stored.
-	 * @param String $data The data to store.
+	 * @param String &$data The data to store.
 	 * @return Boolean		Success status of the storage process.
 	 */
-	public function store($path, $data) {
+	public function store($path, &$data) {
 		$ssh = $this->getSshSession();
 		$sftp = ssh2_sftp($ssh);
 
