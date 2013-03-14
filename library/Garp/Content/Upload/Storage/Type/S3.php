@@ -20,24 +20,42 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 
 
 	public function fetchFileList() {
-		$fileList = new Garp_Content_Upload_FileList();
-
-		$service = $this->_getService();
-		$uploadTypePaths = $this->_getConfiguredPaths();
+		$fileList 			= new Garp_Content_Upload_FileList();
+		$service 			= $this->_getService();
+		$uploadTypePaths 	= $this->_getConfiguredPaths();
 		
 		foreach ($uploadTypePaths as $type => $dirPath) {
 			$service->setPath($dirPath);
-			$dirList = $service->getList();
-
-			foreach ($dirList as $filePath) {
-				if ($filePath[strlen($filePath) - 1] !== '/') {
-					$filename = basename($filePath);
-					$fileList->addEntry($filename, $type);
-				}
-			}
+			$dirList 		= $service->getList();
+			$fileListByType = $this->_findFilesByType($dirList, $type);
+			$fileList->addEntries($fileListByType);
 		}
 
 		return $fileList;
+	}
+	
+	
+	/**
+	 * @param Array 	$dirList	Array of file paths
+	 * @param String 	$type		Upload type
+	 */
+	protected function _findFilesByType(array $dirList, $type) {
+		$fileList = new Garp_Content_Upload_FileList();
+
+		foreach ($dirList as $path) {
+			if ($this->_isFilePath($path)) {
+				$baseName = basename($path);
+				$fileNode = new Garp_Content_Upload_FileNode($baseName, $type);
+				$fileList->addEntry($fileNode);
+			}
+		}
+		
+		return $fileList;
+	}
+	
+	
+	protected function _isFilePath($path) {
+		return $path[strlen($path) - 1] !== '/';
 	}
 
 
@@ -69,7 +87,7 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
 		$ini 		= $this->_getIni();
 		$cdnDomain 	= $ini->cdn->domain;
 		$url 		= 'http://' . $cdnDomain . $relPath;
-		
+
 		$content = file_get_contents($url);
 		if ($content !== false) {
 			return $content;
