@@ -13,7 +13,7 @@ class G_Model_VimeoVideo extends Garp_Model_Db {
 	 * The table name
 	 * @var String
 	 */
-	protected $_name = 'VimeoVideo';
+	protected $_name = 'vimeovideo';
 	
 	
 	/**
