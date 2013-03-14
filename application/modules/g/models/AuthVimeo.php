@@ -10,9 +10,6 @@
  * @lastmodified $Date: $
  */
 class G_Model_AuthVimeo extends G_Model_Auth {
-	protected $_name = 'AuthVimeo';
-	
-	
 	/**
 	 * Store a new user. This creates a new AuthVimeo record, but also
 	 * a new user record.
