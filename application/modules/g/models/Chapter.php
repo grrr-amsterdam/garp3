@@ -148,6 +148,7 @@ class G_Model_Chapter extends Model_Base_Chapter {
 		$contentNodeModel = new Model_ContentNode();
 		$contentNodeId = $contentNodeModel->insert(array(
 			'columns'    => $contentNodeData['columns'],
+			'classes'    => $contentNodeData['classes'],
 			'type'       => $contentNodeData['type'],
 			'chapter_id' => $contentNodeData['chapter_id'],
 		));
