@@ -137,8 +137,12 @@ Garp.dataTypes.Text.on('init', function(){
 		getMenuOptions: function(){
 			return [{
 				group: '',
-				text: 'Add / remove title',
+				text: __('Add / remove title'),
 				handler: this.showTitleDialog
+			},{
+				group :'',
+				text: __('Add / remove animation classes'),
+				handler: this.showAnimClassesDialog
 			}];
 		},
 		

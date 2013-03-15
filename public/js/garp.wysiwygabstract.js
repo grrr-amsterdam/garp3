@@ -20,6 +20,7 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	
 	data :{},
 	_data: {},
+	_classes: {},
 	
 	/**
 	 * Retrieve contents
@@ -30,7 +31,8 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 				columns: this.col ? this.col.split('-')[1] : null,
 				data: this.getData(),
 				model: this.model,
-				type: ''
+				type: '',
+				classes: this.getClasses()
 			};
 		}
 		return null;
@@ -81,6 +83,25 @@ Garp.WysiwygAbstract = Ext.extend(Ext.BoxComponent, {
 	 */
 	showSettingsMenu: function(cmp,e){
 		this.fireEvent('showsettings', cmp, e);
+	},
+
+	showAnimClassesDialog: function(cmp, e){
+		if(!this._data.classes){
+			this._data.classes = 'ani ';
+		}
+		Ext.Msg.prompt(__('Garp'), __('Enter animation classes'), function(btn, classes){
+			if (btn === 'ok') {
+				this.setClasses(classes);
+			}
+		}, this, true, this.getClasses());
+	},
+	
+	getClasses: function(){
+		return this._classes;
+	},
+
+	setClasses: function(classes){
+		this._classes = classes;
 	},
 
 	/**
