@@ -186,7 +186,12 @@ Garp.dataTypes.Image.on('init', function(){
 				group: '',
 				text: 'Add / remove caption',
 				handler: this.showCaptionEditor.createDelegate(this, [false])
+			},{
+				group :'',
+				text: __('Add / remove animation classes'),
+				handler: this.showAnimClassesDialog
 			}];
+			
 		},
 		
 		

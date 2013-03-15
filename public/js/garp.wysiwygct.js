@@ -26,7 +26,8 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 			this.chapterct.removeAll(true);
 			Ext.each(items, function(item){
 				var currentWysiwygCt = this.chapterct.addWysiwygCt({
-					type: item.type
+					type: item.type,
+					_classes: item.classes
 				}, this.chapterct.items ? this.chapterct.items.last() : null);
 				Ext.each(item.content, function(node){
 					if(!node.model){
@@ -38,6 +39,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					var box = new Garp.dataTypes[node.model].Wysiwyg({
 						ct: currentWysiwygCt,
 						_data: node.data,
+						_classes: node.classes,
 						model: node.model,
 						type: node.type,
 						col: 'grid-' + node.columns + '-' + maxCols,
@@ -66,6 +68,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					if(node.type){
 						o.type = node.getType();
 					}
+					o.classes = node.getClasses();
 					content.push(o);
 				}
 			});
