@@ -10,13 +10,22 @@
  * @lastmodified $Date: $
  */
 abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server_Protocol {
-	const PATH_CONFIG_APP 		= '/configs/application.ini';
-	const RESTORE_FILE 			= 'tmp_restore.sql';
+	const PATH_CONFIG_APP 			= '/configs/application.ini';
+	const RESTORE_FILE 				= 'tmp_restore.sql';
+	
+	const SQL_USE_STATEMENT			= 'USE `%s`;';
+	const SQL_CREATE_DB_STATEMENT	= 'CREATE DATABASE `%s`';
+	const SQL_DEFINER_STATEMENT		= 'DEFINER=`%s`@`%s`';
 
 	/**
 	 * @var String $_environment The environment this server runs in.
 	 */
 	protected $_environment;
+
+	/**
+	 * @var String $_environment The environment this server runs against.
+	 */	
+	protected $_otherEnvironment;
 
 	/**
 	 * @var Zend_Config_Ini $_appConfigParams 	Application configuration parameters (application.ini)
@@ -31,10 +40,13 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 
 
 	/**
-	 * @param String $_environment The environment this server runs in.
+	 * @param String $_environment 		The environment this server runs in.
+	 * @param String $otherEnvironment 	The environment of the counterpart server
+	 * 									(i.e. target if this is source, and vice versa).
 	 */
-	public function __construct($environment) {
+	public function __construct($environment, $otherEnvironment) {
 		$this->setEnvironment($environment);
+		$this->setOtherEnvironment($otherEnvironment);
 		$this->setAppConfigParams($this->_fetchAppConfigParams());
 		$this->setBackupDir($this->getBackupDir());
 	}
@@ -60,7 +72,23 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$appConfigParams = $this->getAppConfigParams();
 		return $appConfigParams->resources->db->params;
 	}
-		
+	
+	/**
+	 * Retrieves the absolute path to the SQL dump that is to be restored.
+	 * @return String Absolute path to the SQL dump file
+	 */
+	public function getRestoreFilePath() {
+		$backupDir = $this->getBackupDir();
+		return $backupDir . DIRECTORY_SEPARATOR . self::RESTORE_FILE;
+	}
+	
+	/**
+	 * @return String
+	 */
+	public function getOtherEnvironment() {
+		return $this->_otherEnvironment;
+	}
+			
 	public function setAppConfigParams(Zend_Config_Ini $appConfigParams) {
 		$this->_appConfigParams = $appConfigParams;
 	}
@@ -71,7 +99,14 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	public function setEnvironment($environment) {
 		$this->_environment = $environment;
 	}
-
+	
+	/**
+	 * @param String $otherEnvironment
+	 */
+	public function setOtherEnvironment($otherEnvironment) {
+		$this->_otherEnvironment = $otherEnvironment;
+	}
+	
 	/**
 	 * @param String $path
 	 */
@@ -79,14 +114,6 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$this->_backupDir = $path;
 	}	
 
-	/**
-	 * Retrieves the absolute path to the SQL dump that is to be restored.
-	 * @return String Absolute path to the SQL dump file
-	 */
-	public function getRestoreFilePath() {
-		$backupDir = $this->getBackupDir();
-		return $backupDir . DIRECTORY_SEPARATOR . self::RESTORE_FILE;
-	}
 
 	/**
 	 * Backs up the database and writes it to a file on the server itself.
@@ -188,19 +215,46 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 * 							the sake of memory conservation.
 	 */
 	protected function _adjustDumpToEnvironment(&$dump) {
-		$dbParams = $this->getDbConfigParams();
+		$dbParams 		= $this->getDbConfigParams();
+		$thisDbName		= $dbParams->dbname;
+		$otherDbParams 	= $this->_fetchOtherDatabaseParams();
+		$otherDbName	= $otherDbParams->dbname;
 
-		$patterns = array(
-			'/(USE `)(?P<dbname>[\w-]+)(`;)/',
-			'/(CREATE DATABASE [^`]+`)(?P<dbname>[\w-]+)(`)/'
-		);
+		// Firstly, adjust the USE DATABASE statements.
+		$oldUseDbSql 	= sprintf(self::SQL_USE_STATEMENT, $otherDbName);
+		$newUseDbSql 	= sprintf(self::SQL_USE_STATEMENT, $thisDbName);
+		$dump 			= str_replace($oldUseDbSql, $newUseDbSql, $dump);
+		
+		// Then adjust the CREATE DATABASE queries.
+		$oldCreateDbSql = sprintf(self::SQL_CREATE_DB_STATEMENT, $otherDbName);
+		$newCreateDbSql = sprintf(self::SQL_CREATE_DB_STATEMENT, $thisDbName);
+		$dump 			= str_replace($oldCreateDbSql, $newCreateDbSql, $dump);
 
-		$replacements = array(
-			"$1{$dbParams->dbname}$3",
-			"$1{$dbParams->dbname}$3"
-		);
-
-		$dump = preg_replace($patterns, $replacements, $dump);
+//		preg_replace seems to be way too demanding for large (180 MB) mysqldump files. Trying str_replace now.
+// 		$patterns = array(
+// 			'/(USE `)(?P<dbname>[\w-]+)(`;)/',
+// 			'/(CREATE DATABASE [^`]+`)(?P<dbname>[\w-]+)(`)/'
+// 		);
+// 
+// 		$replacements = array(
+// 			"$1{$dbParams->dbname}$3",
+// 			"$1{$dbParams->dbname}$3"
+// 		);
+// 
+// 		$dump = preg_replace($patterns, $replacements, $dump);
+	}
+	
+	/**
+	 * Returns the database name of the counterpart server,
+	 * i.e. source if this is target, and vice versa.
+	 * @return String The other database name
+	 */
+	protected function _fetchOtherDatabaseParams() {
+		$otherEnvironment 	= $this->getOtherEnvironment();
+		$appConfigParams 	= $this->_fetchAppConfigParams($otherEnvironment);
+		$params 			= $appConfigParams->resources->db->params;
+		
+		return $params;
 	}
 	
 	
@@ -255,8 +309,11 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		return $dump;
 	}
 
-	protected function _fetchAppConfigParams() {
-		$config = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $this->getEnvironment());
+	protected function _fetchAppConfigParams($environment = null) {
+		if (is_null($environment)) {
+			$environment = $this->getEnvironment();
+		}
+		$config = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $environment);
 		return $config;
 	}
 	
@@ -273,10 +330,17 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	}
 	
 	protected function _removeDefinerCalls(&$dump) {
+		$otherDbParams 		= $this->_fetchOtherDatabaseParams();
+		$otherDbUsername	= $otherDbParams->username;
+		$otherDbHost		= $otherDbParams->host;
+		
+		$oldDefinerString 	= sprintf(self::SQL_DEFINER_STATEMENT, $otherDbUsername, $otherDbHost);
+		$dump 				= str_replace($oldDefinerString, '', $dump);
+
 		/*!50013 DEFINER=`garp_remote`@`db.gargamel.nl` SQL SECURITY INVOKER */
-		$pattern 		= '#([/*!\s\d]+DEFINER=`[\w-.]+`@`[\w-.]+`\s*(SQL SECURITY INVOKER)?\s*\*/)#';
-		$replacement 	= '';
-		$dump = preg_replace($pattern, $replacement, $dump);
+		// $pattern 		= '#([/*!\s\d]+DEFINER=`[\w-.]+`@`[\w-.]+`\s*(SQL SECURITY INVOKER)?\s*\*/)#';
+		// $replacement 	= '';
+		// $dump = preg_replace($pattern, $replacement, $dump);
 	}
 }
 
