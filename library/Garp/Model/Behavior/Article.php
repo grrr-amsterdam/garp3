@@ -213,6 +213,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 				$contentNode['type']  = $contentNodeRow['type'];
 				$contentNode['data']  = $contentNodeRow[$contentType];
 				$contentNode['columns'] = $contentNodeRow['columns'];
+				$contentNode['classes'] = $contentNodeRow['classes'];
 				break;
 			}
 		}
