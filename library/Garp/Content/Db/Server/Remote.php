@@ -13,21 +13,23 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	const PATH_BACKUP = '/shared/backup/db';
 
 	/**
-	 * @var 	Resource  $_sshSession	A session handler, as returned by ssh2_connect()
+	 * @var Resource  $_sshSession		A session handler, as returned by ssh2_connect()
 	 */	
 	protected $_sshSession;
 
 	/**
-	 * @var Array $_deployParams Deployment parameters containing values for 'server', 'user' and 'deploy_to' path.
+	 * @var Array $_deployParams 		Deployment parameters containing values for 'server', 'user' and 'deploy_to' path.
 	 */
 	protected $_deployParams;
 
 
 	/**
-	 * @param String $_environment The environment this server runs in.
+	 * @param String $environment 		The environment this server runs in.
+	 * @param String $otherEnvironment 	The environment of the counterpart server
+	 * 									(i.e. target if this is source, and vice versa).
 	 */
-	public function __construct($environment) {
-		parent::__construct($environment);
+	public function __construct($environment, $otherEnvironment) {
+		parent::__construct($environment, $otherEnvironment);
 		
 		$this->_checkPlatformRequirements();
 		$this->_verifyCapified();

@@ -10,6 +10,12 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_Db_Mediator {	
+    /**
+     * Singleton instance
+     * @var Garp_Auth
+     */
+    private static $_instance = null;
+
 	/**
 	 * @var Garp_Content_Db_Server_*
 	 */
@@ -26,22 +32,22 @@ class Garp_Content_Db_Mediator {
 	 * @param String $targetEnv
 	 */
 	public function __construct($sourceEnv, $targetEnv) {
-		$this->setSource($sourceEnv);
-		$this->setTarget($targetEnv);
+		$this->setSource($sourceEnv, $targetEnv);
+		$this->setTarget($targetEnv, $sourceEnv);
 	}
 
 	/**
 	 * @param String $environment
 	 */
-	public function setSource($environment) {
-		$this->_source = Garp_Content_Db_Server_Factory::create($environment);
+	public function setSource($environment, $otherEnvironment) {
+		$this->_source = Garp_Content_Db_Server_Factory::create($environment, $otherEnvironment);
 	}
 
 	/**
 	 * @param String $environment
 	 */
-	public function setTarget($environment) {
-		$this->_target = Garp_Content_Db_Server_Factory::create($environment);
+	public function setTarget($environment, $otherEnvironment) {
+		$this->_target = Garp_Content_Db_Server_Factory::create($environment, $otherEnvironment);
 	}
 
 	public function getSource() {
