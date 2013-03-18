@@ -258,7 +258,6 @@ Garp.Transition = function(bb, transitionName){
 		bb.on('afterload', function(){
 			this.shim.remove();
 			this.elm.fadeIn(this.speed);
-			var scope = this;
 			this.copy.fadeOut(this.speed, function(){
 				$(this).remove();
 			});
@@ -537,7 +536,6 @@ Garp.Browsebox = function(config){
 			}, this);
 		}
 		if(this.autoRun){
-			var scope = this;
 			var speed = typeof this.speed != 'undefined' ? this.speed : 800;
 			this.interval = setInterval(function(){
 				$('#' + this.id + '.bb-next a').click();
@@ -634,8 +632,6 @@ Garp.Validator = (function() {
 			if (elm.val() && !email.test(elm.val())) {
 				Garp.Validator.triggerError(elm.attr('id'), __('%s is geen geldig e-mailadres.'));
 			}
-		},
-		password: function(elm) {
 		},
 		repeatPassword: function(elm) {
 			if (elm.attr('rel') && $('#'+elm.attr('rel'))) {
@@ -935,10 +931,10 @@ Garp.buildGoogleMap = function(elm, config){
 	});
 	
 	if(config.markers){
-		for(var i in config.markers){
+		for (var i in config.markers) {
 			var marker = config.markers[i];
 			
-			var gMarker = new google.maps.Marker({
+			new google.maps.Marker({
 				map: map,
 				title: marker.title,
 				position: new google.maps.LatLng(parseFloat(marker.lat), parseFloat(marker.lng))
@@ -1005,17 +1001,9 @@ Garp.getCookie = function(name) {
  * @param {Object} name
  * @param {Object} value
  * @param {Date} expiration date 
- * @param {String} domain
  */
-Garp.setCookie = function(name, value, date, domain){
+Garp.setCookie = function(name, value, date) {
 	value = escape(value) + "; path=/";
-	/*
-	if (domain) {
-		value += "; domain=" + escape(domain);
-	} else {
-		value += "; domain=" + escape((typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : document.location.host);
-	}
-	*/
 	value += (!date ? "" : "; expires=" + date.toGMTString());
 	document.cookie = name + "=" + value;
 };
@@ -1033,7 +1021,7 @@ $(function(){
 	if (authCookie && authCookie.userData && authCookie.userData.role) {
 		var role = authCookie.userData.role;
 		if (role && (role == 'admin' || role == 'developer')) {
-			setTimeout(function(){
+			var addSnippetLinks = function(){
 				var elms = [];
 				(function walk(elm){
 					if (elm.childNodes && elm.childNodes.length > 0) {
@@ -1044,43 +1032,47 @@ $(function(){
 						elms.push(elm);
 					}
 				})($('body')[0]);
+				var linkCss = {
+					position: 'absolute',
+					zIndex: '999999',
+					padding: '4px',
+					width: '20px',
+					height: '20px',
+					margin: '-14px 0 0 -14px',
+					lineHeight: 0,
+					opacity: 0.5,
+					border: '2px #fff outset',
+					background: '#ddd'
+				};
+				var mouseEventsClosure = function(link) {
+					$(link).bind('mouseenter', function() {
+						$(this).css({
+							opacity: 1,
+							border: '2px #fff outset',
+							background: '#ddd'
+						});
+					}).bind('mouseleave', function() {
+						$(this).css({
+							opacity: linkCss.opacity,
+							border: linkCss.border,
+							background: linkCss.background
+						});
+					});
+				};
 				for (var e in elms) {
 					var elm = elms[e];
 					var token = '//garp-snippet//';
 					if (elm.nodeType == 8 && elm.nodeValue.indexOf(token) > -1) {
 						var snippet = elm.nextSibling;
 						var url = BASE + 'g/content/admin/?model=Snippet&id=' + elm.nodeValue.replace(token, '');
-						//$(snippet).wrap('<div style="position:relative;">')
-						var link = $('<a href="' + url + '" title="edit" target="garp_cms"><img src="' + BASE + 'media/images/garp/icons/pencil.png" /></a>').insertBefore(snippet).css({
-							position: 'absolute',
-							zIndex: '999999',
-							padding: '4px',
-							width: '20px',
-							height: '20px',
-							margin: '-14px 0 0 -14px',
-							lineHeight: 0
-						//border: '0'
-						});
-						(function(link){
-							function mouseOut(){
-								$(link).css({
-									opacity: 0.5,
-									border: '2px #fff outset',
-									background: '#ddd'
-								});
-							}
-							$(link).bind('mouseenter', function(){
-								$(link).css({
-									opacity: 1,
-									border: '2px #fff outset',
-									background: '#ddd'
-								});
-							}).bind('mouseleave', mouseOut);
-							mouseOut();
-						})(link);
+						var linkHtml = '<a href="' + url + '" title="edit" target="garp_cms"><img src="' + BASE + 'media/images/garp/icons/pencil.png"></a>';
+						var link = $(linkHtml).insertBefore(snippet).css(linkCss);
+						mouseEventsClosure(link);
 					}
 				}
-			}, 1000);
+			};
+			// Alas, this timeout was undocumented. Why is it here? What's its purpose? No-one will ever know.
+			setTimeout(addSnippetLinks, 1000);
 		}
 	}
 });
@@ -1102,7 +1094,6 @@ Garp.isLoggedIn = function(){
 /**
  * Cookie acceptation stuff 'Cookiewet'
  */
-
 Garp.hasCookiesAccepted = function(){
 	return Garp.getCookie('Garp_Accept_Cookies') == 'Garp_Accept_Cookies';
 };
@@ -1139,55 +1130,40 @@ Garp.relativeDate = function(oldest, newest){
 	var YEAR   = DAY*365;
 	var days;
 	
-	switch (true) {
-		case (elapsed < MINUTE):
-			result = __('less than a minute');
-			break;
-			
-		case (elapsed < HOUR):
-			var minutes = Math.round(elapsed);
-			result = minutes + ' ' + (minutes == 1 ? __('minute') : __('minutes'));
-			break;
-			
-		case (elapsed < DAY):
-			var hours = Math.round(elapsed / HOUR);
-			result = hours + ' ' + (hours == 1 ? __('hour') : __('hours'));
-			break;
-			
-		case (elapsed < WEEK):
+	if (elapsed < MINUTE) {
+		result = __('less than a minute');
+	} else if (elapsed < HOUR) {
+		var minutes = Math.round(elapsed);
+		result = minutes + ' ' + (minutes == 1 ? __('minute') : __('minutes'));
+	} else if (elapsed < DAY) {
+		var hours = Math.round(elapsed / HOUR);
+		result = hours + ' ' + (hours == 1 ? __('hour') : __('hours'));
+	} else if (elapsed < WEEK) {
+		days = Math.round(elapsed / DAY);
+		result = days + ' ' + (days == 1 ? __('day') : __('days'));
+	} else if (elapsed < MONTH) {
+		/**
+		 * Here we use Math.ceil because the scope is so small. It makes no sense when 
+		 * it's 1 week and 2 days to say "1 week". It's more correct to say 2 weeks.
+		 */
+		var weeks = Math.ceil(elapsed / WEEK);
+		/**
+		 * And while we're at it: just say "days" when it's less than 2 weeks.
+		 * Weeks are an inaccurate depiction of a time period when it's only a few of 'em.
+		 * Better switch to days.
+		 */
+		if (weeks > 2) {
+			result = weeks + ' ' + (weeks == 1 ? __('week') : __('weeks'));
+		} else {
 			days = Math.round(elapsed / DAY);
 			result = days + ' ' + (days == 1 ? __('day') : __('days'));
-			break;
-			
-		case (elapsed < MONTH):
-			/**
-			 * Here we use Math.ceil because the scope is so small. It makes no sense when 
-			 * it's 1 week and 2 days to say "1 week". It's more correct to say 2 weeks.
-			 */
-			var weeks = Math.ceil(elapsed / WEEK);
-			/**
-			 * And while we're at it: just say "days" when it's less than 2 weeks.
-			 * Weeks are an inaccurate depiction of a time period when it's only a few of 'em.
-			 * Better switch to days.
-			 */
-			if (weeks > 2) {
-				result = weeks + ' ' + (weeks == 1 ? __('week') : __('weeks'));
-			} else {
-				days = Math.round(elapsed / DAY);
-				result = days + ' ' + (days == 1 ? __('day') : __('days'));
-			}
-			break;
-			
-		case (elapsed < YEAR):
-			var months = Math.round(elapsed / MONTH);
-			result = months + ' ' + (months == 1 ? __('month') : __('months'));
-			break;
-			
-		default:
-			var years = Math.round(elapsed / YEAR);
-			result = years + ' ' + (years == 1 ? __('year') : __('years'));
-			break;
-			
+		}
+	} else if (elapsed < YEAR) {
+		var months = Math.round(elapsed / MONTH);
+		result = months + ' ' + (months == 1 ? __('month') : __('months'));
+	} else {
+		var years = Math.round(elapsed / YEAR);
+		result = years + ' ' + (years == 1 ? __('year') : __('years'));
 	}
 	return result;
 };
@@ -1339,20 +1315,16 @@ Garp.playerBox = function(config){
 					video = true;
 				}
 				
-				function cb(){
+				var cb = function(){
 					if (video) {
-						if ($a.hasClass('vimeo')) {
-							$player.html('<iframe src="' + src + '" width="' + width + '" height="' + height + '" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>');
-						} else {
-							$player.html('<iframe src="' + src + '" width="' + width + '" height="' + height + '" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>');
-						}
+						$player.html('<iframe src="' + src + '" width="' + width + '" height="' + height + '" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>');
 					} else {
 						$player.html('<img src="' + src + '">');
 					}
 					setTimeout(function(){
 						$('img, iframe', $player).addClass(activeClass);
 					}, 20);
-				}
+				};
 				if (video) {
 					setTimeout(cb, 1000);
 				} else {
@@ -1575,73 +1547,63 @@ Garp.lazyLoader = {
 	}
 };
 
-/*!
- * selectivizr v1.0.2 - (c) Keith Clark, freely distributable under the terms of the MIT license.
- * selectivizr.com
- */
-//(function(j){function A(a){return a.replace(B,h).replace(C,function(a,d,b){for(var a=b.split(","),b=0,e=a.length;b<e;b++){var s=D(a[b].replace(E,h).replace(F,h))+o,l=[];a[b]=s.replace(G,function(a,b,c,d,e){if(b){if(l.length>0){var a=l,f,e=s.substring(0,e).replace(H,i);if(e==i||e.charAt(e.length-1)==o)e+="*";try{f=t(e)}catch(k){}if(f){e=0;for(c=f.length;e<c;e++){for(var d=f[e],h=d.className,j=0,m=a.length;j<m;j++){var g=a[j];if(!RegExp("(^|\\s)"+g.className+"(\\s|$)").test(d.className)&&g.b&&(g.b===!0||g.b(d)===!0))h=u(h,g.className,!0)}d.className=h}}l=[]}return b}else{if(b=c?I(c):!v||v.test(d)?{className:w(d),b:!0}:null)return l.push(b),"."+b.className;return a}})}return d+a.join(",")})}function I(a){var c=!0,d=w(a.slice(1)),b=a.substring(0,5)==":not(",e,f;b&&(a=a.slice(5,-1));var l=a.indexOf("(");l>-1&&(a=a.substring(0,l));if(a.charAt(0)==":")switch(a.slice(1)){case "root":c=function(a){return b?a!=p:a==p};break;case "target":if(m==8){c=function(a){function c(){var d=location.hash,e=d.slice(1);return b?d==i||a.id!=e:d!=i&&a.id==e}k(j,"hashchange",function(){g(a,d,c())});return c()};break}return!1;case "checked":c=function(a){J.test(a.type)&&k(a,"propertychange",function(){event.propertyName=="checked"&&g(a,d,a.checked!==b)});return a.checked!==b};break;case "disabled":b=!b;case "enabled":c=function(c){if(K.test(c.tagName))return k(c,"propertychange",function(){event.propertyName=="$disabled"&&g(c,d,c.a===b)}),q.push(c),c.a=c.disabled,c.disabled===b;return a==":enabled"?b:!b};break;case "focus":e="focus",f="blur";case "hover":e||(e="mouseenter",f="mouseleave");c=function(a){k(a,b?f:e,function(){g(a,d,!0)});k(a,b?e:f,function(){g(a,d,!1)});return b};break;default:if(!L.test(a))return!1}return{className:d,b:c}}function w(a){return M+"-"+(m==6&&N?O++:a.replace(P,function(a){return a.charCodeAt(0)}))}function D(a){return a.replace(x,h).replace(Q,o)}function g(a,c,d){var b=a.className,c=u(b,c,d);if(c!=b)a.className=c,a.parentNode.className+=i}function u(a,c,d){var b=RegExp("(^|\\s)"+c+"(\\s|$)"),e=b.test(a);return d?e?a:a+o+c:e?a.replace(b,h).replace(x,h):a}function k(a,c,d){a.attachEvent("on"+c,d)}function r(a,c){if(/^https?:\/\//i.test(a))return c.substring(0,c.indexOf("/",8))==a.substring(0,a.indexOf("/",8))?a:null;if(a.charAt(0)=="/")return c.substring(0,c.indexOf("/",8))+a;var d=c.split(/[?#]/)[0];a.charAt(0)!="?"&&d.charAt(d.length-1)!="/"&&(d=d.substring(0,d.lastIndexOf("/")+1));return d+a}function y(a){if(a)return n.open("GET",a,!1),n.send(),(n.status==200?n.responseText:i).replace(R,i).replace(S,function(c,d,b,e,f){return y(r(b||f,a))}).replace(T,function(c,d,b){d=d||i;return" url("+d+r(b,a)+d+") "});return i}function U(){var a,c;a=f.getElementsByTagName("BASE");for(var d=a.length>0?a[0].href:f.location.href,b=0;b<f.styleSheets.length;b++)if(c=f.styleSheets[b],c.href!=i&&(a=r(c.href,d)))c.cssText=A(y(a));q.length>0&&setInterval(function(){for(var a=0,c=q.length;a<c;a++){var b=q[a];if(b.disabled!==b.a)b.disabled?(b.disabled=!1,b.a=!0,b.disabled=!0):b.a=b.disabled}},250)}if(!/*@cc_on!@*/true){var f=document,p=f.documentElement,n=function(){if(j.XMLHttpRequest)return new XMLHttpRequest;try{return new ActiveXObject("Microsoft.XMLHTTP")}catch(a){return null}}(),m=/MSIE (\d+)/.exec(navigator.userAgent)[1];if(!(f.compatMode!="CSS1Compat"||m<6||m>8||!n)){var z={NW:"*.Dom.select",MooTools:"$$",DOMAssistant:"*.$",Prototype:"$$",YAHOO:"*.util.Selector.query",Sizzle:"*",jQuery:"*",dojo:"*.query"},t,q=[],O=0,N=!0,M="slvzr",R=/(\/\*[^*]*\*+([^\/][^*]*\*+)*\/)\s*/g,S=/@import\s*(?:(?:(?:url\(\s*(['"]?)(.*)\1)\s*\))|(?:(['"])(.*)\3))[^;]*;/g,T=/\burl\(\s*(["']?)(?!data:)([^"')]+)\1\s*\)/g,L=/^:(empty|(first|last|only|nth(-last)?)-(child|of-type))$/,B=/:(:first-(?:line|letter))/g,C=/(^|})\s*([^\{]*?[\[:][^{]+)/g,G=/([ +~>])|(:[a-z-]+(?:\(.*?\)+)?)|(\[.*?\])/g,H=/(:not\()?:(hover|enabled|disabled|focus|checked|target|active|visited|first-line|first-letter)\)?/g,P=/[^\w-]/g,K=/^(INPUT|SELECT|TEXTAREA|BUTTON)$/,J=/^(checkbox|radio)$/,v=m>6?/[\$\^*]=(['"])\1/:null,E=/([(\[+~])\s+/g,F=/\s+([)\]+~])/g,Q=/\s+/g,x=/^\s*((?:[\S\s]*\S)?)\s*$/,i="",o=" ",h="$1";(function(a,c){function d(){try{p.doScroll("left")}catch(a){setTimeout(d,50);return}b("poll")}function b(d){if(!(d.type=="readystatechange"&&f.readyState!="complete")&&((d.type=="load"?a:f).detachEvent("on"+d.type,b,!1),!e&&(e=!0)))c.call(a,d.type||d)}var e=!1,g=!0;if(f.readyState=="complete")c.call(a,i);else{if(f.createEventObject&&p.doScroll){try{g=!a.frameElement}catch(h){}g&&d()}k(f,"readystatechange",b);k(a,"load",b)}})(j,function(){for(var a in z){var c,d,b=j;if(j[a]){for(c=z[a].replace("*",a).split(".");(d=c.shift())&&(b=b[d]););if(typeof b=="function"){t=b;U();break}}}})}}})(this);
+/*! A fix for the iOS orientationchange zoom bug.
+ Script by @scottjehl, rebound by @wilto.
+ MIT / GPLv2 License.
+ https://github.com/scottjehl/iOS-Orientationchange-Fix
+*/
+(function(w){
 
-(function(document){
-	
-	
-	window.MBP = window.MBP || {}; 
-	var a,b,c,d,e,f,g,h,i,j,k,l,m,n,o;
-	/*! A fix for the iOS orientationchange zoom bug. Script by @scottjehl, rebound by @wilto.MIT / GPLv2 License.*/
-	/*  JSLINT fix by Peter */
-	(function(a){
-		function m(){
-			d.setAttribute("content", g); h = !0;
-		}
-		function n(){
-			d.setAttribute("content", f); h = !1;
-		}
-		function o(b){
-			l = b.accelerationIncludingGravity; i = Math.abs(l.x); j = Math.abs(l.y); k = Math.abs(l.z); 
-			((!a.orientation || a.orientation === 180) && (i > 7 || (k > 6 && j < 8 || k < 8 && j > 6) && i > 5) ? h && n() : h || m());
-		}
-		var b = navigator.userAgent;
-		if ((!(/iPhone|iPad|iPod/.test(navigator.platform) && (/OS [1-5]_[0-9_]* like Mac OS X/i.test(b)) && b.indexOf("AppleWebKit") > -1))) {
-			return;
-		}
-		var c = a.document;
-		if (!c.querySelector) {
-			return;
-		}
-		var d = c.querySelector("meta[name=viewport]"), e = d && d.getAttribute("content"), f = e + ",maximum-scale=1", g = e + ",maximum-scale=10", h = !0, i, j, k, l;
-		if (!d) {
-			return;
-		}
-		a.addEventListener("orientationchange", m, !1);
-		a.addEventListener("devicemotion", o, !1);
-	})(this);
+	// This fix addresses an iOS bug, so return early if the UA claims it's something else.
+	var ua = navigator.userAgent;
+	if( !( /iPhone|iPad|iPod/.test( navigator.platform ) && /OS [1-5]_[0-9_]* like Mac OS X/i.test(ua) && ua.indexOf( "AppleWebKit" ) > -1 ) ){
+		return;
+	}
 
-	// Autogrow
-	// http://googlecode.blogspot.com/2009/07/gmail-for-mobile-html5-series.html
-	MBP.autogrow = function (element, lh) {
- 	 
-    	function handler(e){
-        	var newHeight = this.scrollHeight,
-            	currentHeight = this.clientHeight;
-        	if (newHeight > currentHeight) {
-            	this.style.height = newHeight + 3 * textLineHeight + "px";
-        	}
-    	}
- 	 
-    	var setLineHeight = (lh) ? lh : 12,
-        	textLineHeight = element.currentStyle ? element.currentStyle.lineHeight :
-                         	 getComputedStyle(element, null).lineHeight;
- 	 
-    	textLineHeight = (textLineHeight.indexOf("px") == -1) ? setLineHeight :
-                     	 parseInt(textLineHeight, 10);
- 	 
-    	element.style.overflow = "hidden";
-		if(element.addEventListener){
-			element.addEventListener('keyup', handler, false);
-		} else {
-			element.attachEvent('onkeyup', handler);
-		}
-	};	
-})(document);
+    var doc = w.document;
+
+    if( !doc.querySelector ){ return; }
+
+    var meta = doc.querySelector( "meta[name=viewport]" ),
+        initialContent = meta && meta.getAttribute( "content" ),
+        disabledZoom = initialContent + ",maximum-scale=1",
+        enabledZoom = initialContent + ",maximum-scale=10",
+        enabled = true,
+		x, y, z, aig;
+
+    if( !meta ){ return; }
+
+    function restoreZoom(){
+        meta.setAttribute( "content", enabledZoom );
+        enabled = true;
+    }
+
+    function disableZoom(){
+        meta.setAttribute( "content", disabledZoom );
+        enabled = false;
+    }
+
+    function checkTilt( e ){
+		aig = e.accelerationIncludingGravity;
+		x = Math.abs( aig.x );
+		y = Math.abs( aig.y );
+		z = Math.abs( aig.z );
+
+		// If portrait orientation and in one of the danger zones
+        if( (!w.orientation || w.orientation === 180) && ( x > 7 || ( ( z > 6 && y < 8 || z < 8 && y > 6 ) && x > 5 ) ) ){
+			if( enabled ){
+				disableZoom();
+			}
+        }
+		else if( !enabled ){
+			restoreZoom();
+        }
+    }
+
+	w.addEventListener( "orientationchange", restoreZoom, false );
+	w.addEventListener( "devicemotion", checkTilt, false );
+
+})( this );
 
 /**
  * Loads JS files async
@@ -1739,17 +1701,18 @@ Garp.apply(Garp.FormHelper, {
 	 */
 	hijackUploadFields: function(cb, fh){
 		var fields = $('.hijack-upload', this.form);
-		var scope = this;
 		
 		if (fields.length) {
-			Garp.asyncLoad(BASE + 'js/fileuploader.js', 'js', function(){
-				fields.each(function(i){
+			var loadSuccess = function(){
+				fields.each(function() {
 					var $target = $(this);
 					var orig = $target;
 					var name = $target.attr('name') || $target.data('name');
 					$target.attr('name', name + '-filefield');
 					var prepopulate = $target.data('prepopulate-filelist');
-					var uploadType = $target.data('type') || 'image', imgTemplate = $target.data('image-template') || 'cms_list', url = BASE + 'g/content/upload/insert/1/mode/raw/type/' + uploadType, urlNonRaw = BASE + 'g/content/upload/insert/1/type/' + uploadType;
+					var uploadType = $target.data('type') || 'image',
+						url = BASE + 'g/content/upload/insert/1/mode/raw/type/' + uploadType,
+						urlNonRaw = BASE + 'g/content/upload/insert/1/type/' + uploadType;
 					
 					$target = $target.parent();
 					if (!$target[0]) {
@@ -1874,7 +1837,8 @@ Garp.apply(Garp.FormHelper, {
 					}
 					
 				});
-			}, this);
+			};
+			Garp.asyncLoad(BASE + 'js/fileuploader.js', 'js', loadSuccess, this);
 		}
 	},
 	
@@ -1974,7 +1938,7 @@ Garp.apply(Garp.FormHelper, {
 	 */
 	formatName: function(name) {
 		if (name) {
-			name = name.replace('[', '\[').replace(']', '\]');
+			name = name.replace('[', '\\[').replace(']', '\\]');
 		}
 		return name;
 	},
@@ -2112,7 +2076,6 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 			
 			// file uploads:
 			if (this.field.hasClass('file-input-wrapper')) {
-				var name = $('input[type=text],input[type=hidden]', this.field).attr('name');
 				dupl = $('<input type="file" />');
 				dupl.insertAfter(this.field.parent('div'));
 				dupl.addClass('hijack-upload duplicatable');
@@ -2386,8 +2349,6 @@ Garp.FormHelper.Validator = function(cfg){
 				if(!field.attr('type') || field.attr('type') !== 'url'){
 					return;
 				}
-				var scope = this;
-				var mailtoOrUrlRe = this.rules.url.mailtoOrUrlRe;
 				var stricter = this.rules.url.stricter;
 				$(field).bind('blur.urlValidator', function(){
 					if($(this).val() !== '' && !stricter.test($(this).val())){
@@ -2444,7 +2405,6 @@ Garp.FormHelper.Validator = function(cfg){
 					if(!field.attr('data-identical-to') || !field.val().length){
 						return true;
 					}
-					var name = field.attr('name');
 					var theOtherName = Garp.FormHelper.formatName(field.attr('data-identical-to'));
 					var theOtherField = $('[name="' + theOtherName + '"]');
 					var oVal = theOtherField.val();
@@ -2460,7 +2420,6 @@ Garp.FormHelper.Validator = function(cfg){
 		 */
 		initRules: function(){
 			var elms = this.elements.toArray();
-			var scope = this;
 			Garp.each(this.rules, function(rule){
 				if (rule.init) {
 					Garp.each(elms, function(elm){
