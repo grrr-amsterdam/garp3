@@ -9,14 +9,16 @@
 	"inputs": {
 		"key": {
 			"maxLength": 124,
-			"unique": true
+			"unique": true,
+			"editable": false			
 		},
 		"value": {
 			"maxLength": 124
 		},
 		"type": {
 			"type": "enum",
-			"options": ["info", "setting", "message"]
+			"options": ["info", "setting", "message"],
+			"editable": false
 		}
 	}
 }
