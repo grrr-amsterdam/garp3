@@ -57,6 +57,7 @@ Ext.ns('Ext.ux.form');
 		 * Button Handler
 		 */
 		handleFileSelect: function(){
+			console.log('??');
 			this.performUpload(this.fileInput);
 		},
 		
@@ -97,7 +98,12 @@ Ext.ns('Ext.ux.form');
 				form.dom.submit();				
 				
 			} else {
-				var file = fileInput;//.dom.files[0];
+				var file;
+				if (fileInput.dom && fileInput.dom.files) {
+					file = fileInput.dom.files[0];
+				} else {
+					file = fileInput;//.dom.files[0];
+				}
 				if (!file.name) {
 					return;
 				}
