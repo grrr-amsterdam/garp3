@@ -7,6 +7,9 @@ Garp.errorHandler = {
 	msg: null,
 	win: null,
 	handler: function(msg, s){
+		if (!msg) {
+			msg = __('No readable error message specified');
+		}
 		if (this.msg) {
 			this.msg = msg + '<hr>' + this.msg;
 		} else {
