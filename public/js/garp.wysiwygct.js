@@ -29,12 +29,23 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					type: item.type,
 					_classes: item.classes
 				}, this.chapterct.items ? this.chapterct.items.last() : null);
+				if (!item.content) {
+					if (item.remove) {
+						item.remove();
+					}
+					return;
+				}
 				Ext.each(item.content, function(node){
-					if(!node.model){
+					if (!node.model) {
+						//throw 'Model type not found. DB corrupted or silly developer at work...';
 						if (console && console.dir) {
 							console.dir(node);
+							console.error('Model type not found. DB corrupted or silly developer at work...');
 						}
-						throw 'Model type not found. DB corrupted or silly developer at work...';
+						if (node.remove) {
+							node.remove();
+						}
+						return;
 					}
 					var box = new Garp.dataTypes[node.model].Wysiwyg({
 						ct: currentWysiwygCt,
