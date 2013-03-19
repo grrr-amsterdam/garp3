@@ -44,7 +44,11 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 	): ?>
 		return rec.get('first_name') ? (rec.get('first_name') + (rec.get('last_name_prefix') ? ' ' + rec.get('last_name_prefix') + ' ' : ' ') + (rec.get('last_name') || '')) : __('New');	
 	<?php else: ?>
-		return [rec.get("<?php echo implode($this->model->fields->listFieldNames, '"), rec.get("') ?>")].join(" ").replace("  ", " ") || __("New");
+		var out = [rec.get("<?php echo implode($this->model->fields->listFieldNames, '"), rec.get("') ?>")].join(" ").replace("  ", " "); 
+		if (out === ' ') {
+			out = __("New");
+		}
+		return  out;
 	<?php endif; ?>
 	},
 	<?php /* _____PreviewLink */
