@@ -14,7 +14,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	const RESTORE_FILE 				= 'tmp_restore.sql';
 	
 	const SQL_USE_STATEMENT			= 'USE `%s`;';
-	const SQL_CREATE_DB_STATEMENT	= 'CREATE DATABASE `%s`';
+	const SQL_CREATE_DB_STATEMENT	= 'CREATE DATABASE /*!32312 IF NOT EXISTS*/ `%s`';
 	const SQL_DEFINER_STATEMENT		= 'DEFINER=`%s`@`%s`';
 
 	/**
