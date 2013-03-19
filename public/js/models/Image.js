@@ -247,7 +247,9 @@ Garp.dataTypes.Image.on('init', function(){
 			var aspct = i.height / i.width;
 			var nHeight = (nw * aspct) - this.margin;
 			this.contentEditableEl.setHeight(nHeight);
-			this.contentEditableEl.child('.img').setHeight(nHeight);
+			if (this.contentEditableEl.child('.img')) {
+				this.contentEditableEl.child('.img').setHeight(nHeight);
+			}
 			return nHeight;
 		},
 		
