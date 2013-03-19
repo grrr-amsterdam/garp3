@@ -68,7 +68,9 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 					if(node.type){
 						o.type = node.getType();
 					}
-					o.classes = node.getClasses();
+					if (node.getClasses && node.getClasses()) {
+						o.classes = node.getClasses();
+					}
 					content.push(o);
 				}
 			});
