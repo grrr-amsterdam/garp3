@@ -40,7 +40,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 						//throw 'Model type not found. DB corrupted or silly developer at work...';
 						if (console && console.dir) {
 							console.dir(node);
-							console.error('Model type not found. DB corrupted or silly developer at work...');
+							console.warn('Model type not found. DB corrupted or silly developer at work...');
 						}
 						if (node.remove) {
 							node.remove();
