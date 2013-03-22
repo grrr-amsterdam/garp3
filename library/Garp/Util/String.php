@@ -57,6 +57,15 @@ class Garp_Util_String {
 
 
 	/**
+ 	 * Converts 'doggy-dog-world-id' to 'doggyDogWorldId'
+ 	 */
+	static public function dashedToCamelcased($str) {
+		$func = create_function('$c', 'return strtoupper($c[1]);');
+		return preg_replace_callback('/\-([a-z])/', $func, $str);
+	}
+
+
+	/**
 	 * Converts 'Snøøp Düggy Døg' to 'Snoop Doggy Dog'
 	 */
 	static public function utf8ToAscii($str) {
