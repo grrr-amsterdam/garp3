@@ -67,6 +67,8 @@
 .icon-wysiwyg-unorderedlist { background-image:url(../../media/images/garp/icons/text_list_bullets.png)!important; }
 .icon-wysiwyg-createlink { background-image:url(../../media/images/garp/icons/link.png)!important; }
 .icon-wysiwyg-add-chapter { background-image:url(../../media/images/garp/icons2/page-add.png)!important; }
+.icon-wysiwyg-move-up { background-image:url(../../media/images/garp/icons2/arrow-up.png)!important; }
+.icon-wysiwyg-move-down { background-image:url(../../media/images/garp/icons2/arrow-down.png)!important; }
 .icon-wysiwyg-remove-chapter { background-image:url(../../media/images/garp/icons2/page-delete.png)!important; }
 
 .icon-move { background-image:url(../../media/images/garp/icons2/move.png)!important; }
