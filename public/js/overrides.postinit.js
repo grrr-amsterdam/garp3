@@ -6,19 +6,26 @@ Ext.Direct.addProvider(Garp.API);
 Garp.errorHandler = {
 	msg: null,
 	win: null,
+	
 	handler: function(msg, s){
 		if (!msg) {
 			msg = __('No readable error message specified');
 		}
+		var showClear = false;
 		if (this.msg) {
+			showClear = true;
 			this.msg = msg + '<hr>' + this.msg;
 		} else {
 			this.msg = msg;
 		}
 		if (!this.win) {
+			
 			this.win = new Ext.Window({
 				title: __('Error'),
-				html: '<div class="garp-error-dialog" style="min-height: 80px;">' + this.msg + '</div>',
+				data: {
+					msg: __('No error')
+				},
+				tpl: new Ext.Template(['<div class="garp-error-dialog" style="min-height: 80px; max-height: 250px; overflow: auto; ">','{msg}','</div>']),
 				width: 500,
 				buttonAlign: 'center',
 				defaultButton: 'defaultButton',
@@ -37,16 +44,29 @@ Garp.errorHandler = {
 						window.location = BASE + 'g/auth/login';
 					},
 					scope: this
-				}],
-				fn: function(){
-					this.msg = '';
-				},
-				scope: this
+				}, {
+					hidden: !showClear,
+					ref: '../clearBtn',
+					text: __('Clear messages'),
+					handler: function(){
+						this.msg = '';
+						this.win.update({
+							msg: this.msg
+						});
+						this.win.center();
+					},
+					scope: this
+				}]
 			});
 		} else {
-			this.win.update('<div class="garp-error-dialog" style="min-height: 80px;">' + this.msg + '</div>');
+			this.win.clearBtn.show();
 		}
 		this.win.show();
+		this.win.update({
+			msg: this.msg
+		});
+		this.win.center();
+		
 	}
 };
 window.onerror = Garp.errorHandler.handler.createDelegate(Garp.errorHandler);

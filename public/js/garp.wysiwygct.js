@@ -417,6 +417,16 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					
 				}
 			},'->',{
+				iconCls: 'icon-wysiwyg-move-up',
+				hidden: true,
+				handler: function(){
+				}
+			},{
+				iconCls: 'icon-wysiwyg-move-down',
+				hidden: true,
+				handler: function(){
+				}
+			},{
 				text: __('Delete'),
 				iconCls: 'icon-wysiwyg-remove-chapter',
 				handler: function(){
