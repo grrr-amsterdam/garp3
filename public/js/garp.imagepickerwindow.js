@@ -470,7 +470,10 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 			handler: this.navHandler.createDelegate(this, [-1])
 		}, '->',{
 			text: __('Cancel'),
-			handler: this.close.createDelegate(this)
+			handler: function(){
+				this.close();
+			},
+			scope: this
 		},{
 			text: __('Clear selection'),
 			ref: '../clearBtn',

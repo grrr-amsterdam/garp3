@@ -610,8 +610,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		
 		if(!this.hidden && this.rendered) {
 			this.relateePanel.getSelectionModel().clearSelections(true);
-			this.metaDataPanel.hide();
-			this.metaDataPanel.ownerCt.doLayout();
+			if (this.metaPanel) {
+				this.metaDataPanel.hide();
+				this.metaDataPanel.ownerCt.doLayout();
+			}
 			this.relateStore.reload();
 			this.relateeStore.reload();
 		}
