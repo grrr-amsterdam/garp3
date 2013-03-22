@@ -37,35 +37,38 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 	 */	
 	selectCallback: function(selected){
 		var v = this.getValue();
-		if (selected && selected.selected) {
-		
-			// set it to the value retrieved from the modelpicker:
-			this.setValue(selected.selected.get(this.displayField) || selected.selected.get('id'));
-			this.disable();
-			// ...then reload to get the 'real' value from the server:
-			// the reason we reload, is that the displayfield might not get passed from the picker (it just might not be there)
+		if (selected && selected.hasOwnProperty('selected')) {
+			if (selected.selected === null) {
+				this.setValue(null);
+			} else {
+				// set it to the value retrieved from the modelpicker:
+				this.setValue(selected.selected.get(this.displayField) || selected.selected.get('id'));
+				this.disable();
+				// ...then reload to get the 'real' value from the server:
+				// the reason we reload, is that the displayfield might not get passed from the picker (it just might not be there)
+				
+				this.store.on({
+					load: function(){
+						this.setValue(selected.selected.get('id'));
+						this.enable();
+						if (this.assertValue) {
+							this.assertValue();
+						}
+						this.el.focus(true);
+						this.collapse.defer(200, this);
+					},
+					single: true,
+					scope: this
+				});
+				this.store.load();
+			}
 			
-			this.store.on({
-				load: function(){
-					this.setValue(selected.selected.get('id'));
-					this.enable();
-					if (this.assertValue) {
-						this.assertValue();
-					}
-					this.el.focus(true);
-					this.collapse.defer(200, this);
-				},
-				single: true,
-				scope: this
-			});
-			this.store.load();
-		} else {
-			this.setValue(null);
-		}
-		this.originalValue = v;
+			this.originalValue = v;
+			this.win.destroy();
+			this.fireEvent('select', selected);
+			return;
+		} 
 		this.win.destroy();
-		
-		this.fireEvent('select', selected);
 	},
 	
 	triggerFn: function(){
