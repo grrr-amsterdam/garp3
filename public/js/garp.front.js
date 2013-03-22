@@ -705,8 +705,12 @@ Garp.Validator = (function() {
 		},
 		// add errors
 		triggerError: function(id, msg) {
-			var label = $('label[for='+id+']');
-			Garp.Validator.errorMessages[id] = msg.replace('%s', label.text());
+			if ($('#' + id).attr('data-err-msg')) {
+				Garp.Validator.errorMessages[id] = $('#' + id).attr('data-err-msg');
+			} else {
+				var label = $('label[for=' + id + ']');
+				Garp.Validator.errorMessages[id] = msg.replace('%s', label.text());
+			}
 		}
 	};
 })();
