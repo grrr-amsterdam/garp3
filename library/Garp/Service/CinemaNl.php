@@ -185,7 +185,11 @@ class Garp_Service_CinemaNl extends Zend_Service_Abstract {
 	
 	
 	protected function _extractSynopsis(SimpleXMLElement $response) {
-		$fields = array('description', 'shortPlainDescription', 'currentDescription', 'mediumPlainDescription');
+		/**
+ 	 	 * 25 March 2013: disabled currentDescription field as per this ticket:
+ 	 	 * @see http://projects.grrr.nl/projects/we-want-cinema-website/tasks/1486
+ 	 	 */
+		$fields = array('description', 'shortPlainDescription', /*'currentDescription',*/ 'mediumPlainDescription');
 		/** This notice string is sometimes used by cinema.nl to indicate a description field is not yet available. */
 		$descriptionEmptyString = "Voor deze film is helaas nog geen beschrijving beschikbaar";
 
