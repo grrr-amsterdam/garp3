@@ -31,8 +31,8 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 	 */
 	protected function _initEssentialGarpHelpers() {
 		// Action helpers
-		Zend_Controller_Action_HelperBroker::addPrefix('App_Controller_Helper');
 		Zend_Controller_Action_HelperBroker::addPrefix('Garp_Controller_Helper');
+		Zend_Controller_Action_HelperBroker::addPrefix('App_Controller_Helper');
 
 		// View helpers
 		$this->bootstrap('View');
