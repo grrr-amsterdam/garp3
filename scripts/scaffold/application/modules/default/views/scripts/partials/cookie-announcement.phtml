@@ -1,4 +1,4 @@
-<?php if (!isset($_COOKIE['Garp_Accept_Cookies']) || 'Garp_Accept_Cookies' != $_COOKIE['Garp_Accept_Cookies']): ?>
+<?php if (!isset($_COOKIE['Garp_Accept_Cookies']) || '1' !== $_COOKIE['Garp_Accept_Cookies']): ?>
 <section class="cookie-announcement">
 	<p>Deze site maakt gebruik van cookies.</p>
 	<p><a href="<?php echo $this->baseUrl('/cookies/'); ?>">Meer informatie?</a></p>
