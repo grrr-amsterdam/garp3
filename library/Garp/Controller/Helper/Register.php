@@ -15,7 +15,7 @@ class Garp_Controller_Helper_Register extends Zend_Controller_Action_Helper_Abst
  	 * @param Array $postData Data submitted by the user
  	 * @return Void
  	 */
-	public function beforeRegister(array $postData) { }
+	public function beforeRegister(array &$postData) { }
 
 
 	/**
