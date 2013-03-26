@@ -404,7 +404,17 @@ Ext.ux.BindedField = Ext.extend(Ext.form.TextField, {
 		this.hidden = true;
 		this.hideFieldLabel = true;
 		Ext.ux.BindedField.superclass.initComponent.call(this, v);
+	},
+	
+	// allow null values:
+	getValue: function(){
+		var val = Ext.ux.BindedField.superclass.getValue.call(this);
+		if(val === ''){
+			return null;
+		}
+		return val;
 	}
+	
 });
 
 // xtypes
