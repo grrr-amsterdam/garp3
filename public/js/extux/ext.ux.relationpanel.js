@@ -74,6 +74,11 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	 */
 	maxItems: null,
 	
+	/**
+	 * @cfg: metaDataEditors: editors to use in metaDataPanel
+	 */
+	metaDataEditors: null,
+	
 	dirty: function(){
 		this.fireEvent('dirty');
 		this.getTopToolbar().saveBtn.enable();
@@ -776,6 +781,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				}];
 			} else {
 			
+				
 				this.metaDataPanel = new Ext.grid.PropertyGrid({
 					//title: 'Properties Grid',
 					split: true,
@@ -784,11 +790,11 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					minHeight: 250,
 					height: 200,
 					collapsed: false,
+					customEditors: this.metaDataEditors,
 					hidden: true,
 					collapsible: false,
 					source: this.source || {}
 				});
-				
 				
 				this.items = [{
 					xtype: 'container',
@@ -832,6 +838,9 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					handler: function(){
 						//this.relateStore.reload();
 						this.relateeStore.reload();
+						this.metaDataPanel.hide();
+						this.metaDataPanel.setSource(this.source || {});
+						this.relateePanel.getSelectionModel().selectRange(-1,-1);
 					},
 					scope: this
 				}, (Garp.dataTypes[this.model].quickCreatable ? {
