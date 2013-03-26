@@ -462,7 +462,7 @@ class G_AuthController extends Garp_Controller_Action {
  	 * @param Array $postData 
  	 * @return Void
  	 */
-	protected function _beforeRegister(array $postData) {
+	protected function _beforeRegister(array &$postData) {
 		if ($registerHelper = $this->_getRegisterHelper()) {
 			$registerHelper->beforeRegister($postData);
 		}
