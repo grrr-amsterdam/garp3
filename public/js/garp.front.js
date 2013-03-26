@@ -705,8 +705,12 @@ Garp.Validator = (function() {
 		},
 		// add errors
 		triggerError: function(id, msg) {
-			var label = $('label[for='+id+']');
-			Garp.Validator.errorMessages[id] = msg.replace('%s', label.text());
+			if ($('#' + id).attr('data-err-msg')) {
+				Garp.Validator.errorMessages[id] = $('#' + id).attr('data-err-msg');
+			} else {
+				var label = $('label[for=' + id + ']');
+				Garp.Validator.errorMessages[id] = msg.replace('%s', label.text());
+			}
 		}
 	};
 })();
@@ -1095,12 +1099,12 @@ Garp.isLoggedIn = function(){
  * Cookie acceptation stuff 'Cookiewet'
  */
 Garp.hasCookiesAccepted = function(){
-	return Garp.getCookie('Garp_Accept_Cookies') == 'Garp_Accept_Cookies';
+	return Garp.getCookie('Garp_Accept_Cookies') === '1';
 };
 Garp.acceptCookies = function(){
 	var exp = new Date();
 	exp.setYear(exp.getFullYear() + 1);
-	Garp.setCookie('Garp_Accept_Cookies', 'Garp_Accept_Cookies', exp);
+	Garp.setCookie('Garp_Accept_Cookies', '1', exp);
 };
 
 /**
