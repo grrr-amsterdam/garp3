@@ -1,0 +1,25 @@
+{
+	"visible": false,
+	
+	"inputs": {
+		"password": {
+			"maxLength": 32
+		},
+		"ip_address": {
+			"maxLength": 15,
+			"required": false
+		},
+		"last_login": {
+			"type": "datetime",
+			"required": false
+		}
+	},
+	
+	"listFields": ["id", "ip_address"],
+	
+	"relations": {
+		"User": {
+			"type": "belongsTo"
+		}
+	}
+}
