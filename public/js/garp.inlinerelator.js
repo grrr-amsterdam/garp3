@@ -97,48 +97,50 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		this.doLayout();	
 	},
 	
+	relate: function(){
+	
+	
+		var data = {
+			model: this.model,
+			unrelateExisting: this.unrelateExisting,
+			primaryKey: this.localId,
+			foreignKeys: (function(){
+				var records = [];
+				this.relationStore.each(function(rec){
+					records.push({
+						key: rec.data.id,
+						relationMetadata: rec.data.relationMetadata ? rec.data.relationMetadata[Garp.currentModel] : []
+					});
+				});
+				records.reverse();
+				return records;
+			}).call(this)
+		};
+		if (this.rule) {
+			data.rule = this.rule;
+		}
+		if (this.rule2) {
+			data.rule2 = this.rule2;
+		}
+		
+		var scope = this;
+		Garp[Garp.currentModel].relate(data, function(res){
+			if (res) {
+				scope.relationStore.removeAll(true);
+				scope.items.each(function(item){
+					scope.remove(item);
+				});
+				scope.relationStore.reload();
+			}
+		});
+		
+	},
+	
 	saveAll: function(){
 	
 		this.relationStore.on({
 			save: {
-				fn: function(){
-				
-				
-					var data = {
-						model: this.model,
-						unrelateExisting: this.unrelateExisting,
-						primaryKey: this.localId,
-						foreignKeys: (function(){
-							var records = [];
-							this.relationStore.each(function(rec){
-								records.push({
-									key: rec.data.id,
-									relationMetadata: rec.data.relationMetadata ? rec.data.relationMetadata[Garp.currentModel] : []
-								});
-							});
-							records.reverse();
-							return records;
-						}).call(this)
-					};
-					if (this.rule) {
-						data.rule = this.rule;
-					}
-					if (this.rule2) {
-						data.rule2 = this.rule2;
-					}
-					
-					var scope = this;
-					Garp[Garp.currentModel].relate(data, function(res){
-						if (res) {
-							scope.relationStore.removeAll(true);
-							scope.items.each(function(item){
-								scope.remove(item);
-							});
-							scope.relationStore.reload();
-						}
-					});
-				},
-				single: true,
+				fn: this.relate,
 				scope: this
 			}
 		});
@@ -149,7 +151,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		this.relationStore.remove(form.rec);
 		this.remove(form);
 		this.doLayout();
-		this.saveAll();
+		this.relate();
 	},
 	
 	initComponent: function(ct){
@@ -205,23 +207,24 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 		this.tbar = new Ext.Toolbar({
 			style: 'border:0;',
 			items: [{
+				iconCls: 'icon-new',
+				text :__('Add'),
+				handler: function(){
+					this.inlineRelator.addForm(this);
+				},
+				scope: this
+			},{
 				iconCls: 'icon-delete',
+				text: __('Remove'),
 				//hidden: this.hideRemoveButton,
 				handler: function(){
 					this.inlineRelator.removeForm(this);
-				},
-				scope: this
-			}, {
-				iconCls: 'icon-new',
-				handler: function(){
-					this.inlineRelator.addForm(this);
 				},
 				scope: this
 			}]
 		});
 
 		Garp.InlineForm.superclass.initComponent.call(this);
-		
 		
 		if (this.rec) {
 			this.getForm().loadRecord(this.rec);
