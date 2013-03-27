@@ -78,6 +78,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	 * @cfg: metaDataEditors: editors to use in metaDataPanel
 	 */
 	metaDataEditors: null,
+	metaDataValidator: function(){return true;},
 	
 	dirty: function(){
 		this.fireEvent('dirty');
@@ -269,6 +270,9 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			target.store.remoteSort = true;
 		}
 		//target.getView().mainBody.slideIn('t',.2);
+		
+		target.getSelectionModel().selectRow(index || 0);
+		
 	},
 
 	/**
@@ -781,20 +785,40 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				}];
 			} else {
 			
+				var scope = this;
+				function validateMetaPanel(){
+					if (scope.rendered && scope.isVisible()) {
+						if (scope.metaDataValidator(scope.metaDataPanel.getSource())) {
+							scope.undirty();
+							scope.getTopToolbar().saveBtn.enable();
+						} else {
+							scope.dirty();
+							scope.getTopToolbar().saveBtn.disable();
+						}
+					}
+				}
 				
 				this.metaDataPanel = new Ext.grid.PropertyGrid({
 					//title: 'Properties Grid',
 					split: true,
+					__relationPanel: this,
 					layout: 'fit',
 					region: 'south',
 					minHeight: 250,
 					height: 200,
 					collapsed: false,
 					customEditors: this.metaDataEditors,
+					foceValidation: true,
 					hidden: true,
 					collapsible: false,
-					source: this.source || {}
+					source: this.source || {},
+					listeners:{
+						propertychange: validateMetaPanel
+					}
 				});
+				this.metaDataPanel.store.on('load', validateMetaPanel, this);
+				
+				
 				
 				this.items = [{
 					xtype: 'container',
@@ -964,6 +988,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 						} else if (sm && sm.getCount() == 1 && this.relateeStore && this.relateeStore.fields.containsKey('relationMetadata')) {
 							this.metaDataPanel.show();
 							this.metaDataPanel.ownerCt.doLayout();
+							this.metaDataPanel.startEditing(0, 1);
 						}
 					}
 				},
