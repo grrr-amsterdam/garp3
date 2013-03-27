@@ -9,7 +9,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	
 	border: false,
 	bodyBorder: false,
-	height: 400,
+	autoHeight: true,
 	autoScroll: true,
 	
 	localId: null,
