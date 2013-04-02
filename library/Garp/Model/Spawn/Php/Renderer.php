@@ -335,16 +335,19 @@ class Garp_Model_Spawn_Php_Renderer {
 		if ($habtmRelation->weighable) {
 			$model1FieldName = Garp_Model_Spawn_Util::camelcased2underscored($modelId1);
 			$model2FieldName = Garp_Model_Spawn_Util::camelcased2underscored($modelId2);
-			$combinedColumnA = $model1FieldName.'_'.$model2FieldName;
-			$combinedColumnB = $model2FieldName.'_'.$model1FieldName;
+			$postFix1 = $isHomophile ? '1' : '';
+			$postFix2 = $isHomophile ? '2' : '';
 			
+			$combinedColumnA = $model1FieldName . $postFix1 . '_' . $model2FieldName . $postFix2;
+			$combinedColumnB = $model2FieldName . $postFix2 . '_' . $model1FieldName . $postFix1;
+
 			$out.= "\n";
 			$out.= $this->_rl("\$this->registerObserver(new Garp_Model_Behavior_Weighable(array(", 2);
-			$out.= $this->_rl("'{$modelId1}' => array(", 3);
+			$out.= $this->_rl("'{$modelId1}{$postFix1}' => array(", 3);
 			$out.= $this->_rl("'foreignKeyColumn' => '{$modelColumn1}',", 4);
 			$out.= $this->_rl("'weightColumn' => '{$combinedColumnA}_weight'", 4);
 			$out.= $this->_rl("),", 3);
-			$out.= $this->_rl("'{$modelId2}' => array(", 3);
+			$out.= $this->_rl("'{$modelId2}{$postFix2}' => array(", 3);
 			$out.= $this->_rl("'foreignKeyColumn' => '{$modelColumn2}',", 4);
 			$out.= $this->_rl("'weightColumn' => '{$combinedColumnB}_weight'", 4);
 			$out.= $this->_rl(")", 3);
