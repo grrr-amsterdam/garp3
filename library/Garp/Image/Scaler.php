@@ -90,47 +90,53 @@ class Garp_Image_Scaler {
 		$mem = new Garp_Util_Memory();
 		$mem->useHighMemory();
 
-		if (strlen($sourceData) > 0) {
-			$source = imagecreatefromstring($sourceData);
+		if (strlen($sourceData) == 0) {
+			throw new Exception("This is an empty file!");
+		}
+		
+		if (!($source = @imagecreatefromstring($sourceData))) {
+			$finfo = new finfo(FILEINFO_MIME);
+			$mime = $finfo->buffer($sourceData);
+			throw new Exception("This source image could not be scaled. It's probably not a valid file type. Instead, this file is of the following type: " . $mime);
+		}
 
-			$this->_analyzeSourceImage($source, $imageType);
-			$this->_addOmittedCanvasDimension();
+		$this->_analyzeSourceImage($source, $imageType);
+		$this->_addOmittedCanvasDimension();
 
-			if (
-				array_key_exists('filter', $scaleParams) &&
-				$scaleParams['filter']
-			) {
-				Garp_Image_Filter::filter($source, $scaleParams['filter']);
-			}
+		if (
+			array_key_exists('filter', $scaleParams) &&
+			$scaleParams['filter']
+		) {
+			Garp_Image_Filter::filter($source, $scaleParams['filter']);
+		}
 
-			if (
-				$this->params['w'] == $this->params['sourceWidth'] &&
-				$this->params['h'] == $this->params['sourceHeight'] &&
-				(
-					!array_key_exists('filter', $scaleParams) ||
-					!$scaleParams['filter']
-				)
-			) {
-				//$outputImage = $this->_renderToImageData($source);
-				$outputImage = $sourceData;
-			} else {
-				$canvas = $this->_createCanvasImage($imageType);
+		if (
+			$this->params['w'] == $this->params['sourceWidth'] &&
+			$this->params['h'] == $this->params['sourceHeight'] &&
+			(
+				!array_key_exists('filter', $scaleParams) ||
+				!$scaleParams['filter']
+			)
+		) {
+			//$outputImage = $this->_renderToImageData($source);
+			$outputImage = $sourceData;
+		} else {
+			$canvas = $this->_createCanvasImage($imageType);
 
-				$this->_projectSourceOnCanvas($source, $canvas);
-				$outputImage = $this->_renderToImageData($canvas);
-				imagedestroy($canvas);
-			}
+			$this->_projectSourceOnCanvas($source, $canvas);
+			$outputImage = $this->_renderToImageData($canvas);
+			imagedestroy($canvas);
+		}
 
 
-			$output = array(
-				'resource' => $outputImage,
-				'mime' => $this->params['mime'],
-				'timestamp' => time()
-			);
-			imagedestroy($source);
+		$output = array(
+			'resource' => $outputImage,
+			'mime' => $this->params['mime'],
+			'timestamp' => time()
+		);
+		imagedestroy($source);
 
-			return $output;
-		} else throw new Exception("Error: This is an empty file!");
+		return $output;
 	}
 
 
