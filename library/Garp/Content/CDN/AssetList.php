@@ -11,8 +11,10 @@
  */
 class Garp_Content_CDN_AssetList extends ArrayObject {
 	
-	protected $_bannedNodeSubstrings = array('.php', '.psd', 'uploads', 'cached', 'sass');
+	protected $_bannedNodeSubstrings = array('.php', '.psd');
 	
+	protected $_bannedNodeNames = array('uploads', 'cached', 'sass', 'system', 'pids', 'log');
+
 	protected $_baseDir;
 	protected $_baseDirLength;
 	
@@ -126,10 +128,15 @@ class Garp_Content_CDN_AssetList extends ArrayObject {
 		$isBanned = false;
 		
 		foreach ($this->_bannedNodeSubstrings as $bannedString) {
-			$isMatching = stripos($nodeName, $bannedString) !== false;
-			$isBanned 	= $isBanned ?: $isMatching;
+			if (stripos($nodeName, $bannedString) !== false) {
+				return true;
+			}
 		}
 		
-		return $isBanned;
+		if (in_array($nodeName, $this->_bannedNodeNames)) {
+			return true;
+		}
+
+		return false;
 	}
 }
