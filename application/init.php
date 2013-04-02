@@ -9,9 +9,6 @@
 * 	string MEMCACHE_HOST, default '127.0.0.1'
 * 	
 */
-
-setlocale(LC_ALL, 'nl_NL');
-
 define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
 define('APPLICATION_PATH', BASE_PATH . '/application');
 define('GARP_APPLICATION_PATH', BASE_PATH . '/garp/application');
