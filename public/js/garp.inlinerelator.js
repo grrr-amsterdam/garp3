@@ -50,6 +50,15 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			},
 			writer: this.writer,
 			listeners: {
+				'beforeload': {
+					fn: function(){
+						if (!this.localId) { // new records have no id so we can't load it's relations; there are none
+							return false;
+						}
+						return true;
+					},
+					scope: this
+				},
 				'load': {
 					fn: function(){
 						this.addInlineForms();
@@ -174,7 +183,6 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			this.relationStore.removeAll(true);
 			
 			var q = {};
-			
 			q[Garp.currentModel + '.id'] = this.localId;
 			this.relationStore.setBaseParam('query', q);
 			this.relationStore.reload();
@@ -205,7 +213,7 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 	hideRemoveButton: false,
 	
 	focusFirstField: function(){
-		this.items.get(0).items.get(0).items.each(function(i){
+		this.items.get(0).items.each(function(i){
 			if (i && i.isVisible && i.isVisible() && i.focus) {
 				i.focus();
 				return false;
@@ -214,8 +222,7 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 	},
 
 	initComponent: function(ct){
-		
-		this.items = Garp.dataTypes[this.model].formConfig[0];
+		this.items = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0]); // better copy
 		this.tbar = new Ext.Toolbar({
 			style: 'border:0;',
 			items: [{
