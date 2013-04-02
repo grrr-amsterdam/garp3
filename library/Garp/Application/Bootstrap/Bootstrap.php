@@ -73,4 +73,15 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 			}
 		}
 	}
+
+
+	/**
+ 	 * Set locale
+ 	 * @return Void
+ 	 */
+	protected function _initSetLocale() {
+		$config = Zend_Registry::get('config');
+		$locale = $config->app->locale;
+		setlocale(LC_ALL, $locale);
+	}
 }
