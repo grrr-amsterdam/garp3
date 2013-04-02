@@ -53,7 +53,9 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 				'load': {
 					fn: function(){
 						this.addInlineForms();
-						//this.addForm();
+						if (this.relationStore.getCount() === 0) {
+							this.addForm();
+						}
 					},
 					scope: this
 				}
@@ -94,7 +96,8 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			hideRemoveButton : hideRemoveButton
 		}, this);
 		this.insert(idx, form);
-		this.doLayout();	
+		this.doLayout();
+		form.focusFirstField();
 	},
 	
 	relate: function(){
@@ -201,6 +204,15 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 	
 	hideRemoveButton: false,
 	
+	focusFirstField: function(){
+		this.items.get(0).items.get(0).items.each(function(i){
+			if (i && i.isVisible && i.isVisible() && i.focus) {
+				i.focus();
+				return false;
+			}
+		});
+	},
+
 	initComponent: function(ct){
 		
 		this.items = Garp.dataTypes[this.model].formConfig[0];
