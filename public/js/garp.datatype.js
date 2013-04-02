@@ -247,6 +247,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 	constructor: function(cfg){
 		this.addEvents('init');
 		this.listeners = cfg.listeners;
+		this.initialCfg = Ext.apply({}, cfg);
 		
 		Ext.apply(this, cfg);
 		
