@@ -397,7 +397,11 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			}
 		});
 		
-		var items = Ext.apply({},Garp.dataTypes[Garp.currentModel]).formConfig;
+		var items = [];
+		Ext.each(Garp.dataTypes[Garp.currentModel].formConfig, function(o){
+			items.push(Ext.apply({}, o));
+		});
+		
 		Ext.apply(items[0],{
 			ref: '../formcontent',
 			title: '&nbsp;', // misformed tab otherwise
