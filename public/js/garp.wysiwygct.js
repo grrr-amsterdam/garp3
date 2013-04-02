@@ -113,6 +113,7 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 	
 		this.chapterct = new Garp.Chapterct({
 			renderTo: this.wrap,
+			ownerField: this,
 			maxCols: this.maxCols,
 			extraTypes: this.extraTypes
 		});
@@ -418,13 +419,35 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 				}
 			},'->',{
 				iconCls: 'icon-wysiwyg-move-up',
-				hidden: true,
+				hidden: false,
 				handler: function(){
+					var ci = this.ct.getWysiwygIdx(this);
+					if (ci === 0 ){
+						return;
+					}
+					var data = this.ct.ownerField.getValue();
+					var thisItem = data[ci];
+					var prevItem = data[ci-1];
+					var temp = prevItem;
+					data[ci-1] = thisItem;
+					data[ci] = prevItem;
+					this.ct.ownerField.setValue(data);
 				}
 			},{
 				iconCls: 'icon-wysiwyg-move-down',
-				hidden: true,
+				hidden: false,
 				handler: function(){
+					var ci = this.ct.getWysiwygIdx(this);
+					if (ci === (this.ct.items.length-1) ){
+						return;
+					}
+					var data = this.ct.ownerField.getValue();
+					var thisItem = data[ci];
+					var nextItem = data[ci+1];
+					var temp = nextItem;
+					data[ci+1] = thisItem;
+					data[ci] = nextItem;
+					this.ct.ownerField.setValue(data);
 				}
 			},{
 				text: __('Delete'),
@@ -814,19 +837,23 @@ Garp.Chapterct = Ext.extend(Ext.Panel,{
 	
 	extraTypes: null,
 	
-	addWysiwygCt: function(cfg, callerWysiwyg){
-		var idx = 0, ct;
-		
-		if (callerWysiwyg) {
+	getWysiwygIdx: function(wysiwyg){
+		var idx = 0;
+		if (wysiwyg) {
 			this.items.each(function(i,c){ // find index of caller to find inserting position
-				if(i == callerWysiwyg){
+				if(i == wysiwyg){
 					idx = c;
 					return false;
 				}
 			});
 		} 
+		return idx;
+	},
+	
+	addWysiwygCt: function(cfg, callerWysiwyg){
+		var ct;
 		
-		this.insert(idx + 1, ct = new Garp.Wysiwygct({
+		this.insert(this.getWysiwygIdx(callerWysiwyg) + 1, ct = new Garp.Wysiwygct({
 			ct: this,
 			extraTypes: this.extraTypes,
 			extraType: cfg && cfg.type ? cfg.type : '',
