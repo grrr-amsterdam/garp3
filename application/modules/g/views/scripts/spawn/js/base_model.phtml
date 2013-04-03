@@ -3,7 +3,14 @@
 	$relFields = $this->model->fields->getFields('origin', 'relation');
 	$editableFields = $this->model->fields->getFields('editable', true);
 	$singularRelations = $this->model->relations->getRelations('type', array('hasOne', 'belongsTo'));
-	$multipleRelations = $this->model->relations->getRelations('type', array('hasMany', 'hasAndBelongsToMany'));
+	$multipleRelations = $this->model->relations->getRelations(
+		array('type', 'inline'),
+		array(array('hasMany', 'hasAndBelongsToMany'), false)
+	);
+	$inlineMultipleRelations = $this->model->relations->getRelations(
+		array('type', 'inline'),
+		array(array('hasMany', 'hasAndBelongsToMany'), true)
+	);
 
 	$dashedModelId = Garp_Model_Spawn_Util::camelcased2dashed($this->model->id);
 	$rolesThatShouldntSeeThisModelInTheirMenu = $this->spawnJs()->getAclRolesThatAreNotAllowedModelPrivilege($this->model, 'menu');
@@ -375,14 +382,13 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 			}
 		}
 
-		/* _____Inline Relation Fields */
-//		foreach ($inlineRelations as $rel) {
-//				$formFields[] = $this->partial('partials/spawn/js/inline-relation-field.phtml', 'g', array(
-//					'relation' => $rel
-//				));
-//			}
-//		} 
-		
+		/* _____Inline Multiple Relation Fields */
+		foreach ($inlineMultipleRelations as $rel) {
+			$formFields[] = $this->partial('partials/spawn/js/inline-relation-field.phtml', 'g', array(
+				'relation' => $rel
+			));
+		}
+
 		echo implode("\n\t\t\t}, {\n", $formFields)."\n";
 ?>
 			}]
