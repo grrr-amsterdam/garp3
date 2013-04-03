@@ -122,6 +122,12 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			inlineRelator: this
 		});
 		this.doLayout();
+		this.items.last().items.each(function(){
+			if(!this.hidden && !this.disabled && this.focus){
+				this.focus();
+				return false;
+			}
+		});
 	},
 	
 	/**
