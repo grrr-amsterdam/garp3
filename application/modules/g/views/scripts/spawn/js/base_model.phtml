@@ -374,6 +374,14 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 				));
 			}
 		}
+
+		/* _____Inline Relation Fields */
+//		foreach ($inlineRelations as $rel) {
+//				$formFields[] = $this->partial('partials/spawn/js/inline-relation-field.phtml', 'g', array(
+//					'relation' => $rel
+//				));
+//			}
+//		} 
 		
 		echo implode("\n\t\t\t}, {\n", $formFields)."\n";
 ?>
