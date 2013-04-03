@@ -300,9 +300,9 @@ Garp.InlineRelatorLabels = Ext.extend(Ext.Panel, {
 	layout: 'hbox',
 	border: false,
 	hideLabel: true,
+	style:'margin-bottom: 5px;font-weight: bold;',
 	defaults: {
 		flex: 1,
-		style: 'font-weight: bold; margin-bottom: 5px; ',
 		xtype: 'label'
 	},
 	
