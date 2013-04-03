@@ -123,12 +123,10 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			foreignKeys: (function(){
 				var records = [];
 				this.relationStore.each(function(rec){
-					if (rec.data.id) {
-						records.push({
-							key: rec.data.id,
-							relationMetadata: rec.data.relationMetadata ? rec.data.relationMetadata[Garp.currentModel] : []
-						});
-					}
+					records.push({
+						key: rec.data.id,
+						relationMetadata: rec.data.relationMetadata ? rec.data.relationMetadata[Garp.currentModel] : []
+					});
 				});
 				records.reverse();
 				return records;
