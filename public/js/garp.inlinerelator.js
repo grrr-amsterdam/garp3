@@ -7,17 +7,12 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	rule: null,
 	rule2: null,
 	unrelateExisting: true,
-	
-	id: 'inlineRelator',
+	localId: null,
 	
 	border: false,
 	bodyBorder: false,
 	autoHeight: true,
 	autoScroll: true,
-	
-	buttonPosition: 'top',
-	
-	localId: null,
 
 	getEmptyRecord: function(){
 		return new this.relationStore.recordType();
@@ -94,38 +89,38 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	
 	addInlineForms: function(){
 		this.relationStore.each(function(rec){
-			var form = new Garp.InlineForm({
+			this.add({
+				xtype: 'inlineform',
 				rec: rec,
 				model: this.model,
-				inlineRelator: this,
-				buttonPosition: this.buttonPosition
-			}, this);
-			this.add(form);
+				inlineRelator: this
+			});
 		}, this);
-		this.doLayout();
+		this.doLayout();		
 	},
 	
 	addForm: function(prevForm){
-		var hideRemoveButton = false;
+		var idx = 0;
 		if (prevForm) {
-			var idx = this.relationStore.findBy(function(r){
+			idx = this.relationStore.findBy(function(r){
 				if (r == prevForm.rec) {
 					return true;
 				}
-			}) + 1;
+			}) +
+			1;
 		} else {
 			idx = this.relationStore.getCount();
-			hideRemoveButton = true;	
 		}
+		
 		var newRec = this.getEmptyRecord();
 		this.relationStore.insert(idx, newRec);
-		var form = new Garp.InlineForm({
+		
+		this.insert(idx, {
+			xtype: 'inlineform',
 			rec: newRec,
 			model: this.model,
-			inlineRelator: this,
-			hideRemoveButton : hideRemoveButton
-		}, this);
-		this.insert(idx, form);
+			inlineRelator: this
+		});
 		this.doLayout();
 	},
 	
@@ -210,8 +205,8 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		
 		Garp.eventManager.on('save-all', function(){
 			this.items.each(function(){
-				if (this.getForm) {
-					this.getForm().updateRecord(this.rec);
+				if (this.updateRecord) {
+					this.updateRecord(this.rec);
 				}
 			});
 			this.saveAll();
@@ -225,7 +220,7 @@ Ext.reg('inlinerelator',Garp.InlineRelator);
 /**
  * InlineRelator uses InlineForm
  */
-Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
+Garp.InlineForm = Ext.extend(Ext.Panel, {
 
 	rec: null,
 	inlineRelator: '',
@@ -235,12 +230,11 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 	hideBorders: true,
 	style:'padding-bottom: 2px;',
 	
-	hideRemoveButton: false,
-	
 	border: false,
 	bodyBorder: false,
 	layout:'hbox',
 	hideLabel: true,
+	xtype:'inlineform',
 	
 	/**
 	 * Converts standard formConfig fieldset to a panel with fields
@@ -253,7 +247,8 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 		copy.push({
 				iconCls: 'icon-new',
 				xtype: 'button',
-				width: 32,
+				width: 31,
+				margins: '0 0 0 1',
 				flex: 0,
 				handler: function(){
 					this.inlineRelator.addForm(this);
@@ -262,7 +257,8 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 			},{
 				iconCls: 'icon-delete',
 				xtype: 'button',
-				width: 32,
+				width: 31,
+				margins: '0 0 0 1',
 				flex: 0,
 				handler: function(){
 					this.inlineRelator.removeForm(this);
@@ -277,18 +273,37 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 			if (item.xtype == 'textarea') {
 				item.xtype = 'textfield';
 			}
+			item.margins = '0 0 0 1';
 		});
 		return copy;
+	},
+
+	loadRecord: function(rec){
+		this.items.each(function(i){
+			if(i.name && rec.get(i.name) && i.setValue){
+				i.setValue(rec.get(i.name));
+			}
+		});
+	},
+	
+	updateRecord: function(){
+		this.items.each(function(i){
+			if (i.name && i.getValue()) {
+				this.rec.set(i.name, i.getValue());
+			}
+		}, this);
 	},
 
 	initComponent: function(ct){
 		this.items = this.morphFields(Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0])); // better copy
 		Garp.InlineForm.superclass.initComponent.call(this);
 		if (this.rec) {
-			this.getForm().loadRecord(this.rec);
+			this.loadRecord(this.rec);
+			//this.getForm().loadRecord(this.rec);
 		}
 	}
 });
+Ext.reg('inlineform', Garp.InlineForm);
 
 /**
  * Simple labels to be used in conjunction with inlineRelator
