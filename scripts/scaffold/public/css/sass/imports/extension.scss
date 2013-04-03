@@ -30,9 +30,9 @@ $marginDouble: 40px;
 
 // BREAKPOINTS
 // The following is inspired by this article: http://css-tricks.com/media-queries-sass-3-2-and-codekit/
-$small: pxToEm(320);
-$medium: pxToEm(600);
-$large: pxToEm(1400);
+$small: 320;
+$medium: 600;
+$large: 1400;
 
 $fix-mqs: false !default;
 $old-ie: false !default;
@@ -89,9 +89,9 @@ $old-ie: false !default;
         @content;
 	} @else {
 		@if $highDpi == true {
-			@media only screen and (min-width: $point) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $point) and (min-device-pixel-ratio: 2) { @content; }
+			@media only screen and (min-width: pxToEm($point)) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $point) and (min-device-pixel-ratio: 2) { @content; }
 		} @else {
-	    	@media only screen and (min-width: $point) { @content; }
+	    	@media only screen and (min-width: pxToEm($point)) { @content; }
 		}
 	}
 }
@@ -101,9 +101,9 @@ $old-ie: false !default;
 		@content;
 	} @else {
 		@if($highDpi == true) {
-			@media only screen and (max-width: ($point - 0.0625em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $point) and (min-device-pixel-ratio: 2) { @content; }
+			@media only screen and (max-width: (pxToEm($point) - 0.0625em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $point) and (min-device-pixel-ratio: 2) { @content; }
 		} @else {
-	    	@media only screen and (max-width: ($point - 0.0625em)) { @content; }
+	    	@media only screen and (max-width: (pxToEm($point) - 0.0625em)) { @content; }
 		}
 	}
 }
