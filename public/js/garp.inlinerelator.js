@@ -12,6 +12,8 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	autoHeight: true,
 	autoScroll: true,
 	
+	buttonPosition: 'top',
+	
 	localId: null,
 
 	getEmptyRecord: function(){
@@ -77,7 +79,8 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			var form = new Garp.InlineForm({
 				rec: rec,
 				model: this.model,
-				inlineRelator: this
+				inlineRelator: this,
+				buttonPosition: this.buttonPosition
 			}, this);
 			this.add(form);
 		}, this);
@@ -208,9 +211,10 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 	border: false,
 	bodyBorder: false,
 	hideBorders: true,
-	style:'border:0; border-bottom: 1px dotted #ccc; padding-bottom: 2px;',
+	style:'padding-bottom: 2px;',
 	
 	hideRemoveButton: false,
+	buttonPosition: 'top',
 	
 	focusFirstField: function(){
 		this.items.get(0).items.each(function(i){
@@ -221,33 +225,93 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 		});
 	},
 
-	initComponent: function(ct){
-		this.items = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0]); // better copy
-		this.tbar = new Ext.Toolbar({
-			style: 'border:0;',
-			items: [{
+	morphFields: function(items){
+		
+		var copy = items.items.slice(0);
+		
+		copy.push({
 				iconCls: 'icon-new',
-				text :__('Add'),
+				xtype: 'button',
+				width: 32,
+				flex: 0,
 				handler: function(){
 					this.inlineRelator.addForm(this);
 				},
 				scope: this
 			},{
 				iconCls: 'icon-delete',
-				text: __('Remove'),
-				//hidden: this.hideRemoveButton,
+				xtype: 'button',
+				width: 32,
+				flex: 0,
 				handler: function(){
 					this.inlineRelator.removeForm(this);
 				},
 				scope: this
-			}]
+			});
+		
+		Ext.each(copy, function(item){
+			if (!item.hasOwnProperty('flex')) {
+				item.flex = 1;
+			}
+			if (item.xtype == 'textarea') {
+				item.xtype = 'textfield';
+			}
 		});
+		
+		var out = {
+			xtype:'panel',
+			border: false,
+			bodyBorder: false,
+			layout:'hbox',
+			hideLabel: true,
+			items: copy
+		};
+		
+		return out;
+	},
 
+	initComponent: function(ct){
+		this.items = this.morphFields(Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0])); // better copy
+		
 		Garp.InlineForm.superclass.initComponent.call(this);
 		
 		if (this.rec) {
 			this.getForm().loadRecord(this.rec);
 		}
-		
 	}
 });
+
+Garp.InlineRelatorLabels = Ext.extend(Ext.Panel, {
+
+	model: null,
+	
+	layout: 'hbox',
+	border: false,
+	hideLabel: true,
+	defaults: {
+		flex: 1,
+		style: 'font-weight: bold; margin-bottom: 5px; ',
+		xtype: 'label'
+	},
+	
+	initComponent: function(ct){
+		var fields = Garp.dataTypes[this.model].formConfig[0].items[0].items.slice(0);
+		var labels = [];
+		Ext.each(fields, function(f){
+			if (!f.disabled && !f.hidden && f.fieldLabel) {
+				labels.push({
+					text: __(f.fieldLabel)
+				});
+			}
+		});
+		labels.push({
+			width: 65,
+			text: ' ',
+			flex: 0
+		});
+		this.items = labels;
+		Garp.InlineRelatorLabels.superclass.initComponent.call(this, ct);
+	}
+	
+});
+Ext.reg('inlinerelatorlabels', Garp.InlineRelatorLabels);
