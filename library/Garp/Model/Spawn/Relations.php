@@ -39,31 +39,32 @@ class Garp_Model_Spawn_Relations {
 
 
 	/**
-	 * @param String $filterPropName Garp_Model_Spawn_Relation property to filter the request by
-	 * @param Mixed $filterPropValue Value of the Garp_Model_Spawn_Relation property the result should contain. Can also be an array, in which it will be considered an OR query.
-	 * @return Array Associative array, where the key is the name of the relation, and the value a Garp_Model_Spawn_Relation object.
+	 * @param String 	$filterPropName 	Garp_Model_Spawn_Relation property to filter the request by
+	 * @param Mixed 	$filterPropValue 	Value of the Garp_Model_Spawn_Relation property the result should contain.
+	 *										Can also be an array, in which it will be considered an OR query.
+	 * @return Array 						Associative array, where the key is the name of the relation,
+	 *										and the value a Garp_Model_Spawn_Relation object.
 	 */
 	public function getRelations($filterPropName = null, $filterPropValue = null) {
-		if ($filterPropName) {
-			if (count(func_get_args()) !== 2) {
-				throw new Exception(get_class($this) . "::getRelations() needs either 0 or 2 arguments.");
-			}
-
-			$out = array();
-			foreach ($this->_relations as $relName => $rel) {
-				$filterPropValue = (array)$filterPropValue;
-				foreach ($filterPropValue as $v) {
-					if ($rel->{$filterPropName} == $v) {
-						$out[$relName] = $rel;
-						break;
-					}
-				}
-			}
-			return $out;
-		} else return $this->_relations;
+		if (!$filterPropName) {
+			return $this->_relations;
+		}
 		
+		if (count(func_get_args()) !== 2) {
+			throw new Exception(get_class($this) . "::getRelations() needs either 0 or 2 arguments.");
+		}
+
+		$out = array();
+		foreach ($this->_relations as $relName => $rel) {
+			$filterPropNames 	= is_array($filterPropName) ? $filterPropName : array($filterPropName);
+			$filterPropValues 	= is_array($filterPropName) ? $filterPropValue : array($filterPropValue);
+
+			if ($rel->hasProperties($filterPropNames, $filterPropValues)) {
+				$out[$relName] = $rel;
+			}
+		}
+		return $out;
 	}
-	
 	
 	public function getRelation($name) {
 		if (array_key_exists($name, $this->_relations))
@@ -116,6 +117,7 @@ class Garp_Model_Spawn_Relations {
 						$hasManyRelParams['editable'] = $relation->type !== 'belongsTo';
 						$hasManyRelParams['oppositeRule'] = $relationName;
 						$hasManyRelParams['weighable'] = $relation->weighable;
+						$hasManyRelParams['inline'] = $relation->inline;
 
 						$remoteModel->relations->add($model->id, $hasManyRelParams, false);
 					} else throw new Exception("The '{$model->id}' model defines a {$relation->type} relation to unexisting model '{$relation->model}'.");
@@ -144,6 +146,7 @@ class Garp_Model_Spawn_Relations {
 					$habtmRelParams['editable'] = true;
 					$habtmRelParams['oppositeRule'] = $relationName;
 					$habtmRelParams['weighable'] = $relation->weighable;
+					$habtmRelParams['inline'] = $relation->inline;
 
 					$remoteModel->relations->add($model->id, $habtmRelParams, false);
 				} else throw new Exception("The '{$model->id}' model defines a {$relation->type} relation to unexisting model '{$relation->model}'.");
