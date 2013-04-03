@@ -28,11 +28,17 @@ class Garp_Model_Spawn_Relation {
 	* 	but the association field will not be required.
 	*/
 	public $required;
-	
+
 	/**
 	 * In case of a hasAndBelongsToMany relation, extra columns can be added to the binding model.
 	 */
 	public $inputs;
+
+	/**
+	 * Multiple relations that are defined as inline (not default behavior) do not appear as a separate
+	 * tab in the cms, but as a set of fields on the form.
+	 */
+	public $inline;
 
 	/** @var Garp_Model_Spawn_Model $_model The local model in which this relation is defined. */
 	protected $_localModel;
@@ -84,6 +90,23 @@ class Garp_Model_Spawn_Relation {
 		}
 
 		return $out;
+	}
+	
+	/**
+	 * @param	Array	$propNames		Numeric array of property names
+	 * @param	Array	$propValues		Corresponding numeric array of property values.
+	 * 									Can be nested to support multiple values by an OR operator.
+	 */
+	public function hasProperties(array $propNames, array $propValues) {
+		foreach ($propNames as $propIndex => $propName) {
+			$valuesForThisProp = (array)($propValues[$propIndex]);
+
+			if (!in_array($this->{$propName}, $valuesForThisProp)) {
+				return false;
+			}			
+		}
+
+		return true;
 	}
 	
 	
@@ -201,6 +224,9 @@ class Garp_Model_Spawn_Relation {
 			
 		if (!array_key_exists('required', $params))
 			$params['required'] = $params['type'] === 'belongsTo';
+
+		if (!array_key_exists('inline', $params))
+			$params['inline'] = false;
 	}
 
 
