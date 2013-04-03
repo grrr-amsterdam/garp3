@@ -149,6 +149,27 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 	maxCols: null,
 	extraTypes: null,
 	
+	moveChapter: function(dir){
+		var ci = this.ct.getWysiwygIdx(this);
+		if ((dir === 1 && ci === (this.ct.items.length - 1)) || (dir === -1 && ci === 0)) {
+			return;
+		}
+		var data = this.ct.ownerField.getValue();
+		var origV = data.slice(0);
+		var thisItem = data[ci];
+		var nextItem = data[ci + dir];
+		var temp = nextItem;
+		data[ci + dir] = thisItem;
+		data[ci] = nextItem;
+		var formPanelBody = Garp.formPanel.formcontent.get(0).body;
+		var currentScroll = formPanelBody.getScroll().top;
+		this.ct.ownerField.setValue(data);
+		if (formPanelBody && currentScroll) {
+			formPanelBody.scrollTo('top', currentScroll, false);
+		}
+		this.ct.ownerField.originalValue = origV; // @TODO find out why originalValue gets 'undefined' if we don't set it again.
+	},
+	
 	getWysiwygDataTypes: function(){
 		var dataTypes = [];
 		for(var i in Garp.dataTypes){
@@ -291,7 +312,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					e.preventDefault();
 					document.execCommand('Insertorderedlist', false, null);
 				}
-			},{
+			}, {
 				iconCls: 'icon-wysiwyg-unorderedlist',
 				ref: 'insertunorderedlistBtn',
 				clickEvent: 'mousedown',
@@ -300,7 +321,7 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 					e.preventDefault();
 					document.execCommand('Insertunorderedlist', false, null);
 				}
-			},{
+			}, {
 				iconCls: 'icon-wysiwyg-createlink',
 				ref: 'createlinkBtn',
 				clickEvent: 'mousedown',
@@ -412,44 +433,20 @@ Garp.Wysiwygct = Ext.extend(Ext.Panel,{
 								},
 								scope: this
 							});
-
+							
 						}
 					}
 					
 				}
-			},'->',{
+			}, '->', {
 				iconCls: 'icon-wysiwyg-move-up',
-				hidden: false,
-				handler: function(){
-					var ci = this.ct.getWysiwygIdx(this);
-					if (ci === 0 ){
-						return;
-					}
-					var data = this.ct.ownerField.getValue();
-					var thisItem = data[ci];
-					var prevItem = data[ci-1];
-					var temp = prevItem;
-					data[ci-1] = thisItem;
-					data[ci] = prevItem;
-					this.ct.ownerField.setValue(data);
-				}
-			},{
+				tooltip: __('Move chapter up'),
+				handler: this.moveChapter.createDelegate(this, [-1])
+			}, {
 				iconCls: 'icon-wysiwyg-move-down',
-				hidden: false,
-				handler: function(){
-					var ci = this.ct.getWysiwygIdx(this);
-					if (ci === (this.ct.items.length-1) ){
-						return;
-					}
-					var data = this.ct.ownerField.getValue();
-					var thisItem = data[ci];
-					var nextItem = data[ci+1];
-					var temp = nextItem;
-					data[ci+1] = thisItem;
-					data[ci] = nextItem;
-					this.ct.ownerField.setValue(data);
-				}
-			},{
+				tooltip: __('Move chapter down'),
+				handler: this.moveChapter.createDelegate(this, [1])
+			}, {
 				text: __('Delete'),
 				iconCls: 'icon-wysiwyg-remove-chapter',
 				handler: function(){
