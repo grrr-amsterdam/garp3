@@ -8,6 +8,8 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	rule2: null,
 	unrelateExisting: true,
 	
+	id: 'inlineRelator',
+	
 	border: false,
 	bodyBorder: false,
 	autoHeight: true,
@@ -65,14 +67,29 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 				'load': {
 					fn: function(){
 						this.addInlineForms();
-						if (this.relationStore.getCount() === 0) {
-							this.addForm();
+						if (this.relationStore.getCount() === 0 && !this.addBtn) {
+							this.addAddBtn();
 						}
 					},
 					scope: this
 				}
 			}
 		});
+	},
+	
+	addAddBtn: function(){
+		this.add({
+			xtype: 'button',
+			ref: 'addBtn',
+			iconCls: 'icon-new',
+			text: __(Garp.dataTypes[this.model].text),
+			handler: function(btn){
+				this.remove(btn);
+				this.addForm();
+			},
+			scope: this
+		});
+		this.doLayout();
 	},
 	
 	addInlineForms: function(){
@@ -193,7 +210,9 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		
 		Garp.eventManager.on('save-all', function(){
 			this.items.each(function(){
-				this.getForm().updateRecord(this.rec);
+				if (this.getForm) {
+					this.getForm().updateRecord(this.rec);
+				}
 			});
 			this.saveAll();
 		}, this);
