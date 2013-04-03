@@ -1,11 +1,12 @@
+/**
+ * InlineRelator class
+ */
 Garp.InlineRelator = Ext.extend(Ext.Panel, {
 
 	model: '',
 	rule: null,
 	rule2: null,
 	unrelateExisting: true,
-	
-	id: 'InlineRelator', // TEMP: REMOVE ME
 	
 	border: false,
 	bodyBorder: false,
@@ -17,7 +18,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	localId: null,
 
 	getEmptyRecord: function(){
-		return new this.relationStore.recordType(); //Ext.apply({}, Garp.dataTypes[this.model].defaultData));
+		return new this.relationStore.recordType();
 	},
 	
 	setupStore: function(){
@@ -109,12 +110,12 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		}, this);
 		this.insert(idx, form);
 		this.doLayout();
-		form.focusFirstField();
 	},
 	
+	/**
+	 * Relates the owning form ID with our records
+	 */
 	relate: function(){
-	
-	
 		var data = {
 			model: this.model,
 			unrelateExisting: this.unrelateExisting,
@@ -152,7 +153,6 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	},
 	
 	saveAll: function(){
-	
 		this.relationStore.on({
 			save: {
 				fn: this.relate,
@@ -203,6 +203,9 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 });
 Ext.reg('inlinerelator',Garp.InlineRelator);
 
+/**
+ * InlineRelator uses InlineForm
+ */
 Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 
 	rec: null,
@@ -214,17 +217,16 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 	style:'padding-bottom: 2px;',
 	
 	hideRemoveButton: false,
-	buttonPosition: 'top',
 	
-	focusFirstField: function(){
-		this.items.get(0).items.each(function(i){
-			if (i && i.isVisible && i.isVisible() && i.focus) {
-				i.focus();
-				return false;
-			}
-		});
-	},
-
+	border: false,
+	bodyBorder: false,
+	layout:'hbox',
+	hideLabel: true,
+	
+	/**
+	 * Converts standard formConfig fieldset to a panel with fields
+	 * @param {Object} items
+	 */
 	morphFields: function(items){
 		
 		var copy = items.items.slice(0);
@@ -257,30 +259,21 @@ Garp.InlineForm = Ext.extend(Ext.form.FormPanel, {
 				item.xtype = 'textfield';
 			}
 		});
-		
-		var out = {
-			xtype:'panel',
-			border: false,
-			bodyBorder: false,
-			layout:'hbox',
-			hideLabel: true,
-			items: copy
-		};
-		
-		return out;
+		return copy;
 	},
 
 	initComponent: function(ct){
 		this.items = this.morphFields(Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0])); // better copy
-		
 		Garp.InlineForm.superclass.initComponent.call(this);
-		
 		if (this.rec) {
 			this.getForm().loadRecord(this.rec);
 		}
 	}
 });
 
+/**
+ * Simple labels to be used in conjunction with inlineRelator
+ */
 Garp.InlineRelatorLabels = Ext.extend(Ext.Panel, {
 
 	model: null,
