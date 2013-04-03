@@ -69,7 +69,7 @@ Garp.errorHandler = {
 		
 	}
 };
-window.onerror = Garp.errorHandler.handler.createDelegate(Garp.errorHandler);
+//window.onerror = Garp.errorHandler.handler.createDelegate(Garp.errorHandler);
 
 Ext.Direct.on({
 	'exception': {
