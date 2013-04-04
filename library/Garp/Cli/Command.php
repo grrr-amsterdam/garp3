@@ -52,7 +52,7 @@ abstract class Garp_Cli_Command {
 			return $m->name;
 		}, $publicMethods);
 		$publicMethods = array_filter($publicMethods, function($m) {
-			$ignoreMethods = array('main', 'getPublicMethods');
+			$ignoreMethods = array('__construct', 'main', 'getPublicMethods');
 			return !in_array($m, $ignoreMethods);
 		});
 		return $publicMethods;
