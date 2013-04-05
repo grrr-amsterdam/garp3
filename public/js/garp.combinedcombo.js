@@ -1,5 +1,5 @@
 /**
- * 
+ * Experimental
  */
 Garp.CombinedComboRow = Ext.extend(Ext.form.FieldSet,{
 	
@@ -98,7 +98,7 @@ Garp.CombinedCombo = Ext.extend(Ext.form.FieldSet,{
 	
 	getParentForm: function(){
 		return this.findParentBy(function(i){
-			return i.getForm
+			return i.getForm;
 		});
 	},
 	
@@ -148,7 +148,7 @@ Garp.CombinedCombo = Ext.extend(Ext.form.FieldSet,{
 					showRemove: false
 				});
 			}
-			this.doLayout()
+			this.doLayout();
 		}, this);
 	},
 	
@@ -164,11 +164,11 @@ Garp.CombinedCombo = Ext.extend(Ext.form.FieldSet,{
 			},
 			'save-all': {
 				fn: function(){
-					console.log('DO SOMETHING, FOOL!')
+					console.log('DO SOMETHING, FOOL!');
 				}
 			}
 		});
 	}
 	
 });
-Ext.reg('combinedcombo', Garp.CombinedCombo)
+Ext.reg('combinedcombo', Garp.CombinedCombo;
