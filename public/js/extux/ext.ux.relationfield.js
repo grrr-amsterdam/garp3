@@ -155,7 +155,6 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 		Ext.ux.RelationField.superclass.setValue.call(this, v);
 	},
 	
-	
 	initComponent: function(){
 		this.store = new Ext.data.DirectStore({
 			autoLoad: false,
@@ -178,11 +177,6 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 			}
 		});
 		
-		
-		if (this.triggerFn) {
-			this.onTriggerClick = this.triggerFn;
-		}
-		
 		this.store.on({
 			'load': {
 				single: true,
@@ -198,6 +192,14 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 				}
 			}
 		});
+		
+		if (this.triggerFn) {
+			this.onTriggerClick = this.triggerFn;
+		} else {
+			this.store.load();
+		}
+		
+		
 		Ext.ux.RelationField.superclass.initComponent.call(this);
 		this.triggerConfig = {
 			tag: 'span',

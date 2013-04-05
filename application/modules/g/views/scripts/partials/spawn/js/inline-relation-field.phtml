@@ -3,7 +3,6 @@
 		throw new Exception('This partial requires a Garp_Model_Spawn_Relation instance as $relation parameter.');
 	endif;
 ?>
-{
 	xtype: 'inlinerelatorlabels',
 	model: '<?php echo $this->relation->model ?>'
 },
@@ -13,4 +12,3 @@
 	<?php if ($this->relation->weighable): ?>,
 	weighable: true
 	<?php endif;?>
-}
