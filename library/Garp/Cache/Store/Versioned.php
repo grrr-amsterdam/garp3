@@ -56,6 +56,9 @@ class Garp_Cache_Store_Versioned {
 		// fetch results from cache
 		if ($cache->test($key)) {
 			$results = $cache->load($key);
+			if (!is_array($results)) {
+				return -1;
+			}
 			$version = (int)$cache->load($this->_versionKey);
 			// compare version numbers
 			if (array_key_exists('version', $results) && (int)$results['version'] === $version) {
