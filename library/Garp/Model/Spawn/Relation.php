@@ -10,6 +10,7 @@ class Garp_Model_Spawn_Relation {
 	public $label;
 	public $limit;
 	public $column;
+	public $simpleSelect;
 
 	/** Whether this relation field is editable in the cms. For instance, hasMany relations of which the opposite side is belongsTo (instead of hasOne), are not editable. */
 	public $editable;
