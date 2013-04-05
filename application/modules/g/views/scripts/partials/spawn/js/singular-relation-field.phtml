@@ -10,6 +10,36 @@
 	endif;
 	
 	$lcRelationLabel = strtolower($this->relation->label);
+	
+	if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect): 
+		// simple drop down select
+	
+?>
+				name: '<?php echo $this->relation->column ?>',
+				xtype: 'relationfield',
+				triggerFn: false,
+				fieldLabel: __('<?php 
+					if ($this->relation->label === $this->relation->model):
+						foreach ($this->modelSet as $model):
+							if ($model->id === $this->relation->model):
+								echo $model->label;
+								break;
+							endif;
+						endforeach;
+					else:
+						echo $this->relation->label;
+					endif;
+				?>'),
+				allowBlank: <?php echo $this->relation->type === 'belongsTo' ? 'false' : 'true' ?>,
+				<?php if (!$this->relation->editable): ?>
+				disabled: true,
+				<?php endif; ?>
+				model: '<?php echo $this->relation->model ?>'
+<?php 
+	
+	else: 
+		// select with popup relation chooser:
+	
 ?>
 				name: '<?php echo $this->relation->column ?>',
 				xtype: 'bindedfield',
@@ -35,3 +65,5 @@
 				disabled: true,
 				<?php endif; ?>
 				model: '<?php echo $this->relation->model ?>'
+<?php 	
+		endif; 
