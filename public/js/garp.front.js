@@ -1042,7 +1042,7 @@ $(function(){
 					padding: '4px',
 					width: '20px',
 					height: '20px',
-					margin: '-14px 0 0 -14px',
+					margin: '-14px 0 0 14px',
 					lineHeight: 0,
 					opacity: 0.5,
 					border: '2px #fff outset',
@@ -1070,12 +1070,17 @@ $(function(){
 						var snippet = elm.nextSibling;
 						var url = BASE + 'g/content/admin/?model=Snippet&id=' + elm.nodeValue.replace(token, '');
 						var linkHtml = '<a href="' + url + '" title="edit" target="garp_cms"><img src="' + BASE + 'media/images/garp/icons/pencil.png"></a>';
-						var link = $(linkHtml).insertBefore(snippet).css(linkCss);
+						var $snippet = $(snippet);
+						var link = $(linkHtml).insertBefore(snippet).css(linkCss).css({
+							top: $snippet.position().top,
+							left: $snippet.position().left + $snippet.outerWidth()
+						});
 						mouseEventsClosure(link);
 					}
 				}
 			};
-			// Alas, this timeout was undocumented. Why is it here? What's its purpose? No-one will ever know.
+			// Time-out for snippetlinks: we don't want the browser to go and search for all snippets at load:
+			// It's quite a performance hit. Delay until all else finishes.			
 			setTimeout(addSnippetLinks, 1000);
 		}
 	}
