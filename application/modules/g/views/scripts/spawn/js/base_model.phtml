@@ -377,6 +377,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 			) {
 				$formFields[] = $this->partial('partials/spawn/js/singular-relation-field.phtml', 'g', array(
 					'relation' => $rel,
+					'simpleSelect' => $rel->simpleSelect,
 					'modelSet' => $this->modelSet
 				));
 			}
