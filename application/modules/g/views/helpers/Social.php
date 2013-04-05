@@ -346,7 +346,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	
 	
 	protected function _setFacebookPageUrlAsHref(Garp_Util_Configuration $params) {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		if ($ini->organization->facebook) {
 			$params['href'] = $ini->organization->facebook;
 		} else throw new Exception("Missing url: organization.facebook in application.ini");
