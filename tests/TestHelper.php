@@ -13,6 +13,9 @@ $application = new Garp_Application(
 $application->bootstrap();
 Zend_Registry::set('application', $application);
 
+$mem = new Garp_Util_Memory();
+$mem->useHighMemory();
+
 error_reporting(-1);
 ini_set('display_errors', 'stdout');
 ini_set('display_startup_errors', true);
