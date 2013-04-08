@@ -95,8 +95,8 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 			* This record has one or more slugfields that are composed of a single basefield
 			*/
 			foreach ($baseFields as $i => $baseField) {
-				$baseData = $data[$baseField];
-				if (!empty($baseData)) {
+				if (!empty($data[$baseField])) {
+					$baseData = $data[$baseField];
 					$slugField = $slugFields[$i];
 					$data[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField);
 				}
