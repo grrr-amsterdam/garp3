@@ -8,4 +8,5 @@
  * @subpackage Cli
  * @lastmodified $Date: $
  */
-exit('Please run this command through Golem.');
+
+throw new Exception('Please run this command through Golem.');
