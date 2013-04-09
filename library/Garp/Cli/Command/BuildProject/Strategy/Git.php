@@ -218,7 +218,7 @@ class Garp_Cli_Command_BuildProject_Strategy_Git implements Garp_Cli_Command_Bui
 		$ignoreThis .= "application/data/cache/CSS/*\n";
 		$ignoreThis .= "application/data/cache/tags/*\n";
 		$ignoreThis .= "application/configs/version.php\n";
-		$ignoreThis .= "public/cached/**/*\n";
+		$ignoreThis .= "public/cached/*\n";
 		$ignoreThis .= "public/css/.sass-cache\n";
 		$ignoreThis .= "public/uploads/private/**/*\n";
 		$ignoreThis .= "public/uploads/shared/**/*\n";
