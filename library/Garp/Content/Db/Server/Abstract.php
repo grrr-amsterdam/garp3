@@ -127,8 +127,8 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 			return;
 		}
 
-		$createBackupDir	= new Garp_Content_Db_ShellCommand_CreateDir($backupDir);
-		$dumpToFile			= new Garp_Content_Db_ShellCommand_DumpToFile($dbConfigParams, $backupDir, $environment);
+		$createBackupDir	= new Garp_ShellCommand_CreateDir($backupDir);
+		$dumpToFile			= new Garp_ShellCommand_DumpDatabaseToFile($dbConfigParams, $backupDir, $environment);
 		
 		$this->shellExec($createBackupDir);
 		$this->shellExec($dumpToFile);
@@ -142,7 +142,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	
 	public function databaseExists() {
 		$dbConfigParams = $this->getDbConfigParams();
-		$dbExists 		= new Garp_Content_Db_ShellCommand_DatabaseExists($dbConfigParams);
+		$dbExists 		= new Garp_ShellCommand_DatabaseExists($dbConfigParams);
 		return (bool)$this->shellExec($dbExists);
 	}
 	
@@ -158,21 +158,21 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$restoreFile 	= $this->getRestoreFilePath();
 		$restoreDir		= $this->getBackupDir();
 
-		$executeFile 	= new Garp_Content_Db_ShellCommand_CreateDatabase($dbConfig);
+		$executeFile 	= new Garp_ShellCommand_CreateDatabase($dbConfig);
 		$this->shellExec($executeFile);
 
 		if (!$this->_validateDump($dump)) {
 			throw new Exception("The fetched database seems invalid.");
 		}
 		
-		$createRestoreDir = new Garp_Content_Db_ShellCommand_CreateDir($restoreDir);
+		$createRestoreDir = new Garp_ShellCommand_CreateDir($restoreDir);
 		$this->shellExec($createRestoreDir);
 
 		if ($this->store($restoreFile, $dump)) {
-			$executeFile = new Garp_Content_Db_ShellCommand_ExecuteFile($dbConfig, $restoreFile);
+			$executeFile = new Garp_ShellCommand_ExecuteDatabaseDumpFile($dbConfig, $restoreFile);
 			$this->shellExec($executeFile);
 
-			$removeFile = new Garp_Content_Db_ShellCommand_RemoveFile($restoreFile);
+			$removeFile = new Garp_ShellCommand_RemoveFile($restoreFile);
 			$this->shellExec($removeFile);
 		}
 	}	
@@ -182,27 +182,27 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 * @return String The SQL statements, creating structure and importing content.
 	 */
 	public function fetchDump() {
-		$dumpToString = new Garp_Content_Db_ShellCommand_DumpToString($this->getDbConfigParams());
+		$dumpToString = new Garp_ShellCommand_DumpDatabaseToString($this->getDbConfigParams());
 		return $this->shellExec($dumpToString);
 	}
 	
 	/**
-	 * @param Garp_Content_Db_ShellCommand_Protocol $command Shell command
+	 * @param Garp_ShellCommand_Protocol $command Shell command
 	 * @return Void
 	 */
-	public function shellExec(Garp_Content_Db_ShellCommand_Protocol $command) {
-		$command = $this->_addShellCommandModulators($command);
+	public function shellExec(Garp_ShellCommand_Protocol $command) {
+		$command = $this->_addGarp_ShellCommandModulators($command);
 		return $this->shellExecString($command->render());
 	}
 	
-	public function _addShellCommandModulators(Garp_Content_Db_ShellCommand_Protocol $command) {
-		$command = new Garp_Content_Db_ShellCommand_Decorator_Nice($command);
+	public function _addGarp_ShellCommandModulators(Garp_ShellCommand_Protocol $command) {
+		$command = new Garp_ShellCommand_Decorator_Nice($command);
 
-		$ioNiceCommand = new Garp_Content_Db_ShellCommand_IoNiceIsAvailable();
+		$ioNiceCommand = new Garp_ShellCommand_IoNiceIsAvailable();
 		$ioNiceIsAvailable = (int)$this->shellExecString($ioNiceCommand->render());
 
 		if ($ioNiceIsAvailable) {
-			$command = new Garp_Content_Db_ShellCommand_Decorator_IoNice($command);
+			$command = new Garp_ShellCommand_Decorator_IoNice($command);
 		}
 
 		return $command;
@@ -230,18 +230,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$newCreateDbSql = sprintf(self::SQL_CREATE_DB_STATEMENT, $thisDbName);
 		$dump 			= str_replace($oldCreateDbSql, $newCreateDbSql, $dump);
 
-//		preg_replace seems to be way too demanding for large (180 MB) mysqldump files. Trying str_replace now.
-// 		$patterns = array(
-// 			'/(USE `)(?P<dbname>[\w-]+)(`;)/',
-// 			'/(CREATE DATABASE [^`]+`)(?P<dbname>[\w-]+)(`)/'
-// 		);
-// 
-// 		$replacements = array(
-// 			"$1{$dbParams->dbname}$3",
-// 			"$1{$dbParams->dbname}$3"
-// 		);
-// 
-// 		$dump = preg_replace($patterns, $replacements, $dump);
+		//	preg_replace seems to be way too demanding for large (180 MB) mysqldump files. Using str_replace now.
 	}
 	
 	/**
