@@ -72,6 +72,17 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 		$model = &$args[0];
 		$select = &$args[1];
 
+		$this->addWhereClause($model, $select);
+	}
+
+
+	/**
+ 	 * Add the WHERE clause that keeps offline items from appearing in the results
+ 	 * @param Garp_Model_Db $model
+ 	 * @param Zend_Db_Select $select
+ 	 * @return Void
+ 	 */
+	public function addWhereClause(&$model, Zend_Db_Select &$select) {
 		$statusColumn = $model->getAdapter()->quoteIdentifier(self::STATUS_COLUMN);
 		$publishedColumn = $model->getAdapter()->quoteIdentifier(self::PUBLISHED_COLUMN);
 
@@ -94,7 +105,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 			}
 		}
 		$select->where($publishedColumn.' IS NULL OR '.$publishedColumn.' <= NOW() '.$timecalc);
-	}
+	}		
 
 
 	/**
