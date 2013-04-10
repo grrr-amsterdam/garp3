@@ -6,7 +6,7 @@
 <?php
 	endif;
 	
-	if ($this->snippet->has_image):
+	if ($this->snippet->has_image && $this->snippet->image_id):
 		$scalingTpl = property_exists($this, 'scaling_template') ? $this->scaling_template : null;
 		echo $this->image()->render($this->snippet->image_id, $scalingTpl);
 	endif;
