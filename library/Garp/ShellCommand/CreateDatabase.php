@@ -1,11 +1,11 @@
 <?php
 /**
- * Garp_Content_Db_ShellCommand_CreateDatabase
+ * Garp_ShellCommand_CreateDatabase
  * Executing this command results in an empty string if database does not exist.
  * If it does exist, the name of the database is returned, in mysql column format.
  * @author David Spreekmeester | Grrr.nl
  */
-class Garp_Content_Db_ShellCommand_CreateDatabase implements Garp_Content_Db_ShellCommand_Protocol {
+class Garp_ShellCommand_CreateDatabase implements Garp_ShellCommand_Protocol {
 	const COMMAND_QUERY = "mysql -u'%s' -p'%s' --host='%s' -e '%s'";
 	const QUERY = "CREATE DATABASE /*!32312 IF NOT EXISTS*/ `%s` CHARACTER SET 'utf8' COLLATE 'utf8_general_ci';";
 
