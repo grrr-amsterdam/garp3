@@ -1,9 +1,9 @@
 <?php
 /**
- * Garp_Content_Db_ShellCommand_DumpToString
+ * Garp_ShellCommand_DumpToString
  * @author David Spreekmeester | Grrr.nl
  */
-class Garp_Content_Db_ShellCommand_DumpToString implements Garp_Content_Db_ShellCommand_Protocol {
+class Garp_ShellCommand_DumpDatabaseToString implements Garp_ShellCommand_Protocol {
 	const COMMAND_DUMP = "mysqldump -u'%s' -p'%s' --host='%s' --databases %s --add-drop-table --skip-comments --single-transaction --quick --routines=0 --triggers=0 --events=0";
 
 	/**

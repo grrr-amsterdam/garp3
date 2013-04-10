@@ -1,9 +1,9 @@
 <?php
 /**
- * Garp_Content_Db_ShellCommand_RemoveFile
+ * Garp_ShellCommand_RemoveFile
  * @author David Spreekmeester | Grrr.nl
  */
-class Garp_Content_Db_ShellCommand_RemoveFile implements Garp_Content_Db_ShellCommand_Protocol {
+class Garp_ShellCommand_RemoveFile implements Garp_ShellCommand_Protocol {
 	const COMMAND_REMOVE = 'rm -f %s';
 
 	/**

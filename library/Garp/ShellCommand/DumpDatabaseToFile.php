@@ -1,9 +1,9 @@
 <?php
 /**
- * Garp_Content_Db_ShellCommand_DumpToString
+ * Garp_ShellCommand_DumpToString
  * @author David Spreekmeester | Grrr.nl
  */
-class Garp_Content_Db_ShellCommand_DumpToFile extends Garp_Content_Db_ShellCommand_DumpToString implements Garp_Content_Db_ShellCommand_Protocol {
+class Garp_ShellCommand_DumpDatabaseToFile extends Garp_ShellCommand_DumpToString implements Garp_ShellCommand_Protocol {
 	/**
 	 * @var String $_backupDir
 	 */
@@ -47,10 +47,10 @@ class Garp_Content_Db_ShellCommand_DumpToFile extends Garp_Content_Db_ShellComma
 		$date				= date('Y-m-d-His');
 		$backupDir			= $this->getBackupDir();
 
-		$shellCommand		= $dumpToString . ' > ' . $backupDir . '/'
+		$Garp_ShellCommand		= $dumpToString . ' > ' . $backupDir . '/'
 							. $dbName . '-' . $environment . '-' . $date . '.sql';
 
-		return $shellCommand;
+		return $Garp_ShellCommand;
 	}
 	
 }
