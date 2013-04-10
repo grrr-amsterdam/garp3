@@ -8,6 +8,10 @@
  * @subpackage Controllers
  */
 class G_ErrorController extends Garp_Controller_Action {
+	public function indexAction() {
+		$this->_forward('error');
+	}
+
 	public function errorAction() {
 		$errors = $this->_getParam('error_handler');
 		if ($errors) {
