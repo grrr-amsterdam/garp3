@@ -2,6 +2,15 @@
 /**
  * Garp_ShellCommand_Decorator_IoNice
  * @author David Spreekmeester | Grrr.nl
+ *
+ * Example of usage:
+ * $command = new Garp_ShellCommand_Decorator_Nice($command);
+ * $ioNiceCommand = new Garp_ShellCommand_IoNiceIsAvailable();
+ * $ioNiceIsAvailable = (int)$this->shellExecString($ioNiceCommand->render());
+ *
+ * if ($ioNiceIsAvailable) {
+ * 		$command = new Garp_ShellCommand_Decorator_IoNice($command);
+ * }
  */
 class Garp_ShellCommand_Decorator_IoNice implements Garp_ShellCommand_Protocol {
 	const COMMAND_PREFIX_IONICE = 'ionice -c3 ';
