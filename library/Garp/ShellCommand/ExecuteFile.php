@@ -1,9 +1,9 @@
 <?php
 /**
- * Garp_Content_Db_ShellCommand_ExecuteFile
+ * Garp_ShellCommand_ExecuteFile
  * @author David Spreekmeester | Grrr.nl
  */
-class Garp_Content_Db_ShellCommand_ExecuteFile implements Garp_Content_Db_ShellCommand_Protocol {
+class Garp_ShellCommand_ExecuteDatabaseDumpFile implements Garp_ShellCommand_Protocol {
 	const COMMAND_QUERY = "mysql -u'%s' -p'%s' --host='%s' '%s' < '%s'";
 
 	/**
