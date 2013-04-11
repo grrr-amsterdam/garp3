@@ -126,9 +126,10 @@ class Garp_Model_Spawn_MySql_Column {
 		switch ($field->type) {
 			case 'numeric':
 				if ($field->float):
+					//	@todo: dynamisch ' unsigned' achter onderstaande zetten ahv spawn config property?
 					return 'double(19,16)';
 				else:
-					return 'int(11) unsigned';
+					return 'int(11)';
 				endif;
 			case 'text':
 			case 'html':
