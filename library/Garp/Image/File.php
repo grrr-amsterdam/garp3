@@ -21,16 +21,54 @@ class Garp_Image_File extends Garp_File {
 	}
 
 
-	public function __call($method, $args) {
-		if ($method == 'store') {
-			$filename = $args[0];
-			$formatFilename = !empty($args[3]) ? $args[3] : null;
-			if ($formatFilename)
-				$this->_correctExtension($filename);
-		}
+	public function store($filename, $data, $overwrite = false, $formatFilename = true) {
+		$returnedParams = $this->_beforeStore($filename, $data, $overwrite, $formatFilename);
+		list($filename, $data, $overwrite, $formatFilename) = $returnedParams;
 
-		return parent::__call($method, $args);
+		$result = parent::store($filename, $data, $overwrite, $formatFilename);
+		
+		$this->_afterStore();
+		
+		return $result;
 	}
+
+	/**
+	 * @return Array The passed parameters.
+	 */
+	protected function _beforeStore($filename, $data, $overwrite, $formatFilename) {
+		if ($formatFilename) {
+			$filename = $this->_correctExtension($filename);
+		}
+		
+		return array($filename, $data, $overwrite, $formatFilename);
+	}
+	
+	protected function _afterStore($filename, $data, $overwrite, $formatFilename) {
+		// PNGQUANT 'N SHIT
+		$pngQuantIsAvailableCommand = new Garp_Shell_Command_PngQuantIsAvailable();
+				    // 
+		    // 			
+		    // * $command = new Garp_Shell_Command_Decorator_Nice($command);
+		    // * $ioNiceCommand = new Garp_Shell_Command_IoNiceIsAvailable();
+		    // * $ioNiceIsAvailable = (int)$this->shellExecString($ioNiceCommand->render());
+		    // *
+		    // * if ($ioNiceIsAvailable) {
+		    // * 		$command = new Garp_Shell_Command_Decorator_IoNice($command);
+		    // * }
+			
+	}
+
+
+	// public function __call($method, $args) {
+	// 	if ($method == 'store') {
+	// 		$filename = $args[0];
+	// 		$formatFilename = !empty($args[3]) ? $args[3] : null;
+	// 		if ($formatFilename)
+	// 			$this->_correctExtension($filename);
+	// 	}
+	// 
+	// 	return parent::__call($method, $args);
+	// }
 
 
 	public function getImageType($filename) {
