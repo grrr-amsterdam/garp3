@@ -20,7 +20,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 	
 	
 	public function __construct() {
-		$this->_distributor = new Garp_Content_CDN_Distributor();
+		$this->_distributor = new Golem_Content_Cdn_Distributor();
 	}
 	
 	
