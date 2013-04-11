@@ -126,7 +126,7 @@ class Garp_Model_Spawn_MySql_Column {
 		switch ($field->type) {
 			case 'numeric':
 				if ($field->float):
-					return 'double(19,16) unsigned';
+					return 'double(19,16)';
 				else:
 					return 'int(11) unsigned';
 				endif;
