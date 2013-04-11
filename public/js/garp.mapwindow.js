@@ -178,10 +178,10 @@ Garp.MapWindow = Ext.extend(Ext.Window,{
 				scope: this,
 				handler: function(){
 					
-					this.fieldRef.find('name', this['lat'])[0].setValue(this.latlng.lat());
-					this.fieldRef.find('name', this['long'])[0].setValue(this.latlng.lng());
+					this.fieldRef.find('name', this['lat'])[0].setValue('' + this.latlng.lat()); // cast to string!
+					this.fieldRef.find('name', this['long'])[0].setValue('' + this.latlng.lng());
 					this.fieldRef.find('name', this['lat'])[0].fireEvent('change');
-
+					this.fieldRef.find('name', this['long'])[0].fireEvent('change');
 					this.close();
 				}
 			}, {

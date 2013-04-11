@@ -77,14 +77,14 @@ Garp.MapField = Ext.extend(Ext.form.FieldSet, {
 			disabled: false,
 			hidden: true,
 			allowBlank: true,
-			xtype: 'numberfield'
+			xtype: 'textfield'
 		}, {
 			name: this.longFieldname,
 			fieldLabel: __('Location long'),
 			disabled: false,
 			hidden: true,
 			allowBlank: true,
-			xtype: 'numberfield'
+			xtype: 'textfield'
 		}, {
 			xtype: 'box',
 			ref: '../../' + this.addressRef,
