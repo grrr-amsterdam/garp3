@@ -38,6 +38,7 @@ class Garp_Cli_Command_Assets extends Garp_Cli_Command {
 			$minifier = new Garp_Assets_Minifier(APPLICATION_PATH.'/../public/'.$jsRoot);
 			$minifier->minifyJs($assetSettings['sourcefiles'], $assetSettings['filename']);
 		}
+		Garp_Cli::lineOut('Done.');
 		return true;
 	}
 }
