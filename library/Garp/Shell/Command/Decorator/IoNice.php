@@ -6,7 +6,7 @@
  * Example of usage:
  * $command = new Garp_ShellCommand_Decorator_Nice($command);
  * $ioNiceCommand = new Garp_ShellCommand_IoNiceIsAvailable();
- * $ioNiceIsAvailable = (int)$this->shellExecString($ioNiceCommand->render());
+ * $ioNiceIsAvailable = $ioNiceCommand->executeLocally();
  *
  * if ($ioNiceIsAvailable) {
  * 		$command = new Garp_ShellCommand_Decorator_IoNice($command);
