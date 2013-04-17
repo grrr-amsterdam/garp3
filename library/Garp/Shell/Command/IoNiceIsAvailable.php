@@ -10,5 +10,12 @@ class Garp_Shell_Command_IoNiceIsAvailable extends Garp_Shell_Command_Abstract {
 	public function render() {		
 		return self::COMMAND_IONICE_IS_AVAILABLE;
 	}
+
+	public function executeLocally() {
+		return (bool)parent::executeLocally();
+	}
 	
+	public function executeRemotely(Garp_Shell_RemoteSession $session) {
+		return (bool)parent::executeRemotely($session);
+	}
 }

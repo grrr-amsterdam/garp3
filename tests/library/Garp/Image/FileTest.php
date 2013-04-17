@@ -1,10 +1,11 @@
 <?php
 /**
  * @author David Spreekmeester | Grrr.nl
-
-*  * This class tests Garp_File.
+ * This class tests Garp_Image_File.
  */
 class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
+	const RESOURCE_UNOPTIMIZED_PNG = '/../garp/tests/application/modules/mocks/resources/images/unoptimized.png';
+	
 	protected $_bogusValidImageFilenames = array(
 		'$(4g3s#@!)@#%(#@√£¡).JPEG',
 		'poesje-4.jpg',
@@ -26,7 +27,31 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 			);
 		}
 	}
+	
+	public function testCanStorePngsOptimized() {
+		$imageFile = new Garp_Image_File();
 
+		$sourcePath 	= $this->_getMockImagePath();
+		$sourceData 	= $this->_getMockImageData($sourcePath);
+		$sourceSize 	= strlen($sourceData);
+		$sourceFilename = basename($sourcePath);
+		
+		$destinationFilename 	= $imageFile->store($sourceFilename, $sourceData);
+		$destinationData 		= $imageFile->fetch($destinationFilename);
+		$destinationSize 		= strlen($destinationData);
+
+		$this->assertNotEquals($destinationFilename, false);
+		$this->assertLessThan($sourceSize, $destinationSize);
+	}
+
+	protected function _getMockImagePath() {
+		return APPLICATION_PATH . self::RESOURCE_UNOPTIMIZED_PNG;
+	}
+
+	protected function _getMockImageData() {
+		$path = $this->_getMockImagePath();
+		return file_get_contents($path);
+	}
 
 	// function testFormatFilenameShouldReturnNonEmpty() {
 	// 	foreach ($this->_bogusFilenames as $origFilename) {

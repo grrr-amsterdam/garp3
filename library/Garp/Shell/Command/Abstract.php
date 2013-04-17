@@ -81,10 +81,10 @@ abstract class Garp_Shell_Command_Abstract implements Garp_Shell_Command_Protoco
 		$ioNiceCommand = new Garp_Shell_Command_IoNiceIsAvailable();
 		$ioNiceCommandString = $ioNiceCommand->render();
 		
-		$ioNiceIsAvailable = (int)($session ?
+		$ioNiceIsAvailable = $session ?
 			$this->_executeStringRemotely($ioNiceCommandString, $session) :
 			$this->_executeStringLocally($ioNiceCommandString)
-		);
+		;
 
 		if ($ioNiceIsAvailable) {
 			$command = new Garp_Shell_Command_Decorator_IoNice($command);

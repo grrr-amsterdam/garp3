@@ -20,56 +20,14 @@ class Garp_Image_File extends Garp_File {
 		parent::__construct('image', $uploadOrStatic);
 	}
 
-
 	public function store($filename, $data, $overwrite = false, $formatFilename = true) {
 		$returnedParams = $this->_beforeStore($filename, $data, $overwrite, $formatFilename);
 		list($filename, $data, $overwrite, $formatFilename) = $returnedParams;
 
 		$result = parent::store($filename, $data, $overwrite, $formatFilename);
 		
-		$this->_afterStore();
-		
 		return $result;
 	}
-
-	/**
-	 * @return Array The passed parameters.
-	 */
-	protected function _beforeStore($filename, $data, $overwrite, $formatFilename) {
-		if ($formatFilename) {
-			$filename = $this->_correctExtension($filename);
-		}
-		
-		return array($filename, $data, $overwrite, $formatFilename);
-	}
-	
-	protected function _afterStore($filename, $data, $overwrite, $formatFilename) {
-		// PNGQUANT 'N SHIT
-		$pngQuantIsAvailableCommand = new Garp_Shell_Command_PngQuantIsAvailable();
-				    // 
-		    // 			
-		    // * $command = new Garp_Shell_Command_Decorator_Nice($command);
-		    // * $ioNiceCommand = new Garp_Shell_Command_IoNiceIsAvailable();
-		    // * $ioNiceIsAvailable = (int)$this->shellExecString($ioNiceCommand->render());
-		    // *
-		    // * if ($ioNiceIsAvailable) {
-		    // * 		$command = new Garp_Shell_Command_Decorator_IoNice($command);
-		    // * }
-			
-	}
-
-
-	// public function __call($method, $args) {
-	// 	if ($method == 'store') {
-	// 		$filename = $args[0];
-	// 		$formatFilename = !empty($args[3]) ? $args[3] : null;
-	// 		if ($formatFilename)
-	// 			$this->_correctExtension($filename);
-	// 	}
-	// 
-	// 	return parent::__call($method, $args);
-	// }
-
 
 	public function getImageType($filename) {
 		$extension = $this->_getExtension($filename);
@@ -82,7 +40,6 @@ class Garp_Image_File extends Garp_File {
 			return $type;
 		else throw new Exception("Can not find the proper image type for extension '{$extension}'.");
 	}
-
 
 	/**
 	 * Lets the browser render an image file
@@ -124,13 +81,27 @@ class Garp_Image_File extends Garp_File {
 	    }
 	}
 
-
 	public function getAllowedExtensions() {
 		$allowedExtensions = array_values($this->_extensions);
 		$allowedExtensions[] = 'jpeg';
 		return $allowedExtensions;
 	}
 
+	/**
+	 * @return Array The passed parameters.
+	 */
+	protected function _beforeStore($filename, $data, $overwrite, $formatFilename) {
+		if ($formatFilename) {
+			$filename = $this->_correctExtension($filename);
+		}
+
+		$pngQuant = new Garp_Image_PngQuant();
+		if ($pngQuant->isAvailable()) {
+			$data = $pngQuant->optimizeData($data);
+		}
+		
+		return array($filename, $data, $overwrite, $formatFilename);
+	}
 
 	protected function _correctExtension($filename) {
 		$oldExtension = $this->_getExtension($filename);
