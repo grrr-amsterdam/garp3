@@ -31,7 +31,7 @@ interface Garp_File_Storage_Protocol {
 	public function getTimestamp($filename);
 
 	/** @return String Destination filename. */
-	public function store($filename, $data, $overwrite, $formatFilename);
+	public function store($filename, $data, $overwrite = false, $formatFilename = true);
 
 
 	public function remove($filename);
