@@ -1,67 +1,80 @@
 <?php
 /**
  * Garp_I18n_ModelFactory
- * Class responsible for the generation of i18n models.
- * These models are coupled to an internationalized view.
- * Take for instance a base table called 'posts'. This table
- * is managed via the Garp CMS and contains columns named in 
- * the following fashion;
- * - name_nl
- * - name_en
- * - description_nl
- * - description_en
- * To make the extraction of data on the frontend of your site
- * easier, you can create SQL views containing rules like this;
- * SELECT name_nl AS name...
- * And save this view as 'posts_nl' and make a similar one called
- * 'posts_en' containing all English columns.
- * Then from your rows you can extract data like this: $post->name
- * instead of having to prepend everything with the current 
- * locale.
- * This Factory will generate models for these views.
- * 
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage I18n
- * @lastmodified $Date: $
+ * Will return a model based on an internationalized view.
+ * This requires the model to be spawned with certain i18n properties.
+ *
+ * @author       Harmen Janssen | grrr.nl
+ * @version      1.0
+ * @package      Garp_I18n
  */
 class Garp_I18n_ModelFactory {
 	/**
-	 * Return a model for an internationalized SQL view.
-	 * @param String $modelName The original model classname
-	 * @param String $viewName The name of the i18n view
-	 * @return Garp_Model
-	 */
-	public static function getModel($modelName, $viewName = null) {
-		/**
-		 * First, create an instance of the model in order
-		 * to extract the primary key. We need this because
-		 * i18n views don't have a primary key, so we have
-		 * to explicitly set it.
-		 */
-		$originalModel	= new $modelName();
-		$viewName		= $viewName ?: self::internationalizeName($originalModel->getName());
-		$primaryKey		= $originalModel->info(Zend_Db_Table_Abstract::PRIMARY);
-		
-		return new $modelName(array(
-			Zend_Db_Table_Abstract::PRIMARY => $primaryKey,
-			Zend_Db_Table_Abstract::NAME	=> $viewName
-		));
-	}
-	
-	
+ 	 * @var String
+ 	 */
+	protected $_language;
+
 	/**
-	 * Create an internationalized name from a tablename.
-	 * E.g. 'posts' becomes 'posts_nl', or 'posts_en'.
-	 * @param String $tableName
-	 * @param String $locale 
-	 * @return String
+ 	 * Class constructor
+ 	 * @param String $language
+ 	 * @return Void
+ 	 */
+	public function __construct($language = null) {
+		// If no language is given, try to read from the Registry
+		if (!$language) {
+			$language = $this->_getLanguageFromRegistry();
+		}
+		$this->setLanguage($language);
+	}
+
+	/**
+ 	 * Load the model
+ 	 * @param Garp_Model_Db|String $model The original model, based on a table.
+ 	 * @return Garp_Model_Db
+ 	 */
+	public function getModel($model) {
+		if (is_string($model)) {
+			$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
+			$model = new $model;
+		}
+		$viewName = $model->getName() . '_' . $this->_language;
+		$model->setOptions(array(
+			Zend_Db_Table_Abstract::NAME => $viewName
+		));
+		return $model;
+	}
+
+	/**
+ 	 * Set language
+ 	 * @param String $language
+ 	 * @return Garp_I18n_ModelFactory $this, for a fluent interface
 	 */
-	public static function internationalizeName($tableName, $locale = null) {
-		$locale = $locale ?: (Garp_I18n::getCurrentLocale() ?: Garp_I18n::getDefaultLocale());
-		$tableName .= '_'.$locale;
-		return $tableName;
+	public function setLanguage($language) {
+		$this->_language = $language;
+		return $this;
+	}
+
+	/**
+ 	 * Get language
+ 	 * @return String
+ 	 */
+	public function getLanguage() {
+		return $this->_language;
+	}
+
+	/**
+ 	 * Read the current language from the registry.
+ 	 * It should be registered under 'Zend_Locale'
+ 	 * @return String
+ 	 * @throws Garp_I18n_Exception When not found
+ 	 */
+	protected function _getLanguageFromRegistry() {
+		if (Zend_Registry::isRegistered('Zend_Locale')) {
+			$locale = Zend_Registry::get('Zend_Locale');
+			$language = $locale->getLanguage();
+			return $language;
+		}
+		throw new Garp_I18n_Exception('Language not found in registry. '.
+			'Please pass it to the constructor or make sure "Zend_Locale" can be found in the registry');
 	}
 }
