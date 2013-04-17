@@ -20,18 +20,14 @@ class Garp_Image_File extends Garp_File {
 		parent::__construct('image', $uploadOrStatic);
 	}
 
+	public function store($filename, $data, $overwrite = false, $formatFilename = true) {
+		$returnedParams = $this->_beforeStore($filename, $data, $overwrite, $formatFilename);
+		list($filename, $data, $overwrite, $formatFilename) = $returnedParams;
 
-	public function __call($method, $args) {
-		if ($method == 'store') {
-			$filename = $args[0];
-			$formatFilename = !empty($args[3]) ? $args[3] : null;
-			if ($formatFilename)
-				$this->_correctExtension($filename);
-		}
-
-		return parent::__call($method, $args);
+		$result = parent::store($filename, $data, $overwrite, $formatFilename);
+		
+		return $result;
 	}
-
 
 	public function getImageType($filename) {
 		$extension = $this->_getExtension($filename);
@@ -44,7 +40,6 @@ class Garp_Image_File extends Garp_File {
 			return $type;
 		else throw new Exception("Can not find the proper image type for extension '{$extension}'.");
 	}
-
 
 	/**
 	 * Lets the browser render an image file
@@ -86,13 +81,27 @@ class Garp_Image_File extends Garp_File {
 	    }
 	}
 
-
 	public function getAllowedExtensions() {
 		$allowedExtensions = array_values($this->_extensions);
 		$allowedExtensions[] = 'jpeg';
 		return $allowedExtensions;
 	}
 
+	/**
+	 * @return Array The passed parameters.
+	 */
+	protected function _beforeStore($filename, $data, $overwrite, $formatFilename) {
+		if ($formatFilename) {
+			$filename = $this->_correctExtension($filename);
+		}
+
+		$pngQuant = new Garp_Image_PngQuant();
+		if ($pngQuant->isAvailable()) {
+			$data = $pngQuant->optimizeData($data);
+		}
+		
+		return array($filename, $data, $overwrite, $formatFilename);
+	}
 
 	protected function _correctExtension($filename) {
 		$oldExtension = $this->_getExtension($filename);
