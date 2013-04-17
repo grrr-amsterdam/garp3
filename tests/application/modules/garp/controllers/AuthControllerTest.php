@@ -25,9 +25,4 @@ class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		// $this->assertResponseCode(200);
 		$this->assertRedirectTo('/g/auth/login');
 	}
-
-
-	public function testLoginAction() {
-		$this->assertRouteIsAlive('auth', 'login', 'g');
-	}
 }
