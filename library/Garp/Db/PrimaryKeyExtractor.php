@@ -20,20 +20,18 @@ class Garp_Db_PrimaryKeyExtractor {
 
 	/**
  	 * Class constructor
- 	 * @param Garp_Model_Db $model
+ 	 * @param Zend_Db_Table_Abstract $model
  	 * @param Mixed $where
  	 * @return Void
  	 */
-	public function __construct(Garp_Model_Db $model, $where) {
+	public function __construct(Zend_Db_Table_Abstract $model, $where) {
 		$this->_model = $model;
 		$this->_where = $where;
 	}
 
 	/**
 	 * Extract primary key information from a WHERE clause and construct a cache key from it.
-	 * @param Garp_Model_Db $model
-	 * @param Mixed $where
-	 * @return String
+	 * @return Array
 	 */
 	public function extract() {
 		if (is_array($this->_where)) {
