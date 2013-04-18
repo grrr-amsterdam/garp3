@@ -35,13 +35,13 @@ class Garp_Db_PrimaryKeyExtractor {
 	 */
 	public function extract() {
 		if (is_array($this->_where)) {
-			$where = implode(' AND ', $where);
+			$this->_where = implode(' AND ', $this->_where);
 		}
-		$pkColumns = $model->info(Zend_Db_Table_Abstract::PRIMARY);
+		$pkColumns = $this->_model->info(Zend_Db_Table_Abstract::PRIMARY);
 		$pkValues = array();
 		foreach ($pkColumns as $pk) {
-			$regexp = '/(?:`?'.preg_quote($model->getName()).'`?\.)?`?(?:'.preg_quote($pk).')`?\s?=\s?(?:(?P<q>[\'"])(?P<value>(?:(?!\k<q>).)*)\k<q>|(?P<rest>\w*))/';
-			if (preg_match($regexp, $where, $matches)) {
+			$regexp = '/(?:`?'.preg_quote($this->_model->getName()).'`?\.)?`?(?:'.preg_quote($pk).')`?\s?=\s?(?:(?P<q>[\'"])(?P<value>(?:(?!\k<q>).)*)\k<q>|(?P<rest>\w*))/';
+			if (preg_match($regexp, $this->_where, $matches)) {
 				// Note: backreference "rest" is there to catch unquoted
 				// values. (id = 100 instead of id = "100")
 				if (!empty($matches['rest'])) {
@@ -58,7 +58,7 @@ class Garp_Db_PrimaryKeyExtractor {
 			$pks = array_keys($pkValues);
 			$pkCount = count($pks);
 			sort($pks);
-			$cacheKey = $model->getName();
+			$cacheKey = $this->_model->getName();
 			foreach ($pks as $i => $pk) {
 				$cacheKey .= $pkValues[$pk];
 				if ($i < $pkCount-1) {
