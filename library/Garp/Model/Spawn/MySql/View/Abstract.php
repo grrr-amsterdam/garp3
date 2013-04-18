@@ -23,7 +23,12 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 	 * @return Boolean Result of this creation query.
 	 */
 	public function create() {
-		$sql = $this->_renderSql();
+		$sql = $this->renderSql();
+		
+		if (!$sql) {
+			return false;
+		}
+		
 		$statements = explode(";", $sql);
 		foreach ($statements as $statement) {
 			$this->_adapter->query($statement);
