@@ -76,6 +76,16 @@ class Garp_Model_Spawn_Model {
 		$jsBaseFile = new Garp_Model_Spawn_Js_Model_File_Base($this);
 		return $jsBaseModel->render();
 	}
+	
+	public function isMultilingual() {
+		foreach ($this->fields as $field) {
+			if ($field->multilingual) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	
 	protected function _loadPropertiesFromConfig(Garp_Model_Spawn_Config_Model_Abstract $config) {

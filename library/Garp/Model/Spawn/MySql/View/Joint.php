@@ -14,6 +14,10 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 		return $this->getModelId() . self::POSTFIX;
 	}
 	
+	public static function deleteAll() {
+		parent::deleteAll(self::POSTFIX);
+	}
+	
 	public function renderSql() {
 		$modelId 			= $this->getModelId();
 		$sql 				= array();
