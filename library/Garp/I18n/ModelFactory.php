@@ -22,7 +22,7 @@ class Garp_I18n_ModelFactory {
 	public function __construct($language = null) {
 		// If no language is given, try to read from the Registry
 		if (!$language) {
-			$language = $this->_getLanguageFromRegistry();
+			$language = Garp_I18n::getCurrentLocale();
 		}
 		$this->setLanguage($language);
 	}
@@ -60,21 +60,5 @@ class Garp_I18n_ModelFactory {
  	 */
 	public function getLanguage() {
 		return $this->_language;
-	}
-
-	/**
- 	 * Read the current language from the registry.
- 	 * It should be registered under 'Zend_Locale'
- 	 * @return String
- 	 * @throws Garp_I18n_Exception When not found
- 	 */
-	protected function _getLanguageFromRegistry() {
-		if (Zend_Registry::isRegistered('Zend_Locale')) {
-			$locale = Zend_Registry::get('Zend_Locale');
-			$language = $locale->getLanguage();
-			return $language;
-		}
-		throw new Garp_I18n_Exception('Language not found in registry. '.
-			'Please pass it to the constructor or make sure "Zend_Locale" can be found in the registry');
 	}
 }
