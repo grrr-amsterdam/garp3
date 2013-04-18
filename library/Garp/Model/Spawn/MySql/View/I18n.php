@@ -12,7 +12,20 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		// return $this->getModelId() . self::POSTFIX;
 	}
 	
+	public static function deleteAll() {
+		// parent::deleteAll(self::POSTFIX);
+		/**
+		 * @todo
+		*/
+	}
+	
 	public function renderSql() {
+		$model = $this->getModel();
+		
+		if ($model->isMultiLingual()) {
+			exit($model->id);
+		}
+		
 
 		// SELECT
 		// /* Language neutral columns */
