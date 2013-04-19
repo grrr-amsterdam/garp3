@@ -1042,7 +1042,7 @@ $(function(){
 					padding: '4px',
 					width: '20px',
 					height: '20px',
-					margin: '-14px 0 0 14px',
+					margin: '-14px 0 0 -14px',
 					lineHeight: 0,
 					opacity: 0.5,
 					border: '2px #fff outset',
@@ -1073,7 +1073,7 @@ $(function(){
 						var $snippet = $(snippet);
 						var link = $(linkHtml).insertBefore(snippet).css(linkCss).css({
 							top: $snippet.position().top,
-							left: $snippet.position().left + $snippet.outerWidth()
+							left: $snippet.position().left 
 						});
 						mouseEventsClosure(link);
 					}
