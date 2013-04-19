@@ -1081,7 +1081,8 @@ $(function(){
 			};
 			// Time-out for snippetlinks: we don't want the browser to go and search for all snippets at load:
 			// It's quite a performance hit. Delay until all else finishes.			
-			setTimeout(addSnippetLinks, 1000);
+			$(window).load(addSnippetLinks);
+			//setTimeout(addSnippetLinks, 1000);
 		}
 	}
 });
