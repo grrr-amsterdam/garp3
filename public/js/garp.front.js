@@ -1081,6 +1081,10 @@ $(function(){
 			};
 			// Time-out for snippetlinks: we don't want the browser to go and search for all snippets at load:
 			// It's quite a performance hit. Delay until all else finishes.			
+			//
+			// ---- edit by Harmen: April 19 2013
+			// Luckily the browser has an event for this, namely window.load()! Not a lot of people know this, but
+			// it can be used instead of a timeout.
 			$(window).load(addSnippetLinks);
 			//setTimeout(addSnippetLinks, 1000);
 		}
