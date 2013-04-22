@@ -148,6 +148,26 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		return null;
 	}
 
+
+	/**
+ 	 * Convert array to WHERE clause
+ 	 * @param Array $data
+ 	 * @param Boolean $and Wether to use AND or OR
+ 	 * @return String
+ 	 */
+	public function arrayToWhereClause(array $data, $and = true) {
+		$out = array();
+		$adapter = $this->getAdapter();
+		foreach ($data as $key => $value) {
+			$quotedKey = $adapter->quoteIdentifier($key);
+			$quotedValue = $adapter->quote($value);
+			$out[] = "$quotedKey = $quotedValue";
+		}
+		$glue = $and ? 'AND' : 'OR';
+		$out = implode(" $glue ", $out);
+		return $out;
+	}
+
 	
 	/**
 	 * Convenience method for creating SELECT objects
