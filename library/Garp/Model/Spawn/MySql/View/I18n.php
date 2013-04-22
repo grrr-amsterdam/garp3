@@ -13,7 +13,7 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 	}
 	
 	public static function deleteAll() {
-		// parent::deleteAll(self::POSTFIX);
+		// parent::deleteAllByPostfix(self::POSTFIX);
 		/**
 		 * @todo
 		*/

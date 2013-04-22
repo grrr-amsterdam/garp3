@@ -22,7 +22,7 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 	 * Deletes all views in the database with given postfix.
 	 * @param String $postfix The postfix for this type of view, f.i. '_joint'
 	 */
-	public static function deleteAll($postfix) {
+	public static function deleteAllByPostfix($postfix) {
 		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		$config 	= Zend_Registry::get('config');
 		$dbName 	= $config->resources->db->params->dbname;
@@ -73,11 +73,10 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 	 */
 	public function setModel($model) {
 		$this->_model = $model;
-	}
+	}	
 	
-	
-	
-	protected function _renderDropView($viewName) {
-		return "DROP VIEW IF EXISTS {$viewName};";
+	protected function _renderDropView() {
+		$view = $this->getName();
+		return "DROP VIEW IF EXISTS {$view};";
 	}
 }
