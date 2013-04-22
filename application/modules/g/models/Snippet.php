@@ -16,11 +16,6 @@ class G_Model_Snippet extends Model_Base_Snippet {
      * @return Void
      */
 	public function init() {
-		$this->registerObserver(new Garp_Model_Behavior_Sluggable(array('baseField' => 'id')))
-			 ->registerObserver(new Garp_Model_Behavior_HtmlFilterable(array('html')))
-			 ->registerObserver(new Garp_Model_Behavior_Timestampable())
-			 ->registerObserver(new Garp_Model_Validator_NotEmpty(array('uri', 'id')))
-			 ;
 		parent::init();
 	}
 	
