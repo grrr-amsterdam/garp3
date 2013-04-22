@@ -15,14 +15,14 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 	}
 	
 	public static function deleteAll() {
-		parent::deleteAll(self::POSTFIX);
+		parent::deleteAllByPostfix(self::POSTFIX);
 	}
 	
 	public function renderSql() {
 		$modelId 			= $this->getModelId();
 		$sql 				= array();
 
-		$singularRelations 	= $this->_model->relations->getRelations('type', array('hasOne', 'belongsTo'))
+		$singularRelations 	= $this->_model->relations->getRelations('type', array('hasOne', 'belongsTo'));
 		if (!$singularRelations) {
 			return;
 		}

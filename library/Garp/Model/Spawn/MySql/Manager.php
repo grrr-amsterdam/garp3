@@ -114,12 +114,12 @@ class Garp_Model_Spawn_MySql_Manager {
 	 * Creates a MySQL view for every base model, that also fetches the labels of related hasOne / belongsTo records.
 	 */
 	protected function _createJointView(Garp_Model_Spawn_Model $model) {
-		$view = new Garp_Model_Spawn_MySql_JointView($model);
+		$view = new Garp_Model_Spawn_MySql_View_Joint($model);
 		$view->create();
 	}	
 
 	protected function _createI18nView(Garp_Model_Spawn_Model $model) {
-		$view = new Garp_Model_Spawn_MySql_I18nView($model);
+		$view = new Garp_Model_Spawn_MySql_View_I18n($model);
 		$view->create();
 	}	
 	
