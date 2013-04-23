@@ -79,4 +79,13 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 		$view = $this->getName();
 		return "DROP VIEW IF EXISTS {$view};";
 	}
+	
+	/**
+	 * @param 	String $selectString	A string containing the SELECT query, to use as the foundation of the view
+	 * @return 	String					The string representing the full CREATE statement for the view
+	 */
+	protected function _renderCreateView($selectString) {
+		$name = $this->getName();
+		return "CREATE SQL SECURITY INVOKER VIEW `{$name}` AS " . $selectString;
+	}
 }
