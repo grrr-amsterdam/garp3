@@ -95,6 +95,7 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		$translatedTable 	= $modelId . self::TRANSLATED_TABLE_POSTFIX;
 		$aliasForLocale 	= $modelId . '_' . $locale;
 		$parentColumn 		= Garp_Util_String::camelcasedToUnderscored($this->getModel()->id) . '_id';
-		$sql = "LEFT OUTER JOIN {$translatedTable} {$aliasForLocale} ON {$aliasForLocale}.{$parentColumn} = {$modelId}.id AND {$aliasForLocale}.lang = '{$locale}' ";
+		$sql 				= "LEFT OUTER JOIN {$translatedTable} {$aliasForLocale} ON "
+							. "{$aliasForLocale}.{$parentColumn} = {$modelId}.id AND {$aliasForLocale}.lang = '{$locale}' ";
 	}
 }

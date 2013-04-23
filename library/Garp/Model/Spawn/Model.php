@@ -78,13 +78,10 @@ class Garp_Model_Spawn_Model {
 	}
 	
 	public function isMultilingual() {
-		foreach ($this->fields as $field) {
-			if ($field->multilingual) {
-				return true;
-			}
-		}
+		$fields = $this->fields->getFields('multilingual', true);
+		$isMultilingual = (bool)$fields;
 		
-		return false;
+		return $isMultilingual;
 	}
 
 	
