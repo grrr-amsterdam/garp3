@@ -31,6 +31,12 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 	const I18N_MODEL_SUFFIX = 'I18n';
 
 	/**
+ 	 * Alias used for the model binding in beforeFetch
+ 	 * @var String
+ 	 */
+	const I18N_MODEL_BINDING_ALIAS = 'translation';
+
+	/**
  	 * The columns that can be translated
  	 * @var Array
  	 */
@@ -48,7 +54,10 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 * @return Void
  	 */
 	protected function _setup($config) {
-		$this->_translatableFields = $config;
+		if (empty($config['columns'])) {
+			throw new Garp_Model_Behavior_Exception('"columns" is a required key.');
+		}
+		$this->_translatableFields = $config['columns'];
 	}
 
 	/**
@@ -74,7 +83,6 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$model   = &$args[0];
 		$results = &$args[1];
 		$select  = &$args[2];
-
 		// In the CMS environment, the translated data is merged into the parent data
 		if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
 			$iterator = new Garp_Db_Table_Rowset_Iterator($results, array($this, 'mergeTranslatedFields'));
@@ -87,8 +95,8 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 * @return Void
  	 */
 	public function mergeTranslatedFields($result) {
-		if (isset($result->translation)) {
-			$translationRecordList = $result->translation->toArray();
+		if (isset($result->{self::I18N_MODEL_BINDING_ALIAS})) {
+			$translationRecordList = $result->{self::I18N_MODEL_BINDING_ALIAS}->toArray();
 			$translatedFields = array();
 			foreach ($this->_translatableFields as $translatableField) {
 				foreach ($translationRecordList as $translationRecord) {
@@ -104,7 +112,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 			//   )
 			// )
 			$result->setFromArray($translatedFields);
-			unset($result->translation);
+			unset($result->{self::I18N_MODEL_BINDING_ALIAS});
 		}
 	}
 
@@ -243,7 +251,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 */
 	public function bindWithI18nModel(Garp_Model_Db $model) {
 		$i18nModel = $this->getI18nModel($model);
-		$model->bindModel('translation', array(
+		$model->bindModel(self::I18N_MODEL_BINDING_ALIAS, array(
 			'modelClass' => $i18nModel,
 			'conditions' => $i18nModel->select()->from(
 				$i18nModel->getName(), 
