@@ -385,6 +385,29 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		}
     }
 
+    /**
+     * Unset row field value
+     *
+     * @param  string $columnName The column key.
+     * @return Zend_Db_Table_Row_Abstract
+     * @throws Zend_Db_Table_Row_Exception
+     */
+    public function __unset($columnName)
+    {
+		try {
+			parent::__unset($columnName);
+		} catch (Zend_Db_Table_Row_Exception $e) {
+			if (array_key_exists($columnName, $this->_related)) {
+				unset($this->_related[$columnName]);
+			} elseif (array_key_exists($columnName, $this->_virtual)) {
+				unset($this->_virtual[$columnName]);
+			} else {
+				throw $e;
+			}
+		}
+		return $this;
+	}
+
 
 	/**
  	 * Test existence of row field
