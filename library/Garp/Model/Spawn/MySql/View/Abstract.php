@@ -33,7 +33,7 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 		$views = $adapter->fetchAll($statement);
 		foreach ($views as $view) {
 			$viewName = $view['table_name'];
-			$dropStatement = "DROP VIEW IF EXISTS {$viewName};";
+			$dropStatement = "DROP VIEW IF EXISTS `{$viewName}`;";
 			$adapter->query($dropStatement);
 		}
 	}
@@ -73,7 +73,7 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 	
 	protected function _renderDropView() {
 		$view = $this->getName();
-		return "DROP VIEW IF EXISTS {$view};";
+		return "DROP VIEW IF EXISTS `{$view}`;";
 	}
 	
 	/**
