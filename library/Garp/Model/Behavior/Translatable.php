@@ -98,7 +98,12 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		if (isset($result->{self::I18N_MODEL_BINDING_ALIAS})) {
 			$translationRecordList = $result->{self::I18N_MODEL_BINDING_ALIAS}->toArray();
 			$translatedFields = array();
+			$allLocales = Garp_I18n::getAllPossibleLocales();
 			foreach ($this->_translatableFields as $translatableField) {
+				// provide default values
+				foreach ($allLocales as $locale) {
+					$translatedFields[$translatableField][$locale] = null;
+				}
 				foreach ($translationRecordList as $translationRecord) {
 					$lang = $translationRecord[self::LANG_COLUMN];
 					$translatedFields[$translatableField][$lang] = $translationRecord[$translatableField];
