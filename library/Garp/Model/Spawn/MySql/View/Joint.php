@@ -27,9 +27,9 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 		$statements 	= array();
 		$statements[] 	= $this->_renderDropView();
 		$statements[] 	= $this->_renderSelect($singularRelations);
-		$sql 			= implode("\n", $statements);
 
-		$output 		= $this->_renderCreateView($sql);
+		$sql 			= implode("\n", $statements);
+		$sql	 		= $this->_renderCreateView($sql);
 
 		return $sql;
 	}
