@@ -14,25 +14,29 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 		return $this->getModelId() . self::POSTFIX;
 	}
 	
-	protected function _renderSql() {
-		return parent::_renderSql(self::POSTFIX);
+	public static function deleteAll() {
+		parent::deleteAllByPostfix(self::POSTFIX);
 	}
-
-
-	protected function _renderSql() {
-		$modelId 			= $this->getModelId();
-		$sql 				= array();
-
-		$singularRelations 	= $this->_model->relations->getRelations('type', array('hasOne', 'belongsTo'))
+	
+	public function renderSql() {
+		$singularRelations 	= $this->_model->relations->getRelations('type', array('hasOne', 'belongsTo'));
 		if (!$singularRelations) {
 			return;
 		}
 
-		$sql[] = $this->_renderDropView();
-		$sql[] = 
-			"CREATE SQL SECURITY INVOKER VIEW {$modelId}_joint AS "
-			. "SELECT `{$modelId}`.*,\n"
-		;
+		$statements 	= array();
+		$statements[] 	= $this->_renderDropView();
+		$statements[] 	= $this->_renderSelect($singularRelations);
+		$sql 			= implode("\n", $statements);
+
+		$output 		= $this->_renderCreateView($sql);
+
+		return $sql;
+	}
+	
+	protected function _renderSelect(array $singularRelations) {
+		$modelId 			= $this->getModelId();
+		$select 			= "SELECT `{$modelId}`.*,\n";
 
 		$relNodes = array();
 		foreach ($singularRelations as $relName => $rel) {
@@ -42,16 +46,16 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 			$relModel 		= new $modelName;
 			$relNodes[] 	= $relModel->getRecordLabelSql($lcRelName) . " AS `{$lcRelName}`";
 		}
-		$sql .= implode(",\n", $relNodes);
-		
-		$sql .= "\nFROM `{$modelId}`";
+
+		$select .= implode(",\n", $relNodes);
+		$select .= "\nFROM `{$modelId}`";
 		
 		foreach ($singularRelations as $relName => $rel) {
 			$lcRelName 		= strtolower($relName);
 			$lcRelModelId 	= strtolower($rel->model);
-			$sql .= "\nLEFT JOIN `{$lcRelModelId}` AS `{$lcRelName}` ON `{$modelId}`.`{$rel->column}` = `{$lcRelName}`.`id`";
+			$select .= "\nLEFT JOIN `{$lcRelModelId}` AS `{$lcRelName}` ON `{$modelId}`.`{$rel->column}` = `{$lcRelName}`.`id`";
 		}
-
-		return $sql;
+		
+		return $select;
 	}
 }
