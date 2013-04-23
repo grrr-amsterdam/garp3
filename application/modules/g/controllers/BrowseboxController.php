@@ -55,7 +55,11 @@ class G_BrowseboxController extends Garp_Controller_Action {
 			}
 		}
 		
-		$bb->init($request->getParam('chunk'));
+		$chunk = $request->getParam('chunk');
+		if ($chunk < 1) {
+			$chunk = 1;
+		}
+		$bb->init($chunk);
 		return $bb;
 	}
 }
