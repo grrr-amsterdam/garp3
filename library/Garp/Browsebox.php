@@ -107,6 +107,9 @@ class Garp_Browsebox {
 		if (is_null($chunk) && is_null($chunk = $this->_getCurrentStateFromRequest())) {
 			$chunk = 1;
 		}
+		if ($chunk < 1) {
+			$chunk = 1;
+		}
 		$this->_chunk	= $chunk;
 		$this->_results = $this->_fetchContent($chunk);
 		$this->_max	= $this->_fetchMaxChunks();
