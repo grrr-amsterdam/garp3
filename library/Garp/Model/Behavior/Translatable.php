@@ -52,6 +52,63 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 	}
 
 	/**
+ 	 * An article is nothing without its Chapters. Before every fetch
+ 	 * we make sure the chapters are fetched right along, at least in 
+ 	 * the CMS.
+ 	 * @param Array $args Event listener parameters
+ 	 * @return Void
+ 	 */
+	public function beforeFetch(&$args) {
+		if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
+			$model = &$args[0];
+			$this->bindWithI18nModel($model);
+		}
+	}	
+
+	/**
+ 	 * After fetch callback
+ 	 * @param Array $args
+ 	 * @return Void 
+ 	 */
+	public function afterFetch(&$args) {
+		$model   = &$args[0];
+		$results = &$args[1];
+		$select  = &$args[2];
+
+		// In the CMS environment, the translated data is merged into the parent data
+		if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
+			$iterator = new Garp_Db_Table_Rowset_Iterator($results, array($this, 'mergeTranslatedFields'));
+			$iterator->walk();
+		}
+	}
+
+	/**
+ 	 * Merge translated fields into the main records
+ 	 * @return Void
+ 	 */
+	public function mergeTranslatedFields($result) {
+		if (isset($result->translation)) {
+			$translationRecordList = $result->translation->toArray();
+			$translatedFields = array();
+			foreach ($this->_translatableFields as $translatableField) {
+				foreach ($translationRecordList as $translationRecord) {
+					$lang = $translationRecord[self::LANG_COLUMN];
+					$translatedFields[$translatableField][$lang] = $translationRecord[$translatableField];
+				}
+			}
+			// We now have a $translatedFields array like this:
+			// array(
+			//   "name" => array(
+			//     "nl" => "Schaap",
+			//     "en" => "Sheep"
+			//   )
+			// )
+			$result->setFromArray($translatedFields);
+			unset($result->translation);
+		}
+	}
+
+	/**
  	 * Callback before inserting or updating.
  	 * Extracts translatable fields.
  	 * @param Array $data The submitted data
@@ -177,6 +234,22 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$modelName = get_class($model);
 		$modelName .= self::I18N_MODEL_SUFFIX;
 		return new $modelName;
+	}
+
+	/**
+ 	 * Bind with i18n model
+ 	 * @param Garp_Model_Db $model
+ 	 * @return Void
+ 	 */
+	public function bindWithI18nModel(Garp_Model_Db $model) {
+		$i18nModel = $this->getI18nModel($model);
+		$model->bindModel('translation', array(
+			'modelClass' => $i18nModel,
+			'conditions' => $i18nModel->select()->from(
+				$i18nModel->getName(), 
+				array_merge($this->_translatableFields, array(self::LANG_COLUMN))
+			)
+		));
 	}
 
 	/**
