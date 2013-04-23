@@ -24,7 +24,7 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
 			return $this;
 		}
 
-		$snippetModel = new G_Model_Snippet();
+		$snippetModel = $this->_getSnippetModel();
 		$snippet = $snippetModel->fetchByIdentifier($identifier);
 		
 		if (
@@ -32,22 +32,22 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
 			!$params['render']
 		) {
 			return $snippet;
-		} else return $this->render($snippet, $partial, $params);
+		}
+		return $this->render($snippet, $partial, $params);
 	}
 	
-
 	/**
 	 * Returns a specific field without rendering any partials or magical Snippet data.
 	 */
 	public function getField($identifier, $fieldName) {
-		$snippetModel = new G_Model_Snippet();
+		$snippetModel = $this->_getSnippetModel();
 		$snippet = $snippetModel->fetchByIdentifier($identifier);
 
 		if (isset($snippet->{$fieldName})) {
 			return $snippet->{$fieldName};
-		} else throw new Exception('Snippet '.$snippet->id." does not have a $fieldName field.");
+		}
+		throw new Exception('Snippet '.$snippet->id." does not have a $fieldName field.");
 	}
-
 
 	/**
 	 * Render the snippet
@@ -64,5 +64,20 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
 		$output = "<!--//garp-snippet//".$snippet->id." -->";
 		$output .= $this->view->partial($partial, $module, $params);
 		return $output;
+	}
+
+	/**
+ 	 * Return a snippet model.
+ 	 * If the Translatable behavior is registered, load the model thru the Garp_I18n_ModelFactory.
+ 	 * This returns the Snippet model based on a translated MySQL view.
+ 	 * @return Model_Snippet
+ 	 */
+	protected function _getSnippetModel() {
+		$snippetModel = new Model_Snippet();
+		if ($snippetModel->getObserver('Translatable')) {
+			$i18nModelFactory = new Garp_I18n_ModelFactory();
+			$snippetModel = $i18nModelFactory->getModel($snippetModel);
+		}
+		return $snippetModel;
 	}
 }
