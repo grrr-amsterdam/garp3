@@ -19,8 +19,6 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 	}
 	
 	public function renderSql() {
-		$modelId 			= $this->getModelId();
-
 		$singularRelations 	= $this->_model->relations->getRelations('type', array('hasOne', 'belongsTo'));
 		if (!$singularRelations) {
 			return;
@@ -37,7 +35,8 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 	}
 	
 	protected function _renderSelect(array $singularRelations) {
-		$select = "SELECT `{$modelId}`.*,\n";
+		$modelId 			= $this->getModelId();
+		$select 			= "SELECT `{$modelId}`.*,\n";
 
 		$relNodes = array();
 		foreach ($singularRelations as $relName => $rel) {

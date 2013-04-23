@@ -48,11 +48,7 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 			return false;
 		}
 		
-		$statements = explode(";", $sql);
-		foreach ($statements as $statement) {
-			$this->_adapter->query($statement);
-		}
-		return true;
+		return $this->_adapter->query($sql);
 	}
 
 	public function getModelId() {
