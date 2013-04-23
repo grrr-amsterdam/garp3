@@ -16,6 +16,7 @@ class Garp_Model_Spawn_Field {
 	public $unique = false;
 	public $info;
 	public $index;
+	public $multilingual = false;
 
 	
 	const TEXTFIELD_MAX_LENGTH = 124;
@@ -56,15 +57,8 @@ class Garp_Model_Spawn_Field {
 
 
 	public function isTextual() {
-		switch ($this->type) {
-			case 'text':
-			case 'html':
-			case 'email':
-			case 'url':
-			case 'document':
-				return true;
-		}
-		return false;
+		$textualTypes = array('text', 'html', 'email', 'url', 'document');
+		return in_array($this->type, $textualTypes);
 	}
 
 
