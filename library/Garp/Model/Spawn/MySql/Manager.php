@@ -30,8 +30,9 @@ class Garp_Model_Spawn_MySql_Manager {
 		$this->_adapter->query('SET NAMES utf8;');
 
 
-		//	Stage 0: Remove all joint views________
-		$this->_deleteAllJointViews();
+		//	Stage 0: Remove all generated views________
+		Garp_Model_Spawn_MySql_View_Joint::deleteAll();
+		Garp_Model_Spawn_MySql_View_I18n::deleteAll();
 
 		//	Stage 1: Spawn the prioritized table first________
 		if (array_key_exists($priorityModel, $modelSet)) {
@@ -80,6 +81,7 @@ class Garp_Model_Spawn_MySql_Manager {
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " joint view");
 			$this->_createJointView($model);
+			// $this->_createI18nView($model);
 			$progress->advance();
 		}
 
@@ -112,29 +114,14 @@ class Garp_Model_Spawn_MySql_Manager {
 	 * Creates a MySQL view for every base model, that also fetches the labels of related hasOne / belongsTo records.
 	 */
 	protected function _createJointView(Garp_Model_Spawn_Model $model) {
-		$view = new Garp_Model_Spawn_MySql_JointView($model);
+		$view = new Garp_Model_Spawn_MySql_View_Joint($model);
 		$view->create();
-	}
-	
-	
-	/**
-	 * Deletes all the views that are generated for relational performance purposes.
-	 */
-	protected function _deleteAllJointViews() {
-		$adapter = Zend_Db_Table::getDefaultAdapter();
-		$config = Zend_Registry::get('config');
-		$dbName = $config->resources->db->params->dbname;
+	}	
 
-		$statement = "SELECT table_name FROM information_schema.views WHERE table_schema = '{$dbName}' and table_name like '%_joint';";
-
-		$views = $adapter->fetchAll($statement);
-		foreach ($views as $view) {
-			$viewName = $view['table_name'];
-			$dropStatement = "DROP VIEW IF EXISTS {$viewName};";
-			$adapter->query($dropStatement);
-		}
-	}
-	
+	protected function _createI18nView(Garp_Model_Spawn_Model $model) {
+		$view = new Garp_Model_Spawn_MySql_View_I18n($model);
+		$view->create();
+	}	
 	
 	protected function _createBindingModelTableIfNotExists(Garp_Model_Spawn_Relation $relation) {
 		$configBindingTable = $this->_getBindingModelConfigTable($relation);
