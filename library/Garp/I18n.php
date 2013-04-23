@@ -26,10 +26,14 @@ class Garp_I18n {
 	public static function getDefaultLocale() {
 		if (Zend_Registry::isRegistered('Zend_Locale')) {
 			$locale = Zend_Registry::get('Zend_Locale');
-			return $locale->getDefault();
-		} else {
-			throw new Garp_I18n_Exception('Zend_Locale is not registered in Zend_Registry.');
+			$default = $locale->getDefault();
+			if ($default) {
+				$keys = array_keys($default);
+				$default = current($keys);
+			}
+			return $default;
 		}
+		throw new Garp_I18n_Exception('Zend_Locale is not registered in Zend_Registry.');
 	}
 	
 	
