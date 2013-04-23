@@ -34,8 +34,8 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		}
 
 		$sql 		= implode("\n", $statements);
-		$output 	= $this->_renderCreateView($sql);
-		return $output;
+		$sql	 	= $this->_renderCreateView($sql);
+		return $sql;
 	}
 	
 	protected function _renderSqlForLang($locale) {
@@ -44,15 +44,18 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		$unilingualFields 	= $model->fields->getFields('multilingual', false);
 		$multilingualFields = $model->fields->getFields('multilingual', true);
 		$defaultLocale		= Garp_I18n::getDefaultLocale();
-
+		Zend_Debug::dump($defaultLocale);
+		exit;
 		$sql = 'SELECT ';
 
+		//	Unilingual fields
 		$unilingualFieldRefs = array();
 		foreach ($unilingualFields as $field) {
 			$unilingualFieldRefs[] = $field->name;
 		}
 		$sql .= implode(', ', $unilingualFieldRefs) . ', ';
 
+		//	Multilingual fields
 		$multilingualFieldRefs = array();
 		foreach ($multilingualFields as $field) {
 			$multilingualFieldRefs[] = $locale === $defaultLocale ?
@@ -62,13 +65,14 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		}
 		$sql .= implode(', ', $multilingualFieldRefs) . ' ';
 
+		//	Join translated tables
 		$sql .= 'FROM ' . $modelId;		
 		$sql .= $this->_renderJoinForLocale($locale);
-		
+
 		if ($locale !== $defaultLocale) {
 			$sql .= $this->_renderJoinForLocale($defaultLocale);
 		}
-		
+exit($sql);
 		return $sql;
 
 		// 
@@ -97,5 +101,6 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		$parentColumn 		= Garp_Util_String::camelcasedToUnderscored($this->getModel()->id) . '_id';
 		$sql 				= "LEFT OUTER JOIN {$translatedTable} {$aliasForLocale} ON "
 							. "{$aliasForLocale}.{$parentColumn} = {$modelId}.id AND {$aliasForLocale}.lang = '{$locale}' ";
+		return $sql;
 	}
 }

@@ -79,9 +79,9 @@ class Garp_Model_Spawn_MySql_Manager {
 		
 		//	Stage 5: Create base model views________
 		foreach ($modelSet as $model) {
-			$progress->display($model->id . " joint view");
+			$progress->display($model->id . " views");
 			$this->_createJointView($model);
-			// $this->_createI18nView($model);
+			$this->_createI18nView($model);
 			$progress->advance();
 		}
 
