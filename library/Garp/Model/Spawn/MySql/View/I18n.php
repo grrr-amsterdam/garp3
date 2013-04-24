@@ -9,43 +9,71 @@
 class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstract {
 	const TRANSLATED_TABLE_POSTFIX = '_i18n';
 
+	/**
+	 * @var String $_locale
+	 */
+	protected $_locale;
+
+
+	/**
+	 * @param	Garp_Model_Spawn_Model	$model
+	 * @param	String					$locale
+	 */
+	public function __construct(Garp_Model_Spawn_Model $model, $locale) {
+		$this->setLocale($locale);
+		
+		return parent::__construct($model);
+	}
+	
+	/**
+	 * @return String
+	 */
+	public function getLocale() {
+		return $this->_locale;
+	}
+	
+	/**
+	 * @param String $locale
+	 */
+	public function setLocale($locale) {
+		$this->_locale = $locale;
+	}
+	
+	
+
 	public function getName() {
-		// return $this->getModelId() . self::POSTFIX;
+		return $this->getModelId() . '_' . $this->getLocale();
 	}
 	
 	public static function deleteAll() {
-		// parent::deleteAllByPostfix(self::POSTFIX);
-		/**
-		 * @todo
-		*/
+		$locales 	= Garp_I18n::getAllPossibleLocales();
+		
+		foreach ($locales as $locale) {
+			parent::deleteAllByPostfix('_' . $locale);		
+		}
 	}
 	
 	public function renderSql() {
 		$model 		= $this->getModel();
-		$locales 	= Garp_I18n::getAllPossibleLocales();
 
 		if (!$model->isMultiLingual()) {
 			return;
 		}
 
-		$statements = array();
-		foreach ($locales as $locale) {
-			$statements[] = $this->_renderSqlForLang($locale);
-		}
+		$sql = $this->_renderSqlForLang();
+		$sql = $this->_renderCreateView($sql);
 
-		$sql 		= implode("\n", $statements);
-		$sql	 	= $this->_renderCreateView($sql);
 		return $sql;
 	}
 	
-	protected function _renderSqlForLang($locale) {
+	protected function _renderSqlForLang() {
+		$locale 			= $this->getLocale();
+		$defaultLocale		= Garp_I18n::getDefaultLocale();
 		$model 				= $this->getModel();
 		$modelId 			= $this->getModelId();
 		$unilingualFields 	= $model->fields->getFields('multilingual', false);
 		$multilingualFields = $model->fields->getFields('multilingual', true);
-		$defaultLocale		= Garp_I18n::getDefaultLocale();
-		Zend_Debug::dump($defaultLocale);
-		exit;
+
 		$sql = 'SELECT ';
 
 		//	Unilingual fields
@@ -66,13 +94,13 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		$sql .= implode(', ', $multilingualFieldRefs) . ' ';
 
 		//	Join translated tables
-		$sql .= 'FROM ' . $modelId;		
+		$sql .= 'FROM ' . $modelId . ' ';		
 		$sql .= $this->_renderJoinForLocale($locale);
 
 		if ($locale !== $defaultLocale) {
 			$sql .= $this->_renderJoinForLocale($defaultLocale);
 		}
-exit($sql);
+
 		return $sql;
 
 		// 
