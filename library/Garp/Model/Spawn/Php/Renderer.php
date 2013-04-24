@@ -24,7 +24,7 @@ class Garp_Model_Spawn_Php_Renderer {
 	
 
 
-	public function __construct(Garp_Model_Spawn_Model $model) {
+	public function __construct(Garp_Model_Spawn_Model_Abstract $model) {
 		$this->_model = $model;
 	}
 

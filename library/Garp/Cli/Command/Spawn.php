@@ -108,7 +108,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 			foreach ($this->_modelSet as $model) {
 				if ($filter !== 'js') {
 					$progress->display($model->id . " PHP models, %d to go.");
-					$model->materializePhpModels($this->_modelSet);
+					$model->materializePhpModels($model);
 					$progress->advance();
 				}
 
@@ -140,7 +140,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	protected function _showJsBaseModel($modelId) {
 		if (array_key_exists($modelId, $this->_modelSet)) {
 			$model = $this->_modelSet[$modelId];
-			$minBaseModel = $model->renderBaseModel($this->_modelSet);
+			$minBaseModel = $model->renderJsBaseModel($this->_modelSet);
 			require_once(APPLICATION_PATH.'/../library/Garp/3rdParty/JsBeautifier/jsbeautifier.php');
 			echo js_beautify($minBaseModel) . "\n";
 		} else {

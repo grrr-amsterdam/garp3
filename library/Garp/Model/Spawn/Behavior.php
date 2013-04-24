@@ -81,7 +81,7 @@ class Garp_Model_Spawn_Behavior {
 	/**
 	 * @param Mixed $params Array or StdClass object with configuration parameters for the behavior
 	 */
-	public function __construct(Garp_Model_Spawn_Model $model, $origin, $name, $params = null, $behaviorType = null) {
+	public function __construct(Garp_Model_Spawn_Model_Abstract $model, $origin, $name, $params = null, $behaviorType = null) {
 		$this->name = $name;
 		$this->_model = $model;
 
