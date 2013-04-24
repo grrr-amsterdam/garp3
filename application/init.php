@@ -181,5 +181,6 @@ function dump($file, $message, $priority = Zend_Log::INFO) {
  */
 function __($str) {
 	$translate = Zend_Registry::get('Zend_Translate');
+	return call_user_func_array(array($translate, '_'), func_get_args());
 	return $translate->_($str);
 }
