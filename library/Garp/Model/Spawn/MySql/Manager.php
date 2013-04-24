@@ -10,7 +10,10 @@ class Garp_Model_Spawn_MySql_Manager {
 	protected $_modelSet;
 	protected $_adapter;
 	
+	protected $_priorityModel = 'User';
+	
 	const CUSTOM_SQL_PATH = '/data/sql/spawn.sql';
+
 
 
 	/**
@@ -23,8 +26,6 @@ class Garp_Model_Spawn_MySql_Manager {
 		$progress->init($totalActions);
 		$progress->display("Initializing database...");
 
-		$priorityModel = 'User';
-
 		$this->_modelSet = $modelSet;
 		$this->_adapter = Zend_Db_Table::getDefaultAdapter();
 		$this->_adapter->query('SET NAMES utf8;');
@@ -35,13 +36,13 @@ class Garp_Model_Spawn_MySql_Manager {
 		Garp_Model_Spawn_MySql_View_I18n::deleteAll();
 
 		//	Stage 1: Spawn the prioritized table first________
-		if (array_key_exists($priorityModel, $modelSet)) {
-			$this->_createBaseModelTableAndAdvance($modelSet[$priorityModel]);
+		if (array_key_exists($this->_priorityModel, $modelSet)) {
+			$this->_createBaseModelTableAndAdvance($modelSet[$this->_priorityModel]);
 		}
 
 		//	Stage 2: Create the rest of the base models' tables________
 		foreach ($modelSet as $model) {
-			if ($model->id !== $priorityModel) {
+			if ($model->id !== $this->_priorityModel) {
 				$this->_createBaseModelTableAndAdvance($model);
 			}
 		}

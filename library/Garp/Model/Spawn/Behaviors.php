@@ -12,7 +12,7 @@ class Garp_Model_Spawn_Behaviors {
 	protected $_defaultConditionalBehaviorNames = array('HtmlFilterable', 'NotEmpty', 'Email');
 
 
-	public function __construct(Garp_Model_Spawn_Model $model, array $config) {
+	public function __construct(Garp_Model_Spawn_Model_Abstract $model, array $config) {
 		$this->_model = $model;
 		$this->_loadConfiguredBehaviors($config);
 		$this->_loadDefaultConditionalBehaviors();

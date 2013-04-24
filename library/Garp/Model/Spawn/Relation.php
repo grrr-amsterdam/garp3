@@ -51,7 +51,7 @@ class Garp_Model_Spawn_Relation {
 	/**
 	 * @param 	String $name 	Name of the relation, such as 'User' or 'Author'
 	 */
-	public function __construct(Garp_Model_Spawn_Model $localModel, $name, array $params) {
+	public function __construct(Garp_Model_Spawn_Model_Abstract $localModel, $name, array $params) {
 		$this->_localModel = $localModel;
 		$this->name = $name;
 

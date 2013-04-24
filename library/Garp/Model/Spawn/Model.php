@@ -2,54 +2,47 @@
 /**
  * @author David Spreekmeester | grrr.nl
  */
-class Garp_Model_Spawn_Model {
-	public $id;
-	public $order;
-	public $label;
-	public $description;
-	public $route;
-	public $creatable;
-	public $deletable;
-	public $quickAddable;
-
-	/** @var Boolean $visible Whether this model shows up in the cms index. */
-	public $visible;
-	
-	/** @var String $module Module for this model. */
-	public $module;
-
-	/** @var Garp_Model_Spawn_Fields $fields */
-	public $fields;
-	
-	/** @var Garp_Model_Spawn_Behaviors $behaviors */
-	public $behaviors;
-
-	/** @var Garp_Model_Spawn_Relations $relations */
-	public $relations;
-	
+class Garp_Model_Spawn_Model extends Garp_Model_Spawn_Model_Abstract {
 
 	/**
-	 * These properties cannot be configured directly from the configuration because of their complexity.
+	 * @var Garp_Model_Spawn_Model_I18n $_i18nModel
 	 */
-	protected $_indirectlyConfigurableProperties = array('fields', 'listFields', 'behaviors', 'relations');
+	protected $_i18nModel;	
+	
 
 
 	public function __construct(Garp_Model_Spawn_Config_Model_Abstract $config) {
-		$this->_loadPropertiesFromConfig($config);
+		parent::__construct($config);
 
-		$this->behaviors->onAfterSingularRelationsDefinition();
-		$this->fields->onAfterSingularRelationsDefinition();
+		if ($this->isMultilingual()) {
+			$i18nModelConfig 	= new Garp_Model_Spawn_Config_Model_I18n($config);
+			$i18nModel 			= new Garp_Model_Spawn_Model_I18n($i18nModelConfig);
+			$this->setI18nModel($i18nModel);
+		}
 	}
-
-
+	
 	/**
-	 * Creates php models.
+	 * @return Garp_Model_Spawn_Model_I18n
 	 */
-	public function materializePhpModels(Garp_Model_Spawn_ModelSet $modelSet) {
-		$phpModel = new Garp_Model_Spawn_Php_Renderer($this);
-		$phpModel->save();
+	public function getI18nModel() {
+		return $this->_i18nModel;
 	}
+	
+	/**
+	 * @param Garp_Model_Spawn_Model_I18n $i18nModel
+	 */
+	public function setI18nModel($i18nModel) {
+		$this->_i18nModel = $i18nModel;
+	}
+	
+	public function materializePhpModels(Garp_Model_Spawn_Model_Abstract $model) {
+		parent::materializePhpModels($model);
 
+		if ($this->isMultilingual()) {
+			$i18nModel = $this->getI18nModel();
+			parent::materializePhpModels($i18nModel);
+		}
+	}
 
 	/**
 	 * Creates extended model files, if necessary.
@@ -67,37 +60,19 @@ class Garp_Model_Spawn_Model {
 		}
 	}
 
-
 	/**
-	 * Creates base model file.
+	 * Creates JS base model file.
 	 */
-	public function renderBaseModel(Garp_Model_Spawn_ModelSet $modelSet) {
+	public function renderJsBaseModel(Garp_Model_Spawn_ModelSet $modelSet) {
 		$jsBaseModel = new Garp_Model_Spawn_Js_Model_Base($this->id, $modelSet);
 		$jsBaseFile = new Garp_Model_Spawn_Js_Model_File_Base($this);
 		return $jsBaseModel->render();
 	}
-	
+
 	public function isMultilingual() {
 		$fields = $this->fields->getFields('multilingual', true);
 		$isMultilingual = (bool)$fields;
-		
+
 		return $isMultilingual;
-	}
-
-	
-	protected function _loadPropertiesFromConfig(Garp_Model_Spawn_Config_Model_Abstract $config) {
-		foreach ($config as $propName => $propValue) {
-			if (
-				!in_array($propName, $this->_indirectlyConfigurableProperties) &&
-				property_exists($this, $propName)
-			) {
-				$this->{$propName} = $propValue;
-			}
-		}
-
-		//	complex types
-		$this->fields = new Garp_Model_Spawn_Fields($this, $config['inputs'], (array)$config['listFields']);
-		$this->behaviors = new Garp_Model_Spawn_Behaviors($this, $config['behaviors']);
-		$this->relations = new Garp_Model_Spawn_Relations($this, $config['relations']);
 	}
 }

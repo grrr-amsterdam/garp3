@@ -20,7 +20,7 @@ class Garp_Model_Spawn_ModelSet extends ArrayObject {
 	public function materializeCombinedBaseModel() {
 		$output = '';
 		foreach ($this as $model) {
-			$output .= $model->renderBaseModel($this);
+			$output .= $model->renderJsBaseModel($this);
 		}
 
 		$modelSetFile = new Garp_Model_Spawn_Js_ModelSet_File_Base();
