@@ -81,7 +81,7 @@ class Garp_Model_Spawn_MySql_Manager {
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " views");
 			$this->_createJointView($model);
-			$this->_createI18nView($model);
+			$this->_createI18nViews($model);
 			$progress->advance();
 		}
 
@@ -118,9 +118,12 @@ class Garp_Model_Spawn_MySql_Manager {
 		$view->create();
 	}	
 
-	protected function _createI18nView(Garp_Model_Spawn_Model $model) {
-		$view = new Garp_Model_Spawn_MySql_View_I18n($model);
-		$view->create();
+	protected function _createI18nViews(Garp_Model_Spawn_Model $model) {
+		$locales = Garp_I18n::getAllPossibleLocales();
+		foreach ($locales as $locale) {
+			$view = new Garp_Model_Spawn_MySql_View_I18n($model, $locale);
+			$view->create();
+		}
 	}	
 	
 	protected function _createBindingModelTableIfNotExists(Garp_Model_Spawn_Relation $relation) {
