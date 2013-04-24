@@ -84,17 +84,37 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
  	 * @return Zend_Translate
  	 */
 	protected function _getTranslate(Zend_Locale $locale) {
-		$language = $locale->getLanguage();
-		$i18nFile = APPLICATION_PATH.'/data/i18n/'.$language.'.php';
+		$adapterParams = array(
+			'locale' => $locale,
+			'disableNotices' => true,
+			'scan' => Zend_Translate::LOCALE_FILENAME,
+			// Argh: the 'content' key is necessary in order to load the actual data, 
+			// even when using an adapter that ignores it.
+			'content' => '!' 
+		);
 
-		if (Zend_Registry::isRegistered('CacheFrontend')) {
-			Zend_Translate::setCache(Zend_Registry::get('CacheFrontend'));
+		// Figure out which adapter to use
+		$translateAdapter = 'array';
+		$config = Zend_Registry::get('config');
+		if (!empty($config->resources->locale->translate->adapter)) {
+			$translateAdapter = $config->resources->locale->translate->adapter;
+		}
+		$adapterParams['adapter'] = $translateAdapter;
+
+		// Some additional configuration for the array adapter
+		if ($translateAdapter == 'array') {
+			$language = $locale->getLanguage();
+			// @todo Move this to applciation.ini?
+			$adapterParams['content'] = APPLICATION_PATH.'/data/i18n/'.$language.'.php';
+
+			// Turn on caching
+			if (Zend_Registry::isRegistered('CacheFrontend')) {
+				$adapterParams['cache'] = Zend_Registry::get('CacheFrontend');
+			}
+			
 		}
 		
-		$translate = new Zend_Translate('array', $i18nFile, $locale, array(
-			'disableNotices' => true,
-			'scan' => Zend_Translate::LOCALE_FILENAME
-		));
+		$translate = new Zend_Translate($adapterParams);
 		return $translate;
 	}
 }
