@@ -16,7 +16,7 @@ class Garp_Model_Spawn_Fields {
 	protected $_configuredListFields;
 	
 
-	public function __construct(Garp_Model_Spawn_Model $model, array $configuredInputs, array $configuredListFields) {
+	public function __construct(Garp_Model_Spawn_Model_Abstract $model, array $configuredInputs, array $configuredListFields) {
 		$this->_model = $model;
 		$this->_configuredListFields = $configuredListFields;
 

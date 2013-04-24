@@ -69,11 +69,6 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 	 */
 	public function setModel($model) {
 		$this->_model = $model;
-	}	
-	
-	protected function _renderDropView() {
-		$view = $this->getName();
-		return "DROP VIEW IF EXISTS `{$view}`;";
 	}
 	
 	/**

@@ -29,7 +29,7 @@ class Garp_Model_Spawn_Relations {
 	);
 	
 	
-	public function __construct(Garp_Model_Spawn_Model $model, array $config) {
+	public function __construct(Garp_Model_Spawn_Model_Abstract $model, array $config) {
 		$this->_model = $model;
 
 		foreach ($config as $relationName => &$relationParams) {
