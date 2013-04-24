@@ -68,7 +68,7 @@ class G_Model_Chapter extends Model_Base_Chapter {
  	 * @return Void
  	 */
 	protected function _beforeSave(&$data) {
-		// Make sure chapters are not saved.
+		// Make sure content nodes are not saved.
 		if (!empty($data['content'])) {
 			// Save chapters until after the Article is inserted, because we need the primary key.
 			if (is_string($data['content'])) {
@@ -105,20 +105,20 @@ class G_Model_Chapter extends Model_Base_Chapter {
 		// the CMS sends us the nodes.
 		$contentNodeList = array_reverse($contentNodeList);
 		foreach ($contentNodeList as $contentNode) {
-			$contentNode = $this->_getValidContentNodeData($contentNode);
+			$node = $this->_getValidContentNodeData($contentNode);
 			
 			// Save ContentNode
-			$contentNode['chapter_id'] = $chapterId;
-			$contentNodeId = $this->_insertContentNode($contentNode);
+			$node['chapter_id'] = $chapterId;
+			$contentNodeId = $this->_insertContentNode($node);
 
 			// @todo Move everything below here to G_Model_ContentNode::afterInsert()
 
 			// Determine content type
-			$contentTypeModelName = 'Model_'.$contentNode['model'];
+			$contentTypeModelName = 'Model_'.$node['model'];
 			$contentTypeModel = new $contentTypeModelName();
 
 			// Check for existing id
-			$data = $contentNode['data'];
+			$data = $node['data'];
 			if (empty($data['id'])) {
 				// If no id is present, create a new subtype record
 				$contentTypeId = $contentTypeModel->insert($data);
@@ -168,6 +168,7 @@ class G_Model_Chapter extends Model_Base_Chapter {
 			->obligate('data')
 			->obligate('columns')
 			->setDefault('type', '')
+			->setDefault('classes', '')
 		;
 		return $contentNode;
 	}
