@@ -61,6 +61,7 @@ class Garp_Model_Spawn_Behavior {
 			'location_lat' => array(
 				'type' => 'numeric',
 				'float' => true,
+				'unsigned' => false,
 				'required' => false,
 				'editable' => true,
 				'visible' => false
@@ -68,6 +69,7 @@ class Garp_Model_Spawn_Behavior {
 			'location_long' => array(
 				'type' => 'numeric',
 				'float' => true,
+				'unsigned' => false,
 				'required' => false,
 				'editable' => true,
 				'visible' => false

@@ -13,6 +13,7 @@ class Garp_Model_Spawn_MySql_Column {
 	public $length = null;
 	public $decimals = null;
 	public $unsigned = true;
+	public $auto_increment = false;
 
 	/** @var String $options Enum options */
 	public $options = null;
@@ -125,37 +126,48 @@ class Garp_Model_Spawn_MySql_Column {
 	static public function getFieldType(Garp_Model_Spawn_Field $field) {
 		switch ($field->type) {
 			case 'numeric':
-				if ($field->float):
-					//	@todo: dynamisch ' unsigned' achter onderstaande zetten ahv spawn config property?
-					return 'double(19,16)';
-				else:
-					return 'int(11)';
-				endif;
+				if ($field->float) {
+					$type = 'double(19,16)';
+				} else {
+					$type = 'int(11)';
+				}
+				
+				if ($field->unsigned) {
+					$type .= ' UNSIGNED';
+				}
+				return $type;
+				
 			case 'text':
 			case 'html':
-				return (empty($field->maxLength) || $field->maxLength > 255) ?
-					'text' :
-					"varchar({$field->maxLength})"
-				;
+				if (empty($field->maxLength) || $field->maxLength > 255) {
+					return 'text';
+				}
+				if ($field->maxLength <= 10) {
+					return "char({$field->maxLength})";
+				}
+				return "varchar({$field->maxLength})";
+
 			case 'email':
 			case 'url':
 			case 'document':
 			case 'imagefile':
 				return 'varchar(255)';
+
 			case 'checkbox':
 				return 'tinyint(1)';
+
 			case 'datetime':
-				return 'datetime';
 			case 'date':
-				return 'date';
 			case 'time':
-				return 'time';
+				return $field->type;
+
 			case 'enum':
 				if (is_object($field->options) || (is_array($field->options) && key($field->options) !== 0)) {
 					//	this enum field has labels attached to it, but only the values are stored in the database.
 					$field->options = array_keys((array)$field->options);
 				}
 				return "enum('".implode($field->options, "','")."')";
+
 			default:
 				throw new Exception("The '{$field->type}' field type can't be translated to a MySQL field type as of yet.");
 		}
@@ -203,7 +215,8 @@ class Garp_Model_Spawn_MySql_Column {
 
 	protected function _parseColumnStatement($line) {
 		$matches = array();
-		preg_match('/`(?P<name>\w+)` (?P<type>[\w]*)(\(((?P<length>\d*),?\s*(?P<decimals>\d*))(?P<options>[^\)]*)\))? ?(?P<unsigned>UNSIGNED)? ?(?P<nullable>NOT NULL)? ?(DEFAULT \'?(?P<default>[^\',]*)\'?)?/i', trim($line), $matches);
+		$pattern = '/`(?P<name>\w+)` (?P<type>[\w]*)(\(((?P<length>\d*),?\s*(?P<decimals>\d*))(?P<options>[^\)]*)\))? ?(?P<unsigned>UNSIGNED)? ?(?P<nullable>NOT NULL)? ?(?P<auto_increment>AUTO_INCREMENT)? ?(DEFAULT \'?(?P<default>[^\',]*)\'?)?/i';
+		preg_match($pattern, trim($line), $matches);
 		$matches['_statement'] = $matches[0];
 
 		foreach ($matches as $key => $match) {
@@ -226,10 +239,15 @@ class Garp_Model_Spawn_MySql_Column {
 			$matches['nullable'] === 'NOT NULL'
 		);
 
-		$matches['unsigned'] = !(
-			array_key_exists('unsigned', $matches) &&
-			$matches['unsigned'] === 'UNSIGNED'
-		);
+		// $matches['unsigned'] = (
+		// 	array_key_exists('unsigned', $matches) &&
+		// 	$matches['unsigned'] === 'UNSIGNED'
+		// );
+		// 
+		// $matches['auto_increment'] = (
+		// 	array_key_exists('auto_increment', $matches) &&
+		// 	$matches['auto_increment'] === 'AUTO_INCREMENT'
+		// );
 
 		return $matches;
 	}
