@@ -108,6 +108,12 @@ class Garp_Model_Spawn_MySql_Manager {
 		$progress->display($model->id . " SQL render.");
 		$table = $this->_getBaseModelConfigTable($model);
 		$this->_createTableIfNotExists($table);
+		
+		if ($model->isMultilingual()) {
+			$i18nModel = $model->getI18nModel();
+			$i18nTable = $this->_getBaseModelConfigTable($i18nModel);
+			$this->_createTableIfNotExists($i18nTable);
+		}
 	}
 
 
@@ -134,6 +140,9 @@ class Garp_Model_Spawn_MySql_Manager {
 
 
 	protected function _syncBaseModel(Garp_Model_Spawn_Model $model) {
+		/**
+		 * @todo: i18n
+		 */
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->display($model->id . " table comparison");
 		$baseModelConfigTable = $this->_getBaseModelConfigTable($model);
@@ -175,13 +184,13 @@ class Garp_Model_Spawn_MySql_Manager {
 	}
 
 
-	protected function _getBaseModelConfigTable(Garp_Model_Spawn_Model $model) {
+	protected function _getBaseModelConfigTable(Garp_Model_Spawn_Model_Abstract $model) {
 		$sqlFromConfig = Garp_Model_Spawn_MySql_Table::renderCreateFromSpawnModel($model);
 		return new Garp_Model_Spawn_MySql_Table($sqlFromConfig, $model);
 	}
 
 
-	protected function _getBaseModelLiveTable(Garp_Model_Spawn_Model $model) {
+	protected function _getBaseModelLiveTable(Garp_Model_Spawn_Model_Abstract $model) {
 		$sqlFromLive = Garp_Model_Spawn_MySql_Table::renderCreateFromLiveTable($model->id);
 		return new Garp_Model_Spawn_MySql_Table($sqlFromLive, $model);
 	}
