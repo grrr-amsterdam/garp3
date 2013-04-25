@@ -37,10 +37,12 @@ class Garp_I18n_ModelFactory {
 			$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
 			$model = new $model;
 		}
-		$viewName = $model->getName() . '_' . $this->_language;
-		$model->setOptions(array(
-			Zend_Db_Table_Abstract::NAME => $viewName
-		));
+		if ($this->_language) {
+			$viewName = $model->getName() . '_' . $this->_language;
+			$model->setOptions(array(
+				Zend_Db_Table_Abstract::NAME => $viewName
+			));
+		}
 		return $model;
 	}
 
