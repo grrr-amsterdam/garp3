@@ -21,7 +21,7 @@ class Garp_Model_Spawn_MySql_Table {
 
 
 
-	public function __construct($createStatement, Garp_Model_Spawn_Model $model) {
+	public function __construct($createStatement, Garp_Model_Spawn_Model_Abstract $model) {
 		if (
 			!is_string($createStatement) ||
 			substr($createStatement, 0, 6) !== 'CREATE'
@@ -60,10 +60,10 @@ class Garp_Model_Spawn_MySql_Table {
 	/**
 	 * Returns this table with another table and try to resolve any conflicts.
 	 * @param Garp_Model_Spawn_MySql_Table 	$liveTable
-	 * @param Garp_Model_Spawn_Model 		[$bindingModel] 	Provide a binding model if the sync should not handle
+	 * @param Garp_Model_Spawn_Model_Abstract [$bindingModel] 	Provide a binding model if the sync should not handle
 	 *															the local base model, but the given model instead.
 	 */
-	public function syncModel(Garp_Model_Spawn_MySql_Table $liveTable, Garp_Model_Spawn_Model $bindingModel = null) {
+	public function syncModel(Garp_Model_Spawn_MySql_Table $liveTable, Garp_Model_Spawn_Model_Abstract $bindingModel = null) {
 		$keysInSync = true;
 		$configuredKeys = $bindingModel == null ?
 			$this->keys :
@@ -132,7 +132,7 @@ class Garp_Model_Spawn_MySql_Table {
 	}
 
 
-	static public function renderCreateFromSpawnModel(Garp_Model_Spawn_Model $model) {
+	static public function renderCreateFromSpawnModel(Garp_Model_Spawn_Model_Abstract $model) {
 		return self::_renderCreateAbstract(
 			$model->id, $model->fields->getFields(), $model->relations->getRelations()
 		);
@@ -285,7 +285,7 @@ class Garp_Model_Spawn_MySql_Table {
 	}
 
 
-	protected function _setPropsByCreateStatement(Garp_Model_Spawn_Model $model) {
+	protected function _setPropsByCreateStatement(Garp_Model_Spawn_Model_Abstract $model) {
 		$createStatementLines = explode("\n", $this->_createStatement);
 		$createStatementLine = null;
 		$columnStatements = array();
