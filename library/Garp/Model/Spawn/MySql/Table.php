@@ -97,13 +97,10 @@ class Garp_Model_Spawn_MySql_Table {
 		if ($this === $liveTable) {
 			return true;
 		} else {
-			$colsInSync = true;
 			if ($this->columns != $liveTable->columns) {
-				if (!$this->_resolveColumnConflicts($liveTable)) {
-					$colsInSync = false;
-				}
+				$this->_resolveColumnConflicts($liveTable);
 			}
-			return $colsInSync;
+			return true;
 		}
 	}
 
@@ -217,46 +214,63 @@ class Garp_Model_Spawn_MySql_Table {
 
 
 	protected function _resolveColumnConflicts(Garp_Model_Spawn_MySql_Table $liveTable) {
-		$inSync = true;
-
 		foreach ($this->columns as $newColumn) {
-			if (!$liveTable->columnExists($newColumn->name)) {
-				$addQuery = "ALTER TABLE `{$this->name}` ADD ".$newColumn->renderSqlDefinition();
-
-				if (!$this->_adapter->query($addQuery)) {
-						throw new Exception("Could not add the '{$newColumn->name}' column to the {$this->name} table.");
-				}
-			} else {
-				$liveColumn = $liveTable->getColumn($newColumn->name);
-				$diffProperties = $newColumn->getDiffProperties($liveColumn);
-
-				if ($diffProperties) {
-					//	________apply modifications
-					$this->_adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
-					if (in_array('nullable', $diffProperties)) {
-						foreach ($this->keys->foreignKeys as $fk) {
-							if ($fk->localColumn === $newColumn->name) {
-								Garp_Model_Spawn_MySql_ForeignKey::delete($this->name, $fk);
-								$this->keys->droppedForeignKeyNamesDuringColumnSync[] = $fk->name;
-								break;
-							}
-						}
-					}
-
-					$alterQuery = "ALTER TABLE `{$this->name}` MODIFY ".$newColumn->renderSqlDefinition();
-					if (!$this->_adapter->query($alterQuery)) {
-						throw new Exception("Could not modify the properties of {$this->name}.{$newColumn->name}\n".$alterQuery."\n");
-					}
-					$this->_adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
-				}
-			}
+			$this->_resolveColumnConflictsPerColumn($newColumn, $liveTable);
 		}
 		
 		$this->_deleteRedundantColumns($liveTable);
-		
-		return $inSync;
 	}
 	
+	protected function _resolveColumnConflictsPerColumn(Garp_Model_Spawn_MySql_Column $newColumn, Garp_Model_Spawn_MySql_Table $liveTable) {
+		if (!$liveTable->columnExists($newColumn->name)) {
+			$this->_addColumn($newColumn);
+		} else {
+			$liveColumn = $liveTable->getColumn($newColumn->name);
+			$diffProperties = $newColumn->getDiffProperties($liveColumn);
+
+			if ($diffProperties) {
+				$this->_disableFkChecks();
+				$this->_ifNullableChangesThenDeleteForeignKeys($newColumn, $diffProperties);
+				$this->_alterColumn($newColumn);
+				$this->_enableFkChecks();
+			}
+		}
+	}
+	
+	protected function _addColumn(Garp_Model_Spawn_MySql_Column $newColumn) {
+		$addQuery = "ALTER TABLE `{$this->name}` ADD ".$newColumn->renderSqlDefinition();
+
+		if (!$this->_adapter->query($addQuery)) {
+			throw new Exception("Could not add the '{$newColumn->name}' column to the {$this->name} table.");
+		}
+	}
+
+	protected function _ifNullableChangesThenDeleteForeignKeys(Garp_Model_Spawn_MySql_Column $newColumn, array $diffProperties) {
+		if (in_array('nullable', $diffProperties)) {
+			foreach ($this->keys->foreignKeys as $fk) {
+				if ($fk->localColumn === $newColumn->name) {
+					Garp_Model_Spawn_MySql_ForeignKey::delete($this->name, $fk);
+					$this->keys->droppedForeignKeyNamesDuringColumnSync[] = $fk->name;
+					break;
+				}
+			}
+		}
+	}
+	
+	protected function _alterColumn(Garp_Model_Spawn_MySql_Column $newColumn) {
+		$alterQuery = "ALTER TABLE `{$this->name}` MODIFY ".$newColumn->renderSqlDefinition();
+		if (!$this->_adapter->query($alterQuery)) {
+			throw new Exception("Could not modify the properties of {$this->name}.{$newColumn->name}\n".$alterQuery."\n");
+		}
+	}
+	
+	protected function _enableFkChecks() {
+		$this->_adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
+	}
+	
+	protected function _disableFkChecks() {
+		$this->_adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
+	}
 	
 	protected function _deleteRedundantColumns(Garp_Model_Spawn_MySql_Table $liveTable) {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
