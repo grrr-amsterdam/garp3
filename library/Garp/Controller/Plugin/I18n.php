@@ -47,20 +47,11 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		}
 		
 		// Now that our locale is set, let's check which language has been selected
-		// and try to load a translation file for it. If the language is the default,
-		// then we do not need to load a translation.
+		// and try to load a translation file for it.
 		$language = $locale->getLanguage();
-		if ($language !== $locale->getDefault()) {
-			try {
-				$translate = $this->_getTranslate($locale);
-				Zend_Registry::set('Zend_Translate', $translate);
-				Zend_Form::setDefaultTranslator($translate);
-			} catch (Zend_Translate_Exception $e) {
-				// Since there was an error when trying to load the translation catalog,
-				// let's not load a translation object which essentially defaults to
-				// locale default.
-			}
-		}
+		$translate = $this->_getTranslate($locale);
+		Zend_Registry::set('Zend_Translate', $translate);
+		Zend_Form::setDefaultTranslator($translate);
 		
 		// Now that we have our locale setup, let's check to see if we are loading
 		// a language that is not the default, and update our base URL on the front
