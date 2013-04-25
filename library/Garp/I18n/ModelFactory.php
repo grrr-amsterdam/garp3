@@ -24,6 +24,9 @@ class Garp_I18n_ModelFactory {
 		if (!$language) {
 			$language = Garp_I18n::getCurrentLocale();
 		}
+		if (!$language) {
+			throw new Garp_I18n_Exception('No language found! Make sure at least one language is available.');
+		}
 		$this->setLanguage($language);
 	}
 
@@ -37,12 +40,10 @@ class Garp_I18n_ModelFactory {
 			$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
 			$model = new $model;
 		}
-		if ($this->_language) {
-			$viewName = $model->getName() . '_' . $this->_language;
-			$model->setOptions(array(
-				Zend_Db_Table_Abstract::NAME => $viewName
-			));
-		}
+		$viewName = $model->getName() . '_' . $this->_language;
+		$model->setOptions(array(
+			Zend_Db_Table_Abstract::NAME => $viewName
+		));
 		return $model;
 	}
 
