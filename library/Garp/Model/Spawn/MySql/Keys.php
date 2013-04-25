@@ -26,14 +26,14 @@ class Garp_Model_Spawn_MySql_Keys {
 	 */
 	protected $_tableName;
 
-	/** @var Garp_Model_Spawn_Model $_model */
+	/** @var Garp_Model_Spawn_Model_Abstract $_model */
 	protected $_model;
 	
 	protected $_types = array('foreign', 'unique', 'index');
 
 
 
-	public function __construct(Array $createStatementLines, $tableName, Garp_Model_Spawn_Model $model) {
+	public function __construct(Array $createStatementLines, $tableName, Garp_Model_Spawn_Model_Abstract $model) {
 		$this->setTableName($tableName);
 		$this->_model = $model;
 

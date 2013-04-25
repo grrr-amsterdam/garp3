@@ -66,20 +66,25 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		return $sql;
 	}
 	
-	protected function _renderSqlForLang() {
-		$locale 			= $this->getLocale();
-		$defaultLocale		= Garp_I18n::getDefaultLocale();
+	protected function _renderSqlForLang() {		
 		$model 				= $this->getModel();
 		$modelId 			= $this->getModelId();
 		$unilingualFields 	= $model->fields->getFields('multilingual', false);
 		$multilingualFields = $model->fields->getFields('multilingual', true);
+		
+		$locale 			= $this->getLocale();
+		$defaultLocale		= Garp_I18n::getDefaultLocale();
+		$table 				= $modelId;
+		$localeTable		= $table . '_' . $locale;
+		$defaultLocaleTable = $table . '_' . $defaultLocale;
+
 
 		$sql = 'SELECT ';
 
 		//	Unilingual fields
 		$unilingualFieldRefs = array();
 		foreach ($unilingualFields as $field) {
-			$unilingualFieldRefs[] = $field->name;
+			$unilingualFieldRefs[] = $table . '.' . $field->name . ' AS ' . $field->name;
 		}
 		$sql .= implode(', ', $unilingualFieldRefs) . ', ';
 
@@ -87,8 +92,8 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		$multilingualFieldRefs = array();
 		foreach ($multilingualFields as $field) {
 			$multilingualFieldRefs[] = $locale === $defaultLocale ?
-				"{$modelId}_{$locale}.{$field->name} AS {$field->name}" :
-				"COALESCE({$modelId}_{$locale}.{$field->name}, {$modelId}_{$defaultLocale}.{$field->name}) AS {$field->name}"
+				"{$localeTable}.{$field->name} AS {$field->name}" :
+				"COALESCE({$localeTable}.{$field->name}, {$defaultLocaleTable}.{$field->name}) AS {$field->name}"
 			;
 		}
 		$sql .= implode(', ', $multilingualFieldRefs) . ' ';
