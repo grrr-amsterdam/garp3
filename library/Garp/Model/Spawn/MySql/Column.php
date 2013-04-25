@@ -8,17 +8,25 @@ class Garp_Model_Spawn_MySql_Column {
 	public $position;
 	public $name;
 	public $type;
-	public $default = null;
-	public $nullable = false;
-	public $length = null;
-	public $decimals = null;
-	public $unsigned = true;
-	public $auto_increment = false;
+	public $default 		= null;
+	public $nullable 		= false;
+	public $length 			= null;
+	public $decimals 		= null;
+	public $unsigned 		= true;
+	public $auto_increment 	= false;
 
 	/** @var String $options Enum options */
 	public $options = null;
 
 	protected $_statement;
+	
+	protected $_ignorableDiffProperties = array('position');
+	
+	protected $_columnOptions = array(
+		'not_nullable' 		=> 'NOT NULL',
+		'unsigned'			=> 'UNSIGNED',
+		'auto_increment'	=> 'AUTO_INCREMENT'
+	);
 
 
 	/**
@@ -58,8 +66,9 @@ class Garp_Model_Spawn_MySql_Column {
 		foreach ($reflProps as $reflProp) {
 			$thisProp = $this->{$reflProp->name};
 			$thatProp = $columnToCompareWith->{$reflProp->name};
+			
 			if (
-				$reflProp->name !== 'position' &&
+				!$this->_isIgnorableDiffProperty($reflProp->name) &&
 				(
 					(
 						$reflProp->name === 'default' &&
@@ -75,6 +84,9 @@ class Garp_Model_Spawn_MySql_Column {
 		return $diffPropertyNames;
 	}
 	
+	protected function _isIgnorableDiffProperty($propName) {
+		return in_array($propName, $this->_ignorableDiffProperties);
+	}
 
 	/**
 	 * @return String 	Renders a MySQL definition to use in a CREATE or ALTER statement,
@@ -101,6 +113,10 @@ class Garp_Model_Spawn_MySql_Column {
 			
 		if (!$this->nullable) {
 			$nodes[] = 'NOT NULL';
+		}
+
+		if ($this->auto_increment) {
+			$nodes[] = 'AUTO_INCREMENT';
 		}
 
 		if (isset($this->default)) {
@@ -215,7 +231,7 @@ class Garp_Model_Spawn_MySql_Column {
 
 	protected function _parseColumnStatement($line) {
 		$matches = array();
-		$pattern = '/`(?P<name>\w+)` (?P<type>[\w]*)(\(((?P<length>\d*),?\s*(?P<decimals>\d*))(?P<options>[^\)]*)\))? ?(?P<unsigned>UNSIGNED)? ?(?P<nullable>NOT NULL)? ?(?P<auto_increment>AUTO_INCREMENT)? ?(DEFAULT \'?(?P<default>[^\',]*)\'?)?/i';
+		$pattern = '/`(?P<name>\w+)` (?P<type>[\w]*)(\(((?P<length>\d*),?\s*(?P<decimals>\d*))(?P<options>[^\)]*)\))? ?(?P<unsigned>UNSIGNED)? ?(?P<not_nullable>NOT NULL)? ?(?P<auto_increment>AUTO_INCREMENT)? ?(DEFAULT \'?(?P<default>[^\',]*)\'?)?/i';
 		preg_match($pattern, trim($line), $matches);
 		$matches['_statement'] = $matches[0];
 
@@ -234,21 +250,25 @@ class Garp_Model_Spawn_MySql_Column {
 			}
 		}
 
-		$matches['nullable'] = !(
-			array_key_exists('nullable', $matches) &&
-			$matches['nullable'] === 'NOT NULL'
-		);
+		$matches['nullable'] = !$this->_propExistsAndMatches($matches, 'not_nullable');
+		unset($matches['not_nullable']);
 
-		// $matches['unsigned'] = (
-		// 	array_key_exists('unsigned', $matches) &&
-		// 	$matches['unsigned'] === 'UNSIGNED'
-		// );
-		// 
-		// $matches['auto_increment'] = (
-		// 	array_key_exists('auto_increment', $matches) &&
-		// 	$matches['auto_increment'] === 'AUTO_INCREMENT'
-		// );
+		$matches['unsigned'] = $this->_propExistsAndMatches($matches, 'unsigned');
+		$matches['auto_increment'] = $this->_propExistsAndMatches($matches, 'auto_increment');
 
 		return $matches;
+	}
+	
+	/**
+	 * @param	Array	$matches	Result of preg_match on sql statement
+	 * @param	String	$prop		Matched property in sql statement, i.e. nullable | unsigned | auto_increment
+	 */
+	protected function _propExistsAndMatches(array $matches, $prop) {
+		$existsAndMatches = 
+			array_key_exists($prop, $matches) &&
+			strcasecmp($matches[$prop], $this->_columnOptions[$prop]) === 0
+		;
+		
+		return $existsAndMatches;
 	}
 }
