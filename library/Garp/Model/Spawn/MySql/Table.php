@@ -242,6 +242,7 @@ class Garp_Model_Spawn_MySql_Table {
 							}
 						}
 					}
+
 					$alterQuery = "ALTER TABLE `{$this->name}` MODIFY ".$newColumn->renderSqlDefinition();
 					if (!$this->_adapter->query($alterQuery)) {
 						throw new Exception("Could not modify the properties of {$this->name}.{$newColumn->name}\n".$alterQuery."\n");

@@ -27,6 +27,9 @@ class Garp_Model_Spawn_Field {
 	/** @var Boolean $float Whether this is a floating point value, in case of a numeric field. */
 	public $float = false;
 
+	/** @var Boolean $unsigned Whether this is an unsigned value, in case of a numeric field. */
+	public $unsigned = true;
+
 	/** @var Boolean $rich Optional flag for an html field, allowing lists and media. */
 	public $rich = false;
 
