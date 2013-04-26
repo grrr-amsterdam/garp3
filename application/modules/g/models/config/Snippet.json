@@ -2,7 +2,7 @@
 	"listFields": ["identifier"],
 	"inputs": {
 		"identifier": {
-			"maxLength": 30,
+			"maxLength": 255,
 			"unique": true
 		},
 		"uri": {
