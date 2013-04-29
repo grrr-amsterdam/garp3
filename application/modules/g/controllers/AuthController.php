@@ -25,7 +25,7 @@ class G_AuthController extends Garp_Controller_Action {
  	 * @return Void
  	 */
 	public function registerAction() {
-		$this->view->title = 'Registreren';
+		$this->view->title = __('register page title');
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
 		
 		if ($this->getRequest()->isPost()) {
@@ -41,7 +41,7 @@ class G_AuthController extends Garp_Controller_Action {
 				$repeatPasswordField = $this->getRequest()->getPost($authVars['register']['repeatPasswordField']);
 				unset($postData[$authVars['register']['repeatPasswordField']]);
 				if ($password != $repeatPasswordField) {
-					$errors[] = 'De wachtwoorden komen niet overeen.';
+					$errors[] = __('the passwords do not match');
 				}
 			}
 
@@ -67,12 +67,12 @@ class G_AuthController extends Garp_Controller_Action {
 					$this->_redirect($authVars['register']['successUrl']);
 				} catch (Zend_Db_Statement_Exception $e) {
 					if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'email_unique') !== false) {
-						$errors[] = 'Dit e-mailadres is al in gebruik op deze website.';
+						$errors[] = __('this email address already exists');
 					} else {
 						throw $e;
 					}
 				} catch (Exception $e) {
-					$errors[] = 'Er is iets misgegaan bij het registreren. Probeer het later nog eens';
+					$errors[] = __('register error');
 				}
 			}
 			$this->view->errors = $errors;
@@ -92,8 +92,8 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @return Void
 	 */
 	public function loginAction() {
-		$this->view->title = 'Inloggen';
-		$this->view->description = 'Log hier in om toegang te krijgen tot persoonlijke pagina\'s.';
+		$this->view->title = __('login page title');
+		$this->view->description = __('login page description');
 		
 		// allow callers to set a targetUrl via the request
 		if ($this->getRequest()->getParam('targetUrl')) {
@@ -206,7 +206,7 @@ class G_AuthController extends Garp_Controller_Action {
  	 * @return Void
  	 */
 	public function forgotpasswordAction() {
-		$this->view->title = 'Wachtwoord vergeten';
+		$this->view->title = __('forgot password page title');
 		$auth = Garp_Auth::getInstance();
 		$authVars = $auth->getConfigValues();
 		$request = $this->getRequest();
@@ -219,7 +219,7 @@ class G_AuthController extends Garp_Controller_Action {
 			// Honeypot validation
 			$hp = $request->getPost('hp');
 			if (!empty($hp)) {
-				throw new Garp_Auth_Exception('Je hebt een veld ingevuld dat leeg moest blijven.');
+				throw new Garp_Auth_Exception(__('honeypot error'));
 			}
 
 			// Find user by email address
@@ -229,7 +229,7 @@ class G_AuthController extends Garp_Controller_Action {
 				$userModel->select()->where('email = ?', $email)
 			);
 			if (!$user) {
-				$this->view->formError = 'Dit e-mailadres is bij ons niet bekend.';
+				$this->view->formError = __('email addr not found');
 			} else {
 				// Update user
 				$activationToken = uniqid();
@@ -302,7 +302,7 @@ class G_AuthController extends Garp_Controller_Action {
  	 * Allow a user to reset his password after he had forgotten it.
  	 */
 	public function resetpasswordAction() {
-		$this->view->title = 'Stel je wachtwoord opnieuw in';
+		$this->view->title = __('reset password page title');
 		$auth = Garp_Auth::getInstance();
 		$authVars = $auth->getConfigValues();
 		$request = $this->getRequest();
@@ -328,14 +328,14 @@ class G_AuthController extends Garp_Controller_Action {
 
 		$user = $userModel->fetchRow($select);
 		if (!$user) {
-			$this->view->error = 'Er is geen gebruiker gevonden met de opgegeven gegevens.';
+			$this->view->error = __('reset password user not found');
 		} elseif (strtotime($user->{$expirationColumn}) < time()) {
-			$this->view->error = 'Deze link is verlopen.';
+			$this->view->error = __('reset password link expired');
 		} else {
 			if ($request->isPost()) {
 				$password = $request->getPost('password');
 				if (!$password) {
-					$this->view->formError = 'Wachtwoord is een verplicht veld.';
+					$this->view->formError = sprintf(__('%s is a required field'), ucfirst(__('password')));
 				} else {
 					// Update the user's password and send him along to the login page
 					$updateClause = $userModel->getAdapter()->quoteInto('id = ?', $user->id);
@@ -360,7 +360,7 @@ class G_AuthController extends Garp_Controller_Action {
  	 * this action is used to validate the address.
  	 */
 	public function validateemailAction() {
-		$this->view->title = 'Activeer e-mailadres';
+		$this->view->title = __('activate email page title');
 		$auth = Garp_Auth::getInstance();
 		$authVars = $auth->getConfigValues();
 		$request = $this->getRequest();
@@ -392,7 +392,7 @@ class G_AuthController extends Garp_Controller_Action {
 		} else {
 			$user->{$emailValidColumn} = 1;
 			if (!$user->save()) {
-				$this->view->error = 'Er is een onbekende fout opgetreden, je e-mailadres kon niet worden geactiveerd. Probeer het later nog eens.';
+				$this->view->error = __('activate email error');
 			} elseif ($auth->isLoggedIn()) {
 				// If the user is currently logged in, update the cookie
 				$method = $auth->getStore()->method;
