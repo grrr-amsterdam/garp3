@@ -38,6 +38,10 @@
 			"type": "checkbox",
 			"default": 1,
 			"editable": false
+		},
+		"variables": {
+			"editable": false,
+			"required": false
 		}
 	},
 	
