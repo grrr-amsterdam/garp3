@@ -7,7 +7,7 @@
  * @group Spawn
  */
 class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstract {
-	const TRANSLATED_TABLE_POSTFIX = '_i18n';
+	const TRANSLATED_TABLE_POSTFIX = 'i18n';
 
 	/**
 	 * @var String $_locale
