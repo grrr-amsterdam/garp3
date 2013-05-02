@@ -3,7 +3,7 @@
  * @author David Spreekmeester | grrr.nl
  */
 class Garp_Model_Spawn_Config_Model_I18n extends ArrayObject {
-	const I18N_MODEL_ID_POSTFIX = '_I18n';
+	const I18N_MODEL_ID_POSTFIX = 'I18n';
 	
 	/**
 	 * @var String $_parentId
