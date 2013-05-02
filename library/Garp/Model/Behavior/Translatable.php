@@ -184,7 +184,10 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 			$row = $i18nModel->createRow();
 		}
 		$row->setFromArray($data);
-		$row->save();
+		if (!$row->save()) {
+			throw new Garp_Model_Behavior_Exception('Cannot save i18n record in language "'.$language.'"');
+		}
+		return true;
 	}
 
 	/**
