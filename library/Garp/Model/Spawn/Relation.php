@@ -251,8 +251,7 @@ class Garp_Model_Spawn_Relation {
 			);
 			$this->_localModel->fields->add('relation', $column, $fieldParams);
 		}
-	}
-	
+	}	
 	
 	protected function _addOppositeRule() {
 		if ($this->isPlural() && !$this->oppositeRule) {
