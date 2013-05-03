@@ -168,6 +168,9 @@ class Garp_Model_Spawn_Relations {
 	 * @return String Database column / field name that corresponds to this model. E.g.: 'Users' -> 'users_id'
 	 */
 	static public function getRelationColumn($modelName, $index = null) {
+		if (!is_string($modelName)) {
+			throw new Exception(__METHOD__ . ' needs a model name as a string.');
+		}
 		return Garp_Model_Spawn_Util::camelcased2underscored($modelName) . (is_null($index) ? '' : (string)$index) . '_id';
 	}
 }

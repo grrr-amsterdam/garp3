@@ -188,9 +188,7 @@ class Garp_Model_Spawn_MySql_Table_Synchronizer {
 	}
 	
 	protected function _deleteRedundantColumns() {
-		$source		= $this->getSource();
 		$target		= $this->getTarget();
-		$progress 	= Garp_Cli_Ui_ProgressBar::getInstance();
 
 		foreach ($target->columns as $targetColumn) {
 			$this->_deleteNoLongerConfiguredColumn($targetColumn);
@@ -200,14 +198,15 @@ class Garp_Model_Spawn_MySql_Table_Synchronizer {
 	protected function _deleteNoLongerConfiguredColumn(Garp_Model_Spawn_MySql_Column $targetColumn) {
 		$source		= $this->getSource();
 		$target		= $this->getTarget();
+		$progress 	= Garp_Cli_Ui_ProgressBar::getInstance();
 
 		if ($source->columnExists($targetColumn->name)) {
 			return;
 		}
 		
-		$progress->display("Delete column {$target->name}.{$targetCol->name}? ");
+		$progress->display("Delete column {$target->name}.{$targetColumn->name}? ");
 		if (Garp_Model_Spawn_Util::confirm()) {
-			$target->deleteColumn($targetCol);
+			$target->deleteColumn($targetColumn);
 		}
 	}
 	

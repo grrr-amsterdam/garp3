@@ -65,7 +65,7 @@ abstract class Garp_Model_Spawn_Model_Abstract {
 
 		//	complex types
 		$this->fields = new Garp_Model_Spawn_Fields($this, $config['inputs'], (array)$config['listFields']);
-		$this->behaviors = new Garp_Model_Spawn_Behaviors($this, $config['behaviors']);
+		$this->behaviors = new Garp_Model_Spawn_BehaviorSet($this, $config['behaviors']);
 		$this->relations = new Garp_Model_Spawn_Relations($this, $config['relations']);
 	}
 }
