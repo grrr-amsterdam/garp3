@@ -2338,6 +2338,23 @@ Garp.FormHelper.Validator = function(cfg){
 				errorMsg: __("'${1}' is not a valid email address in the basic format local-part@hostname")
 			},
 			
+		// Simple number validation
+			number: {
+				fn: function(field){
+					if (field.attr('type') === 'number') {
+						var v = field.val();
+						if (!$.isNumeric(v)) {
+							return false;
+						}
+						if ((field.attr('min') && v < field.attr('min')) || (field.attr('max') && v > field.attr('max'))) {
+							return false;
+						}
+					}
+					return true;
+				},
+				errorMsg: __("'${1}' is not a valid number for this field")
+			},
+			
 		// HTML5-pattern validation (RegExp)
 			pattern: {
 				RegExCache: {},
