@@ -3,9 +3,15 @@
  * Generate and alter tables to reflect base models and association models
  * @author David Spreekmeester | grrr.nl
  * @package Garp
- * @subpackage Model
+ * @subpackage MySql
  */
 class Garp_Model_Spawn_MySql_Manager {
+    /**
+     * Singleton instance
+     * @var Garp_Model_Spawn_MySql_Manager
+     */
+    private static $_instance = null;
+	
 	/** @param Array $_models Array of Garp_Model_Spawn_Model objects */
 	protected $_modelSet;
 	protected $_adapter;
@@ -15,12 +21,29 @@ class Garp_Model_Spawn_MySql_Manager {
 	const CUSTOM_SQL_PATH = '/data/sql/spawn.sql';
 
 
+    /**
+     * Private constructor. Here be Singletons.
+     * @return Void
+     */
+    private function __construct() {}
+	
+    /**
+     * Get Garp_Auth instance
+     * @return Garp_Auth
+     */
+    public static function getInstance() {
+         if (!Garp_Model_Spawn_MySql_Manager::$_instance) {
+              Garp_Model_Spawn_MySql_Manager::$_instance = new Garp_Model_Spawn_MySql_Manager();
+         }
+   
+         return Garp_Model_Spawn_MySql_Manager::$_instance;
+    }
 
 	/**
 	 * @param Garp_Model_Spawn_ModelSet 	$modelSet 		The model set to model the database after.
 	 * @param Array 						&$changelist 	An array of strings, describing the changes made to the database in this Spawn session.
 	 */
-	public function __construct(Garp_Model_Spawn_ModelSet $modelSet) {
+	public function run(Garp_Model_Spawn_ModelSet $modelSet) {
 		$totalActions = count($modelSet) * 4;
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->init($totalActions);
@@ -94,6 +117,14 @@ class Garp_Model_Spawn_MySql_Manager {
 		$progress->display("√ Done");
 	}
 	
+	/**
+	 * When multilingual columns are spawned, either in a new table or an existing one,
+	 * content from the unilingual table should be moved to the multilingual leaf records.
+	 * This method is called by Garp_Model_Spawn_MySql_Table_Base when that happens.
+	 */
+	public function onI18nTableFork(Garp_Model_Spawn_Model $model) {
+		new Garp_Model_Spawn_MySql_I18nForker($model);
+	}
 	
 	protected function _createBaseModelTableAndAdvance(Garp_Model_Spawn_Model $model) {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
@@ -101,21 +132,22 @@ class Garp_Model_Spawn_MySql_Manager {
 		$this->_createBaseModelTableIfNotExists($model);
 		$progress->advance();
 	}
-	
-	
+		
 	protected function _createBaseModelTableIfNotExists(Garp_Model_Spawn_Model $model) {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->display($model->id . " SQL render.");
-		$table = $this->_getBaseModelConfigTable($model);
-		$this->_createTableIfNotExists($table);
+
+		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory();
+		$configTable 	= $tableFactory->produceConfigTable($model);
+
+		$this->_createTableIfNotExists($configTable);
 		
 		if ($model->isMultilingual()) {
 			$i18nModel = $model->getI18nModel();
-			$i18nTable = $this->_getBaseModelConfigTable($i18nModel);
+			$i18nTable = $tableFactory->produceConfigTable($i18nModel);
 			$this->_createTableIfNotExists($i18nTable);
 		}
 	}
-
 
 	/**
 	 * Creates a MySQL view for every base model, that also fetches the labels of related hasOne / belongsTo records.
@@ -134,44 +166,49 @@ class Garp_Model_Spawn_MySql_Manager {
 	}	
 	
 	protected function _createBindingModelTableIfNotExists(Garp_Model_Spawn_Relation $relation) {
-		$configBindingTable = $this->_getBindingModelConfigTable($relation);
-		$this->_createTableIfNotExists($configBindingTable);
-	}
+		$bindingModel 	= $relation->getBindingModel();
 
+		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory();
+		$configTable 	= $tableFactory->produceConfigTable($bindingModel);
+
+		$this->_createTableIfNotExists($configTable);
+	}
 
 	protected function _syncBaseModel(Garp_Model_Spawn_Model $model) {
-		/**
-		 * @todo: i18n
-		 */
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->display($model->id . " table comparison");
-		$baseModelConfigTable = $this->_getBaseModelConfigTable($model);
-		$baseModelLiveTable = $this->_getBaseModelLiveTable($model);
-		$baseModelConfigTable->syncModel($baseModelLiveTable);
-	}
 
+		$baseSynchronizer = new Garp_Model_Spawn_MySql_Table_Synchronizer($model);
+		$baseSynchronizer->sync(false);
+
+		if ($model->isMultilingual()) {
+			$i18nModel 			= $model->getI18nModel();
+			$synchronizer = new Garp_Model_Spawn_MySql_Table_Synchronizer($i18nModel);
+			$synchronizer->sync();
+		}
+		
+		$baseSynchronizer->cleanUp();
+	}
 
 	protected function _syncBindingModel(Garp_Model_Spawn_Relation $relation) {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$bindingModel = $relation->getBindingModel();
 		$progress->display($bindingModel->id . " table comparison");
-		$configBindingTable = $this->_getBindingModelConfigTable($relation);
-		$liveBindingTable = $this->_getBindingModelLiveTable($relation);
-		$configBindingTable->syncModel($liveBindingTable, $bindingModel);
+		
+		$synchronizer = new Garp_Model_Spawn_MySql_Table_Synchronizer($bindingModel);
+		$synchronizer->sync();
 	}
 
-
-	protected function _createTableIfNotExists(Garp_Model_Spawn_MySql_Table $table) {
-		if (!Garp_Model_Spawn_MySql_Table::exists($table->name)) {
+	protected function _createTableIfNotExists(Garp_Model_Spawn_MySql_Table_Abstract $table) {
+		if (!Garp_Model_Spawn_MySql_Table_Base::exists($table->name)) {
 			$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 			$progress->display($table->name . " table creation");
 			if (!$table->create()) {
-				throw new Exception("Unable to create the {$table->name} binding model table.");
+				throw new Exception("Unable to create the {$table->name} table.");
 			}			
 		}
 	}
-	
-	
+
 	protected function _executeCustomSql() {
 		$path = APPLICATION_PATH . self::CUSTOM_SQL_PATH;
 
@@ -181,32 +218,5 @@ class Garp_Model_Spawn_MySql_Manager {
 			$readSqlCommand = "mysql -u'{$db->username}' -p'{$db->password}' -D'{$db->dbname}' --host='{$db->host}' < " . $path;
 			`$readSqlCommand`;
 		}
-	}
-
-
-	protected function _getBaseModelConfigTable(Garp_Model_Spawn_Model_Abstract $model) {
-		$sqlFromConfig = Garp_Model_Spawn_MySql_Table::renderCreateFromSpawnModel($model);
-		return new Garp_Model_Spawn_MySql_Table($sqlFromConfig, $model);
-	}
-
-
-	protected function _getBaseModelLiveTable(Garp_Model_Spawn_Model_Abstract $model) {
-		$sqlFromLive = Garp_Model_Spawn_MySql_Table::renderCreateFromLiveTable($model->id);
-		return new Garp_Model_Spawn_MySql_Table($sqlFromLive, $model);
-	}
-
-
-	protected function _getBindingModelConfigTable(Garp_Model_Spawn_Relation $relation) {
-		$bindingModel 			= $relation->getBindingModel();
-		$sqlFromConfig 			= Garp_Model_Spawn_MySql_Table::renderCreateForBindingModel($relation);
-		return new Garp_Model_Spawn_MySql_Table($sqlFromConfig, $bindingModel);
-	}
-
-
-	protected function _getBindingModelLiveTable(Garp_Model_Spawn_Relation $relation) {
-		$bindingModel 			= $relation->getBindingModel();
-		$bindingModelTableName 	= Garp_Model_Spawn_MySql_Table::getBindingModelTableName($bindingModel->id);
-		$sqlFromLive = Garp_Model_Spawn_MySql_Table::renderCreateFromLiveTable($bindingModelTableName);
-		return new Garp_Model_Spawn_MySql_Table($sqlFromLive, $bindingModel);
 	}
 }

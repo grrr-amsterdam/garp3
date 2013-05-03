@@ -125,7 +125,8 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		
 		if ($filter === 'db' || is_null($filter)) {
 			echo "\nDatabase\n";
-			$dbManager = new Garp_Model_Spawn_MySql_Manager($this->_modelSet);
+			$dbManager = Garp_Model_Spawn_MySql_Manager::getInstance();
+			$dbManager->run($this->_modelSet);
 			
 			echo "\n\n";
 
