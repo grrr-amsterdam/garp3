@@ -41,13 +41,13 @@ EOF;
 
 
 	function testTableShouldContainColumns() {
-		$table = new Garp_Model_Spawn_MySql_Table($this->_bogusTableSql, $this->_constructMockModel());
+		$table = new Garp_Model_Spawn_MySql_Table_Base($this->_bogusTableSql, $this->_constructMockModel());
 		$this->assertEquals(count($table->columns), 10);
 	}
 
 
 	function testTableShouldHaveValidName() {
-		$table = new Garp_Model_Spawn_MySql_Table($this->_bogusTableSql, $this->_constructMockModel());
+		$table = new Garp_Model_Spawn_MySql_Table_Base($this->_bogusTableSql, $this->_constructMockModel());
 		$this->assertEquals($table->name, 'Bogus');
 	}
 
