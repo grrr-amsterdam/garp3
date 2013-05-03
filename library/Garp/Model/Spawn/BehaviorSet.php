@@ -2,7 +2,7 @@
 /**
  * @author David Spreekmeester | grrr.nl
  */
-class Garp_Model_Spawn_Behaviors {
+class Garp_Model_Spawn_BehaviorSet {
 	/** @var Array $_behaviors Associative array of Garp_Model_Spawn_Behavior objects, where the key is the behavior name. */
 	protected $_behaviors = array();
 
@@ -18,21 +18,17 @@ class Garp_Model_Spawn_Behaviors {
 		$this->_loadDefaultConditionalBehaviors();
 	}
 
-
 	public function getBehaviors() {
 		return $this->_behaviors;
 	}
-	
-	
+		
 	public function displaysBehavior($behaviorName) {
 		return array_key_exists($behaviorName, $this->_behaviors);
 	}
 	
-	
 	public function onAfterSingularRelationsDefinition() {
 		$this->_addWeighableBehavior();
 	}
-
 
 	protected function _add($origin, $behaviorName, $behaviorConfig = null, $behaviorType = null) {
 		if (!array_key_exists($behaviorName, $this->_behaviors)) {
