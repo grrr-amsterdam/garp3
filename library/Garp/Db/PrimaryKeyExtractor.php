@@ -53,20 +53,5 @@ class Garp_Db_PrimaryKeyExtractor {
 			}
 		}
 		return $pkValues;
-
-		if (count($pkValues) === count($pkColumns)) {
-			$pks = array_keys($pkValues);
-			$pkCount = count($pks);
-			sort($pks);
-			$cacheKey = $this->_model->getName();
-			foreach ($pks as $i => $pk) {
-				$cacheKey .= $pkValues[$pk];
-				if ($i < $pkCount-1) {
-					$cacheKey .= '_';
-				}
-			}
-			return $cacheKey;
-		}
-		return false;
 	}
 }
