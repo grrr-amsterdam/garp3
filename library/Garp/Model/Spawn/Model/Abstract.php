@@ -41,13 +41,16 @@ abstract class Garp_Model_Spawn_Model_Abstract {
 		$this->fields->onAfterSingularRelationsDefinition();
 	}
 
-
 	/**
 	 * Creates php models.
 	 */
 	public function materializePhpModels(Garp_Model_Spawn_Model_Abstract $model) {
 		$phpModel = new Garp_Model_Spawn_Php_Renderer($model);
 		$phpModel->save();
+	}
+	
+	public function isMultilingual() {
+		return false;
 	}
 	
 	protected function _loadPropertiesFromConfig(ArrayObject $config) {

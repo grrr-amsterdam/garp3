@@ -145,7 +145,7 @@ class Garp_Model_Spawn_Relation {
 				$config['inputs'][$weightCol2] = array('type' => 'numeric');
 			}
 
-			$model = new Garp_Model_Spawn_Model(
+			$model = new Garp_Model_Spawn_Model_Binding(
 				new Garp_Model_Spawn_Config_Model_Binding(
 					$habtmModelId,
 					new Garp_Model_Spawn_Config_Storage_PhpArray(array($habtmModelId => $config)),
