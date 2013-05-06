@@ -39,6 +39,8 @@ class Garp_I18n_ModelFactory {
 		if (is_string($model)) {
 			$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
 			$model = new $model;
+		} else {
+			$model = clone $model;
 		}
 		$viewName = $model->getName() . '_' . $this->_language;
 		$model->setOptions(array(
