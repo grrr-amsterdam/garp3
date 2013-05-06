@@ -92,14 +92,14 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		$multilingualFieldRefs = array();
 		foreach ($multilingualFields as $field) {
 			$multilingualFieldRefs[] = $locale === $defaultLocale ?
-				"{$localeTable}.{$field->name} AS {$field->name}" :
-				"COALESCE({$localeTable}.{$field->name}, {$defaultLocaleTable}.{$field->name}) AS {$field->name}"
+				"`{$modelId}_{$locale}`.{$field->name} AS `{$field->name}`" :
+				"COALESCE(`{$modelId}_{$locale}`.`{$field->name}`, `{$modelId}_{$defaultLocale}`.`{$field->name}`) AS `{$field->name}`"
 			;
 		}
 		$sql .= implode(', ', $multilingualFieldRefs) . ' ';
 
 		//	Join translated tables
-		$sql .= 'FROM ' . $modelId . ' ';		
+		$sql .= 'FROM `' . $modelId . '`';
 		$sql .= $this->_renderJoinForLocale($locale);
 
 		if ($locale !== $defaultLocale) {
@@ -132,8 +132,9 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 		$translatedTable 	= $modelId . self::TRANSLATED_TABLE_POSTFIX;
 		$aliasForLocale 	= $modelId . '_' . $locale;
 		$parentColumn 		= Garp_Util_String::camelcasedToUnderscored($this->getModel()->id) . '_id';
-		$sql 				= "LEFT OUTER JOIN {$translatedTable} {$aliasForLocale} ON "
-							. "{$aliasForLocale}.{$parentColumn} = {$modelId}.id AND {$aliasForLocale}.lang = '{$locale}' ";
+
+		$sql 				= "LEFT OUTER JOIN `{$translatedTable}` `{$aliasForLocale}` ON "
+							. "`{$aliasForLocale}`.`{$parentColumn}` = `{$modelId}`.id AND `{$aliasForLocale}`.lang = '{$locale}' ";
 		return $sql;
 	}
 }
