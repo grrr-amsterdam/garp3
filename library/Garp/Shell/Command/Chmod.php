@@ -4,12 +4,12 @@
  * @author David Spreekmeester | Grrr.nl
  */
  class Garp_Shell_Command_Chmod extends Garp_Shell_Command_Abstract {
- 	const COMMAND = "chmod %s %s";
+ 	const COMMAND = "chmod -R %s %s";
 	
 	/**
-	 * @var String $_user
+	 * @var String $_permission
 	 */
-	protected $_user; 
+	protected $_permission; 
 
 	/**
 	 * @var String $_path
@@ -18,26 +18,26 @@
 
 	 
 	/**
-	 * @param 	String	$user
+	 * @param 	String	$permission
 	 * @param	String	$path
 	 */
-	public function __construct($user, $path) {
-		 $this->setUser($user);
+	public function __construct($permission, $path) {
+		 $this->setPermission($permission);
 		 $this->setPath($path);
 	}	
 	
 	/**
 	 * @return String
 	 */
-	public function getUser() {
-		return $this->_user;
+	public function getPermission() {
+		return $this->_permission;
 	}
 	
 	/**
-	 * @param String $user
+	 * @param String $permission
 	 */
-	public function setUser($user) {
-		$this->_user = $user;
+	public function setPermission($permission) {
+		$this->_permission = $permission;
 	}
 		
 	/**
@@ -55,8 +55,8 @@
 	}
 	
 	public function render() {
- 		$user 	= $this->getUser();
-		$path	= $this->getPath();
-	 	return sprintf(self::COMMAND, $user, $path);
+ 		$permission = $this->getPermission();
+		$path		= $this->getPath();
+	 	return sprintf(self::COMMAND, $permission, $path);
 	}
  }
