@@ -122,6 +122,9 @@ class Garp_Model_Spawn_Php_Renderer {
 		/* Table */
 		$out.= $this->_rl("protected \$_name = '{$lcModelId}';", 1, 2);
 
+		/* Primary */
+		$out.= $this->_rl("protected \$_primary = 'id';", 1, 2);
+
 		/* This model's scheme, deducted from the combined Spawn model configurations. */
 		$out.= $this->_rl("protected \$_configuration = " . Garp_Model_Spawn_Util::array2phpStatement($this->_objectToArray($this->_model)) .";", 1, 2);
 
