@@ -1,7 +1,7 @@
 <?php
 /**
  * Garp_Shell_Command_PngQuantIsAvailable
- * Checks if the ionice command exists, and if permissions allow calling it.
+ * Checks if the PngQuant command exists, and if permissions allow calling it.
  * @author David Spreekmeester | Grrr.nl
  */
 class Garp_Shell_Command_PngQuantIsAvailable extends Garp_Shell_Command_Abstract {
