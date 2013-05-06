@@ -48,6 +48,7 @@
 	<?php endif; ?>
 	DEBUG = window.location.hash.indexOf('debug') > -1;
 	LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getAllPossibleLocales()); ?>'];
+	DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
 </script>
 
 <!-- Ext Overrides include -->
