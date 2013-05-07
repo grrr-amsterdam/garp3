@@ -2330,7 +2330,10 @@ Garp.FormHelper.Validator = function(cfg){
 		// Simple email validation
 			email: {
 				fn: function(field){
-					if (field.attr('type') == 'email' && field.val().length) {
+					if (!field.attr('required')) {
+						return true;
+					}
+					if (field.attr('type') == 'email') {
 						return (/^(\w+)([\-+.\'][\w]+)*@(\w[\-\w]*\.){1,5}([A-Za-z]){2,6}$/.test(field.val()));
 					}
 					return true;
@@ -2343,10 +2346,20 @@ Garp.FormHelper.Validator = function(cfg){
 				fn: function(field){
 					if (field.attr('type') === 'number') {
 						var v = field.val();
+						if (!v && !field.attr('required') ) {
+							return true;
+						}
+
+						v = v.replace(/,/,'.');
+						field.val(v);
+						var min, max;
 						if (!$.isNumeric(v)) {
 							return false;
 						}
-						if ((field.attr('min') && v < field.attr('min')) || (field.attr('max') && v > field.attr('max'))) {
+						v = parseInt(v, 10);
+						min = parseInt(field.attr('min'), 10);
+						max = parseInt(field.attr('max'), 10);
+						if ((field.attr('min') && v < min) || (field.attr('max') && v > max)) {
 							return false;
 						}
 					}
