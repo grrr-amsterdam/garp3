@@ -251,12 +251,22 @@ class G_AuthController extends Garp_Controller_Action {
 				if ($user->save()) {
 					// Render the email message
 					$this->_helper->layout->disableLayout();
-					$this->view->user = $user;
-					$this->view->activationUrl = $activationUrl;
-					// Add "default" module as a script path so the partial can 
-					// be found.
-					$this->view->addScriptPath(APPLICATION_PATH.'/modules/default/views/scripts/');
-					$emailMessage = $this->view->render($authVars['forgotpassword']['email_partial']);
+					// Email can be put in a partial...
+					if (!empty($authVars['forgotpassword']['email_partial'])) {
+						$this->view->user = $user;
+						$this->view->activationUrl = $activationUrl;
+						// Add "default" module as a script path so the partial can 
+						// be found.
+						$this->view->addScriptPath(APPLICATION_PATH.'/modules/default/views/scripts/');
+						$emailMessage = $this->view->render($authVars['forgotpassword']['email_partial']);
+					} else {
+						// ...or the email can be added as a snippet
+						$emailMessage = __('forgot password email');
+						$emailMessage = Garp_Util_String::interpolate($emailMessage, array(
+							'USERNAME'       => (string)new Garp_Util_FullName($user),
+							'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
+						));
+					}
 				
 					// Send mail to the user
 					// @todo Make this more transparent. Use a Strategy design pattern for instance.
