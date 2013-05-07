@@ -70,9 +70,9 @@ class G_Model_User extends Model_Base_User {
  	 */
 	public function afterInsert(array &$args) {
 		$data = $args[1];
-		$primaryKey = &$args[2];		
+		$primaryKey = &$args[2];
 
-		// Check if an email address was changed. If so, send a validation email		
+		// Check if an email address was changed. If so, send a validation email
 		if (array_key_exists('email', $data) && !empty($data['email'])) {
 			$this->_onEmailChange($data['email']);
 		}
@@ -283,13 +283,24 @@ class G_Model_User extends Model_Base_User {
 		// Render the email message
 		$activationUrl = '/g/auth/validateemail/c/'.$code.'/e/'.md5($user->email).'/';
 
-		$bootstrap = Zend_Controller_Front::getInstance()->getParam('bootstrap');
-		$view = $bootstrap->getResource('View');
-		$emailMessage = $view->partial($authVars['validateEmail']['email_partial'], 'default', array(
-			'user' => $user,
-			'activationUrl' => $activationUrl,
-			'updateOrInsert' => $updateOrInsert
-		));
+		if (!empty($authVars['validateEmail']['email_partial'])) {
+			$bootstrap = Zend_Controller_Front::getInstance()->getParam('bootstrap');
+			$view = $bootstrap->getResource('View');
+			$emailMessage = $view->partial($authVars['validateEmail']['email_partial'], 'default', array(
+				'user' => $user,
+				'activationUrl' => $activationUrl,
+				'updateOrInsert' => $updateOrInsert
+			));
+		} else {
+			$snippetId = 'validate email ';
+			$snippetId .= $updateOrInsert == 'insert' ? 'new user' : 'existing user';
+			$snippetId .= ' email';
+			$emailMessage = __($snippetId);
+			$emailMessage = Garp_Util_String::interpolate($emailMessage, array(
+				'USERNAME' => (string)new Garp_Util_FullName($user), 
+				'ACTIVATION_URL' => $activationUrl
+			));
+		}
 
 		// Note: this requires SES credentials defined in amazon.ses.accessKey and amazon.ses.secretKey
 		$ses = new Garp_Service_Amazon_Ses();
