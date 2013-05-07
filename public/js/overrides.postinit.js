@@ -314,6 +314,9 @@ Ext.override(Ext.grid.GridView, {
 		//build up each row's HTML
 		for (j = 0; j < len; j++) {
 			record = records[j];
+			if (!record) {
+				continue;
+			}
 			colBuffer = [];
 			
 			rowIndex = j + startRow;
@@ -327,7 +330,6 @@ Ext.override(Ext.grid.GridView, {
 				meta.attr = meta.cellAttr = '';
 				meta.style = column.style;
 				meta.value = column.renderer.call(column.scope, record.data[column.name], meta, record, rowIndex, i, store, this);
-				
 				if (Ext.isEmpty(meta.value)) {
 					meta.value = '&#160;';
 				}
