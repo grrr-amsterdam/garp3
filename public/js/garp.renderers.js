@@ -384,5 +384,14 @@ Ext.apply(Garp.renderers,{
 	
 	checkboxRenderer: function(v){
 		return v == '1'  ? __('yes') : __('no');
+	},
+	
+	i18nRenderer: function(v){
+		if(v && typeof v == 'object' && v[DEFAULT_LANGUAGE]){
+			return v[DEFAULT_LANGUAGE];
+		} else if (typeof v !== 'object') {
+			return v;
+		} 
+		return '-';
 	}
 });
