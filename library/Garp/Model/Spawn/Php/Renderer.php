@@ -295,8 +295,8 @@ class Garp_Model_Spawn_Php_Renderer {
 	protected function _renderBindingBaseModel($modelId1, Garp_Model_Spawn_Relation $habtmRelation) {
 		$bindingModel	= $habtmRelation->getBindingModel();
 
-		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory();
-		$table 			= $tableFactory->produceConfigTable($bindingModel);
+		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory($bindingModel);
+		$table 			= $tableFactory->produceConfigTable();
 
 		$modelId2 		= $habtmRelation->model;
 		$isHomophile 	= $modelId1 === $modelId2;
