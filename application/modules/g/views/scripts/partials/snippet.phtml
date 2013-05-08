@@ -1,9 +1,8 @@
 <?php
 	if ($this->snippet->has_name):
 		$headerTag = $this->headerTag ?: 'h3';
-?>
-<?php echo '<'.$headerTag.'>'.nl2br($this->escape($this->snippet->name)).'</'.$headerTag.'>'; ?>
-<?php
+		$headerClass = $this->headerClass ?: '';
+		echo '<'.$headerTag.($headerClass ? ' class="'.$headerClass.'"' : '').'>'.nl2br($this->escape($this->snippet->name)).'</'.$headerTag.'>';
 	endif;
 	
 	if ($this->snippet->has_image && $this->snippet->image_id):
