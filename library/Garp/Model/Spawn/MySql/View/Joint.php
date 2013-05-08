@@ -8,14 +8,6 @@
  */
 class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abstract {
 	const POSTFIX = '_joint';
-
-
-	/****/
-	// public function create() {
-	// 	Zend_Debug::dump($this->renderSql());
-	// 	exit;
-	// }	
-	/****/
 	
 	public function getName() {
 		return $this->_getTableName() . self::POSTFIX;
