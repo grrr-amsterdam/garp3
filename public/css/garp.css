@@ -279,7 +279,9 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 
 /* i18n fieldset */
 .i18n-fieldset { border-bottom:1px #ddd dotted; padding: 10px 0 0 0; margin: 20px 0 0 0; } 
-.i18n-fieldset legend { padding: 0 15px 0 0; text-transform: lowercase; }
+.i18n-fieldset legend { padding: 0 15px 0 0; text-transform: lowercase; font-size: 12px; }
+.i18n-fieldset legend:after { content: url(../../media/images/garp/icons2/collapse.png); width: 16px; height: 16px; position: relative; top: 4px; left: 10px; opacity: .35; }
+.i18n-fieldset.x-panel-collapsed legend:after { content: url(../../media/images/garp/icons2/expand.png); }
 
 /* GARP Overrides */
 .x-form-text.x-superboxselect.x-form-focus { -moz-box-shadow: 0px 0px 5px #46A; -webkit-box-shadow: 0px 0px 5px #46A; box-shadow: 0px 0px 5px #46A; border: 1px #68D solid; outline: 0; -webkit-transition: all .2s ease-out; }
