@@ -4,10 +4,14 @@
  * @todo: REFACTOR!
  */
 class Garp_Model_Spawn_Behavior_Set {
-	/** @var Array $_behaviors Associative array of Garp_Model_Spawn_Behavior objects, where the key is the behavior name. */
+	/**
+	 * @var Array $_behaviors Associative array of Garp_Model_Spawn_Behavior objects, where the key is the behavior name.
+	 */
 	protected $_behaviors = array();
 
-	/** @var Garp_Model_Spawn_Model */
+	/**
+	 * @var Garp_Model_Spawn_Model_Abstract $_model
+	 */
 	protected $_model;
 
 	protected $_defaultConditionalBehaviorNames = array('HtmlFilterable', 'NotEmpty', 'Email');
@@ -31,6 +35,20 @@ class Garp_Model_Spawn_Behavior_Set {
 		$this->_addWeighableBehavior();
 	}
 
+	/**
+	 * @return Garp_Model_Spawn_Model_Abstract
+	 */
+	public function getModel() {
+		return $this->_model;
+	}
+	
+	/**
+	 * @param Garp_Model_Spawn_Model_Abstract $model
+	 */
+	public function setModel($model) {
+		$this->_model = $model;
+	}
+
 	protected function _add($origin, $behaviorName, $behaviorConfig = null, $behaviorType = null) {
 		if (!array_key_exists($behaviorName, $this->_behaviors)) {
 			$factory 	= new Garp_Model_Spawn_Behavior_Factory();
@@ -52,6 +70,32 @@ class Garp_Model_Spawn_Behavior_Set {
 		}
 	}
 
+	/**
+	 * Retrieves required field names. In case of a multilingual base model, the multilingual
+	 * columns are not returned, since they are only required in the leaf i18n model.
+	 */
+	protected function _getRequiredFieldNames() {
+		$model = $this->getModel();
+
+		if (!$model->isMultilingual()) {
+			return $this->_model->fields->getFieldNames('required', true);
+		}
+
+		return $this->_getUnilingualFieldNames();
+	}
+	
+	protected function _getUnilingualFieldNames() {
+		$unilingualFieldNames 	= array();
+		$requiredFields 		= $this->_model->fields->getFields('required', true);
+		
+		foreach ($requiredFields as $field) {
+			if (!$field->isMultilingual()) {
+				$unilingualFieldNames[] = $field->name;
+			}
+		}
+		
+		return $unilingualFieldNames;
+	}
 
 	protected function _loadDefaultConditionalBehaviors() {
 		$behaviorConfig = null;
@@ -67,7 +111,7 @@ class Garp_Model_Spawn_Behavior_Set {
 					}
 				break;
 				case 'NotEmpty':
-					$requiredFieldNames = $this->_model->fields->getFieldNames('required', true);
+					$requiredFieldNames = $this->_getRequiredFieldNames();
 					if ($requiredFieldNames) {
 						$behaviorType = 'Validator';
 						$behaviorConfig = $requiredFieldNames;

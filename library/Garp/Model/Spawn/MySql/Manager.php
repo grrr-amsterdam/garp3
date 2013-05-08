@@ -103,8 +103,9 @@ class Garp_Model_Spawn_MySql_Manager {
 		
 		//	Stage 5: Create base model views________
 		foreach ($modelSet as $model) {
-			$progress->display($model->id . " views");
+			$progress->display($model->id . " joint view");
 			$this->_createJointView($model);
+			$progress->display($model->id . " i18n view");
 			$this->_createI18nViews($model);
 			$progress->advance();
 		}
@@ -137,8 +138,8 @@ class Garp_Model_Spawn_MySql_Manager {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->display($model->id . " SQL render.");
 
-		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory();
-		$configTable 	= $tableFactory->produceConfigTable($model);
+		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory($model);
+		$configTable 	= $tableFactory->produceConfigTable();
 
 		$this->_createTableIfNotExists($configTable);
 		
@@ -168,8 +169,8 @@ class Garp_Model_Spawn_MySql_Manager {
 	protected function _createBindingModelTableIfNotExists(Garp_Model_Spawn_Relation $relation) {
 		$bindingModel 	= $relation->getBindingModel();
 
-		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory();
-		$configTable 	= $tableFactory->produceConfigTable($bindingModel);
+		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory($bindingModel);
+		$configTable 	= $tableFactory->produceConfigTable();
 
 		$this->_createTableIfNotExists($configTable);
 	}

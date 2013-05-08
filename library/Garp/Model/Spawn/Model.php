@@ -69,6 +69,9 @@ class Garp_Model_Spawn_Model extends Garp_Model_Spawn_Model_Abstract {
 		return $jsBaseModel->render();
 	}
 
+	/**
+	 * @return 	Bool 	Whether this is a base model containing one or more multilingual columns
+	 */
 	public function isMultilingual() {
 		$fields = $this->fields->getFields('multilingual', true);
 		$isMultilingual = (bool)$fields;
