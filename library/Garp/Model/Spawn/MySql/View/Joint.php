@@ -11,15 +11,14 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 
 
 	/****/
-	public function create() {
-		Zend_Debug::dump($this->renderSql());
-		exit;
-	}
-	
+	// public function create() {
+	// 	Zend_Debug::dump($this->renderSql());
+	// 	exit;
+	// }	
 	/****/
 	
 	public function getName() {
-		return $this->getModelId() . self::POSTFIX;
+		return $this->_getTableName() . self::POSTFIX;
 	}
 	
 	public static function deleteAll() {
@@ -41,26 +40,53 @@ class Garp_Model_Spawn_MySql_View_Joint extends Garp_Model_Spawn_MySql_View_Abst
 		return $sql;
 	}
 	
+	protected function _getRelationTableName($modelName) {
+		$model			= $this->_getModelFromModelName($modelName);
+		$tableName 		= $model->getName();
+
+		return $tableName;
+	}
+	
+	protected function _getModelFromModelName($modelName) {
+		$modelClass 	= 'Model_' . $modelName;
+		$model 			= new $modelClass();
+
+		return $model;
+	}
+	
+	protected function _getTranslatedViewName() {
+		$model 		= $this->getModel();
+		$locale 	= Garp_I18n::getDefaultLocale();
+		$i18nView 	= new Garp_Model_Spawn_MySql_View_I18n($model, $locale);
+		$viewName 	= $i18nView->getName();
+		
+		return $viewName;
+	}
+	
 	protected function _renderSelect(array $singularRelations) {
-		$modelId 			= $this->getModelId();
-		$select 			= "SELECT `{$modelId}`.*,\n";
+		$model = $this->getModel();
+		
+		$tableName = $model->isMultilingual() ?
+			$this->_getTranslatedViewName() :
+			$this->_getTableName()
+		;
+
+		$select 			= "SELECT `{$tableName}`.*,\n";
 
 		$relNodes = array();
 		foreach ($singularRelations as $relName => $rel) {
 			$lcRelName		= strtolower($relName);
-			$lcRelModelId 	= strtolower($rel->model);
-			$modelName 		= 'Model_' . $rel->model;
-			$relModel 		= new $modelName;
+			$relModel		= $this->_getModelFromModelName($rel->model);
 			$relNodes[] 	= $relModel->getRecordLabelSql($lcRelName) . " AS `{$lcRelName}`";
 		}
 
 		$select .= implode(",\n", $relNodes);
-		$select .= "\nFROM `{$modelId}`";
+		$select .= "\nFROM `{$tableName}`";
 		
 		foreach ($singularRelations as $relName => $rel) {
 			$lcRelName 		= strtolower($relName);
-			$lcRelModelId 	= strtolower($rel->model);
-			$select .= "\nLEFT JOIN `{$lcRelModelId}` AS `{$lcRelName}` ON `{$modelId}`.`{$rel->column}` = `{$lcRelName}`.`id`";
+			$relTableName	= $this->_getRelationTableName($rel->model);
+			$select .= "\nLEFT JOIN `{$relTableName}` AS `{$lcRelName}` ON `{$tableName}`.`{$rel->column}` = `{$lcRelName}`.`id`";
 		}
 		
 		return $select;
