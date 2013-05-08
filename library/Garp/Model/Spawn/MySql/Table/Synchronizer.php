@@ -24,9 +24,9 @@ class Garp_Model_Spawn_MySql_Table_Synchronizer {
 	 * @param 	Garp_Model_Spawn_Model_Abstract 		$model
 	 */
 	public function __construct(Garp_Model_Spawn_Model_Abstract $model) {
-		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory();
-		$configTable 	= $tableFactory->produceConfigTable($model);
-		$liveTable 		= $tableFactory->produceLiveTable($model);
+		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory($model);
+		$configTable 	= $tableFactory->produceConfigTable();
+		$liveTable 		= $tableFactory->produceLiveTable();
 		
 		$this->setSource($configTable);
 		$this->setTarget($liveTable);
