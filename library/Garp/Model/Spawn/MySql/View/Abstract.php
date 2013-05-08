@@ -50,11 +50,13 @@ abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_
 		
 		return $this->_adapter->query($sql);
 	}
-
-	public function getModelId() {
-		$model = $this->getModel();
-		$lcModelId = strtolower($model->id);
-		return $lcModelId;
+	
+	public function _getTableName() {
+		$model 			= $this->getModel();
+		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory($model);
+		$table 			= $tableFactory->produceConfigTable();
+		
+		return $table->name;
 	}
 	
 	/**

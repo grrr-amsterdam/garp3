@@ -235,12 +235,14 @@ class Garp_Model_Spawn_Php_Renderer {
 		$recordLabelFieldDefs 	= $this->_getRecordLabelFieldDefinitions();
 		$labelColumnsListSql 	= implode(', ', $recordLabelFieldDefs);
 		$glue 					= $this->_modelHasFirstAndLastNameListFields() ? ' ' : ', ';
-		$sql = "CONVERT(CONCAT_WS('{$glue}', " . $labelColumnsListSql . ') USING utf8)';
+		$sql 					= "CONVERT(CONCAT_WS('{$glue}', " . $labelColumnsListSql . ') USING utf8)';
 
 		$out 	= $this->_rl("public function getRecordLabelSql(\$tableAlias = null) {", 1);
 		$out 	.= $this->_rl("\$tableAlias = \$tableAlias ?: '{$tableName}';", 2);
 		$out 	.= $this->_rl("return \"{$sql}\";", 2);
 		$out 	.= $this->_rl('}', 1, 1);
+		
+		return $out;
 	}
 	
 	protected function _getTableName() {
@@ -257,8 +259,12 @@ class Garp_Model_Spawn_Php_Renderer {
 		$fieldDefs 		= array();
 
 		foreach ($listFieldNames as $listFieldName) {
-			$field = $model->fields->getField($listFieldName);
-			
+			try {
+				$field = $model->fields->getField($listFieldName);
+			} catch (Exception $e) {
+				break;
+			}
+
 			if (
 				!$field ||
 				!$field->isSuitableAsLabel()
