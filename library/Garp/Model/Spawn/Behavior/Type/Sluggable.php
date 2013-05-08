@@ -4,6 +4,7 @@
  */
 class Garp_Model_Spawn_Behavior_Type_Sluggable extends Garp_Model_Spawn_Behavior_Type_Abstract {
 	const SLUG_FIELD_PARAM = 'slugField';
+	const BASE_FIELD_PARAM = 'baseField';
 
 	/**
 	 * @var Array $_defaultParams
@@ -55,11 +56,52 @@ class Garp_Model_Spawn_Behavior_Type_Sluggable extends Garp_Model_Spawn_Behavior
 	 * @return	Array	Configuration of the slug field
 	 */
 	protected function _getSlugFieldConfig() {
-		return $this->_slugFieldConfig;
+		$slugFieldConfig 	= $this->_slugFieldConfig;
+
+		if ($this->_baseFieldIsMultilingual()) {
+			$slugFieldConfig['multilingual'] = true;
+		}
+
+		return $slugFieldConfig;
+	}
+
+	/**
+	 * Whether one or more base fields are multilingual
+	 */
+	protected function _baseFieldIsMultilingual() {
+		$modelBaseFields = $this->_getModelBaseFields();
+
+		foreach ($modelBaseFields as $field) {
+			if ($field->isMultilingual()) {
+				return true;
+			}
+		}
 		
-		/**
-		 * @todo: multilingual al dan niet toevoegen.
-		 */
+		return false;
+	}
+
+	/**
+	 * @return 	Array 	One or more model fields on which the slug is based
+	 */
+	protected function _getModelBaseFields() {
+		$baseFields		= array();
+		$model 			= $this->getModel();
+		$baseFieldNames	= $this->_getBaseFieldNames();		
+
+		foreach ($baseFieldNames as $name) {
+			$baseFields[] = $model->fields->getField($name);			
+		}
+				
+		return $baseFields;
+	}
+
+	/**
+	 * @return 	Array 	One or more field names on which the slug is based
+	 */	
+	protected function _getBaseFieldNames() {
+		$params 		= $this->getParams();
+		$baseFieldNames = (array)$params[self::BASE_FIELD_PARAM];
+		return $baseFieldNames;
 	}
 
 	/**
