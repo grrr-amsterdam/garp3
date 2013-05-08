@@ -255,19 +255,19 @@ class Garp_Model_Spawn_Php_Renderer {
 	/**
 	 * @return Garp_Model_Spawn_Behavior The filtered behavior.
 	 */
-	protected function _filterBehaviorParams($behaviorName, Garp_Model_Spawn_Behavior $behavior) {
+	protected function _filterBehaviorParams($behaviorName, Garp_Model_Spawn_Behavior_Type_Abstract $behavior) {
 		$filteredBehavior = clone $behavior;
 
-		switch ($behaviorName) {
-			case 'Weighable':
-				$habtmRelNames = array_keys($this->_model->relations->getRelations('type', 'hasAndBelongsToMany'));
+		if ($behaviorName === 'Weighable') {
+			$habtmRels		= $this->_model->relations->getRelations('type', 'hasAndBelongsToMany');
+			$habtmRelNames 	= array_keys($habtmRels);
+			$params			= $filteredBehavior->getParams();
 
-				foreach ($filteredBehavior->params as $modelName => $paramValue) {
-					if (in_array($modelName, $habtmRelNames)) {
-						unset($filteredBehavior->params[$modelName]);
-					}
+			foreach ($params as $modelName => $paramValue) {
+				if (in_array($modelName, $habtmRelNames)) {
+					unset($params[$modelName]);
 				}
-			break;
+			}
 		}
 
 		return $filteredBehavior;
@@ -368,16 +368,20 @@ class Garp_Model_Spawn_Php_Renderer {
 	}
 
 
-	protected function _renderBehavior(Garp_Model_Spawn_Behavior $behavior) {
+	protected function _renderBehavior(Garp_Model_Spawn_Behavior_Type_Abstract $behavior) {
+		$params = $behavior->getParams();
+		$name	= $behavior->getName();
+		$type	= $behavior->getType();
+
 		if (
-			$behavior->params ||
-			!in_array($behavior->name, $this->_behaviorsThatRequireParams)
+			$params ||
+			!in_array($name, $this->_behaviorsThatRequireParams)
 		) {
-			$paramsString = is_array($behavior->params) ?
-				Garp_Model_Spawn_Util::array2phpStatement($behavior->params) :
+			$paramsString = is_array($params) ?
+				Garp_Model_Spawn_Util::array2phpStatement($params) :
 				null
 			;
-			return "\$this->registerObserver(new Garp_Model_{$behavior->type}_{$behavior->name}({$paramsString}));";
+			return "\$this->registerObserver(new Garp_Model_{$type}_{$name}({$paramsString}));";
 		}
 	}
 
