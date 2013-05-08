@@ -80,6 +80,20 @@ class Garp_Model_Spawn_Fields {
 		}
 	}
 	
+	public function getField($name) {
+		foreach ($this->_fields as $position => $field) {
+			if ($field->name === $name) {
+				return $field;
+			}
+		}
+		
+		$model = $this->getModel();
+		throw new Exception("No field by the name of {$name} was found in the {$model->id} model.");
+	}
+	
+	public function getModel() {
+		return $this->_model;
+	}
 	
 	/**
 	 * @return Array Numeric array of Garp_Model_Spawn_Field objects, where the key is the field position

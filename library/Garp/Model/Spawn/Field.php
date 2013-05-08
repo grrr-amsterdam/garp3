@@ -64,6 +64,9 @@ class Garp_Model_Spawn_Field {
 		return in_array($this->type, $textualTypes);
 	}
 
+	public function isMultilingual() {
+		return $this->multilingual;
+	}
 
 	protected function _loadParams(array $config) {
 		foreach ($config as $paramName => $paramValue) {
