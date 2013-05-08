@@ -108,7 +108,8 @@ Ext.reg('i18nsource', Garp.i18nSource);
  * Simple Fieldset to hold i18n fields:
  */
 Garp.i18nFieldSet = Ext.extend(Ext.form.FieldSet, {
-	style: 'border-top: 1px #ddd dotted; padding: 0; margin: 20px 0 0 0; ',
+	cls: 'i18n-fieldset',
+	collapsed: true,
 	initComponent: function(ct){
 		Garp.i18nFieldSet.superclass.initComponent.call(this, ct);
 	}
