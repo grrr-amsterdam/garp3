@@ -136,7 +136,7 @@ abstract class Garp_Model_Spawn_MySql_Table_Abstract {
 	}
 	
 	public function deleteColumn(Garp_Model_Spawn_MySql_Column $liveColumn) {
-		$alterQuery = "ALTER TABLE `{$this->name}` DROP COLUMN `{$liveCol->name}`;";
+		$alterQuery = "ALTER TABLE `{$this->name}` DROP COLUMN `{$liveColumn->name}`;";
 		$this->_adapter->query($alterQuery);
 	}
 	
