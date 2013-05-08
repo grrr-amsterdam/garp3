@@ -49,7 +49,17 @@ abstract class Garp_Model_Spawn_Model_Abstract {
 		$phpModel->save();
 	}
 	
+	/**
+	 * @return 	Bool 	Whether this is a base model containing one or more multilingual columns
+	 */
 	public function isMultilingual() {
+		return false;
+	}
+
+	/**
+	 * @return 	Bool 	Whether this is a i18n leaf model, derived from a multilingual base model
+	 */
+	public function isTranslated() {
 		return false;
 	}
 	

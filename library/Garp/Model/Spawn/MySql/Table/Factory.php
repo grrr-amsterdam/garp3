@@ -6,47 +6,90 @@
  * @subpackage Spawn
  */
 class Garp_Model_Spawn_MySql_Table_Factory {
+	/**
+	 * @var Garp_Model_Spawn_Model_Abstract $_model
+	 */
+	protected $_model;
+	
+	
+	public function __construct(Garp_Model_Spawn_Model_Abstract $model) {
+		$this->setModel($model);
+	}
 
 	/**
 	 * Produces a Garp_Model_Spawn_MySql_Table_Abstract instance, based on the spawn configuration.
 	 */
-	public function produceConfigTable(Garp_Model_Spawn_Model_Abstract $model) {
-		$createStatement = $this->_renderCreateFromConfig($model);
-		return $this->_produceTable($createStatement, $model);
+	public function produceConfigTable() {
+		$model = $this->getModel();
+		$createStatement = $this->_renderCreateFromConfig();
+		return $this->_produceTable($createStatement);
 	}
 
 	/**
 	 * Produces a Garp_Model_Spawn_MySql_Table_Abstract instance, based on the live database.
 	 */	
-	public function produceLiveTable(Garp_Model_Spawn_Model_Abstract $model) {
-		$createStatement = $this->_renderCreateFromLive($model);
-		return $this->_produceTable($createStatement, $model);
+	public function produceLiveTable() {
+		$model = $this->getModel();
+		$createStatement = $this->_renderCreateFromLive();
+		return $this->_produceTable($createStatement);
+	}
+	
+	/**
+	 * @return Garp_Model_Spawn_Model_Abstract
+	 */
+	public function getModel() {
+		return $this->_model;
+	}
+	
+	/**
+	 * @param Garp_Model_Spawn_Model_Abstract $model
+	 */
+	public function setModel($model) {
+		$this->_model = $model;
 	}
 
-	protected function _produceTable($createStatement, Garp_Model_Spawn_Model_Abstract $model) {
+	protected function _produceTable($createStatement) {
+		$model 		= $this->getModel();
 		$tableClass	= $this->_getTableClass($model);
 		return new $tableClass($createStatement, $model);
 	}
 
-	protected function _renderCreateFromConfig(Garp_Model_Spawn_Model_Abstract $model) {
-		$tableName = $this->_getTableName($model);
+	protected function _renderCreateFromConfig() {
+		$model 		= $this->getModel();
+		$tableName 	= $this->_getTableName();
+		$fields 	= $this->_getUnilingualFields();
 		
 		return $this->_renderCreateAbstract(
 			$tableName,
-			$model->fields->getFields(),
+			$fields,
 			$model->relations->getRelations()
 		);
 	}
 
-	protected function _renderCreateFromLive(Garp_Model_Spawn_Model_Abstract $model) {
-		$tableName = $this->_getTableName($model);
-
+	protected function _getUnilingualFields() {
+		$model = $this->getModel();
+		
+		$fields = $model->isMultilingual() ?
+			$fields = $model->fields->getFields('multilingual', false) :
+			$model->fields->getFields()
+		;
+		
+		return $fields;
+	}
+	
+	protected function _renderCreateFromLive() {
+		$model 		= $this->getModel();
+		$tableName 	= $this->_getTableName($model);
 		$adapter 	= Zend_Db_Table::getDefaultAdapter();
 		$liveTable 	= $adapter->fetchAll("SHOW CREATE TABLE `{$tableName}`;");
-		return $liveTable[0]['Create Table'] . ';';
+		$statement	= $liveTable[0]['Create Table'] . ';';
+
+		return $statement;
 	}
 
-	protected function _getTableName(Garp_Model_Spawn_Model_Abstract $model) {
+	protected function _getTableName() {
+		$model = $this->getModel();
+
 		switch (get_class($model)) {
 			case 'Garp_Model_Spawn_Model_Binding':
 				return '_' . strtolower($model->id);
@@ -59,7 +102,9 @@ class Garp_Model_Spawn_MySql_Table_Factory {
 	/**
 	 * @return 	String 	Class of the table type that is to be returned
 	 */
-	protected function _getTableClass(Garp_Model_Spawn_Model_Abstract $model) {
+	protected function _getTableClass() {
+		$model = $this->getModel();
+		
 		switch (get_class($model)) {
 			case 'Garp_Model_Spawn_Model_Binding':
 				return 'Garp_Model_Spawn_MySql_Table_Binding';

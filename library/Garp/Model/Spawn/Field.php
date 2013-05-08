@@ -67,6 +67,18 @@ class Garp_Model_Spawn_Field {
 	public function isMultilingual() {
 		return $this->multilingual;
 	}
+	
+	public function isRelationField() {
+		return $this->origin === 'relation';
+	}
+	
+	public function isSuitableAsLabel() {
+		$nonLabelFieldTypes 	= array('html', 'checkbox');
+		$isSuitableType 		= !in_array($this->type, $nonLabelFieldTypes);
+		$isSuitableField		= $isSuitableType && !$this->isRelationField();
+		
+		return $isSuitableField;
+	}
 
 	protected function _loadParams(array $config) {
 		foreach ($config as $paramName => $paramValue) {

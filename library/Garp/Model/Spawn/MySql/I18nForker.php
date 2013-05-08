@@ -23,9 +23,9 @@ class Garp_Model_Spawn_MySql_I18nForker {
 	
 
 	public function __construct(Garp_Model_Spawn_Model $model) {
-		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory();
-		$source 		= $tableFactory->produceConfigTable($model);
-		$target 		= $tableFactory->produceLiveTable($model);
+		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory($model);
+		$source 		= $tableFactory->produceConfigTable();
+		$target 		= $tableFactory->produceLiveTable();
 
 		$this->setModel($model);
 		$this->setSource($source);
@@ -92,7 +92,7 @@ class Garp_Model_Spawn_MySql_I18nForker {
 		$fieldNamesString	= $this->_getMultilingualFieldNamesString();
 		
 		$statement = 
-			"INSERT INTO `{$i18nTableName}` ({$relationColumnName}, lang, {$fieldNamesString}) "
+			"INSERT IGNORE INTO `{$i18nTableName}` ({$relationColumnName}, lang, {$fieldNamesString}) "
 			."SELECT id, '{$language}', {$fieldNamesString} "
 			."FROM `{$target->name}`"
 		;
