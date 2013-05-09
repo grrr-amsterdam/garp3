@@ -66,20 +66,32 @@ class Garp_Model_Spawn_Relations {
 		return $out;
 	}
 	
+	public function getSingularRelations() {
+		$singularRels = array();
+
+		foreach ($this->_relations as $relName => $relation) {
+			$singularRels = $this->_addSingularRelation($singularRels, $relName, $relation);
+		}
+		
+		return $singularRels;
+	}
+	
 	public function getRelation($name) {
 		if (array_key_exists($name, $this->_relations))
 			return $this->_relations[$name];
 		else throw new Exception("The '{$name}' relation was not registered.");
 	}
 
-
 	public function add($name, array $params, $preventDoubles = true) {
-		if (!array_key_exists($name, $this->_relations)) {
-			$this->_relations[$name] = new Garp_Model_Spawn_Relation($this->_model, $name, $params);
-			ksort($this->_relations);
-		} elseif ($preventDoubles) {
+		if (
+			array_key_exists($name, $this->_relations) &&
+			$preventDoubles
+		) {
 			throw new Exception("You're trying to add the '{$name}' {$params['type']} relation, but there already is a {$name} {$this->_relations[$name]->type} relation registered in the '{$this->_model->id}' model.");
 		}
+		
+		$this->_relations[$name] = new Garp_Model_Spawn_Relation($this->_model, $name, $params);
+		ksort($this->_relations);
 	}
 	
 
@@ -172,5 +184,20 @@ class Garp_Model_Spawn_Relations {
 			throw new Exception(__METHOD__ . ' needs a model name as a string.');
 		}
 		return Garp_Model_Spawn_Util::camelcased2underscored($modelName) . (is_null($index) ? '' : (string)$index) . '_id';
+	}
+	
+	/**
+	 * Adds the relation to the relation set, if it's singular.
+	 * @param	Array						$relationSet	The set to add the relation to
+	 * @param	String						$relName		The relation name
+	 * @param	Garp_Model_Spawn_Relation	$relation		The relation instance, plural or singular
+	 * @return 	Array 										The relation set with the added singular relation
+	 */
+	protected function _addSingularRelation(array $relationSet, $relName, Garp_Model_Spawn_Relation $relation) {
+		if ($relation->isSingular()) {
+			$relationSet[$relName] = $relation;
+		}
+		
+		return $relationSet;
 	}
 }
