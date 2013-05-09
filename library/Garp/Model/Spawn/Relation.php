@@ -41,7 +41,7 @@ class Garp_Model_Spawn_Relation {
 	 */
 	public $inline;
 
-	/** @var Garp_Model_Spawn_Model $_model The local model in which this relation is defined. */
+	/** @var Garp_Model_Spawn_Model_Base $_model The local model in which this relation is defined. */
 	protected $_localModel;
 
 	/** @var Array $_types Allowed relation types. */
@@ -65,6 +65,13 @@ class Garp_Model_Spawn_Relation {
 		$this->_addRelationColumn();
 		$this->_addRelationFieldInLocalModel();
 		$this->_addOppositeRule();
+// if ($localModel->id === 'Celebrity' && $name === 'Movie') {
+// 	Zend_Debug::dump($params);
+// 	Zend_Debug::dump($this);
+// 	exit;
+// 	exit;
+// }
+
 	}
 	
 	
@@ -112,7 +119,7 @@ class Garp_Model_Spawn_Relation {
 	
 	
 	/**
-	 * @return Garp_Model_Spawn_Model 	A model object, representing the binding model
+	 * @return Garp_Model_Spawn_Model_Base 	A model object, representing the binding model
 	 * 									between two hasAndBelongsToMany related models.
 	 */
 	public function getBindingModel() {

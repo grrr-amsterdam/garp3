@@ -1,6 +1,6 @@
 <?php
-	if (!$this->model instanceof Garp_Model_Spawn_Model):
-		throw new Exception('This partial requires a Garp_Model_Spawn_Model instance as $model parameter.');
+	if (!$this->model instanceof Garp_Model_Spawn_Model_Base):
+		throw new Exception('This partial requires a Garp_Model_Spawn_Model_Base instance as $model parameter.');
 	endif;
 
 	$latField = $this->model->fields->getFields('name', 'location_lat');

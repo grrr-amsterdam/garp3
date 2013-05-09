@@ -7,13 +7,13 @@
  * @group Spawn
  */
 abstract class Garp_Model_Spawn_MySql_View_Abstract implements Garp_Model_Spawn_MySql_View_Protocol {
-	/** @param Garp_Model_Spawn_Model $_model */
+	/** @param Garp_Model_Spawn_Model_Base $_model */
 	protected $_model;
 
 	protected $_adapter;
 
 
-	public function __construct(Garp_Model_Spawn_Model $model) {
+	public function __construct(Garp_Model_Spawn_Model_Base $model) {
 		$this->setModel($model);
 		$this->_adapter = Zend_Db_Table::getDefaultAdapter();
 	}

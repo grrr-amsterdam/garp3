@@ -1,6 +1,6 @@
 <?php
 /**
- * This class tests Garp_Model_Spawn_Model.
+ * This class tests Garp_Model_Spawn_Model_Base.
  * @author David Spreekmeester | Grrr.nl
  * @group Spawn
  */
