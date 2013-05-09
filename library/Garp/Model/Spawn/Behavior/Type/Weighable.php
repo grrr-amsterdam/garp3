@@ -6,6 +6,8 @@ class Garp_Model_Spawn_Behavior_Type_Weighable extends Garp_Model_Spawn_Behavior
 	
 	/**
 	 * Get the parameters, but not the ones referring a HasAndBelongsToMany model.
+	 * This is needed to render the behavior in the PHP model, since Habtm weighable
+	 * settings are in the binding model instead of the current model.
 	 */
 	public function getNonHabtmParams() {
 		$params	= $this->getParams();		

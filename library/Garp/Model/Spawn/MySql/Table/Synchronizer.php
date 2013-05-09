@@ -27,7 +27,13 @@ class Garp_Model_Spawn_MySql_Table_Synchronizer {
 		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory($model);
 		$configTable 	= $tableFactory->produceConfigTable();
 		$liveTable 		= $tableFactory->produceLiveTable();
-		
+
+// if ($model->id === 'CelebrityMovie') {
+if ($model->id === 'Celebrity') {
+	// Zend_Debug::dump($model->relations->getRelation('Movie')->inputs);
+	// exit;
+}
+
 		$this->setSource($configTable);
 		$this->setTarget($liveTable);
 		$this->setModel($model);

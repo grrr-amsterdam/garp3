@@ -2,11 +2,11 @@
 /**
  * @author David Spreekmeester | grrr.nl
  */
-class Garp_Model_Spawn_ModelSet extends ArrayObject {
+class Garp_Model_Spawn_Model_Set extends ArrayObject {
 
 	public function __construct(Garp_Model_Spawn_Config_Model_Set $modelSetConfig) {
 		foreach ($modelSetConfig as $modelId => $modelConfig) {
-			$this[$modelId] = new Garp_Model_Spawn_Model($modelConfig);
+			$this[$modelId] = new Garp_Model_Spawn_Model_Base($modelConfig);
 		}
 		
 		ArrayObject::ksort($this);

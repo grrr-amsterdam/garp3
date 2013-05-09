@@ -30,7 +30,7 @@ class Garp_Cli_Command_Admin extends Garp_Cli_Command {
 
 			// Pull required fields from Spawner config
 			$configDir = APPLICATION_PATH."/modules/default/models/config/";
-			$modelSet = new Garp_Model_Spawn_ModelSet(
+			$modelSet = new Garp_Model_Spawn_Model_Set(
 				new Garp_Model_Spawn_Config_Model_Set(
 					new Garp_Model_Spawn_Config_Storage_File($configDir, 'json'),
 					new Garp_Model_Spawn_Config_Format_Json

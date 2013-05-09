@@ -10,7 +10,7 @@ abstract class Garp_Model_Spawn_Js_Model_Abstract {
 	protected $_modelSet;
 
 
-	public function __construct($modelId, Garp_Model_Spawn_ModelSet $modelSet) {
+	public function __construct($modelId, Garp_Model_Spawn_Model_Set $modelSet) {
 		$this->_modelId = $modelId;
 		$this->_modelSet = $modelSet;
 	}

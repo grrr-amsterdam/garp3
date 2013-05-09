@@ -112,7 +112,7 @@ class Garp_Model_Spawn_MySql_Table_Factory {
 			case 'Garp_Model_Spawn_Model_I18n':
 				return 'Garp_Model_Spawn_MySql_Table_I18n';
 			break;
-			case 'Garp_Model_Spawn_Model':
+			case 'Garp_Model_Spawn_Model_Base':
 				return 'Garp_Model_Spawn_MySql_Table_Base';
 			break;
 			default:

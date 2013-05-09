@@ -76,7 +76,7 @@ class Garp_Model_Spawn_MySql_KeysTest extends PHPUnit_Framework_TestCase {
 			new Garp_Model_Spawn_Config_Format_Json
 		);
 
-		return new Garp_Model_Spawn_Model($modelConfig);
+		return new Garp_Model_Spawn_Model_Base($modelConfig);
 	}
 
 }

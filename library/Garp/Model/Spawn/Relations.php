@@ -6,7 +6,7 @@ class Garp_Model_Spawn_Relations {
 	/** @var Array $_fields	Associative array, where the key is the name of the relation, and the value a Garp_Model_Spawn_Relation object. */
 	protected $_relations = array();
 
-	/** @var Garp_Model_Spawn_Model $_model */
+	/** @var Garp_Model_Spawn_Model_Base $_model */
 	protected $_model;
 
 	/**
@@ -35,6 +35,15 @@ class Garp_Model_Spawn_Relations {
 		foreach ($config as $relationName => &$relationParams) {
 			$this->add($relationName, $relationParams);
 		}
+		
+		if ($model->id === 'Celebrity') {
+			// Zend_Debug::dump($this->getRelation('Movie')->inputs);
+			// exit;
+			// Zend_Debug::dump($model->relations->getRelations('name', 'Movie'));
+			// exit;
+		}
+
+
 	}
 
 
@@ -96,9 +105,9 @@ class Garp_Model_Spawn_Relations {
 	
 
 	/**
-	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model objects
+	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model_Base objects
 	 */
-	static public function defineDefaultRelations(Garp_Model_Spawn_ModelSet &$models) {
+	static public function defineDefaultRelations(Garp_Model_Spawn_Model_Set &$models) {
 		foreach ($models as &$model) {
 			foreach (self::$_defaultRelations as $defRelName => $defRelParams) {
 				if (!count($model->relations->getRelations('name', $defRelName))) {
@@ -110,9 +119,9 @@ class Garp_Model_Spawn_Relations {
 
 
 	/**
-	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model objects
+	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model_Base objects
 	 */
-	static public function defineHasMany(Garp_Model_Spawn_ModelSet &$models) {
+	static public function defineHasMany(Garp_Model_Spawn_Model_Set &$models) {
 		//	inverse singular relations to multiple relations from the other model
 		foreach ($models as &$model) {
 			$singularRelations = $model->relations->getRelations('type', array('hasOne', 'belongsTo'));
@@ -140,9 +149,9 @@ class Garp_Model_Spawn_Relations {
 
 
 	/**
-	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model objects
+	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model_Base objects
 	 */
-	static public function defineHasAndBelongsToMany(Garp_Model_Spawn_ModelSet &$models) {
+	static public function defineHasAndBelongsToMany(Garp_Model_Spawn_Model_Set &$models) {
 		//	inverse singular relations to multiple relations from the other model
 		foreach ($models as &$model) {
 			$habtmRelations = $model->relations->getRelations('type', array('hasAndBelongsToMany'));
