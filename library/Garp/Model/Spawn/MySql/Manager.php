@@ -12,7 +12,7 @@ class Garp_Model_Spawn_MySql_Manager {
      */
     private static $_instance = null;
 	
-	/** @param Array $_models Array of Garp_Model_Spawn_Model objects */
+	/** @param Array $_models Array of Garp_Model_Spawn_Model_Base objects */
 	protected $_modelSet;
 	protected $_adapter;
 	
@@ -40,10 +40,12 @@ class Garp_Model_Spawn_MySql_Manager {
     }
 
 	/**
-	 * @param Garp_Model_Spawn_ModelSet 	$modelSet 		The model set to model the database after.
+	 * @param Garp_Model_Spawn_Model_Set 	$modelSet 		The model set to model the database after.
 	 * @param Array 						&$changelist 	An array of strings, describing the changes made to the database in this Spawn session.
 	 */
-	public function run(Garp_Model_Spawn_ModelSet $modelSet) {
+	public function run(Garp_Model_Spawn_Model_Set $modelSet) {
+Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
+exit;
 		$totalActions = count($modelSet) * 4;
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->init($totalActions);
@@ -123,18 +125,18 @@ class Garp_Model_Spawn_MySql_Manager {
 	 * content from the unilingual table should be moved to the multilingual leaf records.
 	 * This method is called by Garp_Model_Spawn_MySql_Table_Base when that happens.
 	 */
-	public function onI18nTableFork(Garp_Model_Spawn_Model $model) {
+	public function onI18nTableFork(Garp_Model_Spawn_Model_Base $model) {
 		new Garp_Model_Spawn_MySql_I18nForker($model);
 	}
 	
-	protected function _createBaseModelTableAndAdvance(Garp_Model_Spawn_Model $model) {
+	protected function _createBaseModelTableAndAdvance(Garp_Model_Spawn_Model_Base $model) {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->display($model->id . " base table");
 		$this->_createBaseModelTableIfNotExists($model);
 		$progress->advance();
 	}
 		
-	protected function _createBaseModelTableIfNotExists(Garp_Model_Spawn_Model $model) {
+	protected function _createBaseModelTableIfNotExists(Garp_Model_Spawn_Model_Base $model) {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->display($model->id . " SQL render.");
 
@@ -153,12 +155,12 @@ class Garp_Model_Spawn_MySql_Manager {
 	/**
 	 * Creates a MySQL view for every base model, that also fetches the labels of related hasOne / belongsTo records.
 	 */
-	protected function _createJointView(Garp_Model_Spawn_Model $model) {
+	protected function _createJointView(Garp_Model_Spawn_Model_Base $model) {
 		$view = new Garp_Model_Spawn_MySql_View_Joint($model);
 		$view->create();
 	}	
 
-	protected function _createI18nViews(Garp_Model_Spawn_Model $model) {
+	protected function _createI18nViews(Garp_Model_Spawn_Model_Base $model) {
 		$locales = Garp_I18n::getAllPossibleLocales();
 		foreach ($locales as $locale) {
 			$view = new Garp_Model_Spawn_MySql_View_I18n($model, $locale);
@@ -175,7 +177,7 @@ class Garp_Model_Spawn_MySql_Manager {
 		$this->_createTableIfNotExists($configTable);
 	}
 
-	protected function _syncBaseModel(Garp_Model_Spawn_Model $model) {
+	protected function _syncBaseModel(Garp_Model_Spawn_Model_Base $model) {
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->display($model->id . " table comparison");
 

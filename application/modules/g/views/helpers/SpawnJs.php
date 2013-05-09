@@ -78,7 +78,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 
 
-	public function getAclRolesThatAreNotAllowedModelPrivilege(Garp_Model_Spawn_Model $model, $privilege) {
+	public function getAclRolesThatAreNotAllowedModelPrivilege(Garp_Model_Spawn_Model_Base $model, $privilege) {
 		if (Zend_Registry::isRegistered('Zend_Acl')) {
 			$acl = Zend_Registry::get('Zend_Acl');
 
@@ -143,7 +143,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 	
 	
-	public function isImageField(Garp_Model_Spawn_Field $field, Garp_Model_Spawn_Model $model) {
+	public function isImageField(Garp_Model_Spawn_Field $field, Garp_Model_Spawn_Model_Base $model) {
 		$rels = $model->relations->getRelations('column', $field->name);
 		if (count($rels)) {
 			$rel = current($rels);
@@ -158,7 +158,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	 * Whether this field is a singular relation to another record.
 	 * @return String Model name, or false if this is not a relation field.
 	 */
-	public function isSingularRelationField(Garp_Model_Spawn_Field $field, Garp_Model_Spawn_Model $model) {
+	public function isSingularRelationField(Garp_Model_Spawn_Field $field, Garp_Model_Spawn_Model_Base $model) {
 		$rels = $model->relations->getRelations('column', $field->name);
 		if (count($rels)) {
 			$rel = current($rels);
@@ -169,12 +169,12 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 
 
-	public function isListField($fieldName, Garp_Model_Spawn_Model $model) {
+	public function isListField($fieldName, Garp_Model_Spawn_Model_Base $model) {
 		return in_array($fieldName, $model->fields->listFieldNames);
 	}
 	
 	
-	public function modelHasFirstAndLastName(Garp_Model_Spawn_Model $model) {
+	public function modelHasFirstAndLastName(Garp_Model_Spawn_Model_Base $model) {
 		return 
 			$this->isListField('first_name', $model) &&
 			$this->isListField('last_name_prefix', $model) &&

@@ -10,7 +10,7 @@ class Garp_Model_Spawn_Fields {
 	/** @var Array $_fields	Numeric array, where the key is the position of the field, and the value a Garp_Model_Spawn_Field object. */
 	protected $_fields = array();
 
-	/** @var Garp_Model_Spawn_Model */
+	/** @var Garp_Model_Spawn_Model_Base */
 	protected $_model;
 	
 	protected $_configuredListFields;

@@ -51,7 +51,7 @@ abstract class Garp_Model_Spawn_Config_Validator_Model_Abstract implements Garp_
 
 
 	protected function _getAllowedConfigProps() {
-		$modelClass = new ReflectionClass('Garp_Model_Spawn_Model');
+		$modelClass = new ReflectionClass('Garp_Model_Spawn_Model_Base');
 		$getName = function($value) { return $value->name; };
 		$modelProps = array_map($getName, $modelClass->getProperties(ReflectionProperty::IS_PUBLIC));
 

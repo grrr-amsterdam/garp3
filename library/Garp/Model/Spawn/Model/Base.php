@@ -2,7 +2,7 @@
 /**
  * @author David Spreekmeester | grrr.nl
  */
-class Garp_Model_Spawn_Model extends Garp_Model_Spawn_Model_Abstract {
+class Garp_Model_Spawn_Model_Base extends Garp_Model_Spawn_Model_Abstract {
 
 	/**
 	 * @var Garp_Model_Spawn_Model_I18n $_i18nModel
@@ -47,7 +47,7 @@ class Garp_Model_Spawn_Model extends Garp_Model_Spawn_Model_Abstract {
 	/**
 	 * Creates extended model files, if necessary.
 	 */
-	public function materializeExtendedJsModels(Garp_Model_Spawn_ModelSet $modelSet) {
+	public function materializeExtendedJsModels(Garp_Model_Spawn_Model_Set $modelSet) {
 		$jsExtendedModel = new Garp_Model_Spawn_Js_Model_Extended($this->id, $modelSet);
 		$jsExtendedModelOutput = $jsExtendedModel->render();
 
@@ -63,7 +63,7 @@ class Garp_Model_Spawn_Model extends Garp_Model_Spawn_Model_Abstract {
 	/**
 	 * Creates JS base model file.
 	 */
-	public function renderJsBaseModel(Garp_Model_Spawn_ModelSet $modelSet) {
+	public function renderJsBaseModel(Garp_Model_Spawn_Model_Set $modelSet) {
 		$jsBaseModel = new Garp_Model_Spawn_Js_Model_Base($this->id, $modelSet);
 		$jsBaseFile = new Garp_Model_Spawn_Js_Model_File_Base($this);
 		return $jsBaseModel->render();

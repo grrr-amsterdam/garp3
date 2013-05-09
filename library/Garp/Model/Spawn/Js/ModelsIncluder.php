@@ -10,7 +10,7 @@ class Garp_Model_Spawn_Js_ModelsIncluder {
 	const _JS_APP_PATH = '/js/models/';
 
 	
-	public function __construct(Garp_Model_Spawn_ModelSet $modelSet) {
+	public function __construct(Garp_Model_Spawn_Model_Set $modelSet) {
 		$modelsIncludeFile = explode("\n", file_get_contents($this->_getIncludesFilename()));
 
 		foreach ($modelsIncludeFile as $i => $line) {

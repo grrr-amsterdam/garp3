@@ -16,10 +16,10 @@ class Garp_Model_Spawn_MySql_View_I18n extends Garp_Model_Spawn_MySql_View_Abstr
 
 
 	/**
-	 * @param	Garp_Model_Spawn_Model	$model
-	 * @param	String					$locale
+	 * @param	Garp_Model_Spawn_Model_Base		$model
+	 * @param	String							$locale
 	 */
-	public function __construct(Garp_Model_Spawn_Model $model, $locale) {
+	public function __construct(Garp_Model_Spawn_Model_Base $model, $locale) {
 		$this->setLocale($locale);
 		
 		return parent::__construct($model);

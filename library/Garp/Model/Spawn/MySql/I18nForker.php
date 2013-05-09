@@ -7,7 +7,7 @@
  */
 class Garp_Model_Spawn_MySql_I18nForker {
 	/**
-	 * @var Garp_Model_Spawn_Model $_model
+	 * @var Garp_Model_Spawn_Model_Base $_model
 	 */
 	protected $_model;
 
@@ -22,7 +22,7 @@ class Garp_Model_Spawn_MySql_I18nForker {
 	protected $_target;
 	
 
-	public function __construct(Garp_Model_Spawn_Model $model) {
+	public function __construct(Garp_Model_Spawn_Model_Base $model) {
 		$tableFactory 	= new Garp_Model_Spawn_MySql_Table_Factory($model);
 		$source 		= $tableFactory->produceConfigTable();
 		$target 		= $tableFactory->produceLiveTable();
@@ -64,14 +64,14 @@ class Garp_Model_Spawn_MySql_I18nForker {
 	}
 	
 	/**
-	 * @return Garp_Model_Spawn_Model
+	 * @return Garp_Model_Spawn_Model_Base
 	 */
 	public function getModel() {
 		return $this->_model;
 	}
 	
 	/**
-	 * @param Garp_Model_Spawn_Model $model
+	 * @param Garp_Model_Spawn_Model_Base $model
 	 */
 	public function setModel($model) {
 		$this->_model = $model;

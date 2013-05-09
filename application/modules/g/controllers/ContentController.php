@@ -406,7 +406,7 @@ class G_ContentController extends Garp_Controller_Action {
 		/**
 		 * @todo: refactor naar nieuwe Spawn opbouw.
 		 */
-		// $this->view->models = Garp_Model_Spawn_Models::getInstance();
+		// $this->view->models = Garp_Model_Spawn_Model_Set::getInstance();
 		// 
 		// $request = $this->getRequest();
 		// $params = $request->getParams();

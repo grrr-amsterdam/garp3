@@ -28,7 +28,7 @@ class Garp_Model_Spawn_Js_Model_BaseTest extends PHPUnit_Framework_TestCase {
 
 
 	protected function _constructMockModelSet() {
-		return new Garp_Model_Spawn_ModelSet(
+		return new Garp_Model_Spawn_Model_Set(
 			new Garp_Model_Spawn_Config_ModelSet(
 				new Garp_Model_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
 				new Garp_Model_Spawn_Config_Format_Json
