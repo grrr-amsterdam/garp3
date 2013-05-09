@@ -4,7 +4,7 @@
  */
 abstract class Garp_Model_Spawn_Behavior_Type_Abstract {
 	/**
-	 * @var String $_name
+	 * @var String $_name Behavior name, f.i. 'Sluggable'
 	 */
 	protected $_name;
 
@@ -139,6 +139,14 @@ abstract class Garp_Model_Spawn_Behavior_Type_Abstract {
 	 */
 	public function getFields() {
 		return $this->_fields;
+	}
+	
+	/**
+	 * @return 	Bool 	Whether this behavior needs to be registered with an observer
+	 * 					called in the PHP model's init() method
+	 */
+	public function needsPhpModelObserver() {
+		return true;
 	}
 
 }
