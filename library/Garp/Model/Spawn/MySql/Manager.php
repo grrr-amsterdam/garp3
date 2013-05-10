@@ -44,8 +44,8 @@ class Garp_Model_Spawn_MySql_Manager {
 	 * @param Array 						&$changelist 	An array of strings, describing the changes made to the database in this Spawn session.
 	 */
 	public function run(Garp_Model_Spawn_Model_Set $modelSet) {
-Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
-exit;
+// Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
+// exit;
 		$totalActions = count($modelSet) * 4;
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->init($totalActions);
