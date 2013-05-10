@@ -1,10 +1,10 @@
 <?php
 /**
- * This class tests Garp_Model_Spawn_Model_Set.
+ * This class tests Garp_Spawn_Model_Set.
  * @author David Spreekmeester | Grrr.nl
  * @group Spawn
  */
-class Garp_Model_Spawn_Model_SetTest extends PHPUnit_Framework_TestCase {
+class Garp_Spawn_Model_SetTest extends PHPUnit_Framework_TestCase {
 	protected $_mocks = array(
 		'directory' => null,
 		'extension' => 'json'
@@ -23,14 +23,14 @@ class Garp_Model_Spawn_Model_SetTest extends PHPUnit_Framework_TestCase {
 	
 	
 	protected function _constructMockModelSet() {
-		return new Garp_Model_Spawn_Model_Set(
-			new Garp_Model_Spawn_Config_ModelSet(
-				new Garp_Model_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
-				new Garp_Model_Spawn_Config_Format_Json
+		return new Garp_Spawn_Model_Set(
+			new Garp_Spawn_Config_ModelSet(
+				new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
+				new Garp_Spawn_Config_Format_Json
 			),
-			new Garp_Model_Spawn_Config_HasAndBelongsToManyRelationSet(
-				new Garp_Model_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
-				new Garp_Model_Spawn_Config_Format_Json
+			new Garp_Spawn_Config_HasAndBelongsToManyRelationSet(
+				new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
+				new Garp_Spawn_Config_Format_Json
 			)
 		);
 	}

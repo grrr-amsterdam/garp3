@@ -1,10 +1,10 @@
 <?php
 /**
- * This class tests Garp_Model_Spawn_Config_Model.
+ * This class tests Garp_Spawn_Config_Model.
  * @author David Spreekmeester | Grrr.nl
  * @group Spawn
  */
-class Garp_Model_Spawn_Config_ModelTest extends PHPUnit_Framework_TestCase {
+class Garp_Spawn_Config_ModelTest extends PHPUnit_Framework_TestCase {
 	protected $_mockModelDir;
 
 
@@ -44,11 +44,11 @@ class Garp_Model_Spawn_Config_ModelTest extends PHPUnit_Framework_TestCase {
 
 
 	protected function _loadBogusModelConfig($modelName) {
-		return new Garp_Model_Spawn_Config_Model(
+		return new Garp_Spawn_Config_Model(
 			$modelName,
-			new Garp_Model_Spawn_Config_Storage_File($this->_mockModelDir, 'json'),
-			new Garp_Model_Spawn_Config_Format_Json,
-			new Garp_Model_Spawn_Config_Validator_Model
+			new Garp_Spawn_Config_Storage_File($this->_mockModelDir, 'json'),
+			new Garp_Spawn_Config_Format_Json,
+			new Garp_Spawn_Config_Validator_Model
 		);
 	}
 }

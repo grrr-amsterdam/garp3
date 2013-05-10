@@ -47,7 +47,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	protected $_allowedFilters = array('files', 'db', 'js', 'php');
 	
 	/**
-	 * @var Garp_Model_Spawn_Model_Set $_modelSet
+	 * @var Garp_Spawn_Model_Set $_modelSet
 	 */
 	protected $_modelSet;
 	
@@ -153,24 +153,24 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	}	
 	
 	/**
-	 * @return Garp_Model_Spawn_Model_Set
+	 * @return Garp_Spawn_Model_Set
 	 */
 	public function getModelSet() {
 		return $this->_modelSet;
 	}
 	
 	/**
-	 * @param Garp_Model_Spawn_Model_Set $modelSet
+	 * @param Garp_Spawn_Model_Set $modelSet
 	 */
 	public function setModelSet($modelSet) {
 		$this->_modelSet = $modelSet;
 	}
 
 	protected function _initModelSet() {
-		$modelSet = new Garp_Model_Spawn_Model_Set(
-			new Garp_Model_Spawn_Config_Model_Set(
-				new Garp_Model_Spawn_Config_Storage_File($this->getConfigDir(), $this->getExtension()),
-				new Garp_Model_Spawn_Config_Format_Json
+		$modelSet = new Garp_Spawn_Model_Set(
+			new Garp_Spawn_Config_Model_Set(
+				new Garp_Spawn_Config_Storage_File($this->getConfigDir(), $this->getExtension()),
+				new Garp_Spawn_Config_Format_Json
 			)
 		);
 
@@ -202,7 +202,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
 		Garp_Cli::lineOut("\nDatabase");
 
-		$dbManager = Garp_Model_Spawn_MySql_Manager::getInstance();
+		$dbManager = Garp_Spawn_MySql_Manager::getInstance();
 		$dbManager->run($modelSet);
 		
 		Garp_Cli::lineOut("\n");
