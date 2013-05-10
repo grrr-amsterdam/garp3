@@ -1,9 +1,9 @@
 <?php
-			if (!$this->relation instanceof Garp_Model_Spawn_Relation):
-				throw new Exception('This partial requires a Garp_Model_Spawn_Relation instance as $relation parameter.');
+			if (!$this->relation instanceof Garp_Spawn_Relation):
+				throw new Exception('This partial requires a Garp_Spawn_Relation instance as $relation parameter.');
 			endif;
-			if (!$this->modelSet instanceof Garp_Model_Spawn_ModelSet):
-				throw new Exception('This partial requires a Garp_Model_Spawn_ModelSet instance as $modelSet parameter.');
+			if (!$this->modelSet instanceof Garp_Spawn_Model_Set):
+				throw new Exception('This partial requires a Garp_Spawn_Model_Set instance as $modelSet parameter.');
 			endif;
 			if ($this->relation->model !== 'Image'):
 				throw new Exception('This partial is only intended for related Image models; please use singular-relation-field.phtml for that.');

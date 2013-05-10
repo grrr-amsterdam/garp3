@@ -74,8 +74,16 @@ class Garp_Cache_Manager {
 		} else {
 			foreach ($modelNames as $modelName) {
 				$model = new $modelName();
-				$cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
-				$cache->incrementVersion();
+				self::_incrementMemcacheVersion($model);
+				if ($model->getObserver('Translatable')) {
+					// Make sure cache is cleared for all languages.
+					$locales = Garp_I18n::getAllPossibleLocales();
+					foreach ($locales as $locale) {
+						$modelFactory = new Garp_I18n_ModelFactory($locale);
+						$i18nModel = $modelFactory->getModel($model);
+						self::_incrementMemcacheVersion($i18nModel);
+					}
+				}
 			}
 		}
 	}
@@ -200,5 +208,15 @@ class Garp_Cache_Manager {
 			}
 		}
 		return $tags;
+	}
+
+	/**
+ 	 * Increment the version to invalidate a given model's cache.
+ 	 * @param Garp_Model_Db $model
+ 	 * @return Void
+ 	 */
+	protected static function _incrementMemcacheVersion(Garp_Model_Db $model) {
+		$cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
+		$cache->incrementVersion();
 	}
 }

@@ -24,6 +24,9 @@ class Garp_I18n_ModelFactory {
 		if (!$language) {
 			$language = Garp_I18n::getCurrentLocale();
 		}
+		if (!$language) {
+			throw new Garp_I18n_Exception('No language found! Make sure at least one language is available.');
+		}
 		$this->setLanguage($language);
 	}
 
@@ -36,6 +39,8 @@ class Garp_I18n_ModelFactory {
 		if (is_string($model)) {
 			$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
 			$model = new $model;
+		} else {
+			$model = clone $model;
 		}
 		$viewName = $model->getName() . '_' . $this->_language;
 		$model->setOptions(array(

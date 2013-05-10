@@ -1,10 +1,10 @@
 <?php
 /**
- * This class tests Garp_Model_Spawn_Model.
+ * This class tests Garp_Spawn_Model_Base.
  * @author David Spreekmeester | Grrr.nl
  * @group Spawn
  */
-class Garp_Model_Spawn_Config_Storage_FileTest extends PHPUnit_Framework_TestCase {
+class Garp_Spawn_Config_Storage_FileTest extends PHPUnit_Framework_TestCase {
 	protected $_mocks = array(
 		'directory' => null,
 		'extension' => 'json',
@@ -18,7 +18,7 @@ class Garp_Model_Spawn_Config_Storage_FileTest extends PHPUnit_Framework_TestCas
 
 
 	function testMockConfigShouldContainBytes() {
-		$storage = new Garp_Model_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']);
+		$storage = new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']);
 		$rawConfig = $storage->load($this->_mocks['modelName']);
 		
 		$this->assertGreaterThan(0, strlen($rawConfig));
@@ -26,7 +26,7 @@ class Garp_Model_Spawn_Config_Storage_FileTest extends PHPUnit_Framework_TestCas
 	
 	
 	function testShouldBeAbleToRetrieveObjectList() {
-		$storage = new Garp_Model_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']);
+		$storage = new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']);
 		$filenames = $storage->listObjectIds();
 
 		$this->assertGreaterThan(1, count($filenames));

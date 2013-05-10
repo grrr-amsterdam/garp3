@@ -1,37 +1,38 @@
 <?php
-	$fields = $this->model->fields->getFields();
-	$relFields = $this->model->fields->getFields('origin', 'relation');
-	$editableFields = $this->model->fields->getFields('editable', true);
-	$singularRelations = $this->model->relations->getRelations('type', array('hasOne', 'belongsTo'));
-	$multipleRelations = $this->model->relations->getRelations(
+	$model				= $this->model;
+	$fields 			= $model->fields->getFields();
+	$relFields 			= $model->fields->getFields('origin', 'relation');
+	$editableFields 	= $model->fields->getFields('editable', true);
+	$singularRelations 	= $model->relations->getRelations('type', array('hasOne', 'belongsTo'));
+	$multipleRelations 	= $model->relations->getRelations(
 		array('type', 'inline'),
 		array(array('hasMany', 'hasAndBelongsToMany'), false)
 	);
-	$inlineMultipleRelations = $this->model->relations->getRelations(
+	$inlineMultipleRelations = $model->relations->getRelations(
 		array('type', 'inline'),
 		array(array('hasMany', 'hasAndBelongsToMany'), true)
 	);
 
-	$dashedModelId = Garp_Model_Spawn_Util::camelcased2dashed($this->model->id);
-	$rolesThatShouldntSeeThisModelInTheirMenu = $this->spawnJs()->getAclRolesThatAreNotAllowedModelPrivilege($this->model, 'menu');
+	$dashedModelId = Garp_Spawn_Util::camelcased2dashed($model->id);
+	$rolesThatShouldntSeeThisModelInTheirMenu = $this->spawnJs()->getAclRolesThatAreNotAllowedModelPrivilege($model, 'menu');
 
 ?>Ext.ns('Garp.dataTypes');
-Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
-	text: '<?php echo $this->model->label ?>',
-	<?php if ($this->model->description): ?>
-	description: '<?php echo $this->escape($this->model->description) ?>',
+Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
+	text: '<?php echo $model->label ?>',
+	<?php if ($model->description): ?>
+	description: '<?php echo $this->escape($model->description) ?>',
 	<?php endif; ?>
 	iconCls: 'icon-<?php echo $dashedModelId ?>',
-	quickCreatable: <?php echo $this->model->quickAddable ? 'true' : 'false' ?>,
-	<?php if (!$this->model->visible): ?>
+	quickCreatable: <?php echo $model->quickAddable ? 'true' : 'false' ?>,
+	<?php if (!$model->visible): ?>
 	hidden: true,
 	<?php elseif ($rolesThatShouldntSeeThisModelInTheirMenu): ?>hidden: ['<?php
 		echo implode("','", $rolesThatShouldntSeeThisModelInTheirMenu) ?>'].indexOf(Garp.localUser.role) > -1,
 	<?php endif; ?>
-	<?php if (!$this->model->creatable): ?>
+	<?php if (!$model->creatable): ?>
 	disableCreate: true,
 	<?php endif; ?>
-	<?php if (!$this->model->deletable): ?>
+	<?php if (!$model->deletable): ?>
 	disableDelete: true,
 	<?php endif; ?>
 	
@@ -40,31 +41,17 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 		<?php /*@todo: */?>
 	],
 
-	<?php /* _____DisplayField */ ?>
-	displayFieldRenderer: function(rec){
-	<?php if ($this->model->fields->exists('name')): ?>
-		return rec.get('name') || __('New');
-	<?php elseif (
-		$this->model->fields->exists('first_name') &&
-		$this->model->fields->exists('last_name_prefix') &&
-		$this->model->fields->exists('last_name')
-	): ?>
-		return rec.get('first_name') ? (rec.get('first_name') + (rec.get('last_name_prefix') ? ' ' + rec.get('last_name_prefix') + ' ' : ' ') + (rec.get('last_name') || '')) : __('New');	
-	<?php else: ?>
-		var out = [rec.get("<?php echo implode($this->model->fields->listFieldNames, '"), rec.get("') ?>")].join(" ").replace("  ", " "); 
-		if (out === ' ') {
-			out = __("New");
-		}
-		return  out;
-	<?php endif; ?>
-	},
+	<?php 
+		echo $this->partial('partials/spawn/js/display-field.phtml', 'g', array('model' => $model));
+	?>,
+
 	<?php /* _____PreviewLink */
-	if ($this->model->route):
-		$route = $this->model->route;
+	if ($model->route):
+		$route = $model->route;
 		if ($route[0] === '/'):
 			$route = substr($route, 1);
 		endif;
-		$urlParam = null;			
+		$urlParam = null;
 		$routeParts = explode("/", $route);
 
 		foreach ($routeParts as &$part) {
@@ -100,7 +87,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 
 	<?php
 		/* _____SortInfo */	
-		$sortParams = $this->spawnJs()->getSortParams($this->model->order);
+		$sortParams = $this->spawnJs()->getSortParams($model->order);
 	?>
 	sortInfo: {
 		field: '<?php echo $sortParams['field'] ?>',
@@ -115,7 +102,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 	<?php
 		/* __images in column model */
 		foreach ($fields as $field):
-			if ($this->spawnJs()->isImageField($field, $this->model)):
+			if ($this->spawnJs()->isImageField($field, $model)):
 				$lcFieldName = strtolower($field->name);
 				$nodeParams = array(
 					'dataIndex' => $lcFieldName,
@@ -126,7 +113,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 					'searchable' => false
 				);
 				if (
-					!$this->spawnJs()->isListField($field->name, $this->model) &&
+					!$this->spawnJs()->isListField($field->name, $model) &&
 					!$field->visible
 				):
 					$nodeParams['hidden'] = true;
@@ -137,10 +124,10 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 
 		/* __textual columns */
 		foreach ($fields as $field):
-			$isSingularRelationField = $this->spawnJs()->isSingularRelationField($field, $this->model);
+			$isSingularRelationField = $this->spawnJs()->isSingularRelationField($field, $model);
 			$lcFieldName = strtolower($field->name);
 			
-			if (!$this->spawnJs()->isImageField($field, $this->model)):
+			if (!$this->spawnJs()->isImageField($field, $model)):
 				$nodeParams = array(
 					'dataIndex' => $lcFieldName,
 					'header' => $field->label
@@ -187,10 +174,10 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 				endswitch;
 
 				if (
-					!$this->spawnJs()->isListField($field->name, $this->model) ||
+					!$this->spawnJs()->isListField($field->name, $model) ||
 					!$field->visible ||
 					(
-						$this->spawnJs()->modelHasFirstAndLastName($this->model) &&
+						$this->spawnJs()->modelHasFirstAndLastName($model) &&
 						(
 							$field->name === 'first_name' ||
 							$field->name === 'last_name_prefix' ||
@@ -204,7 +191,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 
 				// @todo: 	dit is wat overbodig, maar komt door het conflict tussen listField en visible.
 				//			heeft ook te maken met editable vs visible, dat sowieso nog opgelost moet worden.
-				if ($this->spawnJs()->isListField($field->name, $this->model)) {
+				if ($this->spawnJs()->isListField($field->name, $model)) {
 					unset($nodeParams['hidden']);
 				}
 
@@ -216,7 +203,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 
 				//	create an extra column model entry for relation fields
 				if ($isSingularRelationField):
-					$relations = $this->model->relations->getRelations('column', $field->name);
+					$relations = $model->relations->getRelations('column', $field->name);
 					$relModelName = key($relations);
 					$lcRelModelName = strtolower($relModelName);
 
@@ -231,7 +218,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 			endif;
 		endforeach;
 
-		if ($this->spawnJs()->modelHasFirstAndLastName($this->model)):
+		if ($this->spawnJs()->modelHasFirstAndLastName($model)):
 			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
 				'dataIndex' => 'fullname',
 				'header' => 'Full name',
@@ -243,7 +230,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 		endif;
 		
 		/* Article / Chapter behavior */
-		if ($this->model->behaviors->displaysBehavior('Article')):
+		if ($model->behaviors->displaysBehavior('Article')):
 			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
 				'dataIndex' => 'chapters',
 				'hidden' => true,
@@ -266,7 +253,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 		<?php
 		if (
 			count($singularRelations) ||
-			$this->model->behaviors->displaysBehavior('Locatable')
+			$model->behaviors->displaysBehavior('Locatable')
 		): ?>
 		listeners: {
 			loaddata: function(rec, formPanel){
@@ -281,7 +268,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 				endforeach;
 			endif;
 
-			if ($this->model->behaviors->displaysBehavior('Locatable')): ?>
+			if ($model->behaviors->displaysBehavior('Locatable')): ?>
 				var lat = formPanel.getForm().findField('location_lat');
 				var lng = formPanel.getForm().findField('location_long');
 				var address = formPanel.formcontent['location_address'];
@@ -330,7 +317,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 		$formFields = array();
 
 		/* _____ID Field */
-		$idField = $this->model->fields->getFields('name', 'id');
+		$idField = $model->fields->getFields('name', 'id');
 		if (count($idField)) {
 			$formFields[] = $this->partial('partials/spawn/js/input-field.phtml', 'g', array(
 				'field' => current($idField)
@@ -348,9 +335,9 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 		endforeach;
 
 		/* _____Geo Location Fields */
-		if ($this->model->behaviors->displaysBehavior('Locatable')) {
+		if ($model->behaviors->displaysBehavior('Locatable')) {
 			$formFields[] = $this->partial('partials/spawn/js/geolocation-field.phtml', 'g', array(
-				'model' => $this->model
+				'model' => $model
 			));
 		}
 		
@@ -363,7 +350,7 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 		}
 		
 		/* _____Chapter / Article Fields */
-		if ($this->model->behaviors->displaysBehavior('Article')) {
+		if ($model->behaviors->displaysBehavior('Article')) {
 			$formFields[] = $this->partial('partials/spawn/js/article-field.phtml', 'g');
 		}
 
@@ -401,12 +388,12 @@ Garp.dataTypes.<?php echo $this->model->id ?> = new Garp.DataType({
 			foreach ($multipleRelations as $rel):
 				if ( $rel->isPlural() &&
 					(!
-						($rel->model === 'Chapter' && $this->model->behaviors->displaysBehavior('Article'))
+						($rel->model === 'Chapter' && $model->behaviors->displaysBehavior('Article'))
 					)
 				):
 					$multiRelFields[] = $this->partial('partials/spawn/js/multiple-relation-field.phtml', 'g', array(
 						'relation' => $rel,
-						'modelId' => $this->model->id
+						'modelId' => $model->id
 					));
 				endif;
 			endforeach;
