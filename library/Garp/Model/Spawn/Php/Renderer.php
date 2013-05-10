@@ -39,7 +39,7 @@ class Garp_Model_Spawn_Php_Renderer {
 		$habtmRelations = $this->_model->relations->getRelations('type', 'hasAndBelongsToMany');
 		if ($habtmRelations) {
 			foreach ($habtmRelations as $habtmRelation) {
-				$bindingModelName = Garp_Model_Spawn_Relations::getBindingModelName($habtmRelation->model, $this->_model->id);
+				$bindingModelName = Garp_Model_Spawn_Relation_Set::getBindingModelName($habtmRelation->model, $this->_model->id);
 				$bindingBaseModelPath = $this->_getBaseModelPath($bindingModelName);
 				$bindingBaseModelContent = $this->_renderBindingBaseModel($this->_model->id, $habtmRelation);
 				$this->_saveFile($bindingBaseModelPath, $bindingBaseModelContent, 'PHP base binding model to '.$habtmRelation->model, true);
@@ -130,8 +130,8 @@ class Garp_Model_Spawn_Php_Renderer {
 
 		$modelId2 		= $habtmRelation->model;
 		$isHomophile 	= $modelId1 === $modelId2;
-		$modelColumn1 	= Garp_Model_Spawn_Relations::getRelationColumn($modelId1, $isHomophile ? 1 : null);
-		$modelColumn2 	= Garp_Model_Spawn_Relations::getRelationColumn($modelId2, $isHomophile ? 2 : null);
+		$modelColumn1 	= Garp_Model_Spawn_Relation_Set::getRelationColumn($modelId1, $isHomophile ? 1 : null);
+		$modelColumn2 	= Garp_Model_Spawn_Relation_Set::getRelationColumn($modelId2, $isHomophile ? 2 : null);
 
 		$alphabeticModelIds = array($modelId1, $modelId2);
 		sort($alphabeticModelIds);
