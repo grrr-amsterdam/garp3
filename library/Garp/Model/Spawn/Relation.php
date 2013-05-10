@@ -123,7 +123,7 @@ class Garp_Model_Spawn_Relation {
 	 * 									between two hasAndBelongsToMany related models.
 	 */
 	public function getBindingModel() {
-		$habtmModelId = Garp_Model_Spawn_Relations::getBindingModelName($this->model, $this->_localModel->id);
+		$habtmModelId = Garp_Model_Spawn_Relation_Set::getBindingModelName($this->model, $this->_localModel->id);
 
 		if ($this->type === 'hasAndBelongsToMany') {
 			$isHomo		= $this->model === $this->_localModel->id;
@@ -240,8 +240,8 @@ class Garp_Model_Spawn_Relation {
 
 	protected function _addRelationColumn() {
 		$this->column = $this->isSingular() ?
-			Garp_Model_Spawn_Relations::getRelationColumn($this->name) :
-			Garp_Model_Spawn_Relations::getRelationColumn($this->_localModel->id)
+			Garp_Model_Spawn_Relation_Set::getRelationColumn($this->name) :
+			Garp_Model_Spawn_Relation_Set::getRelationColumn($this->_localModel->id)
 		;
 	}
 
@@ -249,7 +249,7 @@ class Garp_Model_Spawn_Relation {
 	/** Registers this relation as a Field in the Model. */
 	protected function _addRelationFieldInLocalModel() {
 		if ($this->isSingular()) {
-			$column = Garp_Model_Spawn_Relations::getRelationColumn($this->name);
+			$column = Garp_Model_Spawn_Relation_Set::getRelationColumn($this->name);
 			$fieldParams = array(
 				'type' => 'numeric',
 				'editable' => false,

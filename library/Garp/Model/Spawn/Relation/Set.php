@@ -2,7 +2,7 @@
 /**
  * @author David Spreekmeester | grrr.nl
  */
-class Garp_Model_Spawn_Relations {
+class Garp_Model_Spawn_Relation_Set {
 	const ERROR_RELATION_ALREADY_REGISTERED =
 		"You're trying to add the '%s' %s relation, but there already is a %s %s relation registered in the '%s' model.";
 	const ERROR_UNKNOWN_RELATION_NAME =

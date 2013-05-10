@@ -86,7 +86,7 @@ class Garp_Model_Spawn_MySql_I18nForker {
 		$target				= $this->getTarget();
 		$i18nTableName		= $target->name . Garp_Model_Spawn_Config_Model_I18n::I18N_MODEL_ID_POSTFIX;
 		$model 				= $this->getModel();
-		$relationColumnName	= Garp_Model_Spawn_Relations::getRelationColumn($model->id);
+		$relationColumnName	= Garp_Model_Spawn_Relation_Set::getRelationColumn($model->id);
 
 		$language			= $this->_getDefaultLanguage();
 		$fieldNamesString	= $this->_getMultilingualFieldNamesString();
