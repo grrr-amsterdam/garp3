@@ -286,7 +286,7 @@ class Garp_Model_Spawn_Php_Model_Base extends Garp_Model_Spawn_Php_Model_Abstrac
 		foreach ($arrObj as $key => $val) {
 			if (is_object($val)) {
 				switch (get_class($val)) {
-					case 'Garp_Model_Spawn_Relations':
+					case 'Garp_Model_Spawn_Relation_Set':
 						$val = $val->getRelations();
 					break;
 					case 'Garp_Model_Spawn_Behaviors':
