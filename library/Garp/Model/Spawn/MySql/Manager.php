@@ -6,6 +6,17 @@
  * @subpackage MySql
  */
 class Garp_Model_Spawn_MySql_Manager {
+	const ERROR_CANT_CREATE_TABLE =
+		"Unable to create the %s table.";
+	const CUSTOM_SQL_PATH =
+		'/data/sql/spawn.sql';
+	const CUSTOM_SQL_SHELL_COMMAND =
+		"mysql -u'%s' -p'%s' -D'%s' --host='%s' < %s";
+	const MSG_INITIALIZING =
+		"Initializing database...";
+	const MSG_FINALIZING =
+		"√ Done";
+
     /**
      * Singleton instance
      * @var Garp_Model_Spawn_MySql_Manager
@@ -17,8 +28,6 @@ class Garp_Model_Spawn_MySql_Manager {
 	protected $_adapter;
 	
 	protected $_priorityModel = 'User';
-	
-	const CUSTOM_SQL_PATH = '/data/sql/spawn.sql';
 
 
     /**
@@ -44,12 +53,10 @@ class Garp_Model_Spawn_MySql_Manager {
 	 * @param Array 						&$changelist 	An array of strings, describing the changes made to the database in this Spawn session.
 	 */
 	public function run(Garp_Model_Spawn_Model_Set $modelSet) {
-// Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
-// exit;
 		$totalActions = count($modelSet) * 4;
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->init($totalActions);
-		$progress->display("Initializing database...");
+		$progress->display(self::MSG_INITIALIZING);
 
 		$this->_modelSet = $modelSet;
 		$this->_adapter = Zend_Db_Table::getDefaultAdapter();
@@ -117,7 +124,7 @@ class Garp_Model_Spawn_MySql_Manager {
 		$this->_executeCustomSql();
 
 
-		$progress->display("√ Done");
+		$progress->display(self::MSG_FINALIZING);
 	}
 	
 	/**
@@ -207,7 +214,8 @@ class Garp_Model_Spawn_MySql_Manager {
 			$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 			$progress->display($table->name . " table creation");
 			if (!$table->create()) {
-				throw new Exception("Unable to create the {$table->name} table.");
+				$error = sprintf(self::ERROR_CANT_CREATE_TABLE, $table->name);
+				throw new Exception($error);
 			}			
 		}
 	}
@@ -215,11 +223,21 @@ class Garp_Model_Spawn_MySql_Manager {
 	protected function _executeCustomSql() {
 		$path = APPLICATION_PATH . self::CUSTOM_SQL_PATH;
 
-		if (file_exists($path)) {
-			$config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', APPLICATION_ENV);
-			$db = $config->resources->db->params;
-			$readSqlCommand = "mysql -u'{$db->username}' -p'{$db->password}' -D'{$db->dbname}' --host='{$db->host}' < " . $path;
-			`$readSqlCommand`;
+		if (!file_exists($path)) {
+			return;
 		}
+
+		$config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', APPLICATION_ENV);
+		$db 	= $config->resources->db->params;
+		$readSqlCommand = sprintf(
+			self::CUSTOM_SQL_SHELL_COMMAND,
+			$db->username,
+			$db->password,
+			$db->dbname,
+			$db->host,
+			$path
+		);
+
+		`$readSqlCommand`;
 	}
 }
