@@ -47,7 +47,8 @@
 	FB_APP_ID = "<?php echo $this->config()->auth->adapters->facebook->appId ?>";
 	<?php endif; ?>
 	DEBUG = window.location.hash.indexOf('debug') > -1;
-	
+	LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getAllPossibleLocales()); ?>'];
+	DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
 </script>
 
 <!-- Ext Overrides include -->
@@ -92,6 +93,7 @@
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.searchfield.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.richtexteditor.js') ?>"></script>
 <!-- Garp components -->
+<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.i18n.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.wysiwygct.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.wysiwygabstract.js') ?>"></script>
 <script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/garp.filtermenu.js') ?>"></script>
