@@ -21,18 +21,15 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	 * The argument used to spawn only the database, or only files.
 	 */
 	const FILTER_MODULE_COMMAND = 'only';
-	const FILTER_MODULE_PHP = 'php';
-	const FILTER_MODULE_DB = 'db';
-	const FILTER_MODULE_JS = 'js';
-	const FILTER_MODULE_FILES = 'files';
+	const FILTER_MODULE_PHP 	= 'php';
+	const FILTER_MODULE_DB 		= 'db';
+	const FILTER_MODULE_JS 		= 'js';
+	const FILTER_MODULE_FILES 	= 'files';
 	
 	const ERROR_UNKNOWN_ARGUMENT = 
-		"Sorry, I do not know the '%s' argument. Try 'garp Spawn help' for an overview of options."
-	;
-	
+		"Sorry, I do not know the '%s' argument. Try 'garp Spawn help' for an overview of options.";	
 	const ERROR_ILLEGAL_MODULE_FILTER = 
-		"Sorry, '%s' is not a valid value for the '--only' parameter. Try 'garp Spawn help' for an overview of options."
-	;
+		"Sorry, '%s' is not a valid value for the '--only' parameter. Try 'garp Spawn help' for an overview of options.";
 
 	/**
 	 * @var String $_configDir
@@ -176,7 +173,8 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 				new Garp_Model_Spawn_Config_Format_Json
 			)
 		);
-		
+// Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
+// exit;		
 		return $modelSet;
 	}
 
@@ -200,7 +198,8 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
 	protected function _spawnDb() {
 		$modelSet = $this->getModelSet();
-
+// Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
+// exit;
 		Garp_Cli::lineOut("");
 		Garp_Cli::lineOut("\nDatabase");
 
@@ -215,6 +214,8 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	
 	protected function _spawnFiles() {
 		$modelSet 		= $this->getModelSet();
+// Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
+// exit;
 		$totalActions 	= $this->_calculateTotalFileActions();
 		$jsShouldSpawn	= $this->_shouldSpawnJs();
 		$phpShouldSpawn	= $this->_shouldSpawnPhp();

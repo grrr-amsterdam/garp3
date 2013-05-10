@@ -3,30 +3,24 @@
  * @author David Spreekmeester | grrr.nl
  */
 class Garp_Model_Spawn_Relations {
-	/** @var Array $_fields	Associative array, where the key is the name of the relation, and the value a Garp_Model_Spawn_Relation object. */
-	protected $_relations = array();
-
-	/** @var Garp_Model_Spawn_Model_Base $_model */
-	protected $_model;
+	const ERROR_RELATION_ALREADY_REGISTERED =
+		"You're trying to add the '%s' %s relation, but there already is a %s %s relation registered in the '%s' model.";
+	const ERROR_UNKNOWN_RELATION_NAME =
+		"The '%s' relation was not registered.";
+	const ERROR_WRONG_ARGUMENT_NUMBER =
+		"%s::getRelations() needs either 0 or 2 arguments.";
+	const ERROR_MODELNAME_IS_NO_STRING =
+		'%s needs a model name as a string.';
 
 	/**
-	 * @todo: deze default relations moeten naar de configlaag verplaatst worden.
+	 * @var Array $_fields	Associative array, where the key is the name of the relation, and the value a Garp_Model_Spawn_Relation object.
 	 */
-	static protected $_defaultRelations = array(
-		'Author' => array(
-			'model' => 'User',
-			'type' => 'hasOne',
-			'inverse' => false,
-			'label' => 'Created by'
-		),
-		'Modifier' => array(
-			'model' => 'User',
-			'type' => 'hasOne',
-			'inverse' => false,
-			'editable' => false,
-			'label' => 'Modified by'
-		)
-	);
+	protected $_relations = array();
+
+	/**
+	 * @var Garp_Model_Spawn_Model_Base $_model
+	 */
+	protected $_model;
 	
 	
 	public function __construct(Garp_Model_Spawn_Model_Abstract $model, array $config) {
@@ -35,17 +29,7 @@ class Garp_Model_Spawn_Relations {
 		foreach ($config as $relationName => &$relationParams) {
 			$this->add($relationName, $relationParams);
 		}
-		
-		if ($model->id === 'Celebrity') {
-			// Zend_Debug::dump($this->getRelation('Movie')->inputs);
-			// exit;
-			// Zend_Debug::dump($model->relations->getRelations('name', 'Movie'));
-			// exit;
-		}
-
-
 	}
-
 
 	/**
 	 * @param String 	$filterPropName 	Garp_Model_Spawn_Relation property to filter the request by
@@ -60,7 +44,8 @@ class Garp_Model_Spawn_Relations {
 		}
 		
 		if (count(func_get_args()) !== 2) {
-			throw new Exception(get_class($this) . "::getRelations() needs either 0 or 2 arguments.");
+			$error = sprintf(self::ERROR_WRONG_ARGUMENT_NUMBER, get_class($this));
+			throw new Exception($error);
 		}
 
 		$out = array();
@@ -86,95 +71,39 @@ class Garp_Model_Spawn_Relations {
 	}
 	
 	public function getRelation($name) {
-		if (array_key_exists($name, $this->_relations))
+		if (array_key_exists($name, $this->_relations)) {
 			return $this->_relations[$name];
-		else throw new Exception("The '{$name}' relation was not registered.");
+		}
+
+		$error = sprintf(self::ERROR_UNKNOWN_RELATION_NAME, $name);
+		throw new Exception($error);
 	}
 
 	public function add($name, array $params, $preventDoubles = true) {
-		if (
-			array_key_exists($name, $this->_relations) &&
-			$preventDoubles
-		) {
-			throw new Exception("You're trying to add the '{$name}' {$params['type']} relation, but there already is a {$name} {$this->_relations[$name]->type} relation registered in the '{$this->_model->id}' model.");
+		if ($preventDoubles) {
+			$this->_throwErrorOnDuplicateRegistration($name, $params);
 		}
 		
 		$this->_relations[$name] = new Garp_Model_Spawn_Relation($this->_model, $name, $params);
 		ksort($this->_relations);
 	}
 	
-
-	/**
-	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model_Base objects
-	 */
-	static public function defineDefaultRelations(Garp_Model_Spawn_Model_Set &$models) {
-		foreach ($models as &$model) {
-			foreach (self::$_defaultRelations as $defRelName => $defRelParams) {
-				if (!count($model->relations->getRelations('name', $defRelName))) {
-					$model->relations->add($defRelName, $defRelParams);
-				}
-			}
+	protected function _throwErrorOnDuplicateRegistration($name, array $params) {
+		if (!array_key_exists($name, $this->_relations)) {
+			return;
 		}
+	
+		$error = sprintf(
+			self::ERROR_RELATION_ALREADY_REGISTERED,
+			$name,
+			$params['type'],
+			$name,
+			$this->_relations[$name]->type,
+			$this->_model->id
+		);
+
+		throw new Exception($error);
 	}
-
-
-	/**
-	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model_Base objects
-	 */
-	static public function defineHasMany(Garp_Model_Spawn_Model_Set &$models) {
-		//	inverse singular relations to multiple relations from the other model
-		foreach ($models as &$model) {
-			$singularRelations = $model->relations->getRelations('type', array('hasOne', 'belongsTo'));
-
-			foreach ($singularRelations as $relationName => $relation) {
-				if ($relation->inverse) {
-					if (array_key_exists($relation->model, $models)) {
-						$remoteModel = &$models[$relation->model];
-
-						$hasManyRelParams = array();
-						$hasManyRelParams['type'] = 'hasMany';
-						$hasManyRelParams['model'] = $model->id;
-						$hasManyRelParams['column'] = 'id';
-						$hasManyRelParams['editable'] = $relation->type !== 'belongsTo';
-						$hasManyRelParams['oppositeRule'] = $relationName;
-						$hasManyRelParams['weighable'] = $relation->weighable;
-						$hasManyRelParams['inline'] = $relation->inline;
-
-						$remoteModel->relations->add($model->id, $hasManyRelParams, false);
-					} else throw new Exception("The '{$model->id}' model defines a {$relation->type} relation to unexisting model '{$relation->model}'.");
-				}
-			}
-		}
-	}
-
-
-	/**
-	 * @param Array &$models Numeric array of Garp_Model_Spawn_Model_Base objects
-	 */
-	static public function defineHasAndBelongsToMany(Garp_Model_Spawn_Model_Set &$models) {
-		//	inverse singular relations to multiple relations from the other model
-		foreach ($models as &$model) {
-			$habtmRelations = $model->relations->getRelations('type', array('hasAndBelongsToMany'));
-
-			foreach ($habtmRelations as $relationName => $relation) {
-				if (array_key_exists($relation->model, $models)) {
-					$remoteModel = &$models[$relation->model];
-
-					$habtmRelParams = array();
-					$habtmRelParams['type'] = 'hasAndBelongsToMany';
-					$habtmRelParams['model'] = $model->id;
-					$habtmRelParams['column'] = 'id';
-					$habtmRelParams['editable'] = true;
-					$habtmRelParams['oppositeRule'] = $relationName;
-					$habtmRelParams['weighable'] = $relation->weighable;
-					$habtmRelParams['inline'] = $relation->inline;
-
-					$remoteModel->relations->add($model->id, $habtmRelParams, false);
-				} else throw new Exception("The '{$model->id}' model defines a {$relation->type} relation to unexisting model '{$relation->model}'.");
-			}
-		}
-	}
-
 
 	static public function getBindingModelName($modelName1, $modelName2) {
 		$modelNames = array($modelName1, $modelName2);
@@ -190,9 +119,13 @@ class Garp_Model_Spawn_Relations {
 	 */
 	static public function getRelationColumn($modelName, $index = null) {
 		if (!is_string($modelName)) {
-			throw new Exception(__METHOD__ . ' needs a model name as a string.');
+			$error = sprintf(self::ERROR_MODELNAME_IS_NO_STRING, __METHOD__);
+			throw new Exception($error);
 		}
-		return Garp_Model_Spawn_Util::camelcased2underscored($modelName) . (is_null($index) ? '' : (string)$index) . '_id';
+		
+		$modelNamespace = Garp_Model_Spawn_Util::camelcased2underscored($modelName);
+		$relationColumn	= $modelNamespace . (is_null($index) ? '' : (string)$index) . '_id';
+		return $relationColumn;
 	}
 	
 	/**
