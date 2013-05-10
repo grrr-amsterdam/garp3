@@ -22,13 +22,13 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 
 
-	public function getFieldType(Garp_Model_Spawn_Field $field) {
+	public function getFieldType(Garp_Spawn_Field $field) {
 		switch ($field->type) {
 			case 'numeric':
 				return 'numberfield';
 			case 'text':
 				if (
-					$field->maxLength <= Garp_Model_Spawn_Field::TEXTFIELD_MAX_LENGTH &&
+					$field->maxLength <= Garp_Spawn_Field::TEXTFIELD_MAX_LENGTH &&
 					!is_null($field->maxLength)
 				) {
 					return 'textfield';
@@ -58,7 +58,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 	
 	
-	public function getFieldValidationType(Garp_Model_Spawn_Field $field) {
+	public function getFieldValidationType(Garp_Spawn_Field $field) {
 		switch ($field->type) {
 			case 'email':
 				return 'email';
@@ -70,7 +70,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 	
 	
-	public function getFieldPlugin(Garp_Model_Spawn_Field $field) {
+	public function getFieldPlugin(Garp_Spawn_Field $field) {
 		switch ($field->type) {
 			case 'url':
 				return 'Garp.mailtoOrUrlPlugin';
@@ -78,7 +78,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 
 
-	public function getAclRolesThatAreNotAllowedModelPrivilege(Garp_Model_Spawn_Model_Base $model, $privilege) {
+	public function getAclRolesThatAreNotAllowedModelPrivilege(Garp_Spawn_Model_Base $model, $privilege) {
 		if (Zend_Registry::isRegistered('Zend_Acl')) {
 			$acl = Zend_Registry::get('Zend_Acl');
 
@@ -143,7 +143,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 	
 	
-	public function isImageField(Garp_Model_Spawn_Field $field, Garp_Model_Spawn_Model_Base $model) {
+	public function isImageField(Garp_Spawn_Field $field, Garp_Spawn_Model_Base $model) {
 		$rels = $model->relations->getRelations('column', $field->name);
 		if (count($rels)) {
 			$rel = current($rels);
@@ -158,7 +158,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	 * Whether this field is a singular relation to another record.
 	 * @return String Model name, or false if this is not a relation field.
 	 */
-	public function isSingularRelationField(Garp_Model_Spawn_Field $field, Garp_Model_Spawn_Model_Base $model) {
+	public function isSingularRelationField(Garp_Spawn_Field $field, Garp_Spawn_Model_Base $model) {
 		$rels = $model->relations->getRelations('column', $field->name);
 		if (count($rels)) {
 			$rel = current($rels);
@@ -169,12 +169,12 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 
 
-	public function isListField($fieldName, Garp_Model_Spawn_Model_Base $model) {
+	public function isListField($fieldName, Garp_Spawn_Model_Base $model) {
 		return in_array($fieldName, $model->fields->listFieldNames);
 	}
 	
 	
-	public function modelHasFirstAndLastName(Garp_Model_Spawn_Model_Base $model) {
+	public function modelHasFirstAndLastName(Garp_Spawn_Model_Base $model) {
 		return 
 			$this->isListField('first_name', $model) &&
 			$this->isListField('last_name_prefix', $model) &&
@@ -189,7 +189,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	
 	
 	public function getImageFieldId($columnName) {
-		return Garp_Model_Spawn_Util::underscored2camelcased($columnName);
+		return Garp_Spawn_Util::underscored2camelcased($columnName);
 	}
 	
 
@@ -198,7 +198,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	}
 	
 	
-	public function getDefaultValue(Garp_Model_Spawn_Field $field) {
+	public function getDefaultValue(Garp_Spawn_Field $field) {
 		return !empty($field->default) ?
 			$this->quoteIfNecessary($field->type, $field->default) :
 			(

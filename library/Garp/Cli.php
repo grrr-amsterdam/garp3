@@ -47,7 +47,7 @@ class Garp_Cli {
 
 	/**
  	 * Print line in a certain color
- 	 * Inspired by Garp_Model_Spawn_Util::addStringColoring()
+ 	 * Inspired by Garp_Spawn_Util::addStringColoring()
  	 * @param String $s
  	 * @param String $color
  	 * @return Void
