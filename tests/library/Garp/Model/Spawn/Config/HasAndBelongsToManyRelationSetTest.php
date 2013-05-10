@@ -1,10 +1,10 @@
 <?php
 /**
- * This class tests Garp_Model_Spawn_Config_HasAndBelongsToManyRelationSet.
+ * This class tests Garp_Spawn_Config_HasAndBelongsToManyRelationSet.
  * @author David Spreekmeester | Grrr.nl
  * @group Spawn
  */
-class Garp_Model_Spawn_Config_HasAndBelongsToManyRelationSetTest extends PHPUnit_Framework_TestCase {
+class Garp_Spawn_Config_HasAndBelongsToManyRelationSetTest extends PHPUnit_Framework_TestCase {
 	protected $_mockModelDir;
 
 
@@ -20,9 +20,9 @@ class Garp_Model_Spawn_Config_HasAndBelongsToManyRelationSetTest extends PHPUnit
 
 
 	protected function _loadMockHabtmConfig() {
-		return new Garp_Model_Spawn_Config_HasAndBelongsToManyRelationSet (
-			new Garp_Model_Spawn_Config_Storage_File($this->_mockModelDir, 'json'),
-			new Garp_Model_Spawn_Config_Format_Json
+		return new Garp_Spawn_Config_HasAndBelongsToManyRelationSet (
+			new Garp_Spawn_Config_Storage_File($this->_mockModelDir, 'json'),
+			new Garp_Spawn_Config_Format_Json
 		);
 	}
 }

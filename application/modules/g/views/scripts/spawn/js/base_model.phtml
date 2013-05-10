@@ -12,7 +12,7 @@
 		array(array('hasMany', 'hasAndBelongsToMany'), true)
 	);
 
-	$dashedModelId = Garp_Model_Spawn_Util::camelcased2dashed($this->model->id);
+	$dashedModelId = Garp_Spawn_Util::camelcased2dashed($this->model->id);
 	$rolesThatShouldntSeeThisModelInTheirMenu = $this->spawnJs()->getAclRolesThatAreNotAllowedModelPrivilege($this->model, 'menu');
 
 ?>Ext.ns('Garp.dataTypes');
