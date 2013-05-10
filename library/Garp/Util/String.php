@@ -228,4 +228,22 @@ class Garp_Util_String {
     	}
     	return substr_replace($haystack, $replace, $pos, strlen($needle));
 	}
+
+
+	/**
+ 	 * Interpolate strings with variables
+ 	 * @param String $str The string
+ 	 * @param Array $vars The variables
+ 	 * @return The interpolated string
+ 	 */
+	static public function interpolate($str, array $vars) {
+		$keys = array_keys($vars);
+		$vals = array_values($vars);
+		// surround keys by "%"
+		array_walk($keys, function(&$s) {
+			$s = '%'.$s.'%';
+		});
+		$str = str_replace($keys, $vals, $str);
+		return $str;
+	}
 }

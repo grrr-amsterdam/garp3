@@ -2,7 +2,7 @@
 	"listFields": ["identifier"],
 	"inputs": {
 		"identifier": {
-			"maxLength": 30,
+			"maxLength": 255,
 			"unique": true
 		},
 		"uri": {
@@ -33,6 +33,15 @@
 		"has_image": {
 			"type": "checkbox",
 			"default": 0
+		},
+		"is_editable": {
+			"type": "checkbox",
+			"default": 1,
+			"editable": false
+		},
+		"variables": {
+			"editable": false,
+			"required": false
 		}
 	},
 	

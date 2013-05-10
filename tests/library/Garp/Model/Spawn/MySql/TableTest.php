@@ -1,10 +1,10 @@
 <?php
 /**
  * @author David Spreekmeester | Grrr.nl
- * This class tests Garp_Model_Spawn_Keys.
+ * This class tests Garp_Spawn_Keys.
  * @group Spawn
  */
-class Garp_Model_Spawn_MySql_TableTest extends PHPUnit_Framework_TestCase {
+class Garp_Spawn_MySql_TableTest extends PHPUnit_Framework_TestCase {
 	protected $_mocks = array(
 		'directory' => null,
 		'modelName' => 'Bogus',
@@ -41,25 +41,25 @@ EOF;
 
 
 	function testTableShouldContainColumns() {
-		$table = new Garp_Model_Spawn_MySql_Table($this->_bogusTableSql, $this->_constructMockModel());
+		$table = new Garp_Spawn_MySql_Table_Base($this->_bogusTableSql, $this->_constructMockModel());
 		$this->assertEquals(count($table->columns), 10);
 	}
 
 
 	function testTableShouldHaveValidName() {
-		$table = new Garp_Model_Spawn_MySql_Table($this->_bogusTableSql, $this->_constructMockModel());
+		$table = new Garp_Spawn_MySql_Table_Base($this->_bogusTableSql, $this->_constructMockModel());
 		$this->assertEquals($table->name, 'Bogus');
 	}
 
 
 	protected function _constructMockModel() {
-		$modelConfig = new Garp_Model_Spawn_Config_Model(
+		$modelConfig = new Garp_Spawn_Config_Model(
 			$this->_mocks['modelName'],
-			new Garp_Model_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
-			new Garp_Model_Spawn_Config_Format_Json
+			new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
+			new Garp_Spawn_Config_Format_Json
 		);
 
-		return new Garp_Model_Spawn_Model($modelConfig);
+		return new Garp_Spawn_Model_Base($modelConfig);
 	}
 
 	//	TODO testen van $table->keys

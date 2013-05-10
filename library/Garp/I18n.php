@@ -15,7 +15,10 @@ class Garp_I18n {
 	 * @return String
 	 */
 	public static function getCurrentLocale() {
-		return Zend_Controller_Front::getInstance()->getRequest()->getParam('locale');
+		if (!Zend_Registry::isRegistered('Zend_Locale')) {
+			throw new Garp_I18n_Exception('Zend_Locale is not registered in Zend_Registry.');
+		}
+		return Zend_Registry::get('Zend_Locale')->getLanguage();
 	}
 	
 	
@@ -24,12 +27,16 @@ class Garp_I18n {
 	 * @return String
 	 */
 	public static function getDefaultLocale() {
-		if (Zend_Registry::isRegistered('Zend_Locale')) {
-			$locale = Zend_Registry::get('Zend_Locale');
-			return $locale->getDefault();
-		} else {
+		if (!Zend_Registry::isRegistered('Zend_Locale')) {
 			throw new Garp_I18n_Exception('Zend_Locale is not registered in Zend_Registry.');
 		}
+		$locale = Zend_Registry::get('Zend_Locale');
+		$default = $locale->getDefault();
+		if ($default) {
+			$keys = array_keys($default);
+			$default = current($keys);
+		}
+		return $default;
 	}
 	
 	

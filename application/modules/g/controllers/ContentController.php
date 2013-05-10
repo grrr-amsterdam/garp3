@@ -403,16 +403,19 @@ class G_ContentController extends Garp_Controller_Action {
 
 
 	public function datamodelAction() {
-		$this->view->models = Garp_Model_Spawn_Models::getInstance();
-
-		$request = $this->getRequest();
-		$params = $request->getParams();
-
-		if (array_key_exists('text', $params)) {
-			$this->_helper->layout->setLayout('blank');
-		} else {
-			$this->_helper->layout->setLayout('datamodel');
-		}
+		/**
+		 * @todo: refactor naar nieuwe Spawn opbouw.
+		 */
+		// $this->view->models = Garp_Spawn_Model_Set::getInstance();
+		// 
+		// $request = $this->getRequest();
+		// $params = $request->getParams();
+		// 
+		// if (array_key_exists('text', $params)) {
+		// 	$this->_helper->layout->setLayout('blank');
+		// } else {
+		// 	$this->_helper->layout->setLayout('datamodel');
+		// }
 	}
 
 
