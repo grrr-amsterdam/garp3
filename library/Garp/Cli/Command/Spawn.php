@@ -173,8 +173,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 				new Garp_Model_Spawn_Config_Format_Json
 			)
 		);
-// Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
-// exit;		
+
 		return $modelSet;
 	}
 
@@ -189,7 +188,9 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
 		if ($someFilesShouldSpawn) {
 			$this->_spawnFiles();
-		}		
+		}
+		
+		Garp_Cli::lineOut("\n");
 		
 		if ($dbShouldSpawn) {
 			$this->_spawnDb();
@@ -198,9 +199,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
 	protected function _spawnDb() {
 		$modelSet = $this->getModelSet();
-// Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
-// exit;
-		Garp_Cli::lineOut("");
+
 		Garp_Cli::lineOut("\nDatabase");
 
 		$dbManager = Garp_Model_Spawn_MySql_Manager::getInstance();
@@ -214,8 +213,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	
 	protected function _spawnFiles() {
 		$modelSet 		= $this->getModelSet();
-// Zend_Debug::dump($modelSet['Celebrity']->relations->getRelation('Movie')->inputs);
-// exit;
+
 		$totalActions 	= $this->_calculateTotalFileActions();
 		$jsShouldSpawn	= $this->_shouldSpawnJs();
 		$phpShouldSpawn	= $this->_shouldSpawnPhp();
@@ -250,7 +248,6 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		}
 		
 		$progress->display("√ Done");
-		Garp_Cli::lineOut("");
 	}
 	
 	protected function _calculateTotalFileActions() {
