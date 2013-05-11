@@ -3,6 +3,7 @@
 	$fields 			= $model->fields->getFields();
 	$relFields 			= $model->fields->getFields('origin', 'relation');
 	$editableFields 	= $model->fields->getFields('editable', true);
+	$excludedFormFields	= $this->spawnJs()->getExcludedFormFields();
 	$singularRelations 	= $model->relations->getRelations('type', array('hasOne', 'belongsTo'));
 	$multipleRelations 	= $model->relations->getRelations(
 		array('type', 'inline'),
@@ -169,6 +170,9 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 						switch ($field->type) {
 							case 'text':
 							case 'email':
+								if ($field->isMultilingual()) {
+									$nodeParams['renderer'] = 'Garp.renderers.i18nRenderer';
+								}
 								$nodeParams['searchable'] = true;
 						}
 				endswitch;
@@ -268,44 +272,9 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 				endforeach;
 			endif;
 
-			if ($model->behaviors->displaysBehavior('Locatable')): ?>
-				var lat = formPanel.getForm().findField('location_lat');
-				var lng = formPanel.getForm().findField('location_long');
-				var address = formPanel.formcontent['location_address'];
-
-				function updateAddress(){
-					var geocoder = new google.maps.Geocoder();
-					if (lat.getValue() && lng.getValue()) {
-						//address.update(__('Searching location...'));
-
-						geocoder.geocode({
-							'latLng': new google.maps.LatLng(lat.getValue(), lng.getValue())
-						}, function(results, status){
-							if (status == google.maps.GeocoderStatus.OK) {
-								if (results[0]) {
-									address.update(Garp.renderers.geocodeAddressRenderer(results[0]));
-									//address.update(results[0].formatted_address);
-								} else {
-									address.update(__('Location set, but unknown'));
-								}
-							} else if (status == google.maps.GeocoderStatus.ZERO_RESULTS){
-								address.update(__('Location set, but unknown'));
-							} else {
-								address.update(__('Unknown error occurred.'));
-							}
-						});
-					} else {
-						address.update(__('No location specified'));
-					}
-				}
-
-				if (typeof google == 'undefined') {
-					Garp.lazyLoad('http://maps.googleapis.com/maps/api/js?sensor=false', updateAddress);
-				} else {
-					updateAddress();
-				}
-				lat.on('change', updateAddress);
-			<?php endif; ?>
+			if ($model->behaviors->displaysBehavior('Locatable')): 
+				echo $this->partial('partials/spawn/js/locatable.phtml', 'g');
+			endif; ?>
 			}
 		},
 		<?php
@@ -317,10 +286,10 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 		$formFields = array();
 
 		/* _____ID Field */
-		$idField = $model->fields->getFields('name', 'id');
-		if (count($idField)) {
+		$idField = $model->fields->getField('id');
+		if ($idField) {
 			$formFields[] = $this->partial('partials/spawn/js/input-field.phtml', 'g', array(
-				'field' => current($idField)
+				'field' => $idField
 			));
 		}
 
@@ -343,10 +312,16 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 		
 		/* _____InputFields */
 		foreach ($editableFields as $field) {
-			if (!in_array($field->name, $this->spawnJs()->getExcludedFormFields()))
-				$formFields[] = $this->partial('partials/spawn/js/input-field.phtml', 'g', array(
-					'field' => $field
-				));
+			if (in_array($field->name, $excludedFormFields)) {
+				break;
+			}
+			
+			$fieldParam = array('field' => $field);
+			if ($field->isMultilingual() && $field->type !== 'html') {
+				$formFields[] = $this->partial('partials/spawn/js/input-i18nsource.phtml', 'g', $fieldParam);
+			} else {
+				$formFields[] = $this->partial('partials/spawn/js/input-field.phtml', 'g', $fieldParam);
+			}
 		}
 		
 		/* _____Chapter / Article Fields */
@@ -398,12 +373,18 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 				endif;
 			endforeach;
 
-			if ($multiRelFields): ?>
-	}, {
-<?php
+			if ($multiRelFields) {
+				echo "\t}, {";
 				echo implode("\t}, {", $multiRelFields);
-			endif;
+			}
 		endif;
+
+		if ($model->isMultilingual()) {
+			echo "\t}, {";
+			echo $this->partial('partials/spawn/js/input-i18n-field-sets.phtml', 'g', array(
+				'fieldSet' => $editableFields
+			));
+		};
 ?>
 	}]
 });

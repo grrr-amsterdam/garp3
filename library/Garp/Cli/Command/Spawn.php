@@ -56,21 +56,6 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	 */
 	protected $_args;	
 
-	
-	/**
-	 * Returns the module that should be run, i.e. 'db' or 'files', or null if no filter is given.
-	 */
-	public function getModuleFilter() {
-		$args 	= $this->getArgs();
-		$only	= self::FILTER_MODULE_COMMAND;
-		
-		if (!array_key_exists($only, $args)) {
-			return;
-		}
-
-		$filter = $args[$only];		
-		return strtolower($filter);
-	}
 
 	/**
 	 * Central start method
@@ -87,12 +72,25 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
 		$this->setModelSet($this->_initModelSet());
 
-		if (array_key_exists(self::JS_BASE_MODEL_COMMAND, $args)) {
-			$this->_showJsBaseModel($args[self::JS_BASE_MODEL_COMMAND]);
-			exit;
-		}
+		array_key_exists(self::JS_BASE_MODEL_COMMAND, $args) ?
+			$this->_showJsBaseModel($args[self::JS_BASE_MODEL_COMMAND]) :
+			$this->_spawn()
+		;
+	}
+
+	/**
+	 * Returns the module that should be run, i.e. 'db' or 'files', or null if no filter is given.
+	 */
+	public function getModuleFilter() {
+		$args 	= $this->getArgs();
+		$only	= self::FILTER_MODULE_COMMAND;
 		
-		$this->_spawn();
+		if (!array_key_exists($only, $args)) {
+			return;
+		}
+
+		$filter = $args[$only];		
+		return strtolower($filter);
 	}
 	
 	/**
