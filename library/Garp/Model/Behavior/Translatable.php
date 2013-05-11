@@ -147,6 +147,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 			foreach ($locales as $locale) {
 				$this->_saveI18nRecord($locale, $model, $primaryKeys);
 			}
+			$this->_queue = array();
 		}
 	}
 
