@@ -3,19 +3,36 @@
 		throw new Exception('This partial requires a Garp_Spawn_Model_Base instance as $model parameter.');
 	endif;
 	
-	$model = $this->model;
+	$model 					= $this->model;
+	$hasName				= $model->fields->exists('name');
+	$hasFirstAndLastName	= $this->spawnJs()->modelHasFirstAndLastName($model);
+
+	$printFieldGetter		= function($fieldName) use ($model) {
+		$defaultLanguage	= Garp_I18n::getDefaultLocale();
+		$isMultilingual		= $model->fields->getField($fieldName)->isMultilingual();
+		$postfix			= $isMultilingual ? '.' . $defaultLanguage : '';
+ 		$getter				= "rec.get('{$fieldName}')" . $postfix;
+
+		return $getter;
+	};
+	
+	$printListFieldGetters	= function() use ($model, $printFieldGetter) {
+		$getters = array();
+		foreach ($model->fields->listFieldNames as $fieldName) {
+			$getters[] = $printFieldGetter($fieldName);
+		}
+		
+		return implode(', ', $getters);
+	} 
+	
 	?>
 	displayFieldRenderer: function(rec){
-	<?php if ($model->fields->exists('name')): ?>
-		return rec.get('name') || __('New');
-	<?php elseif (
-		$model->fields->exists('first_name') &&
-		$model->fields->exists('last_name_prefix') &&
-		$model->fields->exists('last_name')
-	): ?>
+	<?php if ($hasName): ?>
+		return <?php echo $printFieldGetter('name') ?> || __('New');
+	<?php elseif ($hasFirstAndLastName): ?>
 		return rec.get('first_name') ? (rec.get('first_name') + (rec.get('last_name_prefix') ? ' ' + rec.get('last_name_prefix') + ' ' : ' ') + (rec.get('last_name') || '')) : __('New');
 	<?php else: ?>
-		var out = [rec.get("<?php echo implode($model->fields->listFieldNames, '"), rec.get("') ?>")].join(" ").replace("  ", " "); 
+		var out = [<?php echo $printListFieldGetters() ?>].join(" ").replace("  ", " "); 
 		if (out === ' ') {
 			out = __("New");
 		}
