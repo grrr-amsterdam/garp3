@@ -1,0 +1,36 @@
+var lat = formPanel.getForm().findField('location_lat');
+var lng = formPanel.getForm().findField('location_long');
+var address = formPanel.formcontent['location_address'];
+
+function updateAddress(){
+	var geocoder = new google.maps.Geocoder();
+	if (lat.getValue() && lng.getValue()) {
+		//address.update(__('Searching location...'));
+
+		geocoder.geocode({
+			'latLng': new google.maps.LatLng(lat.getValue(), lng.getValue())
+		}, function(results, status){
+			if (status == google.maps.GeocoderStatus.OK) {
+				if (results[0]) {
+					address.update(Garp.renderers.geocodeAddressRenderer(results[0]));
+					//address.update(results[0].formatted_address);
+				} else {
+					address.update(__('Location set, but unknown'));
+				}
+			} else if (status == google.maps.GeocoderStatus.ZERO_RESULTS){
+				address.update(__('Location set, but unknown'));
+			} else {
+				address.update(__('Unknown error occurred.'));
+			}
+		});
+	} else {
+		address.update(__('No location specified'));
+	}
+}
+
+if (typeof google == 'undefined') {
+	Garp.lazyLoad('http://maps.googleapis.com/maps/api/js?sensor=false', updateAddress);
+} else {
+	updateAddress();
+}
+lat.on('change', updateAddress);
