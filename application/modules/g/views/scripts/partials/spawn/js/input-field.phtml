@@ -1,4 +1,5 @@
 <?php
+
 $field	= $this->field;
 $xType 	= $this->spawnJs()->getFieldType($field);
 $vType 	= $this->spawnJs()->getFieldValidationType($field);
@@ -103,7 +104,8 @@ if ($field->maxLength && $field->type !== 'enum') {
 	$props[] = "maxLength: {$field->maxLength}";
 }
 
-$props[] = "allowBlank: ".($field->required ? 'false' : 'true');
+$required = isset($this->required) ? $this->required : $field->required;
+$props[] = "allowBlank: ".($required ? 'false' : 'true');
 
 $props[] = "xtype: '{$xType}'";
 if ($vType)
