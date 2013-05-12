@@ -20,10 +20,7 @@ $getLanguageLabel = function($language) {
 };
 
 $isExcludedField = function(Garp_Spawn_Field $field) use ($excludedFields) {
-	$isExcludedField = 
-		in_array($field->name, $excludedFields) ||
-		$field->type === 'html'
-	;
+	$isExcludedField = in_array($field->name, $excludedFields);
 	return $isExcludedField;
 };
 
