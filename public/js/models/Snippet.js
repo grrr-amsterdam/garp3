@@ -6,7 +6,7 @@ Garp.dataTypes.Snippet.on('init', function(){
 	
 	
 	// [TEMPORARILY]: SPAWNER HAS NO SUPPORT FOR i18n YET
-	
+	/*
 	this.displayFieldRenderer = function(rec){
 		return rec.get('name') && rec.get('name').nl ? rec.get('name').nl : rec.get('identifier');
 	};
@@ -105,6 +105,7 @@ Garp.dataTypes.Snippet.on('init', function(){
             xtype: 'textarea'
 		}]
 	});
+	*/
 	// [/TEMPORARILY]
 	
 	
