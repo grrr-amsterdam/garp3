@@ -31,7 +31,9 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 	
 	setValue: function(v){
 		Ext.each(LANGUAGES, function(lang){
-			this.getRefField(lang).setValue(v[lang]);
+			if (this.getRefField(lang)) {
+				this.getRefField(lang).setValue(v[lang]);
+			}
 		}, this);
 		Garp.i18nSource.superclass.setValue.call(this, v);
 	},
@@ -44,7 +46,7 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 		var out = {};
 		Ext.each(LANGUAGES, function(lang){
 			field = this.getRefField(lang);
-			if (field.isDirty()) {
+			if (field && field.isDirty()) {
 				out[lang] = field.getValue();
 			}
 		}, this);
@@ -58,7 +60,7 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 	isDirty: function(v){
 		var out = false;
 		Ext.each(LANGUAGES, function(lang){
-			if (this.getRefField(lang).isDirty()) {
+			if (this.getRefField(lang) && this.getRefField(lang).isDirty()) {
 				out = true;
 				return false;
 			}
@@ -67,14 +69,17 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 	},
 	
 	/**
-	 * Perform function on all reverenced fields
+	 * Perform function on all referenced fields
 	 * @param {String} function to perform
 	 * @param {Object} [optional] param
 	 * @param {Bool} skipSelf, do not perform the function on 'this'
 	 */
 	_setAll: function(func, param, skipSelf){
 		Ext.each(LANGUAGES, function(lang){
-			this.getRefField(lang)[func](param);
+			var f = this.getRefField(lang);
+			if (f && f[func]) {
+				f[func](param);
+			}
 		}, this);
 		if (!skipSelf === true) {
 			return Garp.i18nSource.superclass[func].call(this, param);
