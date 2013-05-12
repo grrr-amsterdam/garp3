@@ -8,8 +8,7 @@ $plugin = $this->spawnJs()->getFieldPlugin($field);
 $props = array();
 
 $getNameProperty = function($field, $language) {
-	$renderI18nName = $field->isMultilingual() && $field->type !== 'html';
-	$name = $renderI18nName ?
+	$name = $field->isMultilingual() ?
 		'_' . $field->name . '_' . $language :
 		$field->name
 	;

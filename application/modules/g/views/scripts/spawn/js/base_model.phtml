@@ -317,7 +317,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 			}
 			
 			$fieldParam = array('field' => $field);
-			if ($field->isMultilingual() && $field->type !== 'html') {
+			if ($field->isMultilingual()) {
 				$formFields[] = $this->partial('partials/spawn/js/input-i18nsource.phtml', 'g', $fieldParam);
 			} else {
 				$formFields[] = $this->partial('partials/spawn/js/input-field.phtml', 'g', $fieldParam);
