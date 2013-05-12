@@ -352,6 +352,12 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 			));
 		}
 
+		if ($model->isMultilingual()) {
+			$formFields[] = $this->partial('partials/spawn/js/input-i18n-field-sets.phtml', 'g', array(
+				'fieldSet' => $editableFields
+			));
+		};
+
 		echo implode("\n\t\t\t}, {\n", $formFields)."\n";
 ?>
 			}]
@@ -379,12 +385,6 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 			}
 		endif;
 
-		if ($model->isMultilingual()) {
-			echo "\t}, {";
-			echo $this->partial('partials/spawn/js/input-i18n-field-sets.phtml', 'g', array(
-				'fieldSet' => $editableFields
-			));
-		};
 ?>
 	}]
 });
