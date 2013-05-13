@@ -129,7 +129,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 */
 	protected function _beforeSave(&$data) {
 		foreach ($this->_translatableFields as $field) {
-			if (!empty($data[$field])) {
+			if (array_key_exists($field, $data)) {
 				$this->_queue[$field] = $data[$field];
 				unset($data[$field]);
 			}
@@ -162,7 +162,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$data = array();
 		// Filter out the values in the right language
 		foreach ($this->_queue as $column => $value) {
-			if (!empty($value[$language])) {
+			if (array_key_exists($language, $value)) {
 				$data[$column] = $value[$language];
 			}
 		}
