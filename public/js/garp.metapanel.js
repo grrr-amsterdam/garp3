@@ -23,8 +23,8 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 		this.rec = rec;
 		this.update(rec.data);
 		this.bindEditors();
-		Ext.get('author-name').update(rec.get('Author'));
-		Ext.get('modifier-name').update(rec.get('Modifier'));
+		Ext.get('author-name').update(rec.get('author'));
+		Ext.get('modifier-name').update(rec.get('modifier'));
 	},
 	
 	/**
