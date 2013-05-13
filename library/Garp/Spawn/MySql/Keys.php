@@ -1,5 +1,13 @@
 <?php
 class Garp_Spawn_MySql_Keys {
+	const ERROR_SET_UNIQUE_NOT_POSSIBLE =
+		"Could not set column '%s' to unique. Remember: the existing values in this column have to already be unique to be able to do this.";
+	const ERROR_UNKNOWN_KEY_TYPE =
+		'Unknown key type.';
+	const QUESTION_MAKE_COLUMN_UNIQUE =
+		"Make %s.%s unique?";
+	
+	
 	/** @var Array $primaryKey Garp_Spawn_MySql_PrimaryKey object */
 	public $primaryKey;
 
@@ -113,11 +121,19 @@ class Garp_Spawn_MySql_Keys {
 					foreach ($keysToAdd as $key) {
 						$fields = $this->_model->fields->getFields('name', $key->column);
 						$field = current($fields);
-						$progress->display("Make {$this->_model->id}.{$key->column} unique? ");
-						if (Garp_Spawn_Util::confirm()) {
-							if (!Garp_Spawn_MySql_UniqueKey::add($tableName, $key)) {
-								throw new Exception("Could not set column '{$key->column}' to unique. Remember: the existing values in this column have to already be unique to be able to do this.");
-							}
+						$column = is_array($key->column) ?
+							implode(', ', $key->column) :
+							$key->column
+						;
+
+						$question = sprintf(self::QUESTION_MAKE_COLUMN_UNIQUE, $this->_model->id, $column);
+						$progress->display($question . " ");
+						if (
+							Garp_Spawn_Util::confirm() &&
+							!Garp_Spawn_MySql_UniqueKey::add($tableName, $key)
+						) {
+							$error 	= sprintf(self::ERROR_SET_UNIQUE_NOT_POSSIBLE, $column);
+							throw new Exception($error);
 						}
 					}
 				break;
@@ -303,7 +319,7 @@ class Garp_Spawn_MySql_Keys {
 					}
 				break;
 				default:
-					throw new Exception('Unknown key type.');
+					throw new Exception(self::ERROR_UNKNOWN_KEY_TYPE);
 			}
 		}
 
@@ -340,7 +356,7 @@ class Garp_Spawn_MySql_Keys {
 				case 'index':
 				break;
 				default:
-					throw new Exception('Unknown key type.');
+					throw new Exception(self::ERROR_UNKNOWN_KEY_TYPE);
 			}
 		}
 
@@ -381,7 +397,7 @@ class Garp_Spawn_MySql_Keys {
 					}
 				break;
 				default:
-					throw new Exception('Unknown key type.');
+					throw new Exception(self::ERROR_UNKNOWN_KEY_TYPE);
 			}
 		}
 

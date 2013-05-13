@@ -62,7 +62,8 @@ class Garp_Spawn_MySql_Table_Factory {
 		return $this->_renderCreateAbstract(
 			$tableName,
 			$fields,
-			$model->relations->getRelations()
+			$model->relations->getRelations(),
+			$model->unique
 		);
 	}
 
@@ -127,8 +128,10 @@ class Garp_Spawn_MySql_Table_Factory {
 	 * @param Array $relations 	Associative array, where the key is the name
 	 * 							of the relation, and the value a Garp_Spawn_Relation object,
 	 * 							or at least an object with properties column, model, type.
+	 * @param Array $unique		(optional) List of column names to be combined into a unique id.
+	 *							This is model-wide and supersedes the 'unique' property per field.
 	 */
-	protected function _renderCreateAbstract($tableName, array $fields, array $relations) {
+	protected function _renderCreateAbstract($tableName, array $fields, array $relations, $unique) {
 		$lines 		= array();
 
 		foreach ($fields as $field) {
@@ -137,6 +140,10 @@ class Garp_Spawn_MySql_Table_Factory {
 
 		$primKeys = array();
 		$uniqueKeys = array();
+
+		if ($unique) {
+			$uniqueKeys[] = $unique;
+		}
 
 		foreach ($fields as $field) {
 			if ($field->primary)
