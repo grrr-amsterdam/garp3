@@ -1051,6 +1051,7 @@ if (Ext.isIE) {
 			if (!sel) {
 				return;
 			}
+			/*
 			var body = this.getDoc().body;
 			var htmlPath = this.filterTagsOnly(this.walk(body, false));
 			
@@ -1068,6 +1069,9 @@ if (Ext.isIE) {
 			if ((sel.focusNode && sel.focusNode.nodeName && sel.focusNode.nodeName == 'DIV') || !count) {
 				this.relayCmd('formatblock', 'p');
 			}
+			*/
+			
+			// THE ABOVE USED TO CLEANUP THE DOM AS THE USER TYPED. IT CAUSED TOO MANY TROUBLES. (CREATING PARAGRAPHS WHERE IT SHOULDN'T)
 			
 			this.updateToolbar();
 		},
@@ -1390,6 +1394,7 @@ if (Ext.isIE) {
 		},
 		
 		/**
+		 * DEPRECATED
 		 * makes sure inline elements are wrapped in a <p>
 		 * @param {Object} fragment
 		 */
@@ -1445,7 +1450,6 @@ if (Ext.isIE) {
 		 * cleans the body from unwanted br's and stuff
 		 */
 		cleanupHtml: function(){
-		
 			this.suspendEvents();
 			this.setDesignMode(false); //toggle off first
 			var doc = this.getDoc();
@@ -1472,17 +1476,18 @@ if (Ext.isIE) {
 			
 			// make sure every text node is within a paragraph
 			body.normalize();
-			this.fixInlineElements(body);
+			//this.fixInlineElements(body);
 			this.fixBrs(body);
 			
 			// remove empty p's:
+			/*
 			Ext.get(Ext.DomQuery.select('p:empty', body)).remove();
 			Ext.each(Ext.DomQuery.select('p', body), function(elm){
 				if (entities.indexOf(elm.innerHTML) > -1) {
 					Ext.get(elm).remove();
 				}
 			});
-			
+			*/
 			// remove ID attributes
 			var elms = Ext.DomQuery.jsSelect('[id]', body);
 			Ext.each(elms, function(elm){
@@ -1497,7 +1502,7 @@ if (Ext.isIE) {
 		
 		/**
 		 * cleans the body from unwanted br's and stuff
-		 * @deprecated
+		 * DEPRECATED
 		 */
 		cleanupHtmlOld: function(){
 			this.suspendEvents();
