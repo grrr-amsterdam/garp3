@@ -80,7 +80,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 
 		$flashMessenger = Zend_Controller_Action_HelperBroker::getStaticHelper('FlashMessenger');
 		$flashMessenger->addMessage(
-			!$auth->isLoggedIn() ? $authVars['notLoggedInMsg'] : $authVars['noPermissionMsg']
+			!$auth->isLoggedIn() ? __($authVars['notLoggedInMsg']) : __($authVars['noPermissionMsg'])
 		);
 		
 		$redirector = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
