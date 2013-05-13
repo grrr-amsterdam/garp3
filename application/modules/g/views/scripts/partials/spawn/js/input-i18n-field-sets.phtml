@@ -28,10 +28,10 @@ $renderLanguageSet = function($language, $view) use ($fieldSet, $getLanguageLabe
 	$languageLabel 		= $getLanguageLabel($language);
 	$fieldSetOutputs 	= array();
 	$isForDefaultLocale = $defaultLocale === $language;
-	
+
 	foreach ($fieldSet as $field) {
-		if (!$field->isMultilingual()) 	break;
-		if ($isExcludedField($field)) 	break;
+		if (!$field->isMultilingual()) 	continue;
+		if ($isExcludedField($field)) 	continue;
 
 		$path = 'partials/spawn/js/input-field.phtml';
 		$params = array(
@@ -44,7 +44,7 @@ $renderLanguageSet = function($language, $view) use ($fieldSet, $getLanguageLabe
 		
 		$fieldSetOutputs[] = $view->partial($path, 'g', $params);
 	}
-	
+
 	$fieldSetString	= implode('}, {', $fieldSetOutputs);
 	
 	$languageSetProps = array(
