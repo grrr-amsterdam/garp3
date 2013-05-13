@@ -146,9 +146,17 @@ class G_AuthController extends Garp_Controller_Action {
 			}
 
 			// Determine targetUrl. This is the URL the user was trying to access before logging in, or a default URL.
-			$targetUrl = !empty($authVars['login']['successUrl']) ? $authVars['login']['successUrl'] : '/';
+			$router = Zend_Controller_Front::getInstance()->getRouter();
+			if (!empty($authVars['login']['successRoute'])) {
+				$targetUrl = $router->assemble(array(), $authVars['login']['successRoute']);
+			} elseif (!empty($authVars['login']['successUrl'])) {
+				$targetUrl = $authVars['login']['successUrl'];
+			} else {
+				$targetUrl = '/';
+			}
 			$store = Garp_Auth::getInstance()->getStore();
-			if ($targetUrl = $store->targetUrl) {
+			if ($store->targetUrl) {
+				$targetUrl = $store->targetUrl;
 				unset($store->targetUrl);
 			}
 
@@ -294,7 +302,13 @@ class G_AuthController extends Garp_Controller_Action {
 							'Please reconfigure auth.forgotpassword.email_method');
 					}
 					if ($response) {
-						$this->_redirect($authVars['forgotpassword']['url'].'?success=1');
+						if (isset($authVars['forgotpassword']['route'])) {
+							$router = Zend_Controller_Front::getInstance()->getRouter();
+							$targetUrl = $router->assemble(array(), $authVars['forgotpassword']['route']);
+						} elseif (isset($authVars['forgotpassword']['url'])) {
+							$targetUrl = $authVars['forgotpassword']['url'];
+						}
+						$this->_redirect($targetUrl.'?success=1');
 					} else {
 						$this->view->formError = $authVars['forgotpassword']['failure_message'];
 					}
