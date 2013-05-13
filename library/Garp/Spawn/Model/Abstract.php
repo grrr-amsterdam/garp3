@@ -27,6 +27,11 @@ abstract class Garp_Spawn_Model_Abstract {
 	/** @var Garp_Spawn_Relation_Set $relations */
 	public $relations;
 	
+	/**
+	 * @var	Array	$unique		Column names that should jointly compose a unique key (optional)
+	 */
+	public $unique;
+	
 
 	/**
 	 * These properties cannot be configured directly from the configuration because of their complexity.
@@ -65,17 +70,25 @@ abstract class Garp_Spawn_Model_Abstract {
 	
 	protected function _loadPropertiesFromConfig(ArrayObject $config) {
 		foreach ($config as $propName => $propValue) {
-			if (
-				!in_array($propName, $this->_indirectlyConfigurableProperties) &&
-				property_exists($this, $propName)
-			) {
-				$this->{$propName} = $propValue;
-			}
+			$this->_loadProperty($propName, $propValue);
 		}
 
 		//	complex types
-		$this->fields = new Garp_Spawn_Fields($this, $config['inputs'], (array)$config['listFields']);
-		$this->behaviors = new Garp_Spawn_Behavior_Set($this, $config['behaviors']);
-		$this->relations = new Garp_Spawn_Relation_Set($this, $config['relations']);
+		$this->fields 		= new Garp_Spawn_Fields($this, $config['inputs'], (array)$config['listFields']);
+		$this->behaviors	= new Garp_Spawn_Behavior_Set($this, $config['behaviors']);
+		$this->relations 	= new Garp_Spawn_Relation_Set($this, $config['relations']);
+	}
+	
+	protected function _loadProperty($name, $value) {
+		$indirectlyConfigurable = in_array($name, $this->_indirectlyConfigurableProperties);
+		$exists 				= property_exists($this, $name);
+
+		if (!$exists && !$indirectlyConfigurable && $name !== 'inputs') {
+			throw new Exception("The {$name} property is not a valid Spawn model property.");
+		}
+		
+		if (!$indirectlyConfigurable && $exists) {
+			$this->{$name} = $value;
+		}
 	}
 }
