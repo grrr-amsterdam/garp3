@@ -47,7 +47,7 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 		Ext.each(LANGUAGES, function(lang){
 			field = this.getRefField(lang);
 			if (field && field.isDirty()) {
-				out[lang] = field.getValue();
+				out[lang] = field.getValue() === '' ? null : field.getValue();
 			}
 		}, this);
 		return out;
