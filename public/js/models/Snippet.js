@@ -114,7 +114,7 @@ Garp.dataTypes.Snippet.on('init', function(){
 		var toggleFields = ['name', 'html', 'text'];
 		
 		// Show or hide fields based on their 'has_*' counterparts 
-		function toggleMode(){
+		function updateUI(){
 			Ext.each(toggleFields, function(fieldName){
 				//var el = form.findField(fieldName).getEl().up('div.x-form-item');
 				//el.setVisibilityMode(Ext.Element.DISPLAY).setVisible(rec.data['has_' + fieldName] == '1');
@@ -122,13 +122,17 @@ Garp.dataTypes.Snippet.on('init', function(){
 			});
 			// because imagePreview_image_id is not a formField but a button, we cannot find it with form.findField():
 			formPanel.ImagePreview_image_id.setVisible(rec.data.has_image == 1);
+			
+			if (typeof rec.data.variables !== 'undefined') {
+				form.findField('variables').setVisible(rec.data.variables.length);
+			}
 		}
 		
 		// Be sure we are rendered; otherwise there simply won't be any elements to show/hide
 		if (formPanel.rendered) {
-			toggleMode();
+			updateUI();
 		} else {
-			formPanel.on('show', toggleMode, null, {
+			formPanel.on('show', updateUI, null, {
 				single: true
 			});
 		}
@@ -147,6 +151,23 @@ Garp.dataTypes.Snippet.on('init', function(){
 			allowBlank: true
 		});
 	}, this);
+	
+	// "Variables" is kind of an odd platypus, we need to change the xtype and more; but only if it exists. We also move it to the bottom:
+	if (this.getField('variables')) {
+		this.removeField('variables');
+		this.addField({
+			allowBlank: true,
+			fieldLabel: __('Variables'),
+			name: 'variables',
+			xtype: 'box',
+			hidden: false,
+			disabled: false,
+			cls: 'garp-notification-boxcomponent',
+			style: 'margin-top: 20px;',
+			xtype: 'displayfield'
+		});
+	}
+	
 	Ext.each(['has_text','has_name','has_image','has_html'], function(i){
 		this.getField(i).hidden = true;
 	}, this);
