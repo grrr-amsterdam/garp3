@@ -84,7 +84,8 @@ class Garp_Spawn_MySql_I18nForker {
 	
 	protected function _renderContentMigrationSql() {
 		$target				= $this->getTarget();
-		$i18nTableName		= $target->name . Garp_Spawn_Config_Model_I18n::I18N_MODEL_ID_POSTFIX;
+		// @fixme Validate this patch by Harmen. Maybe a more elegant solution is possible?
+		$i18nTableName		= strtolower($target->name . Garp_Spawn_Config_Model_I18n::I18N_MODEL_ID_POSTFIX);
 		$model 				= $this->getModel();
 		$relationColumnName	= Garp_Spawn_Relation_Set::getRelationColumn($model->id);
 
