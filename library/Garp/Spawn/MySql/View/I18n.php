@@ -46,7 +46,7 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 	}
 	
 	public static function deleteAll() {
-		$locales 	= Garp_I18n::getAllPossibleLocales();
+		$locales 	= Garp_I18n::getLocales();
 		
 		foreach ($locales as $locale) {
 			parent::deleteAllByPostfix('_' . $locale);		
