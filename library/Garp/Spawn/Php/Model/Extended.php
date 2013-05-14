@@ -6,6 +6,18 @@
  * @subpackage Spawn
  */
 class Garp_Spawn_Php_Model_Extended extends Garp_Spawn_Php_Model_Abstract {
+	const MODEL_DIR = '/modules/default/models/';
+
+
+	public function getPath() {
+		$model = $this->getModel();
+		return APPLICATION_PATH . self::MODEL_DIR . $model->id . '.php';
+	}
+
+	public function isOverwriteEnabled() {
+		return false;
+	}
+	
 	public function render() {
 		$model 			= $this->getModel();
 		$parentClass	= $this->_getParentClass();

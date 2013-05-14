@@ -9,8 +9,6 @@
  * @lastmodified $Date: $
  */
 class Garp_Spawn_Php_Renderer {
-	const _BASE_MODEL_PATH 		= '/modules/default/models/Base/';
-	const _EXTENDED_MODEL_PATH 	= '/modules/default/models/';
 		
 	/**
 	 * @var Garp_Spawn_Model_Abstract $_model
@@ -25,36 +23,51 @@ class Garp_Spawn_Php_Renderer {
 
 
 	public function save() {
-		//	generate base model
-		$baseModelPath = $this->_getBaseModelPath($this->_model->id);
-		$baseModelContent = $this->_renderBaseModel();
-		$this->_saveFile($baseModelPath, $baseModelContent, 'PHP base model', true);
+		$model		= $this->getModel();
+		$factory 	= new Garp_Spawn_Php_Model_Factory($model);
+		
+		$baseModel = $factory->produce(Garp_Spawn_Php_Model_Factory::TYPE_BASE);
+		$baseModel->save();
 
-		//	generate extended model
-		$extendedModelPath = $this->_getExtendedModelPath($this->_model->id);
-		$extendedModelContent = $this->_renderExtendedModel($this->_model);
-		$this->_saveFile($extendedModelPath, $extendedModelContent, 'PHP extended model', false);
-
-		//	generate hasAndBelongsToMany binding models that relate to this model
-		$habtmRelations = $this->_model->relations->getRelations('type', 'hasAndBelongsToMany');
-		if ($habtmRelations) {
-			foreach ($habtmRelations as $habtmRelation) {
-				$bindingModel 				= $habtmRelation->getBindingModel();
-				$bindingBaseModelPath 		= $this->_getBaseModelPath($bindingModel->id);
-				$bindingBaseModelContent 	= $this->_renderBindingBaseModel($this->_model, $habtmRelation);
-
-				$status = 'PHP base binding model to ' . $habtmRelation->model;
-				$this->_saveFile($bindingBaseModelPath, $bindingBaseModelContent, $status, true);
-				
-				$bindingExtendedModelPath = $this->_getExtendedModelPath($bindingModel->id);
-				$bindingExtendedModelContent = $this->_renderExtendedModel($bindingModel);
-
-				$status = 'PHP extended binding model to ' . $habtmRelation->model;
-				$this->_saveFile($bindingExtendedModelPath, $bindingExtendedModelContent, $status, false);
-			}
+		$extendedModel = $factory->produce(Garp_Spawn_Php_Model_Factory::TYPE_EXTENDED);
+		$extendedModel->save();
+		
+		if ($habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany')) {
+			array_walk($habtmRelations, array($this, '_saveBindingModel'));
 		}
+		
+		if ($model->isMultilingual()) {
+			$this->_saveLocalizedModels();
+		}
+		
+		new Garp_Spawn_Php_ModelsIncluder($model->id);
+	}
+	
+	protected function _saveBindingModel(Garp_Spawn_Relation $habtmRelation, $relationName) {
+		$model 			= $this->getModel();
+		$bindingModel 	= $habtmRelation->getBindingModel();
+		$factory		= new Garp_Spawn_Php_Model_Factory($model);
 
-		new Garp_Spawn_Php_ModelsIncluder($this->_model->id);
+		$bindingPhpModel = $factory
+			->produce(Garp_Spawn_Php_Model_Factory::TYPE_BINDING_BASE, $habtmRelation);
+		$bindingPhpModel->save();
+
+		$bindingExtendedPhpModel = $factory
+			->setModel($bindingModel)
+			->produce(Garp_Spawn_Php_Model_Factory::TYPE_EXTENDED);
+		$bindingExtendedPhpModel->save();
+	}
+	
+	protected function _saveLocalizedModels() {
+		$locales = Garp_I18n::getLocales();
+		array_walk($locales, array($this, '_saveLocalizedModel'));
+	}
+	
+	protected function _saveLocalizedModel($locale) {
+		$model 		= $this->getModel();
+		$factory 	= new Garp_Spawn_Php_Model_Factory($model);
+		$localizedModel = $factory->produce(Garp_Spawn_Php_Model_Factory::TYPE_LOCALIZED, $locale);
+		$localizedModel->save();
 	}
 		
 	/**
@@ -69,66 +82,5 @@ class Garp_Spawn_Php_Renderer {
 	 */
 	public function setModel($model) {
 		$this->_model = $model;
-	}
-	
-	protected function _saveFile($path, $content, $label, $overwrite = false) {
-		if (
-			$overwrite ||
-			!$overwrite && !file_exists($path)
-		) {
-			if (!file_put_contents($path, $content)) {
-				throw new Exception("Could not generate {$label}.");
-			}
-		}
-	}
-
-
-	protected static function _getBaseModelPath($modelId) {
-		return APPLICATION_PATH.self::_BASE_MODEL_PATH.$modelId.'.php';
-	}
-	
-	
-	protected static function _getExtendedModelPath($modelId) {
-		return APPLICATION_PATH.self::_EXTENDED_MODEL_PATH.$modelId.'.php';
-	}
-
-	protected function _renderBaseModel() {
-		$model		= $this->getModel();
-		$phpModel 	= new Garp_Spawn_Php_Model_Base($model);
-		$script 	= $phpModel->render();
-		
-		return $script;
-	}
-		
-	protected function _getTableName() {
-		$model 			= $this->getModel();
-		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($model);
-		$table 			= $tableFactory->produceConfigTable();
-		
-		return $table->name;
-	}
-
-	protected function _renderExtendedModel(Garp_Spawn_Model_Abstract $model) {
-		$model		= $this->getModel();
-		$phpModel 	= new Garp_Spawn_Php_Model_Extended($model);
-		$script 	= $phpModel->render();
-		
-		return $script;
-	}
-	
-	
-	protected function _renderBindingBaseModel(Garp_Spawn_Model_Base $model, Garp_Spawn_Relation $habtmRelation) {
-		$model		= $this->getModel();
-		$phpModel 	= new Garp_Spawn_Php_Model_BindingBase($model, $habtmRelation);
-		$script 	= $phpModel->render();
-		
-		return $script;
-	}
-
-	/**
-	 * Render line with tabs and newlines
-	 */
-	protected function _rl($content, $tabs = 0, $newlines = 1) {
-		return str_repeat("\t", $tabs).$content.str_repeat("\n", $newlines);
 	}
 }

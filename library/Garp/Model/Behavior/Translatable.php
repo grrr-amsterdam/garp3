@@ -93,7 +93,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 * A real hacky solution to enable admins to search for translated content in the CMS
  	 */
 	protected function _joinCmsSearchQuery(Garp_Model_Db $model, Zend_Db_Select &$select, $likeValue) {
-		$languages = Garp_I18n::getAllPossibleLocales();
+		$languages = Garp_I18n::getLocales();
 		foreach ($languages as $language) {
 			$factory = new Garp_I18n_ModelFactory($language);
 			$translatedViewModel = $factory->getModel($model);
@@ -154,7 +154,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		if (isset($result->{self::I18N_MODEL_BINDING_ALIAS})) {
 			$translationRecordList = $result->{self::I18N_MODEL_BINDING_ALIAS}->toArray();
 			$translatedFields = array();
-			$allLocales = Garp_I18n::getAllPossibleLocales();
+			$allLocales = Garp_I18n::getLocales();
 			foreach ($this->_translatableFields as $translatableField) {
 				// provide default values
 				foreach ($allLocales as $locale) {
@@ -199,7 +199,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 */
 	protected function _afterSave(Garp_Model_Db $model, $primaryKeys) {
 		if ($this->_queue) {
-			$locales = Garp_I18n::getAllPossibleLocales();
+			$locales = Garp_I18n::getLocales();
 			foreach ($locales as $locale) {
 				$this->_saveI18nRecord($locale, $model, $primaryKeys);
 			}
