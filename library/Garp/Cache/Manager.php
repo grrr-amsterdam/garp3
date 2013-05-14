@@ -77,7 +77,7 @@ class Garp_Cache_Manager {
 				self::_incrementMemcacheVersion($model);
 				if ($model->getObserver('Translatable')) {
 					// Make sure cache is cleared for all languages.
-					$locales = Garp_I18n::getAllPossibleLocales();
+					$locales = Garp_I18n::getLocales();
 					foreach ($locales as $locale) {
 						$modelFactory = new Garp_I18n_ModelFactory($locale);
 						$i18nModel = $modelFactory->getModel($model);

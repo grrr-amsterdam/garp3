@@ -17,6 +17,25 @@ abstract class Garp_Spawn_Php_Model_Abstract implements Garp_Spawn_Php_Model_Pro
 	}
 
 	/**
+	 * Saves the model file, if applicable. A model that exists and should not be overwritten
+	 * will not be touched by this method.
+	 */
+	public function save() {
+		$path 		= $this->getPath();
+		$content 	= $this->render();
+		$overwrite 	= $this->isOverwriteEnabled();
+		
+		if (!$overwrite && file_exists($path)) {
+			return;
+		}
+		
+		if (!file_put_contents($path, $content)) {
+			$model = $this->getModel();
+			throw new Exception("Could not generate {$model->id}" . get_class());
+		}
+	}
+
+	/**
 	 * @return Garp_Spawn_Model_Abstract
 	 */
 	public function getModel() {

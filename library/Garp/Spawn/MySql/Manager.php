@@ -173,7 +173,7 @@ class Garp_Spawn_MySql_Manager {
 	}	
 
 	protected function _createI18nViews(Garp_Spawn_Model_Base $model) {
-		$locales = Garp_I18n::getAllPossibleLocales();
+		$locales = Garp_I18n::getLocales();
 		foreach ($locales as $locale) {
 			$view = new Garp_Spawn_MySql_View_I18n($model, $locale);
 			$view->create();

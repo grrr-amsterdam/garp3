@@ -44,7 +44,7 @@ class Garp_I18n {
 	 * Return a list of all possible locales
 	 * @return Array
 	 */
-	public static function getAllPossibleLocales() {
+	public static function getLocales() {
 		return Zend_Controller_Front::getInstance()->getParam('locales');
 	}
 }
