@@ -220,6 +220,18 @@ if (Ext.isIE) {
 		/*
 		 * custom functions
 		 */
+		
+		/**
+		 * Override getValue for emptyness sake
+		 */
+		getValue: function(){
+			var v = Ext.ux.form.RichTextEditor.superclass.getValue.call(this);
+			if (v == '<p></p>') {
+				return null;
+			}
+			return v;
+		},
+		
 		/**
 		 *
 		 * @param {Object} val
