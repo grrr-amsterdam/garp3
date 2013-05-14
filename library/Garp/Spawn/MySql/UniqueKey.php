@@ -22,7 +22,7 @@ class Garp_Spawn_MySql_UniqueKey extends Garp_Spawn_MySql_Key {
 		;
 
 		if (is_array($columnName)) {
-			$columnName = implode(',', $columnName);
+			$columnName = implode('`,`', $columnName);
 		}
 		
 		return
@@ -71,8 +71,8 @@ class Garp_Spawn_MySql_UniqueKey extends Garp_Spawn_MySql_Key {
 			throw new Exception("Could not find a column and index name in the unique key statement.\n" . $line);
 		}
 		
+		$matches['column'] = str_replace('`', '', $matches['column']);
 		if (strpos($matches['column'], ',') !== false) {
-			$matches['column'] = str_replace('`', '', $matches['column']);
 			$matches['column'] = explode(',', $matches['column']);
 		}
 
