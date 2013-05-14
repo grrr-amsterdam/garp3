@@ -4,6 +4,7 @@
  */
 class Garp_Spawn_Config_Model_I18n extends ArrayObject {
 	const I18N_MODEL_ID_POSTFIX = 'I18n';
+	const LANGUAGE_COLUMN 	= 'lang';
 	
 	/**
 	 * @var String $_parentId
@@ -51,8 +52,9 @@ class Garp_Spawn_Config_Model_I18n extends ArrayObject {
 		$config 				= $this->_filterUnnecessaryFields($config);
 		$config['inputs'] 		+= $this->_getI18nSpecificFields();
 		$config['relations'] 	= $this->_getRelationConfigToParent();
+		$config['unique']		= $this->_getUniqueColumnNames();
 		$config					= $this->_correctOrderProperty($config);
-		
+
 		return $config;
 	}
 	
@@ -86,6 +88,28 @@ class Garp_Spawn_Config_Model_I18n extends ArrayObject {
 		
 		return false;
 	}
+
+	/**
+	 * @return	Array	The names of the columns that are unique to this record ('lang' and parent relation column)
+	 */
+	protected function _getUniqueColumnNames() {
+		$columns = array(
+			self::LANGUAGE_COLUMN,
+			$this->_getRelationColumnToParent()
+		);
+		
+		return $columns;
+	}
+
+	/**
+	 * @return 	String	The name of the column that refers to the translatable parent model
+	 */
+	protected function _getRelationColumnToParent() {
+		$parentModelId 	= $this->getParentId();
+		$columnName 	= Garp_Spawn_Relation_Set::getRelationColumn($parentModelId);
+		
+		return $columnName;
+	}
 	
 	protected function _getRelationConfigToParent() {
 		$relation = array(
@@ -99,7 +123,7 @@ class Garp_Spawn_Config_Model_I18n extends ArrayObject {
 
 	protected function _getI18nSpecificFields() {
 		$fields = array(
-			'lang' => array(
+			self::LANGUAGE_COLUMN => array(
 				'type' => 'text',
 				'maxLength' => 2
 			)

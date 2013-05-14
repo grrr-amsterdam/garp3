@@ -222,7 +222,7 @@ legend.x-fieldset-header { white-space: nowrap; }
 .x-toolbar td,.x-toolbar span,.x-toolbar input,.x-toolbar div,.x-toolbar select,.x-toolbar label{ font:normal 11px "lucida grande", helvetica, arial, sans-serif, tahoma; }
 .x-grid3-row td, .x-grid3-summary-row td{ font:normal 11px/13px "lucida grande", helvetica, arial, sans-serif, tahoma; }
 .x-grid3-hd-row td { font:normal 11px/15px "lucida grande", helvetica, arial, sans-serif, tahoma; text-transform: lowercase; }
-.x-grid3-topbar, .x-grid3-bottombar{f ont:normal 11px "lucida grande", helvetica, arial, sans-serif, tahoma; }
+.x-grid3-topbar, .x-grid3-bottombar{ font:normal 11px "lucida grande", helvetica, arial, sans-serif, tahoma; }
 .x-grid-group-hd div.x-grid-group-title { font:bold 11px "lucida grande", helvetica, arial, sans-serif, tahoma; }
 .x-grid-empty { font:normal 11px "lucida grande", helvetica, arial, sans-serif, tahoma; }
 .x-dd-drag-ghost{ font: normal 11px "lucida grande", helvetica, arial, sans-serif, tahoma; }
@@ -279,7 +279,9 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 
 /* i18n fieldset */
 .i18n-fieldset { border-bottom:1px #ddd dotted; padding: 10px 0 0 0; margin: 20px 0 0 0; } 
-.i18n-fieldset legend { padding: 0 15px 0 0; text-transform: lowercase; }
+.i18n-fieldset legend { margin: 0; padding: 0 15px 0 0; text-transform: lowercase; font-size: 12px; }
+.i18n-fieldset legend:after { content: url(../../media/images/garp/icons2/collapse.png); width: 16px; height: 16px; position: relative; top: 4px; left: 10px; opacity: .35; }
+.i18n-fieldset.x-panel-collapsed legend:after { content: url(../../media/images/garp/icons2/expand.png); }
 
 /* GARP Overrides */
 .x-form-text.x-superboxselect.x-form-focus { -moz-box-shadow: 0px 0px 5px #46A; -webkit-box-shadow: 0px 0px 5px #46A; box-shadow: 0px 0px 5px #46A; border: 1px #68D solid; outline: 0; -webkit-transition: all .2s ease-out; }

@@ -53,7 +53,7 @@ class G_AuthController extends Garp_Controller_Action {
 					$this->_beforeRegister($postData);
 
 					$insertId = $userModel->insert($postData);
-					$this->_helper->flashMessenger($authVars['register']['successMessage']);
+					$this->_helper->flashMessenger(__($authVars['register']['successMessage']));
 
 					// Store new user directly thru Garp_Auth so that they're logged in immediately
 					$newUser = $userModel->find($insertId)->current();
@@ -146,9 +146,17 @@ class G_AuthController extends Garp_Controller_Action {
 			}
 
 			// Determine targetUrl. This is the URL the user was trying to access before logging in, or a default URL.
-			$targetUrl = !empty($authVars['login']['successUrl']) ? $authVars['login']['successUrl'] : '/';
+			$router = Zend_Controller_Front::getInstance()->getRouter();
+			if (!empty($authVars['login']['successRoute'])) {
+				$targetUrl = $router->assemble(array(), $authVars['login']['successRoute']);
+			} elseif (!empty($authVars['login']['successUrl'])) {
+				$targetUrl = $authVars['login']['successUrl'];
+			} else {
+				$targetUrl = '/';
+			}
 			$store = Garp_Auth::getInstance()->getStore();
-			if ($targetUrl = $store->targetUrl) {
+			if ($store->targetUrl) {
+				$targetUrl = $store->targetUrl;
 				unset($store->targetUrl);
 			}
 
@@ -158,8 +166,15 @@ class G_AuthController extends Garp_Controller_Action {
 			// Set a Flash message welcoming the user.
 			$flashMessenger = $this->_helper->getHelper('FlashMessenger');
 			$fullName = new Garp_Util_FullName($userData);
-			$successMessage = sprintf($authVars['login']['successMessage'], $fullName);
-			$flashMessenger->addMessage($successMessage);
+			$successMsg = __($authVars['login']['successMessage']);
+			if (strpos('%s', $successMsg) !== false) {
+				$successMsg = sprintf($successMsg, $fullName);
+			} elseif (strpos('%USERNAME%', $successMsg) !== false) {
+				$successMsg = Garp_Util_String::interpolate($successMsg, array(
+					'USERNAME' => $fullName
+				));
+			}
+			$flashMessenger->addMessage($successMsg);
 			$this->_redirect($targetUrl);
 			exit;
 		} else {
@@ -196,7 +211,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->_afterLogout($userData);
 
 		$flashMessenger = $this->_helper->getHelper('FlashMessenger');
-		$flashMessenger->addMessage($authVars['logout']['successMessage']);
+		$flashMessenger->addMessage(__($authVars['logout']['successMessage']));
 		$this->_redirect($target);
 	}
 
@@ -212,7 +227,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$request = $this->getRequest();
 
 		if ($request->getParam('success') == '1') {
-			$this->view->successMessage = $authVars['forgotpassword']['success_message'];
+			$this->view->successMessage = __($authVars['forgotpassword']['success_message']);
 		}
 
 		if ($request->isPost()) {
@@ -279,7 +294,7 @@ class G_AuthController extends Garp_Controller_Action {
 						$response = $ses->sendEmail(array(
 							'Destination' => $email,
 							'Message'     => $emailMessage,
-							'Subject'     => $authVars['forgotpassword']['email_subject'],
+							'Subject'     => __($authVars['forgotpassword']['email_subject']),
 							'Source'      => $authVars['forgotpassword']['email_from_address']
 						));
 					} elseif ($emailMethod === 'zend') {
@@ -287,16 +302,22 @@ class G_AuthController extends Garp_Controller_Action {
 						$mail->setBodyText($emailMessage);
 						$mail->setFrom($authVars['forgotpassword']['email_from_address']);
 						$mail->addTo($email);
-						$mail->setSubject($authVars['forgotpassword']['email_subject']);
+						$mail->setSubject(__($authVars['forgotpassword']['email_subject']));
 						$response = $mail->send();
 					} else {
 						throw new Garp_Auth_Exception('Unknown email_method chosen. '.
 							'Please reconfigure auth.forgotpassword.email_method');
 					}
 					if ($response) {
-						$this->_redirect($authVars['forgotpassword']['url'].'?success=1');
+						if (isset($authVars['forgotpassword']['route'])) {
+							$router = Zend_Controller_Front::getInstance()->getRouter();
+							$targetUrl = $router->assemble(array(), $authVars['forgotpassword']['route']);
+						} elseif (isset($authVars['forgotpassword']['url'])) {
+							$targetUrl = $authVars['forgotpassword']['url'];
+						}
+						$this->_redirect($targetUrl.'?success=1');
 					} else {
-						$this->view->formError = $authVars['forgotpassword']['failure_message'];
+						$this->view->formError = __($authVars['forgotpassword']['failure_message']);
 					}
 				}
 			}
@@ -354,7 +375,7 @@ class G_AuthController extends Garp_Controller_Action {
 						$authVars['forgotpassword']['activation_token_column'] => null,
 						$authVars['forgotpassword']['activation_code_expiration_date_column'] => null
 					), $updateClause);
-					$this->_helper->flashMessenger($authVars['resetpassword']['success_message']);
+					$this->_helper->flashMessenger(__($authVars['resetpassword']['success_message']));
 					$this->_redirect('/g/auth/login');
 				}
 			}

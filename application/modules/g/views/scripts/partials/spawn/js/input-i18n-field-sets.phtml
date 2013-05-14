@@ -1,0 +1,67 @@
+<?php
+$locales		= Garp_I18n::getAllPossibleLocales();
+$defaultLocale 	= Garp_I18n::getDefaultLocale();
+$fieldSet		= $this->fieldSet;
+$excludedFields	= $this->spawnJs()->getExcludedFormFields();
+
+/**
+ * @return 	String 	The English label for the given language id
+ */
+$getLanguageLabel = function($language) {
+	switch ($language) {
+		case 'nl': return 'Dutch';
+		case 'en': return 'English';
+		case 'fr': return 'French';
+		case 'de': return 'German';
+		case 'it': return 'Italian';
+		case 'es': return 'Spanish';
+		case 'pt': return 'Portuguese';
+	}
+};
+
+$isExcludedField = function(Garp_Spawn_Field $field) use ($excludedFields) {
+	$isExcludedField = in_array($field->name, $excludedFields);
+	return $isExcludedField;
+};
+
+$renderLanguageSet = function($language, $view) use ($fieldSet, $getLanguageLabel, $defaultLocale, $isExcludedField) {
+	$languageLabel 		= $getLanguageLabel($language);
+	$fieldSetOutputs 	= array();
+	$isForDefaultLocale = $defaultLocale === $language;
+
+	foreach ($fieldSet as $field) {
+		if (!$field->isMultilingual()) 	continue;
+		if ($isExcludedField($field)) 	continue;
+
+		$path = 'partials/spawn/js/input-field.phtml';
+		$params = array(
+			'field' 	=> $field,
+			'language'	=> $language
+		);
+		if (!$isForDefaultLocale) {
+			$params['required'] = false;
+		}
+		
+		$fieldSetOutputs[] = $view->partial($path, 'g', $params);
+	}
+
+	$fieldSetString	= implode('}, {', $fieldSetOutputs);
+	
+	$languageSetProps = array(
+		"xtype: 'i18nfieldset'",
+		"title: __('{$languageLabel}')",
+		"collapsed: " . ($isForDefaultLocale ? 'false' : 'true'),
+		"items: [{{$fieldSetString}}]"
+	);
+	
+	$languageSetString = implode(', ', $languageSetProps);
+	
+	return $languageSetString;
+};
+
+$languageSets = array();
+foreach ($locales as $locale) {
+	$languageSets[] = $renderLanguageSet($locale, $this);
+}
+
+echo implode('}, {', $languageSets);

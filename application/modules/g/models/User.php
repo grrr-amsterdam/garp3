@@ -298,7 +298,7 @@ class G_Model_User extends Model_Base_User {
 			$emailMessage = __($snippetId);
 			$emailMessage = Garp_Util_String::interpolate($emailMessage, array(
 				'USERNAME' => (string)new Garp_Util_FullName($user), 
-				'ACTIVATION_URL' => $activationUrl
+				'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
 			));
 		}
 
@@ -307,7 +307,7 @@ class G_Model_User extends Model_Base_User {
 		$response = $ses->sendEmail(array(
 			'Destination' => $user->email,
 			'Message'     => $emailMessage,
-			'Subject'     => $authVars['validateEmail']['email_subject'],
+			'Subject'     => __($authVars['validateEmail']['email_subject']),
 			'Source'      => $authVars['validateEmail']['email_from_address']
 		));
 		return $response;
