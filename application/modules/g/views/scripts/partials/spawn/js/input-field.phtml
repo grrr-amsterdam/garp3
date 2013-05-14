@@ -1,31 +1,41 @@
 <?php
-$xType 	= $this->spawnJs()->getFieldType($this->field);
-$vType 	= $this->spawnJs()->getFieldValidationType($this->field);
-$plugin = $this->spawnJs()->getFieldPlugin($this->field);
+
+$field	= $this->field;
+$xType 	= $this->spawnJs()->getFieldType($field);
+$vType 	= $this->spawnJs()->getFieldValidationType($field);
+$plugin = $this->spawnJs()->getFieldPlugin($field);
 
 $props = array();
 
-$props[] = "name: '{$this->field->name}'";
-$props[] = "fieldLabel: __('{$this->field->label}')";
-$props[] = "disabled: ".($this->field->editable ? 'false' : 'true');
-$props[] = "hidden: ".($this->field->visible ? 'false' : 'true');
+$getNameProperty = function($field, $language) {
+	$name = $field->isMultilingual() ?
+		'_' . $field->name . '_' . $language :
+		$field->name
+	;
+	return "name: '{$name}'";
+};
 
-switch ($this->field->type) {
+$props[] = $getNameProperty($field, $this->language);
+$props[] = "fieldLabel: __('{$field->label}')";
+$props[] = "disabled: ".($field->editable ? 'false' : 'true');
+$props[] = "hidden: ".($field->visible ? 'false' : 'true');
+
+switch ($field->type) {
 	case 'enum':
 		$props[] = "editable: false";
 		$props[] = "mode: 'local'";
-		if (key($this->field->options) === 0) {
-			$options = $this->field->options;
-			if (!$this->field->required) {
+		if (key($field->options) === 0) {
+			$options = $field->options;
+			if (!$field->required) {
 				array_unshift($options, null);
 			}
 			$props[] = "store: ['".implode($options, "', '")."']";
 		} else {
 			$labeledEnumOptions = array();
-			if (!$this->field->required) {
+			if (!$field->required) {
 				$labeledEnumOptions[] = "[null, __('(empty)')]";
 			}
-			foreach ($this->field->options as $value => $label) {
+			foreach ($field->options as $value => $label) {
 				$labeledEnumOptions[] = "['{$value}', __('{$label}')]";
 			}
 			$options = $labeledEnumOptions;
@@ -33,7 +43,7 @@ switch ($this->field->type) {
 		}
 	break;
 	case 'html':
-		if ($this->field->rich) {
+		if ($field->rich) {
 			$props[] = 'enableSourceEdit: false';
 		} else {
 			array_push($props,
@@ -53,7 +63,7 @@ switch ($this->field->type) {
 		}
 	break;
 	case 'numeric':
-		if (!$this->field->float) {
+		if (!$field->float) {
 			$props[] = 'allowDecimals: false';
 		}
 	break;
@@ -89,11 +99,12 @@ switch ($this->field->type) {
 	break;
 }
 
-if ($this->field->maxLength && $this->field->type !== 'enum') {
-	$props[] = "maxLength: {$this->field->maxLength}";
+if ($field->maxLength && $field->type !== 'enum') {
+	$props[] = "maxLength: {$field->maxLength}";
 }
 
-$props[] = "allowBlank: ".($this->field->required ? 'false' : 'true');
+$required = isset($this->required) ? $this->required : $field->required;
+$props[] = "allowBlank: ".($required ? 'false' : 'true');
 
 $props[] = "xtype: '{$xType}'";
 if ($vType)
@@ -102,15 +113,15 @@ if ($plugin)
 	$props[] = "plugins: [{$plugin}]";
 ?>
 				<?php echo implode(",\n\t\t\t\t", $props); ?>
-				<?php if ($this->field->info): ?>
+				<?php if ($field->info): ?>
 			}, {
 			<?php
 				echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
-					'text' => "__('" . addslashes($this->field->info) . "')",
-					'fieldName' => $this->field->name
+					'text' => "__('" . addslashes($field->info) . "')",
+					'fieldName' => $field->name
 				));
 			endif; ?>
-				<?php if ($this->field->type === 'document' || $this->field->type === 'imagefile'): ?>
+				<?php if ($field->type === 'document' || $field->type === 'imagefile'): ?>
 			}, {
 			<?php
 				$allowedExtensionsExceptLast = array_slice($allowedExtensions, 0, -1);
@@ -120,6 +131,6 @@ if ($plugin)
 
 				echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
 					'text' => "__('Only {1} and {2} files with a maximum of {3} MB are allowed', '" . implode(', ', $allowedExtensionsExceptLast) . "', '" . $allowedLastExtension . "', '" . $uploadLimitInMbs . "')",
-					'fieldName' => $this->field->name
+					'fieldName' => $field->name
 				));
 			endif; ?>
