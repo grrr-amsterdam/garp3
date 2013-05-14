@@ -9,7 +9,7 @@
  * @subpackage Controller
  * @lastmodified $Date: $
  */
-class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {	
+class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 	/**
 	 * Sets the application locale and translation based on the locale param, if
 	 * one is not provided it defaults to english
@@ -21,7 +21,7 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		$frontController = Zend_Controller_Front::getInstance();
 		$params = $request->getParams();
 		$registry = Zend_Registry::getInstance();
-		
+
 		// Steps setting the locale.
 		// 1. Default language is set in config
 		// 2. TLD in host header
@@ -30,7 +30,7 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 
 		// Check host header TLD.
 		$tld = preg_replace('/^.*\./', '', $request->getHeader('Host'));
-		
+
 		// Provide a list of tld's and their corresponding default languages
 		$tldLocales = $frontController->getParam('tldLocales');
 		if (is_array($tldLocales) && array_key_exists($tld, $tldLocales)) {
@@ -45,14 +45,14 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 			$defaults = array_keys($locale->getDefault());
 			$locale->setLocale(current($defaults));
 		}
-		
+
 		// Now that our locale is set, let's check which language has been selected
 		// and try to load a translation file for it.
 		$language = $locale->getLanguage();
 		$translate = $this->_getTranslate($locale);
 		Zend_Registry::set('Zend_Translate', $translate);
 		Zend_Form::setDefaultTranslator($translate);
-		
+
 		// Now that we have our locale setup, let's check to see if we are loading
 		// a language that is not the default, and update our base URL on the front
 		// controller to the specified language.
@@ -70,10 +70,10 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 
 
 	/**
- 	 * Create a Zend_Translate instance for the given locale.
- 	 * @param Zend_Locale $locale
- 	 * @return Zend_Translate
- 	 */
+	 * Create a Zend_Translate instance for the given locale.
+	 * @param Zend_Locale $locale
+	 * @return Zend_Translate
+	 */
 	protected function _getTranslate(Zend_Locale $locale) {
 		$adapterParams = array(
 			'locale' => $locale,
