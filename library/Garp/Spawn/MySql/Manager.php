@@ -217,7 +217,9 @@ class Garp_Spawn_MySql_Manager {
 		$synchronizer 	= new Garp_Spawn_MySql_Table_Synchronizer($i18nModel);
 		$synchronizer->sync();
 
-		$this->onI18nTableFork($model);
+		try {
+			$this->onI18nTableFork($model);
+		} catch (Exception $e) {}
 	}
 
 	protected function _syncBindingModel(Garp_Spawn_Relation $relation) {
