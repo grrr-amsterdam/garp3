@@ -78,7 +78,7 @@ class Garp_Spawn_MySql_Manager {
 				$this->_createBaseModelTableAndAdvance($model);
 			}
 		}
-
+		
 		//	Stage 3: Create binding models________
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " many-to-many config reading");
@@ -108,6 +108,11 @@ class Garp_Spawn_MySql_Manager {
 				}
 			}
 			$progress->advance();
+		}
+		
+		foreach ($modelSet as $model) {
+			$this->_syncI18nModel($model);
+			$this->_cleanUpBaseModel($model);
 		}
 		
 		//	Stage 5: Create base model views________
@@ -190,14 +195,29 @@ class Garp_Spawn_MySql_Manager {
 
 		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model);
 		$baseSynchronizer->sync(false);
+	}
+	
+	protected function _cleanUpBaseModel(Garp_Spawn_Model_Base $model) {
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress->display($model->id . " table comparison");
 
-		if ($model->isMultilingual()) {
-			$i18nModel 			= $model->getI18nModel();
-			$synchronizer = new Garp_Spawn_MySql_Table_Synchronizer($i18nModel);
-			$synchronizer->sync();
-		}
-		
+		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model);
 		$baseSynchronizer->cleanUp();
+	}
+
+	protected function _syncI18nModel(Garp_Spawn_Model_Base $model) {
+		if (!$model->isMultilingual()) {
+			return;
+		}
+
+		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress->display($model->id . " i18n comparison");
+
+		$i18nModel 		= $model->getI18nModel();
+		$synchronizer 	= new Garp_Spawn_MySql_Table_Synchronizer($i18nModel);
+		$synchronizer->sync();
+
+		$this->onI18nTableFork($model);
 	}
 
 	protected function _syncBindingModel(Garp_Spawn_Relation $relation) {

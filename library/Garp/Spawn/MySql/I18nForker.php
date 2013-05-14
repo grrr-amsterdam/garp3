@@ -6,6 +6,9 @@
  * @subpackage MySql
  */
 class Garp_Spawn_MySql_I18nForker {
+	const ERROR_CANT_CREATE_TABLE =
+		"Unable to create the %s table.";
+
 	/**
 	 * @var Garp_Spawn_Model_Base $_model
 	 */
@@ -30,6 +33,8 @@ class Garp_Spawn_MySql_I18nForker {
 		$this->setModel($model);
 		$this->setSource($source);
 		$this->setTarget($target);
+		
+		$this->_createTableIfNotExists();
 		
 		$sql = $this->_renderContentMigrationSql();
 		$this->_executeSql($sql);
@@ -78,8 +83,24 @@ class Garp_Spawn_MySql_I18nForker {
 	}
 	
 	protected function _executeSql($sql) {
+		// Zend_Debug::dump($sql);
+		// exit;
 		$adapter = Zend_Db_Table::getDefaultAdapter();
 		return $adapter->query($sql);
+	}
+	
+	protected function _createTableIfNotExists() {
+		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($this->getModel()->getI18nModel());
+		$table 			= $tableFactory->produceConfigTable();
+		
+		if (
+			!Garp_Spawn_MySql_Table_Base::exists($table->name) &&
+			!$table->create()
+		) {
+			$error = sprintf(self::ERROR_CANT_CREATE_TABLE, $table->name);
+			throw new Exception($error);
+		}
+		
 	}
 	
 	protected function _renderContentMigrationSql() {
