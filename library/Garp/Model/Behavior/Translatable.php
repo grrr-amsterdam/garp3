@@ -68,11 +68,66 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 * @return Void
  	 */
 	public function beforeFetch(&$args) {
-		if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
-			$model = &$args[0];
+		$model = &$args[0];
+		$select = &$args[1];
+
+		$isCms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
+		if ($isCms) {
+			if ($where = $select->getPart(Zend_Db_Select::WHERE)) {
+				foreach ($where as $clause) {
+					// Check if it's a search query
+					if (stripos($clause, 'like') !== false) {
+						preg_match('/%.*?%/', $clause, $matches);
+						if (!empty($matches[0])) {
+							$this->_joinCmsSearchQuery($model, $select, $matches[0]);
+							break;
+						}
+					}
+				}
+			}
 			$this->bindWithI18nModel($model);
 		}
 	}	
+
+	/**
+ 	 * A real hacky solution to enable admins to search for translated content in the CMS
+ 	 */
+	protected function _joinCmsSearchQuery(Garp_Model_Db $model, Zend_Db_Select &$select, $likeValue) {
+		$languages = Garp_I18n::getAllPossibleLocales();
+		foreach ($languages as $language) {
+			$factory = new Garp_I18n_ModelFactory($language);
+			$translatedViewModel = $factory->getModel($model);
+			$i18nModel = $this->getI18nModel($model);
+			$referenceMap = $i18nModel->getReference(get_class($model));
+			$adapter = $model->getAdapter();
+
+			$translatedFields = $this->_getSuffixedColumnNames($language);
+			$translatedFieldsSql = array();
+			foreach ($translatedFields as $i18nField => $field) {
+				$translatedFieldsSql[] = $field.' AS '.$i18nField;
+				$select->orWhere($i18nField.' LIKE ?', $likeValue);
+			}
+			$translatedFieldsSql = implode(',', $translatedFieldsSql);
+			$select->join(
+				array($translatedViewModel->getName() => new Zend_Db_Expr('(SELECT id AS id_'.$language.', '.$translatedFieldsSql.' FROM '.$translatedViewModel->getName().')')),
+				$adapter->quoteIdentifier($translatedViewModel->getName()) . '.id_'.$language.' = '.$adapter->quoteIdentifier($model->getJointView()) . '.id',
+				array()
+			);
+		}
+	}
+
+	/**
+ 	 * Get translated fields with a language suffix ("name_nl")
+ 	 * @param String $language
+ 	 * @return Array
+ 	 */
+	protected function _getSuffixedColumnNames($language) {
+		$out = array();
+		foreach ($this->_translatableFields as $field) {
+			$out[$field.'_'.$language] = $field;
+		}
+		return $out;
+	}
 
 	/**
  	 * After fetch callback
@@ -84,7 +139,8 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$results = &$args[1];
 		$select  = &$args[2];
 		// In the CMS environment, the translated data is merged into the parent data
-		if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
+		$isCms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
+		if ($isCms) {
 			$iterator = new Garp_Db_Table_Rowset_Iterator($results, array($this, 'mergeTranslatedFields'));
 			$iterator->walk();
 		}
