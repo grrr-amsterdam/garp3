@@ -36,16 +36,13 @@ class Garp_I18n_ModelFactory {
  	 * @return Garp_Model_Db
  	 */
 	public function getModel($model) {
-		if (is_string($model)) {
-			$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
-			$model = new $model;
-		} else {
-			$model = clone $model;
+		if ($model instanceof Garp_Model_Db) {
+			$model = get_class($model);
 		}
-		$viewName = $model->getName() . '_' . $this->_language;
-		$model->setOptions(array(
-			Zend_Db_Table_Abstract::NAME => $viewName
-		));
+		$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
+		$langSuffix = ucfirst(strtolower($this->_language));
+		$modelName = $model.$langSuffix;
+		$model = new $modelName();
 		return $model;
 	}
 
