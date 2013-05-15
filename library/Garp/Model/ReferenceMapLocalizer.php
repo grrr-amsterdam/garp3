@@ -66,5 +66,6 @@ class Garp_Model_ReferenceMapLocalizer {
 	 */
 	public function setModel($model) {
 		$this->_model = $model;
+		return $this;
 	}
 }
