@@ -124,7 +124,7 @@ Garp.dataTypes.Snippet.on('init', function(){
 			formPanel.ImagePreview_image_id.setVisible(rec.data.has_image == 1);
 			
 			if (typeof rec.data.variables !== 'undefined' && form.findField('variables')) {
-				form.findField('variables').setVisible(rec.data.variables.length);
+				form.findField('variables').setVisible(rec.data.variables && rec.data.variables.length);
 			}
 		}
 		
