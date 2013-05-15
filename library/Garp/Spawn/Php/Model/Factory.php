@@ -54,7 +54,7 @@ class Garp_Spawn_Php_Model_Factory {
 	 *													Must be one of the self::TYPE_* constants.
 	 */	
 	protected function _getClass($type) {
-		return 'Garp_Spawn_PHP_Model_' . $type;
+		return 'Garp_Spawn_Php_Model_' . $type;
 	}
 
 }
