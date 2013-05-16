@@ -19,12 +19,13 @@ class Garp_Util_FullUrl {
 	/**
  	 * Class constructor
  	 * @param String|Array $route String containing the path or Array containing route properties
- 	 * 							  (@see Zend_View_Helper_Url for the format)
+ 	 *                            (@see Zend_View_Helper_Url for the format)
  	 * @param Boolean $omitProtocol Whether the protocol should be omitted, resulting in //www.example.com urls.
+ 	 * @param Boolean $omitBaseUrl Wether the baseUrl should be omitted, for strings that already contain that.
  	 * @return Void
  	 */
-	public function __construct($route, $omitProtocol = false) {
-		$this->_url = $this->_createFullUrl($route, $omitProtocol);
+	public function __construct($route, $omitProtocol = false, $omitBaseUrl = false) {
+		$this->_url = $this->_createFullUrl($route, $omitProtocol, $omitBaseUrl);
 	}
 
 	/**
@@ -40,7 +41,7 @@ class Garp_Util_FullUrl {
  	 * @param String $route
  	 * @return String
  	 */
-	protected function _createFullUrl($route, $omitProtocol) {
+	protected function _createFullUrl($route, $omitProtocol, $omitBaseUrl) {
 		$application = Zend_Registry::get('application');
 		$bootstrap = $application->getBootstrap();
 		$viewObj = $bootstrap->getResource('view');
@@ -49,7 +50,7 @@ class Garp_Util_FullUrl {
 			$this->_validateRouteArray($route);
 			$router = Zend_Controller_Front::getInstance()->getRouter();
 			$route = $router->assemble($route[0], $route[1]);
-		} else {
+		} elseif (!$omitBaseUrl) {
 			$route = $viewObj->baseUrl($route);
 		}
 
