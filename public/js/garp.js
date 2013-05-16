@@ -125,8 +125,11 @@
 			if (Garp.gridPanel && Garp.gridPanel.store) {
 				var state = {};
 				var pt = Garp.gridPanel.getBottomToolbar();
+				var tt = Garp.gridPanel.getTopToolbar();
 				var sm = Garp.gridPanel.getSelectionModel();
-				state.page = Math.ceil((pt.cursor + pt.pageSize) / pt.pageSize) || null;
+				if (tt && tt.searchField.getValue() === '') { // make sure there is no query
+					state.page = Math.ceil((pt.cursor + pt.pageSize) / pt.pageSize) || null;
+				}
 				state.id = sm.getSelected() ? parseInt(sm.getSelected().get('id'), 10) || null : null;
 				state.model = Garp.currentModel;
 				return state;
@@ -172,7 +175,7 @@
 		
 		if (Garp.checkForModified() > 1 || (Garp.checkForModified() == 1 && !Garp.gridPanel.getSelectionModel().getSelected().phantom)) {
 			var store = Garp.gridPanel.getStore();
-			var state = Garp.getCurrentState();
+			var state = Garp.history.getCurrentState();
 			
 			Ext.Msg.show({
 				animEl: Garp.viewport.getEl(),
