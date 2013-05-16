@@ -14,4 +14,16 @@ class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
 			->setHeader('Expires', date(DATE_RFC1123, strtotime('-1 year')), true)
 		;
 	}
+
+	/**
+     * Commence page caching for any cacheable actions
+     *
+     * @return void
+     */
+    public function preDispatch() {
+		if ($this->getResponse()->isRedirect()) {
+			return true;
+		}
+		return parent::preDispatch();
+	}
 }
