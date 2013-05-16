@@ -123,8 +123,8 @@ Garp.dataTypes.Snippet.on('init', function(){
 			// because imagePreview_image_id is not a formField but a button, we cannot find it with form.findField():
 			formPanel.ImagePreview_image_id.setVisible(rec.data.has_image == 1);
 			
-			if (typeof rec.data.variables !== 'undefined') {
-				form.findField('variables').setVisible(rec.data.variables.length);
+			if (typeof rec.data.variables !== 'undefined' && form.findField('variables')) {
+				form.findField('variables').setVisible(rec.data.variables && rec.data.variables.length);
 			}
 		}
 		
