@@ -18,6 +18,7 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 	 * @return Void
 	 */
 	public function routeShutdown(Zend_Controller_Request_Abstract $request) {
+		$config = Zend_Registry::get('config');
 		$frontController = Zend_Controller_Front::getInstance();
 		$params = $request->getParams();
 		$registry = Zend_Registry::getInstance();
@@ -58,7 +59,7 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		// to the specified language.
 		if (preg_match('/^\/' . $language . '\/?/', $path)) {
 			$frontController->setBaseUrl($frontController->getBaseUrl() . '/' . $language);
-		} else {
+		} elseif (!empty($config->resources->router->locale->enabled) && $config->resources->router->locale->enabled) {
 			$this->getResponse()
 				->setHttpResponseCode(301)
 				->setRedirect('/'.$language.$path)
