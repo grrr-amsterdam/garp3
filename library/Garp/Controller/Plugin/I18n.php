@@ -17,11 +17,10 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 	 * @param Zend_Controller_Request_Abstract $request
 	 * @return Void
 	 */
-	public function routeStartup(Zend_Controller_Request_Abstract $request) {
+	public function routeShutdown(Zend_Controller_Request_Abstract $request) {
 		$frontController = Zend_Controller_Front::getInstance();
 		$params = $request->getParams();
 		$registry = Zend_Registry::getInstance();
-
 		// Steps setting the locale.
 		// 1. Default language is set in config
 		// 2. TLD in host header
@@ -52,12 +51,6 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		$translate = $this->_getTranslate($locale);
 		Zend_Registry::set('Zend_Translate', $translate);
 		Zend_Form::setDefaultTranslator($translate);
-
-		// Now that we have our locale setup, let's check to see if we are loading
-		// a language that is not the default, and update our base URL on the front
-		// controller to the specified language.
-		$defaultLanguage = array_keys($locale->getDefault());
-		$defaultLanguage = $defaultLanguage[0];
 		
 		$path = '/' . ltrim($request->getPathInfo(), '/\\');
 		
