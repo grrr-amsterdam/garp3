@@ -226,7 +226,7 @@ if (Ext.isIE) {
 		 */
 		getValue: function(){
 			var v = Ext.ux.form.RichTextEditor.superclass.getValue.call(this);
-			if (v == '<p></p>') {
+			if (v == '<p>​</p>') {
 				return null;
 			}
 			return v;
@@ -298,6 +298,9 @@ if (Ext.isIE) {
 		findNode: function(tagName){
 			tagName = tagName.toUpperCase();
 			var range = this.getRange();
+			if (!range) {
+				return;
+			}
 			var out = null;
 			Ext.each(['commonAncestorContainer', 'startContainer', 'endContainer'], function(container){
 				var node = range[container];
@@ -336,6 +339,9 @@ if (Ext.isIE) {
 		createOrRemoveTag: function(tagName){
 			var range = this.getRange();
 			var sel = this.getSelection();
+			if (!range || !sel) {
+				return;
+			}
 			var newNode;
 			var search = this.findNode(tagName);
 			if (!search) {
@@ -1033,6 +1039,9 @@ if (Ext.isIE) {
 		 */
 		isDirty: function(){
 			if (this.disabled || !this.rendered || !this.isVisible()) {
+				return false;
+			}
+			if ((String(this.originalValue) === '<p>&#8203;</p>') && this.getValue() === null) {
 				return false;
 			}
 			return String(this.getValue()) !== String(this.originalValue);
