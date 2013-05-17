@@ -30,7 +30,6 @@ class Garp_Shell_Command_Decorator_Sudo extends Garp_Shell_Command_Abstract {
 		$this->_command = $command;
 	}
 
-
 	public function render() {
 		$command 		= $this->getCommand();
 		$commandString 	= $command->render();
@@ -38,6 +37,4 @@ class Garp_Shell_Command_Decorator_Sudo extends Garp_Shell_Command_Abstract {
 		
 		return $prefix . $commandString;
 	}
-	
 }
-
