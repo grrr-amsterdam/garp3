@@ -4,7 +4,7 @@
  * @author David Spreekmeester | Grrr.nl
  */
 class Garp_Shell_Command_WriteStringToFile extends Garp_Shell_Command_Abstract {
- 	const COMMAND = 'echo "%s" > %s';
+ 	const COMMAND = 'echo "%s" | tee %s';
 
 	/**
 	 * @var String $_string
