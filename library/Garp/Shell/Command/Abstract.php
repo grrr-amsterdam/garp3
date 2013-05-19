@@ -34,16 +34,16 @@ abstract class Garp_Shell_Command_Abstract implements Garp_Shell_Command_Protoco
 	 * @return String The command's output
 	 */
 	protected function _executeStringRemotely($commandString, Garp_Shell_RemoteSession $session) {
-		if ($stream = ssh2_exec($session->getSshSession(), $commandString)) {
-			stream_set_blocking($stream, true);
-			$content = stream_get_contents($stream);		
-			$this->_bubbleSshErrors($stream);
-			fclose($stream);
-
-			return $content;
+		if (!($stream = ssh2_exec($session->getSshSession(), $commandString))) {
+			return false;
 		}
+	
+		stream_set_blocking($stream, true);
+		$content = stream_get_contents($stream);		
+		$this->_bubbleSshErrors($stream, $commandString);
+		fclose($stream);
 
-		return false;		
+		return $content;
 	}
 	
 	protected function _executeStringLocally($commandString) {
@@ -94,13 +94,14 @@ abstract class Garp_Shell_Command_Abstract implements Garp_Shell_Command_Protoco
 	}
 
 
-	protected function _bubbleSshErrors($sshStream) {
+	protected function _bubbleSshErrors($sshStream, $commandString) {
 		$errorStream = ssh2_fetch_stream($sshStream, SSH2_STREAM_STDERR);
 		stream_set_blocking($errorStream, true);
 		$error = stream_get_contents($errorStream);
 		fclose($errorStream);
 
 		if ($error) {
+			$error = 'While executing [' . $commandString . '] ' . $error;
 			throw new Exception($error);
 		}
 	}

@@ -4,7 +4,7 @@
  * @author David Spreekmeester | Grrr.nl
  */
 class Garp_Shell_Command_Decorator_Sudo extends Garp_Shell_Command_Abstract {
-	const COMMAND_PREFIX = 'sudo ';
+	const COMMAND_PREFIX = '/usr/bin/sudo ';
 
 	/**
 	 * @var Garp_Shell_Command_Protocol $_command
@@ -33,8 +33,23 @@ class Garp_Shell_Command_Decorator_Sudo extends Garp_Shell_Command_Abstract {
 	public function render() {
 		$command 		= $this->getCommand();
 		$commandString 	= $command->render();
-		$prefix			= self::COMMAND_PREFIX;
+
+		if ($this->_isPipedEchoCommand($commandString)) {
+			return $this->_prefixPipedEchoCommand($commandString);
+		}
 		
-		return $prefix . $commandString;
+		return self::COMMAND_PREFIX . $commandString;
+	}
+	
+	protected function _isPipedEchoCommand($commandString) {
+		return strpos($commandString, '|') && substr($commandString, 0, 5) === 'echo ';
+	}
+	
+	protected function _prefixPipedEchoCommand($commandString) {
+		$parts 			= explode('|', $commandString);
+		$parts[1] 		= self::COMMAND_PREFIX . $parts[1];
+		$commandString 	= implode('|', $parts);
+		
+		return $commandString;
 	}
 }
