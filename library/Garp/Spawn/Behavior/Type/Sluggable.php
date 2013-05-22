@@ -59,7 +59,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 	public function needsPhpModelObserver() {
 		$model = $this->getModel();
 		
-		return $model->isTranslated();
+		return !$model->isMultilingual() || $model->isTranslated();
 	}
 	
 	/**
