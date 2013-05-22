@@ -3,7 +3,23 @@
  * @author David Spreekmeester | grrr.nl
  */
 class Garp_Spawn_Behavior_Type_NotEmpty extends Garp_Spawn_Behavior_Type_Abstract {	
-	
+
+	static public function isNeededBy(Garp_Spawn_Model_Abstract $model) {
+		$requiredFields = $model->fields->getFields('required', true);
+
+		if (!$model->isMultilingual()) {
+			return (bool)$requiredFields;
+		}
+
+		$unilingualFieldNames 	= array();
+
+		foreach ($requiredFields as $field) {
+			if (!$field->isMultilingual()) {
+				return true;
+			}
+		}
+	}
+
 	/**
 	 * In translated models (i18n leaves), multilingual columns should not be mandatory on PHP validator level.
 	 */
