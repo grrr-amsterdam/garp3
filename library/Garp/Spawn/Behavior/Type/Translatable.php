@@ -12,4 +12,22 @@ class Garp_Spawn_Behavior_Type_Translatable extends Garp_Spawn_Behavior_Type_Abs
 		
 		return !$model->isTranslated();
 	}
+	
+	public function getParams() {
+		$model = $this->getModel();
+
+		if (!$model->isMultilingual()) {
+			return;
+		}
+		
+		$fields 	= $model->fields->getFields('multilingual', true);
+		$fieldNames = array();
+		
+		foreach ($fields as $field) {
+			$fieldNames[] = $field->name;
+		}
+		
+		$params = array('columns' => $fieldNames);
+		return $params;
+	}
 }
