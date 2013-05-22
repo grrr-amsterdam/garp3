@@ -1,7 +1,6 @@
 <?php
 /**
  * @author David Spreekmeester | grrr.nl
- * @todo: REFACTOR!
  */
 class Garp_Spawn_Behavior_Set {
 	/**
@@ -67,17 +66,6 @@ class Garp_Spawn_Behavior_Set {
 			$behavior 	= $factory->produce($this->_model, $origin, $behaviorName, $behaviorConfig, $behaviorType);
 			$this->_behaviors[$behaviorName] = $behavior;
 
-			////////////////////
-			// if (
-			// 	$behaviorName === 'Translatable' &&
-			// 	$this->getModel()->id === 'Genre'
-			// ) {
-			// 	Zend_Debug::dump($this->getModel()->fields->getFields('origin', 'behavior'));
-			// 	exit;
-			// }
-			////////////////////
-
-
 			//	generate fields which are necessary for this behavior in the accompanying Model
 			$generatedFields = $this->_behaviors[$behaviorName]->getFields();
 			foreach ($generatedFields as $fieldName => $fieldParams) {
@@ -97,33 +85,6 @@ class Garp_Spawn_Behavior_Set {
 		}
 	}
 
-	/**
-	 * Retrieves required field names. In case of a multilingual base model, the multilingual
-	 * columns are not returned, since they are only required in the leaf i18n model.
-	 */
-	protected function _getRequiredFieldNames() {
-		$model = $this->getModel();
-
-		if (!$model->isMultilingual()) {
-			return $this->_model->fields->getFieldNames('required', true);
-		}
-
-		return $this->_getUnilingualFieldNames();
-	}
-	
-	protected function _getUnilingualFieldNames() {
-		$unilingualFieldNames 	= array();
-		$requiredFields 		= $this->_model->fields->getFields('required', true);
-		
-		foreach ($requiredFields as $field) {
-			if (!$field->isMultilingual()) {
-				$unilingualFieldNames[] = $field->name;
-			}
-		}
-		
-		return $unilingualFieldNames;
-	}
-
 	protected function _loadDefaultConditionalBehaviors() {
 		$model 				= $this->getModel();
 		$behaviorConfig 	= null;
@@ -134,38 +95,10 @@ class Garp_Spawn_Behavior_Set {
 				continue;
 			}
 
-			// $behaviorConfig = $this->_getConditionalBehaviorConfig($behaviorName);
 			$this->_add('default', $behaviorName, $behaviorConfig, $behaviorType);
 		}
 	}
 		
-	protected function _needsConditionalBehavior($behaviorName) {
-		$model = $this->getModel();
-		
-		switch ($behaviorName) {
-			case 'HtmlFilterable':
-				$htmlFieldNames = $model->fields->getFieldNames('type', 'html');
-				return (bool)$htmlFieldNames;
-			case 'NotEmpty':
-				$requiredFieldNames = $this->_getRequiredFieldNames();
-				return (bool)$requiredFieldNames;
-			case 'Email':
-				$emailFields = $model->fields->getFields('type', 'email');
-				if (!$emailFields) {
-					return false;
-				}
-
-				$emailFieldNames = array();
-				foreach ($emailFields as $emailField) {
-					$emailFieldNames[] = $emailField->name;
-				}
-
-				return (bool)$emailFieldNames;
-			case 'Translatable':
-				return $model->isMultilingual();
-		}
-	}
-
 	/**
 	 * Adds the weighable behavior, for user defined sorting of related objects.
 	 * Can only be initialized after the relations for this model are set.
