@@ -40,10 +40,10 @@ abstract class Garp_Spawn_Behavior_Type_Abstract {
 
 	/**
 	 * @param 	Garp_Spawn_Model_Abstract 	$model 			Array or StdClass object with configuration parameters for the behavior
-	 * @param 	String 								$origin 		For instance: 'config'
-	 * @param 	String 								$name			Behavior name, f.i. 'Sluggable'
-	 * @param 	Mixed 								$params 		Array or StdClass object with configuration parameters for the behavior
-	 * @param 	String 								$type 			Defaults to 'Behavior'
+	 * @param 	String 						$origin 		For instance: 'config'
+	 * @param 	String 						$name			Behavior name, f.i. 'Sluggable'
+	 * @param 	Mixed 						$params 		Array or StdClass object with configuration parameters for the behavior
+	 * @param 	String 						$type 			Defaults to 'Behavior'
 	 */
 	public function __construct(Garp_Spawn_Model_Abstract $model, $origin, $name, $params = null, $type = null) {
 		$this->setModel($model);
