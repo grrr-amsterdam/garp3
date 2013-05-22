@@ -219,6 +219,9 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$data = array();
 		// Filter out the values in the right language
 		foreach ($this->_queue as $column => $value) {
+			if (!is_array($value)) {
+				continue;
+			}
 			if (array_key_exists($language, $value)) {
 				$data[$column] = $value[$language];
 			}
