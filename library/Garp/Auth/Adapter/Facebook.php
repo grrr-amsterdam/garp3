@@ -43,9 +43,8 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 			$authVars = $this->_getAuthVars();
 			// Automatically fetch friends if so configured.
 			if (!empty($authVars->friends->collect) && $authVars->friends->collect) {
+				$bindingModel = 'Model_UserUser'; // A Sensible Default™
 				if (empty($authVars->friends->bindingModel)) {
-					$bindingModel = 'Model_UserUser'; // A Sensible Default™
-				} else {
 					$bindingModel = $authVars->friends->bindingModel;
 				}
 				$facebook->mapFriends(array(
