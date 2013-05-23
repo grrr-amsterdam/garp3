@@ -5,7 +5,6 @@ class Mocks_StaticcacheController extends Garp_Controller_Action {
 	}
 
 	public function indexAction() {
-		file_put_contents('/Users/harmen/Desktop/bla.txt', 'argh');
 	}
 
 	public function primarykeystoreAction() {
