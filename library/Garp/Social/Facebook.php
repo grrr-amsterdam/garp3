@@ -167,7 +167,7 @@ class Garp_Social_Facebook {
  	 * @return Facebook
  	 */
 	protected function _getClient(array $config) {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$type = !empty($ini->store->type) ? $ini->store->type : 'Session';
 		if ($type == 'Cookie') {
 			return new Garp_Social_Facebook_Client($config);

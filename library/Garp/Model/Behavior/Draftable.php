@@ -88,7 +88,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
 		$select->where($statusColumn.' = ?', self::ONLINE);
 
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$timezone = !empty($ini->resources->db->params->timezone) ? $ini->resources->db->params->timezone : null;
 		$timecalc = '';
 		if ($timezone == 'GMT') {

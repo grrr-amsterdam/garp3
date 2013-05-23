@@ -83,7 +83,7 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 		$userDataFromVimeo = $vimeoService->people->getInfo($token);
 		$id = $userDataFromVimeo['id'];
 
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$sessionColumns = Zend_Db_Select::SQL_WILDCARD;
 		if (!empty($ini->auth->login->sessionColumns)) {
  		   	$sessionColumns = $ini->auth->login->sessionColumns;

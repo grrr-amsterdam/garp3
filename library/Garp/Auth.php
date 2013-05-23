@@ -198,7 +198,7 @@ class Garp_Auth {
 	 * @return Array
 	 */
 	public function getConfigValues() {
-		$config	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$config = Zend_Registry::get('config');
 		// set defaults
 		$values = $this->_defaultConfigValues;
 		if ($config->auth) {

@@ -90,7 +90,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 			$this->_data = json_decode($_COOKIE[$namespace], true);
 			if ($jsonError = json_last_error()) {
 				$this->_data = array();
-				$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+				$ini = Zend_Registry::get('config');
 				if (!empty($ini->logging->enabled) && $ini->logging->enabled) {
 					$jsonErrorStr = '';
 					switch ($jsonError) {

@@ -203,7 +203,7 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
  	 * @return Zend_Config_Ini
  	 */
 	protected function _getVimeoConfig() {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		if (empty($ini->auth->adapters->vimeo->consumerKey) || empty($ini->auth->adapters->vimeo->consumerSecret)) {
 			throw new Garp_Model_Behavior_Exception('Vimeo credentials are not configured in application.ini');
 		}

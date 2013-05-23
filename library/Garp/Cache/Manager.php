@@ -49,7 +49,7 @@ class Garp_Cache_Manager {
 		self::purgeMemcachedCache($tags);
 		self::purgePluginLoaderCache();
 
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		if ($createClusterJob && $ini->app->clusteredHosting) {
 			Garp_Cache_Store_Cluster::createJob($tags);
 		}

@@ -32,7 +32,7 @@ class Garp_Controller_Action extends Zend_Controller_Action {
 	 * @return Void
 	 */
 	protected function _setFlashMessage() {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		if (!isset($ini->store->type) || strtolower($ini->store->type) == 'session') {
 			$this->view->flashMessages = $this->getHelper('FlashMessenger')->getMessages();
 		}

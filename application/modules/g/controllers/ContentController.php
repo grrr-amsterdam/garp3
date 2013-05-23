@@ -44,7 +44,7 @@ class G_ContentController extends Garp_Controller_Action {
 	public function adminAction() {
 		Zend_Registry::set('CMS', true);
 				
-		$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$ini = Zend_Registry::get('config');
 		$pageTitle = 'Garp CMS';
 		if (!empty($ini->app->name)) {
 			$pageTitle .= ' | '.$ini->app->name;
@@ -196,9 +196,7 @@ class G_ContentController extends Garp_Controller_Action {
 	 * @return Void
 	 */
 	public function downloadAction() {
-		// note; Garp_Cache_Config is not used here because we always want fresh data in the CMS, 
-		// no cached versions
-		$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$ini = Zend_Registry::get('config');
 		$downloadType = $this->getRequest()->getParam('downloadType') ?: Garp_File::TYPE_DOCUMENTS;
 		$uploadOrStatic = $this->getRequest()->getParam('uploadOrStatic') ?: 'upload';
 		$file = $this->getRequest()->getParam('file');
@@ -244,7 +242,7 @@ class G_ContentController extends Garp_Controller_Action {
 		
 		$image = new Garp_Image_File('upload');
 		$document = new Garp_File(null, 'upload');
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$cdnIsLocal = $ini->cdn->type === "local";
 
 		foreach ($filenames as $filename) {

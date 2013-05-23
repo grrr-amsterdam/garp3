@@ -249,7 +249,7 @@ class Garp_Spawn_MySql_Manager {
 			return;
 		}
 
-		$config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', APPLICATION_ENV);
+		$config = Zend_Registry::get('config');
 		$db 	= $config->resources->db->params;
 		$readSqlCommand = sprintf(
 			self::CUSTOM_SQL_SHELL_COMMAND,

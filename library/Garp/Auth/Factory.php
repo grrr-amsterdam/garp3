@@ -22,7 +22,7 @@ class Garp_Auth_Factory {
 	 * @return Garp_Auth
 	 */
 	public static function getAdapter($key) {
-		$config	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$config = Zend_Registry::get('config');
 		if (!$config->auth || !$config->auth->adapters) {
 			throw new Garp_Auth_Exception('auth.adapters not found in application.ini,'.
 											' or it is not an array');
