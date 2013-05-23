@@ -98,6 +98,13 @@ class Garp_Spawn_Behavior_Set {
 			$this->_add('default', $behaviorName, $behaviorConfig, $behaviorType);
 		}
 	}
+	
+	protected function _needsConditionalBehavior($behaviorName) {
+		$model = $this->getModel();
+		$class = 'Garp_Spawn_Behavior_Type_' . $behaviorName;
+		
+		return $class::isNeededBy($model);
+	}
 		
 	/**
 	 * Adds the weighable behavior, for user defined sorting of related objects.
