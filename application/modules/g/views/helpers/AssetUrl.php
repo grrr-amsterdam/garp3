@@ -16,7 +16,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	 * @return String
 	 */
 	public function assetUrl($file = null) {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		if ($ini->cdn->assetType) {
 			return $this->_getUrl($file, $ini->cdn->assetType, $ini->cdn->domain);
 		} else {

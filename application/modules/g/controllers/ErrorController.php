@@ -110,7 +110,7 @@ class G_ErrorController extends Garp_Controller_Action {
 			$subjectPrefix = '['.$_SERVER['HTTP_HOST'].'] ';
 		}
 
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$to = (isset($ini->app) && isset($ini->app->errorReportEmailAddress) && $ini->app->errorReportEmailAddress) ?
 			$ini->app->errorReportEmailAddress :
 			'garp@grrr.nl'

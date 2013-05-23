@@ -70,7 +70,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 	 */
 	protected function _getUserData(array $facebookData) {
 		$uid = $facebookData['id'];
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$sessionColumns = Zend_Db_Select::SQL_WILDCARD;
 		if (!empty($ini->auth->login->sessionColumns)) {
  		   	$sessionColumns = $ini->auth->login->sessionColumns;

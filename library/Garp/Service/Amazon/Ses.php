@@ -40,7 +40,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      */
 	public function __construct($accessKey = null, $secretKey = null) {
 		if (!$accessKey || !$secretKey) {
-			$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+			$ini = Zend_Registry::get('config');
 			if (!$accessKey && isset($ini->amazon->ses->accessKey)) {
 				$accessKey = $ini->amazon->ses->accessKey;
 			}

@@ -24,7 +24,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
  	 */
 	public function __construct($wdsl = null) {
 		if (!$wdsl) {
-			$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+			$ini = Zend_Registry::get('config');
 			if (empty($ini->gofilex->wdsl)) {
 				throw new Garp_Service_Gofilex_Exception('No Gofilex WDSL given or defined in application.ini.');
 			}
@@ -161,7 +161,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 	 */
 	protected function _printBooking($method, array $args) {
 		// Allow fake bookings on Staging servers as to not pollute the Gofilex database
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		if (!$ini->gofilex->realBookings) {
 			$response = new stdClass();
 			$response->SUCCESS = 1;
@@ -210,7 +210,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 		$this->_logTraffic();
 		
 		// Mail Amstelfilm about this error
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		if (!empty($ini->gofilex->errorReportEmailAddress)) {
 			$to = $ini->gofilex->errorReportEmailAddress;
 			$subject = 'Gofilex error report';

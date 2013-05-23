@@ -21,7 +21,7 @@ class G_View_Helper_Date extends Zend_View_Helper_BaseUrl {
 	 * @return String
 	 */
 	public function format($type, $date) {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$ini = Zend_Registry::get('config');
 		$format = $ini->date->format->$type;
 
 		if (strpos($format, '%') !== false) {

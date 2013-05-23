@@ -92,7 +92,7 @@ class G_Model_AuthLocal extends G_Model_Auth {
 	 * @return Array The modified userdata
 	 */
 	protected function _hashPassword(array $data) {
-		$config	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$config = Zend_Registry::get('config');
 		if (!empty($config->auth->adapters->db)) {
 			$authVars = $config->auth->adapters->db;
 			$credentialColumn = $authVars->credentialColumn;
