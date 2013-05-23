@@ -262,7 +262,7 @@ class Garp_Image_Scaler {
 
 	private function _loadIniDefaults() {
 		if (!self::$_config) {
-			$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+			$ini = Zend_Registry::get('config');
 			self::$_config = $ini->image;
 		}
 		

@@ -231,7 +231,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	public function facebookOgData(array $ogData = array()) {
 		$html = '';
 		$metaTemplate = '<meta property="%s" content="%s">';
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		
 		if (!array_key_exists('admins', $ogData)) {
 			if ($ini->auth->adapters->facebook->admins) {

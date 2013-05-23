@@ -58,7 +58,7 @@ class Garp_Util_FullUrl {
 			$httpHost = $request->getHttpHost();
 			$url = $omitProtocol ? '' : $request->getScheme() . ':';
 		} else {
-			$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+			$ini = Zend_Registry::get('config');
 			$this->_validateIniConfig($ini);
 			$httpHost = $ini->cdn->domain;
 			$url = $omitProtocol ? '' : 'http:';

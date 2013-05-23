@@ -72,7 +72,7 @@ switch ($field->type) {
 		$props[] = 'uploadURL: BASE + \'g/content/upload/type/document\'';
 		$props[] = 'ref: \'../../../../filename\'';
 		
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$extensionString = $ini->cdn->extensions;
 		$extensions = explode(',', $extensionString);
 		$allowedExtensions = array_filter($extensions, function($element) {
@@ -87,7 +87,7 @@ switch ($field->type) {
 		$props[] = 'uploadURL: BASE + \'g/content/upload/type/image\'';
 		$props[] = 'ref: \'../../../../filename\'';
 		
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$extensionString = $ini->cdn->extensions;
 		$extensions = explode(',', $extensionString);
 		$allowedExtensions = array_filter($extensions, function($element) {

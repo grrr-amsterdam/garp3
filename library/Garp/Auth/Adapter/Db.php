@@ -40,7 +40,7 @@ class Garp_Auth_Adapter_Db extends Garp_Auth_Adapter_Abstract {
 		$identityValue = $request->getPost($authVars['identityColumn']);
 		$credentialValue = $request->getPost($authVars['credentialColumn']);
 
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$sessionColumns = null;
  	   	if (!empty($ini->auth->login->sessionColumns)) {
  		   	$sessionColumns = $ini->auth->login->sessionColumns;

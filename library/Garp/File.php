@@ -288,7 +288,7 @@ class Garp_File {
 	
 	protected function _getIni() {
 		if (!self::$_config) {
-			self::$_config = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+			self::$_config = Zend_Registry::get('config');
 			$this->_validateConfig(self::$_config);
 		}
 		return self::$_config;

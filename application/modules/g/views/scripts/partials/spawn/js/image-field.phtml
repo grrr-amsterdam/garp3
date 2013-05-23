@@ -9,7 +9,7 @@
 				throw new Exception('This partial is only intended for related Image models; please use singular-relation-field.phtml for that.');
 			endif;
 	
-			$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+			$ini = Zend_Registry::get('config');
 			if (!$ini->image->template->cms_list->w) {
 				throw new Exception("Scaling template 'cms_list' is not defined, or lacks width.");
 			}

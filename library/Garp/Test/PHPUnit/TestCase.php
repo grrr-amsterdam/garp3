@@ -24,7 +24,8 @@ class Garp_Test_PHPUnit_TestCase extends PHPUnit_Framework_TestCase {
  	 */
 	public function getDatabaseAdapter() {
 		if (!$this->_db) {
-			$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+			//$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+			$ini = Zend_Registry::get('config');
 			$this->_db = Zend_Db::factory($ini->resources->db);
 		}
 		return $this->_db;

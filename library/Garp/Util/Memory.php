@@ -18,7 +18,7 @@ class Garp_Util_Memory {
  	 * @return Void
  	 */
 	public function useHighMemory($mem = null) {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		if (empty($ini->app->highMemory)) {
 			return;
 		}
