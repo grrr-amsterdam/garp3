@@ -257,6 +257,9 @@ $translationTable = array(
 	'Twitter Description' => 'Twitter tekst',
 	'left' => 'over',
 
+	'Variables' => 'Variabelen',
+	'Variables will be replaced with dynamic content at the frontend.' => 'Variabelen worden vervangen door dynamische content aan de voorkant.',
+
 	/**
  	 * Zend_Validate error messages:
  	 * ==================================================================================================================================
