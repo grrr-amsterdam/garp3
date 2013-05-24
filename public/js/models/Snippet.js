@@ -137,6 +137,13 @@ Garp.dataTypes.Snippet.on('init', function(){
 			});
 		}
 		formPanel.ImagePreview_image_id.setText(Garp.renderers.imageRelationRenderer(rec.get('image_id'), null, rec) || __('Add image'));
+
+		// Add readable variables to the variables field
+		if (formPanel.variables_box && rec.data.variables) {
+			var vars = rec.data.variables.split(',');
+			vars = '<ul><li>%' + vars.join('%</li><li>%') + '%</li></ul>';
+			formPanel.variables_box.update(vars);
+		}
 	});
 	
 	// No header for thumbnail column:
@@ -156,6 +163,7 @@ Garp.dataTypes.Snippet.on('init', function(){
 	if (this.getField('variables')) {
 		this.removeField('variables');
 		this.addField({
+			ref: '../../../variables_box',
 			allowBlank: true,
 			fieldLabel: __('Variables'),
 			name: 'variables',
@@ -164,7 +172,12 @@ Garp.dataTypes.Snippet.on('init', function(){
 			disabled: false,
 			cls: 'garp-notification-boxcomponent',
 			style: 'margin-top: 20px;',
-			xtype: 'displayfield'
+			html: ''
+		});
+		this.addField({
+			xtype: 'box',
+			html: __('Variables will be replaced with dynamic content at the frontend.'),
+			fieldLabel: ' '
 		});
 	}
 	
