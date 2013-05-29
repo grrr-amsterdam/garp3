@@ -62,12 +62,22 @@ if (empty($args[0])) {
 
 /* Construct command classname */
 $classArgument = ucfirst($args[0]);
-$commandName = 'Garp_Cli_Command_' . $classArgument;
-if (isset($classLoader)) {
-	if ($classLoader->isLoadable('App_Cli_Command_' . $classArgument)) {
-		$commandName = 'App_Cli_Command_' . $classArgument;
-	}
+$namespaces = array('Garp', 'App');
+$config = Zend_Registry::get('config');
+if (!empty($config->cli->namespaces)) {
+	$namespaces = $config->cli->namespaces->toArray();
 }
+// Try to load CLI command in LIFO order
+$i = count($namespaces)-1;
+while ($i >= 0) {
+	$ns = $namespaces[$i];
+	$commandName = $ns.'_Cli_Command_'.$classArgument;
+	if ($classLoader->isLoadable($commandName)) {
+		break;
+	}
+	--$i;
+}
+
 // Remove the command name from the argument list
 $args = array_splice($args, 1);
 
