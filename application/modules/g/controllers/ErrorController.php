@@ -57,6 +57,11 @@ class G_ErrorController extends Garp_Controller_Action {
 					$errorMessage = 'Exception: '.$errors->exception->getMessage()."\n\n";
 					$errorMessage .= 'Stacktrace: '.$errors->exception->getTraceAsString()."\n\n";
 					$errorMessage .= 'Request URL: '.$errors->request->getRequestUri()."\n\n";
+					if (!empty($_SERVER['HTTP_REFERER'])) {
+						$errorMessage .= 'Referer: '.$_SERVER['HTTP_REFERER']."\n\n";
+					} else {
+						$errorMessage .= 'Referer: n/a'."\n\n";
+					}
 					$errorMessage .= 'Request parameters: '.print_r($errors->request->getParams(), true)."\n\n";
 					$errorMessage .= 'User data: ';
 
