@@ -19,9 +19,20 @@ class Garp_Application extends Zend_Application {
 	 * @return array
 	 */
 	protected function _loadConfig($file) {
-		$config = Garp_Cache_Ini::factory($file);
-		// Save the configuration in the registry so it can be accessed from anywhere
-		Zend_Registry::set('config', $config);
-		return $config->toArray();
+		$suffix      = pathinfo($file, PATHINFO_EXTENSION);
+        $suffix      = ($suffix === 'dist')
+                     ? pathinfo(basename($file, ".$suffix"), PATHINFO_EXTENSION)
+                     : $suffix;
+		if ($suffix == 'ini') {
+			$config = Garp_Cache_Ini::factory($file)->toArray();
+		} else {
+			$config = parent::_loadConfig($file);
+		}
+		return $config;
+	}
+
+	public function bootstrap($resource = null) {
+		Zend_Registry::set('config', new Zend_Config($this->getOptions()));
+		return parent::bootstrap();
 	}
 }
