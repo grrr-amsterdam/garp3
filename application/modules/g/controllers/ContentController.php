@@ -43,7 +43,6 @@ class G_ContentController extends Garp_Controller_Action {
 	 */
 	public function adminAction() {
 		Zend_Registry::set('CMS', true);
-				
 		$ini = Zend_Registry::get('config');
 		$pageTitle = 'Garp CMS';
 		if (!empty($ini->app->name)) {
