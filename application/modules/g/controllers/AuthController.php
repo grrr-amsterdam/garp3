@@ -447,20 +447,20 @@ class G_AuthController extends Garp_Controller_Action {
  	 * @return Void
  	 */
 	protected function _renderView($authVars) {
+		$moduleDirectory = $this->getFrontController()
+			->getModuleDirectory($authVars['module']);
+		$viewPath = $moduleDirectory.'/views/scripts/auth/';
+
+		$this->view->addScriptPath($viewPath);
 		$view = $authVars['view'];
 		if (strpos($view, '.phtml') === false) {
 			$view .= '.phtml';
 		}
-
-		$this->_helper->viewRenderer->setNoRender();
-		$this->view->addScriptPath(APPLICATION_PATH.'/modules/'.$authVars['module'].'/views/scripts/auth');
-		$this->_helper->layout->setLayoutPath(APPLICATION_PATH.'/modules/'.$authVars['module'].'/views/layouts');
-
+		$this->view->render($view);
 		$layout = $authVars['layout'];
 		if ($this->_helper->layout->isEnabled()) {
 			$this->_helper->layout->setLayout($layout);
 		}
-		$this->getResponse()->setBody($this->view->render($view));
 	}
 
 
