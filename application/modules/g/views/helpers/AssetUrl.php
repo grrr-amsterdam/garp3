@@ -9,7 +9,7 @@
  * @subpackage Helper
  * @lastmodified $Date: $
  */
-class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {	
+class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	/**
 	 * Create a versioned URL to a file
 	 * @param String $file The file path
