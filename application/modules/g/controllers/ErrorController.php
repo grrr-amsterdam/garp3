@@ -79,17 +79,8 @@ class G_ErrorController extends Garp_Controller_Action {
 			}
 
 		}
-		$this->_helper->viewRenderer->setNoRender();
-		$this->view->addScriptPath(APPLICATION_PATH.'/modules/default/views/scripts/error');
-		if ($this->getRequest()->isXmlHttpRequest()) {
-			$this->_helper->layout->disableLayout();
-		} else {
-			$this->_helper->layout->setLayoutPath(APPLICATION_PATH.'/modules/default/views/layouts');
-			$this->_helper->layout->setLayout('layout');
-		}
-		$this->getResponse()->setBody($this->view->render('error.phtml'));
+		$this->_renderView();
 	}
-
 
 	/**
  	 * Log that pesky error
@@ -102,7 +93,6 @@ class G_ErrorController extends Garp_Controller_Action {
 		$logger = new Zend_Log($writer);
 		$logger->log($message, Zend_Log::ALERT);
 	}
-
 
 	/**
  	 * Mail an error to an admin
@@ -127,5 +117,23 @@ class G_ErrorController extends Garp_Controller_Action {
 			$message,
 			'From: garp@grrr.nl'
 		);
+	}
+
+	/**
+ 	 * Render the default view instead of the Garp view which would be default behavior for this controller
+ 	 * @return Void
+ 	 */
+	protected function _renderView() {
+		//print '<pre>';
+		//print '<pre>'; print_r($this->view->getScriptPath('error')); exit;
+		//$this->_helper->viewRenderer->setNoRender();
+		//$this->view->addScriptPath(APPLICATION_PATH.'/modules/default/views/scripts/error');
+		if ($this->getRequest()->isXmlHttpRequest()) {
+			$this->_helper->layout->disableLayout();
+		} else {
+			$this->_helper->layout->setLayoutPath(APPLICATION_PATH.'/modules/default/views/layouts');
+			$this->_helper->layout->setLayout('layout');
+		}
+		//$this->getResponse()->setBody($this->view->render('error.phtml'));
 	}
 }
