@@ -6,6 +6,10 @@
  */
 Garp = typeof Garp == 'undefined' ? { } : Garp;
 BASE = typeof BASE == 'undefined' ? '/' : BASE;
+CDN_URL = typeof CDN_URL == 'undefined' ? BASE : CDN_URL;
+if (CDN_URL[CDN_URL.length-1] !== '/') {
+	CDN_URL += '/';
+}
 
 // http://jdbartlett.github.com/innershiv | WTFPL License
 Garp.innerShiv = (function() {
@@ -1069,7 +1073,7 @@ $(function(){
 					if (elm.nodeType == 8 && elm.nodeValue.indexOf(token) > -1) {
 						var snippet = elm.nextSibling;
 						var url = BASE + 'g/content/admin/?model=Snippet&id=' + elm.nodeValue.replace(token, '');
-						var linkHtml = '<a href="' + url + '" title="edit" target="garp_cms"><img src="' + BASE + 'media/images/garp/icons/pencil.png"></a>';
+						var linkHtml = '<a href="' + url + '" title="edit" target="garp_cms"><img src="' + CDN_URL + 'media/images/garp/icons/pencil.png"></a>';
 						var $snippet = $(snippet);
 						var link = $(linkHtml).insertBefore(snippet).css(linkCss).css({
 							top: $snippet.position().top,
