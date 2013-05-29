@@ -18,12 +18,11 @@ class G_AuthController extends Garp_Controller_Action {
 	public function indexAction() {
 		$this->_redirect('/g/auth/login');
 	}
-	
 
 	/**
- 	 * Register a new account
- 	 * @return Void
- 	 */
+	 * Register a new account
+	 * @return Void
+	 */
 	public function registerAction() {
 		$this->view->title = __('register page title');
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
@@ -82,7 +81,6 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->_renderView($authVars['register']);
 	}
 
-
 	/**
 	 * Show a login page.
 	 * Note that $this->processAction does the actual logging in.
@@ -110,7 +108,6 @@ class G_AuthController extends Garp_Controller_Action {
 		// Show view
 		$this->_renderView($authVars['login']);
 	}
-
 
 	/**
 	 * Process the login request. @see G_AuthController::loginAction as to 
@@ -186,7 +183,6 @@ class G_AuthController extends Garp_Controller_Action {
 		}
 	}
 
-
 	/**
 	 * Log a user out.
 	 * @return Void
@@ -215,11 +211,10 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->_redirect($target);
 	}
 
-
 	/**
- 	 * Forgot password
- 	 * @return Void
- 	 */
+	 * Forgot password
+	 * @return Void
+	 */
 	public function forgotpasswordAction() {
 		$this->view->title = __('forgot password page title');
 		$auth = Garp_Auth::getInstance();
@@ -328,10 +323,9 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->_renderView($authVars['forgotpassword']);
 	}
 
-
 	/**
- 	 * Allow a user to reset his password after he had forgotten it.
- 	 */
+	 * Allow a user to reset his password after he had forgotten it.
+	 */
 	public function resetpasswordAction() {
 		$this->view->title = __('reset password page title');
 		$auth = Garp_Auth::getInstance();
@@ -385,11 +379,10 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->_renderView($authVars['resetpassword']);
 	}
 
-
 	/**
- 	 * Validate email address. In scenarios where users receive an email validation email, 
- 	 * this action is used to validate the address.
- 	 */
+	 * Validate email address. In scenarios where users receive an email validation email, 
+	 * this action is used to validate the address.
+	 */
 	public function validateemailAction() {
 		$this->view->title = __('activate email page title');
 		$auth = Garp_Auth::getInstance();
@@ -440,12 +433,11 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->_renderView($authVars['validateEmail']);
 	}
 
-
 	/**
- 	 * Render a configured view
- 	 * @param Array $authVars Configuration for a specific auth section.
- 	 * @return Void
- 	 */
+	 * Render a configured view
+	 * @param Array $authVars Configuration for a specific auth section.
+	 * @return Void
+	 */
 	protected function _renderView($authVars) {
 		$moduleDirectory = $this->getFrontController()
 			->getModuleDirectory($authVars['module']);
@@ -463,11 +455,10 @@ class G_AuthController extends Garp_Controller_Action {
 		}
 	}
 
-
 	/**
- 	 * Store user role in cookie, so it can be used with Javascript
- 	 * @return Void
- 	 */
+	 * Store user role in cookie, so it can be used with Javascript
+	 * @return Void
+	 */
 	protected function _storeRoleInCookie() {
 		$userRecord = Garp_Auth::getInstance()->getUserData();
 		if (!empty($userRecord['role'])) {
@@ -476,95 +467,87 @@ class G_AuthController extends Garp_Controller_Action {
 		}
 	}
 
-
 	/**
- 	 * Remove role cookie
- 	 * @return Void
- 	 */
+	 * Remove role cookie
+	 * @return Void
+	 */
 	protected function _removeRoleCookie() {
 		// Use the cookie store to destroy the cookie.
 		$store = new Garp_Store_Cookie('Garp_Auth');
 		$store->destroy();
 	}
 
-
 	/**
- 	 * Before register hook
- 	 * @param Array $postData 
- 	 * @return Void
- 	 */
+	 * Before register hook
+	 * @param Array $postData 
+	 * @return Void
+	 */
 	protected function _beforeRegister(array &$postData) {
 		if ($registerHelper = $this->_getRegisterHelper()) {
 			$registerHelper->beforeRegister($postData);
 		}
 	}
 
-
 	/**
- 	 * After register hook
- 	 * @return Void
- 	 */
+	 * After register hook
+	 * @return Void
+	 */
 	protected function _afterRegister() {
 		if ($registerHelper = $this->_getRegisterHelper()) {
 			$registerHelper->afterRegister();
 		}
 	}
 
-
 	/**
- 	 * Before login hook
- 	 * @param Array $authVars Containing auth-related configuration.
- 	 * @param Garp_Auth_Adapter_Abstract $adapter The chosen adapter.
- 	 * @return Void
- 	 */
+	 * Before login hook
+	 * @param Array $authVars Containing auth-related configuration.
+	 * @param Garp_Auth_Adapter_Abstract $adapter The chosen adapter.
+	 * @return Void
+	 */
 	protected function _beforeLogin(array $authVars, Garp_Auth_Adapter_Abstract $adapter) {
 		if ($loginHelper = $this->_getLoginHelper()) {
 			$loginHelper->beforeLogin($authVars, $adapter);
 		}
 	}
 
-
 	/**
- 	 * After login hook
- 	 * @param Array $userData The data of the logged in user
- 	 * @param String $targetUrl The URL the user is being redirected to
- 	 * @return Void
- 	 */
+	 * After login hook
+	 * @param Array $userData The data of the logged in user
+	 * @param String $targetUrl The URL the user is being redirected to
+	 * @return Void
+	 */
 	protected function _afterLogin(array $userData, $targetUrl) {
 		if ($loginHelper = $this->_getLoginHelper()) {
 			$loginHelper->afterLogin($userData, $targetUrl);
 		}
 	}
 
-
 	/**
- 	 * Before logout hook
- 	 * @param Array $userData The current user's data
- 	 * @return Void
- 	 */
+	 * Before logout hook
+	 * @param Array $userData The current user's data
+	 * @return Void
+	 */
 	protected function _beforeLogout($userData) {
 		if ($loginHelper = $this->_getLoginHelper()) {
 			$loginHelper->beforeLogout($userData);
 		}
 	}
 
-
 	/**
- 	 * Before login hook
+	 * Before login hook
 	 * @param Array $userData The current user's data
- 	 * @return Void
- 	 */
+	 * @return Void
+	 */
 	protected function _afterLogout($userData) {
 		if ($loginHelper = $this->_getLoginHelper()) {
 			$loginHelper->afterLogout($userData);
 		}
 	}
 
-
 	/**
- 	 * Get the Login helper, if registered.
- 	 * @return Zend_Controller_Action_Helper_Abstract
- 	 */
+	 * Get the Login helper, if registered.
+	 * @return Zend_Controller_Action_Helper_Abstract
+	 */
 	protected function _getLoginHelper() {
 		if ($loginHelper = $this->_helper->getHelper('Login')) {
 			if (!$loginHelper instanceof Garp_Controller_Helper_Login) {
@@ -575,11 +558,10 @@ class G_AuthController extends Garp_Controller_Action {
 		return null;
 	}
 
-
 	/**
- 	 * Get the Register helper, if registered.
- 	 * @return Zend_Controller_Action_Helper_Abstract
- 	 */
+	 * Get the Register helper, if registered.
+	 * @return Zend_Controller_Action_Helper_Abstract
+	 */
 	protected function _getRegisterHelper() {
 		if ($registerHelper = $this->_helper->getHelper('Register')) {
 			if (!$registerHelper instanceof Garp_Controller_Helper_Register) {
