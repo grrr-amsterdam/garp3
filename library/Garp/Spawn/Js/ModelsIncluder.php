@@ -3,7 +3,7 @@
  * @author David Spreekmeester | grrr.nl
  */
 class Garp_Spawn_Js_ModelsIncluder {
-	const _MODELS_INCLUDE_FILE = '/modules/default/views/scripts/partials/models.phtml';
+	const _MODELS_INCLUDE_FILE_DEFAULT = '/modules/default/views/scripts/partials/models.phtml';
 	const _START_TAG = 'BEGIN SPAWNED CALLS';
 	const _END_TAG = 'END SPAWNED CALLS';
 	const _JS_GARP_PATH = '/js/garp/models/';
@@ -50,7 +50,12 @@ class Garp_Spawn_Js_ModelsIncluder {
 
 
 	protected function _getIncludesFilename() {
-		return APPLICATION_PATH.self::_MODELS_INCLUDE_FILE;
+		$ini = Zend_Registry::get('config');
+		if (@$ini->spawn->js->modelLoaderFile) {
+			return APPLICATION_PATH . $ini->spawn->js->modelLoaderFile;
+		}
+		
+		return APPLICATION_PATH . self::_MODELS_INCLUDE_FILE_DEFAULT;
 	}
 	
 
