@@ -10,7 +10,8 @@
  * /en/blog/:slug
  * /nl/blog/:slug
  *
- * @author Joe Gornick | joegornick.com
+ * @author Harmen Janssen, David Spreekmeester | grrr.nl
+ * @inspiration Joe Gornick | joegornick.com
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
@@ -18,6 +19,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Application_Resource_Router extends Zend_Application_Resource_Router {
+	const ERROR_NO_ROUTE_DEFINED =
+		'There was no routes file defined. Please fill resources.router.routesFile or resources.router.routesFile.generic in core.ini';
+
 	/**
 	 * This property lets this Resource override the existing Resource
 	 * @var String
@@ -28,6 +32,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 	 * @var Zend_Locale
 	 */
 	protected $_locale;
+
  
 	/**
 	 * Retrieve router object
@@ -67,23 +72,42 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 	 */
 	protected function _getRoutesConfig() {
 		$options = $this->getOptions();
+
+		if (!isset($options['routesFile'])) {
+			throw new Exception(self::ERROR_NO_ROUTE_DEFINED);
+		}
+		
+		$routes = $options['routesFile'];
+
+		if (is_string($routes)) {
+			return $this->_loadRoutesConfig($routes);
+		}
+
+		$genericRoutes = array_key_exists('generic', $routes) ?
+			$this->_loadRoutesConfig($routes['generic']) :
+			array()
+		;
+
+		$lang = $this->_getCurrentLanguage();
+
+		if (
+			$this->_localeIsEnabled() &&
+			$lang &&
+			isset($options['routesFile'][$lang])
+		) {
+			$langFile = $options['routesFile'][$lang];
+			$langRoutes = $this->_loadRoutesConfig($langFile);
+
+			return $genericRoutes->merge($langRoutes);
+		}
+
+		return $genericRoutes;
+	}
+	
+	protected function _loadRoutesConfig($filename) {
 		$root = APPLICATION_PATH . '/configs';
-		$path = '/routes.ini';
-
-		if (isset($options['routesFile']) && is_string($options['routesFile'])) {
-			$path = $options['routesFile'];
-		}
-
-		// Figure out the current language
-		if ($this->_localeIsEnabled()) {
-			$lang = $this->_getCurrentLanguage();
-			if ($lang && isset($options['routesFile'][$lang])) {
-				$path = $options['routesFile'][$lang];
-			}
-		}
-		$path = DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR);
-		$ini = new Zend_Config_Ini($root.$path, APPLICATION_ENV);
-		return $ini;
+		$path = $root . DIRECTORY_SEPARATOR . $filename;
+		return new Zend_Config_Ini($path, APPLICATION_ENV, array('allowModifications' => true));
 	}
 
 	/**
