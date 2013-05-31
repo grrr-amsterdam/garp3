@@ -448,9 +448,10 @@ class G_AuthController extends Garp_Controller_Action {
 		if (strpos($view, '.phtml') === false) {
 			$view .= '.phtml';
 		}
-		$this->view->render($view);
+		$this->renderScript($view);
 		$layout = $authVars['layout'];
 		if ($this->_helper->layout->isEnabled()) {
+			$this->_helper->layout->setLayoutPath($moduleDirectory.'/views/layouts');
 			$this->_helper->layout->setLayout($layout);
 		}
 	}
