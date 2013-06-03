@@ -32,7 +32,9 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 	setValue: function(v){
 		Ext.each(LANGUAGES, function(lang){
 			if (this.getRefField(lang)) {
-				this.getRefField(lang).setValue(v[lang]);
+				if (v !== null) {
+					this.getRefField(lang).setValue(v[lang]);
+				}
 			}
 		}, this);
 		Garp.i18nSource.superclass.setValue.call(this, v);
