@@ -10,18 +10,6 @@
  * @package      Garp_Config
  */
 class Garp_Config_Ini extends Zend_Config_Ini {
-
-    public function __construct($filename, $section = null, $options = false) {
-		parent::__construct($filename, $section, $options);
-
-		// $a = $this->toArray();
-		// if (array_key_exists('config', $a)) {
-			// exit('AH!');
-		// }
-
-	}
-
-
 	/**
  	 * Hacked to allow ini strings as well as ini files.
  	 * @param String|Garp_Config_Ini_String $filename If this is a Garp_Config_Ini_String, an ini string is assumed instead of an ini file.
