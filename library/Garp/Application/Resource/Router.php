@@ -105,7 +105,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 	}
 	
 	protected function _loadRoutesConfig($path) {
-		return new Zend_Config_Ini($path, APPLICATION_ENV, array('allowModifications' => true));
+		return new Garp_Config_Ini($path, APPLICATION_ENV, array('allowModifications' => true));
 	}
 
 	/**
