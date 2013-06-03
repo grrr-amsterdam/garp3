@@ -104,9 +104,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 		return $genericRoutes;
 	}
 	
-	protected function _loadRoutesConfig($filename) {
-		$root = APPLICATION_PATH . '/configs';
-		$path = $root . DIRECTORY_SEPARATOR . $filename;
+	protected function _loadRoutesConfig($path) {
 		return new Zend_Config_Ini($path, APPLICATION_ENV, array('allowModifications' => true));
 	}
 
