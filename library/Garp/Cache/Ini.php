@@ -34,7 +34,8 @@ class Garp_Cache_Ini {
 
 		$config = $cache->load('Ini_Config_'.$key);
 		if (!$config) {
-			$config = new Zend_Config_Ini($filename, APPLICATION_ENV);
+			// $config = new Garp_Config_Ini($filename, APPLICATION_ENV);
+			$config = new Garp_Config_Ini($filename, APPLICATION_ENV, array('allowModifications' => true));
 			$cache->save($config, 'Ini_Config_'.$key);
 		}
 		self::$_store[$key] = $config;
