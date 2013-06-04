@@ -45,8 +45,8 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 		$table 			= $this->_getBindingModelTable();
 		$isHomophile 	= $this->_isHomophile();
 		
-		$modelColumn1 	= $this->_getRelationColumnName($modelId1);
-		$modelColumn2 	= $this->_getRelationColumnName($modelId2);
+		$modelColumn1 	= $this->_getRelationColumnName($modelId1, 1);
+		$modelColumn2 	= $this->_getRelationColumnName($modelId2, 2);
 
 		$alphabeticModelIds = array($modelId1, $modelId2);
 		sort($alphabeticModelIds);
@@ -114,14 +114,14 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 		$thisModelId 	= $this->getModel()->id;
 		$thatModelId 	= $this->_getRemoteModelId();
 
-		$weightColumn1 	= $this->_getWeightColumnName($thisModelId, $thatModelId);
-		$weightColumn2 	= $this->_getWeightColumnName($thatModelId, $thisModelId);
+		$weightColumn1 	= $this->_getWeightColumnName($thisModelId, $thatModelId, 1);
+		$weightColumn2 	= $this->_getWeightColumnName($thatModelId, $thisModelId, 2);
 		
-		$modelColumn1 	= $this->_getRelationColumnName($thisModelId);
-		$modelColumn2 	= $this->_getRelationColumnName($thatModelId);		
+		$modelColumn1 	= $this->_getRelationColumnName($thisModelId, 1);
+		$modelColumn2 	= $this->_getRelationColumnName($thatModelId, 2);		
 
-		$thisPostFix 	= $this->_getModelPostFix($thisModelId);
-		$thatPostFix 	= $this->_getModelPostFix($thatModelId);
+		$thisPostFix 	= $this->_getModelPostFix($thisModelId, 1);
+		$thatPostFix 	= $this->_getModelPostFix($thatModelId, 2);
 
 		$out = 
 			  "\n"
@@ -140,20 +140,20 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 		return $out;
 	}
 	
-	protected function _getRelationColumnName($modelId) {
-		$postfix 		= $this->_getModelPostFix($modelId);
+	protected function _getRelationColumnName($modelId, $iterator) {
+		$postfix 		= $this->_getModelPostFix($modelId, $iterator);
 		$isHomophile 	= $this->_isHomophile();
-		$column 		= Garp_Spawn_Relation_Set::getRelationColumn($modelId, $this->_getModelPostFix($modelId));
+		$column 		= Garp_Spawn_Relation_Set::getRelationColumn($modelId, $postfix);
 		
 		return $column;
 	}
 	
-	protected function _getWeightColumnName($thisModelId, $thatModelId) {
+	protected function _getWeightColumnName($thisModelId, $thatModelId, $iterator) {
 		$thisNamespace 		= $this->_getModelNamespace($thisModelId);
 		$thatNamespace		= $this->_getModelNamespace($thatModelId);
 		
-		$thisPostFix 		= $this->_getModelPostFix($thisModelId);
-		$thatPostFix 		= $this->_getModelPostFix($thatModelId);
+		$thisPostFix 		= $this->_getModelPostFix($thisModelId, $iterator === 1 ? 1 : 2);
+		$thatPostFix 		= $this->_getModelPostFix($thatModelId, $iterator === 1 ? 2 : 1);
 
 		$combinedColumn 	= "{$thisNamespace}{$thisPostFix}_{$thatNamespace}{$thatPostFix}_weight";
 
@@ -171,13 +171,13 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 	/**
 	 * @return String	In case of a homophile relation, returns '1' for the base model, and '2' for the remote model.
 	 */
-	protected function _getModelPostFix($modelId) {
+	protected function _getModelPostFix($modelId, $iterator) {
 		if (!$this->_isHomophile()) {
 			return;
 		}
 
 		$model 		= $this->getModel();		
-		$postfix 	= $modelId === $model->id ? '1' : '2';
+		$postfix 	= $iterator;
 
 		return $postfix;
 	}
