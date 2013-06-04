@@ -15,7 +15,7 @@ Garp.ModelMenu = function(cfg){
 			if (Garp.checkForModified()) {
 				return;
 			}
-			this.setText(__('Choose content type'));
+			this.setText(__('Content'));
 			this.setIconClass('icon-no-model');
 			Garp.setFavicon();
 			
@@ -82,7 +82,7 @@ Garp.ModelMenu = function(cfg){
 	
 	Garp.ModelMenu.superclass.constructor.call(this, Ext.applyIf(cfg, {
 		cls: 'garp-model-menu',
-		text: __('Choose content type'),
+		text: __('Content'),
 		iconCls: 'icon-no-model',
 		menu: new Ext.menu.Menu({
 			items: menuItems
