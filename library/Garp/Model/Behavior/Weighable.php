@@ -90,7 +90,10 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		// Return the existing ORDER clause, only this time '<weight-column> DESC' will be in front of it
 		foreach ($originalOrder as $order) {
 			// [0] = column, [1] = direction
-			$select->order($order[0].' '.$order[1]);
+			if (is_array($order)) {
+				$order = $order[0].' '.$order[1];
+			}
+			$select->order($order);
 		}
 	}
 	
