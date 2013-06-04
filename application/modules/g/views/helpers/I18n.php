@@ -29,7 +29,7 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 			return null;
 		}
 		$routesFile = $this->view->config()->resources->router->routesFile->{$language};
-		$config = new Zend_Config_Ini($routesFile, APPLICATION_ENV);
+		$config = new Garp_Config_Ini($routesFile, APPLICATION_ENV);
 		$routes = $config->routes->toArray();
 		$localizedRoutes = Garp_I18n::getLocalizedRoutes($routes, array($language));
 
