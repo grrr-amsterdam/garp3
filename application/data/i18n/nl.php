@@ -15,7 +15,7 @@ $translationTable = array(
  	 * ==================================================================================================================================
  	 */
 	'Loading Garp' => 'Garp wordt geladen',
-	'Choose content type' => 'Kies soort inhoud',
+	'Content' => 'Inhoud',
 	'Would you like to save your changes?' => 'Wilt u uw wijzigingen opslaan?',
 	'Are you sure you want to revert your changes?' => 'Weet u zeker dat u de wijzigingen ongedaan wilt maken?',
 	'File' => 'Bestand',
