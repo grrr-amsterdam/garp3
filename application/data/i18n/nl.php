@@ -174,7 +174,6 @@ $translationTable = array(
 	'Name' => 'Naam',
 	'Email' => 'E-mail',
 	'Identifier' => 'Kenmerk',
-	'Content' => 'Content',
 	'Text' => 'Tekst',
 	'Has name' => 'Heeft naam',
 	'Has html' => 'Heeft html',
