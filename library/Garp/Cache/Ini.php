@@ -34,8 +34,7 @@ class Garp_Cache_Ini {
 
 		$config = $cache->load('Ini_Config_'.$key);
 		if (!$config) {
-			// $config = new Garp_Config_Ini($filename, APPLICATION_ENV);
-			$config = new Garp_Config_Ini($filename, APPLICATION_ENV, array('allowModifications' => true));
+			$config = new Garp_Config_Ini($filename, APPLICATION_ENV);
 			$cache->save($config, 'Ini_Config_'.$key);
 		}
 		self::$_store[$key] = $config;

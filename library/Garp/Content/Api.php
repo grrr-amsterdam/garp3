@@ -44,7 +44,7 @@ class Garp_Content_Api {
 			// read content managing configuration from content.ini
 			// note; Garp_Cache_Config is not used here because we always want fresh data in the CMS, 
 			// no cached versions
-			$config = new Zend_Config_Ini(APPLICATION_PATH.'/configs/content.ini', APPLICATION_ENV);
+			$config = new Garp_Config_Ini(APPLICATION_PATH.'/configs/content.ini', APPLICATION_ENV);
 			$classes = $config->content->commands;
 			$api = new stdClass();
 			$api->actions = array();
@@ -93,7 +93,7 @@ class Garp_Content_Api {
 	public static function getAllModels() {
 		// note; Garp_Cache_Config is not used here because we always want fresh data in the CMS, 
 		// no cached versions
-		$config = new Zend_Config_Ini(APPLICATION_PATH.'/configs/content.ini', APPLICATION_ENV);
+		$config = new Garp_Config_Ini(APPLICATION_PATH.'/configs/content.ini', APPLICATION_ENV);
 		$classes = $config->content->commands;
 		return $classes;
 	}
