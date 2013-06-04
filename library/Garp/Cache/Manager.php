@@ -117,7 +117,7 @@ class Garp_Cache_Manager {
 			$allPath = $cacheDir.'*';
 			self::_deleteStaticCacheFile($allPath);
 		} else {
-			$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/cache.ini', APPLICATION_ENV);
+			$ini = new Garp_Config_Ini(APPLICATION_PATH.'/configs/cache.ini', APPLICATION_ENV);
 			if (empty($ini->tags)) {
 				return;
 			}
