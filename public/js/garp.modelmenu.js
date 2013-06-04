@@ -9,37 +9,7 @@ Garp.ModelMenu = function(cfg){
 	
 	Ext.apply(this, cfg);
 	
-	var menuItems = [{
-		text: '<b>' + __('Welcome') + '</b>',
-		handler: function(){
-			if (Garp.checkForModified()) {
-				return;
-			}
-			this.setText(__('Content'));
-			this.setIconClass('icon-no-model');
-			Garp.setFavicon();
-			
-			var menu = Garp.toolbar.extraMenu.menu;
-			menu.importButton.hide();
-			menu.exportButton.hide();
-			menu.printButton.hide();
-			Garp.toolbar.newButton.hide();
-			Garp.toolbar.deleteButton.hide();
-			Garp.toolbar.separator.hide();
-			Garp.viewport.formPanelCt.hide();
-			if (Garp.formPanel) {
-				Garp.viewport.formPanelCt.remove(Garp.formPanel);
-			}
-			Garp.viewport.gridPanelCt.removeAll(true);
-			Garp.gridPanel = new Garp.WelcomePanel({});
-			Garp.viewport.gridPanelCt.add(Garp.gridPanel);
-			Garp.infoPanel.show();
-			Garp.infoPanel.ownerCt.show();
-			Garp.viewport.doLayout();
-			Garp.infoPanel.clearInfo();
-		},
-		scope: this
-	},'-'];
+	var menuItems = [];
 	
 	for (var key in Garp.dataTypes){
 		if(this.menuItems.indexOf(key) == -1){
