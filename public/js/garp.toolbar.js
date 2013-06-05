@@ -52,7 +52,7 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 				xtype: 'tbseparator',
 				ref: 'separator'
 			}, {
-				text: __('More'),
+				text: __('more'),
 				iconCls: 'icon-extra',
 				ref: 'extraMenu',
 				menu: new Ext.menu.Menu({
