@@ -34,6 +34,7 @@ $translationTable = array(
 	'Please save changes first or cancel pending changes.' => 'Sla wijzigingen eerst op of annuleer openstaande wijzigingen.',
 	'Extra' => 'Extra',
 	'More' => 'Meer',
+	'more' => 'meer',
 	'Refresh' => 'Vernieuwen',
 	'Export' => 'Exporteren',
 	'Previous' => 'Vorige',
