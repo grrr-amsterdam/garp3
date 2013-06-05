@@ -27,9 +27,9 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	const FILTER_MODULE_FILES 	= 'files';
 	
 	const ERROR_UNKNOWN_ARGUMENT = 
-		"Sorry, I do not know the '%s' argument. Try 'garp Spawn help' for an overview of options.";	
+		"Sorry, I do not know the '%s' argument. Try 'garp spawn help' for an overview of options.";	
 	const ERROR_ILLEGAL_MODULE_FILTER = 
-		"Sorry, '%s' is not a valid value for the '--only' parameter. Try 'garp Spawn help' for an overview of options.";
+		"Sorry, '%s' is not a valid value for the '--only' parameter. Try 'garp spawn help' for an overview of options.";
 
 	/**
 	 * @var String $_configDir
@@ -62,13 +62,13 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	 * @return Void
 	 */
 	public function main(array $args = array()) {
-		$this->setArgs($args);
-		$this->_setDefaults();
-
-		if ($this->_isHelpRequested()) {
+		if ($this->_isHelpRequested($args)) {
 			$this->_displayHelp();
 			exit;
 		}
+
+		$this->setArgs($args);
+		$this->_setDefaults();
 
 		$this->setModelSet($this->_initModelSet());
 
@@ -309,9 +309,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		return $firstArgumentGiven;
 	}
 	
-	protected function _isHelpRequested() {
-		$args = $this->getArgs();
-		
+	protected function _isHelpRequested($args) {
 		if (!$this->_isFirstArgumentGiven($args)) {
 			return false;
 		}
@@ -330,11 +328,9 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 			return;
 		}
 		
-		if (!$this->_isHelpRequested($args)) {
-			$error = sprintf(self::ERROR_UNKNOWN_ARGUMENT, $args[0]);
-			Garp_Cli::errorOut($error);
-			exit;
-		}
+		$error = sprintf(self::ERROR_UNKNOWN_ARGUMENT, $args[0]);
+		Garp_Cli::errorOut($error);
+		exit;
 		
 		$this->_validateModuleFilterArgument($args);
 	}
@@ -345,10 +341,10 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	protected function _validateModuleFilterArgument(array $args) {
 		$only 			= self::FILTER_MODULE_COMMAND;
 		$allowedFilters = $this->getAllowedFilters();
-		$filter			= strtolower($args[$only]);
 		
 		if (
 			array_key_exists($only, $args) &&
+			$filter	= strtolower($args[$only]) &&
 			!in_array($filter, $allowedFilters)
 		) {
 			$error = sprintf(self::ERROR_ILLEGAL_MODULE_FILTER, $args[$only]);
@@ -361,26 +357,26 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		$lines = array(
 			"\n",
 			"• Filtering",
-			"garp Spawn --only=files",
+			"garp spawn --only=files",
 			"\tOnly Spawn files, skip the database",
 			"\n",
-			"garp Spawn --only=js",
+			"garp spawn --only=js",
 			"\tOnly Spawn Javascript files,",
 			"\tskip PHP files and the database",
 			"\n",
-			"garp Spawn --only=php",
+			"garp spawn --only=php",
 			"\tOnly Spawn PHP files,",
 			"\tskip Javascript files and the database",
 			"\n",
-			"garp Spawn --only=db",
+			"garp spawn --only=db",
 			"\tOnly Spawn database,",
 			"\tskip file generation",
 			"\n",
 			"\n• Debugging",
-			"garp Spawn --showJsBaseModel=YourModel",
+			"garp spawn --showJsBaseModel=YourModel",
 			"\tShow the non-minified JS base model.",
 			"\n",
-			"garp Spawn --showJsBaseModel=YourModel > YourFile.json",
+			"garp spawn --showJsBaseModel=YourModel > YourFile.json",
 			"\tWrite the non-minified JS base model to a file."
 		);
 

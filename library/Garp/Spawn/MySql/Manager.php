@@ -154,11 +154,11 @@ class Garp_Spawn_MySql_Manager {
 
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($model);
 		$configTable 	= $tableFactory->produceConfigTable();
-
 		$this->_createTableIfNotExists($configTable);
 		
 		if ($model->isMultilingual()) {
 			$i18nModel = $model->getI18nModel();
+			$tableFactory->setModel($i18nModel);
 			$i18nTable = $tableFactory->produceConfigTable($i18nModel);
 			$this->_createTableIfNotExists($i18nTable);
 		}
