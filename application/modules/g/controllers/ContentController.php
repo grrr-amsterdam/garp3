@@ -32,7 +32,8 @@ class G_ContentController extends Garp_Controller_Action {
 	 */
 	public function cookiesAction() {
 		$config 		= Zend_Registry::get('config');
-		$viewBasePath 	= $config->resources->view->basePath;
+		$viewBasePath 	= $config->resources->view->basePath ?: APPLICATION_PATH . '/modules/default/views';
+
 		$this->_helper->layout->setLayoutPath($viewBasePath . '/layouts/');
 		$this->view->title = 'Cookies';
 	}
