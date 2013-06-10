@@ -9,8 +9,6 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
-	const CONFIG_REL_PATH = "/modules/default/models/config/";
-
 	/**
 	 * The command to dump a specific Javascript base model - since this
 	 * is normally concatenated and minified with the other base models.
@@ -31,15 +29,6 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	const ERROR_ILLEGAL_MODULE_FILTER = 
 		"Sorry, '%s' is not a valid value for the '--only' parameter. Try 'garp spawn help' for an overview of options.";
 
-	/**
-	 * @var String $_configDir
-	 */
-	protected $_configDir;
-
-	/**
-	 * @var String $_extension
-	 */
-	protected $_extension = 'json';
 
 	/**
 	 * @var Array $_allowedFilters
@@ -109,34 +98,6 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	}
 	
 	/**
-	 * @return String
-	 */
-	public function getConfigDir() {
-		return $this->_configDir;
-	}
-	
-	/**
-	 * @param String $configDir
-	 */
-	public function setConfigDir($configDir) {
-		$this->_configDir = $configDir;
-	}
-	
-	/**
-	 * @return String
-	 */
-	public function getExtension() {
-		return $this->_extension;
-	}
-	
-	/**
-	 * @param String $extension
-	 */
-	public function setExtension($extension) {
-		$this->_extension = $extension;
-	}
-	
-	/**
 	 * @return Array
 	 */
 	public function getAllowedFilters() {
@@ -165,12 +126,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	}
 
 	protected function _initModelSet() {
-		$modelSet = new Garp_Spawn_Model_Set(
-			new Garp_Spawn_Config_Model_Set(
-				new Garp_Spawn_Config_Storage_File($this->getConfigDir(), $this->getExtension()),
-				new Garp_Spawn_Config_Format_Json
-			)
-		);
+		$modelSet = new Garp_Spawn_Model_Set(new Garp_Spawn_Config_Model_Set());
 
 		return $modelSet;
 	}

@@ -4,6 +4,9 @@
  * @author David Spreekmeester | grrr.nl
  */
 class Garp_Spawn_Config_Model_Set extends ArrayObject {
+	const DEFAULT_EXTENSION 	= 'json';
+	const DEFAULT_CONFIG_PATH 	= '/modules/default/models/config/';
+	
 	/**
 	 * @var	Garp_Spawn_Config_Storage_Interface $_storage The storage interface for this model set.
 	 */
@@ -16,11 +19,19 @@ class Garp_Spawn_Config_Model_Set extends ArrayObject {
 
 
 	public function __construct(
-		Garp_Spawn_Config_Storage_Interface $storage,
-		Garp_Spawn_Config_Format_Interface $format
+		Garp_Spawn_Config_Storage_Interface $storage = null,
+		Garp_Spawn_Config_Format_Interface $format = null
 	) {
-		$this->_storage = $storage;
-		$this->_format = $format;
+		if (!$storage) {
+			$storage = $this->_getDefaultStorage();
+		}
+
+		if (!$format) {
+			$format = $this->_getDefaultFormat();
+		}
+		
+		$this->setStorage($storage);
+		$this->setFormat($format);
 		
 		$modelList = $this->_listModelIds();
 
@@ -29,7 +40,6 @@ class Garp_Spawn_Config_Model_Set extends ArrayObject {
 		}
 	}
 	
-
 	/**
 	 * Returns the storage interface
 	 */
@@ -37,6 +47,32 @@ class Garp_Spawn_Config_Model_Set extends ArrayObject {
 		return $this->_storage;
 	}
 	
+	public function setStorage(Garp_Spawn_Config_Storage_Interface $storage) {
+		$this->_storage = $storage;
+		return $this;
+	}
+	
+	public function setFormat(Garp_Spawn_Config_Format_Interface $format) {
+		$this->_format = $format;
+		return $this;
+	}
+	
+	/**
+	 * @return	Garp_Spawn_Config_Storage_Interface
+	 */
+	protected function _getDefaultStorage() {
+		$configDir = APPLICATION_PATH . self::DEFAULT_CONFIG_PATH;
+		$extension = self::DEFAULT_EXTENSION;
+		
+		return new Garp_Spawn_Config_Storage_File($configDir, $extension);
+	}
+	
+	/**
+	 * @return	Garp_Spawn_Config_Format_Interface
+	 */
+	protected function _getDefaultFormat() {
+		return new Garp_Spawn_Config_Format_Json();
+	}
 	
 	protected function _listModelIds() {
 		$modelIds = array();
