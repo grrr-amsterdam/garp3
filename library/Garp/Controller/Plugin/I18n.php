@@ -60,9 +60,15 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		if (preg_match('/^\/' . $language . '\/?/', $path)) {
 			$frontController->setBaseUrl($frontController->getBaseUrl() . '/' . $language);
 		} elseif (!empty($config->resources->router->locale->enabled) && $config->resources->router->locale->enabled) {
+			$redirectUrl = '/'.$language.$path;
+			if ($frontController->getRouter()->getCurrentRouteName() === 'admin' &&
+				!empty($config->resources->locale->adminDefault)) {
+				$adminDefaultLanguage = $config->resources->locale->adminDefault;
+				$redirectUrl = '/' . $adminDefaultLanguage . $path;
+			}
 			$this->getResponse()
 				->setHttpResponseCode(301)
-				->setRedirect('/'.$language.$path)
+				->setRedirect($redirectUrl)
 			;
 		}
     }
