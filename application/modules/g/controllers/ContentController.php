@@ -3,7 +3,7 @@
  * G_ContentController
  * This controller handles content managing actions. The usual crud; 
  * fetch, create, update, delete
- * @author Harmen Janssen | grrr.nl
+ * @author Harmen Janssen, David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
@@ -31,8 +31,10 @@ class G_ContentController extends Garp_Controller_Action {
 	 * @return Void
 	 */
 	public function cookiesAction() {
-		$this->_helper->layout->setLayoutPath(APPLICATION_PATH.'/modules/default/views/layouts/');
-		$this->_helper->layout->setLayout('layout');
+		$config 		= Zend_Registry::get('config');
+		$viewBasePath 	= $config->resources->view->basePath ?: APPLICATION_PATH . '/modules/default/views';
+
+		$this->_helper->layout->setLayoutPath($viewBasePath . '/layouts/');
 		$this->view->title = 'Cookies';
 	}
 	
