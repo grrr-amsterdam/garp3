@@ -35,7 +35,13 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 	public function getParams() {
 		$params 		= parent::getParams();
 		$defaultParams 	= $this->getDefaultParams();
-		
+
+// if ($this->getModel()->isTranslated()) {
+// Zend_Debug::dump($this->getModel()->id);
+// Zend_Debug::dump($defaultParams);
+// exit;
+// }
+
 		foreach ($defaultParams as $paramName => $paramValue) {
 			if (!array_key_exists($paramName, $params)) {
 				$params[$paramName] = $paramValue;
@@ -59,7 +65,12 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 	public function needsPhpModelObserver() {
 		$model = $this->getModel();
 		
-		return !$model->isMultilingual() || $model->isTranslated();
+		return 
+			!$model->isMultilingual() ||
+			($model->isTranslated() && $this->_baseFieldIsMultilingual())
+		;
+
+		// return !$model->isMultilingual() || $model->isTranslated();
 	}
 	
 	/**
@@ -99,7 +110,10 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 		$baseFieldNames	= $this->_getBaseFieldNames();		
 
 		foreach ($baseFieldNames as $name) {
-			$baseFields[] = $model->fields->getField($name);			
+			if (!$model->fields->exists($name)) {
+				continue;
+			}
+			$baseFields[] = $model->fields->getField($name);
 		}
 				
 		return $baseFields;
