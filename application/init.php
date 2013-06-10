@@ -166,7 +166,16 @@ function dump($file, $message, $priority = Zend_Log::INFO) {
 		$file .= '.log';
 	}
 
-	$stream = fopen(APPLICATION_PATH.'/data/logs/'.$file, 'a');
+	$target = APPLICATION_PATH.'/data/logs/';
+	if (Zend_Registry::isRegistered('config') &&
+		!empty(Zend_Registry::get('config')->logging->directory)) {
+		$target = Zend_Registry::get('config')->logging->directory;
+	}
+	if (!is_dir($target)) {
+		@mkdir($target);
+	}
+
+	$stream = fopen($target . DIRECTORY_SEPARATOR . $file, 'a');
 	$writer = new Zend_Log_Writer_Stream($stream);
 	$logger = new Zend_Log($writer);
 	$message = is_array($message) ? print_r($message, true) : $message;
