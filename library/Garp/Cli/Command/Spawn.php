@@ -57,7 +57,6 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		}
 
 		$this->setArgs($args);
-		$this->_setDefaults();
 
 		$this->setModelSet($this->_initModelSet());
 
@@ -274,11 +273,6 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		return $helpWasAsked;
 	}
 	
-	protected function _setDefaults() {
-		$configDir = APPLICATION_PATH . self::CONFIG_REL_PATH;	
-		$this->setConfigDir($configDir);
-	}
-
 	protected function _validateArguments(array $args) {
 		if (!$this->_isFirstArgumentGiven($args)) {
 			return;
