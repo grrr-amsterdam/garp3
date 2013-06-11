@@ -1,4 +1,7 @@
 <?php
+require_once APPLICATION_PATH . '/../library/Zend/Config/Ini.php';
+require_once APPLICATION_PATH . '/../library/Garp/Config/Ini.php';
+
 /**
  * @author David Spreekmeester | grrr.nl
  */
@@ -6,6 +9,9 @@ class Garp_Spawn_Php_ModelsIncluder {
 	const _MODELS_INCLUDE_FILE = '/configs/content.ini';
 	const _ACL_FILE = '/configs/acl.ini';
 	
+	/**
+	 * @var String $_modelId
+	 */
 	protected $_modelId;
 
 
@@ -15,60 +21,53 @@ class Garp_Spawn_Php_ModelsIncluder {
 		$this->_addToAclIni();
 		$this->_addToContentIni();
 	}
-
+	
+	/**
+	 * @return String
+	 */
+	public function getModelId() {
+		return $this->_modelId;
+	}
+	
+	/**
+	 * @param String $modelId
+	 */
+	public function setModelId($modelId) {
+		$this->_modelId = $modelId;
+		return $this;
+	}
 
 	protected function _addToAclIni() {
 		$ini = $this->_getAclIni();
-		$modelIsIncluded = false;
 
-		$prodEnvContentLines = $this->_fetchLinesFromIniEnv($ini);
+		if ($this->_modelIsIncludedInAclIni($ini)) {
+			return;
+		}
 
-		if ($prodEnvContentLines) {
-			foreach ($prodEnvContentLines as $line) {
-				if ($this->_modelIsIncludedInAclIniLine($line)) {
-					$modelIsIncluded = true;
-					break;
-				}
-			}
+		$newLines =
+			  "\n\nacl.resources.Model_{$this->_modelId}.id = Model_{$this->_modelId}\n"
+			. "acl.resources.Model_{$this->_modelId}.allow.all.roles = \"admin\""
+		;
+		$newContent = $this->_addToIni($ini, $newLines);
 
-			if (!$modelIsIncluded) {
-				$newLines =
-					  "\n\nacl.resources.Model_{$this->_modelId}.id = Model_{$this->_modelId}\n"
-					. "acl.resources.Model_{$this->_modelId}.allow.all.roles = \"admin\""
-				;
-				$newContent = $this->_addToIni($ini, $newLines);
-
-				if (!file_put_contents($this->_getAclIniPath(), $newContent)) {
-					throw new Exception("Could not append the '{$this->_modelId}' include to " . self::_ACL_FILE);
-				}
-			}
-		} else throw new Exception("Could not find the configuration for the 'production' environment in " . self::_ACL_FILE);
+		if (!file_put_contents($this->_getAclIniPath(), $newContent)) {
+			throw new Exception("Could not append the '{$this->_modelId}' include to " . self::_ACL_FILE);
+		}
 	}
-
 
 	protected function _addToContentIni() {
 		$ini = $this->_getContentIni();
-		$modelIsIncluded = false;
+				
+		if ($this->_modelIsIncludedInContentIni($ini)) {
+			return;
+		}
 
-		$prodEnvContentLines = $this->_fetchLinesFromIniEnv($ini);
+		$newLines = "\ncontent.commands.{$this->_modelId}.class = \"Model_{$this->_modelId}\"";
+		$newContent = $this->_addToIni($ini, $newLines);
 
-		if ($prodEnvContentLines) {
-			foreach ($prodEnvContentLines as $line) {
-				if ($this->_modelIsIncludedInContentIniLine($line)) {
-					$modelIsIncluded = true;
-					break;
-				}
-			}
-
-			if (!$modelIsIncluded) {
-				$newLines = "\ncontent.commands.{$this->_modelId}.class = \"Model_{$this->_modelId}\"";
-				$newContent = $this->_addToIni($ini, $newLines);
-
-				if (!file_put_contents($this->_getContentIniPath(), $newContent)) {
-					throw new Exception("Could not append the '{$this->_modelId}' include to " . self::_MODELS_INCLUDE_FILE);
-				}
-			}
-		} else throw new Exception("Could not find the configuration for the 'production' environment in ".self::_MODELS_INCLUDE_FILE);
+		if (!file_put_contents($this->_getContentIniPath(), $newContent)) {
+			throw new Exception("Could not append the '{$this->_modelId}' include to " . self::_MODELS_INCLUDE_FILE);
+		}
 	}
 
 
@@ -123,26 +122,28 @@ class Garp_Spawn_Php_ModelsIncluder {
 		return preg_split('/(\[[\w\s:]+\])/', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
 	}
 	
+	/**
+	 * @param 	String	$ini
+	 */
+	protected function _modelIsIncludedInContentIni($ini) {
+		$path 		= $this->_getContentIniPath();
+		$ini = new Garp_Config_Ini($path, 'production');
+		$modelId = $this->getModelId();
+		
+		return isset($ini->content->commands->{$modelId}->class);
+	}
 	
-	protected function _modelIsIncludedInContentIniLine($line) {
-		$matches = array();
-		preg_match('/content.commands.(?P<model>\w+).class = "(G_)?Model_\w+?"/i', trim($line), $matches);
-		return 
-			array_key_exists('model', $matches) &&
-			strcasecmp($matches['model'], $this->_modelId) == 0
-		;
+	/**
+	 * @param 	String	$ini
+	 */
+	protected function _modelIsIncludedInAclIni($ini) {
+		$path 		= $this->_getAclIniPath();
+		$ini 		= new Garp_Config_Ini($path, 'production');
+		$modelId 	= $this->getModelId();
+		$modelClass = 'Model_' . $modelId;
+
+		return isset($ini->acl->resources->{$modelClass}->id);
 	}
-
-
-	protected function _modelIsIncludedInAclIniLine($line) {
-		$matches = array();
-		preg_match('/acl.resources.Model_(?P<model>\w+).id = "?Model_\w+"?/i', trim($line), $matches);
-		return 
-			array_key_exists('model', $matches) &&
-			$matches['model'] === $this->_modelId
-		;
-	}
-
 
 	protected function _getContentIni() {
 		return file_get_contents($this->_getContentIniPath());
