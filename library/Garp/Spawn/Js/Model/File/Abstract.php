@@ -43,7 +43,11 @@ abstract class Garp_Spawn_Js_Model_File_Abstract {
 		$folders = explode(DIRECTORY_SEPARATOR, $filePath);
 		// discard the actual file
 		array_pop($folders);
-		mkdir(implode(DIRECTORY_SEPARATOR, $folders), 0777, true);
+		$path = implode(DIRECTORY_SEPARATOR, $folders);
+		if (file_exists($path)) {
+			return;
+		}
+		mkdir($path, 0777, true);
 	}
 
 	protected function _array2path($folders, $i) {
