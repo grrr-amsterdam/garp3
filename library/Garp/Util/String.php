@@ -219,6 +219,9 @@ class Garp_Util_String {
  	 * @return String
  	 */
 	static public function strReplaceOnce($needle, $replace, $haystack) {
+		if (!$needle) {
+			return $haystack;
+		}
 		// Looks for the first occurence of $needle in $haystack
     	// and replaces it with $replace.
     	$pos = strpos($haystack, $needle);
