@@ -9,11 +9,9 @@ abstract class Garp_Spawn_Js_Model_File_Abstract {
 	protected $_overwrite = false;
 	protected $_model;
 	
-	
 	public function __construct(Garp_Spawn_Model_Base $model) {
 		$this->_model = $model;
 	}
-	
 	
 	public function save($content) {
 		$filePath = $this->_getFilePath();
@@ -22,6 +20,7 @@ abstract class Garp_Spawn_Js_Model_File_Abstract {
 			$this->_overwrite ||
 			!file_exists($filePath)
 		) {
+			$this->_ensurePathExistence($filePath);
 			if (file_put_contents($filePath, $content) !== false) {
 				return true;
 			} else {
@@ -32,8 +31,23 @@ abstract class Garp_Spawn_Js_Model_File_Abstract {
 		return false;
 	}
 	
-	
 	protected function _getFilePath() {
 		return APPLICATION_PATH.$this->_path.$this->_model->id.'.'.$this->_extension;
+	}
+
+	/**
+ 	 * Make sure the directory structure exists before writing the file
+ 	 * @return Void
+ 	 */
+	protected function _ensurePathExistence($filePath) {
+		$folders = explode(DIRECTORY_SEPARATOR, $filePath);
+		// discard the actual file
+		array_pop($folders);
+		mkdir(implode(DIRECTORY_SEPARATOR, $folders), 0777, true);
+	}
+
+	protected function _array2path($folders, $i) {
+		$path = implode(DIRECTORY_SEPARATOR, array_slice($folders, 0, $i));
+		return $path;
 	}
 }
