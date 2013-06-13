@@ -30,13 +30,14 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 						type: '',
 						classes: []
 					};
-					//return;
 				}
 				var currentWysiwygCt = this.chapterct.addWysiwygCt({
 					type: item.type,
 					_classes: item.classes
 				}, this.chapterct.items ? this.chapterct.items.last() : null);
 				if (!item.content) {
+					// We used to remove empty containers. @see grrr.nl Ticket #158
+					// 
 					//if (item.remove) {
 					//	item.remove();
 					//}
