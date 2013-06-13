@@ -25,6 +25,9 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 		if (items && items.length) {
 			this.chapterct.removeAll(true);
 			Ext.each(items, function(item){
+				if (!item) {
+					return;
+				}
 				var currentWysiwygCt = this.chapterct.addWysiwygCt({
 					type: item.type,
 					_classes: item.classes
