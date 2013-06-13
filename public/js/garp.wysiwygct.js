@@ -26,16 +26,20 @@ Garp.WysiwygField = Ext.extend(Ext.form.TextField, {
 			this.chapterct.removeAll(true);
 			Ext.each(items, function(item){
 				if (!item) {
-					return;
+					item = {
+						type: '',
+						classes: []
+					};
+					//return;
 				}
 				var currentWysiwygCt = this.chapterct.addWysiwygCt({
 					type: item.type,
 					_classes: item.classes
 				}, this.chapterct.items ? this.chapterct.items.last() : null);
 				if (!item.content) {
-					if (item.remove) {
-						item.remove();
-					}
+					//if (item.remove) {
+					//	item.remove();
+					//}
 					return;
 				}
 				Ext.each(item.content, function(node){
