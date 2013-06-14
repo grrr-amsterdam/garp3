@@ -65,6 +65,9 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 				!empty($config->resources->locale->adminDefault)) {
 				$adminDefaultLanguage = $config->resources->locale->adminDefault;
 				$redirectUrl = '/' . $adminDefaultLanguage . $path;
+			} elseif (isset($config->resources->locale->uiDefault)) {
+				$uiDefaultLanguage = $config->resources->locale->uiDefault;
+				$redirectUrl = '/'.$uiDefaultLanguage.$path;
 			}
 			$this->getResponse()
 				->setHttpResponseCode(301)
