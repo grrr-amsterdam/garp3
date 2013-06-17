@@ -1120,7 +1120,7 @@ Garp.acceptCookies = function(){
  * Garp relative Date
  * Returns the date or time difference in HRF™ (Human Readable Format)
  */
-Garp.relativeDate = function(oldest, newest){
+Garp.relativeDate = function(oldest, newest, resolution) {
 	if (typeof oldest.getTime != 'function') {
 		oldest = new Date(oldest + '');
 	}
@@ -1142,19 +1142,29 @@ Garp.relativeDate = function(oldest, newest){
 	var MONTH  = DAY*30;
 	var YEAR   = DAY*365;
 	var days;
+
+	var resolutionRegistry = {
+		'year': YEAR,
+		'month': MONTH,
+		'week': WEEK,
+		'day': DAY,
+		'hour': HOUR,
+		'minute': MINUTE
+	};
+	resolution = resolutionRegistry[resolution || 'year'];
 	
 	if (elapsed < MINUTE) {
 		result = __('less than a minute');
-	} else if (elapsed < HOUR) {
+	} else if (elapsed < HOUR && resolution >= MINUTE) {
 		var minutes = Math.round(elapsed);
 		result = minutes + ' ' + (minutes == 1 ? __('minute') : __('minutes'));
-	} else if (elapsed < DAY) {
+	} else if (elapsed < DAY && resolution >= HOUR) {
 		var hours = Math.round(elapsed / HOUR);
 		result = hours + ' ' + (hours == 1 ? __('hour') : __('hours'));
-	} else if (elapsed < WEEK) {
+	} else if (elapsed < WEEK && resolution >= DAY) {
 		days = Math.round(elapsed / DAY);
 		result = days + ' ' + (days == 1 ? __('day') : __('days'));
-	} else if (elapsed < MONTH) {
+	} else if (elapsed < MONTH && resolution >= WEEK) {
 		/**
 		 * Here we use Math.ceil because the scope is so small. It makes no sense when 
 		 * it's 1 week and 2 days to say "1 week". It's more correct to say 2 weeks.
@@ -1171,10 +1181,10 @@ Garp.relativeDate = function(oldest, newest){
 			days = Math.round(elapsed / DAY);
 			result = days + ' ' + (days == 1 ? __('day') : __('days'));
 		}
-	} else if (elapsed < YEAR) {
+	} else if (elapsed < YEAR && resolution >= MONTH) {
 		var months = Math.round(elapsed / MONTH);
 		result = months + ' ' + (months == 1 ? __('month') : __('months'));
-	} else {
+	} else if (resolution >= YEAR && resolution >= YEAR) {
 		var years = Math.round(elapsed / YEAR);
 		result = years + ' ' + (years == 1 ? __('year') : __('years'));
 	}
