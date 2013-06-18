@@ -19,7 +19,7 @@
 
 ?>Ext.ns('Garp.dataTypes');
 Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
-	text: '<?php echo $model->label ?>',
+	text: __('<?php echo $model->label ?>'),
 	<?php if ($model->description): ?>
 	description: '<?php echo $this->escape($model->description) ?>',
 	<?php endif; ?>
