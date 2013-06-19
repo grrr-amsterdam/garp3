@@ -113,7 +113,7 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 			url += '&id=[' + ids.join(',') + ']';
 		}
 		if (sel.selection == 'currentItem' || sel.selection == 'currentPage' || sel.selection == 'specific' || sel.selection == 'all') {
-			url += '&filter=' + filter;
+			url += '&filter=' + encodeURIComponent(filter);
 			url += '&fields=' + encodeURIComponent(fields);
 		}
 		
