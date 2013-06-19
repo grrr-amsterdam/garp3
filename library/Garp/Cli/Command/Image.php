@@ -9,49 +9,76 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Image extends Garp_Cli_Command {
-	 /**
- 	  * Generate scaled versions of uploaded images
- 	  * @param Array $args
- 	  * @return Boolean success
- 	  */
+	/**
+	 * Generate scaled versions of uploaded images
+	 * @param Array $args
+	 * @return Boolean success
+	 */
 	public function generateScaled($args) {
+		$overwrite = array_key_exists('overwrite', $args);
 		if (
 			array_key_exists('template', $args) &&
 			!empty($args['template'])
 		) {
-			return $this->_generateScaledImagesForTemplate($args['template']);
+			return $this->_generateScaledImagesForTemplate($args['template'], $overwrite);
 		} elseif(
 			array_key_exists('filename', $args) &&
 			!empty($args['filename'])
 		) {
-			return $this->_generateScaledImagesForFilename($args['filename']);
+			return $this->_generateScaledImagesForFilename($args['filename'], $overwrite);
 		}
-		return $this->_generateAllScaledImages();
+		return $this->_generateAllScaledImages($overwrite);
 	}
 
+	/**
+ 	 * Optimize images
+ 	 * @return Boolean success
+ 	 */
+	public function optimize($args) {
+		$imageModel = new Model_Image();
+		$pngs = $imageModel->fetchAll(
+			$imageModel->select()
+				->from($imageModel->getName(), array('filename'))
+				->where('filename LIKE ?', '%.png')
+		);
+		$pngQuant = new Garp_Image_PngQuant();
+		if (!$pngQuant->isAvailable()) {
+			Garp_Cli::errorOut('I have no business here: pngquant is not available.');
+		}
+		$gif = new Garp_Image_File();
+		
+		foreach ($pngs as $png) {
+			$data = $gif->fetch($png->filename);
+			$data = $pngQuant->optimizeData($data);
+			$gif->store($png->filename, $data, true);
+			Garp_Cli::lineOut('Optimized '.$png->filename);
+		}
+		Garp_Cli::lineOut('Done.');
+	}
 
 	/**
  	 * Generate scaled versions of all images in all templates.
+ 	 * @param Boolean $overwrite
  	 * @return Boolean
  	 */
-	protected function _generateAllScaledImages() {
+	protected function _generateAllScaledImages($overwrite = false) {
 		$imageScaler = new Garp_Image_Scaler();
 		$templates = $imageScaler->getTemplateNames();
 		$success = 0;
 
 		foreach ($templates as $t) {
-			$success += (int)$this->_generateScaledImagesForTemplate($t);
+			$success += (int)$this->_generateScaledImagesForTemplate($t, $overwrite);
 		}
 		return $success == count($templates);
 	}
 
-
 	/**
 	 * Generate scaled versions of a specific source file, along all configured templates.
 	 * @param String $filename Filename of the source file in need of scaling
+	 * @param Boolean $overwrite
 	 * @return Void
 	 */
-	protected function _generateScaledImagesForFilename($filename) {
+	protected function _generateScaledImagesForFilename($filename, $overwrite = false) {
 		Garp_Cli::lineOut('Generating scaled images for file "'.$filename.'".');
 
 		if ($filename) {
@@ -69,13 +96,11 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 				$success = 0;
 				foreach ($templates as $t) {
 					$success++;
-					if ($file->exists(
-						$scaler->getScaledPath($id, $t, true)
-					)) {
+					if ($file->exists($scaler->getScaledPath($id, $t, true)) && !$overwrite) {
 						Garp_Cli::lineOut($t.'/'.$id.' already exists, skipping');
 					} else {
 						try {
-							$scaler->scaleAndStore($filename, $id, $t);
+							$scaler->scaleAndStore($filename, $id, $t, $overwrite);
 							Garp_Cli::lineOut('Scaled image #'.$id.': '.$filename.' for template "'.$t.'"');
 						} catch(Exception $e) {
 							Garp_Cli::errorOut("Error scaling ".$filename." (#".$id."): ".$e->getMessage());
@@ -90,13 +115,13 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 		return false;
 	}
 	
-	
 	/**
 	 * Generate scaled versions of all source files, along given template.
 	 * @param String $template Template name, as it appears in configuration.
+	 * @param Boolean $overwrite
 	 * @return Void
 	 */
-	protected function _generateScaledImagesForTemplate($template) {
+	protected function _generateScaledImagesForTemplate($template, $overwrite = false) {
 		Garp_Cli::lineOut('Generating scaled images for template "'.$template.'".');
 	
 		$imageModel = new G_Model_Image();
@@ -111,13 +136,11 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 			$success++;
 
 			if ($file->exists($filename)) {
-				if ($file->exists(
-					$scaler->getScaledPath($id, $template, true)
-				)) {
+				if ($file->exists($scaler->getScaledPath($id, $template, true)) && !$overwrite) {
 					Garp_Cli::lineOut($template.'/'.$id.' already exists, skipping');
 				} else {
 					try {
-						$scaler->scaleAndStore($filename, $id, $template);
+						$scaler->scaleAndStore($filename, $id, $template, $overwrite);
 						Garp_Cli::lineOut('Scaled image #'.$id.': '.$filename);
 					} catch(Exception $e) {
 						Garp_Cli::errorOut("Error scaling ".$filename." (#".$id."): ".$e->getMessage());
@@ -132,7 +155,6 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 		return $success == count($records);
 	}
 
-
 	/**
  	 * Show help
  	 */
@@ -146,7 +168,9 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 			"to generate scaled versions of all files for a specific template:\n".
 			"  generateScaled --template=[template name]\n".
 			"to generate scaled versions of a specific file for all templates:\n".
-			"  generateScaled --filename=[filename]\n"
+			"  generateScaled --filename=[filename]\n".
+			"\n".
+			"Use the --overwrite flag to overwrite existing scaled images.\n"
 		);
 	}
 }
