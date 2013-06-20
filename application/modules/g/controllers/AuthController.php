@@ -164,7 +164,7 @@ class G_AuthController extends Garp_Controller_Action {
 			$flashMessenger = $this->_helper->getHelper('FlashMessenger');
 			$fullName = new Garp_Util_FullName($userData);
 			$successMsg = __($authVars['login']['successMessage']);
-			if (strpos('%s', $successMsg) !== false) {
+			if (strpos($successMsg, '%s') !== false) {
 				$successMsg = sprintf($successMsg, $fullName);
 			} elseif (strpos('%USERNAME%', $successMsg) !== false) {
 				$successMsg = Garp_Util_String::interpolate($successMsg, array(
