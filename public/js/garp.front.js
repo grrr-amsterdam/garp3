@@ -1075,10 +1075,13 @@ $(function(){
 						var url = BASE + 'g/content/admin/?model=Snippet&id=' + elm.nodeValue.replace(token, '');
 						var linkHtml = '<a href="' + url + '" title="edit" target="garp_cms"><img src="' + CDN_URL + 'media/images/garp/icons/pencil.png"></a>';
 						var $snippet = $(snippet);
-						var link = $(linkHtml).insertBefore(snippet).css(linkCss).css({
-							top: $snippet.position().top,
-							left: $snippet.position().left 
-						});
+						var link = $(linkHtml).insertBefore(snippet).css(linkCss);
+						if (snippet.getBoundingClientRect) {
+							link.css({
+								top: $snippet.position().top,
+								left: $snippet.position().left
+							});
+						}
 						mouseEventsClosure(link);
 					}
 				}
