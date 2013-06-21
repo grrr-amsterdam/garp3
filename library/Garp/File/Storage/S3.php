@@ -32,7 +32,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	 * @param Zend_Config $config The 'cdn' section from application.ini, containing S3 and general CDN configuration.
 	 * @param String $path Relative path to the location of the stored file, excluding trailing slash but always preceded by one.
 	 */
-	public function __construct(Zend_Config $config, $path = null) {
+	public function __construct(Zend_Config $config, $path = '/') {
 		$this->_setConfigParams($config);
 		
 		if ($path) {
@@ -74,7 +74,9 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 		// strip off preceding slash, add trailing one.
 		$path = substr($this->_config['path'], 1) . '/';
-		return $this->_api->getObjectsByBucket($this->_config['bucket'], array('prefix' => $path));
+		$objects = $this->_api->getObjectsByBucket($this->_config['bucket'], array('prefix' => $path));
+
+		return $objects;
 	}
 
 
@@ -216,7 +218,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			@ini_set('max_execution_time', self::TIMEOUT);
 			@set_time_limit(self::TIMEOUT);
 			if (!$this->_api) {
-				$this->_api = new Zend_Service_Amazon_S3(
+				$this->_api = new Garp_Service_Amazon_S3(
 					$this->_config['apikey'],
 					$this->_config['secret']
 				);
