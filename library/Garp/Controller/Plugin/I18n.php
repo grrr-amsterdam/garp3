@@ -57,16 +57,26 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		
 		// If the language is in the path, then we will want to set the baseUrl
 		// to the specified language.
-		if (preg_match('/^\/' . $language . '\/?/', $path)) {
-			$frontController->setBaseUrl($frontController->getBaseUrl() . '/' . $language);
+		$langIsInUrl = preg_match('/^\/' . $language . '\/?/', $path);
+		$uiDefaultLangIsInUrl = false;
+		if (isset($config->resources->locale->uiDefault)) {
+			$uiDefaultLanguage = $config->resources->locale->uiDefault;
+			$uiDefaultLangIsInUrl = preg_match('/^\/' . $uiDefaultLanguage . '\/?/', $path);
+		}
+		
+		if ($langIsInUrl || $uiDefaultLangIsInUrl) {
+			if ($uiDefaultLangIsInUrl) {
+				$frontController->setBaseUrl($frontController->getBaseUrl() . '/' . $uiDefaultLanguage);
+			} else {
+				$frontController->setBaseUrl($frontController->getBaseUrl() . '/' . $language);
+			}
 		} elseif (!empty($config->resources->router->locale->enabled) && $config->resources->router->locale->enabled) {
 			$redirectUrl = '/'.$language.$path;
 			if ($frontController->getRouter()->getCurrentRouteName() === 'admin' &&
 				!empty($config->resources->locale->adminDefault)) {
 				$adminDefaultLanguage = $config->resources->locale->adminDefault;
 				$redirectUrl = '/' . $adminDefaultLanguage . $path;
-			} elseif (isset($config->resources->locale->uiDefault)) {
-				$uiDefaultLanguage = $config->resources->locale->uiDefault;
+			} elseif ($uiDefaultLanguage) {
 				$redirectUrl = '/'.$uiDefaultLanguage.$path;
 			}
 			$this->getResponse()
