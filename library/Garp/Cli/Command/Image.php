@@ -152,6 +152,8 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 				$success--;
 			}
 		}
+		
+		Garp_Cli::lineOut('Done scaling images for template "'.$template.'".');
 		return $success == count($records);
 	}
 
