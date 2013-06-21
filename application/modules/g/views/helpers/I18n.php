@@ -34,10 +34,9 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 		$localizedRoutes = Garp_I18n::getLocalizedRoutes($routes, array($language));
 
 		$router = new Zend_Controller_Router_Rewrite();
-		$router->addConfig(new Zend_Config(
-			array_merge($routes, $localizedRoutes)
-		));
+		$router->addConfig(new Zend_Config($localizedRoutes));
 		$routeParams['locale'] = $language;
+
 		// @todo Also add existing GET params in the form of ?foo=bar
 		try {
 			$alternateRoute = $router->assemble($routeParams, $currRoute);
@@ -46,6 +45,11 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 		}
 		// Remove the baseURl because it contains the current language
 		$alternateRoute = str_replace($this->view->baseUrl(), '', $alternateRoute);
+
+		// Always use explicit localization
+		if ($alternateRoute == '/') {
+			$alternateRoute = '/' . $language;
+		}
 		return $alternateRoute;
 	}
 
