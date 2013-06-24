@@ -82,38 +82,28 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 	protected function _generateScaledImagesForFilename($filename, $overwrite = false) {
 		Garp_Cli::lineOut('Generating scaled images for file "'.$filename.'".');
 
-		if ($filename) {
-			$scaler = new Garp_Image_Scaler();
-			$templates = $scaler->getTemplateNames();
-
-			$imageModel = new G_Model_Image();
-			$select = $imageModel->getAdapter()->quoteInto('filename = ?', $filename);
-			$record = $imageModel->fetchRow($select);
-			
-			$file = new Garp_Image_File();
-
-			if ($record) {
-				$id = $record->id;
-				$success = 0;
-				foreach ($templates as $t) {
-					$success++;
-					if ($file->exists($scaler->getScaledPath($id, $t, true)) && !$overwrite) {
-						Garp_Cli::lineOut($t.'/'.$id.' already exists, skipping');
-					} else {
-						try {
-							$scaler->scaleAndStore($filename, $id, $t, $overwrite);
-							Garp_Cli::lineOut('Scaled image #'.$id.': '.$filename.' for template "'.$t.'"');
-						} catch(Exception $e) {
-							Garp_Cli::errorOut("Error scaling ".$filename." (#".$id."): ".$e->getMessage());
-							$success--;
-						}
-					}
-				}
-				return $success == count($templates);
-			}
-			Garp_Cli::errorOut('I couldn\'t find any records in the database, containing "'.$filename.'" as filename');
+		if (!$filename) {
+			return;
 		}
-		return false;
+		
+		$scaler 	= new Garp_Image_Scaler();
+		$templates 	= $scaler->getTemplateNames();
+		$imageModel = new G_Model_Image();
+		$select 	= $imageModel->getAdapter()->quoteInto('filename = ?', $filename);
+		$record 	= $imageModel->fetchRow($select);
+		$file 		= new Garp_Image_File();
+		$success 	= 0;
+
+		if (!$record) {
+			Garp_Cli::errorOut('I couldn\'t find any records in the database, containing "'.$filename.'" as filename');	
+			return;
+		}
+
+		foreach ($templates as $template) {
+			$success += (int)$this->_scaleDatabaseImage($record, $file, $scaler, $template, $overwrite);
+		}
+
+		return $success == count($templates);		
 	}
 	
 	/**
@@ -123,7 +113,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 	 * @return Void
 	 */
 	protected function _generateScaledImagesForTemplate($template, $overwrite = false) {
-		Garp_Cli::lineOut('Generating scaled images for template "'.$template.'".');
+		Garp_Cli::lineOut('Generating scaled images for template "' . $template . '".');
 	
 		$imageModel = new G_Model_Image();
 		$records 	= $imageModel->fetchAll();
