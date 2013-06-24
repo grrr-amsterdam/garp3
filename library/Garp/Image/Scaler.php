@@ -94,7 +94,7 @@ class Garp_Image_Scaler {
 			throw new Exception("This is an empty file!");
 		}
 		
-		if (!($source = @imagecreatefromstring($sourceData))) {
+		if (!($source = imagecreatefromstring($sourceData))) {
 			$finfo = new finfo(FILEINFO_MIME);
 			$mime = $finfo->buffer($sourceData);
 			throw new Exception("This source image could not be scaled. It's probably not a valid file type. Instead, this file is of the following type: " . $mime);
@@ -207,39 +207,35 @@ class Garp_Image_Scaler {
 	 * @param String $template Name of the template, if left empty, scaled versions for all templates will be generated.
 	 */
 	public function scaleAndStore($filename, $id, $template = null, $overwrite = false) {
-		$scaler = new Garp_Image_Scaler();
 		$templates = !is_null($template) ?
 			(array)$template :
 			//	template is left empty; scale source file along all configured templates
-			$templates = $scaler->getTemplateNames()
+			$templates = $this->getTemplateNames()
 		;
 
-		if ($templates) {
-			$file = new Garp_Image_File('upload');
-			$sourceData = $file->fetch($filename);
-			$imageType = $file->getImageType($filename);
-
-			foreach ($templates as $t) {
-				$scaleParams = $scaler->getTemplateParameters($t);
-
-				$scaledImageDataArray = $scaler->scale(
-					$sourceData,
-					$scaleParams,
-					$imageType
-				);
-				$scaledFilePath = $this->getScaledPath($id, $template);
-
-				if (
-					$overwrite ||
-					!$file->exists($scaledFilePath)
-				) {
-					$file->store($scaledFilePath, $scaledImageDataArray['resource'], true, false);
-				}
-			}
+		foreach ($templates as $t) {
+			$this->_scaleAndStoreForTemplate($filename, $id, $t, $overwrite);
 		}
 	}
+	
+	protected function _scaleAndStoreForTemplate($filename, $id, $template, $overwrite) {
+		$file = new Garp_Image_File('upload');
+		$sourceData = $file->fetch($filename);
+		$imageType = $file->getImageType($filename);
 
+		$scaleParams = $this->getTemplateParameters($template);
 
+		$scaledImageDataArray = $this->scale(
+			$sourceData,
+			$scaleParams,
+			$imageType
+		);
+		$scaledFilePath = $this->getScaledPath($id, $template);
+
+		if ($overwrite || !$file->exists($scaledFilePath)) {
+			$file->store($scaledFilePath, $scaledImageDataArray['resource'], true, false);
+		}
+	}
 
 	/**
 	 * Makes sure only allowed parameters are accepted, and merges them with the $params property.

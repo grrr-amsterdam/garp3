@@ -62,13 +62,14 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
  	 * @return Boolean
  	 */
 	protected function _generateAllScaledImages($overwrite = false) {
-		$imageScaler = new Garp_Image_Scaler();
-		$templates = $imageScaler->getTemplateNames();
-		$success = 0;
+		$imageScaler 	= new Garp_Image_Scaler();
+		$templates 		= $imageScaler->getTemplateNames();
+		$success 		= 0;
 
 		foreach ($templates as $t) {
 			$success += (int)$this->_generateScaledImagesForTemplate($t, $overwrite);
 		}
+
 		return $success == count($templates);
 	}
 
@@ -125,32 +126,13 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 		Garp_Cli::lineOut('Generating scaled images for template "'.$template.'".');
 	
 		$imageModel = new G_Model_Image();
-		$records = $imageModel->fetchAll();
-		$file = new Garp_Image_File('upload');
-		$scaler = new Garp_Image_Scaler();
-		$success = 0;
+		$records 	= $imageModel->fetchAll();
+		$file 		= new Garp_Image_File('upload');
+		$scaler 	= new Garp_Image_Scaler();
+		$success 	= 0;
 
 		foreach ($records as $record) {
-			$id = $record->id;
-			$filename = $record->filename;
-			$success++;
-
-			if ($file->exists($filename)) {
-				if ($file->exists($scaler->getScaledPath($id, $template, true)) && !$overwrite) {
-					Garp_Cli::lineOut($template.'/'.$id.' already exists, skipping');
-				} else {
-					try {
-						$scaler->scaleAndStore($filename, $id, $template, $overwrite);
-						Garp_Cli::lineOut('Scaled image #'.$id.': '.$filename);
-					} catch(Exception $e) {
-						Garp_Cli::errorOut("Error scaling ".$filename." (#".$id."): ".$e->getMessage());
-						$success--;
-					}
-				}
-			} else {
-				Garp_Cli::errorOut('Warning: '.$filename.' is in the database, but not on disk!');
-				$success--;
-			}
+			$success += (int)$this->_scaleDatabaseImage($record, $file, $scaler, $template, $overwrite);
 		}
 		
 		Garp_Cli::lineOut('Done scaling images for template "'.$template.'".');
@@ -174,5 +156,28 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 			"\n".
 			"Use the --overwrite flag to overwrite existing scaled images.\n"
 		);
+	}
+	
+	protected function _scaleDatabaseImage(Garp_Db_Table_Row $record, Garp_Image_File $file, Garp_Image_Scaler $scaler, $template, $overwrite) {
+		$id 		= $record->id;
+		$filename 	= $record->filename;
+
+		if (!$file->exists($filename)) {
+			Garp_Cli::errorOut('Warning: '.$filename.' is in the database, but not on disk!');
+			return;
+		}
+		
+		if ($file->exists($scaler->getScaledPath($id, $template, true)) && !$overwrite) {
+			Garp_Cli::lineOut($template . '/' . $id.' already exists, skipping');
+			return;
+		}
+
+		try {
+			$scaler->scaleAndStore($filename, $id, $template, $overwrite);
+			Garp_Cli::lineOut('Scaled image #'.$id.': '.$filename);
+			return true;
+		} catch(Exception $e) {
+			Garp_Cli::errorOut("Error scaling ".$filename." (#".$id."): ".$e->getMessage());
+		}
 	}
 }
