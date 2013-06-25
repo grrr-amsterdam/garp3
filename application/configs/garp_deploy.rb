@@ -49,6 +49,7 @@ namespace :deploy do
       set_blackhole_path_symlink_fix
       spawn
       update_version
+      env_setup
       set_webroot_permissions
       symlink
     end
@@ -165,6 +166,11 @@ namespace :deploy do
   task :update_version do
   	run "php #{current_release}/garp/scripts/garp.php Version update --e=#{garp_env}"
   	run "php #{current_release}/garp/scripts/garp.php Version update garp --e=#{garp_env}"
+  end
+
+  desc "Perform administrative tasks after deploy"
+  task :env_setup do
+  	run "php #{current_release}/garp/scripts/garp.php Env setup --e=#{garp_env}"
   end
 
   desc "Set webroot directory permissions"
