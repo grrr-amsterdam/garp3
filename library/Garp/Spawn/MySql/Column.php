@@ -178,11 +178,12 @@ class Garp_Spawn_MySql_Column {
 				return $field->type;
 
 			case 'enum':
-				if (is_object($field->options) || (is_array($field->options) && key($field->options) !== 0)) {
+				$options = $field->options;
+				if (is_object($options) || (is_array($options) && key($options) !== 0)) {
 					//	this enum field has labels attached to it, but only the values are stored in the database.
-					$field->options = array_keys((array)$field->options);
+					$options = array_keys((array)$options);
 				}
-				return "enum('".implode($field->options, "','")."')";
+				return "enum('".implode($options, "','")."')";
 
 			default:
 				throw new Exception("The '{$field->type}' field type can't be translated to a MySQL field type as of yet.");
