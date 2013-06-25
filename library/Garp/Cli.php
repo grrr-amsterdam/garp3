@@ -55,7 +55,7 @@ class Garp_Cli {
 	public static function addStringColoring(&$s, $color) {
 		$prevEnc = mb_internal_encoding();
 		mb_internal_encoding("UTF-8");
-		$s = "\033[{$color}m{$s}\033[0m\n";
+		$s = "\033[{$color}m{$s}\033[0m";
 		mb_internal_encoding($prevEnc);
 	}
 	
