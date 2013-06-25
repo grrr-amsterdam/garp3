@@ -11,6 +11,8 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	border: true,
 	forceLayout:true,
 	
+	monitorValid: false,
+	
 	/**
 	 * @cfg: If set, we merely create a view tab; the only interactions possible are to open existing relations or quickCreate a new relation
 	 */
@@ -82,7 +84,13 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	
 	dirty: function(){
 		this.fireEvent('dirty');
-		this.getTopToolbar().saveBtn.enable();
+		
+		if (this.metaDataPanel) {
+			var valid = this.metaDataValidator(this.metaDataPanel.getSource(), this.relateePanel.store.data);
+		}
+		if (valid) {
+			this.getTopToolbar().saveBtn.enable();
+		}
 		this.getTopToolbar().cancelBtn.enable();
 		this.ownerCt.items.each(function(i){
 			if(i!=this){
@@ -269,9 +277,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			target.store.sort(Garp.dataTypes[this.model].sortInfo.field, Garp.dataTypes[this.model].sortInfo.direction);
 			target.store.remoteSort = true;
 		}
-		//target.getView().mainBody.slideIn('t',.2);
 		
-		target.getSelectionModel().selectRow(index || 0);
+		var rec = records[0];
+		var idx = target.store.find('id', rec.data.id);
+		target.getSelectionModel().selectRow(idx || 0);
 		
 	},
 
@@ -784,22 +793,21 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					items: this.relateePanel
 				}];
 			} else {
-			
+				
 				var scope = this;
 				function validateMetaPanel(){
 					if (scope.rendered && scope.isVisible()) {
-						if (scope.metaDataValidator(scope.metaDataPanel.getSource())) {
-							scope.undirty();
+						if (scope.metaDataValidator(scope.metaDataPanel.getSource(), scope.relateePanel.store.data)) {
+							//scope.undirty();
 							scope.getTopToolbar().saveBtn.enable();
 						} else {
-							scope.dirty();
+							//scope.dirty();
 							scope.getTopToolbar().saveBtn.disable();
 						}
 					}
 				}
 				
 				this.metaDataPanel = new Ext.grid.PropertyGrid({
-					//title: 'Properties Grid',
 					split: true,
 					__relationPanel: this,
 					layout: 'fit',
@@ -1023,7 +1031,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			if (this.metaDataPanel) {
 				this.metaDataPanel.on('propertychange', function(source, recId, val, oldVal){
 					if (val != oldVal) {
-						this.dirty();
+						//this.dirty();
 						var rec = this.relateeStore.getById(this.metaDataPanel._recordRef);
 						if (!rec) {
 							return;
