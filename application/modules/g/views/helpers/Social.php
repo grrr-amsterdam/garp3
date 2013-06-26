@@ -12,6 +12,12 @@
  */
 class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	/**
+ 	 * Wether the current instance uses a Facebook plugin that requires Facebook init.
+ 	 * @var Boolean
+ 	 */
+	protected $_needsFacebookInit = false;
+
+	/**
 	 * Central interface for this helper.
 	 * This one's always to chained to another helper method, 
 	 * like so: 
@@ -23,7 +29,6 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	public function social() {
 		return $this;		
 	}
-	
 	
 	/**
 	 * Generate a "Tweet this!" URL.
@@ -44,8 +49,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		$url .= urlencode($msg);
 		return $url;
 	}
-	
-	
+
 	/**
 	 * Create a Tweet button.
 	 * @param Array $params
@@ -90,7 +94,6 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		return $html;
 	}
 
-
 	/**
 	 * Generate a Hyves "Smart button" URL.
 	 * @return String
@@ -102,13 +105,13 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		return  sprintf($url, $categoryId, $rating, $title, $body);
 	}
 
-
 	/**
 	 * This method needs to be run at about the end of the HTML BODY tag.
 	 * It fires up all necessaries for Facebook's SDK, which is required for XFBML tags.
 	 * Also, the HTML tag itself should have the xmlns:fb="http://www.facebook.com/2008/fbml" attribute.
 	 */
 	public function facebookInit() {
+		$this->_needsFacebookInit = true;
 		if ($appId = $this->facebookAppId()) {
 			$channelUrl = $this->facebookChannelUrl();
 
@@ -121,7 +124,6 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			.' retrieve from your friendly system administrator.'
 		);
 	}
-
 
 	/**
  	 * Get Facebook App Id
@@ -153,13 +155,13 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		return $url;
 	}
 
-
 	/**
 	 * Generate a Facebook like button
 	 * @param Array $params Various Facebook URL parameters
 	 * @return String
 	 */
 	public function facebookLikeButton(array $params = array(), $useFacebookPageAsUrl = false) {
+		$this->_needsFacebookInit = true;
 		$params = new Garp_Util_Configuration($params);
 		$params->setDefault('href', array_key_exists('href', $params) && $params['href'] ?
 					$params['href'] :
@@ -180,25 +182,25 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		$html = '<fb:like '. $this->_renderHtmlAttribs($params) .'></fb:like>';
 		return $html;
 	}
-	
-	
+
 	/**
 	 * Generate a Facebook recommend button (which is a like button, but with a different action / label)
 	 * @param Array $params Various Facebook URL parameters
 	 * @return String
 	 */
 	public function facebookRecommendButton(array $params = array(), $useFacebookPageAsUrl = false) {
+		$this->_needsFacebookInit = true;
 		$params['action'] = 'recommend';
 		return $this->facebookLikeButton($params, $useFacebookPageAsUrl);
 	}
-	
-	
+
 	/**
 	 * Display Facebook comments widget
 	 * @param Array $params Various Facebook URL parameters
 	 * @return String
 	 */
 	public function facebookComments(array $params = array()) {
+		$this->_needsFacebookInit = true;
 		$params = new Garp_Util_Configuration($params);
 		$params->setDefault('href', array_key_exists('href', $params) && $params['href'] ?
 					$params['href'] :
@@ -213,13 +215,13 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		return $html;
 	}
 
-
 	/**
-	 * Generate a Facebook like button
+	 * Generate a Facebook facepile.
 	 * @param Array $params Various Facebook URL parameters
 	 * @return String
 	 */
 	public function facebookFacepile(array $params = array(), $useFacebookPageAsUrl = false) {
+		$this->_needsFacebookInit = true;
 		$params = new Garp_Util_Configuration($params);
 		$params->setDefault('href', array_key_exists('href', $params) && $params['href'] ?
 					$params['href'] :
@@ -237,7 +239,6 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		$html = '<fb:facepile '. $this->_renderHtmlAttribs($params) .'></fb:facepile>';
 		return $html;
 	}
-
 
 	/**
  	 * Print Facebook Open Graph tags.
@@ -299,7 +300,6 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		return $html;
 	}
 
-
 	/**
 	 * Generate a LinkedIn share button
 	 * @param Array $params
@@ -322,7 +322,6 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		return $html;
 	}
 
-
 	/**
 	 * Shorten a URL with TinyURL
 	 * @param String $url
@@ -332,8 +331,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		$tinyurl = file_get_contents('http://tinyurl.com/api-create.php?url='.$url);
 		return $tinyurl;
 	}
-	
-	
+
 	/**
 	 * Returns current url, stripped of any possible url queries.
 	 */
@@ -346,8 +344,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		
 		return $url;
 	}
-	
-	
+
 	/**
 	 * Renders key / value pairs to an HTML attributes string.
 	 * @param Garp_Util_Configuration $attribs The configuration object
@@ -360,11 +357,24 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		return implode(' ', $attributesPairs);
 	}
 	
-	
+	/**
+ 	 * Modify params by making the organization's Facebook page the href.
+ 	 * @param Garp_Util_Configuration $params
+ 	 * @return Void
+ 	 */
 	protected function _setFacebookPageUrlAsHref(Garp_Util_Configuration $params) {
 		$ini = Zend_Registry::get('config');
-		if ($ini->organization->facebook) {
-			$params['href'] = $ini->organization->facebook;
-		} else throw new Exception("Missing url: organization.facebook in application.ini");
+		if (!$ini->organization->facebook) {
+			throw new Exception("Missing url: organization.facebook in application.ini");
+		}
+		$params['href'] = $ini->organization->facebook;
 	}
+
+	/**
+ 	 * Wether the current instance uses a Facebook plugin that requires Facebook init.
+ 	 * @return Boolean
+ 	 */
+	public function needsFacebookInit() {
+		return $this->_needsFacebookInit;
+	}	
 }
