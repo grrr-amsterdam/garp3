@@ -50,6 +50,10 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
  	 * Create a bunch of snippets from a file
  	 */
 	protected function _createFromFile($file) {
+		if (!file_exists($file)) {
+			Garp_Cli::lineOut('File not found: '.$file.'. Adding no snippets.');
+			return false;
+		}
 		$config = new Garp_Config_Ini($file, APPLICATION_ENV);
 		if (!isset($config->snippets)) {
 			Garp_Cli::lineOut('Could not find any snippets. I\'m stopping now... This is awkward.');
