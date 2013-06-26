@@ -24,7 +24,10 @@ class Garp_I18n_Translate_Adapter_Snippet extends Zend_Translate_Adapter {
 		$out = array();
 		$data = $snippetModel->fetchAll(
 			$snippetModel->select()
-			->from($snippetModel->getName(), array('identifier', 'text'))
+			->from($snippetModel->getName(), array(
+				'identifier', 
+				'text' => new Zend_Db_Expr('IF(text IS NULL, identifier, text)'),
+			))
 			->where('has_text = ?', 1)
 			->order('identifier ASC')
 		);

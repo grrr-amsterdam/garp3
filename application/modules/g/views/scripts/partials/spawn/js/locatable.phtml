@@ -1,6 +1,6 @@
 var lat = formPanel.getForm().findField('location_lat');
 var lng = formPanel.getForm().findField('location_long');
-var address = formPanel.formcontent['location_address'];
+var address = formPanel.formcontent.location_address;
 
 function updateAddress(){
 	var geocoder = new google.maps.Geocoder();
