@@ -203,6 +203,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 			$this->quoteIfNecessary($field->type, $field->default) :
 			(
 				(
+					$field->multilingual ||
 					!$field->required || $field->primary ||
 					$field->type === 'datetime' || $field->type === 'date' || $field->type === 'time' ||
 					$field->type === 'enum'
