@@ -21,8 +21,8 @@
 
 <div id="welcome-panel-content" class="x-hidden">
 	<div class="garp-welcome-body">
-		<h1>Garp | Welkom</h1>
-		Gebruik de knop hierboven om te kiezen welke content je wilt bewerken
+		<h1><?php echo $this->escape($this->translate('garp welcome header')) ?></h1>
+		<p><?php echo $this->escape($this->translate('garp welcome tagline')) ?></p>
 	</div>
 </div>
 <div id="fb-root"></div>
