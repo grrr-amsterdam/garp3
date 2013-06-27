@@ -336,4 +336,6 @@ $translationTable = array(
 	'password' => 'wachtwoord',
 	'activate email page title' => 'Activeer e-mailadres',
 	'activate email error' => 'Er is een onbekende fout opgetreden, je e-mailadres kon niet worden geactiveerd. Probeer het later nog eens.',
+	'garp welcome header' => 'Garp',
+	'garp welcome tagline' => 'Beheer de inhoud van deze website.',
 );
