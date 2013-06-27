@@ -21,4 +21,6 @@ $translationTable = array(
 	'password' => 'password',
 	'activate email page title' => 'Activate email',
 	'activate email error' => 'An unknown error occurred. Your email address is not activated. Please try again later.', 
+	'garp welcome header' => 'Garp',
+	'garp welcome tagline' => 'Manage the content on this website.',
 );
