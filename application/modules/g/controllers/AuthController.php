@@ -305,12 +305,11 @@ class G_AuthController extends Garp_Controller_Action {
 					}
 					if ($response) {
 						if (isset($authVars['forgotpassword']['route'])) {
-							$router = Zend_Controller_Front::getInstance()->getRouter();
-							$targetUrl = $router->assemble(array(), $authVars['forgotpassword']['route']);
+							$this->_helper->redirector->gotoRoute(array('success' => 1), $authVars['forgotpassword']['route']);
 						} elseif (isset($authVars['forgotpassword']['url'])) {
 							$targetUrl = $authVars['forgotpassword']['url'];
+							$this->_helper->redirector->gotoUrl($targetUrl . '?success=1');
 						}
-						$this->_redirect($targetUrl.'?success=1');
 					} else {
 						$this->view->formError = __($authVars['forgotpassword']['failure_message']);
 					}
