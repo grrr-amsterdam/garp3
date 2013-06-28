@@ -310,6 +310,10 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 	public function getI18nModel(Garp_Model_Db $model) {
 		$modelName = get_class($model);
 		$modelName .= self::I18N_MODEL_SUFFIX;
+		if ($modelName === 'Model_GroupNlI18n') {
+			debug_print_backtrace();
+			exit;
+		}
 		return new $modelName;
 	}
 
