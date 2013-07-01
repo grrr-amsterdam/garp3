@@ -203,7 +203,7 @@ class Garp_Cli {
 			);
 		}
 		$front->setParam('bootstrap', $application->getBootstrap());
-		// Make sure we aren't blocked from the ContentController as per the rules in acl.ini
+		// Make sure we aren't blocked from the ContentController as per the rules in the ACL
 		$front->unregisterPlugin('Garp_Controller_Plugin_Auth');
 		// Make sure no output is rendered
 		$front->returnResponse(true);
