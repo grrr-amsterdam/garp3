@@ -145,6 +145,7 @@ class Garp_Cache_Manager {
  	 * @return Boolean
  	 */
 	protected static function _deleteStaticCacheFile($path) {
+		print 'REMOVING STATIC FILE: ' . $path . "\n"; return;
 		$success = @system('rm -rf '.$path.';') !== false;
 		return $success;
 	}
