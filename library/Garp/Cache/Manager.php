@@ -21,7 +21,6 @@ class Garp_Cache_Manager {
 		return $cache->read($key);
 	}
 
-
 	/**
  	 * Write query cache
  	 * @param Garp_Model_Db $model
@@ -33,7 +32,6 @@ class Garp_Cache_Manager {
 		$cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
 		$cache->write($key, $results);
 	}
-
 
 	/**
 	 * Purge all cache system wide
@@ -54,7 +52,6 @@ class Garp_Cache_Manager {
 			Garp_Cache_Store_Cluster::createJob($tags);
 		}
 	}
-
 
 	/**
  	 * Clear the Memcached cache that stores queries and ini files and whatnot.
@@ -88,7 +85,6 @@ class Garp_Cache_Manager {
 		}
 	}
 
-
 	/**
  	 * This clears Zend's Static caching.
  	 * @param Array|Garp_Model_Db $modelNames Clear the cache of a specific bunch of models.
@@ -101,33 +97,26 @@ class Garp_Cache_Manager {
 		}
 	
 		if (!$cacheDir) {
-			$front = Zend_Controller_Front::getInstance();
-			if (!$front->getParam('bootstrap') || !$front->getParam('bootstrap')->getResource('cachemanager')) {
-				return false;
-			}
-			$cacheManager = $front->getParam('bootstrap')->getResource('cachemanager');
-			$cache = $cacheManager->getCache(Zend_Cache_Manager::PAGECACHE);
-			$cacheDir = $cache->getBackend()->getOption('public_dir');
+			$cacheDir = self::_getStaticCacheDir();
 		}
 		$cacheDir = str_replace(' ', '\ ', $cacheDir);
 		$cacheDir = rtrim($cacheDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
 
+		// Destroy all if no model names are given
 		if (empty($modelNames)) {
-			// Destroy all
 			$allPath = $cacheDir.'*';
 			return self::_deleteStaticCacheFile($allPath);
 		} 
 		// Fetch model names from configuration
-		$ini = new Garp_Config_Ini(APPLICATION_PATH.'/configs/cache.ini', APPLICATION_ENV);
-		if (empty($ini->tags)) {
+		if (!$tagList = self::_getTagList()) {
 			return;
 		}
 		$_purged = array();
 		foreach ($modelNames as $tag) {
-			if (!$ini->tags->{$tag}) {
+			if (!$tagList->{$tag}) {
 				continue;
 			}
-			foreach ($ini->tags->{$tag} as $path) {
+			foreach ($tagList->{$tag} as $path) {
 				while (strpos($path, '..') !== false) {
 					$path = str_replace('..', '.', $path);
 				}
@@ -142,7 +131,6 @@ class Garp_Cache_Manager {
 		}
 	}
 
-
 	/**
  	 * Remove pluginLoaderCache.php
  	 * @return Void
@@ -150,7 +138,6 @@ class Garp_Cache_Manager {
 	public static function purgePluginLoaderCache() {
 		@unlink(APPLICATION_PATH.'/data/cache/pluginLoaderCache.php');
 	}
-
 
 	/**
  	 * Remove static cache file(s)
@@ -201,7 +188,6 @@ class Garp_Cache_Manager {
 		return false;
 	}
 
-
 	/**
  	 * Get cache tags used with a given model.
  	 * @param Garp_Model_Db $model
@@ -225,5 +211,39 @@ class Garp_Cache_Manager {
 	protected static function _incrementMemcacheVersion(Garp_Model_Db $model) {
 		$cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
 		$cache->incrementVersion();
+	}
+
+	/**
+ 	 * Fetch the cache directory for static caching
+ 	 * @return String 
+ 	 */
+	protected static function _getStaticCacheDir() {
+		$front = Zend_Controller_Front::getInstance();
+		if (!$front->getParam('bootstrap') || !$front->getParam('bootstrap')->getResource('cachemanager')) {
+			return false;
+		}
+		$cacheManager = $front->getParam('bootstrap')->getResource('cachemanager');
+		$cache = $cacheManager->getCache(Zend_Cache_Manager::PAGECACHE);
+		$cacheDir = $cache->getBackend()->getOption('public_dir');
+		return $cacheDir;
+	}		
+
+	/**
+ 	 * Fetch mapping of available tags to file paths
+ 	 * @return Zend_Config
+ 	 */
+	protected static function _getTagList() {
+		$config = Zend_Registry::get('config');
+		if (!empty($config->staticcaching->tags)) {
+			return $config->staticcaching->tags;
+		}
+
+		// For backward-compatibility: fall back to a separate cache.ini
+		$ini = new Garp_Config_Ini(APPLICATION_PATH.'/configs/cache.ini', APPLICATION_ENV);
+		if (!empty($ini->tags)) {
+			return $ini->tags;
+		}
+		
+		return null;
 	}
 }
