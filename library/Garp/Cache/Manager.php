@@ -96,8 +96,9 @@ class Garp_Cache_Manager {
 			$modelNames = self::getTagsFromModel($modelNames);
 		}
 	
+		$cacheDir = $cacheDir ?: self::_getStaticCacheDir();
 		if (!$cacheDir) {
-			$cacheDir = self::_getStaticCacheDir();
+			return;
 		}
 		$cacheDir = str_replace(' ', '\ ', $cacheDir);
 		$cacheDir = rtrim($cacheDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
@@ -145,7 +146,6 @@ class Garp_Cache_Manager {
  	 * @return Boolean
  	 */
 	protected static function _deleteStaticCacheFile($path) {
-		print 'REMOVING STATIC FILE: ' . $path . "\n"; return;
 		$success = @system('rm -rf '.$path.';') !== false;
 		return $success;
 	}
