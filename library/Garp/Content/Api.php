@@ -42,7 +42,7 @@ class Garp_Content_Api {
 			// read content managing configuration from content.ini
 			// note; Garp_Cache_Config is not used here because we always want fresh data in the CMS, 
 			// no cached versions
-			$config = $this->_getConfig();
+			$config = Garp_Content_Api::_getConfig();
 			$classes = $config->content->commands;
 			$api = new stdClass();
 			$api->actions = array();
@@ -90,7 +90,7 @@ class Garp_Content_Api {
 	public static function getAllModels() {
 		// note; Garp_Cache_Config is not used here because we always want fresh data in the CMS, 
 		// no cached versions
-		$config = $this->_getConfig();
+		$config = self::_getConfig();
 		$classes = $config->content->commands;
 		return $classes;
 	}
@@ -115,7 +115,7 @@ class Garp_Content_Api {
  	 * Return configuration for the api
  	 * @return Garp_Config_Ini
  	 */
-	protected function _getConfig() {
+	protected static function _getConfig() {
 		return new Garp_Config_Ini(APPLICATION_PATH.'/configs/content.ini', APPLICATION_ENV);
 	}		
 }
