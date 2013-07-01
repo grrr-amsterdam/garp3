@@ -160,7 +160,9 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		
 		Garp_Cli::lineOut("\n");
 
-		Garp_Cache_Manager::purge();
+		$cacheDir = $this->_getCacheDir();
+		Garp_Cache_Manager::purgeStaticCache(null, $cacheDir);
+		Garp_Cache_Manager::purgeMemcachedCache(null);
 		Garp_Cli::lineOut("All cache purged.");
 	}
 	
@@ -332,5 +334,20 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
 		$out = implode("\n", $lines);
 		Garp_Cli::lineOut($out);
+	}
+
+	/**
+ 	 * @return String
+ 	 */
+	protected function _getCacheDir() {
+		$app = Zend_Registry::get('application');
+		$bootstrap = $app->getBootstrap();
+		$cacheDir = false;
+		if ($bootstrap && $bootstrap->getResource('cachemanager')) {
+			$cacheManager = $bootstrap->getResource('cachemanager');
+			$cache = $cacheManager->getCache(Zend_Cache_Manager::PAGECACHE);
+			$cacheDir = $cache->getBackend()->getOption('public_dir');
+		}
+		return $cacheDir;
 	}
 }
