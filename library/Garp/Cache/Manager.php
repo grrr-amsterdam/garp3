@@ -115,22 +115,29 @@ class Garp_Cache_Manager {
 		if (empty($modelNames)) {
 			// Destroy all
 			$allPath = $cacheDir.'*';
-			self::_deleteStaticCacheFile($allPath);
-		} else {
-			$ini = new Garp_Config_Ini(APPLICATION_PATH.'/configs/cache.ini', APPLICATION_ENV);
-			if (empty($ini->tags)) {
-				return;
+			return self::_deleteStaticCacheFile($allPath);
+		} 
+		// Fetch model names from configuration
+		$ini = new Garp_Config_Ini(APPLICATION_PATH.'/configs/cache.ini', APPLICATION_ENV);
+		if (empty($ini->tags)) {
+			return;
+		}
+		$_purged = array();
+		foreach ($modelNames as $tag) {
+			if (!$ini->tags->{$tag}) {
+				continue;
 			}
-			foreach ($modelNames as $tag) {
-				if ($ini->tags->{$tag}) {
-					foreach ($ini->tags->{$tag} as $path) {
-						while (strpos($path, '..') !== false) {
-							$path = str_replace('..', '.', $path);
-						}
-						$filePath = $cacheDir.$path;
-						self::_deleteStaticCacheFile($filePath);
-					}
+			foreach ($ini->tags->{$tag} as $path) {
+				while (strpos($path, '..') !== false) {
+					$path = str_replace('..', '.', $path);
 				}
+				$filePath = $cacheDir.$path;
+				// Keep track of purged paths, forget about duplicates
+				if (in_array($filePath, $_purged)) {
+					continue;
+				}
+				self::_deleteStaticCacheFile($filePath);
+				$_purged[] = $filePath;
 			}
 		}
 	}
