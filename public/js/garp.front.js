@@ -1155,19 +1155,14 @@ Garp.relativeDate = function(oldest, newest, resolution) {
 		'minute': MINUTE
 	};
 	resolution = resolutionRegistry[resolution || 'year'];
-	
-	if (elapsed < MINUTE) {
-		result = __('less than a minute');
-	} else if (elapsed < HOUR && resolution >= MINUTE) {
-		var minutes = Math.round(elapsed);
-		result = minutes + ' ' + (minutes == 1 ? __('minute') : __('minutes'));
-	} else if (elapsed < DAY && resolution >= HOUR) {
-		var hours = Math.round(elapsed / HOUR);
-		result = hours + ' ' + (hours == 1 ? __('hour') : __('hours'));
-	} else if (elapsed < WEEK && resolution >= DAY) {
-		days = Math.round(elapsed / DAY);
-		result = days + ' ' + (days == 1 ? __('day') : __('days'));
-	} else if (elapsed < MONTH && resolution >= WEEK) {
+
+	if (elapsed >= YEAR && resolution >= YEAR) {
+		var years = Math.round(elapsed / YEAR);
+		result = years + ' ' + (years == 1 ? __('year') : __('years'));
+	} else if (elapsed >= MONTH && resolution >= MONTH) {
+		var months = Math.round(elapsed / MONTH);
+		result = months + ' ' + (months == 1 ? __('month') : __('months'));
+	} else if (elapsed >= WEEK && resolution >= WEEK) {
 		/**
 		 * Here we use Math.ceil because the scope is so small. It makes no sense when 
 		 * it's 1 week and 2 days to say "1 week". It's more correct to say 2 weeks.
@@ -1183,14 +1178,20 @@ Garp.relativeDate = function(oldest, newest, resolution) {
 		} else {
 			days = Math.round(elapsed / DAY);
 			result = days + ' ' + (days == 1 ? __('day') : __('days'));
-		}
-	} else if (elapsed < YEAR && resolution >= MONTH) {
-		var months = Math.round(elapsed / MONTH);
-		result = months + ' ' + (months == 1 ? __('month') : __('months'));
-	} else if (resolution >= YEAR && resolution >= YEAR) {
-		var years = Math.round(elapsed / YEAR);
-		result = years + ' ' + (years == 1 ? __('year') : __('years'));
+		}		
+	} else if (elapsed >= DAY && resolution >= DAY) {
+		days = Math.round(elapsed / DAY);
+		result = days + ' ' + (days == 1 ? __('day') : __('days'));
+	} else if (elapsed >= HOUR && resolution >= HOUR) {
+		var hours = Math.round(elapsed / HOUR);
+		result = hours + ' ' + (hours == 1 ? __('hour') : __('hours'));
+	} else if (elapsed >= MINUTE) {
+		var minutes = Math.round(elapsed);
+		result = minutes + ' ' + (minutes == 1 ? __('minute') : __('minutes'));
+	} else {
+		result = __('less than a minute');
 	}
+
 	return result;
 };
 
@@ -1211,7 +1212,7 @@ Garp.relativeDate = function(oldest, newest, resolution) {
  *	twitter.search('garp');
  */
 Garp.Twitter = function(config){
-	if (typeof console !== 'undefined') {
+	if (console && console.warn) {
 		console.warn('Garp.Twitter is deprecated because Twitter API version 1 is deprecated.');
 	}
 	return false;
