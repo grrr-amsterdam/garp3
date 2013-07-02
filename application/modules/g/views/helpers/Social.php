@@ -284,6 +284,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		}
 		if (empty($ogData['description'])) {
 			if ($this->view->description) {
+				$ogData['description'] = $this->view->description;
 			} elseif (!empty($this->view->config()->app->description)) {
 				$ogData['description'] = $this->view->config()->app->description;
 			}
