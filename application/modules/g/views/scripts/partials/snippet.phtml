@@ -5,9 +5,9 @@
 		echo '<'.$headerTag.($headerClass ? ' class="'.$headerClass.'"' : '').'>'.nl2br($this->escape($this->snippet->name)).'</'.$headerTag.'>';
 	endif;
 	
-	if ($this->snippet->has_image && $this->snippet->image_id):
+	if ($this->snippet->has_image && $this->snippet->Image):
 		$scalingTpl = property_exists($this, 'scaling_template') ? $this->scaling_template : null;
-		echo $this->image()->render($this->snippet->image_id, $scalingTpl);
+		echo $this->image()->render($this->snippet->Image->id, $scalingTpl);
 	endif;
 	
 	if ($this->snippet->has_html || $this->snippet->has_text):
