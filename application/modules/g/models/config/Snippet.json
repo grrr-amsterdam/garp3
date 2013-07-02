@@ -6,6 +6,7 @@
 			"unique": true
 		},
 		"uri": {
+			"required": false,
 			"maxLength": 255
 		},
 		"name": {

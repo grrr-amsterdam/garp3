@@ -78,6 +78,9 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
 			$i18nModelFactory = new Garp_I18n_ModelFactory();
 			$snippetModel = $i18nModelFactory->getModel($snippetModel);
 		}
+		$snippetModel->bindModel('Image', array(
+			'modelClass' => 'Model_Image'
+		));
 		return $snippetModel;
 	}
 }
