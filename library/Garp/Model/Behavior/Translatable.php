@@ -297,9 +297,25 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$data         = &$args[2];
 		$where        = &$args[3];
 
+		$pks = $this->_getPrimaryKeysOfAffectedRows($model, $where);
+		$this->_afterSave($model, $pks);
+	}
+
+	/**
+ 	 * Retrieve primary keys of affected records
+ 	 * @param Garp_Model_Db $model
+ 	 * @param String $where
+ 	 * @return Array
+ 	 */
+	protected function _getPrimaryKeysOfAffectedRows(Garp_Model_Db $model, $where) {
 		$pkExtractor = new Garp_Db_PrimaryKeyExtractor($model, $where);
 		$pks = $pkExtractor->extract();
-		$this->_afterSave($model, $pks);
+		print '<pre>'; print_r(array('where' => $where, 'pks' => $pks)); exit;
+		if (!count($pks)) {
+			$row = $model->fetchRow($where);
+			$pks = (array)$row->getPrimaryKey();
+		}
+		return $pks;
 	}
 
 	/**

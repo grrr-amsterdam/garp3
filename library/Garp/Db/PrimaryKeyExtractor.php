@@ -39,8 +39,9 @@ class Garp_Db_PrimaryKeyExtractor {
 		}
 		$pkColumns = $this->_model->info(Zend_Db_Table_Abstract::PRIMARY);
 		$pkValues = array();
+		$table = $this->_model->getName();
 		foreach ($pkColumns as $pk) {
-			$regexp = '/(?:`?'.preg_quote($this->_model->getName()).'`?\.)?`?(?:'.preg_quote($pk).')`?\s?=\s?(?:(?P<q>[\'"])(?P<value>(?:(?!\k<q>).)*)\k<q>|(?P<rest>\w*))/';
+			$regexp = '/(?:`?'.preg_quote($table).'`?\.|\s|^){1}`?(?:'.preg_quote($pk).')`?\s?=\s?(?:(?P<q>[\'"])(?P<value>(?:(?!\k<q>).)*)\k<q>|(?P<rest>\w*))/';
 			if (preg_match($regexp, $this->_where, $matches)) {
 				// Note: backreference "rest" is there to catch unquoted
 				// values. (id = 100 instead of id = "100")
