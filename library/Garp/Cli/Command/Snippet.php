@@ -47,6 +47,33 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
 	}
 
 	/**
+ 	 * Import i18n string files (ex. data/i18n/nl.php) as snippets
+ 	 */
+	public function storeI18nStrings() {
+		// @todo Adapt for multiple languages
+		$nl = $this->_loadI18nStrings('nl');
+		$en = $this->_loadI18nStrings('en');
+		
+		foreach ($nl as $key => $value) {
+			$snippet = array(
+				'has_text' => 1,
+				'identifier' => $key,
+				'text' => array(
+					'nl' => $value
+				)
+			);
+			if (array_key_exists($key, $en)) {
+				$snippet['text']['en'] = $en[$key];
+			}
+			if ($this->_fetchExisting($key)) {
+				Garp_Cli::lineOut('Skipping ' . $key . '. Snippet already exists.');
+			} else if ($snippet = $this->_create($snippet)) {
+				Garp_Cli::lineOut('Created snippet ' . $snippet->identifier);
+			}
+		}
+	}	
+
+	/**
  	 * Create a bunch of snippets from a file
  	 */
 	protected function _createFromFile($file) {
@@ -167,6 +194,22 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
 			throw new Exception('The Snippet model could not be autoloaded. Spawn it first, dumbass!');
 		}
 		$this->_loadable = true;
+	}
+
+	/**
+ 	 * Load i18n strings
+ 	 * @param String $locale
+ 	 * @return Array
+ 	 */	
+	protected function _loadI18nStrings($locale) {
+		$file = APPLICATION_PATH . '/data/i18n/' . $locale . '.php';
+		if (!file_exists($file)) {
+			throw new Exception('File not found: '.$file);
+		}
+		ob_start();
+		$data = include($file);
+		ob_end_clean();
+		return $data;
 	}
 
 	/**
