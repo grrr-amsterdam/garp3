@@ -1448,6 +1448,7 @@ if (Ext.isIE) {
 			fragment.normalize();
 		},
 		
+		// DEPRECATED
 		fixBrs: function(fragment){
 			var elms = Ext.each(Ext.DomQuery.select('br', fragment), function(elm){
 				var el = Ext.get(elm);
@@ -1498,7 +1499,7 @@ if (Ext.isIE) {
 			// make sure every text node is within a paragraph
 			body.normalize();
 			//this.fixInlineElements(body);
-			this.fixBrs(body);
+			//this.fixBrs(body);
 			
 			// remove empty p's:
 			/*
