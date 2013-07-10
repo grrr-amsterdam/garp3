@@ -24,6 +24,17 @@ class Garp_Db_PrimaryKeyExtractorTest extends Garp_Test_PHPUnit_TestCase {
 		}
 	}
 
+	/**
+ 	 * In the past the following failed:
+ 	 * WHERE yesplan_id = "123456"
+ 	 * This returned: array('id' => "123456")
+ 	 * This test asserts this is fixed.
+ 	 */
+	public function testingSingularPkModelWithSimilarColumn() {
+		$pkExtractor = new Garp_Db_PrimaryKeyExtractor($this->_singularPkModel, 'yesplan_id = 199');
+		$this->assertEquals($pkExtractor->extract(), array());
+	}
+
 	public function testingSingularPkModelWithStringPk() {
 		$whereClauses = array(
 			'id = \'Harmen\'' => array('id' => 'Harmen'),
