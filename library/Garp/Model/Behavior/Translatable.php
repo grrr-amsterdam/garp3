@@ -297,6 +297,9 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$data         = &$args[2];
 		$where        = &$args[3];
 
+		if (!$affectedRows) {
+			return;
+		}
 		$pks = $this->_getPrimaryKeysOfAffectedRows($model, $where);
 		$this->_afterSave($model, $pks);
 	}
@@ -310,10 +313,14 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 	protected function _getPrimaryKeysOfAffectedRows(Garp_Model_Db $model, $where) {
 		$pkExtractor = new Garp_Db_PrimaryKeyExtractor($model, $where);
 		$pks = $pkExtractor->extract();
-		if (!count($pks)) {
-			$row = $model->fetchRow($where);
-			$pks = (array)$row->getPrimaryKey();
+		if (count($pks)) {
+			return $pks;
 		}
+		$row = $model->fetchRow($where);
+		if (!$row->isConnected()) {
+			$row->setTable($model);
+		}
+		$pks = (array)$row->getPrimaryKey();
 		return $pks;
 	}
 
