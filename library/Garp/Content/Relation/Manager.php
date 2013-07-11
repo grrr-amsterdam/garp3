@@ -65,7 +65,7 @@ class Garp_Content_Relation_Manager {
 		}
 
 		$rowA = call_user_func_array(array($options['modelA'], 'find'), (array)$options['keyA']);
-		if (!$rowA) {
+		if (!count($rowA)) {
 			$errorMsg = sprintf('Row of type %s with primary key (%s) not found.', $modelA->getName(), implode(',', (array)$options['keyA']));
 			throw new Garp_Content_Relation_Exception($errorMsg);
 		}
