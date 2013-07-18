@@ -226,6 +226,10 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 				$data[$column] = $value[$language];
 			}
 		}
+		// If no data was given in the specified language, we don't save anything
+		if (empty($data)) {
+			return;
+		}
 		// Add the language
 		$data[self::LANG_COLUMN] = $language;
 
