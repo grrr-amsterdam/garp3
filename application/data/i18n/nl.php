@@ -166,7 +166,7 @@ $translationTable = array(
 	'Only pdf files with a maximum of 20 MB are accepted' => 'Alleen pdf bestanden van maximaal 20 MB zijn toegestaan',
 	'Drag file here, or click browse button' => 'Sleep een bestand hierin, of klik op \'bladeren\'',
 	'Please provide a name by which to recognize this file' => 'Geef een naam op aan de hand waarvan dit bestand te herkennen valt',
-	'caption' => 'onderschrift',
+	'Caption' => 'onderschrift',
 	
 	'Person' => 'Persoon',
 	'Snippet' => 'Snippet',
