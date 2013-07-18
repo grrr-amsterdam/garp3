@@ -39,7 +39,11 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 	
 	metaPanelItems: [
 		'created', 'modified'
-		<?php /*@todo: */?>
+		<?php
+			if ($model->behaviors->displaysBehavior('Draftable')) {
+				echo ", 'published'";
+			}
+		?>
 	],
 
 	<?php 
