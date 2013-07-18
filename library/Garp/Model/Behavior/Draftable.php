@@ -24,13 +24,11 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
  	 */
 	const STATUS_COLUMN = 'online_status';
 
-
 	/**
  	 * Published date column
  	 * @var String
  	 */
 	const PUBLISHED_COLUMN = 'published';
-
 
 	/**
  	 * Human-readable status ints
@@ -39,13 +37,16 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	const OFFLINE = 0;
 	const ONLINE = 1;
 
-
 	/**
 	 * Configuration.
 	 * @return Void
 	 */
-	protected function _setup($config) {}
-
+	protected function _setup($config) {
+		$this->_config = $config;
+		if (!array_key_exists('draft_only', $config)) {
+			$config['draft_only'] = false;
+		}
+	}
 
 	/**
 	 * Before fetch callback.
@@ -54,17 +55,9 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	 * @return Void
 	 */
 	public function beforeFetch(&$args) {
-		if (
-			(
-				Zend_Registry::isRegistered('CMS') &&
-				Zend_Registry::get('CMS')
-			) ||
-			(
-				isset($_GET) &&
-				array_key_exists('preview', $_GET) &&
-				Garp_Auth::getInstance()->isLoggedIn()
-			)
-		) {
+		$is_cms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
+		$is_preview = isset($_GET) && array_key_exists('preview', $_GET) && Garp_Auth::getInstance()->isLoggedIn();
+		if ($is_cms || $is_preview) {
 			// don't use in the CMS, or in preview mode
 			return;
 		}
@@ -74,7 +67,6 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
 		$this->addWhereClause($model, $select);
 	}
-
 
 	/**
  	 * Add the WHERE clause that keeps offline items from appearing in the results
@@ -86,8 +78,13 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 		$statusColumn = $model->getAdapter()->quoteIdentifier(self::STATUS_COLUMN);
 		$publishedColumn = $model->getAdapter()->quoteIdentifier(self::PUBLISHED_COLUMN);
 
+		// Add online_status check
 		$select->where($statusColumn.' = ?', self::ONLINE);
 
+		// Add published check
+		if ($this->_config['draft_only']) {
+			return;
+		}
 		$ini = Zend_Registry::get('config');
 		$timezone = !empty($ini->resources->db->params->timezone) ? $ini->resources->db->params->timezone : null;
 		$timecalc = '';
@@ -107,7 +104,6 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 		$select->where($publishedColumn.' IS NULL OR '.$publishedColumn.' <= NOW() '.$timecalc);
 	}		
 
-
 	/**
  	 * After insert callback.
  	 * @param Array $args
@@ -119,7 +115,6 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 		$this->afterSave($model, $data);
 	}
 
-
 	/**
  	 * After update callback
  	 * @param Array $args
@@ -130,7 +125,6 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 		$data = $args[2];
 		$this->afterSave($model, $data);
 	}
-
 
 	/**
  	 * After save callback, called by afterInsert and afterUpdate.
