@@ -60,10 +60,16 @@ class Garp_Spawn_Behavior_Set {
 
 	protected function _add($origin, $behaviorName, $behaviorConfig = null) {
 		$behaviorType = $this->_isValidatorBehavior($behaviorName) ? 'Validator' : null;
+		$behaviorModule = 'Garp';
+		if ($behaviorConfig) {
+			$behaviorConfig = (array)$behaviorConfig;
+			$behaviorModule = array_key_exists('module', $behaviorConfig) ? $behaviorConfig['module'] : $behaviorModule;
+			unset($behaviorConfig['module']);
+		}
 		
 		if (!array_key_exists($behaviorName, $this->_behaviors)) {
 			$factory 	= new Garp_Spawn_Behavior_Factory();
-			$behavior 	= $factory->produce($this->_model, $origin, $behaviorName, $behaviorConfig, $behaviorType);
+			$behavior 	= $factory->produce($this->_model, $origin, $behaviorName, $behaviorConfig, $behaviorType, $behaviorModule);
 			$this->_behaviors[$behaviorName] = $behavior;
 
 			//	generate fields which are necessary for this behavior in the accompanying Model
