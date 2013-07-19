@@ -9,6 +9,11 @@ abstract class Garp_Spawn_Behavior_Type_Abstract {
 	protected $_name;
 
 	/**
+ 	 * @var String
+ 	 */
+	protected $_module;
+
+	/**
 	 * @var String $_type
 	 */
 	protected $_type = 'Behavior';
@@ -44,13 +49,15 @@ abstract class Garp_Spawn_Behavior_Type_Abstract {
 	 * @param 	String 						$name			Behavior name, f.i. 'Sluggable'
 	 * @param 	Mixed 						$params 		Array or StdClass object with configuration parameters for the behavior
 	 * @param 	String 						$type 			Defaults to 'Behavior'
+	 * @param   String                      $module         Defaults to 'Garp'
 	 */
-	public function __construct(Garp_Spawn_Model_Abstract $model, $origin, $name, $params = null, $type = null) {
+	public function __construct(Garp_Spawn_Model_Abstract $model, $origin, $name, $params = null, $type = null, $module = 'Garp') {
 		$this->setModel($model);
 		$this->setOrigin($origin);
 		$this->setName($name);
 		$this->setParams($params);
 		$this->setType($type);
+		$this->setModule($module);
 	}
 		
 	/**
@@ -65,6 +72,20 @@ abstract class Garp_Spawn_Behavior_Type_Abstract {
 	 */
 	public function setName($name) {
 		$this->_name = $name;
+	}
+
+	/**
+ 	 * @return String
+ 	 */
+	public function getModule() {
+		return $this->_module;
+	}
+
+	/**
+ 	 * @param String $module
+ 	 */
+	public function setModule($module) {
+		$this->_module = $module;
 	}
 		
 	/**

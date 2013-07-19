@@ -6,9 +6,9 @@ class Garp_Spawn_Behavior_Factory {
 	const BEHAVIOR_NAMESPACE = 'Garp_Spawn_Behavior_Type_';
 
 
-	public function produce(Garp_Spawn_Model_Abstract $model, $origin, $name, $params = null, $behaviorType = null) {
+	public function produce(Garp_Spawn_Model_Abstract $model, $origin, $name, $params = null, $behaviorType = null, $behaviorModule = null) {
 		$behaviorClass 	= $this->_getBehaviorClass($name);
-		$behavior 		= new $behaviorClass($model, $origin, $name, $params, $behaviorType);
+		$behavior 		= new $behaviorClass($model, $origin, $name, $params, $behaviorType, $behaviorModule);
 		
 		return $behavior;
 	}

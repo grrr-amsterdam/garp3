@@ -91,6 +91,7 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 	}
 	
 	protected function _renderBehavior(Garp_Spawn_Behavior_Type_Abstract $behavior) {
+		$module = $behavior->getModule();
 		$name	= $behavior->getName();
 		$type	= $behavior->getType();
 		$params = $name === 'Weighable' ?
@@ -106,7 +107,7 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 				Garp_Spawn_Util::array2phpStatement($params) :
 				null
 			;
-			return "\$this->registerObserver(new Garp_Model_{$type}_{$name}({$paramsString}));";
+			return "\$this->registerObserver(new {$module}_Model_{$type}_{$name}({$paramsString}));";
 		}
 	}
 
