@@ -198,14 +198,17 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 * @param Array $primaryKeys 
  	 */
 	protected function _afterSave(Garp_Model_Db $model, $primaryKeys) {
-		if ($this->_queue) {
-			$locales = Garp_I18n::getLocales();
-			foreach ($locales as $locale) {
-				$this->_saveI18nRecord($locale, $model, $primaryKeys);
-			}
-			// Reset queue
-			$this->_queue = array();
+		if (!$this->_queue) {
+			return;
 		}
+		$locales = Garp_I18n::getLocales();
+		foreach ($primaryKeys as $primaryKey) {
+			foreach ($locales as $locale) {
+				$this->_saveI18nRecord($locale, $model, $primaryKey);
+			}
+		}
+		// Reset queue
+		$this->_queue = array();
 	}
 
 	/**
@@ -287,7 +290,13 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$model      = &$args[0];
 		$data       = &$args[1];
 		$primaryKey = &$args[2];
-		$this->_afterSave($model, (array)$primaryKey);
+		// Normalize primary key: make it an array to be compliant with
+		// tables with multiple pks...
+		$primaryKey = (array)$primaryKey;
+		// ...and push that into an array to be compliant with afterUpdate(),
+		// which might return multiple updated records
+		$primaryKeys = array($primaryKey);
+		$this->_afterSave($model, $primaryKeys);
 	}
 
 	/**
@@ -318,13 +327,16 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$pkExtractor = new Garp_Db_PrimaryKeyExtractor($model, $where);
 		$pks = $pkExtractor->extract();
 		if (count($pks)) {
-			return $pks;
+			return array($pks);
 		}
-		$row = $model->fetchRow($where);
-		if (!$row->isConnected()) {
-			$row->setTable($model);
+		$rows = $model->fetchAll($where);
+		$pks = array();
+		foreach ($rows as $row) {
+			if (!$row->isConnected()) {
+				$row->setTable($model);
+			}
+			$pks[] = (array)$row->getPrimaryKey();
 		}
-		$pks = (array)$row->getPrimaryKey();
 		return $pks;
 	}
 
