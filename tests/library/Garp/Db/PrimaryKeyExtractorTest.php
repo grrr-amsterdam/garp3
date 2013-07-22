@@ -50,6 +50,7 @@ class Garp_Db_PrimaryKeyExtractorTest extends Garp_Test_PHPUnit_TestCase {
 		$whereClauses = array(
 			'name = "FRANK"' => array(),
 			'id1 = 1' => array('id1' => 1),
+			'((`id1` = 1))' => array('id1' => 1),
 			'id1 = 100 AND id2 = 200' => array('id1' => 100, 'id2' => 200),
 			'id1 = "1" AND `id2` = 300' => array('id1' => 1, 'id2' => 300),
 			'`id1` = "100" OR `id2` = 500 OR UPPER(name) = "FRANK"' => array('id1' => 100, 'id2' => 500)
