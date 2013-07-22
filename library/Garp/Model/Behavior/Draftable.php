@@ -42,10 +42,10 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	 * @return Void
 	 */
 	protected function _setup($config) {
-		$this->_config = $config;
 		if (!array_key_exists('draft_only', $config)) {
 			$config['draft_only'] = false;
 		}
+		$this->_config = $config;
 	}
 
 	/**
@@ -82,7 +82,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 		$select->where($statusColumn.' = ?', self::ONLINE);
 
 		// Add published check
-		if (isset($this->_config['draft_only']) && $this->_config['draft_only']) {
+		if ($this->_config['draft_only']) {
 			return;
 		}
 		$ini = Zend_Registry::get('config');
