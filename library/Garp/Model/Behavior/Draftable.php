@@ -38,6 +38,12 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	const ONLINE = 1;
 
 	/**
+ 	 * Wether to block offline items
+ 	 * @var Boolean
+ 	 */
+	protected $_blockOfflineItems = true;
+
+	/**
 	 * Configuration.
 	 * @return Void
 	 */
@@ -65,7 +71,9 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 		$model = &$args[0];
 		$select = &$args[1];
 
-		$this->addWhereClause($model, $select);
+		if ($this->_blockOfflineItems) {
+			$this->addWhereClause($model, $select);
+		}
 	}
 
 	/**
@@ -146,4 +154,24 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 			}
 		}
 	}
+
+	/**
+	 * Set blockOfflineItems
+	 * @param Boolean blockOfflineItems
+	 * @param Mixed $value
+	 * @return $this
+	 */
+	public function setBlockOfflineItems($blockOfflineItems) {
+		$this->_blockOfflineItems = $blockOfflineItems;
+		return $this;
+	}
+
+	/**
+	 * Get blockOfflineItems
+	 * @return Boolean
+	 */
+	public function getBlockOfflineItems() {
+		return $this->_blockOfflineItems;
+	}
+	
 }
