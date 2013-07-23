@@ -36,7 +36,6 @@ Garp.dataTypes.Image.on('init', function(){
 	
 	
 	// Remove these fields, cause we are about to change the order and appearance of them... 
-	this.removeField('caption');
 	this.removeField('filename');
 	this.removeField('id');
 	
@@ -105,10 +104,6 @@ Garp.dataTypes.Image.on('init', function(){
 				}
 			}
 		}, fDesc, {
-			name: 'caption',
-			xtype: 'textfield',
-			fieldLabel: __('Caption')
-		}, {
 			xtype: 'box',
 			ref: '../../../../preview',
 			fieldLabel: __('Preview'),
