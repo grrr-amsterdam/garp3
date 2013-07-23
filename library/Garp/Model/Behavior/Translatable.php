@@ -251,6 +251,9 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		if (!$row) {
 			$row = $i18nModel->createRow();
 		}
+		if (!$row->isConnected()) {
+			$row->setTable($i18nModel);
+		}
 		$row->setFromArray($data);
 		if (!$row->save()) {
 			throw new Garp_Model_Behavior_Exception('Cannot save i18n record in language "'.$language.'"');
@@ -348,7 +351,14 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 	public function getI18nModel(Garp_Model_Db $model) {
 		$modelName = get_class($model);
 		$modelName .= self::I18N_MODEL_SUFFIX;
-		return new $modelName;
+		$model = new $modelName;
+
+		// Do not block unpublished items, we might not get the right record from the fetchRow() call 
+		// in self::_saveI18nRecord()
+		if ($draftable = $model->getObserver('Draftable')) {
+			$draftable->setBlockOfflineItems(false);
+		}
+		return $model;
 	}
 
 	/**
