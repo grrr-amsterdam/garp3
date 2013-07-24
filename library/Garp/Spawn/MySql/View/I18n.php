@@ -42,7 +42,7 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 	
 
 	public function getName() {
-		return $this->_getTableName() . '_' . $this->getLocale();
+		return $this->getTableName() . '_' . $this->getLocale();
 	}
 	
 	public static function deleteAll() {
@@ -68,7 +68,7 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 	
 	protected function _renderSqlForLang() {		
 		$model 				= $this->getModel();
-		$modelId 			= $this->_getTableName();
+		$modelId 			= $this->getTableName();
 		$unilingualFields 	= $model->fields->getFields('multilingual', false);
 		$multilingualFields = $model->fields->getFields('multilingual', true);
 		
@@ -106,21 +106,7 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 			$sql .= $this->_renderJoinForLocale($defaultLocale);
 		}
 
-		return $sql;
-
-		// 
-		// /* Language neutral columns */
-		// id, created, modified,
-		// /* Translatable columns */
-		// COALESCE(ai_de.name, ai_en.name) AS name,
-		// COALESCE(ai_de.description, ai_en.description) AS description
-		// 
-		// FROM animals a
-		// 
-		// LEFT OUTER JOIN animals_i18n ai_de ON ai_de.animal_id = a.id AND ai_de.lang = 'DE'
-		// LEFT OUTER JOIN animals_i18n ai_en ON ai_en.animal_id = a.id AND ai_en.lang = 'EN'
-
-		
+		return $sql;		
 	}
 	
 	protected function _getViewLocaleAlias($locale) {
@@ -129,7 +115,7 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 	
 	protected function _renderJoinForLocale($locale) {
 		$modelId			= $this->getModel()->id;
-		$tableName			= $this->_getTableName();
+		$tableName			= $this->getTableName();
 		$translatedTable 	= $tableName . self::TRANSLATED_TABLE_POSTFIX;
 		$aliasForLocale 	= $tableName . '_' . $locale;
 		$parentColumn 		= Garp_Util_String::camelcasedToUnderscored($modelId) . '_id';
