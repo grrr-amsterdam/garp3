@@ -53,7 +53,7 @@ class Garp_Spawn_MySql_Manager {
 	 * @param Array 						&$changelist 	An array of strings, describing the changes made to the database in this Spawn session.
 	 */
 	public function run(Garp_Spawn_Model_Set $modelSet) {
-		$totalActions = count($modelSet) * 4;
+		$totalActions = count($modelSet) * 5;
 		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
 		$progress->init($totalActions);
 		$progress->display(self::MSG_INITIALIZING);
@@ -115,16 +115,21 @@ class Garp_Spawn_MySql_Manager {
 			$this->_cleanUpBaseModel($model);
 		}
 		
-		//	Stage 5: Create base model views________
+		//	Stage 5: Create base model i18n views________
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " i18n view");
 			$this->_createI18nViews($model);
+			$progress->advance();
+		}
+
+		//	Stage 6: Create base model joint views________
+		foreach ($modelSet as $model) {
 			$progress->display($model->id . " joint view");
 			$this->_createJointView($model);
 			$progress->advance();
 		}
 
-		//	Stage 6: Execute custom SQL________
+		//	Stage 7: Execute custom SQL________
 		$progress->display("Executing custom SQL");
 		$this->_executeCustomSql();
 

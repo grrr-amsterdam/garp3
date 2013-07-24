@@ -51,7 +51,7 @@ abstract class Garp_Spawn_MySql_View_Abstract implements Garp_Spawn_MySql_View_P
 		return $this->_adapter->query($sql);
 	}
 	
-	public function _getTableName() {
+	public function getTableName() {
 		$model 			= $this->getModel();
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($model);
 		$table 			= $tableFactory->produceConfigTable();
