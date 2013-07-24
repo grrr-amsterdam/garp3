@@ -57,7 +57,7 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 	 * @return 	Garp_Spawn_Model_Abstract 	$model
 	 */
 	protected function _getModelFromModelName($modelName) {
-		$modelSet = new Garp_Spawn_Model_Set(new Garp_Spawn_Config_Model_Set());
+		$modelSet = Garp_Spawn_Model_Set::getInstance();
 		return $modelSet[$modelName];
 	}
 	
