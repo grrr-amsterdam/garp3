@@ -315,18 +315,6 @@ class G_Model_User extends Model_Base_User {
 
 
 	/**
-	 * Override method for the base model equivalent, to use spaces as separators.
-	 * This renders a single identifying string for this record, to be used in an sql statement. 
-	 * @param String [$tableAlias] Optional table alias. If not provided, the actual table name is used.
-	 * @return String Sql statement to be used in a select query.
-	 */
-	public function getRecordLabelSql($tableAlias = null) {
-		$tableAlias = $tableAlias ?: 'User';
-		return "CONVERT(CONCAT_WS(' ', IF(`{$tableAlias}`.`first_name` <> \"\", `{$tableAlias}`.`first_name`, NULL), IF(`{$tableAlias}`.`last_name_prefix` <> \"\", `{$tableAlias}`.`last_name_prefix`, NULL), IF(`{$tableAlias}`.`last_name` <> \"\", `{$tableAlias}`.`last_name`, NULL)) USING utf8)";
-	}
-
-
-	/**
  	 * Prevent admins from saving a user's role greater than their own. 
  	 * Note: will return TRUE if no user is logged in. This is because
  	 * we sometimes have to manipulate roles from apis and cli commands
