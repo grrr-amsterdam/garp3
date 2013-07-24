@@ -125,7 +125,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	}
 
 	protected function _initModelSet() {
-		$modelSet = new Garp_Spawn_Model_Set(new Garp_Spawn_Config_Model_Set());
+		$modelSet = Garp_Spawn_Model_Set::getInstance();
 
 		return $modelSet;
 	}

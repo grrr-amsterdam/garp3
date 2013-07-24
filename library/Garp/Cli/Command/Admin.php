@@ -29,13 +29,7 @@ class Garp_Cli_Command_Admin extends Garp_Cli_Command {
 			$promptData = array();
 
 			// Pull required fields from Spawner config
-			$configDir = APPLICATION_PATH."/modules/default/models/config/";
-			$modelSet = new Garp_Spawn_Model_Set(
-				new Garp_Spawn_Config_Model_Set(
-					new Garp_Spawn_Config_Storage_File($configDir, 'json'),
-					new Garp_Spawn_Config_Format_Json
-				)
-			);
+			$modelSet = Garp_Spawn_Model_Set::getInstance();
 			$userModelConfig = $modelSet['User'];
 			$requiredFields = $userModelConfig->fields->getFields('required', true);
 			foreach ($requiredFields as $field) {

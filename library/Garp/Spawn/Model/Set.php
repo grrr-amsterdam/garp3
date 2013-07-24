@@ -1,9 +1,13 @@
 <?php
 /**
  * @author David Spreekmeester | grrr.nl
+ * @pattern Singleton
+ * A set of abstract models.
  */
 class Garp_Spawn_Model_Set extends ArrayObject {
 	const ERROR_RELATION_TO_NON_EXISTING_MODEL = "The '%s' model defines a %s relation to unexisting model '%s'.";
+
+	private static $_instance = null;
 
 	/**
 	 * @todo: deze default relations moeten naar de configlaag verplaatst worden.
@@ -25,6 +29,25 @@ class Garp_Spawn_Model_Set extends ArrayObject {
 	);
 
 
+	public static function getInstance(Garp_Spawn_Config_Model_Set $config = null) {
+		if (!self::$_instance) {
+			self::$_instance = self::_createInstance($config);
+		}
+		
+		return self::$_instance;
+	}
+	
+	private static function _createInstance(Garp_Spawn_Config_Model_Set $config = null) {
+		if (!$config) {
+			$config = new Garp_Spawn_Config_Model_Set();
+		}
+	
+		return new Garp_Spawn_Model_Set($config);
+	}
+
+	/**
+	 * Use Garp_Spawn_Model_Set::getInstance() instead, for performance.
+	 */
 	public function __construct(Garp_Spawn_Config_Model_Set $modelSetConfig) {
 		foreach ($modelSetConfig as $modelId => $modelConfig) {
 			$this[$modelId] = new Garp_Spawn_Model_Base($modelConfig);
