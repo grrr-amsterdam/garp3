@@ -97,11 +97,6 @@ class Garp_Spawn_MySql_Table_Factory {
 			case 'Garp_Spawn_Model_Binding':
 				return '_' . strtolower($model->id);
 			break;
-			// case 'Garp_Spawn_Model_I18n':
-			// echo 'HUH?';
-			// echo strtolower($model->id);
-			// exit;
-			// break;
 			default:
 				return strtolower($model->id);
 		}

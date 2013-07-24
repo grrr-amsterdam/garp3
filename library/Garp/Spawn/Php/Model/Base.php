@@ -55,10 +55,6 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 		/* Default behaviors */
 		$behaviors = $this->_renderBehaviors();
 		$out .= $behaviors;
-		
-		if (!$this->getModel()->isTranslated()) {
-			$out .= $this->_getRecordLabelSql();
-		}
 
 		$out .= $this->_rl('}', 0, 0);
 		return $out;
@@ -218,72 +214,6 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 		$out 			= $this->_rl($orderStatement, 1, 2);
 
 		return $out;
-	}
-
-	/**
-	 * Compose the method to fetch composite columns as a string in a MySql query
-	 * to use as a label to identify the record. These have to be columns in this table,
-	 * to be able to be used flexibly in another query.
-	 */
-	protected function _getRecordLabelSql() {
-		$tableName 				= $this->getTableName();
-		$recordLabelFieldDefs 	= $this->_getRecordLabelFieldDefinitions();
-		$labelColumnsListSql 	= implode(', ', $recordLabelFieldDefs);
-		$glue 					= $this->_modelHasFirstAndLastNameListFields() ? ' ' : ', ';
-		$sql 					= "CONVERT(CONCAT_WS('{$glue}', " . $labelColumnsListSql . ') USING utf8)';
-
-		$out 	= $this->_rl("public function getRecordLabelSql(\$tableAlias = null) {", 1);
-		$out 	.= $this->_rl("\$tableAlias = \$tableAlias ?: '{$tableName}';", 2);
-		$out 	.= $this->_rl("return \"{$sql}\";", 2);
-		$out 	.= $this->_rl('}', 1, 1);
-		
-		return $out;
-	}
-	
-	protected function _modelHasFirstAndLastNameListFields() {
-		$model = $this->getModel();
-
-		try {
-			return 
-				$model->fields->getField('first_name') &&
-				$model->fields->getField('last_name')
-			;
-		} catch (Exception $e) {}
-
-		return false;
-	}
-	
-	protected function _getRecordLabelFieldDefinitions() {
-		$model			= $this->getModel();
-		$listFieldNames = $model->fields->listFieldNames;
-		$fieldDefs 		= array();
-
-		foreach ($listFieldNames as $listFieldName) {
-			try {
-				$field = $model->fields->getField($listFieldName);
-			} catch (Exception $e) {
-				break;
-			}
-
-			if (
-				!$field ||
-				!$field->isSuitableAsLabel()
-			) {
-				break;
-			}
-
-			$fieldDefs[] = $this->_addFieldLabelDefinition($field->name);
-		}
-
-		if (!$fieldDefs) {
-			$fieldDefs[] = $this->_addFieldLabelDefinition('id');
-		}
-		
-		return $fieldDefs;
-	}
-	
-	protected function _addFieldLabelDefinition($columnName) {
-		return "IF(`{\$tableAlias}`.`{$columnName}` <> \\\"\\\", `{\$tableAlias}`.`{$columnName}`, NULL)";
 	}
 	
 	/**
