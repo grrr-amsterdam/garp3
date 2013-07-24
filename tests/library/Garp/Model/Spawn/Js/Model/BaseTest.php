@@ -20,20 +20,14 @@ class Garp_Spawn_Js_Model_BaseTest extends PHPUnit_Framework_TestCase {
 	public function testShouldBeAbleToRenderShitIntoTemplate() {
 		$model = new Garp_Spawn_Js_Model_Base($this->_mocks['modelName'], $this->_constructMockModelSet());
 		$modelOutput = $model->render();
-// Zend_Debug::dump($modelOutput);
-// exit;
 
 		$this->assertGreaterThan(0, strlen($modelOutput));
 	}
 
 
 	protected function _constructMockModelSet() {
-		return new Garp_Spawn_Model_Set(
+		return Garp_Spawn_Model_Set::getInstance(
 			new Garp_Spawn_Config_ModelSet(
-				new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
-				new Garp_Spawn_Config_Format_Json
-			),
-			new Garp_Spawn_Config_HasAndBelongsToManyRelationSet(
 				new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
 				new Garp_Spawn_Config_Format_Json
 			)

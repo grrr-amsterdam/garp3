@@ -57,7 +57,7 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 	 * @return 	Garp_Spawn_Model_Abstract 	$model
 	 */
 	protected function _getModelFromModelName($modelName) {
-		$modelSet = new Garp_Spawn_Model_Set(new Garp_Spawn_Config_Model_Set());
+		$modelSet = Garp_Spawn_Model_Set::getInstance();
 		return $modelSet[$modelName];
 	}
 	
@@ -118,7 +118,7 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 		$recordLabelFieldDefs 	= $this->_getRecordLabelFieldDefinitions($tableAlias, $model);
 		
 		$labelColumnsListSql 	= implode(', ', $recordLabelFieldDefs);
-		$glue 					= $this->_modelHasFirstAndLastNameListFields() ? ' ' : ', ';
+		$glue 					= $this->_modelHasFirstAndLastNameListFields($model) ? ' ' : ', ';
 		$sql 					= "CONVERT(CONCAT_WS('{$glue}', " . $labelColumnsListSql . ') USING utf8)';
 		
 		return $sql;
@@ -170,8 +170,10 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 		};
 	}
 
-	protected function _modelHasFirstAndLastNameListFields() {
-		$model = $this->getModel();
+	protected function _modelHasFirstAndLastNameListFields(Garp_Spawn_Model_Abstract $model = null) {
+		if (!$model) {
+			$model = $this->getModel();
+		}
 
 		try {
 			return 
