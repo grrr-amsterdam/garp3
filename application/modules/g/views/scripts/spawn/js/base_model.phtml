@@ -335,16 +335,17 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 
 
 		/* _____Single Relation Fields */
-		foreach ($singularRelations as $rel) {
+		foreach ($singularRelations as $relName => $rel) {
 			if (
 				$rel->model !== 'Image' &&
 				$rel->column !== 'author_id' &&
 				$rel->column !== 'modifier_id'
 			) {
 				$formFields[] = $this->partial('partials/spawn/js/singular-relation-field.phtml', 'g', array(
-					'relation' => $rel,
-					'simpleSelect' => $rel->simpleSelect,
-					'modelSet' => $this->modelSet
+					'relationName' 	=> $relName,
+					'relation' 		=> $rel,
+					'simpleSelect' 	=> $rel->simpleSelect,
+					'modelSet' 		=> $this->modelSet
 				));
 			}
 		}
