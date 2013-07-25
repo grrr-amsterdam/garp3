@@ -1,4 +1,7 @@
 <?php
+	if (!$this->relationName):
+		throw new Exception('This partial requires a String as $relationName parameter.');
+	endif;
 	if (!$this->relation instanceof Garp_Spawn_Relation):
 		throw new Exception('This partial requires a Garp_Spawn_Relation instance as $relation parameter.');
 	endif;
@@ -43,9 +46,9 @@
 ?>
 				name: '<?php echo $this->relation->column ?>',
 				xtype: 'bindedfield',
-				bindedField: '<?php echo $lcRelationLabel ?>'
+				bindedField: '<?php echo strtolower($this->relationName) ?>'
 			}, {
-				name: '<?php echo $lcRelationLabel ?>',
+				name: '<?php echo strtolower($this->relationName) ?>',
 				xtype: 'joinedrelationfield',
 				bindedField: '<?php echo $this->relation->column ?>',
 				fieldLabel: __('<?php 
