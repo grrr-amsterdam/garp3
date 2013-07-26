@@ -212,9 +212,11 @@ class G_ExtController extends G_ContentController {
 			$methodParts = explode('.', $request['method']);
 			$modelClass  = Garp_Content_Api::modelAliasToClass(array_shift($methodParts));
 			
+			$params = $request['params'];
+			$params = !empty($params) ? $params[0] : array();
 			$response['result'] = array(
 				'rows' => $rows,
-				'total' => $this->_fetchTotal($modelClass, $request['params'][0])
+				'total' => $this->_fetchTotal($modelClass, $params)
 			);
 		}
 		return $response;
