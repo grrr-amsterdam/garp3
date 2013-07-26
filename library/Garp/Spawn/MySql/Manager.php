@@ -83,14 +83,14 @@ class Garp_Spawn_MySql_Manager {
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " many-to-many config reading");
 			$habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany');
-			if ($habtmRelations) {
-				foreach ($habtmRelations as $relation) {
-					if (strcmp($model->id, $relation->model) <= 0) {
-						//	only sync binding tables from models A -> B, not from B -> A
-						$this->_createBindingModelTableIfNotExists($relation);
-					}
+
+			foreach ($habtmRelations as $relation) {
+				if (strcmp($model->id, $relation->name) <= 0) {
+					//	only sync binding tables from models A -> B, not from B -> A
+					$this->_createBindingModelTableIfNotExists($relation);
 				}
 			}
+
 			$progress->advance();
 		}
 
@@ -99,14 +99,14 @@ class Garp_Spawn_MySql_Manager {
 			$this->_syncBaseModel($model);
 
 			$habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany');
-			if ($habtmRelations) {
-				foreach ($habtmRelations as $relation) {
-					if (strcmp($model->id, $relation->model) <= 0) {
-						//	only sync binding tables from models A -> B, not from B -> A
-						$this->_syncBindingModel($relation);
-					}
+			
+			foreach ($habtmRelations as $relation) {
+				if (strcmp($model->id, $relation->name) <= 0) {
+					//	only sync binding tables from models A -> B, not from B -> A
+					$this->_syncBindingModel($relation);
 				}
 			}
+
 			$progress->advance();
 		}
 		
