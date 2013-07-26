@@ -23,7 +23,9 @@
 			else:
 				$params[] = "rule: '{$this->relation->oppositeRule}'";
 				$params[] = "rule2: '{$this->relation->name}'";
-			endif;		
+			endif;
+
+			$params[] = "title: __('{$this->relation->label}')";
 		break;
 		default:
 			$params[] = "rule: '{$this->relation->name}'";
