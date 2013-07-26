@@ -136,14 +136,14 @@ class Garp_Spawn_Relation {
 	 * 									between two hasAndBelongsToMany related models.
 	 */
 	public function getBindingModel() {
-		$habtmModelId = Garp_Spawn_Relation_Set::getBindingModelName($this->model, $this->_localModel->id);
+		$habtmModelId = Garp_Spawn_Relation_Set::getBindingModelName($this->name, $this->_localModel->id);
 
 		if ($this->type !== 'hasAndBelongsToMany') {
 			$error = sprintf(self::ERROR_GET_BINDING_MODEL_WRONG_RELATION_TYPE, get_class($this));
 			throw new Exception($error);
 		}
-			
-		$isHomo		= $this->model === $this->_localModel->id;
+		
+		$isHomo		= $this->name === $this->_localModel->id;
 		$relLabel1	= $isHomo ? $this->name . '1' : $this->name;
 		$relLabel2 	= $isHomo ? $this->name . '2' : $this->_localModel->id;
 
