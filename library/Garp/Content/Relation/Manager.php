@@ -87,7 +87,7 @@ class Garp_Content_Relation_Manager {
 		$keyB   = $options['keyB'];
 		$ruleA  = $options['ruleA'];
 		$ruleB  = $options['ruleB'];
-		$bindingModel = $modelA->getBindingModel($modelB);
+		$bindingModel = !$options['bindingModel'] ? $modelA->getBindingModel($modelB) : $options['bindingModel'];
 
 		/**
  		 * Warning: assumptions are made!
@@ -133,6 +133,7 @@ class Garp_Content_Relation_Manager {
 			->setDefault('ruleA', null)
 			->setDefault('ruleB', null)
 			->setDefault('extraFields', array())
+			->setDefault('bindingModel', null)
 			;
 		// use models, not class names
 		if (is_string($options['modelA'])) {
@@ -140,6 +141,9 @@ class Garp_Content_Relation_Manager {
 		}
 		if (is_string($options['modelB'])) {
 			$options['modelB'] = new $options['modelB']();
+		}
+		if (is_string($options['bindingModel'])) {
+			$options['bindingModel'] = new $options['bindingModel']();
 		}
 		// Important to collect fresh data
 		$options['modelA']->setCacheQueries(false);
@@ -257,7 +261,7 @@ class Garp_Content_Relation_Manager {
 		$keyB   = $options['keyB'];
 		$ruleA  = $options['ruleA'];
 		$ruleB  = $options['ruleB'];
-		$bindingModel = $modelA->getBindingModel($modelB);
+		$bindingModel = !$options['bindingModel'] ? $modelA->getBindingModel($modelB) : $options['bindingModel'];
 
 		/**
  		 * Warning: assumptions are made!
@@ -321,6 +325,7 @@ class Garp_Content_Relation_Manager {
 			->setDefault('rule', null)
 			->setDefault('ruleA', null)
 			->setDefault('ruleB', null)
+			->setDefault('bindingModel', null)
 			;
 		if (!$options['keyA'] && !$options['keyB']) {
 			throw new Garp_Content_Relation_Exception('Either keyA or keyB must be provided when unrelating.');
@@ -332,6 +337,9 @@ class Garp_Content_Relation_Manager {
 		}
 		if (is_string($options['modelB'])) {
 			$options['modelB'] = new $options['modelB']();
+		}
+		if (is_string($options['bindingModel'])) {
+			$options['bindingModel'] = new $options['bindingModel']();
 		}
 		// Important to collect fresh data
 		$options['modelA']->setCacheQueries(false);
