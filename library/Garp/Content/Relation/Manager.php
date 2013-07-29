@@ -106,8 +106,8 @@ class Garp_Content_Relation_Manager {
 		self::_addForeignKeysToRow($bindingRow, $referenceB, $keyB);
 		$success = $bindingRow->save();
 
-		// Homophyllic relations must be saved bidirectionally
-		if ($modelA->getName() == $modelB->getName()) {
+		// Homophyllic relations can be saved bidirectionally
+		if ($options['bidirectional'] && $modelA->getName() == $modelB->getName()) {
 			$bidirectionalRow = $bindingModel->createRow($options['extraFields']);
 			self::_addForeignKeysToRow($bidirectionalRow, $referenceA, $keyB);
 			self::_addForeignKeysToRow($bidirectionalRow, $referenceB, $keyA);
@@ -134,6 +134,7 @@ class Garp_Content_Relation_Manager {
 			->setDefault('ruleB', null)
 			->setDefault('extraFields', array())
 			->setDefault('bindingModel', null)
+			->setDefault('bidirectional', true)
 			;
 		// use models, not class names
 		if (is_string($options['modelA'])) {
@@ -294,8 +295,8 @@ class Garp_Content_Relation_Manager {
 
 		$where = '('.implode(' AND ', $where).')';
 
-		// Homophyllic relations must be deleted bidirectionally
-		if ($modelA->getName() == $modelB->getName()) {
+		// Homophyllic relations can be deleted bidirectionally
+		if ($options['bidirectional'] && $modelA->getName() == $modelB->getName()) {
 			$homoWhere = array();
 			if ($keyA) {
 				$homoWhere[] = $createWhereBit($referenceB, $keyA);
@@ -326,6 +327,7 @@ class Garp_Content_Relation_Manager {
 			->setDefault('ruleA', null)
 			->setDefault('ruleB', null)
 			->setDefault('bindingModel', null)
+			->setDefault('bidirectional', true)
 			;
 		if (!$options['keyA'] && !$options['keyB']) {
 			throw new Garp_Content_Relation_Exception('Either keyA or keyB must be provided when unrelating.');
