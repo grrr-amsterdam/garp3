@@ -3,7 +3,7 @@
  * Mock model used by CachePurgatoryTest
  */
 class Mocks_Model_CMFooBarCMThing extends Garp_Model_Db {
-	protected $_name = '_tests_cache_purgatory_FooBarThing';
+	protected $_name = '_tests_cache_manager_FooBarThing';
 
 	protected $_referenceMap = array(
 		'Thing' => array(
