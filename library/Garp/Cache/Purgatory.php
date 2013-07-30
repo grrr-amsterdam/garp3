@@ -1,13 +1,13 @@
 <?php
 /**
- * Garp_Cache_Purgatory
+ * Garp_Cache_Manager
  * Provides various ways of purging the many caches Garp uses.
  *
  * @author       Harmen Janssen | grrr.nl
  * @version      1.1
  * @package      Garp_Cache
  */
-class Garp_Cache_Purgatory {
+class Garp_Cache_Manager {
 	/**
  	 * Read query cache
  	 * @param Garp_Model_Db $model

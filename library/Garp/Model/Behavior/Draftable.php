@@ -150,7 +150,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 				$tags = array(get_class($model));
 				$tags = array_merge($tags, $model->getBindableModels());
 				$tags = array_unique($tags);
-				Garp_Cache_Purgatory::scheduleClear($publishTime, $tags);
+				Garp_Cache_Manager::scheduleClear($publishTime, $tags);
 			}
 		}
 	}

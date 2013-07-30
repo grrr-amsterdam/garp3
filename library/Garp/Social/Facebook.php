@@ -143,7 +143,7 @@ class Garp_Social_Facebook {
 			}
 			$result = $bindingModel->getAdapter()->query($insertSql);
 			// Clear cache manually, since the table isn't updated thru conventional paths.
-			Garp_Cache_Purgatory::purge($bindingModel);
+			Garp_Cache_Manager::purge($bindingModel);
 			return !!$result;
 		} catch (Exception $e) {
 			return false;
