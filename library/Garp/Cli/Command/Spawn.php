@@ -161,8 +161,8 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		Garp_Cli::lineOut("\n");
 
 		$cacheDir = $this->_getCacheDir();
-		Garp_Cache_Manager::purgeStaticCache(null, $cacheDir);
-		Garp_Cache_Manager::purgeMemcachedCache(null);
+		Garp_Cache_Purgatory::purgeStaticCache(null, $cacheDir);
+		Garp_Cache_Purgatory::purgeMemcachedCache(null);
 		Garp_Cli::lineOut("All cache purged.");
 	}
 	

@@ -34,7 +34,7 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	
 		$this->assertTrue(file_exists($this->_cachePath.'/mocks/staticcache/index.html'));
 	
-		Garp_Cache_Manager::purge();
+		Garp_Cache_Purgatory::purge();
 	
 		$this->assertFalse(file_exists($this->_cachePath.'/mocks/staticcache/index.html'));
 	}
@@ -56,8 +56,8 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		;
 
 		// start with an empty cache
-		Garp_Cache_Manager::purgeMemcachedCache();
-		Garp_Cache_Manager::purgeStaticCache(array(), $this->_cachePath);
+		Garp_Cache_Purgatory::purgeMemcachedCache();
+		Garp_Cache_Purgatory::purgeStaticCache(array(), $this->_cachePath);
 
 		// create necessary tables
 		$dbAdapter = $this->getDatabaseAdapter();
@@ -95,8 +95,8 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 
 	public function tearDown() {
 		parent::tearDown();
-		Garp_Cache_Manager::purgeMemcachedCache();
-		Garp_Cache_Manager::purgeStaticCache(array(), $this->_cachePath);
+		Garp_Cache_Purgatory::purgeMemcachedCache();
+		Garp_Cache_Purgatory::purgeStaticCache(array(), $this->_cachePath);
 		
 		$dbAdapter = $this->getDatabaseAdapter();
 		$dbAdapter->query('SET foreign_key_checks = 0;');
