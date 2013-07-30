@@ -387,7 +387,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$createClusterJob = is_null($request->getParam('createClusterJob')) ? 1 : $request->getParam('createClusterJob');
 
 		$this->view->title = 'Clear that cache';
-		Garp_Cache_Manager::purge($tags, $createClusterJob);
+		Garp_Cache_Purgatory::purge($tags, $createClusterJob);
 	}
 	
 	

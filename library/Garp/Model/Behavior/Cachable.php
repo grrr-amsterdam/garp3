@@ -46,7 +46,7 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 		// check if the cache is in use
 		if ($model->getCacheQueries() && Zend_Registry::get('readFromCache')) {
 			$cacheKey = $this->createCacheKey($model, $select);
-			$results = Garp_Cache_Manager::readQueryCache($model, $cacheKey);
+			$results = Garp_Cache_Purgatory::readQueryCache($model, $cacheKey);
 			if ($results !== -1) {
 				$args[2] = $results;
 			} else {
@@ -67,7 +67,7 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 			$results = $args[1];
 			$cacheKey = $this->_openCacheKey;
 
-			Garp_Cache_Manager::writeQueryCache($model, $cacheKey, $results);
+			Garp_Cache_Purgatory::writeQueryCache($model, $cacheKey, $results);
 
 			// reset the key
 			$this->_openCacheKey = '';
@@ -82,7 +82,7 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 */
 	public function afterInsert(&$args) {
 		$model = &$args[0];
-		Garp_Cache_Manager::purge($model);
+		Garp_Cache_Purgatory::purge($model);
 	}
 	
 	
@@ -94,7 +94,7 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	public function afterUpdate(&$args) {
 		$model = &$args[0];
 		$where = $args[3];
-		Garp_Cache_Manager::purge($model);
+		Garp_Cache_Purgatory::purge($model);
 	}
 	
 	
@@ -106,7 +106,7 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	public function afterDelete(&$args) {
 		$model = &$args[0];
 		$where = $args[2];
-		Garp_Cache_Manager::purge($model);
+		Garp_Cache_Purgatory::purge($model);
 	}
 
 
