@@ -94,9 +94,11 @@ if (Ext.isIE) {
 				this.fireEvent('blur', this);
 				this.wrap.removeClass('x-focus');
 				this.cleanupHtml();
-				if (e && e.stopEvent) {
-					e.stopEvent();
-				}
+				this.hideMediaToolbar();
+				this.updateStatusbar('');
+				//if (e && e.stopEvent) {
+				//	e.stopEvent();
+				//}
 			}
 		},
 		
@@ -1150,7 +1152,7 @@ if (Ext.isIE) {
 		 */
 		updateToolbar: function(){
 		
-			if (this.readOnly) {
+			if (this.readOnly || !this.hasFocus) {
 				return;
 			}
 			
@@ -1195,7 +1197,7 @@ if (Ext.isIE) {
 			var t = this.getCurrentTagName();
 			var l = this.getCurrentClassList();
 			btns.createlink.toggle(t == 'a');
-			if (l.indexOf('figure') == -1) {
+			if (l && l.indexOf && l.indexOf('figure') == -1) {
 				btns.definitionlist.toggle(t == 'dl' || t == 'dt' || t == 'dd');
 			}
 			Ext.menu.MenuMgr.hideAll();
@@ -1473,7 +1475,7 @@ if (Ext.isIE) {
 		 */
 		cleanupHtml: function(){
 			this.suspendEvents();
-			this.setDesignMode(false); //toggle off first
+			//this.setDesignMode(false); //toggle off first
 			var doc = this.getDoc();
 			var body = doc.body;
 			
@@ -1516,7 +1518,7 @@ if (Ext.isIE) {
 				elm.removeAttribute('id');
 			}, this);
 			
-			this.setDesignMode(true);
+			//this.setDesignMode(true);
 			this.resumeEvents();
 			
 			return true;
@@ -1644,6 +1646,7 @@ if (Ext.isIE) {
 		 * @param {Object} t DOM target
 		 */
 		blur: function(e, t){
+			
 			if (!this.initialized) {
 				return;
 			}
@@ -1666,10 +1669,11 @@ if (Ext.isIE) {
 			// Added: The clicked element must be within the formpanel. See [GARP] Ticket #314
 			
 			if (!t || (!Ext.WindowMgr.getActive()) && this.getEl().parent('.garp-formpanel') && !this.getEl().parent().contains(Ext.get(t).dom.id)) {
+				this.updateStatusbar('');
 				this.hasFocus = false;
 				this.fireEvent('blur', this);
 				this.wrap.removeClass('x-focus');
-				this.cleanupHtml();
+	this.cleanupHtml();
 				if (e && e.stopEvent) {
 					e.stopEvent();
 				}
@@ -1699,11 +1703,7 @@ if (Ext.isIE) {
 					this.removeClass('garp-richtexteditor-source-edit');
 				}
 			}, this);
-			this.on('blur', function(){
-				this.cleanupHtml();
-				this.hideMediaToolbar();
-				this.updateStatusbar('');
-			}, this);
+
 			Ext.getBody().on('click', this.blur, this);
 			
 			this.on('push', function(){
