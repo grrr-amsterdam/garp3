@@ -83,8 +83,13 @@ class Garp_Spawn_Relation_Set {
 		if ($preventDoubles) {
 			$this->_throwErrorOnDuplicateRegistration($name, $params);
 		}
-		
-		$this->_relations[$name] = new Garp_Spawn_Relation($this->_model, $name, $params);
+
+		$relation = new Garp_Spawn_Relation($this->_model, $name, $params);
+		$this->addRaw($relation);
+	}
+
+	public function addRaw(Garp_Spawn_Relation $relation) {
+		$this->_relations[$relation->name] = $relation;
 		ksort($this->_relations);
 	}
 	

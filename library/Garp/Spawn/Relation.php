@@ -35,8 +35,10 @@ class Garp_Spawn_Relation {
 	/** Whether a singular relation (hasOne / belongsTo) also implicates a hasMany relation from the remote to the local model. */
 	public $inverse;
 
-	/** In case of a hasMany relation, the rule name of the opposite (hasOne / belongsTo) side of the relation. */
+	/** In case of a plural relation, the rule name of the opposite (hasOne / belongsTo) side of the relation. */
 	public $oppositeRule = null;
+
+	public $inverseLabel = null;
 
 	/** hasAndBelongsToMany and hasMany relations can be weighable, i.e. their relational order is defined by an end user. */
 	public $weighable = false;
@@ -189,6 +191,40 @@ class Garp_Spawn_Relation {
 
 	}
 
+	/**
+	 * Mirror this relation so that it can be used as the opposite.
+	 * For instance: News has an Avatar relation (hasOne to Image).
+	 * After mirroring Avatar, it can be used as the relation Image hasMany AvatarNews.
+	 *
+	 * @param Garp_Spawn_Model_Base $model The model where this relation should stem from.
+	 * @return Garp_Spawn_Relation
+	 */
+	public function mirror(Garp_Spawn_Model_Base $model) {
+		$mirroredParams = $this->getMirroredParams();
+		$relationName 	= $mirroredParams->name;
+		unset($mirroredParams->name);
+
+		return new Garp_Spawn_Relation($model, $relationName, (array)$mirroredParams);
+	}
+
+	/**
+	 * @return StdClass
+	 */
+	public function getMirroredParams() {
+		$old = $this->getParams();
+		$new = clone $old;
+
+		$new->name 			= $old->oppositeRule;
+		$new->editable		= $old->type === 'belongsTo' ? false : $old->editable;
+		$new->type 			= $this->isSingular() ? 'hasMany' : 'hasAndBelongsToMany';
+		$new->model 		= $this->_localModel->id;
+		$new->column 		= 'id';
+		$new->oppositeRule 	= $old->name;
+		$new->label 		= $old->inverseLabel;
+		$new->inverseLabel 	= $old->label;
+
+		return $new;
+	}
 
 	/**
 	 * Check the provided relation type to see if this is a singular relation.
@@ -253,7 +289,10 @@ class Garp_Spawn_Relation {
 
 		if (!array_key_exists('label', $params) || !$params['label'])
 			$params['label'] = $name;
-		
+
+		// if (!array_key_exists('inverseLabel', $params) || !$params['inverseLabel'])
+			// $params['inverseLabel'] = $this->_localModel->id;
+
 		if (!array_key_exists('limit', $params) && $this->_isSingularByArg($params['type']))
 			$params['limit'] = 1;
 
@@ -294,8 +333,11 @@ class Garp_Spawn_Relation {
 	}	
 	
 	protected function _addOppositeRule() {
-		if ($this->isPlural() && !$this->oppositeRule) {
-			$this->oppositeRule = $this->_localModel->id;
-		}
+		if ($this->oppositeRule) return;
+
+		$this->oppositeRule = $this->name !== $this->model
+			? $this->name . $this->_localModel->id
+			: $this->_localModel->id
+		;
 	}
 }

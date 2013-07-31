@@ -76,9 +76,6 @@ class Garp_Spawn_Model_Set extends ArrayObject {
 		new Garp_Spawn_Js_ModelsIncluder($this);
 	}
 	
-	/**
-	 * @param Array &$models Numeric array of Garp_Spawn_Model_Base objects
-	 */
 	protected function _defineDefaultRelations() {
 		foreach ($this as &$model) {
 			foreach ($this->_defaultRelations as $defRelName => $defRelParams) {
@@ -88,9 +85,7 @@ class Garp_Spawn_Model_Set extends ArrayObject {
 			}
 		}
 	}
-	/**
-	 * @param Array &$models Numeric array of Garp_Spawn_Model_Base objects
-	 */
+
 	protected function _mirrorHasManyRelationsInSet() {
 		//	inverse singular relations to multiple relations from the other model
 		foreach ($this as $model) {
@@ -106,31 +101,10 @@ class Garp_Spawn_Model_Set extends ArrayObject {
 				break;
 			}
 
-			$this->_mirrorHasManyRelationsInModel($model, $relationName, $relation);
+			$this->_mirrorRelationsInModel($model, $relation);
 		}
 	}
-	
-	protected function _mirrorHasManyRelationsInModel(Garp_Spawn_Model_Base $model, $relationName, Garp_Spawn_Relation $relation) {
-		$this->_throwErrorIfRelatedModelDoesNotExist($model, $relation);
 
-		$remoteModel = &$this[$relation->model];
-
-		$hasManyRelParams = array(
-			'type'			=> 'hasMany',
-			'model'			=> $model->id,
-			'column'		=> 'id',
-			'inline'		=> $relation->inline,
-			'editable'		=> $relation->type !== 'belongsTo',
-			'weighable'		=> $relation->weighable,
-			'oppositeRule'	=> $relationName,
-		);
-
-		$remoteModel->relations->add($model->id, $hasManyRelParams, false);		
-	}
-
-	/**
-	 * @param Array &$models Numeric array of Garp_Spawn_Model_Base objects
-	 */
 	protected function _mirrorHabtmRelationsInSet() {
 		//	inverse singular relations to multiple relations from the other model
 		foreach ($this as $model) {
@@ -142,27 +116,17 @@ class Garp_Spawn_Model_Set extends ArrayObject {
 		$habtmRelations = $model->relations->getRelations('type', array('hasAndBelongsToMany'));
 
 		foreach ($habtmRelations as $relationName => $relation) {
-			$this->_mirrorHabtmRelationsInModel($model, $relationName, $relation);
+			$this->_mirrorRelationsInModel($model, $relation);
 		}
 		
 	}
 	
-	protected function _mirrorHabtmRelationsInModel(Garp_Spawn_Model_Base $model, $relationName, Garp_Spawn_Relation $relation) {
+	protected function _mirrorRelationsInModel(Garp_Spawn_Model_Base $model, Garp_Spawn_Relation $relation) {
 		$this->_throwErrorIfRelatedModelDoesNotExist($model, $relation);
 
-		$habtmRelParams = array(
-			'type'			=> 'hasAndBelongsToMany',
-			'model'			=> $model->id,
-			'column'		=> 'id',
-			'inline'		=> $relation->inline,
-			'inputs'		=> $relation->inputs,
-			'editable'		=> true,
-			'weighable'		=> $relation->weighable,
-			'oppositeRule'	=> $relationName,
-		);
-
 		$remoteModel = &$this[$relation->model];
-		$remoteModel->relations->add($model->id, $habtmRelParams, false);
+		$mirroredRelation = $relation->mirror($remoteModel);
+		$remoteModel->relations->addRaw($mirroredRelation);
 	}
 	
 	protected function _throwErrorIfRelatedModelDoesNotExist(Garp_Spawn_Model_Base $model, Garp_Spawn_Relation $relation) {
