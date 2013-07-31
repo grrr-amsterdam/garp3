@@ -39,5 +39,17 @@
 		"Sluggable": {
 			"baseField": ["first_name", "last_name_prefix", "last_name"]
 		}
+	},
+
+	"relations": {
+		"Foo": {
+			"type": "hasAndBelongsToMany",
+			"weighable": true
+		},
+
+		"Foo2": {
+			"type": "hasAndBelongsToMany",
+			"model": "Foo"
+		}
 	}
 }

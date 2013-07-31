@@ -12,7 +12,7 @@
 class Garp_Cli_Command_Test extends Garp_Cli_Command {
 	protected $_garpPath = 'garp/tests/';
 	protected $_appPath = 'tests/';
-	protected $_command = 'phpunit --verbose --colors --exclude-group=Spawn --bootstrap garp/tests/TestHelper.php ';
+	protected $_command = 'phpunit --verbose --colors --bootstrap garp/tests/TestHelper.php ';
 	
 	/**
 	 * Central start method
