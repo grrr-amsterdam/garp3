@@ -1,56 +1,32 @@
 <?php
 /**
  * @author David Spreekmeester | Grrr.nl
- * This class tests Garp_Spawn_Keys.
+ * This class tests Garp_Spawn_MySql_Table.
  * @group Spawn
  */
 class Garp_Spawn_MySql_TableTest extends PHPUnit_Framework_TestCase {
 	protected $_mocks = array(
 		'directory' => null,
 		'modelName' => 'Bogus',
-		'extension' => 'json'
+		'extension' => 'json',
+		'sql'		=> null
 	);
 
 
 	public function setUp() {
-		$this->_mocks['directory'] = APPLICATION_PATH."/../garp/application/modules/mocks/models/config/";
+		$this->_mocks['directory'] = APPLICATION_PATH . "/../garp/application/modules/mocks/models/config/";
+		$this->_mocks['sql'] = file_get_contents($this->_mocks['directory'] . '../sql/bogus.sql');
 	}
 
-
-	protected $_bogusTableSql = <<<EOF
-CREATE TABLE `bogus` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(124) NOT NULL,
-  `year` int(11) unsigned DEFAULT NULL,
-  `created` datetime NOT NULL,
-  `modified` datetime NOT NULL,
-  `author_id` int(11) unsigned DEFAULT NULL,
-  `modifier_id` int(11) unsigned DEFAULT NULL,
-  `length` int(11) unsigned DEFAULT NULL,
-  `color` tinyint(1) unsigned DEFAULT '1',
-  `category` enum('A','B','C','D') NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name_unique` (`name`),
-  KEY `author_id` (`author_id`),
-  KEY `modifier_id` (`modifier_id`),
-  KEY `name` (`name`),
-  CONSTRAINT `a1125055e1239cc6582f97c58813cae1` FOREIGN KEY (`modifier_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `abb2a4eb90c8f9f85d0d3bca202a1ca5` FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-) ENGINE=InnoDB AUTO_INCREMENT=607279 DEFAULT CHARSET=utf8
-EOF;
-
-
 	function testTableShouldContainColumns() {
-		$table = new Garp_Spawn_MySql_Table_Base($this->_bogusTableSql, $this->_constructMockModel());
+		$table = new Garp_Spawn_MySql_Table_Base($this->_mocks['sql'], $this->_constructMockModel());
 		$this->assertEquals(count($table->columns), 10);
 	}
 
-
 	function testTableShouldHaveValidName() {
-		$table = new Garp_Spawn_MySql_Table_Base($this->_bogusTableSql, $this->_constructMockModel());
+		$table = new Garp_Spawn_MySql_Table_Base($this->_mocks['sql'], $this->_constructMockModel());
 		$this->assertEquals($table->name, 'bogus');
 	}
-
 
 	protected function _constructMockModel() {
 		$modelConfig = new Garp_Spawn_Config_Model_Base(
