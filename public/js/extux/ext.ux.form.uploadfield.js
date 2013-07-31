@@ -49,6 +49,12 @@ Ext.ns('Ext.ux.form');
 		 * Validate resolution
 		 */
 		validateResolution: function(file, callback) {
+			// What to do for browsers with no FileReader support, such as IE9?
+			// For now, let's just admit defeat and allow the upload.
+			if (typeof FileReader !== 'function') {
+				callback(true);
+				return;
+			}
 			var fr = new FileReader();
 			var scope = this;
 			fr.onload = function() {   // onload fires after reading is complete
