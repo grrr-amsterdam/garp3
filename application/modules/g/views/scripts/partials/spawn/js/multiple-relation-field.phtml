@@ -25,6 +25,8 @@
 				$params[] = "rule2: '{$this->relation->name}'";
 			endif;
 
+			$bindingModel = $this->relation->getBindingModel();
+			$params[] = "bindingModel: '{$bindingModel->id}'";
 			$params[] = "title: __('{$this->relation->label}')";
 		break;
 		default:
