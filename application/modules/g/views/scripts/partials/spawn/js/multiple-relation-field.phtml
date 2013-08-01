@@ -15,6 +15,7 @@
 	switch ($this->relation->type):
 		case 'hasMany':
 			$params[] = "rule: '{$this->relation->oppositeRule}'";
+			$params[] = "title: __('{$this->relation->label}')";
 		break;
 		case 'hasAndBelongsToMany':
 			if ($this->relation->name === $this->modelId):
