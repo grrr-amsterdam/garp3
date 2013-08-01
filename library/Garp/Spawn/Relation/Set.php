@@ -113,7 +113,7 @@ class Garp_Spawn_Relation_Set {
 	static public function getBindingModelName($modelAlias1, $modelAlias2) {
 		$modelNames = array($modelAlias1, $modelAlias2);
 		sort($modelNames);
-		return implode('', $modelNames);
+		return $modelNames[0] . $modelNames[1];
 	}
 	
 
