@@ -85,7 +85,7 @@ class Garp_Spawn_MySql_Manager {
 			$habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany');
 
 			foreach ($habtmRelations as $relation) {
-				if (strcmp($model->id, $relation->name) <= 0) {
+				if (strcmp($model->id, $relation->model) <= 0) {
 					//	only sync binding tables from models A -> B, not from B -> A
 					$this->_createBindingModelTableIfNotExists($relation);
 				}
@@ -101,7 +101,7 @@ class Garp_Spawn_MySql_Manager {
 			$habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany');
 			
 			foreach ($habtmRelations as $relation) {
-				if (strcmp($model->id, $relation->name) <= 0) {
+				if (strcmp($model->id, $relation->model) <= 0) {
 					//	only sync binding tables from models A -> B, not from B -> A
 					$this->_syncBindingModel($relation);
 				}
@@ -190,7 +190,7 @@ class Garp_Spawn_MySql_Manager {
 
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($bindingModel);
 		$configTable 	= $tableFactory->produceConfigTable();
-
+// Zend_Debug::dump($configTable->name);
 		$this->_createTableIfNotExists($configTable);
 	}
 
