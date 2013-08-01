@@ -36,12 +36,6 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 		$params 		= parent::getParams();
 		$defaultParams 	= $this->getDefaultParams();
 
-// if ($this->getModel()->isTranslated()) {
-// Zend_Debug::dump($this->getModel()->id);
-// Zend_Debug::dump($defaultParams);
-// exit;
-// }
-
 		foreach ($defaultParams as $paramName => $paramValue) {
 			if (!array_key_exists($paramName, $params)) {
 				$params[$paramName] = $paramValue;
@@ -69,8 +63,6 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 			!$model->isMultilingual() ||
 			($model->isTranslated() && $this->_baseFieldIsMultilingual())
 		;
-
-		// return !$model->isMultilingual() || $model->isTranslated();
 	}
 	
 	/**
