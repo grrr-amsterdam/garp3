@@ -50,6 +50,11 @@
 		"Foo2": {
 			"type": "hasAndBelongsToMany",
 			"model": "Foo"
+		},
+
+		"PrimaryFoo": {
+			"type": "hasOne",
+			"model": "Foo"
 		}
 	}
 }
