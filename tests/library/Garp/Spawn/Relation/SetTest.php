@@ -56,10 +56,9 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 
 
 		// test opposing hasMany relation
-		$opposingModel = $this->_modelSet[$opposingModelName];
-		$hasManyRels = $model->relations->getRelations('type', 'hasMany');
-		Zend_Debug::dump(array_keys($hasManyRels)); exit;
-		$this->assertTrue(array_key_exists($relName3, $hasManyRels), "Does relation {$relName3} exist in {$opposingModelName} model?");
+		$opposingModel 			= $this->_modelSet[$opposingModelName];
+		$opposingHasManyRels 	= $opposingModel->relations->getRelations('type', 'hasMany');
+		$this->assertTrue(array_key_exists($relName3, $opposingHasManyRels), "Does relation {$relName3} exist in {$opposingModelName} model?");
 	}
 	
 	protected function _constructMockModelSet() {
