@@ -262,8 +262,8 @@ class Garp_Spawn_Relation {
 		if (!array_key_exists('label', $params) || !$params['label'])
 			$params['label'] = $name;
 
-		// if (!array_key_exists('inverseLabel', $params) || !$params['inverseLabel'])
-			// $params['inverseLabel'] = $this->_localModel->id;
+		if (!array_key_exists('inverseLabel', $params) || !$params['inverseLabel'])
+			$params['inverseLabel'] = $this->getLocalModel()->id;
 
 		if (!array_key_exists('limit', $params) && $this->_isSingularByArg($params['type']))
 			$params['limit'] = 1;

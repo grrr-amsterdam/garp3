@@ -21,19 +21,23 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 		$this->_modelSet = $this->_constructMockModelSet();
 	}
 
-	public function testModelSetShouldContainMultipleHabtmRelations() {
-		$modelName 		= 'Bogus';
-		$relName1 		= 'Foo';
-		$relName2 		= 'Foo2';
-		$oppositeRule1	= 'Bogus';
-		$oppositeRule2	= 'Foo2';
+	public function testModelSetShouldContainMulipleRelationsOfTheSameKind() {
+		$modelName 			= 'Bogus';
+		$opposingModelName 	= 'Foo';
+		$relName1 			= 'Foo';
+		$relName2 			= 'Foo2';
+		$relName3 			= 'PrimaryFoo';
+		$oppositeRule1		= 'Bogus';
+		$oppositeRule2		= 'Foo2';
+		$oppositeRule3		= 'Bogus';
 
 
-		$model = $this->_modelSet['Bogus'];
-		$habtmRels = $model->relations->getRelations('type', 'hasAndBelongsToMany');
+		$model 			= $this->_modelSet[$modelName];
+
+		// test habtm relations
+		$habtmRels 		= $model->relations->getRelations('type', 'hasAndBelongsToMany');
 
 		$this->assertGreaterThan(1, count($habtmRels), "Is there more than 1 habtm relation in {$modelName} model?");
-
 		$this->assertTrue(array_key_exists($relName1, $habtmRels), "Does relation {$relName1} exist in {$modelName} model?");
 		$this->assertTrue(array_key_exists($relName2, $habtmRels), "Does relation {$relName2} exist in {$modelName} model?");
 
@@ -42,6 +46,20 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals($oppositeRule1, $rel1->oppositeRule, "Is oppositeRule of relation {$relName1} correct?");
 		$this->assertEquals($oppositeRule2, $rel2->oppositeRule, "Is oppositeRule of relation {$relName2} correct?");
+
+
+		// test hasOne relation
+		$rel3 = $habtmRels[$relName1];
+		$hasOneRels 	= $model->relations->getRelations('type', 'hasOne');
+		$this->assertTrue(array_key_exists($relName3, $hasOneRels), "Does relation {$relName3} exist in {$modelName} model?");
+		$this->assertEquals($oppositeRule3, $rel3->oppositeRule, "Is oppositeRule of relation {$relName3} correct?");
+
+
+		// test opposing hasMany relation
+		$opposingModel = $this->_modelSet[$opposingModelName];
+		$hasManyRels = $model->relations->getRelations('type', 'hasMany');
+		Zend_Debug::dump(array_keys($hasManyRels)); exit;
+		$this->assertTrue(array_key_exists($relName3, $hasManyRels), "Does relation {$relName3} exist in {$opposingModelName} model?");
 	}
 	
 	protected function _constructMockModelSet() {
