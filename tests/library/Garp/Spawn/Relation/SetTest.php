@@ -26,7 +26,7 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 		$relName1 		= 'Foo';
 		$relName2 		= 'Foo2';
 		$oppositeRule1	= 'Bogus';
-		$oppositeRule2	= 'Foo2Bogus';
+		$oppositeRule2	= 'Foo2';
 
 
 		$model = $this->_modelSet['Bogus'];

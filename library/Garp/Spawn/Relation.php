@@ -7,8 +7,6 @@ class Garp_Spawn_Relation {
 		"Relation::type is not available yet, so you cannot use isPlural() at this point in your code.";
 	const ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_SINGULAR =
 		"Relation::type is not available yet, so you cannot use isSingular() at this point in your code. Use self::_isSingularByArg() within the class.";
-	const ERROR_GET_BINDING_MODEL_WRONG_RELATION_TYPE =
-		"You can only call %s.getBindingModel() on hasAndBelongsToMany relations.";
 	const ERROR_RELATION_TYPE_MISSING =
 		"The 'type' property is obligated in the definition of the %s relation.";
 	const ERROR_RELATION_TYPE_INVALID =
@@ -66,12 +64,17 @@ class Garp_Spawn_Relation {
 	/** @var Array $_types Allowed relation types. */
 	protected $_types = array('hasOne', 'belongsTo', 'hasMany', 'hasAndBelongsToMany');
 
+	/**
+	 * @var Garp_Spawn_Model_Binding $_bindingModel
+	 */
+	protected $_bindingModel;
+
 
 	/**
 	 * @param 	String $name 	Name of the relation, such as 'User' or 'Author'
 	 */
 	public function __construct(Garp_Spawn_Model_Abstract $localModel, $name, array $params) {
-		$this->_localModel = $localModel;
+		$this->_setLocalModel($localModel);
 		$this->name = $name;
 
 		$this->_validate($name, $params);
@@ -86,6 +89,21 @@ class Garp_Spawn_Relation {
 		$this->_addOppositeRule();
 	}
 	
+	/**
+	 * @return Garp_Spawn_Model_Base
+	 */
+	public function getLocalModel() {
+		return $this->_localModel;
+	}
+	
+	/**
+	 * @param Garp_Spawn_Model_Base $localModel
+	 */
+	protected function _setLocalModel($localModel) {
+		$this->_localModel = $localModel;
+		return $this;
+	}
+
 	
 	public function isPlural() {
 		if ($this->type) {
@@ -138,57 +156,11 @@ class Garp_Spawn_Relation {
 	 * 									between two hasAndBelongsToMany related models.
 	 */
 	public function getBindingModel() {
-		$habtmModelId = Garp_Spawn_Relation_Set::getBindingModelName($this->name, $this->_localModel->id);
-
-		if ($this->type !== 'hasAndBelongsToMany') {
-			$error = sprintf(self::ERROR_GET_BINDING_MODEL_WRONG_RELATION_TYPE, get_class($this));
-			throw new Exception($error);
-		}
-		
-		$isHomo		= $this->name === $this->_localModel->id;
-		$relLabel1	= $isHomo ? $this->name . '1' : $this->name;
-		$relLabel2 	= $isHomo ? $this->name . '2' : $this->_localModel->id;
-
-		$config = array(
-			'listFields' => $this->column,
-			'inputs' => $this->inputs ?: array(),
-			'relations' => array(
-				$relLabel1 => array(
-					'type' => 'belongsTo',
-					'model' => $this->model
-				),
-				$relLabel2 => array(
-					'type' => 'belongsTo',
-					'model' => $this->_localModel->id
-				)
-			)
-		);
-
-		if ($this->weighable) {
-			$weightCol1 = Garp_Spawn_Util::camelcased2underscored($relLabel1 . $relLabel2) . '_weight';
-			$weightCol2 = Garp_Spawn_Util::camelcased2underscored($relLabel2 . $relLabel1) . '_weight';
-			$config['inputs'][$weightCol1] = array('type' => 'numeric');
-			$config['inputs'][$weightCol2] = array('type' => 'numeric');
+		if (!$this->_bindingModel) {
+			return $this->_createBindingModel();
 		}
 
-		$model = new Garp_Spawn_Model_Binding(
-			new Garp_Spawn_Config_Model_Binding(
-				$habtmModelId,
-				new Garp_Spawn_Config_Storage_PhpArray(array($habtmModelId => $config)),
-				new Garp_Spawn_Config_Format_PhpArray
-			)
-		);
-
-		/**
-		* @todo: ATTENZIONE! Onderstaande moet liefst nog wel anders opgelost worden.
-		* moet BindingModel niet toch een aparte class worden? */
-		$relFields = $model->fields->getFields('origin', 'relation');
-		foreach ($relFields as $field) {
-			$model->fields->alter($field->name, 'primary', true);
-		}
-
-		return $model;
-
+		return $this->_bindingModel;
 	}
 
 	/**
@@ -336,8 +308,14 @@ class Garp_Spawn_Relation {
 		if ($this->oppositeRule) return;
 
 		$this->oppositeRule = $this->name !== $this->model
-			? $this->name . $this->_localModel->id
+			? $this->name
 			: $this->_localModel->id
 		;
 	}
+
+	protected function _createBindingModel() {
+		$factory = new Garp_Spawn_Model_Binding_Factory();
+		return $factory->produceByRelation($this);
+	}
+
 }
