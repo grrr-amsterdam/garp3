@@ -11,7 +11,7 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 	protected $_behaviorsThatRequireParams = array('Weighable');
 
 	/**
-	 * @var 	Garp_Spawn_Relation 		$_relation 	The accompanying HasAndBelongsToMany relation
+	 * @var	Garp_Spawn_Relation $_relation The accompanying HasAndBelongsToMany relation
 	 */
 	protected $_relation;
 
@@ -21,8 +21,8 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 	}
 
 	/**
-	 * @param	Garp_Spawn_Model_Base		$model		The base model this habtm model is connected to
-	 * @param	Garp_Spawn_Relation		$relation	The accompanying HasAndBelongsToMany relation
+	 * @param Garp_Spawn_Model_Base $model 		The base model this habtm model is connected to
+	 * @param Garp_Spawn_Relation 	$relation	The accompanying HasAndBelongsToMany relation
 	 */
 	public function __construct(Garp_Spawn_Model_Base $model, Garp_Spawn_Relation $habtmRelation) {
 		parent::__construct($model);
