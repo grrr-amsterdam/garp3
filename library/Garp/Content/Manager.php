@@ -288,19 +288,23 @@ class Garp_Content_Manager {
 		if (!isset($primaryKey) || !isset($model) || !isset($foreignKeys)) {
 			throw new Garp_Content_Exception('Not enough options. "primaryKey", "model" and "foreignKeys" are required.');
 		}
-		$model       = Garp_Content_Api::modelAliasToClass($model);
-		$primaryKey  = (array)$primaryKey;
-		$foreignKeys = (array)$foreignKeys;
-		$rule        = isset($rule) ? $rule : null;
-		$rule2       = isset($rule2) ? $rule2 : null;
+		$model         = Garp_Content_Api::modelAliasToClass($model);
+		$primaryKey    = (array)$primaryKey;
+		$foreignKeys   = (array)$foreignKeys;
+		$rule          = isset($rule) ? $rule : null;
+		$rule2         = isset($rule2) ? $rule2 : null;
+		$bindingModel  = isset($bindingModel) ? 'Model_' . $bindingModel : null;
+		$bidirectional = isset($bidirectional) ? $bidirectional : null;
 
 		if (array_key_exists('unrelateExisting', $options) && $options['unrelateExisting']) {
 			Garp_Content_Relation_Manager::unrelate(array(
-				'modelA' => $this->_model,
-				'modelB' => $model,
-				'keyA'   => $primaryKey,
-				'rule'   => $rule,
-				'ruleB'  => $rule2
+				'modelA'        => $this->_model,
+				'modelB'        => $model,
+				'keyA'          => $primaryKey,
+				'rule'          => $rule,
+				'ruleB'         => $rule2,
+				'bindingModel'  => $bindingModel,
+				'bidirectional' => $bidirectional,
 			));
 		}
 
@@ -315,13 +319,15 @@ class Garp_Content_Manager {
 			$extraFields = array_key_exists('relationMetadata', $relationData) ? $relationData['relationMetadata'] : array();
 
 			if (Garp_Content_Relation_Manager::relate(array(
-				'modelA'      => $this->_model,
-				'modelB'      => $model,
-				'keyA'        => $primaryKey,
-				'keyB'        => $foreignKey,
-				'extraFields' => $extraFields,
-				'rule'        => $rule,
-				'ruleB'       => $rule2
+				'modelA'        => $this->_model,
+				'modelB'        => $model,
+				'keyA'          => $primaryKey,
+				'keyB'          => $foreignKey,
+				'extraFields'   => $extraFields,
+				'rule'          => $rule,
+				'ruleB'         => $rule2,
+				'bindingModel'  => $bindingModel,
+				'bidirectional' => $bidirectional,
 			))) {
 				$success++;
 			}
