@@ -25,7 +25,7 @@ class Garp_Spawn_Model_Binding_Factory {
 	protected function _getBindingModelRelLabels(Garp_Spawn_Relation $relation) {
 		$localModel = $relation->getLocalModel();
 
-		$hasNameConflict	= $relation->name === $localModel->id;
+		$hasNameConflict	= $relation->name === $relation->model;
 		$relLabel1			= $hasNameConflict ? $relation->name . '1' : $relation->name;
 		$relLabel2 			= $hasNameConflict ? $relation->name . '2' : $localModel->id;
 
