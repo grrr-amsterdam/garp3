@@ -53,6 +53,16 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	 */
 	rule: null,
 	rule2: null,
+
+	/**
+	 * @cfg: the bindingmodel to use with habtm relations
+	 */
+	bindingModel: null,
+
+	/**
+	 * @cfg: wether to save homophyllic relationships bidirectionally
+	 */
+	bidirectional: true,
 	
 	foreignKey: 'id',
 	
@@ -321,6 +331,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				if(this.rule2){
 					out.rule2 = this.rule2;
 				}
+				if(this.bindingModel){
+					out.bindingModel = this.bindingModel;
+				}
+				out.bidirectional = this.bidirectional;
 				return out; 
 			}).call(this),
 			api: {
@@ -471,6 +485,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		if(this.rule2){
 			data.rule2 = this.rule2;
 		}
+		if(this.bindingModel){
+			data.bindingModel = this.bindingModel;
+		}
+		data.bidirectional = this.bidirectional;
 		
 		Garp[Garp.currentModel].relate(data, function(res) {
 			this.loadMask.hide();
@@ -607,6 +625,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		if(this.rule2){
 			baseParams.rule2 = this.rule2;
 		}
+		if(this.bindingModel){
+			baseParams.bindingModel = this.bindingModel;
+		}
+		baseParams.bidirectional = this.bidirectional;
 		
 		this.relateStore.setBaseParam(baseParams);
 		
@@ -623,6 +645,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		if(this.rule2){
 			baseParams.rule2 = this.rule2;
 		}
+		if(this.bindingModel) {
+			baseParams.bindingModel = this.bindingModel;
+		}
+		baseParams.bidirectional = this.bidirectional;
 		this.relateeStore.setBaseParam(baseParams);
 		this.searchbar.setBaseParams();
 		
@@ -986,8 +1012,8 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 						}
 						var hasSource = false;
 						for(var i in this.metaDataPanel.getSource()){
-    						hasSource = true;
-    						break;
+							hasSource = true;
+							break;
 						}
 						if (!sm || sm.getCount() != 1 || !hasSource) {
 							this.metaDataPanel.hide();
