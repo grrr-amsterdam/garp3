@@ -6,7 +6,7 @@ Ext.ns('Ext.ux', 'Ext.ux.direct');
  * @class       Ext.ux.direct.ZendFrameworkProvider
  * @extends     Ext.direct.RemotingProvider
  * @author      Peter
- * @author 		Based on work from Cornelius Weiss <c.weiss@metaways.de>
+ * @author      Based on work from Cornelius Weiss <c.weiss@metaways.de>
  * @copyright   Based on Copyright (c) 2009 Metaways Infosystems GmbH (http://www.metaways.de)
  * 
  * Ext.Direct provider for seamless integration with Zend_Json_Server
@@ -31,11 +31,13 @@ Ext.ux.direct.ZendFrameworkProvider = Ext.extend(Ext.direct.RemotingProvider, {
     
 	// private
     onData: function(opt, success, xhr) {
+		var rpcresponse;
 		try {
-			var rpcresponse = Ext.decode(xhr.responseText);
+			rpcresponse = Ext.decode(xhr.responseText);
 		} catch(e){
 			if(console && console.error){
 				console.error('Non-valid JSON encountered. Ignoring: ' + e.message || '');
+				console.error(xhr.responseText);
 			}	
 		}
 		
