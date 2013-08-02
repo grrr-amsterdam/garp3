@@ -42,6 +42,15 @@
 	},
 
 	"relations": {
+		"Bogus": {
+			"type": "hasAndBelongsToMany"
+		},
+
+		"BogusLike": {
+			"type": "hasAndBelongsToMany",
+			"model": "Bogus"
+		},
+
 		"Foo": {
 			"type": "hasAndBelongsToMany",
 			"weighable": true
