@@ -1,13 +1,11 @@
 <?php
 /**
  * Garp_Cache_Manager
- * Various managerial cache-related tasks.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cache
- * @lastmodified $Date: $
+ * Provides various ways of purging the many caches Garp uses.
+ *
+ * @author       Harmen Janssen | grrr.nl
+ * @version      1.1
+ * @package      Garp_Cache
  */
 class Garp_Cache_Manager {
 	/**

@@ -16,6 +16,7 @@ ul.x-tab-strip li.x-tab-strip-over .x-tab-strip-text { color: #fff; }
 ul.x-tab-strip li.x-tab-strip-over.x-tab-strip-active .x-tab-strip-text { color: #000 }
 .garp-tabpanel { border-top: 0; }
 ul.x-tab-strip-top { background: #999 url("images/tab-strip-bg-2.gif") repeat-x; }
+.x-tab-scroller-left, .x-tab-scroller-right { top: -2px; background-color: #939393; padding-bottom: 3px; min-height: 20px; }
 
 /* BUTTONS */
 table.x-btn{ margin-right: 10px; }

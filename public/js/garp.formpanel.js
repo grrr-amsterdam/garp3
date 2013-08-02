@@ -505,6 +505,7 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			deferredRender: false,
 			activeTab: 0,
 			resizeTabs: true,
+			minTabWidth: 80,
 			tabWidth: 150,
 			tabMargin: 15,
 			enableTabScroll: true,
