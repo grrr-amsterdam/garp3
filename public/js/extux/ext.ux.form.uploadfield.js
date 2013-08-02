@@ -2,6 +2,10 @@ Ext.ns('Ext.ux.form');
 
 
 	Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
+		/**
+		 * Max surface area (example size 3000 x 2000)
+		 */
+		maxSurface: 6000000,
 	
 		/**
 		 * @cfg uploadURL
@@ -40,7 +44,31 @@ Ext.ns('Ext.ux.form');
 			}
 			return this.supportedExtensions.indexOf(extension.toLowerCase()) > -1;
 		},
-		
+
+		/**
+		 * Validate resolution
+		 */
+		validateResolution: function(file, callback) {
+			// What to do for browsers with no FileReader support, such as IE9?
+			// For now, let's just admit defeat and allow the upload.
+			if (typeof FileReader !== 'function') {
+				callback(true);
+				return;
+			}
+			var fr = new FileReader();
+			var scope = this;
+			fr.onload = function() {   // onload fires after reading is complete
+				var img = new Image();
+				img.onload = function() {
+					var surface = img.width * img.height;
+					var success = surface <= scope.maxSurface;
+					callback(success);
+				};
+				img.src = fr.result;
+			};
+			fr.readAsDataURL(file);    // begin reading
+		},
+
 		/**
 		 * Drop Handler
 		 * @param {Object} e
@@ -103,54 +131,71 @@ Ext.ns('Ext.ux.form');
 				} else {
 					file = fileInput;//.dom.files[0];
 				}
-				if (!file.name) {
+				if (!file || !file.name) {
 					return;
 				}
-				if (this.validateExtension(file.name)) {
-				
-					function error(){
-						scope.setValue(scope.originalValue);
-						Ext.Msg.alert(__('Garp'), __('Error uploading file.'));
-					}
-					var fd = new FormData();
-					var xhr = new XMLHttpRequest();
-					this.uploadDialog = Ext.Msg.progress(__('Upload'), __('Initializing upload'));
-					
-					fd.append('filename', file);
-					
-					xhr.addEventListener('load', function(e){
-						var response = Ext.decode(xhr.responseText);
-						scope.uploadDialog.hide();
-						if (response.success) {
-							scope.setValue(response.filename);
-							scope.fireEvent('change', scope, response.filename);
-						} else {
+
+				var error = function(label, message) {
+					scope.setValue(scope.originalValue);
+					Ext.Msg.alert(label || __('Garp'), message || __('Error uploading file.'));
+				};
+
+				this.validateResolution(file, function(success) {
+					if (!success) {
+						var readableMaxSurface = Ext.util.Format.number(scope.maxSurface, "1000.000/i");
+						var exampleA = Math.floor(Math.sqrt(scope.maxSurface));
+						// round to nearest 1000
+						exampleA = Math.round((exampleA + 500) / 1000) * 1000;
+						var exampleB = Math.floor(scope.maxSurface / exampleA);
+						error(__('Error'), '<b>' + __('Resolution too high. ' + 
+								'Please make sure the image\'s surface area does not exceed ' + readableMaxSurface) + 
+								' pixels. <br>For instance: ' + exampleA + ' x ' + exampleB + ' pixels.</b>');
+
+					} else if (!scope.validateExtension(file.name)) {
+
+						error(__('Error'),
+							'<b>' + __('Extension not supported') + '</b><br /><br />' +
+							__('Supported extensions are:') + '<br /> ' + scope.supportedExtensions.join(' ')
+						);
+						
+					} else {
+						var fd = new FormData();
+						var xhr = new XMLHttpRequest();
+						scope.uploadDialog = Ext.Msg.progress(__('Upload'), __('Initializing upload'));
+						
+						fd.append('filename', file);
+						
+						xhr.addEventListener('load', function(e){
+							var response = Ext.decode(xhr.responseText);
+							scope.uploadDialog.hide();
+							if (response.success) {
+								scope.setValue(response.filename);
+								scope.fireEvent('change', scope, response.filename);
+							} else {
+								error();
+							}
+						}, false);
+						xhr.addEventListener('error', function(e){
+							scope.uploadDialog.hide();
 							error();
-						}
-					}, false);
-					xhr.addEventListener('error', function(e){
-						scope.uploadDialog.hide();
-						error();
-					}, false);
-					xhr.upload.addEventListener('progress', function(e){
-						if (e.lengthComputable) {
-							scope.uploadDialog.updateProgress(e.loaded / e.total);
-							scope.uploadDialog.updateText(__('Uploading') + ' ' + (Math.ceil(e.loaded / e.total * 100)) + '%');
-						}
-					}, false);
-					
-					xhr.open('POST', this.uploadURL);
-					scope.uploadDialog.updateText(__('Uploading&hellip;'));
-					
-					// we'll use a timeout to be sure that the dialog is ready, small downloads otherwise result in an ugly flashy UX
-					setTimeout(function(){
-						xhr.send(fd);
-					}, 350);
-					
-				} else {
-					this.setValue(this.originalValue);
-					Ext.Msg.alert(__('Error'), '<b>' + __('Extension not supported') + '</b><br /><br />' + __('Supported extensions are:') + '<br /> ' + this.supportedExtensions.join(' '));
-				}
+						}, false);
+						xhr.upload.addEventListener('progress', function(e){
+							if (e.lengthComputable) {
+								scope.uploadDialog.updateProgress(e.loaded / e.total);
+								scope.uploadDialog.updateText(__('Uploading') + ' ' + (Math.ceil(e.loaded / e.total * 100)) + '%');
+							}
+						}, false);
+						
+						xhr.open('POST', scope.uploadURL);
+						scope.uploadDialog.updateText(__('Uploading&hellip;'));
+						
+						// we'll use a timeout to be sure that the dialog is ready, small downloads otherwise result in an ugly flashy UX
+						setTimeout(function(){
+							xhr.send(fd);
+						}, 350);
+						
+					}
+				});
 			}
 		},
 		
