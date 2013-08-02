@@ -15,10 +15,13 @@
 	switch ($this->relation->type):
 		case 'hasMany':
 			$params[] = "rule: '{$this->relation->oppositeRule}'";
-			$params[] = "title: __('{$this->relation->label}')";
+			$params[] = "title: '{$this->relation->label}'";
 		break;
 		case 'hasAndBelongsToMany':
-			if ($this->relation->name === $this->modelId):
+			$isHomo = $this->relation->model === $this->modelId;
+			$hasConflictingName = $this->relation->name === $this->modelId;
+
+			if ($hasConflictingName):
 				$params[] = "rule: '{$this->relation->name}1'";
 				$params[] = "rule2: '{$this->relation->name}2'";
 			else:
@@ -26,9 +29,13 @@
 				$params[] = "rule2: '{$this->relation->name}'";
 			endif;
 
+			if ($isHomo && !$this->relation->inverse):
+				$params[] = "bidirectional: false"
+			endif;
+
 			$bindingModel = $this->relation->getBindingModel();
 			$params[] = "bindingModel: '{$bindingModel->id}'";
-			$params[] = "title: __('{$this->relation->label}')";
+			$params[] = "title: '{$this->relation->label}'";
 		break;
 		default:
 			$params[] = "rule: '{$this->relation->name}'";
