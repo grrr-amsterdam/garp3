@@ -30,7 +30,7 @@
 			endif;
 
 			if ($isHomo && !$this->relation->inverse):
-				$params[] = "bidirectional: false"
+				$params[] = "bidirectional: false";
 			endif;
 
 			$bindingModel = $this->relation->getBindingModel();

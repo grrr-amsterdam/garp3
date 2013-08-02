@@ -34,7 +34,7 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 
 		$model 			= $this->_modelSet[$modelName];
 
-		// test habtm relations
+		//	test habtm relations
 		$habtmRels 		= $model->relations->getRelations('type', 'hasAndBelongsToMany');
 
 		$this->assertGreaterThan(1, count($habtmRels), "Is there more than 1 habtm relation in {$modelName} model?");
@@ -48,17 +48,42 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($oppositeRule2, $rel2->oppositeRule, "Is oppositeRule of relation {$relName2} correct?");
 
 
-		// test hasOne relation
+		//	test hasOne relation
 		$rel3 = $habtmRels[$relName1];
 		$hasOneRels 	= $model->relations->getRelations('type', 'hasOne');
 		$this->assertTrue(array_key_exists($relName3, $hasOneRels), "Does relation {$relName3} exist in {$modelName} model?");
 		$this->assertEquals($oppositeRule3, $rel3->oppositeRule, "Is oppositeRule of relation {$relName3} correct?");
 
 
-		// test opposing hasMany relation
+		//	test opposing hasMany relation
 		$opposingModel 			= $this->_modelSet[$opposingModelName];
 		$opposingHasManyRels 	= $opposingModel->relations->getRelations('type', 'hasMany');
 		$this->assertTrue(array_key_exists($relName3, $opposingHasManyRels), "Does relation {$relName3} exist in {$opposingModelName} model?");
+	}
+
+	public function testHabtmHomoRelations() {
+		$modelName 	= 'Bogus';
+		$relName1 	= 'Bogus';
+		$relName2	= 'BogusLike';
+
+		$model 		= $this->_modelSet[$modelName];
+		$habtmRels 	= $model->relations->getRelations('type', 'hasAndBelongsToMany');
+		$rel1 		= $habtmRels[$relName1];
+		$rel2 		= $habtmRels[$relName2];
+
+		//	test habtm binding models
+		$bindingModel1 	= $rel1->getBindingModel();
+		$bindingModel2 	= $rel2->getBindingModel();
+		$belongsToRels1 = $bindingModel1->relations->getRelations('type', 'belongsTo');
+		$belongsToRels2 = $bindingModel2->relations->getRelations('type', 'belongsTo');
+
+		//	test homo relation that uses model names
+		$this->assertTrue(array_key_exists($modelName . '1', $belongsToRels1), "Does unlabeled binding model {$bindingModel1->id} use correct rule names?");
+		$this->assertTrue(array_key_exists($modelName . '2', $belongsToRels1), "Does unlabeled binding model {$bindingModel1->id} use correct rule names?");
+
+		//	test homo relation that uses a relation label
+		$this->assertTrue(array_key_exists($relName2, $belongsToRels2), "Does labeled binding model {$bindingModel2->id} use correct rule names?");
+		$this->assertTrue(array_key_exists($modelName, $belongsToRels2), "Does labeled binding model {$bindingModel2->id} use correct rule names?");
 	}
 	
 	protected function _constructMockModelSet() {
