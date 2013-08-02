@@ -37,7 +37,7 @@ Ext.ux.direct.ZendFrameworkProvider = Ext.extend(Ext.direct.RemotingProvider, {
 		} catch(e){
 			if(console && console.error){
 				console.error('Non-valid JSON encountered. Ignoring: ' + e.message || '');
-				console.log(xhr.responseText);
+				console.error(xhr.responseText);
 			}	
 		}
 		
