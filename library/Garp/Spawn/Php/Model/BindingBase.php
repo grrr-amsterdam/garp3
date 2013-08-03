@@ -60,7 +60,7 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 		$idA = $alphabeticModelIds[0];
 		$idB = $alphabeticModelIds[1];
 		$idAPostfixed = $idA . ($nameConflicts ? '1' : '');
-		$idBPostfixed = $idB . ($nameConflicts ? '1' : '');
+		$idBPostfixed = $idB . ($nameConflicts ? '2' : '');
 		$columnA = $alphabeticModelColumns[0];
 		$columnB = $alphabeticModelColumns[1];
 
