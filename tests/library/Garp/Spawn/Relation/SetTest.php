@@ -21,7 +21,7 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 		$this->_modelSet = $this->_constructMockModelSet();
 	}
 
-	public function testModelSetShouldContainMulipleRelationsOfTheSameKind() {
+	public function testModelSetShouldContainMulipleRelationsToTheSameModel() {
 		$modelName 			= 'Bogus';
 		$opposingModelName 	= 'Foo';
 		$relName1 			= 'Foo';
@@ -87,11 +87,11 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	protected function _constructMockModelSet() {
-		return Garp_Spawn_Model_Set::getInstance(
-			new Garp_Spawn_Config_Model_Set(
-				new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
-				new Garp_Spawn_Config_Format_Json
-			)
+		$config = new Garp_Spawn_Config_Model_Set(
+			new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
+			new Garp_Spawn_Config_Format_Json
 		);
+		
+		return Garp_Spawn_Model_Set::getInstance($config);
 	}
 }
