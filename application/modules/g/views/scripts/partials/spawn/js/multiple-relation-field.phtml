@@ -1,7 +1,8 @@
 <?php
 	$params = array(
 		"xtype: 'relationpanel'",
-		"model: '{$this->relation->model}'"
+		"model: '{$this->relation->model}'",
+		"tabTip: '{$this->relation->label}'"
 	);
 	
 	if (!$this->relation->editable):
