@@ -96,15 +96,6 @@ class Garp_Spawn_Relation {
 		return $this->_localModel;
 	}
 	
-	/**
-	 * @param Garp_Spawn_Model_Base $localModel
-	 */
-	protected function _setLocalModel($localModel) {
-		$this->_localModel = $localModel;
-		return $this;
-	}
-
-	
 	public function isPlural() {
 		if ($this->type) {
 			return $this->type === 'hasAndBelongsToMany' || $this->type === 'hasMany';
@@ -112,7 +103,6 @@ class Garp_Spawn_Relation {
 		
 		throw new Exception(self::ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_PLURAL);
 	}
-
 	
 	public function isSingular() {
 		if ($this->type) {
@@ -120,7 +110,6 @@ class Garp_Spawn_Relation {
 		}
 		else throw new Exception(self::ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_SINGULAR);
 	}
-
 
 	public function getParams() {
 		$out = new StdClass();
@@ -149,7 +138,6 @@ class Garp_Spawn_Relation {
 
 		return true;
 	}
-	
 	
 	/**
 	 * @return Garp_Spawn_Model_Base 	A model object, representing the binding model
@@ -194,8 +182,17 @@ class Garp_Spawn_Relation {
 		$new->oppositeRule 	= $old->name;
 		$new->label 		= $old->inverseLabel;
 		$new->inverseLabel 	= $old->label;
+		$new->limit 		= null;
 
 		return $new;
+	}
+
+	/**
+	 * @param Garp_Spawn_Model_Base $localModel
+	 */
+	protected function _setLocalModel($localModel) {
+		$this->_localModel = $localModel;
+		return $this;
 	}
 
 	/**
@@ -252,8 +249,7 @@ class Garp_Spawn_Relation {
 			}
 		}
 	}
-	
-	
+		
 	protected function _appendDefaults($name, array &$params) {
 		//	during execution of this method, self::isSingular() is not yet available.
 		if (!array_key_exists('model', $params) || !$params['model'])
@@ -281,14 +277,12 @@ class Garp_Spawn_Relation {
 			$params['inline'] = false;
 	}
 
-
 	protected function _addRelationColumn() {
 		$this->column = $this->isSingular() ?
 			Garp_Spawn_Relation_Set::getRelationColumn($this->name) :
 			Garp_Spawn_Relation_Set::getRelationColumn($this->_localModel->id)
 		;
 	}
-
 
 	/** Registers this relation as a Field in the Model. */
 	protected function _addRelationFieldInLocalModel() {
