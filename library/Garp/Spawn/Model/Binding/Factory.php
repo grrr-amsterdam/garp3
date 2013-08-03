@@ -30,19 +30,6 @@ class Garp_Spawn_Model_Binding_Factory {
 		$relLabel2 			= $hasNameConflict ? $relation->name . '2' : $localModel->id;
 
 		return array($relLabel1, $relLabel2);
-
-/**
-*	@todo: ---------------- model vs name
-	onderstaande zou beter zijn, maar werkt nog niet
-
-*/
-		$localModel = $relation->getLocalModel();
-
-		$hasNameConflict	= $relation->name === $relation->model;
-		$relLabel1			= $hasNameConflict ? $relation->name . '1' : $relation->name;
-		$relLabel2 			= $hasNameConflict ? $relation->name . '2' : $localModel->id;
-
-		return array($relLabel1, $relLabel2);
 	}
 
 	/**
