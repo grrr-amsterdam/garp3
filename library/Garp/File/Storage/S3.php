@@ -147,15 +147,24 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			}
 		}
 
+		$finfo 	= new finfo(FILEINFO_MIME);
+		$mime 	= $finfo->buffer($data);
+
+		$path = $this->_config['bucket'] . $this->_getUri($filename);
+		$meta = array(
+			Zend_Service_Amazon_S3::S3_ACL_HEADER => Zend_Service_Amazon_S3::S3_ACL_PUBLIC_READ,
+			Zend_Service_Amazon_S3::S3_CONTENT_TYPE_HEADER => $mime
+		);
+
 		if ($this->_api->putObject(
-			$this->_config['bucket'].$this->_getUri($filename),
+			$path,
 			$data,
-			array(
-				Zend_Service_Amazon_S3::S3_ACL_HEADER => Zend_Service_Amazon_S3::S3_ACL_PUBLIC_READ
-			)
+			$meta
 		)) {
 			return $filename;
-		} else return false;
+		}
+
+		return false;
 	}
 
 
