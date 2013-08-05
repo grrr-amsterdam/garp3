@@ -77,6 +77,11 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	title: '',
 	
 	/**
+	 * @cfg: quickCreateReference: used for the "New Something" button label
+	 */
+	quickCreateBtnLabel: '',
+	
+	/**
 	 * @cfg: iconCls: specifies the icon
 	 */
 	//iconCls: null,
@@ -710,6 +715,9 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			if (!this.title) {
 				this.setTitle(__(Garp.dataTypes[this.model].text));
 			}
+			if (!this.quickCreateBtnLabel) {
+				this.quickCreateBtnLabel = this.title;
+			}
 			this.bodyCssClass = 'garp-relatepanel-buttons';
 			
 			this.relateStore = new Ext.data.DirectStore(Ext.apply({}, {
@@ -903,7 +911,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					scope: this
 				}, (Garp.dataTypes[this.model].quickCreatable ? {
 					iconCls: 'icon-new',
-					text: __('New ' + this.title),
+					text: __('New ' + this.quickCreateBtnLabel),
 					handler: function(){
 						var cfg = {
 							model: this.model,
