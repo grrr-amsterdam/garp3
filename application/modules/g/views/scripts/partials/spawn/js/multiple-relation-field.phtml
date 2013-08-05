@@ -16,7 +16,8 @@
 	switch ($this->relation->type):
 		case 'hasMany':
 			$params[] = "rule: '{$this->relation->oppositeRule}'";
-			$params[] = "title: '{$this->relation->label}'";
+			$params[] = "title: __('{$this->relation->label}')";
+			$params[] = "quickCreateBtnLabel: '{$this->relation->label}'";
 		break;
 		case 'hasAndBelongsToMany':
 			$isHomo = $this->relation->model === $this->modelId;
@@ -36,7 +37,8 @@
 
 			$bindingModel = $this->relation->getBindingModel();
 			$params[] = "bindingModel: '{$bindingModel->id}'";
-			$params[] = "title: '{$this->relation->label}'";
+			$params[] = "title: __('{$this->relation->label}')";
+			$params[] = "quickCreateBtnLabel: '{$this->relation->label}'";
 		break;
 		default:
 			$params[] = "rule: '{$this->relation->name}'";
