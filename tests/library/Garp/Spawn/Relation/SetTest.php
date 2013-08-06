@@ -61,7 +61,7 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(array_key_exists($relName3, $opposingHasManyRels), "Does relation {$relName3} exist in {$opposingModelName} model?");
 	}
 
-	public function testHabtmHomoRelations() {
+	public function testHabtmHomoRelationsFromBindingModel() {
 		$modelName 	= 'Bogus';
 		$relName1 	= 'Bogus';
 		$relName2	= 'BogusLike';
@@ -85,6 +85,42 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(array_key_exists($relName2, $belongsToRels2), "Does labeled binding model {$bindingModel2->id} use correct rule names?");
 		$this->assertTrue(array_key_exists($modelName, $belongsToRels2), "Does labeled binding model {$bindingModel2->id} use correct rule names?");
 	}
+
+	public function testOppositeRelationsFromTheSameModel() {
+		$modelNameA = 'Bogus';
+		$modelNameB	= 'Foo';
+
+		$relNamesFromB = array(
+			'Bogus',
+			'Foo2',
+			'PrimaryFoo',
+			'MyBigBogus'
+		);
+
+		$modelA		= $this->_modelSet[$modelNameA];
+		$modelB		= $this->_modelSet[$modelNameB];
+
+		$oppositeRels = $modelB->relations->getRelations();
+
+		foreach ($relNamesFromB as $relName) {
+			$this->assertTrue(array_key_exists($relName, $oppositeRels), "Does mirrored relation {$relName} exist in {$modelNameB}?");
+		}
+	}
+
+	public function testOppositeHabtmRelationNameForCustomNamedRelations() {
+		$modelNameA = 'Bogus';
+		$relNameFromA = 'BogusLike';
+		$modelNameB	= 'Foo';
+
+		$modelA		= $this->_modelSet[$modelNameA];
+		$modelB		= $this->_modelSet[$modelNameB];
+
+		$relFromA = $modelA->relations->getRelation($relNameFromA);
+
+		$this->assertNotNull($relFromA);
+		$this->assertEquals($relNameFromA, $relFromA->oppositeRule);
+	}
+
 	
 	protected function _constructMockModelSet() {
 		$config = new Garp_Spawn_Config_Model_Set(
