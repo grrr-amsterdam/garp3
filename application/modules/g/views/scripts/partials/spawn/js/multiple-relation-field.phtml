@@ -20,14 +20,19 @@
 			$params[] = "quickCreateBtnLabel: '{$this->relation->label}'";
 		break;
 		case 'hasAndBelongsToMany':
-			$isHomo = $this->relation->model === $this->modelId;
+			$isHomo 			= $this->relation->model === $this->modelId;
 			$hasConflictingName = $this->relation->name === $this->modelId;
+			$isCustomNamed		= $this->relation->name !== $this->relation->model;
 
 			if ($hasConflictingName):
 				$params[] = "rule: '{$this->relation->name}1'";
 				$params[] = "rule2: '{$this->relation->name}2'";
 			else:
-				$params[] = "rule: '{$this->relation->oppositeRule}'";
+				$oppositeRule = $isCustomNamed
+					? $this->relation->model
+					: $this->relation->oppositeRule
+				;
+				$params[] = "rule: '{$oppositeRule}'";
 				$params[] = "rule2: '{$this->relation->name}'";
 			endif;
 

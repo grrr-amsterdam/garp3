@@ -131,7 +131,7 @@ class Garp_Spawn_Relation_Set {
 	 * Event hasAndBelongsToMany Tag results in Tag hasAndBelongsToMany Event.
 	 */
 	public function addMirrored() {
-		// $this->_mirrorHabtmRelations();
+		$this->_mirrorHabtmRelations();
 		$this->_mirrorHasManyRelations();
 	}
 
