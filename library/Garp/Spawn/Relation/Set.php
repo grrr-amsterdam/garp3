@@ -167,22 +167,30 @@ class Garp_Spawn_Relation_Set {
 
 	protected function _mirrorHasManyRelations() {
 		$singularRelations = $this->getSingularRelations();
+		$singularRelations = array_filter($singularRelations, array($this, '_hasManyShouldMirror'));
 
-		foreach ($singularRelations as $relationName => $relation) {
-			if (!$relation->inverse) {
-				continue;
-			}
-
+		foreach ($singularRelations as $relation) {
 			$this->_mirrorRelationsInModel($relation);
 		}
 	}
 	
 	protected function _mirrorHabtmRelations() {
 		$habtmRelations = $this->getRelations('type', array('hasAndBelongsToMany'));
+		$habtmRelations = array_filter($habtmRelations, array($this, '_habtmShouldMirror'));
 
 		foreach ($habtmRelations as $relationName => $relation) {
 			$this->_mirrorRelationsInModel($relation);
 		}
+	}
+
+	protected function _hasManyShouldMirror(Garp_Spawn_Relation $relation) {
+		return $relation->inverse;
+	}
+
+	protected function _habtmShouldMirror(Garp_Spawn_Relation $relation) {
+		$isHomophile = $this->getModel()->id === $relation->model;
+
+		return (!$isHomophile && !$relation->mirrored && $relation->inverse);
 	}
 	
 	protected function _mirrorRelationsInModel(Garp_Spawn_Relation $relation) {

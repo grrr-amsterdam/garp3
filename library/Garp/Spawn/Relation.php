@@ -58,6 +58,12 @@ class Garp_Spawn_Relation {
 	 */
 	public $inline;
 
+	/**
+	 * Whether this relation was created by mirroring, i.e. a configured relation that lead to
+	 * this relation from the opposite model.
+	 */
+	public $mirrored = false;
+
 	/** @var Garp_Spawn_Model_Base $_model The local model in which this relation is defined. */
 	protected $_localModel;
 
@@ -183,6 +189,7 @@ class Garp_Spawn_Relation {
 		$new->label 		= $old->inverseLabel;
 		$new->inverseLabel 	= $old->label;
 		$new->limit 		= null;
+		$new->mirrored 		= true;
 
 		return $new;
 	}
@@ -286,16 +293,18 @@ class Garp_Spawn_Relation {
 
 	/** Registers this relation as a Field in the Model. */
 	protected function _addRelationFieldInLocalModel() {
-		if ($this->isSingular()) {
-			$column = Garp_Spawn_Relation_Set::getRelationColumn($this->name);
-			$fieldParams = array(
-				'type' => 'numeric',
-				'editable' => false,
-				'visible' => false,
-				'required' => $this->required
-			);
-			$this->_localModel->fields->add('relation', $column, $fieldParams);
+		if (!$this->isSingular()) {
+			return;
 		}
+
+		$column = Garp_Spawn_Relation_Set::getRelationColumn($this->name);
+		$fieldParams = array(
+			'type' => 'numeric',
+			'editable' => false,
+			'visible' => false,
+			'required' => $this->required
+		);
+		$this->_localModel->fields->add('relation', $column, $fieldParams);
 	}	
 	
 	protected function _addOppositeRule() {
