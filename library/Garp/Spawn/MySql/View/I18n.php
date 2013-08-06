@@ -84,7 +84,7 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 		//	Unilingual fields
 		$unilingualFieldRefs = array();
 		foreach ($unilingualFields as $field) {
-			$unilingualFieldRefs[] = $table . '.' . $field->name . ' AS ' . $field->name;
+			$unilingualFieldRefs[] = '`' . $table . '`.`' . $field->name . '` AS `' . $field->name . '`';
 		}
 		$sql .= implode(', ', $unilingualFieldRefs) . ', ';
 
@@ -105,7 +105,6 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 		if ($locale !== $defaultLocale) {
 			$sql .= $this->_renderJoinForLocale($defaultLocale);
 		}
-
 		return $sql;		
 	}
 	
