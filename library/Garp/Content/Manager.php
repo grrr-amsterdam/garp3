@@ -64,6 +64,7 @@ class Garp_Content_Manager {
 				->setDefault('fields', Zend_Db_Table_Select::SQL_WILDCARD)
 				->setDefault('group', array())
 				->setDefault('rule', null)
+				->setDefault('bindingModel', null)
 				->setDefault('filterForeignKeys', false)
 			;
 			$options['sort']   = (array)$options['sort'];
@@ -103,7 +104,7 @@ class Garp_Content_Manager {
 					}
 				}
 
-				$this->_addJoinClause($select, $related, $options['rule']);
+				$this->_addJoinClause($select, $related, $options['rule'], $options['bindingModel']);
 
 				// Add WHERE clause if there still remains something after 
 				// filtering.
@@ -407,9 +408,10 @@ class Garp_Content_Manager {
 	 * @param Zend_Db_Select $select The select object
 	 * @param Array $related Collection of related models
 	 * @param String $rule Used to figure out the relationship metadata from the referencemap
+	 * @param String $bindingModel Binding model used in HABTM relations
 	 * @return Void
 	 */
-	protected function _addJoinClause(Zend_Db_Select $select, array $related, $rule = null) {
+	protected function _addJoinClause(Zend_Db_Select $select, array $related, $rule = null, $bindingModel = null) {
 		foreach ($related as $filterModelName => $filterValue) {
 			$fieldInfo = explode('.', $filterModelName, 2);
 			$filterModelName = Garp_Content_Api::modelAliasToClass($fieldInfo[0]);
@@ -461,7 +463,8 @@ class Garp_Content_Manager {
 							'filterModel'	=> $filterModel,
 							'filterColumn'	=> $filterColumn,
 							'filterValue'	=> $filterValue,
-							'negation'		=> $negation
+							'negation'		=> $negation,
+							'bindingModel'  => $bindingModel
 						));
 					} catch (Zend_Db_Table_Exception $e) {
 						throw $e;
@@ -600,9 +603,13 @@ class Garp_Content_Manager {
 	protected function _addHasAndBelongsToManyClause(array $options) {
 		// keys of $options available in the local space as variables
 		extract($options);
-		$modelNames = array($this->_model->getNameWithoutNamespace(), $filterModel->getNameWithoutNamespace());
-		sort($modelNames);
-		$bindingModelName = 'Model_'.implode('', $modelNames);
+		if (!isset($bindingModel)) {
+			$modelNames = array($this->_model->getNameWithoutNamespace(), $filterModel->getNameWithoutNamespace());
+			sort($modelNames);
+			$bindingModelName = 'Model_'.implode('', $modelNames);
+		} else {
+			$bindingModelName = 'Model_'.$bindingModel;
+		}
 		$bindingModel = new $bindingModelName();
 		$thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
 		$bindingModelTable = $bindingModel->getName();
