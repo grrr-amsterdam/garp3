@@ -271,8 +271,10 @@ class Garp_Spawn_Relation {
 		if (!array_key_exists('limit', $params) && $this->_isSingularByArg($params['type']))
 			$params['limit'] = 1;
 
-		if (!array_key_exists('inverse', $params))
-			$params['inverse'] = $this->_isSingularByArg($params['type']);
+		if (!array_key_exists('inverse', $params)) {
+			$params['inverse'] = true;
+			// $params['inverse'] = $this->_isSingularByArg($params['type']);
+		}
 
 		if (!array_key_exists('editable', $params))
 			$params['editable'] = true;
