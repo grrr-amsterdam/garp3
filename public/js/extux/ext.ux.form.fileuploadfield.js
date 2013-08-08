@@ -18,7 +18,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
      * 'Browse...').  Note that if you supply a value for {@link #buttonCfg}, the buttonCfg.text
      * value will be used instead if available.
      */
-    buttonText: 'Browse...',
+    buttonText: __('Browse&hellip;'),
     /**
      * @cfg {Boolean} buttonOnly True to display the file upload field as a button with no visible
      * text field (defaults to false).  If true, all inherited TextField members will still be available.
@@ -88,19 +88,20 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
         this.fileInput.on({
             scope: this,
             mouseenter: function() {
-                this.button.addClass(['x-btn-over','x-btn-focus'])
+                this.button.addClass(['x-btn-over','x-btn-focus']);
             },
             mouseleave: function(){
-                this.button.removeClass(['x-btn-over','x-btn-focus','x-btn-click'])
+                this.button.removeClass(['x-btn-over','x-btn-focus','x-btn-click']);
             },
             mousedown: function(){
-                this.button.addClass('x-btn-click')
+                this.button.addClass('x-btn-click');
             },
             mouseup: function(){
-                this.button.removeClass(['x-btn-over','x-btn-focus','x-btn-click'])
+                this.button.removeClass(['x-btn-over','x-btn-focus','x-btn-click']);
             },
             change: function(){
                 var v = this.fileInput.dom.value;
+                alert('yo');
                 this.setValue(v);
                 this.fireEvent('fileselected', this, v);    
             }
@@ -137,7 +138,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
         this.wrap.setWidth(w);
 
         if(!this.buttonOnly){
-            var w = this.wrap.getWidth() - this.button.getEl().getWidth() - this.buttonOffset;
+            w = this.wrap.getWidth() - this.button.getEl().getWidth() - this.buttonOffset;
             this.el.setWidth(w);
         }
     },
