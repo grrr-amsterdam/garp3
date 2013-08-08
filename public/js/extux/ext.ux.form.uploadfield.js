@@ -87,6 +87,25 @@ Ext.ns('Ext.ux.form');
 		handleFileSelect: function(){
 			this.performUpload(this.fileInput);
 		},
+
+		/**
+		 * See if upload is image
+		 */
+		isImage: function(file) {
+			var extension = file.name.split('.').pop();
+			if (!extension) {
+				return false;
+			}
+
+			var img_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+			for (var i = 0, ii = img_extensions.length; i < ii; ++i) {
+				if (img_extensions[i] === extension) {
+					alert('Plaatje ja!');
+					return true;
+				}
+			}
+			return false;
+		},
 		
 		/**
 		 * Check extension and go!
@@ -140,7 +159,7 @@ Ext.ns('Ext.ux.form');
 					Ext.Msg.alert(label || __('Garp'), message || __('Error uploading file.'));
 				};
 
-				this.validateResolution(file, function(success) {
+				var proceedToUpload = function(success) {
 					if (!success) {
 						var readableMaxSurface = Ext.util.Format.number(scope.maxSurface, "1000.000/i");
 						var exampleA = Math.floor(Math.sqrt(scope.maxSurface));
@@ -195,7 +214,13 @@ Ext.ns('Ext.ux.form');
 						}, 350);
 						
 					}
-				});
+				};
+
+				if (this.isImage(file)) {
+					this.validateResolution(file, proceedToUpload);
+				} else {
+					proceedToUpload(true);
+				}
 			}
 		},
 		
