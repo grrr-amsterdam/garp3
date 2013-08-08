@@ -101,7 +101,6 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             },
             change: function(){
                 var v = this.fileInput.dom.value;
-                alert('yo');
                 this.setValue(v);
                 this.fireEvent('fileselected', this, v);    
             }
