@@ -1,0 +1,170 @@
+/* ==========================================================================
+   variables
+   ========================================================================== */
+
+// COLORS
+// The following is inspired by this article: http://sachagreif.com/sass-color-variables/
+$black: #222;
+$lightYellow: #fff6e6;
+$pink: #ff3355;
+$darkPink: #a61a49;
+$blue: #25bedb;
+$darkBlue: #058ebd;
+$purple: #561f70;
+
+$textColor: $black;
+$linkColor: $pink;
+$primaryColor: $pink;
+$secondaryColor: $blue;
+$backgroundColor: $lightYellow;
+
+// GRID UNITS
+$gridColumnWidth: 120px;
+$gridGutterWidth: 40px;
+$gridColumnCount: 6;
+$gridFullWidth: $gridColumnCount*($gridColumnWidth+$gridGutterWidth);
+
+$margin: 20px;
+$marginHalf: 10px;
+$marginDouble: 40px;
+
+// BREAKPOINTS
+// The following is inspired by this article: http://css-tricks.com/media-queries-sass-3-2-and-codekit/
+$small: pxToEm(320);
+$medium: pxToEm(600);
+$large: pxToEm(1400);
+
+$fix-mqs: false !default;
+$old-ie: false !default;
+
+/* ==========================================================================
+   mixins and functions
+   ========================================================================== */
+
+/**
+ * For converting pixels to ems
+ * Based on a 10px font-size on the html
+ * Usage:
+ * div { width: pxToEm(300); }
+ * Returns:
+ * div { width: 30em; }
+ */
+@function pxToEm($pixels){
+	@return ($pixels/16)+0em;
+}
+
+/**
+ * For image replacement
+ */
+@mixin hide-text {
+	font: 0/0 a;
+	text-shadow: none;
+	color: transparent;
+	background-color: transparent;
+	border: 0 none;
+}
+
+/**
+ * For font-sizing in rem
+ * Usage:
+ * html { font-size: 62.5%; }
+ * p { @include font-size(16); }
+ */
+@mixin font-size($font-size) {
+	font-size: #{$font-size}px;
+	font-size: #{$font-size / 10}rem;
+}
+
+/**
+ * For using breakpoints
+ * Usage:
+ * div { width: 60px;
+ *	@include breakpoint($small) { width: 80px; }
+ * }
+ * 
+ * Pass true as a second parameter to toggle high dpi screens
+ */
+@mixin breakpoint-min($point: 0em, $highDpi: false) {
+	@if $fix-mqs {
+        @content;
+	} @else {
+		@if $highDpi == true {
+			@media only screen and (min-width: $point) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $point) and (min-device-pixel-ratio: 2) { @content; }
+		} @else {
+	    	@media only screen and (min-width: $point) { @content; }
+		}
+	}
+}
+
+@mixin breakpoint-max($point: 0em, $highDpi: false) {
+	@if $fix-mqs {
+		@content;
+	} @else {
+		@if($highDpi == true) {
+			@media only screen and (max-width: ($point - 0.0625em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $point) and (min-device-pixel-ratio: 2) { @content; }
+		} @else {
+	    	@media only screen and (max-width: ($point - 0.0625em)) { @content; }
+		}
+	}
+}
+
+/**
+ * For targetting high dpi screens
+ * Usage:
+ * div { 
+ *	width: 30px; height: 30px; background: url('img.jpg'); 
+ *	@include high-dpi() { background: url('image-2x.jpg'); @include background-size(30px 30px); }
+ * }
+ */
+@mixin high-dpi() {
+	@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and(min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2) { @content; }
+}
+
+/**
+ * For targeting old-IE
+ * Usage:
+ * div {
+ *  @include old-ie { zoom: 1; }
+ * }
+ */
+@mixin old-ie {
+    // Only use this content if we're dealing with old IE
+    @if $old-ie {
+        @content;
+    }
+}
+
+/**
+ * Calculate fluid ratio based on two dimensions (width/height)
+ * @see http://voormedia.com/blog/2012/11/responsive-background-images-with-fixed-or-fluid-aspect-ratios
+ * Usage:
+ * .header { @include fluid-ratio(800px 200px, 300px 150px); background-image: url('img/branding.png'); }
+ */
+@mixin fluid-ratio($large-size, $small-size) {
+  $width-large: nth($large-size, 1);
+  $width-small: nth($small-size, 1);
+  $height-large: nth($large-size, 2);
+  $height-small: nth($small-size, 2);
+  $slope: ($height-large - $height-small) / ($width-large - $width-small);
+  $height: $height-small - $width-small * $slope;
+
+  padding-top: $slope * 100%;
+  height: $height;
+
+  background-size: cover;
+  -moz-background-size: cover;  /* Firefox 3.6 */
+  background-position: center;  /* Internet Explorer 7/8 */
+}
+
+/* ==========================================================================
+   non-semantic helper classes
+   ========================================================================== */
+.hidden { display: none !important; visibility: hidden !important; }
+.offscreen { position: absolute !important; left: -999em !important; }
+.invisible { visibility: hidden !important; }
+.clearfix { zoom: 1;
+	&:after { height: 0; visibility: hidden; display: block; clear: both; content: ''; }
+}
+
+/* Make sure Like buttons do not suffer from cut-off comment-box syndrome */
+.fb_iframe_widget span { width: 450px !important; }
