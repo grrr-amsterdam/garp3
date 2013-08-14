@@ -1,0 +1,60 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="nl"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="nl"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="nl"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="nl"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<title><?php if ($this->title): echo $this->escape($this->title).' | '; endif; echo $this->escape($this->config()->app->name); ?></title>
+
+		<meta http-equiv="cleartype" content="on">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<?php
+			/* Robots must never crawl staging or development sites! */
+			if (APPLICATION_ENV != 'production'):
+		?>
+		<meta name="robots" content="noindex, nofollow">
+		<?php endif; ?>
+
+		<meta name="description" content="<?php echo $this->escape($this->description ?: $this->config()->app->description); ?>">
+		<?php // echo $this->social()->facebookOgData($this->ogData ?: array()); ?>
+
+		<!--[if lte IE 8]>
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/compiled/ie-old.css') ?>">
+		<![endif]-->
+		<!--[if gt IE 8]><!-->
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/compiled/base.css') ?>">
+		<!--<![endif]-->
+		<script src="<?php echo $this->assetUrl('/js/libs/modernizr-2.6.2.min.js') ?>"></script>
+
+<?php /* Uncomment when applicable: (@see http://mathiasbynens.be/notes/touch-icons)
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon.png"><!-- For iPhone 4 with high-resolution Retina display: -->
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon.png"><!-- For first-generation iPad: -->
+		<link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-precomposed.png"><!-- For non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
+		<link rel="shortcut icon" href="img/apple-touch-icon.png"><!-- For nokia devices: -->
+*/ ?>
+		<link rel="shortcut icon" href="<?php echo $this->baseUrl('/favicon.ico') ?>">
+	</head>
+	<body>
+		<?php echo $this->partial('partials/cookie-announcement.phtml', 'default');?>
+		<div id="container">
+			<?php echo $this->partial('partials/header.phtml', 'default', array('currentPage' => $this->currentPage)); ?>
+			<div id="main" role="main">
+				<?php echo $this->layout()->content ?>
+			</div>
+		</div>
+
+		<!-- Grab Google CDN's jQuery. fall back to local if necessary -->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+		<script>!window.jQuery && document.write(unescape('%3Cscript src="<?php echo $this->assetUrl('/js/libs/jquery-1.8.1.min.js') ?>"%3E%3C/script%3E'))</script>
+		<script src="<?php echo $this->assetUrl('/js/garp/garp.front.js') ?>"></script>
+		<script src="<?php echo $this->assetUrl('/js/main.js') ?>"></script>
+		<?php 
+			echo $this->script()->render();
+			if ($browseboxConfig = $this->browsebox()->config()):
+				echo $browseboxConfig;
+			endif;
+			echo $this->partial('partials/google-analytics.phtml', 'g');
+		?>
+	</body>
+</html>
