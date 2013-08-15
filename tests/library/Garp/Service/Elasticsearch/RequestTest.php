@@ -5,12 +5,12 @@
  * @group Elasticsearch
  */
 class Garp_Service_Elasticsearch_RequestTest extends PHPUnit_Framework_TestCase {
+	const BOGUS_PATH = '/Bogus/666';
 
 
 	public function testRequestShouldNotHaveDuplicateSlashes() {
-		$config 	= new Garp_Service_Elasticsearch_Configuration();
 		$method 	= Garp_Service_Elasticsearch_Request::GET;
-		$request 	= new Garp_Service_Elasticsearch_Request($config, $method);
+		$request 	= new Garp_Service_Elasticsearch_Request($method, self::BOGUS_PATH);
 		$url 		= $request->getUrl();
 
 		// strip off the protocol, cause those duplicate slashes don't count.

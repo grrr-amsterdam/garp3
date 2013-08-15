@@ -32,6 +32,8 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
 		$model = $this->getModel();
 		$model->save($bogusData);
 
+		
+
 		// $this->assertTrue(!empty($baseUrl), 'Does configuration.baseUrl have a value?');
 	}
 
