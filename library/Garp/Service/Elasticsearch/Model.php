@@ -11,6 +11,7 @@
 class Garp_Service_Elasticsearch_Model {
 	const ERROR_NO_ID =
 		'An id should be present in the provided data.';
+	const SEPARATOR = '/';
 
 	/**
 	 * @var String $_modelName
@@ -29,29 +30,24 @@ class Garp_Service_Elasticsearch_Model {
 			throw new Exception(self::ERROR_NO_ID);
 		}
 
-		$url = $this->getUrl($data['id']);
-
+		$path = $this->getPath($data['id']);
 		unset($data['id']);
 
-		$request 	= new Garp_Service_Elasticsearch_Request('PUT', '/');
+		$request 	= new Garp_Service_Elasticsearch_Request('PUT', $path);
+		$response	= $request->execute();
 
-
-		Zend_Debug::dump($url);
-
-		Zend_Debug::dump($data); exit;
+		return $response->isOk();
 	}
 
 	public function getPath($id) {
 		$modelName 	= $this->getModelName();
 
 		$urlParts = array(
-			$baseUrl,
-			$index,
 			$modelName,
 			$id
 		);
 
-		$url = implode('/', $urlParts);
+		$url = self::SEPARATOR . implode(self::SEPARATOR, $urlParts);
 		return $url;
 	}
 	

@@ -68,6 +68,21 @@ class Garp_Service_Elasticsearch_Request {
 	}
 	
 	/**
+	 * Creates a full url out of a relative path.
+	 * @param String $path A relative path without index, preceded by a slash.
+	 */
+	public function getUrl() {
+		$config 	= $this->getConfig();
+		$baseUrl 	= $config->getBaseUrl();
+		$index 		= $config->getIndex();
+		$path 		= $this->getPath();
+
+		$url 		= $baseUrl . '/' . $index . $path;
+
+		return $url;
+	}
+
+	/**
 	 * @return Garp_Service_Elasticsearch_Configuration
 	 */
 	public function getConfig() {
@@ -125,21 +140,6 @@ class Garp_Service_Elasticsearch_Request {
 	public function setMethod($method) {
 		$this->_method = $method;
 		return $this;
-	}
-
-	/**
-	 * Creates a full url out of a relative path.
-	 * @param String $path A relative path without index, preceded by a slash.
-	 */
-	public function getUrl() {
-		$config 	= $this->getConfig();
-		$baseUrl 	= $config->getBaseUrl();
-		$index 		= $config->getIndex();
-		$path 		= $this->getPath();
-
-		$url 		= $baseUrl . '/' . $index . $path;
-
-		return $url;
 	}
 
 	protected function _validateMethod($method) {
