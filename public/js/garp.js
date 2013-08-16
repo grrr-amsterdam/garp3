@@ -80,6 +80,10 @@
 		if(count > 1){
 			count = 2;
 		}
+		if(window.innerWidth <= Garp.SMALLSCREENWIDTH && count == 1){
+			Garp.viewport.gridPanelCt.collapse();
+		}
+		
 		if (Garp.updateUI.prevCount && Garp.updateUI.prevCount == count) {
 			return;
 		}
@@ -96,6 +100,7 @@
 				Garp.viewport.infoPanel.updateCount(Garp.gridPanel.getStore().getTotalCount());
 				break;
 		}
+		
 		Garp.updateUI.prevCount = count;
 		return true;
 	};
