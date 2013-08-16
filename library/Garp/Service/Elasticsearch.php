@@ -1,11 +1,13 @@
 <?php
 /**
  * Garp_Service_Elasticsearch
+ * This class handles the overall Elasticsearch functionality.
+ * For model based interaction, you'll need Garp_Service_Elasticsearch_Model instead.
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
-* @subpackage Elasticsearch
+ * @subpackage Elasticsearch
  * @lastmodified $Date: $
  */
 class Garp_Service_Elasticsearch extends Zend_Service_Abstract {

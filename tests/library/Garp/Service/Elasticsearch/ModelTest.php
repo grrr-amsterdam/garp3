@@ -28,13 +28,17 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
 
 	public function testSavingRecordShouldBeFetchable() {
 		$bogusData = $this->getBogusData();
+		$this->_createBogusRecord();
 
-		$model = $this->getModel();
-		$model->save($bogusData);
+		$data = $this->_fetchBogusRecord();
 
-		
+		$this->assertTrue($data['exists'], 'Does the bogus record exist?');
+		$this->assertEquals($data['_source']['name'], $bogusData['name'], 'Does the stored name equal the bogus data?');
 
-		// $this->assertTrue(!empty($baseUrl), 'Does configuration.baseUrl have a value?');
+		$this->_deleteBogusRecord();
+
+		$data = $this->_fetchBogusRecord();
+		$this->assertFalse($data['exists'], 'Is the bogus record actually removed?');
 	}
 
 	/**
@@ -59,5 +63,29 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
 		return $this->_bogusData;
 	}
 	
+	protected function _createBogusRecord() {
+		$bogusData 	= $this->getBogusData();
+
+		$model = $this->getModel();
+		$model->save($bogusData);
+	}
+
+	protected function _fetchBogusRecord() {
+		$bogusData 	= $this->getBogusData();
+		$bogusId 	= $bogusData['id'];
+
+		$model 		= $this->getModel();
+		$record 	= $model->fetch($bogusId);
+
+		return json_decode($record, true);
+	}
+
+	protected function _deleteBogusRecord() {
+		$bogusData 	= $this->getBogusData();
+		$bogusId 	= $bogusData['id'];
+
+		$model 		= $this->getModel();
+		$model->delete($bogusId);
+	}
 
 }
