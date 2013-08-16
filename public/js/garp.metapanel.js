@@ -6,6 +6,21 @@ Ext.ns('Garp');
 
 Garp.MetaPanel = Ext.extend(Ext.Container, {
 	
+	/**
+	 * @cfg disable publishable editor
+	 */
+	disablePublishedEdit: false,
+
+	/**
+	 * @cfg disable created editor
+	 */
+	disableCreatedEdit: false,
+
+	/**
+	 * @cfg disable author id editor
+	 */
+	disableAuthorIdEdit: false,
+	
 	region: 'east',
 	width: 190,
 	maxWidth: 190,
@@ -64,7 +79,10 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 				case 'published':
 					tpl.push('<h3>', __('Published'), '</h3>', 
 						'<tpl if="typeof online_status !== &quot;undefined&quot;  && online_status === &quot;1&quot;">',
-							'<a class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</a>',
+							(this.disablePublishedEdit 
+								? '<span class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</span>' 
+								: '<a class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</a>'
+							),
 							'<tpl if="values.published">', 
 								' <a class="remove-published-date" title="', __('Delete'), '"> </a>', 
 							'</tpl>', 
@@ -160,7 +178,9 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			updateEl: false,
 			ignoreNoChange: true
 		};
+		
 		this.authorIdEditor = new Ext.Editor(Ext.apply({}, {
+			disabled: this.disableAuthorIdEdit, 
 			field: {
 				xtype: 'relationfield',
 				model: 'User',
@@ -177,6 +197,7 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			}
 		}, cfg));
 		this.createdDateEditor = new Ext.Editor(Ext.apply({}, {
+			disabled: this.disableCreatedEdit,
 			listeners: {
 				'beforecomplete': function(e, v){
 					if (v) {
@@ -187,6 +208,7 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			}
 		}, cfg));
 		this.publishedDateEditor = new Ext.Editor(Ext.apply({}, {
+			disabled: this.disablePublishedEdit,
 			listeners: {
 				'beforecomplete': function(e, v){
 					if (v) {
