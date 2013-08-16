@@ -30,25 +30,33 @@ class Garp_Service_Elasticsearch_Model {
 			throw new Exception(self::ERROR_NO_ID);
 		}
 
-		$path = $this->getPath($data['id']);
+		$path = $this->_getPath($data['id']);
 		unset($data['id']);
 
-		$request 	= new Garp_Service_Elasticsearch_Request('PUT', $path);
+		$request 	= new Garp_Service_Elasticsearch_Request('PUT', $path, $data);
+		$response	= $request->execute();
+
+		if (!$response->isOk()) {
+			throw new Exception($response->getBody());
+		}
+	}
+
+	public function fetch($id) {
+		$path = $this->_getPath($id);
+
+		$request 	= new Garp_Service_Elasticsearch_Request('GET', $path);
+		$response	= $request->execute();
+
+		return $response->getBody();
+	}
+
+	public function delete($id) {
+		$path = $this->_getPath($id);
+
+		$request 	= new Garp_Service_Elasticsearch_Request('DELETE', $path);
 		$response	= $request->execute();
 
 		return $response->isOk();
-	}
-
-	public function getPath($id) {
-		$modelName 	= $this->getModelName();
-
-		$urlParts = array(
-			$modelName,
-			$id
-		);
-
-		$url = self::SEPARATOR . implode(self::SEPARATOR, $urlParts);
-		return $url;
 	}
 	
 	/**
@@ -66,5 +74,16 @@ class Garp_Service_Elasticsearch_Model {
 		return $this;
 	}
 
+	public function _getPath($id) {
+		$modelName 	= $this->getModelName();
+
+		$urlParts = array(
+			$modelName,
+			$id
+		);
+
+		$url = self::SEPARATOR . implode(self::SEPARATOR, $urlParts);
+		return $url;
+	}
 
 }
