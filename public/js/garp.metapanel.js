@@ -21,6 +21,10 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 	 */
 	disableAuthorIdEdit: false,
 	
+	/**
+	 * @TODO: add more disable cfg's when needed
+	 */
+	
 	region: 'east',
 	width: 190,
 	maxWidth: 190,
@@ -133,6 +137,9 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 	 */
 	bindEditors: function(){
 		this.el.select('#author-name').un('click').on('click', function(e, el){
+			if(this.disableAuthorIdEdit){
+				return;
+			}
 			this.authorIdEditor.startEdit(el, this.rec.get('author_id'));
 			this.authorIdEditor.field.triggerFn();
 			this.authorIdEditor.el.hide();
@@ -141,10 +148,16 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			this.setVal('online_status', Ext.get(el).getAttribute('checked') ? '0' : '1', true);
 		}, this);
 		this.el.select('#created-date').un('click').on('click', function(e, el){
+			if(this.disableCreatedEdit){
+				return;
+			}
 			this.createdDateEditor.startEdit(el, this.rec.get('created'));
 			this.createdDateEditor.field.df.onTriggerClick();
 		}, this);
 		this.el.select('.published-date').un('click').on('click', function(e, el){
+			if(this.disablePublishedEdit){
+				return;
+			}
 			this.publishedDateEditor.startEdit(el, this.rec.get('published'));
 			this.publishedDateEditor.field.df.onTriggerClick();
 		}, this);
