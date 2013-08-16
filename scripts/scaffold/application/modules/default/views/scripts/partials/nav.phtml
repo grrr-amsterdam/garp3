@@ -1,0 +1,22 @@
+<?php
+$pages = array(
+	array('home', '/', 'Home'),
+	array('about-us', '/about/', 'About us'),
+	array('contact', '/contact/', 'Contact'),
+);
+?>
+<nav class="main-navigation">
+	<ul>
+<?php
+foreach ($pages as $page):
+	$pageId = $page[0];
+	$pageUrl = $page[1];
+	$pageLabel = $page[2];
+	$useCurrentClass = $this->currentPage == $pageId;
+?>
+		<li<?php if ($useCurrentClass): ?> class="current"<?php endif ?>><?php echo $this->htmlLink($pageUrl, $pageLabel) ?></li>
+<?php
+endforeach;
+?>
+	</ul>
+</nav>

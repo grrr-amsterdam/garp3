@@ -39,6 +39,7 @@ Garp.ModelMenu = function(cfg){
 						iconCls: dataType.iconCls,
 						handler: function(){
 							Garp.viewport.formPanelCt.show();
+							Garp.viewport.gridPanelCt.expand();
 							Garp.eventManager.fireEvent('modelchange', true, model, null, null);
 						}
 					});
@@ -58,6 +59,14 @@ Garp.ModelMenu = function(cfg){
 			items: menuItems
 		})
 	}));
+
+	this.on('afterrender', function(){
+		this.getEl().on('click', function(){
+			Garp.viewport.gridPanelCt.expand();
+		});
+	}, this);
+	
+	
 };
 
 Ext.extend(Garp.ModelMenu, Ext.Button, {});
