@@ -499,8 +499,12 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 		};
 		
 		var cm = Garp.dataTypes[Garp.currentModel];
-		var metaPanelCfg = cm.metaPanelConfig ? cm.metaPanelConfig : {};
+		var metaPanelCfg = Ext.apply({
+			hidden: window.innerWidth <= Garp.SMALLSCREENWIDTH
+		}, cm.metaPanelConfig ? cm.metaPanelConfig : {});
 		items[0].items.push(this.metaPanel = new Garp.MetaPanel(metaPanelCfg));
+
+		console.info(metaPanelCfg);
 
 		this.items = {
 			xtype:'tabpanel',
