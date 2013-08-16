@@ -9,8 +9,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Service_Elasticsearch_Request {
-	const GET = 'GET';
-	const PUT = 'PUT';
+	const GET 		= 'GET';
+	const PUT 		= 'PUT';
+	const DELETE 	= 'DELETE';
 
 	const ERROR_INVALID_METHOD =
 		'This method is not valid as a Elasticsearch_Request method.';
@@ -36,10 +37,17 @@ class Garp_Service_Elasticsearch_Request {
 	protected $_config;
 	
 	/**
+	 * @var Array $_data
+	 */
+	protected $_data;
+	
+
+	/**
 	 * @param String 									$method 	One of these class' constants
 	 * @param String 									$path 		Relative path, excluding index, preceded by a slash
+	 * @param Array 									[$data]		List of parameters and their values
 	 */
-	public function __construct($method, $path) {
+	public function __construct($method, $path, $data = null) {
 		$config = new Garp_Service_Elasticsearch_Configuration();
 		$this->setConfig($config);
 
@@ -48,6 +56,8 @@ class Garp_Service_Elasticsearch_Request {
 		
 		$this->setPath($path);
 		$this->setClient(new Zend_Http_Client());
+
+		$this->setData($data);
 	}
 
 	/**
@@ -58,11 +68,19 @@ class Garp_Service_Elasticsearch_Request {
 		$method = constant('Zend_Http_Client::' . $this->getMethod());
 		$client = $this->getClient();
 		$url 	= $this->getUrl();
+		$data 	= $this->getData();
 
-		$response = $client
+		$client
 			->setMethod($method)
-			->setUri($url)
-			->request();
+			->setUri($url);
+
+		if ($data) {
+			$client->setRawData(json_encode($data));
+		}
+
+		$response = $client->request();
+
+		// $client->getLastRequest()
 
 		return new Garp_Service_Elasticsearch_Response($response);
 	}
@@ -142,10 +160,26 @@ class Garp_Service_Elasticsearch_Request {
 		return $this;
 	}
 
+	/**
+	 * @return Array
+	 */
+	public function getData() {
+		return $this->_data;
+	}
+	
+	/**
+	 * @param Array $data
+	 */
+	public function setData($data) {
+		$this->_data = $data;
+		return $this;
+	}
+
 	protected function _validateMethod($method) {
 		$validMethods = array(
 			self::GET,
-			self::PUT
+			self::PUT,
+			self::DELETE
 		);
 		
 		if (!in_array($method, $validMethods)) {
