@@ -235,6 +235,15 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getDefaultOrder() {
 		return $this->_defaultOrder;
 	}
+
+
+	/**
+ 	 * Makes _getReferenceMapNormalized() available to the public.
+ 	 * @return Array
+ 	 */
+	public function getReferenceMapNormalized() {
+		return $this->_getReferenceMapNormalized();
+	}
 	
 	
 	/**
