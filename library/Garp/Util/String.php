@@ -16,13 +16,11 @@ class Garp_Util_String {
 	    return preg_replace_callback('/([A-Z])/', function($str) { return "_".strtolower($str[1]); }, $str);
 	}
 
-
 	/** Converts 'SnoopDoggyDog' to 'snoop-doggy-dog' */
 	static public function camelcasedToDashed($str) {
 		$str = lcfirst($str);
 	    return preg_replace_callback('/([A-Z])/', function($str) { return "-".strtolower($str[1]); }, $str);
-	}
-
+	} 
 
 	/** Converts a string like 'Snoop Döggy Døg!' or 'Snoop, doggy-dog' to URL- & cross filesystem-safe string 'snoop-doggy-dog' */
 	static public function toDashed($str, $convertToAscii = true) {
@@ -34,8 +32,7 @@ class Garp_Util_String {
 		$str = preg_replace('/[^a-z0-9]/', '-', $str);
 		$str = preg_replace('/\-{2,}/', '-', $str);
 		return trim($str, "\n\t -");
-	}
-
+	} 
 
 	/** Converts 'doggy_dog_world_id' to 'Doggy dog world id' */
 	static public function underscoredToReadable($str, $ucfirst = true) {
@@ -44,8 +41,7 @@ class Garp_Util_String {
 		}
 		$str = str_replace("_", " ", $str);
 		return $str;
-	}
-
+	} 
 
 	/**
 	 * Converts 'doggy_dog_world_id' to 'doggyDogWorldId'
@@ -53,8 +49,7 @@ class Garp_Util_String {
 	static public function underscoredToCamelcased($str) {
 		$func = create_function('$c', 'return strtoupper($c[1]);');
 		return preg_replace_callback('/_([a-z])/', $func, $str);
-	}
-
+	} 
 
 	/**
  	 * Converts 'doggy-dog-world-id' to 'doggyDogWorldId'
@@ -63,7 +58,6 @@ class Garp_Util_String {
 		$func = create_function('$c', 'return strtoupper($c[1]);');
 		return preg_replace_callback('/\-([a-z])/', $func, $str);
 	}
-
 
 	/**
 	 * Converts 'Snøøp Düggy Døg' to 'Snoop Doggy Dog'
@@ -79,12 +73,10 @@ class Garp_Util_String {
 	    return utf8_encode($str);
 	}
 
-
 	/** Returns true if the $haystack string ends in $needle */
 	static public function endsIn($needle, $haystack) {
 		return substr($haystack, -(strlen($needle))) === $needle;
 	}
-
 
 	/**
 	 * @param Array $list Numeric Array of String elements,
@@ -103,7 +95,6 @@ class Garp_Util_String {
 			return $decorator.implode($decorator.", ".$decorator, $list).$decorator." {$lastItemSeperator} ".$decorator.$last.$decorator;
 		}
 	}
-
 
 	/**
 	 * Generates an HTML-less excerpt from a marked up string.
@@ -138,7 +129,6 @@ class Garp_Util_String {
 		return $content;
 	}
 
-
 	/**
 	 * Automatically wrap URLs and email addresses in HTML <a> tags.
 	 * @param String $text
@@ -148,7 +138,6 @@ class Garp_Util_String {
 	static public function linkify($text, array $attribs = array()) {
 		return self::linkUrls(self::linkEmailAddresses($text, $attribs), $attribs);
 	}
-
 
 	/**
 	 * Link URLs.
@@ -172,7 +161,6 @@ class Garp_Util_String {
 		return trim($text);
 	}
 
-
 	/**
 	 * Link email addresses
 	 * @param String $text
@@ -190,8 +178,7 @@ class Garp_Util_String {
 		$regexp = '/[a-zA-Z0-9\.-_]+@[a-zA-Z0-9\.\-_]+\.([a-zA-Z]{2,})/';
 		$text = preg_replace($regexp, "<a href=\"mailto:$0\"$htmlAttribs>$0</a>", $text);
 		return $text;
-	}
-
+	} 
 
 	/**
 	 * Output email address as entities
@@ -208,7 +195,6 @@ class Garp_Util_String {
 		}		
 		return $out;
 	}
-
 
 	/**
  	 * str_replace, but replace only the first occurrence of the search string.
@@ -232,7 +218,6 @@ class Garp_Util_String {
     	return substr_replace($haystack, $replace, $pos, strlen($needle));
 	}
 
-
 	/**
  	 * Interpolate strings with variables
  	 * @param String $str The string
@@ -248,5 +233,30 @@ class Garp_Util_String {
 		});
 		$str = str_replace($keys, $vals, $str);
 		return $str;
+	}
+
+	/**
+ 	 * Create a nested array from a string.
+ 	 * Explode on $separator.
+ 	 * Example: animals.monkey.favoritefood.banana becomes
+ 	 * Array(
+ 	 *   "animals" => Array(
+ 	 *     "monkey" => Array(
+ 	 *       "favoritefood" => "banana"
+ 	 *     )
+ 	 *   )
+ 	 * )
+ 	 * @param String $str
+ 	 * @param String $separator
+ 	 * @param Boolean $value The value of the deepest nested key. If null, the last indice will be used as value.
+ 	 */
+	static public function toArray($str, $separator = '.', $value = null) {
+		$keys = explode('.', $str);
+		$i = count($keys);
+		while ($i > 0) {
+			--$i;
+			$tmp = !isset($tmp) ? (!is_null($value) ? array($keys[$i] => $value) : $keys[$i]) : array($keys[$i] => $tmp);
+		}
+		return $tmp;
 	}
 }
