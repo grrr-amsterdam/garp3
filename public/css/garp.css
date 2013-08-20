@@ -101,7 +101,9 @@ button.x-tbar-page-next { background-image: url(../../media/images/garp/icons2/c
 
 /* RTE */
 .garp-richtexteditor-statusbar{ font-size: 11px; padding: 3px; border-top: 1px #D0D0D0 solid; border-bottom: 0; color: #777; }
+.garp-richtexteditor-statusbar .count { float: right; }
 .garp-richtexteditor-source-edit{ font-family: Monaco, monospace; }
+.x-html-editor-wrap.x-form-invalid { background-color: #fff; }
 
 /* METAPANEL */
 .garp-metapanel{ background: #fff; padding: 10px 0 0 15px; }
