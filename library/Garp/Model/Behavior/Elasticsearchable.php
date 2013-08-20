@@ -82,6 +82,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 
 		$elasticModel = new Garp_Service_Elasticsearch_Model();
 
+
 		//////////????????????
 	}
 
