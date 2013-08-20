@@ -72,7 +72,8 @@ class Garp_Service_Elasticsearch_Request {
 
 		$client
 			->setMethod($method)
-			->setUri($url);
+			->setUri($url)
+		;
 
 		if ($data) {
 			$client->setRawData(json_encode($data));
