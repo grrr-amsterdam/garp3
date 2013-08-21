@@ -47,7 +47,7 @@ namespace :deploy do
       create_static_cache_dir
       create_log_dir
       set_blackhole_path_symlink_fix
-      spawn
+      _spawn
       update_version
       env_setup
       set_webroot_permissions
@@ -158,7 +158,7 @@ namespace :deploy do
   end
 
   desc "Spawn models"
-  task :spawn do
+  task :_spawn do
     run "php #{current_release}/garp/scripts/garp.php Spawn --e=#{garp_env}"
   end
     

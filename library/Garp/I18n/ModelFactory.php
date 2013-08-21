@@ -36,14 +36,33 @@ class Garp_I18n_ModelFactory {
  	 * @return Garp_Model_Db
  	 */
 	public function getModel($model) {
-		if ($model instanceof Garp_Model_Db) {
-			$model = get_class($model);
-		}
-		$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
+		$this->_normalizeModel($model);
 		$langSuffix = ucfirst(strtolower($this->_language));
 		$modelName = $model.$langSuffix;
 		$model = new $modelName();
 		return $model;
+	}
+
+	/**
+ 	 * Retrieve an internationalized bindingModel. Its referenceMap
+ 	 * will be tweaked to reflect the changes given as the second parameter.
+ 	 * @param Garp_Model_Db|String $model The original model, based on a table.
+ 	 * @return Garp_Model_Db
+ 	 */
+	public function getBindingModel($bindingModel) {
+		$this->_normalizeModel($bindingModel);
+		$bindingModel = new $bindingModel();
+
+		$referenceMap = $bindingModel->getReferenceMapNormalized();
+		foreach ($referenceMap as $rule => $reference) {
+			$bindingModel->addReference(
+				$rule,
+				$reference['columns'],
+				get_class($this->getModel($reference['refTableClass'])),
+				$reference['refColumns']
+			);
+		}
+		return $bindingModel;
 	}
 
 	/**
@@ -62,5 +81,17 @@ class Garp_I18n_ModelFactory {
  	 */
 	public function getLanguage() {
 		return $this->_language;
+	}
+
+	/**
+ 	 * Go from a modelname to a model object
+ 	 * @param Mixed $model
+ 	 * @return Garp_Model_Db
+ 	 */
+	protected function _normalizeModel(&$model) {
+		if ($model instanceof Garp_Model_Db) {
+			$model = get_class($model);
+		}
+		$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
 	}
 }

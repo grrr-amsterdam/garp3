@@ -205,9 +205,12 @@ if (Ext.isIE) {
 		enableSourceEdit: true,
 		defaultHeadingTag: 'h2',
 		
+		maxLength: null,
+		
 		iframePad: 5,
 		height: 500,
 		showStatusbar: true,
+		showCharCount: true,
 		
 		// used by 'blur' and editorEvent
 		hasFocus: false,
@@ -1033,8 +1036,48 @@ if (Ext.isIE) {
 			} else {
 				str = '&nbsp;';
 			}
+			
+			if (this.maxLength) {
+				str += '<span class="count">' + ((this.maxLength - this.getCharCount()) || '') + '</span>';
+			} else if (this.showCharCount){
+				str += '<span class="count">' + (this.getCharCount() || '') + '</span>';
+			}
+			
 			this.statusbar.update(str);
 		},
+		
+		
+		/**
+		 * @return number of textual characters  
+		 */
+		getCharCount: function(){
+			if (this.initialized && this.getDoc() && this.getDoc().body) {
+				var textContent = this.getDoc().body.textContent;
+				if (textContent.charCodeAt(0) == 8203) {
+					return textContent.length - 1;
+				}
+				return textContent.length;
+			}
+			return 0;
+		},
+		
+		
+		/**
+		 * maximum textual character validator
+		 */
+		isValid: function(){
+			if(this.maxLength && this.getCharCount() >= this.maxLength){
+				//this.markInvalid(__('Too many characters'));
+				this.wrap.addClass(this.invalidClass);
+				return false;
+			}
+			if (this.wrap) {
+				this.wrap.removeClass(this.invalidClass);
+			}
+			//this.clearInvalid();
+			return true;
+		},
+		
 		
 		/*
 		 * Override functions:
