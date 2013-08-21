@@ -6,6 +6,8 @@
 
 Ext.ns('Garp');
 
+Garp.SMALLSCREENWIDTH = 640;
+
 /**
  * Locale
  */
