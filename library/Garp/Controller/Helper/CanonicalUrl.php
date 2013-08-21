@@ -41,9 +41,10 @@ class Garp_Controller_Helper_CanonicalUrl extends Zend_Controller_Action_Helper_
  	 * @return Void
  	 */
 	public function redirect($canonical) {
+		$canonical = new Garp_Util_FullUrl($canonical);
 		$controller = $this->getActionController();
-		$controller->redirect($canonical, array('code' => 301));
+		$controller->getHelper('redirector')->gotoUrl($canonical->__toString(), array('code' => 301));
 		$controller->getHelper('viewRenderer')->setNoRender(true);
 		$controller->getHelper('layout')->disableLayout();
 	}
-}
+}	
