@@ -55,6 +55,14 @@ namespace :deploy do
     end
   end
 
+  # Overwritten because cap looks for Rails directories (javascripts, stylesheets, images)
+  desc "Finalize update"
+  task :finalize_update do
+	  transaction do
+	  	  # zzzz
+	  end
+  end
+
 
   # ------- P R I V A T E   S E T U P   M E T H O D S
   
