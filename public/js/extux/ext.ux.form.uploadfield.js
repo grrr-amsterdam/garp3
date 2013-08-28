@@ -100,7 +100,7 @@ Ext.ns('Ext.ux.form');
 			var img_extensions = ['jpg', 'jpeg', 'png', 'gif'];
 			for (var i = 0, ii = img_extensions.length; i < ii; ++i) {
 				if (img_extensions[i] === extension) {
-					alert('Plaatje ja!');
+					//alert('Plaatje ja!');
 					return true;
 				}
 			}
