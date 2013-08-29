@@ -2786,6 +2786,7 @@ Garp.apply(Garp.locale, {
 	"'${1}' is not a valid email address in the basic format local-part@hostname" : "'${1}' is geen geldig e-mailadres in het formaat account@voorbeeld.nl",
 	"'${1}' is not a valid Dutch postcode" : "'${1}' is geen geldige Nederlandse postcode",
 	"'${1}' is not a valid URL" : "'${1}' is geen geldige URL",
+	"'${1}' is not a valid number for this field" : "'${1}' is geen geldig nummer",
 	"Value doesn't match": "Waarde komt niet overeen",
 	
 	//qq.FileUploader

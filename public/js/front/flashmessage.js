@@ -50,7 +50,7 @@ Garp.FlashMessage = function(msg, timeout) {
 
 	// Add event listeners that remove the node from the DOM 
 	// after a transition or animation ends.
-	var setRemoveHandler = function(transition, animation) {
+	var setRemoveHandler = function(transition) {
 		var events = transition ? Garp.transitionEndEvents : Garp.animationEndEvents;
 		for (var i = 0, el = events.length; i < el; ++i) {
 			fm.addEventListener(events[i], removeNode, false);
