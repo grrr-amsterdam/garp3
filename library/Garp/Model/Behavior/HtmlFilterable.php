@@ -71,7 +71,9 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		$config->set('CSS.MaxImgLength', null);
     	$config->set('Cache.SerializerPath', APPLICATION_PATH.'/data/cache');
 		$config->set('URI.MakeAbsolute', true);
-		$config->set('URI.Base', 'http://'.$_SERVER['HTTP_HOST'].Zend_Controller_Front::getInstance()->getBaseUrl().'/');
+		if (!empty($_SERVER['HTTP_HOST'])) {
+			$config->set('URI.Base', 'http://'.$_SERVER['HTTP_HOST'].Zend_Controller_Front::getInstance()->getBaseUrl().'/');
+		}
 		$config->set('Filter.Custom', array(
 			new Garp_3rdParty_Ext_HTMLPurifier_Filter_MyIframe(),
 			new Garp_3rdParty_Ext_HTMLPurifier_Filter_MyEmbed(),
