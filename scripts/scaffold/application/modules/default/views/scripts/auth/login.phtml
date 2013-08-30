@@ -1,0 +1,19 @@
+<h1>Inloggen</h1>
+<form method="post" action="<?php echo $this->baseUrl('/g/auth/login/process') ?>" class="auth-form">
+<?php
+if ($this->errors):
+	foreach ($this->errors as $error):
+		echo '<p class="error">'.$this->escape($this->translate($error)).'</p>';
+	endforeach;
+endif;
+?>
+	<div class="clearfix">
+		<label for="emailField" class="for-text">E-mailadres:</label>
+		<input autofocus type="email" name="email" id="emailField" class="text">
+	</div>
+	<div class="clearfix">
+		<label for="passwordField" class="for-text">Wachtwoord:</label>
+		<input type="password" name="password" id="passwordField" class="text">
+	</div>
+	<button type="submit">Log in</button>
+</form>

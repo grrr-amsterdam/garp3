@@ -29,7 +29,7 @@ function updateAddress(){
 }
 
 if (typeof google == 'undefined') {
-	Garp.lazyLoad('http://maps.googleapis.com/maps/api/js?sensor=false', updateAddress);
+	Garp.lazyLoad('//maps.googleapis.com/maps/api/js?sensor=false', updateAddress);
 } else {
 	updateAddress();
 }
