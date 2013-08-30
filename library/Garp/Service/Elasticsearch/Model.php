@@ -25,6 +25,9 @@ class Garp_Service_Elasticsearch_Model {
 		$this->setModelName($modelName);
 	}
 
+	/**
+	 * @return Boolean Success status
+	 */
 	public function save(array $data) {
 		if (!array_key_exists('id', $data)) {
 			throw new Exception(self::ERROR_NO_ID);
@@ -39,15 +42,22 @@ class Garp_Service_Elasticsearch_Model {
 		if (!$response->isOk()) {
 			throw new Exception($response->getBody());
 		}
+
+		return true;
 	}
 
+	/**
+	 * @return Array
+	 */
 	public function fetch($id) {
 		$path = $this->_getPath($id);
 
 		$request 	= new Garp_Service_Elasticsearch_Request('GET', $path);
 		$response	= $request->execute();
+		$body 		= $response->getBody();
 
-		return $response->getBody();
+
+		return json_decode($body, true);
 	}
 
 	public function delete($id) {
