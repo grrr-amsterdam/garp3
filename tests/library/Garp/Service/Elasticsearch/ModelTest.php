@@ -77,7 +77,7 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
 		$model 		= $this->getModel();
 		$record 	= $model->fetch($bogusId);
 
-		return json_decode($record, true);
+		return $record;
 	}
 
 	protected function _deleteBogusRecord() {
