@@ -28,7 +28,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			throw new Garp_Model_Behavior_Exception('"columns" is a required parameter.');
 		}
 
-		$this->setColumns($config['column']);
+		$this->setColumns($config['columns']);
 	}
 
 	/**
@@ -40,7 +40,8 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		$model      = &$args[0];
 		$data       = &$args[1];
 		$primaryKey = &$args[2];
-		$this->_afterSave($model, $primaryKey);
+
+		$this->_afterSave($model, $primaryKey, $data);
 	}
 
 	/**
@@ -49,11 +50,24 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
  	 * @return Void
  	 */
 	public function afterUpdate(&$args) {
-		$model = $args[0];
-		$where = $args[3];
+		$model 		= $args[0];
+		$data 		= $args[2];
+		$where 		= $args[3];
+
 		$primaryKey = $model->extractPrimaryKey($where);
-		$id = $primaryKey['id'];
-		$this->_afterSave($model, $id);
+		$id 		= $primaryKey['id'];
+
+		$this->_afterSave($model, $id, $data);
+	}
+
+	public function afterDelete(&$args) {
+		$model 		= $args[0];
+		$result		= $args[1];
+		$where 		= $args[2];
+
+		/**
+		* @todo
+		*/
 	}
 
 	/**
@@ -71,19 +85,44 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			$columns = (array)$columns;
 		}
 
+		if (!array_key_exists('id', $columns)) {
+			array_unshift($columns, 'id');
+		}
+
 		$this->_columns = $columns;
 		return $this;
 	}
 
-	protected function _afterSave($model, $primaryKey) {
+	protected function _afterSave($model, $primaryKey, $data) {
 		if (is_array($primaryKey)) {
 			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
 		}
 
-		$elasticModel = new Garp_Service_Elasticsearch_Model();
+		$modelId 		= $model->getNameWithoutNamespace();
+		$elasticModel 	= new Garp_Service_Elasticsearch_Model($modelId);
 
+		$pkMash			= $this->_mashPrimaryKey($primaryKey);
+		$data['id']		= $pkMash;
 
-		//////////????????????
+		$columns 		= $this->getColumns();
+		$columnsAsKeys 	= array_flip($columns);
+		$elasticData 	= array_intersect_key($data, $columnsAsKeys);
+		$elasticModel->save($elasticData);
+	}
+
+	/**
+	 * @param Mixed $primaryKey
+	 * @return String
+	 */
+	protected function _mashPrimaryKey($primaryKey) {
+		if (is_array($primaryKey)) {
+			$mash = implode('-', $primaryKey);
+			return $mash;
+		}
+
+		return (string)$primaryKey;
 	}
 
 }
+
+
