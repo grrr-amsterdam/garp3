@@ -30,6 +30,17 @@ class Garp_Spawn_Behavior_Type_Draftable extends Garp_Spawn_Behavior_Type_Abstra
 		parent::__construct($model, $origin, $name, $params, $type);
 	}
 
+	public function needsPhpModelObserver() {
+		$model = $this->getModel();
+		return !$model->isTranslatable();
+	}
+
+	static public function isNeededBy(Garp_Spawn_Model_Abstract $model) {
+		$htmlFieldNames = $model->fields->getFieldNames('type', 'html');
+		return (bool)$htmlFieldNames;
+	}
+
+
 	/**
  	 * If default == 'draft', online_status default is 0.
  	 * If it's 'online', it is 1.
