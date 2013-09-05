@@ -12,6 +12,8 @@
 class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract {
 	const ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY =
 		'The primary key cannot be an array, since it is used as a string based id in Elasticsearch.';
+	const ERROR_NO_EXTRACTABLE_ID =
+		'Could not extract the database id from the \'where\' query that was used in deleting this record.';
 
 	/**
 	 * @var Array $_columns
@@ -62,12 +64,17 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 
 	public function afterDelete(&$args) {
 		$model 		= $args[0];
-		$result		= $args[1];
 		$where 		= $args[2];
+		$search 	= "/\=\s*(\d+)/";
+		preg_match($search, $where, $matches);
+		
+		if (!array_key_exists(1, $matches)) {
+			throw new Exception(self::ERROR_NO_EXTRACTABLE_ID);
+		}
 
-		/**
-		* @todo
-		*/
+		$dbId = $matches[1];
+		$elasticModel = $this->_getElasticModel($model);
+		$elasticModel->delete($dbId);
 	}
 
 	/**
@@ -93,13 +100,12 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		return $this;
 	}
 
-	protected function _afterSave($model, $primaryKey, $data) {
+	protected function _afterSave(Garp_Model_Db $model, $primaryKey, $data) {
 		if (is_array($primaryKey)) {
 			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
 		}
 
-		$modelId 		= $model->getNameWithoutNamespace();
-		$elasticModel 	= new Garp_Service_Elasticsearch_Model($modelId);
+		$elasticModel 	= $this->_getElasticModel($model);
 
 		$pkMash			= $this->_mashPrimaryKey($primaryKey);
 		$data['id']		= $pkMash;
@@ -108,6 +114,13 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		$columnsAsKeys 	= array_flip($columns);
 		$elasticData 	= array_intersect_key($data, $columnsAsKeys);
 		$elasticModel->save($elasticData);
+	}
+
+	protected function _getElasticModel(Garp_Model_Db $model) {
+		$modelId 		= $model->getNameWithoutNamespace();
+		$elasticModel 	= new Garp_Service_Elasticsearch_Model($modelId);
+
+		return $elasticModel;
 	}
 
 	/**
