@@ -38,7 +38,6 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 		$this->setElasticModel($elasticModel);
 
 		$this->_createTable();
-		// $this->_createBogusRecord();
 	}
 
 	public function tearDown() {
@@ -123,7 +122,7 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 		$dbAdapter 	= $this->getDatabaseAdapter();
 		$dbName 	= $this->getGarpModel()->getName();
 
-		$dbAdapter->query("DROP TABLE IF EXISTS `{$dbName}`;");
+		$this->_dropTable();
 		$createStatement = $this->_getCreateTableStatement();
 
 		$dbAdapter->query($createStatement);
@@ -148,6 +147,6 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 	protected function _dropTable() {
 		$dbAdapter = $this->getDatabaseAdapter();
 		$dbName = $this->getGarpModel()->getName();
-		$dbAdapter->query("DROP TABLE `{$dbName}`;");
+		$dbAdapter->query("DROP TABLE IF EXISTS `{$dbName}`;");
 	}
 }
