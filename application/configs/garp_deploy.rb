@@ -116,6 +116,7 @@ namespace :deploy do
     run "if [ ! -d '#{deploy_to}/shared/backup/db' ]; then mkdir -p #{deploy_to}/shared/backup/db; fi"
     run "if [ ! -d '#{deploy_to}/shared/uploads/documents' ]; then mkdir -p #{deploy_to}/shared/uploads/documents; fi"
     run "if [ ! -d '#{deploy_to}/shared/uploads/images' ]; then mkdir -p #{deploy_to}/shared/uploads/images; fi"
+    run "if [ ! -d '#{deploy_to}/shared/logs' ]; then mkdir -p #{deploy_to}/shared/logs; fi"
   end
   
   desc "Set permissions on essential deploy directories"
@@ -123,6 +124,7 @@ namespace :deploy do
       run "chmod -R g+w #{deploy_to}/shared/backup/db"
       run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/documents"
       run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/images"
+      run "chmod -R g+w,o+rx #{deploy_to}/shared/logs"
   end
   
   desc "Create .htaccess file to reroute webroot"
