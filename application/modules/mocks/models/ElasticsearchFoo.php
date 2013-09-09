@@ -1,28 +1,33 @@
 <?php
-class Mocks_Model_ElasticsearchBogus extends Garp_Model_Db {
-	protected $_name = '_tests_elasticsearch_bogus';
+class Mocks_Model_ElasticsearchFoo extends Garp_Model_Db {
+	protected $_name = '_tests_elasticsearch_foo';
 
 	/**
 	 * @var Array $_mockRowData
 	 */
 	protected $_mockRowData = array(
-		'name' => 'Modified Bogus name',
-		'description' => 'Modified Bogus description'
+		'name' => 'Modified Foo name',
+		'description' => 'Modified Foo description'
 	);
 
 	protected $_bindable = array(
-		'Mocks_Model_ElasticsearchFoo'
+		'Mocks_Model_ElasticsearchBogus'
 	);
 
-	protected $_createStatement = "CREATE TABLE `_tests_elasticsearch_bogus`(
+	protected $_createStatement = "CREATE TABLE `_tests_elasticsearch_foo`(
 		`id` int UNSIGNED NOT NULL AUTO_INCREMENT,
 		`name` varchar(255),
 		`description` varchar(255),
-		`main_foo_id` int UNSIGNED,
+		`some_nonsense` varchar(255),
 		PRIMARY KEY (`id`)) ENGINE=`InnoDB`;
-		INSERT INTO `_tests_elasticsearch_bogus` (`id`, `name`, `description`, `main_foo_id`)
-		VALUES (1, 'Bogus name', 'Bogus description', 2);"
+		INSERT INTO `_tests_elasticsearch_foo` (`id`, `name`, `description`, `some_nonsense`)
+		VALUES (1, 'Foo name 1', 'Foo description 1', 'Nonsense 1');
+		INSERT INTO `_tests_elasticsearch_foo` (`id`, `name`, `description`, `some_nonsense`)
+		VALUES (2, 'Foo name 2', 'Foo description 2', 'Nonsense 2');"
 	;
+
+	protected $_referenceMap = array(
+	);
 
 	protected $_configuration = array(
 		'id' => 'ElasticsearchBogus',
@@ -70,13 +75,13 @@ class Mocks_Model_ElasticsearchBogus extends Garp_Model_Db {
 				'origin' => 'config'
 			),
 			array(
-				'name' => 'author_id',
-				'required' => false,
-				'type' => 'numeric',
-				'maxLength' => null,
-				'label' => 'Created by',
-				'editable' => false,
-				'visible' => false,
+				'name' => 'description',
+				'required' => true,
+				'type' => 'text',
+				'maxLength' => 100,
+				'label' => 'Beschrijving',
+				'editable' => true,
+				'visible' => true,
 				'default' => null,
 				'primary' => false,
 				'unique' => false,
@@ -88,63 +93,52 @@ class Mocks_Model_ElasticsearchBogus extends Garp_Model_Db {
 				'float' => false,
 				'unsigned' => true,
 				'rich' => false,
-				'origin' => 'relation'
-			)
+				'origin' => 'config'
+			),
 		),
 		'behaviors' => array(
-			'Elasticsearchable' => array(
-				'columns' => array('name', 'description')
-			)
+			'Elasticsearchable' => array('name', 'description')
 		),
 		'relations' => array(
-			'MainFoo' => array(
-				'model' => 'ElasticsearchFoo',
-				'name' => 'MainFoo',
-				'type' => 'hasOne',
-				'label' => 'Main Foo',
-				'limit' => 1,
+			'ElasticsearchBogus' => array(
+				'model' => 'ElasticsearchBogus',
+				'name' => 'ElasticsearchBogus',
+				'type' => 'hasMany',
+				'label' => 'ElasticsearchBogus',
+				'limit' => null,
 				'column' => 'main_foo_id',
 				'simpleSelect' => null,
 				'editable' => true,
-				'inverse' => false,
+				'inverse' => true,
 				'oppositeRule' => 'MainFoo',
-				'inverseLabel' => 'Bogus',
+				'inverseLabel' => 'ElasticsearchFoo',
 				'weighable' => false,
 				'required' => false,
 				'inputs' => null,
 				'inline' => false,
-				'mirrored' => false
+				'mirrored' => true
 			),
-			'ElasticsearchFoo' => array(
-				'model' => 'ElasticsearchFoo',
-				'name' => 'ElasticsearchFoo',
+			'ElasticsearchBogus' => array(
+				'model' => 'ElasticsearchBogus',
+				'name' => 'ElasticsearchBogus',
 				'type' => 'hasAndBelongsToMany',
-				'label' => 'Foo',
+				'label' => 'ElasticsearchBogus',
 				'limit' => null,
-				'column' => 'foo_id',
+				'column' => 'elasticsearch_bogus_id',
 				'simpleSelect' => null,
 				'editable' => true,
 				'inverse' => true,
-				'oppositeRule' => 'ElasticsearchBogus',
-				'inverseLabel' => 'ElasticsearchBogus',
+				'oppositeRule' => 'ElasticsearchFoo',
+				'inverseLabel' => 'ElasticsearchFoo',
 				'weighable' => false,
 				'required' => false,
 				'inputs' => null,
 				'inline' => false,
-				'mirrored' => false
+				'mirrored' => true
 			)
 		),
 		'unique' => null
 	);
-
-	protected $_referenceMap = array(
-		'MainFoo' => array(
-			'refTableClass' => 'Mocks_Model_ElasticsearchFoo',
-			'columns' => 'main_foo_id',
-			'refColumns' => 'id'
-		),
-	);
-
 
 	public function init() {
 		parent::init();
@@ -153,9 +147,10 @@ class Mocks_Model_ElasticsearchBogus extends Garp_Model_Db {
 
 	public function getMockRowData() {
 		return $this->_mockRowData;
-	}	
+	}
 
 	public function getCreateStatement() {
 		return $this->_createStatement;
 	}	
+
 }
