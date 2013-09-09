@@ -6,89 +6,93 @@
  */
 class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCase {
 	const BEHAVIOR_NAME 		= 'Elasticsearchable';
-	const TEST_MODEL_NAME 		= 'ElasticsearchBogus';
 	const TEST_MODEL_NAMESPACE 	= 'Mocks_Model_';
-	const MOCK_ID 				= '666';
 
-	/**
-	 * @var Array $_mockRowData
-	 */
-	protected $_mockRowData = array(
-		'name' => 'Unit test name',
-		'description' => 'Unit test description'
+	protected $_testModelNames = array(
+		'ElasticsearchBogus',
+		'ElasticsearchFoo'
 	);
 
+	protected $_testBindingModelName = 
+		'ElasticsearchBogusElasticsearchFoo'
+	;
 
 	/**
-	 * @var Garp_Model_Db $_garpModel
+	 * @var Array $_garpModel Numeric array of Garp_Model_Db objects
 	 */
-	protected $_garpModel;
+	protected $_garpModels;
 	
 	/**
-	 * @var Garp_Service_Elasticsearch_Model $_elasticModel
+	 * @var Garp_Service_Elasticsearch_Model $_elasticModel representing the first Garp test model
 	 */
 	protected $_elasticModel;
 	
 
 	public function setUp() {
-		$garpModel = $this->_initGarpModel();
-		$this->setGarpModel($garpModel);
+		$garpModels = $this->_initGarpModels();
+		$this->setGarpModels($garpModels);
 
 		$elasticModel = $this->_initElasticModel();
 		$this->setElasticModel($elasticModel);
 
-		$this->_createTable();
+		$this->_createTables();
 	}
 
 	public function tearDown() {
-		$this->_dropTable();
+		$this->_dropTables();
 	}
 
 	public function testAfterCreateShouldCreateElasticDocument() {
-		$elasticModel 	= $this->getElasticModel();
+		$elasticModel 			= $this->getElasticModel();
+		$dbIds 					= $this->_updateBogusRecords();
+		$firstGarpModelClass 	= get_class($this->getGarpModel());
+		$dbId 					= $dbIds[$firstGarpModelClass];
 
-		$dbId = $this->_insertBogusRecord();
-
-		$elasticRow 	= $elasticModel->fetch($dbId);
-		$question 		= 'Is the bogus record present after insertion?';
+		$question 				= 'Is the bogus record present after insertion?';
+		$elasticRow 			= $elasticModel->fetch($dbId);
 		$this->assertTrue($elasticRow['exists'], $question);
 
-		$elasticData 	= $elasticRow['_source'];
-		$overlap 		= array_intersect($this->_mockRowData, $elasticData);
-		$question 		= 'Does the indexed data overlap with mocks?';
-		$this->assertGreaterThanOrEqual(count($this->_mockRowData), count($overlap), $question);
+		$question 				= 'Does the indexed data overlap with mocks?';
+		$elasticData 			= $elasticRow['_source'];
+		$mockRowData 			= $this->getGarpModel()->getMockRowData();
+		$overlap 				= array_intersect($mockRowData, $elasticData);
+		$this->assertGreaterThanOrEqual(count($mockRowData), count($overlap), $question);
 
-		$this->_deleteBogusRecord($dbId);
-
-		$elasticRow = $elasticModel->fetch($dbId);
-		$this->assertFalse($elasticRow['exists'], 'Is the bogus record cleaned up?');
-	}
-
-	protected function _insertBogusRecord() {
-		$model 	= $this->getGarpModel();
-		$id 	= $model->insert($this->_mockRowData);
-		return $id;
-	}
-
-	protected function _deleteBogusRecord($dbId) {
-		$model 		= $this->getGarpModel();
-		$dbAdapter 	= $this->getDatabaseAdapter();
-		$where 		= 'id = ' . $dbId;
-		$model->delete($where);
+		$question 				= 'Is the bogus record cleaned up?';
+		$this->_deleteBogusRecords($dbIds);
+		$elasticRow 			= $elasticModel->fetch($dbId);
+		$this->assertFalse($elasticRow['exists'], $question);
 	}
 
 	/**
-	 * @return Garp_Model_Db
+	 * @return Garp_Model_Db The HABTM binding test model
+	 */
+	public function getBindingModel() {
+		$class = self::TEST_MODEL_NAMESPACE . $this->_testBindingModelName;
+		$bindingModel 	= new $class();
+
+		return $bindingModel;
+	}
+
+	/**
+	 * @return Array List of Garp_Model_Db test objects
+	 */
+	public function getGarpModels() {
+		return $this->_garpModels;
+	}
+
+	/**
+	 * @return Garp_Model_Db The first test model
 	 */
 	public function getGarpModel() {
-		return $this->_garpModel;
+		return $this->_garpModels[0];
 	}
-	
+
 	/**
 	 * @param Garp_Model_Db $garpModel
 	 */
-	public function setGarpModel($garpModel) {
-		$this->_garpModel = $garpModel;
+	public function setGarpModels(array $garpModels) {
+		$this->_garpModels = $garpModels;
 		return $this;
 	}
 
@@ -107,46 +111,106 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 		return $this;
 	}
 
-	protected function _initGarpModel() {
-		$modelName 	= self::TEST_MODEL_NAMESPACE . self::TEST_MODEL_NAME;
-		$model 		= new $modelName();
-		return $model;
+	/**
+	 * @return Array 	The ids of the freshly inserted records.
+	 					Associative array in the following format:
+						{
+							"Model_Bogus": 1,
+							"Model_Foo": 4
+						}
+	 */
+	protected function _updateBogusRecords() {
+		$models = $this->getGarpModels();
+		$ids 	= array();
+
+		foreach ($models as $model) {
+			$mockData = $model->getMockRowData();
+			$ids[get_class($model)] = $model->update($mockData, 'id = 1');
+		}
+
+		// $bindingModel = $this->getBindingModel();
+		// $mockData = array(
+			// 'elasticsearch_bogus_id' => $ids['Mocks_Model_ElasticsearchBogus'],
+			// 'elasticsearch_foo_id' => $ids['Mocks_Model_ElasticsearchFoo'],
+		// );
+		// $bindingModel->insert($mockData);
+		// Zend_Debug::dump(get_class($bindingModel)); exit;
+
+		return $ids;
+	}
+
+	protected function _deleteBogusRecords($dbIds) {
+// Zend_Debug::dump($dbIds); exit;
+
+		// Zend_Debug::dump($this->getGarpModels()); exit;
+
+		foreach ($dbIds as $modelName => $dbId) {
+			$model 	= new $modelName();
+			$where 	= 'id = ' . $dbId;
+			$model->delete($where);
+		}
+
+		// $model 		= $this->getGarpModel();
+		// $dbAdapter 	= $this->getDatabaseAdapter();
+		// $where 		= 'id = ' . $dbId;
+		// $model->delete($where);
+	}
+
+	protected function _initGarpModels() {
+		$models = array();
+
+		foreach ($this->_testModelNames as $modelName) {
+			$className 	= self::TEST_MODEL_NAMESPACE . $modelName;
+			$models[]	= new $className();
+		}
+
+		return $models;
 	}
 
 	protected function _initElasticModel() {
-		$model = new Garp_Service_Elasticsearch_Model(self::TEST_MODEL_NAME);
+		$model = new Garp_Service_Elasticsearch_Model($this->_testModelNames[0]);
 		return $model;
 	}
 
-	protected function _createTable() {
+	protected function _createTables() {
 		$dbAdapter 	= $this->getDatabaseAdapter();
-		$dbName 	= $this->getGarpModel()->getName();
 
-		$this->_dropTable();
-		$createStatement = $this->_getCreateTableStatement();
-
+		$this->_dropTables();
+		$createStatement = $this->_getCreateTablesStatement();
 		$dbAdapter->query($createStatement);
 	}
 
-	protected function _getCreateTableStatement() {
-		$dbName = $this->getGarpModel()->getName();
-		$columns = array_keys($this->_mockRowData);
+	/**
+	 * Builds the queries needed to create the base test models and the binding table.
+	 */
+	protected function _getCreateTablesStatement() {
+		$models = $this->getGarpModels();
+		$statement = '';
 
-		$create = "CREATE TABLE `$dbName`(
-			`id` int UNSIGNED NOT NULL AUTO_INCREMENT,";
-
-		foreach ($columns as $column) {
-			$create .= "`$column` varchar(255),";
+		foreach ($models as $model) {
+			$statement .= $model->getCreateStatement();
 		}
+		
+		$statement .= $this->getBindingModel()->getCreateStatement();
 
-		$create .= "PRIMARY KEY (`id`)) ENGINE=`InnoDB`;";
-
-		return $create;
+		return $statement;
 	}
 
-	protected function _dropTable() {
+	protected function _dropTables() {
+		$models 	= $this->getGarpModels();
+		
+		foreach ($models as $model) {
+			$tableName = $model->getName();
+			$this->_dropTable($tableName);
+		}
+
+		$bindingModel 		= $this->getBindingModel();
+		$bindingTableName 	= $bindingModel->getName();
+		$this->_dropTable($bindingTableName);
+	}
+
+	protected function _dropTable($tableName) {
 		$dbAdapter = $this->getDatabaseAdapter();
-		$dbName = $this->getGarpModel()->getName();
-		$dbAdapter->query("DROP TABLE IF EXISTS `{$dbName}`;");
+		$dbAdapter->query("DROP TABLE IF EXISTS `{$tableName}`;");
 	}
 }
