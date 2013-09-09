@@ -59,7 +59,7 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 		$this->assertGreaterThanOrEqual(count($mockRowData), count($overlap), $question);
 
 		$question 				= 'Is the bogus record cleaned up?';
-		$this->_deleteBogusRecord($dbId);
+		$this->_deleteBogusRecords($dbIds);
 		$elasticRow 			= $elasticModel->fetch($dbId);
 		$this->assertFalse($elasticRow['exists'], $question);
 	}
@@ -139,11 +139,21 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 		return $ids;
 	}
 
-	protected function _deleteBogusRecord($dbId) {
-		$model 		= $this->getGarpModel();
-		$dbAdapter 	= $this->getDatabaseAdapter();
-		$where 		= 'id = ' . $dbId;
-		$model->delete($where);
+	protected function _deleteBogusRecords($dbIds) {
+// Zend_Debug::dump($dbIds); exit;
+
+		// Zend_Debug::dump($this->getGarpModels()); exit;
+
+		foreach ($dbIds as $modelName => $dbId) {
+			$model 	= new $modelName();
+			$where 	= 'id = ' . $dbId;
+			$model->delete($where);
+		}
+
+		// $model 		= $this->getGarpModel();
+		// $dbAdapter 	= $this->getDatabaseAdapter();
+		// $where 		= 'id = ' . $dbId;
+		// $model->delete($where);
 	}
 
 	protected function _initGarpModels() {
