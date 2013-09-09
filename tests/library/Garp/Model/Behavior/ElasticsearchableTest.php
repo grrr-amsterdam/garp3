@@ -140,20 +140,11 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 	}
 
 	protected function _deleteBogusRecords($dbIds) {
-// Zend_Debug::dump($dbIds); exit;
-
-		// Zend_Debug::dump($this->getGarpModels()); exit;
-
 		foreach ($dbIds as $modelName => $dbId) {
 			$model 	= new $modelName();
 			$where 	= 'id = ' . $dbId;
 			$model->delete($where);
 		}
-
-		// $model 		= $this->getGarpModel();
-		// $dbAdapter 	= $this->getDatabaseAdapter();
-		// $where 		= 'id = ' . $dbId;
-		// $model->delete($where);
 	}
 
 	protected function _initGarpModels() {
