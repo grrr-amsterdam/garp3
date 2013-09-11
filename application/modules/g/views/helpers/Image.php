@@ -68,25 +68,43 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 	 */
 	public function getUrl($image, $template = null) {
 		if ($this->_isFilename($image)) {
-			$file = new Garp_Image_File('static');
-			return $file->getUrl($image);
-		} else {
-			if ($template) {
-				return $this->_getImageScaler()->getScaledUrl($image, $template);
-			} else throw new Exception(self::ERROR_SCALING_TEMPLATE_MISSING);
+			return $this->getStaticUrl($image);
 		}
+		if (!$template) {
+			throw new Exception(self::ERROR_SCALING_TEMPLATE_MISSING);
+		}
+		return $this->getScaledUrl($image, $template);
 	}
 	
+	/**
+ 	 * Return the URL of a static image
+ 	 * @return String
+ 	 */
+	public function getStaticUrl($image) {
+		$file = new Garp_Image_File('static');
+		return $file->getUrl($image);
+	}		
 	
+	/**
+ 	 * Return the URL of a scaled image
+ 	 * @param String $image
+ 	 * @param String $template
+ 	 * @return String
+ 	 */
+	public function getScaledUrl($image, $template) {
+		return $this->_getImageScaler()->getScaledUrl($image, $template);
+	}		
+
 	/**
 	 * Returns the url to the source file of an upload.
 	 * @param String $filename The filename of the upload, without the path.
 	 */
 	public function getSourceUrl($filename) {
-		if ($this->_isFilename($filename)) {
-			$file = new Garp_Image_File();
-			return $file->getUrl($filename);
-		} else throw new Exception(self::ERROR_ARGUMENT_IS_NOT_FILENAME);
+		if (!$this->_isFilename($filename)) {
+			throw new Exception(self::ERROR_ARGUMENT_IS_NOT_FILENAME);
+		}
+		$file = new Garp_Image_File();
+		return $file->getUrl($filename);
 	}
 
 
