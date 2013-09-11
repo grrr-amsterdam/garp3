@@ -1,6 +1,6 @@
 <?php
 /**
- * Mock model used by CachePurgatoryTest
+ * Mock model used by CacheManagerTest
  */
 class Mocks_Model_CMFooBarCMThing extends Garp_Model_Db {
 	protected $_name = '_tests_cache_manager_FooBarThing';
