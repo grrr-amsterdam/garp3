@@ -85,11 +85,14 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 						'<tpl if="typeof online_status !== &quot;undefined&quot;  && online_status === &quot;1&quot;">',
 							(this.disablePublishedEdit 
 								? '<span class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</span>' 
-								: '<a class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</a>'
+								: [
+									'<a class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</a>',
+									'<tpl if="values.published">', 
+										' <a class="remove-published-date" title="', __('Delete'), '"> </a>', 
+									'</tpl>'
+								  ].join('')
 							),
-							'<tpl if="values.published">', 
-								' <a class="remove-published-date" title="', __('Delete'), '"> </a>', 
-							'</tpl>', 
+							 
 						'</tpl>',
 						'<div id="online-status">', __('Draft'), ': ', 
 						'<tpl if="typeof online_status !== &quot;undefined&quot; && online_status === &quot;1&quot;">', 

@@ -237,7 +237,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 
 
 	protected function _fetchAppConfigParams() {
-		$config = new Zend_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $this->getEnvironment());
+		$config = new Garp_Config_Ini(APPLICATION_PATH . self::PATH_CONFIG_APP, $this->getEnvironment());
 		return $config;
 	}
 
