@@ -219,8 +219,10 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
 		Garp_Cli::lineOut('Usage:');
 		Garp_Cli::lineOut('To create a snippet interactively:');
  	    Garp_Cli::lineOut('  g snippet create', Garp_Cli::BLUE);
+		Garp_Cli::lineOut('');
 		Garp_Cli::lineOut('To create snippets from /application/configs/snippets.ini:');
 		Garp_Cli::lineOut('  g snippet create from file', Garp_Cli::BLUE);
+		Garp_Cli::lineOut('');
 		Garp_Cli::lineOut('Or to create snippets from a custom file:');
 		Garp_Cli::lineOut('  g snippet create from file myfile.ini', Garp_Cli::BLUE);
 		Garp_Cli::lineOut('');

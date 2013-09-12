@@ -36,15 +36,26 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 		}
 		
 		// setup git hook for updating APP_VERSION... 
-		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/post-commit';
-		$hookTarget = APPLICATION_PATH.'/../.git/hooks/post-commit';
+		$hookSource = 'garp/scripts/util/post-commit';
+		$hookTarget = '.git/hooks/post-commit';
 		$this->_moveGitHook($hookSource, $hookTarget);
 		// ...and GARP_VERSION
-		$hookSource = GARP_APPLICATION_PATH.'/../scripts/util/garp-post-commit';
-		$hookTarget = APPLICATION_PATH.'/../garp/.git/hooks/post-commit';
+		$hookSource = 'garp/scripts/util/garp-post-commit';
+		// This one's tricky, because the hooks location seems to have changed 
+		// in recent versions.
+		// But that's why we have if statements
+		if (is_dir('garp/.git/hooks')) {
+			$hookTarget = 'garp/.git/hooks/post-commit';
+		} elseif (is_dir('.git/modules/garp/hooks')) {
+			$hookTarget = '.git/modules/garp/hooks/post-commit';
+		} else {
+			Garp_Cli::errorOut('I can\'t find the Garp hooks directory. Please check your setup for errors.');
+			return false;
+		}
 		$this->_moveGitHook($hookSource, $hookTarget);
 
 		Garp_Cli::lineOut('Done.');
+		return true;
 	}
 
 
@@ -159,11 +170,14 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
  	 */
 	public function help() {
 		Garp_Cli::lineOut('Usage:');
+		Garp_Cli::lineOut('Setup Git environment');
+		Garp_Cli::lineOut('  g Git setup', Garp_Cli::BLUE);
+		Garp_Cli::lineOut('');
 		Garp_Cli::lineOut('Pull from remote and update submodules');
-		Garp_Cli::lineOut('  g Git pull');
+		Garp_Cli::lineOut('  g Git pull', Garp_Cli::BLUE);
 		Garp_Cli::lineOut('');
 		Garp_Cli::lineOut('Commit a submodule');
-		Garp_Cli::lineOut('  g Git commitSubmodule garp --m=\'<your commit message>\'');
+		Garp_Cli::lineOut('  g Git commitSubmodule garp --m=\'<your commit message>\'', Garp_Cli::BLUE);
 		Garp_Cli::lineOut('');
 	}
 }
