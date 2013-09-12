@@ -30,7 +30,10 @@ class Garp_Controller_Helper_CanonicalUrl extends Zend_Controller_Action_Helper_
 		$currUrl = $this->getRequest()->getRequestUri();
 		// match using a full url if the canonical starts with a protocol
 		if (preg_match('~^[a-z]+://~', $canonical)) {
-			$currUrl = new Garp_Util_FullUrl($currUrl);
+			$isObj = $canonical instanceof Garp_Util_FullUrl;
+			$omitProtocol = $isObj ? $canonical->getOmitProtocol() : false;
+			$omitBaseUrl = $isObj ? $canonical->getOmitBaseUrl() : false;
+			$currUrl = new Garp_Util_FullUrl($currUrl, $omitProtocol, $omitBaseUrl);
 		}
 		return (string)$currUrl == (string)$canonical;
 	}
