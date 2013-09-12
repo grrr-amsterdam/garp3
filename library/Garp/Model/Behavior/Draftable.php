@@ -44,6 +44,12 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	protected $_blockOfflineItems = true;
 
 	/**
+ 	 * Use this model alias
+ 	 * @var String
+ 	 */
+	protected $_modelAlias = '';
+
+	/**
 	 * Configuration.
 	 * @return Void
 	 */
@@ -85,6 +91,13 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	public function addWhereClause(&$model, Zend_Db_Select &$select) {
 		$statusColumn = $model->getAdapter()->quoteIdentifier(self::STATUS_COLUMN);
 		$publishedColumn = $model->getAdapter()->quoteIdentifier(self::PUBLISHED_COLUMN);
+
+		if ($this->_modelAlias) {
+			$modelAlias = $this->_modelAlias;
+			$modelAlias = $model->getAdapter()->quoteIdentifier($modelAlias);
+			$statusColumn = "$modelAlias.$statusColumn";
+			$publishedColumn = "$modelAlias.$publishedColumn";
+		}
 
 		// Add online_status check
 		$select->where($statusColumn.' = ?', self::ONLINE);
@@ -172,6 +185,24 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	 */
 	public function getBlockOfflineItems() {
 		return $this->_blockOfflineItems;
+	}
+	
+ 	/**
+ 	 * Set modelAlias
+ 	 * @param String $modelAlias
+ 	 * @return $this
+ 	 */
+ 	public function setModelAlias($modelAlias) {
+ 		$this->_modelAlias = $modelAlias;
+ 		return $this;
+ 	}
+ 	
+	/**
+	 * Get modelAlias
+	 * @return String
+	 */
+	public function getModelAlias() {
+		return $this->_modelAlias;
 	}
 	
 }
