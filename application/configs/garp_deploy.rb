@@ -133,9 +133,9 @@ namespace :deploy do
   task :install_crontab do
   	php_exec 		= "/usr/bin/php"
   	garp_exec 		= "#{deploy_to}/current/garp/scripts/garp.php"
-  	tab_frequent 	= "*/5 * * * * #{php_exec} #{garp_exec} Cron run frequently --e=#{garp_env} >/dev/null 2>&1"
-  	tab_hourly 		= "0 * * * * #{php_exec} #{garp_exec} Cron run hourly --e=#{garp_env} >/dev/null 2>&1"
-  	tab_daily 		= "0 4 * * * #{php_exec} #{garp_exec} Cron run daily --e=#{garp_env} >/dev/null 2>&1"
+  	tab_frequent 	= "*/5 * * * * #{php_exec} #{garp_exec} cron run frequently --e=#{garp_env} >/dev/null 2>&1"
+  	tab_hourly 		= "0 * * * * #{php_exec} #{garp_exec} cron run hourly --e=#{garp_env} >/dev/null 2>&1"
+  	tab_daily 		= "0 4 * * * #{php_exec} #{garp_exec} cron run daily --e=#{garp_env} >/dev/null 2>&1"
   	
   	cron_tmp_file 			= ".crontab-tmp-output"
   	cmd_output_cron 		= "crontab -l > #{cron_tmp_file}"
@@ -143,9 +143,9 @@ namespace :deploy do
 	cmd_install				= "crontab #{cron_tmp_file}"
 	cmd_remove_cron_output 	= "rm #{cron_tmp_file}"
 
-	cmd_frequent 	= sprintf cmd_append, cron_tmp_file, 'Cron run frequently', tab_frequent, cron_tmp_file
-	cmd_hourly 		= sprintf cmd_append, cron_tmp_file, 'Cron run hourly', tab_hourly, cron_tmp_file
-	cmd_daily 		= sprintf cmd_append, cron_tmp_file, 'Cron run daily', tab_daily, cron_tmp_file
+	cmd_frequent 	= sprintf cmd_append, cron_tmp_file, 'cron run frequently', tab_frequent, cron_tmp_file
+	cmd_hourly 		= sprintf cmd_append, cron_tmp_file, 'cron run hourly', tab_hourly, cron_tmp_file
+	cmd_daily 		= sprintf cmd_append, cron_tmp_file, 'cron run daily', tab_daily, cron_tmp_file
 
 	begin 
 		run cmd_output_cron
