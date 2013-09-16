@@ -27,7 +27,7 @@ class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
      * @return void
      */
     public function preDispatch() {
-		if ($this->getResponse()->isRedirect()) {
+		if ($this->getResponse()->isRedirect() || !$this->isEnabled()) {
 			return true;
 		}
 		return parent::preDispatch();
