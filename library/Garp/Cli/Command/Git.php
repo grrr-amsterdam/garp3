@@ -159,11 +159,14 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
  	 */
 	public function help() {
 		Garp_Cli::lineOut('Usage:');
+		Garp_Cli::lineOut('Setup Git environment');
+		Garp_Cli::lineOut('  g Git setup', Garp_Cli::BLUE);
+		Garp_Cli::lineOut('');
 		Garp_Cli::lineOut('Pull from remote and update submodules');
-		Garp_Cli::lineOut('  g Git pull');
+		Garp_Cli::lineOut('  g Git pull', Garp_Cli::BLUE);
 		Garp_Cli::lineOut('');
 		Garp_Cli::lineOut('Commit a submodule');
-		Garp_Cli::lineOut('  g Git commitSubmodule garp --m=\'<your commit message>\'');
+		Garp_Cli::lineOut('  g Git commitSubmodule garp --m=\'<your commit message>\'', Garp_Cli::BLUE);
 		Garp_Cli::lineOut('');
 	}
 }
