@@ -17,6 +17,7 @@ class Garp_Spawn_Field {
 	public $info;
 	public $index;
 	public $multilingual = false;
+	public $comment;
 
 	
 	const TEXTFIELD_MAX_LENGTH = 124;

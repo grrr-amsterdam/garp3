@@ -121,7 +121,7 @@ Garp.MapWindow = Ext.extend(Ext.Window,{
 				scope: this,
 				fn: function(){
 					if (typeof google == 'undefined') {
-						Garp.lazyLoad('http://maps.googleapis.com/maps/api/js?sensor=false', this.drawMap.createDelegate(this));
+						Garp.lazyLoad('//maps.googleapis.com/maps/api/js?sensor=false', this.drawMap.createDelegate(this));
 					} else {
 						this.drawMap();
 					}
