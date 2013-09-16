@@ -4,6 +4,12 @@
  */
 class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
 	/**
+ 	 * Wether caching is enabled
+ 	 * @var Boolean
+ 	 */
+	protected $_enabled = true;
+
+	/**
 	 * Sets the required HTTP headers to prevent this request from being cached by the browser.
 	 * @param Zend_Controller_Response_Http $response The HTTP response object. Use $this->getResponse() from a controller.
 	 */
@@ -21,9 +27,32 @@ class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
      * @return void
      */
     public function preDispatch() {
-		if ($this->getResponse()->isRedirect()) {
+		if ($this->getResponse()->isRedirect() || !$this->isEnabled()) {
 			return true;
 		}
 		return parent::preDispatch();
 	}
+
+	/**
+ 	 * @return Boolean
+ 	 */
+	public function isEnabled() {
+		return $this->_enabled;
+	}
+
+	/**
+ 	 * Enable caching
+ 	 * @return Void
+ 	 */
+	public function enable() {
+		$this->_enabled = true;
+	}
+
+	/**
+ 	 * Disable caching
+ 	 * @return Void
+ 	 */
+	public function disable() {
+		$this->_enabled = false;
+	}	
 }
