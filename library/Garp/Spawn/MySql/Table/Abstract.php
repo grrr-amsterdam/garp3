@@ -85,9 +85,9 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 		
 	public function create() {
 		$success = false;
-		$this->_adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
-		$success = $this->_adapter->query($this->_createStatement);
-		$this->_adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
+		$this->_query('SET FOREIGN_KEY_CHECKS = 0;');
+		$success = $this->_query($this->_createStatement);
+		$this->_query('SET FOREIGN_KEY_CHECKS = 1;');
 		
 		return $success;
 	}
@@ -122,7 +122,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 	public function addColumn(Garp_Spawn_MySql_Column $newColumn) {
 		$addQuery = "ALTER TABLE `{$this->name}` ADD ".$newColumn->renderSqlDefinition();
 
-		if (!$this->_adapter->query($addQuery)) {
+		if (!$this->_query($addQuery)) {
 			throw new Exception("Could not add the '{$newColumn->name}' column to the {$this->name} table.");
 		}
 	}
@@ -130,22 +130,22 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 	public function alterColumn(Garp_Spawn_MySql_Column $newColumn) {
 		$alterQuery = "ALTER TABLE `{$this->name}` MODIFY ".$newColumn->renderSqlDefinition();
 
-		if (!$this->_adapter->query($alterQuery)) {
+		if (!$this->_query($alterQuery)) {
 			throw new Exception("Could not modify the properties of {$this->name}.{$newColumn->name}\n" . $alterQuery . "\n");
 		}
 	}
 	
 	public function deleteColumn(Garp_Spawn_MySql_Column $liveColumn) {
 		$alterQuery = "ALTER TABLE `{$this->name}` DROP COLUMN `{$liveColumn->name}`;";
-		$this->_adapter->query($alterQuery);
+		$this->_query($alterQuery);
 	}
 	
 	public function enableFkChecks() {
-		$this->_adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
+		$this->_query('SET FOREIGN_KEY_CHECKS = 1;');
 	}
 	
 	public function disableFkChecks() {
-		$this->_adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
+		$this->_query('SET FOREIGN_KEY_CHECKS = 0;');
 	}
 	
 	protected function _getConfirmationMessage(array $diffProperties, Garp_Spawn_MySql_Column $newColumn) {
@@ -194,5 +194,20 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 			!is_string($createStatement) ||
 			substr($createStatement, 0, 6) !== 'CREATE'
 		) throw new Exception("The provided argument has to be a MySQL 'CREATE' statement.");
+	}
+
+	protected function _query($statement) {
+		try {
+			$response = $this->_adapter->query($statement);
+		} catch (Exception $e) {
+			$msg = 
+				$e->getMessage()
+				. "\n\n-- You were trying to execute this query: --\n\n"
+				. $statement
+			;
+			throw new Exception($msg);
+		}
+
+		return $response;
 	}
 }

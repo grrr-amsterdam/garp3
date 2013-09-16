@@ -120,7 +120,11 @@ class Garp_Spawn_MySql_Column {
 		}
 
 		if (isset($this->default)) {
-			$nodes[] = 'DEFAULT '.$this->quoteIfNecessary($this->type, $this->default);
+			$default = $this->default;
+			
+			$default = $this->_convertDefaultIfNecessary($default);
+			$default = $this->quoteIfNecessary($this->type, $default);
+			$nodes[] = 'DEFAULT ' . $default;
 		} elseif (is_null($this->default) && $this->nullable) {
 			$nodes[] = 'DEFAULT NULL';
 		}
@@ -190,13 +194,19 @@ class Garp_Spawn_MySql_Column {
 		}
 	}
 
-
 	static public function getRequiredAndDefault(Garp_Spawn_Field $field) {
 		$out = array();
-		if ($field->required)
+		if ($field->required) {
 			$out[] = 'NOT NULL';
-		if (isset($field->default))
-			$out[] = 'DEFAULT '.self::quoteIfNecessary($field->type, $field->default);
+		}
+		
+		if (isset($field->default)) {
+			$default = $field->default;
+			$default = self::convertDefaultIfNecessary($default, $field);
+			$default = self::quoteIfNecessary($field->type, $default);
+			$out[] = 'DEFAULT ' . $default;
+		}
+
 		return implode($out, " ");
 	}
 	
@@ -213,6 +223,33 @@ class Garp_Spawn_MySql_Column {
 			)
 		) $decorator = "'";
 		return $decorator.$value.$decorator;
+	}
+
+	/**
+	 * @todo: Deze onderstaande functies samenvoegen, en sowieso alle statische functies eruit schrijven.
+	 */
+	static public function convertDefaultIfNecessary($default, Garp_Spawn_Field $field) {
+		if (! (is_bool($default) && !$default)) {
+			return $default;
+		}
+
+		if ($field->type !== 'checkbox') {
+			throw new Exception("Field {$field->name} (type: {$field->type}) cannot have false (boolean) as default.");
+		}
+
+		return 0;
+	}
+
+	protected function _convertDefaultIfNecessary($default) {
+		if (! (is_bool($default) &&	!$default)) {
+			return $default;
+		}
+
+		if ($this->type !== 'tinyint(1)') {
+			throw new Exception("A {$this->type} column cannot have false (boolean) as default.");
+		}
+
+		return 0;
 	}
 	
 
