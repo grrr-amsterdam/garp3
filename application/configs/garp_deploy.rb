@@ -29,15 +29,14 @@ namespace :deploy do
   desc "Set up server instance"
   task :setup do
     transaction do
-      # add_public_ssh_keys
-      # find_webroot
-      # mark_git_server_safe
-      # create_deploy_dirs
-      # set_shared_dirs_permissions
-      # create_webroot_reroute_htaccess
+      add_public_ssh_keys
+      find_webroot
+      mark_git_server_safe
+      create_deploy_dirs
+      set_shared_dirs_permissions
+      create_webroot_reroute_htaccess
       install_crontab
-
-      # prompt_to_set_newly_found_deploy_dir
+      prompt_to_set_newly_found_deploy_dir
     end
   end
 
