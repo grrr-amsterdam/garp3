@@ -49,6 +49,7 @@ class Garp_Controller_Helper_CanonicalUrl extends Zend_Controller_Action_Helper_
 		}
 		$controller = $this->getActionController();
 		$controller->getHelper('redirector')->gotoUrl((string)$canonical, array('code' => 301));
+		$controller->getHelper('cache')->disable();
 		$controller->getHelper('viewRenderer')->setNoRender(true);
 		$controller->getHelper('layout')->disableLayout();
 	}
