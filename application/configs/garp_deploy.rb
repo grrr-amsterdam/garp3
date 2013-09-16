@@ -142,9 +142,9 @@ namespace :deploy do
 	cmd_install				= "crontab #{cron_tmp_file}"
 	cmd_remove_cron_output 	= "rm #{cron_tmp_file}"
 
-	cmd_frequent 	= sprintf cmd_append, cron_tmp_file, 'cron frequently', tab_frequent, cron_tmp_file
-	cmd_hourly 		= sprintf cmd_append, cron_tmp_file, 'cron hourly', tab_hourly, cron_tmp_file
-	cmd_daily 		= sprintf cmd_append, cron_tmp_file, 'cron daily', tab_daily, cron_tmp_file
+	cmd_frequent 	= sprintf cmd_append, cron_tmp_file, "cron frequently --e=#{garp_env}", tab_frequent, cron_tmp_file
+	cmd_hourly 		= sprintf cmd_append, cron_tmp_file, "cron hourly --e=#{garp_env}", tab_hourly, cron_tmp_file
+	cmd_daily 		= sprintf cmd_append, cron_tmp_file, "cron daily --e=#{garp_env}", tab_daily, cron_tmp_file
 
 	begin 
 		run cmd_output_cron
