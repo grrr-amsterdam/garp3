@@ -250,6 +250,11 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			'modelClass' => $relatedModelClass,
 			'rule' => $relationConfig['name']
 		);
+
+		if ($relationConfig['type'] === 'hasMany') {
+			$params['rule'] = $relationConfig['oppositeRule'];
+		}
+
 		$relatedModel 		= new $relatedModelClass();
 		$relatedBehavior 	= $relatedModel->getObserver('Elasticsearchable');
 
@@ -278,13 +283,3 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		return $bindingModelName;
 	}
 }
-
-
-
-
-
-
-
-
-
-
