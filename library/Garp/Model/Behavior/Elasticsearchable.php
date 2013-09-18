@@ -245,11 +245,17 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 	protected function _bindModel(Garp_Model_Db $model, array $relationConfig) {
 		$namespace = $this->_getModelNamespace();
 
+// Zend_Debug::dump($relationConfig);
 		$relatedModelClass 	= $namespace . $relationConfig['model'];
 		$params 			= array(
 			'modelClass' => $relatedModelClass,
 			'rule' => $relationConfig['name']
 		);
+
+		if ($relationConfig['type'] === 'hasMany') {
+			$params['rule'] = $relationConfig['oppositeRule'];
+		}
+
 		$relatedModel 		= new $relatedModelClass();
 		$relatedBehavior 	= $relatedModel->getObserver('Elasticsearchable');
 
@@ -257,12 +263,14 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		if (!$relatedBehavior) {
 			return;
 		}
-
+// Zend_Debug::dump($relationConfig['name']); exit;
 		if ($relationConfig['type'] === 'hasAndBelongsToMany') {
 			$bindingModelName 		= $this->_getBindingModelName($relationConfig);
 			$bindingModelClass 		= $namespace . $bindingModelName;
 			$params['bindingModel'] = $bindingModelClass;
 		}
+
+// Zend_Debug::dump($params); exit;
 
 		$model->bindModel($relationConfig['name'], $params);
 	}
