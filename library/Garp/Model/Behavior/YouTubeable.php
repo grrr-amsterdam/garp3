@@ -90,7 +90,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		$data = array(
 			'identifier'       => $entry->getVideoId(),
 			'name'             => !empty($input[$this->_fields['name']]) ? $input[$this->_fields['name']] : $entry->getVideoTitle(),
-			'description'      => !empty($input[$this->_fields['name']]) ? $input[$this->_fields['description']] : $entry->getVideoDescription(),
+			'description'      => !empty($input[$this->_fields['description']]) ? $input[$this->_fields['description']] : $entry->getVideoDescription(),
 			'flash_player_url' => str_replace('/v/', '/embed/', $this->_getFlashPlayerUrl($entry)),
 			'watch_url'        => $this->_getWatchUrl($entry),
 			'duration'         => $entry->getVideoDuration(),
