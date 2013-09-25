@@ -8,6 +8,21 @@
  * @package Garp
  * @subpackage Behavior
  * @lastmodified $Date: $
+ *
+ * Usage:
+ * 
+ * Define this behavior in a Spawn model configuration file.
+ * "behaviors": {
+ *		"Elasticsearchable": {
+ *			"columns": ["name", "type", "short_description", "performed_by", "author_name", "director", "city", "cast"],
+ *			"rootable": true
+ *		}
+ * }
+ * 
+ * Define which columns you want indexed in the 'columns' parameter.
+ * Automatically, all related records that are also Elasticsearchable will be included in the indexed node.
+ * Provide the 'rootable: true' parameter if this model should have its own entry in the root of the index
+ * (as opposed to being related to records of other models).
  */
 class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract {
 	const ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY =
