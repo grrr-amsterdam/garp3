@@ -75,7 +75,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			? $config['rootable']
 			: false
 		;
-		$this->setRootable($rootable)
+		$this->setRootable($rootable);
 	}
 
 	/**
