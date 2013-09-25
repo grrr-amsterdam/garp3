@@ -43,22 +43,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 	 * If false, this model will only appear as related records in the indexer.
 	 */
 	protected $_rootable;
-	
-	/**
-	 * @return Boolean
-	 */
-	public function getRootable() {
-		return $this->_rootable;
-	}
-	
-	/**
-	 * @param Boolean $rootable
-	 */
-	public function setRootable($rootable) {
-		$this->_rootable = $rootable;
-		return $this;
-	}
-	
+		
 
 	/**
 	 * Configuration.
@@ -142,6 +127,21 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		}
 
 		$this->_columns = $columns;
+		return $this;
+	}
+
+	/**
+	 * @return Boolean
+	 */
+	public function getRootable() {
+		return $this->_rootable;
+	}
+	
+	/**
+	 * @param Boolean $rootable
+	 */
+	public function setRootable($rootable) {
+		$this->_rootable = $rootable;
 		return $this;
 	}
 
