@@ -36,6 +36,28 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 	 * @var Array $_columns
 	 */
 	protected $_columns;
+
+	/**
+	 * @var Boolean $_rootable
+	 * This indicates whether this model should appear as having its own records in the ES index.
+	 * If false, this model will only appear as related records in the indexer.
+	 */
+	protected $_rootable;
+	
+	/**
+	 * @return Boolean
+	 */
+	public function getRootable() {
+		return $this->_rootable;
+	}
+	
+	/**
+	 * @param Boolean $rootable
+	 */
+	public function setRootable($rootable) {
+		$this->_rootable = $rootable;
+		return $this;
+	}
 	
 
 	/**
@@ -48,6 +70,12 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		}
 
 		$this->setColumns($config['columns']);
+
+		$rootable = array_key_exists('rootable', $config)
+			? $config['rootable']
+			: false
+		;
+		$this->setRootable($rootable)
 	}
 
 	/**
@@ -124,8 +152,15 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 
 		$rowSetObj = $this->_fetchRow($model, $primaryKey);
 		if (!$rowSetObj) {
-			/*	this is not supposed to happen,
+			/* This is not supposed to happen,
 			but due to concurrency it theoretically might. */
+			return;
+		}
+
+		if (!$this->getRootable()) {
+			/* This record should not appear directly in the index,
+			*  but only as related records.
+			*/
 			return;
 		}
 
