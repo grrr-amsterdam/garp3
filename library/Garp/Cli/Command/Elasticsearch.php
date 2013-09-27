@@ -9,6 +9,8 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
+	const BEHAVIOR_NAME = 'Elasticsearchable';
+
 	/**
 	 * @var Garp_Service_Elasticsearch $_service
 	 */
@@ -20,6 +22,9 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
 		parent::main($args);
 	}
 
+	/**
+	 * Prepares an index for storing and searching.
+	 */
 	public function prepare() {
 		Garp_Cli::lineOut('Preparing Elasticsearch index...');
 		
@@ -27,6 +32,17 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
 		$log 		= $service->prepare();
 
 		Garp_Cli::lineOut($log, Garp_Cli::BLUE);
+	}
+
+	/**
+	 * Pushes all appropriate existing database content to the indexer.
+	 */
+	public function index() {
+		$modelSet = Garp_Spawn_Model_Set::getInstance();
+
+		foreach ($modelSet as $model) {
+			$this->_indexModel($model);
+		}
 	}
 
 	public function help() {
@@ -54,5 +70,54 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
 	protected function _initService() {
 		$service = new Garp_Service_Elasticsearch();
 		return $service;
+	}
+
+	protected function _indexModel(Garp_Spawn_Model_Abstract $model) {
+		if (!$this->_isElasticsearchable($model)) {
+			return;
+		}
+
+		$phpModel 		= $this->_getPhpModel($model);
+		$phpBehavior	= $this->_getPhpBehavior($phpModel);
+
+		if (!$phpBehavior->getRootable()) {
+			return;
+		}
+
+		$records = $this->_fetchAllIds($phpModel);
+
+		foreach ($records as $record) {
+			$this->_pushRecord($phpModel, $phpBehavior, $record);
+		}
+
+		$report = sprintf('Indexed %d %s records', count($records), $model->id);
+		Garp_Cli::lineOut($report);
+	}
+
+	protected function _isElasticsearchable(Garp_Spawn_Model_Abstract $model) {
+		return $model->behaviors->displaysBehavior(self::BEHAVIOR_NAME);
+	}
+
+	protected function _getPhpModel(Garp_Spawn_Model_Abstract $model) {
+		$modelClass 	= 'Model_' . $model->id;
+		$phpModel 		= new $modelClass();
+		return $phpModel;		
+	}
+
+	protected function _getPhpBehavior(Garp_Model_Db $model) {
+		$phpBehavior 	= $model->getObserver(self::BEHAVIOR_NAME);
+		return $phpBehavior;
+	}
+
+	protected function _fetchAllIds(Garp_Model_Db $model) {
+		$fields			= array('id');
+		$select 		= $model->select()->from($model->getName(), $fields);
+		$records 		= $model->fetchAll($select);
+		return $records;
+	}
+
+	protected function _pushRecord(Garp_Model_Db $model, Garp_Model_Behavior_Abstract $phpBehavior, Garp_Db_Table_Row $record) {
+		$primaryKey = current($record->toArray());
+		$phpBehavior->afterSave($model, $primaryKey);
 	}
 }
