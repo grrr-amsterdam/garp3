@@ -70,10 +70,9 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
  	 */
 	public function afterInsert(&$args) {
 		$model      = &$args[0];
-		$data       = &$args[1];
 		$primaryKey = &$args[2];
 
-		$this->_afterSave($model, $primaryKey, $data);
+		$this->afterSave($model, $primaryKey);
 	}
 
 	/**
@@ -83,13 +82,46 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
  	 */
 	public function afterUpdate(&$args) {
 		$model 		= $args[0];
-		$data 		= $args[2];
 		$where 		= $args[3];
 
 		$primaryKey = $model->extractPrimaryKey($where);
 		$id 		= $primaryKey['id'];
 
-		$this->_afterSave($model, $id, $data);
+		$this->afterSave($model, $id);
+	}
+
+	/**
+	 * Generic method for pushing a database row to the indexer.
+	 * @param Garp_Model_Db $model
+	 * @param int $primaryKey
+	 */
+	public function afterSave(Garp_Model_Db $model, $primaryKey) {
+		if (is_array($primaryKey)) {
+			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
+		}
+
+		$rowSetObj = $this->_fetchRow($model, $primaryKey);
+		if (!$rowSetObj) {
+			/* This is not supposed to happen,
+			but due to concurrency it theoretically might. */
+			return;
+		}
+
+		if (!$this->getRootable()) {
+			/* This record should not appear directly in the index,
+			*  but only as related records.
+			*/
+			return;
+		}
+
+		$row 				= $rowSetObj->current()->toArray();
+		$filteredRow 		= $this->_filterRow($row, $model);
+
+		$elasticModel 		= $this->_getElasticModel($model);
+		$pkMash				= $this->_mashPrimaryKey($primaryKey);
+		$filteredRow['id']	= $pkMash;
+
+		$elasticModel->save($filteredRow);
 	}
 
 	public function afterDelete(&$args) {
@@ -143,35 +175,6 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 	public function setRootable($rootable) {
 		$this->_rootable = $rootable;
 		return $this;
-	}
-
-	protected function _afterSave(Garp_Model_Db $model, $primaryKey, $data) {
-		if (is_array($primaryKey)) {
-			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
-		}
-
-		$rowSetObj = $this->_fetchRow($model, $primaryKey);
-		if (!$rowSetObj) {
-			/* This is not supposed to happen,
-			but due to concurrency it theoretically might. */
-			return;
-		}
-
-		if (!$this->getRootable()) {
-			/* This record should not appear directly in the index,
-			*  but only as related records.
-			*/
-			return;
-		}
-
-		$row 				= $rowSetObj->current()->toArray();
-		$filteredRow 		= $this->_filterRow($row, $model);
-
-		$elasticModel 		= $this->_getElasticModel($model);
-		$pkMash				= $this->_mashPrimaryKey($primaryKey);
-		$filteredRow['id']	= $pkMash;
-
-		$elasticModel->save($filteredRow);
 	}
 
 	protected function _filterRow(array $rowWithRelations, Garp_Model_Db $model) {
