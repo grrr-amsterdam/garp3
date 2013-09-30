@@ -28,10 +28,13 @@ class Garp_Service_Elasticsearch extends Zend_Service_Abstract {
 	}
 
 	public function doesIndexExist() {
-		$request 	= new Garp_Service_Elasticsearch_Request('GET', '/_mapping');
-		$response 	= $request->execute();
+		try {
+			$request 	= new Garp_Service_Elasticsearch_Request('GET', '/_mapping');
+			$response 	= $request->execute();
+			return $response->isOk();
+		} catch (Exception $e) {}
 
-		return $response->isOk();
+		return false;
 	}
 
 	public function remap() {
