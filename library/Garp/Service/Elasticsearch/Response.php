@@ -9,6 +9,7 @@
  * @lastmodified $Date: $
  */
 class Garp_Service_Elasticsearch_Response {
+	const ERROR_UNKNOWN_ERROR = 'Could not retrieve error message.';
 
 	/**
 	 * @var Zend_Http_Response $_httpResponse
@@ -20,6 +21,10 @@ class Garp_Service_Elasticsearch_Response {
 	 */
 	public function __construct(Zend_Http_Response $httpResponse) {
 		$this->setHttpResponse($httpResponse);
+
+		if (!$this->isOk()) {
+			throw new Exception($this->getError());
+		}
 	}
 
 	public function isOk() {
@@ -30,6 +35,19 @@ class Garp_Service_Elasticsearch_Response {
 	public function getBody() {
 		$httpResponse = $this->getHttpResponse();
 		return $httpResponse->getBody();
+	}
+
+	/**
+	 * @return String The error message. Throws Exception if message cannot be retrieved.
+	 */
+	public function getError() {
+		$bodyJson = $this->getBody();
+		$body = json_decode($bodyJson, true);
+		if (!array_key_exists('error', $body)) {
+			throw new Exception(self::ERROR_UNKNOWN_ERROR);
+		}
+
+		return $body['error'];
 	}
 
 	/**

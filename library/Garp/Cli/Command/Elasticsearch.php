@@ -9,7 +9,14 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
-	const BEHAVIOR_NAME = 'Elasticsearchable';
+	const BEHAVIOR_NAME = 
+		'Elasticsearchable';
+	const MSG_INDEX_EXISTS =
+		'Index already exists';
+	const MSG_INDEX_CREATED =
+		'Index created';
+	const MSG_INDEX_CREATION_FAILURE =
+		'Could not create index';
 
 	/**
 	 * @var Garp_Service_Elasticsearch $_service
@@ -27,11 +34,18 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
 	 */
 	public function prepare() {
 		Garp_Cli::lineOut('Preparing Elasticsearch index...');
-		
-		$service 	= $this->getService();
-		$log 		= $service->prepare();
+		$report = $this->_createIndexIfNotExists();
+		Garp_Cli::lineOut($report, Garp_Cli::BLUE);
+	}
 
-		Garp_Cli::lineOut($log, Garp_Cli::BLUE);
+	public function remap() {
+		$service = $this->getService();
+		$status = $service->remap();
+
+		$status 
+			? Garp_Cli::lineOut('Index remapped.', Garp_Cli::BLUE)
+			: Garp_Cli::errorOut('Could not remap index.');
+		;
 	}
 
 	/**
@@ -65,6 +79,23 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
 	public function setService(Garp_Service_Elasticsearch $service) {
 		$this->_service = $service;
 		return $this;
+	}
+
+	/**
+	 * Makes sure the service can be used; creates a primary index.
+	 * @return String Log message
+	 */
+	protected function _createIndexIfNotExists() {
+		$service 		= $this->getService();
+		$indexExists 	= $service->doesIndexExist();
+
+		if ($indexExists) {
+			return self::MSG_INDEX_EXISTS;
+		}
+
+		return $service->createIndex()
+			? self::MSG_INDEX_CREATED
+			: self::MSG_INDEX_CREATION_FAILURE;
 	}
 
 	protected function _initService() {
