@@ -9,7 +9,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_Video extends Model_Base_Video {
-	public function insert(array $data) {
+	public function insert(array $data) {	
 		try {
 			return parent::insert($data);
 		} catch (Exception $e) {
@@ -32,11 +32,15 @@ class G_Model_Video extends Model_Base_Video {
 
 					if (isset($select) && $select) {
 						$videoRow = $this->fetchRow($select);
-						return $videoRow->id;
+						if ($videoRow) {
+							return $videoRow->id;
+						}
 					}
 				} else throw new Exception("Missing the 'url' parameter in provided video data.");
 			}
 		}
+		
+		return null;
 	}
 
 
