@@ -9,7 +9,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_Video extends Model_Base_Video {
-	public function insert(array $data) {
+	public function insert(array $data) {	
 		try {
 			return parent::insert($data);
 		} catch (Exception $e) {
@@ -37,6 +37,7 @@ class G_Model_Video extends Model_Base_Video {
 				}
 			}
 		}
+
 		return null;
 	}
 
