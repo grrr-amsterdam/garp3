@@ -11,6 +11,8 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 	
 	protected $_path;
 	
+	protected $_ssl;
+	
 	const PERMISSIONS = 0774;
 
 
@@ -19,6 +21,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 		$this->_docRoot = APPLICATION_PATH."/../public";
 		$this->_path = $path;
 		$this->_domain = $config->domain;
+		$this->_ssl = $config->ssl ? true : false;
 	}
 
 
@@ -34,6 +37,9 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 
 	/** Fetches the url to the file, suitable for public access on the web. */
 	public function getUrl($filename) {
+		if ($this->_ssl) {
+			return 'https://'.$this->_domain.$this->_path.'/'.$filename;
+		}	
 		return 'http://'.$this->_domain.$this->_path.'/'.$filename;
 	}
 	
