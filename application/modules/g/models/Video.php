@@ -13,30 +13,31 @@ class G_Model_Video extends Model_Base_Video {
 		try {
 			return parent::insert($data);
 		} catch (Exception $e) {
-			if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
-				if (
-					array_key_exists('url', $data) &&
-					$data['url']
-				) {
-					$videoUrl = $data['url'];
+			if (strpos($e->getMessage(), 'Duplicate entry') === false) {
+				throw $e;
+			}
 
-					if (
-						$this->_isVimeoUrl($videoUrl) ||
-						$this->_isYouTuBeUrl($videoUrl)
-					) {
-						$select = $this->select()->where('url LIKE ?', "%{$videoUrl}%");
-					} elseif ($this->_isYouTubeComUrl($videoUrl)) {
-						$ytVideoId = $this->_getVideoIdFromYouTubeComUrl($videoUrl);
-						$select = $this->select()->where('identifier = ?', $ytVideoId);
-					} else throw new Exception("Unknown video type.");
+			if (!array_key_exists('url', $data) || !$data['url']) {
+				throw new Exception("Missing the 'url' parameter in provided video data.");
+			}
 
-					if (isset($select) && $select) {
-						$videoRow = $this->fetchRow($select);
-						return $videoRow->id;
-					}
-				} else throw new Exception("Missing the 'url' parameter in provided video data.");
+			$videoUrl = $data['url'];
+
+			if ($this->_isVimeoUrl($videoUrl) || $this->_isYouTuBeUrl($videoUrl)) {
+				$select = $this->select()->where('url LIKE ?', "%{$videoUrl}%");
+			} elseif ($this->_isYouTubeComUrl($videoUrl)) {
+				$ytVideoId = $this->_getVideoIdFromYouTubeComUrl($videoUrl);
+				$select = $this->select()->where('identifier = ?', $ytVideoId);
+			} else throw new Exception("Unknown video type.");
+
+			if (isset($select) && $select) {
+				$videoRow = $this->fetchRow($select);
+				if ($videoRow) {
+					return $videoRow->id;
+				}
 			}
 		}
+		return null;
 	}
 
 

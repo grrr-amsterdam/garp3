@@ -3,6 +3,8 @@
  * @author David Spreekmeester | grrr.nl
  */
 class Garp_Spawn_Behavior_Set {
+	const ERROR_BEHAVIOR_NOT_FOUND = "Behavior '%s' could not be found in model '%s'.";
+
 	/**
 	 * @var Array $_behaviors Associative array of Garp_Spawn_Behavior objects, where the key is the behavior name.
 	 */
@@ -34,6 +36,15 @@ class Garp_Spawn_Behavior_Set {
 
 	public function getBehaviors() {
 		return $this->_behaviors;
+	}
+
+	public function getBehavior($name) {
+		if (!array_key_exists($name, $this->_behaviors)) {
+			$error = sprintf(self::ERROR_BEHAVIOR_NOT_FOUND, $name, $this->getModel()->id);
+			throw new Exception($error);
+		}
+
+		return $this->_behaviors[$name];
 	}
 		
 	public function displaysBehavior($behaviorName) {

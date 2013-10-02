@@ -258,4 +258,13 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 			$this->_modified = true;
 		}
 	}
+
+	/**
+ 	 * To array converter
+ 	 * @return Array
+ 	 */
+	public function toArray() {
+		return $this->_data;
+	}
+
 }
