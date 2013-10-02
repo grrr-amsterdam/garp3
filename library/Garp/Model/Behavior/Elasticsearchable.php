@@ -8,6 +8,21 @@
  * @package Garp
  * @subpackage Behavior
  * @lastmodified $Date: $
+ *
+ * Usage:
+ * 
+ * Define this behavior in a Spawn model configuration file.
+ * "behaviors": {
+ *		"Elasticsearchable": {
+ *			"columns": ["name", "type", "short_description", "performed_by", "author_name", "director", "city", "cast"],
+ *			"rootable": true
+ *		}
+ * }
+ * 
+ * Define which columns you want indexed in the 'columns' parameter.
+ * Automatically, all related records that are also Elasticsearchable will be included in the indexed node.
+ * Provide the 'rootable: true' parameter if this model should have its own entry in the root of the index
+ * (as opposed to being related to records of other models).
  */
 class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract {
 	const ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY =
@@ -21,7 +36,14 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 	 * @var Array $_columns
 	 */
 	protected $_columns;
-	
+
+	/**
+	 * @var Boolean $_rootable
+	 * This indicates whether this model should appear as having its own records in the ES index.
+	 * If false, this model will only appear as related records in the indexer.
+	 */
+	protected $_rootable;
+		
 
 	/**
 	 * Configuration.
@@ -33,6 +55,12 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		}
 
 		$this->setColumns($config['columns']);
+
+		$rootable = array_key_exists('rootable', $config)
+			? $config['rootable']
+			: false
+		;
+		$this->setRootable($rootable);
 	}
 
 	/**
@@ -42,10 +70,9 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
  	 */
 	public function afterInsert(&$args) {
 		$model      = &$args[0];
-		$data       = &$args[1];
 		$primaryKey = &$args[2];
 
-		$this->_afterSave($model, $primaryKey, $data);
+		$this->afterSave($model, $primaryKey);
 	}
 
 	/**
@@ -55,13 +82,46 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
  	 */
 	public function afterUpdate(&$args) {
 		$model 		= $args[0];
-		$data 		= $args[2];
 		$where 		= $args[3];
 
 		$primaryKey = $model->extractPrimaryKey($where);
 		$id 		= $primaryKey['id'];
 
-		$this->_afterSave($model, $id, $data);
+		$this->afterSave($model, $id);
+	}
+
+	/**
+	 * Generic method for pushing a database row to the indexer.
+	 * @param Garp_Model_Db $model
+	 * @param int $primaryKey
+	 */
+	public function afterSave(Garp_Model_Db $model, $primaryKey) {
+		if (is_array($primaryKey)) {
+			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
+		}
+
+		$rowSetObj = $this->_fetchRow($model, $primaryKey);
+		if (!$rowSetObj) {
+			/* This is not supposed to happen,
+			but due to concurrency it theoretically might. */
+			return;
+		}
+
+		if (!$this->getRootable()) {
+			/* This record should not appear directly in the index,
+			*  but only as related records.
+			*/
+			return;
+		}
+
+		$row 				= $rowSetObj->current()->toArray();
+		$filteredRow 		= $this->_filterRow($row, $model);
+
+		$elasticModel 		= $this->_getElasticModel($model);
+		$pkMash				= $this->_mashPrimaryKey($primaryKey);
+		$filteredRow['id']	= $pkMash;
+
+		$elasticModel->save($filteredRow);
 	}
 
 	public function afterDelete(&$args) {
@@ -102,26 +162,19 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		return $this;
 	}
 
-	protected function _afterSave(Garp_Model_Db $model, $primaryKey, $data) {
-		if (is_array($primaryKey)) {
-			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
-		}
-
-		$rowSetObj = $this->_fetchRow($model, $primaryKey);
-		if (!$rowSetObj) {
-			/*	this is not supposed to happen,
-			but due to concurrency it theoretically might. */
-			return;
-		}
-
-		$row 				= $rowSetObj->current()->toArray();
-		$filteredRow 		= $this->_filterRow($row, $model);
-
-		$elasticModel 		= $this->_getElasticModel($model);
-		$pkMash				= $this->_mashPrimaryKey($primaryKey);
-		$filteredRow['id']	= $pkMash;
-
-		$elasticModel->save($filteredRow);
+	/**
+	 * @return Boolean
+	 */
+	public function getRootable() {
+		return $this->_rootable;
+	}
+	
+	/**
+	 * @param Boolean $rootable
+	 */
+	public function setRootable($rootable) {
+		$this->_rootable = $rootable;
+		return $this;
 	}
 
 	protected function _filterRow(array $rowWithRelations, Garp_Model_Db $model) {

@@ -18,6 +18,11 @@
 	"relations": {
 		"MyBigBogus": {
 			"model": "Bogus"
+		},
+
+		"MyMotherBogus": {
+			"model": "Bogus",
+			"type": "belongsTo"
 		}
 	}
 }
