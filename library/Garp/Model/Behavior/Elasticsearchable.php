@@ -329,8 +329,9 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			$params['bindingModel'] = $bindingModelClass;
 		}
 
-		// $params['conditions'] = $this->_getBindConditions($relationConfig);
+		$params['conditions'] = $this->_getBindConditions($relationConfig);
 
+// Zend_Debug::dump($params['conditions']->__toString()); exit;
 		return $params;
 	}
 
@@ -343,21 +344,27 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			: $relatedModel->getName()
 		;
 
-		$columns = array(
-			$relationConfig['name'] + '_id' => 'id',
-			$relationConfig['name'] + '_name' => 'name',
-		);
+		$columnNames = array('name');
+		$columns = array();
+
+		foreach ($columnNames as $columnName) {
+			$columnAlias = $relationConfig['name'] . '_' . $columnName;
+			$columns[$columnAlias] = $columnName;
+		}
+
+		$columns[] = 'id';
+		$columns[] = 'name';
 
 		$select = $relatedModel->select()
-			->from(array($relatedTable, $columns))
+			->from($relatedTable, $columns)
 		;
 
 		return $select;
 	}
 
-	protected function _getRelatedColumns() {
+	// protected function _getRelatedColumns() {
 
-	}
+	// }
 
 	protected function _getModelClass(array $relationConfig) {
 		$namespace = $this->_getModelNamespace();
