@@ -26,7 +26,6 @@ class Garp_Service_Elasticsearch_Response {
 		$this->setHttpResponse($httpResponse);
 
 		if (!$this->isOk()) {
-			// Zend_Debug::dump($httpResponse); exit;
 			throw new Exception($this->getError());
 		}
 	}
