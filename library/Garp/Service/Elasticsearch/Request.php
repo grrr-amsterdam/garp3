@@ -13,6 +13,8 @@ class Garp_Service_Elasticsearch_Request {
 	const PUT 		= 'PUT';
 	const DELETE 	= 'DELETE';
 
+	const ERROR_DATA_HAS_INVALID_TYPE =
+		'Data passed along to an Elasticsearch request can be either an Array or a Json string, not %.';
 	const ERROR_INVALID_METHOD =
 		'This method is not valid as a Elasticsearch_Request method.';
 
@@ -37,7 +39,7 @@ class Garp_Service_Elasticsearch_Request {
 	protected $_config;
 	
 	/**
-	 * @var Array $_data
+	 * @var String $_data Optional Json string of data
 	 */
 	protected $_data;
 	
@@ -45,7 +47,8 @@ class Garp_Service_Elasticsearch_Request {
 	/**
 	 * @param String 									$method 	One of these class' constants
 	 * @param String 									$path 		Relative path, excluding index, preceded by a slash
-	 * @param Array 									[$data]		List of parameters and their values
+	 * @param Mixed 									[$data]		List of parameters and their values.
+	 * 																Can be an Array or a Json string.
 	 */
 	public function __construct($method, $path, $data = null) {
 		$config = new Garp_Service_Elasticsearch_Configuration();
@@ -76,12 +79,10 @@ class Garp_Service_Elasticsearch_Request {
 		;
 
 		if ($data) {
-			$client->setRawData(json_encode($data));
+			$client->setRawData($data);
 		}
 
 		$response = $client->request();
-
-		// $client->getLastRequest()
 
 		return new Garp_Service_Elasticsearch_Response($response);
 	}
@@ -169,11 +170,23 @@ class Garp_Service_Elasticsearch_Request {
 	}
 	
 	/**
-	 * @param Array $data
+	 * @param Mixed $data Array or Json string
 	 */
 	public function setData($data) {
+		if (is_null($data)) {
+			return;
+		}
+
+		if (is_array($data)) {
+			$data = json_encode($data);
+		}
+
+		if (!is_string($data)) {
+			$error = sprintf(self::ERROR_DATA_HAS_INVALID_TYPE, gettype($data));
+			throw new Exception($error);
+		}
+
 		$this->_data = $data;
-		return $this;
 	}
 
 	protected function _validateMethod($method) {

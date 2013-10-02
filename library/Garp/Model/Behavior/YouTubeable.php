@@ -67,7 +67,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 	public function beforeUpdate(Array &$args) {
 		$data = &$args[1];
 
-		if ($output = $this->_fillFields($data)) {
+		if (!$output = $this->_fillFields($data)) {
 			throw new Garp_Model_Behavior_Exception('Could not properly retrieve API data from YouTube.');
 		}
 		$data = $output + $data;		

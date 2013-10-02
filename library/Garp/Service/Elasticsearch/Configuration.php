@@ -9,14 +9,12 @@
  * @lastmodified $Date: $
  */
 class Garp_Service_Elasticsearch_Configuration {
-	const ERROR_NO_DB_CONFIGURED =
-		'There is no database name configured, and no custom Elasticsearch index name was provided.';
-	const ERROR_PROVIDE_PARAMS =
-		'Please provide at least the following parameters: ';
+	const ERROR_NO_APP_NAME_CONFIGURED =
+		'There is no app name configured, and no custom Elasticsearch index name was provided.';
 	const ERROR_NO_BASE_URL_CONFIGURED =
 		'I did not find the elasticsearch.baseUrl configuration. It should contain the ES url, without index name and trailing slash.';
-	const ERROR_DB_NAME_EMPTY =
-		'The configured database name was empty, so it cannot be used as a default Elasticsearch index name.';
+	const ERROR_APP_NAME_EMPTY =
+		'The configured app name was empty, so it cannot be used as a default Elasticsearch index name.';
 
 	/**
 	 * @var String $_baseUrl
@@ -48,7 +46,6 @@ class Garp_Service_Elasticsearch_Configuration {
 	 * 			String	[$params['index']]		The index name to use. Defaults to an ini configured value.
 	 */
 	public function __construct(array $params = array()) {
-		// $this->_validateParams($params);
 		$params = $this->_addDefaults($params);
 		$this->_loadParams($params);
 	}
@@ -78,16 +75,20 @@ class Garp_Service_Elasticsearch_Configuration {
 	protected function _getDefaultIndex() {
 		$config = Zend_Registry::get('config');
 
-		if (!isset($config->resources->db->params->dbname)) {
-			throw new Exception(self::ERROR_NO_DB_CONFIGURED);
+		if (!isset($config->app->name)) {
+			throw new Exception(self::ERROR_NO_APP_NAME_CONFIGURED);
 		}
 
-		$dbName = $config->resources->db->params->dbname;
-		if (!$dbName) {
-			throw new Exception(self::ERROR_DB_NAME_EMPTY);
+		$appName = str_replace(' ', '', $config->app->name);
+		$appName = Garp_Util_String::camelcasedToDashed($appName);
+
+		if (!$appName) {
+			throw new Exception(self::ERROR_APP_NAME_EMPTY);
 		}
 
-		return $config->resources->db->params->dbname;
+		$indexName = $appName . '-' . APPLICATION_ENV;
+
+		return $indexName;
 	}
 
 	protected function _getDefaultBaseUrl() {
@@ -99,17 +100,4 @@ class Garp_Service_Elasticsearch_Configuration {
 
 		return $config->elasticsearch->baseUrl;
 	}
-
-	// protected function _validateParams(array $params) {
-	// 	$requiredParamNames = array('baseUrl');
-	// 	$providedParamNames = array_keys($params);
-	// 	$missingParamNames 	= array_diff($requiredParamNames, $providedParamNames);
-
-	// 	if (!$missingParamNames) {
-	// 		return;
-	// 	}
-
-	// 	$missingList = implode(', ', $missingParamNames);
-	// 	throw new Exception(self::ERROR_PROVIDE_PARAMS . $missingList);
-	// }
 }
