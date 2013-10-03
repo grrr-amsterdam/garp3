@@ -100,8 +100,8 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
 		}
 
-		$rowSetObj = $this->_fetchRow($model, $primaryKey);
-		if (!$rowSetObj) {
+		$rowObj = $this->_fetchRow($model, $primaryKey);
+		if (!$rowObj) {
 			/* This is not supposed to happen,
 			but due to concurrency it theoretically might. */
 			return;
@@ -114,7 +114,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			return;
 		}
 
-		$row 				= $rowSetObj->current()->toArray();
+		$row 				= $rowObj->toArray();
 		$filteredRow 		= $this->_filterRow($row, $model);
 
 		$elasticModel 		= $this->_getElasticModel($model);
@@ -281,7 +281,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			->where('id = ?', $primaryKey)
 		;
 
-		$row = $model->fetchAll($select);
+		$row = $model->fetchRow($select);
 		$model->unbindAllModels();
 		return $row;
 	}
@@ -329,9 +329,9 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			$params['bindingModel'] = $bindingModelClass;
 		}
 
-		$params['conditions'] = $this->_getBindConditions($relationConfig);
+		// $params['conditions'] = $this->_getBindConditions($relationConfig);
 
-// Zend_Debug::dump($params['conditions']->__toString()); exit;
+		// Zend_Debug::dump($params['conditions']->__toString()); exit;
 		return $params;
 	}
 
