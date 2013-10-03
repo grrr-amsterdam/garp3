@@ -62,12 +62,38 @@ class Garp_Service_Elasticsearch_Db_RowFilter extends Garp_Service_Elasticsearch
 			if (is_array($value)) {
 				//	this is data from a related model
 				$value = $this->_filterRelatedData($value, $columnName);
+				$value = $this->_flattenRelatedData($value);
 			}
 
 			$filteredRow[$columnName] = $value;
 		}
 
 		return $filteredRow;
+	}
+
+	protected function _flattenRelatedData(array $relatedRowOrRowSet) {
+		if (!$relatedRowOrRowSet) {
+			return;
+		}
+
+		if (!is_array(current($relatedRowOrRowSet))) {
+			return $this->_flattenRelatedRow($relatedRowOrRowSet);
+		}
+		
+		$flattenedRowSet = array();
+		foreach ($relatedRowOrRowSet as $row) {
+			$flattenedRowSet[] = $this->_flattenRelatedRow($row);
+		}
+		return $flattenedRowSet;
+	}
+
+	protected function _flattenRelatedRow(array $relatedRow) {
+
+		if (array_key_exists('name', $relatedRow)) {
+			return $relatedRow['name'];
+		}
+
+		return $relatedRow;
 	}
 
 	protected function _filterRelatedData(array &$data, $relationName) {
@@ -78,7 +104,8 @@ class Garp_Service_Elasticsearch_Db_RowFilter extends Garp_Service_Elasticsearch
 			return $data;
 		}
 
-		return $this->_filterRelatedRow($data, $relationName);
+		$filteredRow = $this->_filterRelatedRow($data, $relationName);
+		return $filteredRow;
 	}
 
 	protected function _filterRelatedRowSet(array &$data, $relationName) {
@@ -99,9 +126,7 @@ class Garp_Service_Elasticsearch_Db_RowFilter extends Garp_Service_Elasticsearch
 		}
 
 		$columns 			= $behavior->getColumns();
-		$prefixedColumns	= $this->_prefixColumnsWithRelationNamespace($relationName, $columns);
-
-		$columnsAsKeys 		= array_flip($prefixedColumns);
+		$columnsAsKeys 		= array_flip($columns);
 		$filteredData 		= array_intersect_key($data, $columnsAsKeys);
 
 		return $filteredData;
