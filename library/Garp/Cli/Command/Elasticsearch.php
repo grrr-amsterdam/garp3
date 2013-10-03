@@ -52,6 +52,7 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
 	 * Pushes all appropriate existing database content to the indexer.
 	 */
 	public function index() {
+		Garp_Cli::lineOut('Building up index. Hang on to your knickers...');
 		$modelSet = Garp_Spawn_Model_Set::getInstance();
 
 		foreach ($modelSet as $model) {

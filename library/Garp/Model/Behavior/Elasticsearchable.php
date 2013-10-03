@@ -100,8 +100,8 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
 		}
 
-		$rowSetObj = $this->_fetchRow($model, $primaryKey);
-		if (!$rowSetObj) {
+		$rowObj = $this->_fetchRow($model, $primaryKey);
+		if (!$rowObj) {
 			/* This is not supposed to happen,
 			but due to concurrency it theoretically might. */
 			return;
@@ -114,7 +114,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			return;
 		}
 
-		$row 				= $rowSetObj->current()->toArray();
+		$row 				= $rowObj->toArray();
 		$filteredRow 		= $this->_filterRow($row, $model);
 
 		$elasticModel 		= $this->_getElasticModel($model);
@@ -281,7 +281,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			->where('id = ?', $primaryKey)
 		;
 
-		$row = $model->fetchAll($select);
+		$row = $model->fetchRow($select);
 		$model->unbindAllModels();
 		return $row;
 	}
@@ -296,17 +296,8 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 	}
 
 	protected function _bindModel(Garp_Model_Db $model, array $relationConfig) {
-		$namespace = $this->_getModelNamespace();
-
-		$relatedModelClass 	= $namespace . $relationConfig['model'];
-		$params 			= array(
-			'modelClass' => $relatedModelClass,
-			'rule' => $relationConfig['name']
-		);
-
-		if ($relationConfig['type'] === 'hasMany') {
-			$params['rule'] = $relationConfig['oppositeRule'];
-		}
+		$relatedModelClass	= $this->_getModelClass($relationConfig);
+		$params 			= $this->_getParams($relationConfig);
 
 		$relatedModel 		= new $relatedModelClass();
 		$relatedBehavior 	= $relatedModel->getObserver('Elasticsearchable');
@@ -316,13 +307,70 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			return;
 		}
 
+		$model->bindModel($relationConfig['name'], $params);
+	}
+
+	protected function _getParams(array $relationConfig) {
+		$namespace 			= $this->_getModelNamespace();
+		$relatedModelClass	= $this->_getModelClass($relationConfig);
+
+		$params 			= array(
+			'modelClass' 	=> $relatedModelClass,
+			'rule' 			=> $relationConfig['name']
+		);
+
+		if ($relationConfig['type'] === 'hasMany') {
+			$params['rule'] = $relationConfig['oppositeRule'];
+		}
+
 		if ($relationConfig['type'] === 'hasAndBelongsToMany') {
 			$bindingModelName 		= $this->_getBindingModelName($relationConfig);
 			$bindingModelClass 		= $namespace . $bindingModelName;
 			$params['bindingModel'] = $bindingModelClass;
 		}
 
-		$model->bindModel($relationConfig['name'], $params);
+		// $params['conditions'] = $this->_getBindConditions($relationConfig);
+
+		// Zend_Debug::dump($params['conditions']->__toString()); exit;
+		return $params;
+	}
+
+	protected function _getBindConditions(array $relationConfig) {
+		$relatedModelClass	= $this->_getModelClass($relationConfig);
+		$relatedModel = new $relatedModelClass();
+
+		$relatedTable = $relationConfig['type'] === 'hasAndBelongsToMany'
+			? array('m' => $relatedModel->getName())
+			: $relatedModel->getName()
+		;
+
+		$columnNames = array('name');
+		$columns = array();
+
+		foreach ($columnNames as $columnName) {
+			$columnAlias = $relationConfig['name'] . '_' . $columnName;
+			$columns[$columnAlias] = $columnName;
+		}
+
+		$columns[] = 'id';
+		$columns[] = 'name';
+
+		$select = $relatedModel->select()
+			->from($relatedTable, $columns)
+		;
+
+		return $select;
+	}
+
+	// protected function _getRelatedColumns() {
+
+	// }
+
+	protected function _getModelClass(array $relationConfig) {
+		$namespace = $this->_getModelNamespace();
+		$relatedModelClass = $namespace . $relationConfig['model'];
+
+		return $relatedModelClass;
 	}
 
 	protected function _getBindingModelName(array $relationConfig) {
