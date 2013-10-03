@@ -109,6 +109,7 @@ namespace :deploy do
   desc "Mark Git server as safe"
   task :mark_git_server_safe do
     run "touch ~/.ssh/known_hosts && ssh-keyscan -t rsa,dsa flow.grrr.nl 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && cat ~/.ssh/tmp_hosts > ~/.ssh/known_hosts && rm ~/.ssh/tmp_hosts"
+    run "touch ~/.ssh/known_hosts && ssh-keyscan -t rsa,dsa code.grrr.nl 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && cat ~/.ssh/tmp_hosts > ~/.ssh/known_hosts && rm ~/.ssh/tmp_hosts"
   end
 
   desc "Create essential deploy directories"
