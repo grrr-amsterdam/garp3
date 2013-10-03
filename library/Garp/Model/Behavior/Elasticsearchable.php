@@ -119,7 +119,7 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		$rowFilter 			= new Garp_Service_Elasticsearch_Db_RowFilter($model);
 		$columns 			= $this->getColumns();
 		$filteredRow 		= $rowFilter->filter($row, $columns);
-// Zend_Debug::dump($filteredRow); exit;
+
 		$elasticModel 		= $this->_getElasticModel($model);
 		$pkMash				= $this->_mashPrimaryKey($primaryKey);
 		$filteredRow['id']	= $pkMash;

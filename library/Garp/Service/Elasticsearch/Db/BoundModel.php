@@ -33,6 +33,7 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
 
 		$row = $model->fetchRow($select);
 		$model->unbindAllModels();
+
 		return $row;
 	}
 
@@ -57,14 +58,19 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
 		$params 			= $this->_getParams($relationConfig);
 
 		$relatedModel 		= new $relatedModelClass();
-		$relatedBehavior 	= $relatedModel->getObserver('Elasticsearchable');
+		$relatedBehavior 	= $this->_getRelatedBehavior($relatedModel);
 
-		//	do not bind this model, if it doesn't display the Elasticsearchable behavior.
+		//	do not bind this model if it doesn't display the Elasticsearchable behavior.
 		if (!$relatedBehavior) {
 			return;
 		}
 
 		$model->bindModel($relationConfig['name'], $params);
+	}
+
+	protected function _getRelatedBehavior(Garp_Model_Db $relatedModel) {
+		$relatedBehavior = $relatedModel->getObserver('Elasticsearchable');
+		return $relatedBehavior;
 	}
 
 	protected function _getModelClass(array $relationConfig) {
@@ -93,9 +99,10 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
 			$params['bindingModel'] = $bindingModelClass;
 		}
 
-		$params['conditions'] = $this->_getBindConditions($relationConfig);
+		if ($conditions = $this->_getBindConditions($relationConfig)) {
+			$params['conditions'] = $conditions;
+		}
 
-		// Zend_Debug::dump($params['conditions']->__toString()); exit;
 		return $params;
 	}
 
@@ -112,30 +119,33 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
 
 	protected function _getBindConditions(array $relationConfig) {
 		$relatedModelClass	= $this->_getModelClass($relationConfig);
-		$relatedModel = new $relatedModelClass();
+		$relatedModel 		= new $relatedModelClass();
 
 		$relatedTable = $relationConfig['type'] === 'hasAndBelongsToMany'
 			? array('m' => $relatedModel->getName())
 			: $relatedModel->getName()
 		;
 
-		$columnNames = array('name');
-		$columns = array();
-
-		foreach ($columnNames as $columnName) {
-			$columnAlias = $relationConfig['name'] . '_' . $columnName;
-			$columns[$columnAlias] = $columnName;
+		$relatedBehavior 		= $this->_getRelatedBehavior($relatedModel);
+		if (!$relatedBehavior) {
+			return;
 		}
 
-		$columns[] = 'id';
-		$columns[] = 'name';
-		// $columns['koekjes_name'] = 'name';
+		$columnNames 			= $relatedBehavior->getColumns();
+		$columnNamesWithAliases = $this->_getColumnNamesWithAliases($relationConfig['name'], $columnNames);
 
 		$select = $relatedModel->select()
-			->from($relatedTable, $columns)
+			->from($relatedTable, $columnNamesWithAliases)
 		;
 
 		return $select;
+	}
+
+	protected function _getColumnNamesWithAliases($relationName, $columnNames) {
+		$prefixedColumnNames 	= $this->_prefixColumnsWithRelationNamespace($relationName, $columnNames);
+		$columnNamesWithAliases = array_combine($prefixedColumnNames, $columnNames);
+
+		return $columnNamesWithAliases;
 	}
 
 }
