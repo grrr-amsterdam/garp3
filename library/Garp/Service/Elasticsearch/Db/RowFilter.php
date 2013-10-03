@@ -98,10 +98,11 @@ class Garp_Service_Elasticsearch_Db_RowFilter extends Garp_Service_Elasticsearch
 			return;
 		}
 
-		$columns 		= $behavior->getColumns();
+		$columns 			= $behavior->getColumns();
+		$prefixedColumns	= $this->_prefixColumnsWithRelationNamespace($relationName, $columns);
 
-		$columnsAsKeys 	= array_flip($columns);
-		$filteredData 	= array_intersect_key($data, $columnsAsKeys);
+		$columnsAsKeys 		= array_flip($prefixedColumns);
+		$filteredData 		= array_intersect_key($data, $columnsAsKeys);
 
 		return $filteredData;
 	}

@@ -19,4 +19,13 @@ abstract class Garp_Service_Elasticsearch_Db_Abstract {
 
 		return $namespace;
 	}
+
+	protected function _prefixColumnsWithRelationNamespace($relationName, array $columnNames) {
+		foreach ($columnNames as $columnName) {
+			$columnAlias = $relationName . '_' . $columnName;
+			$prefixedColumnNames[] = $columnAlias;
+		}
+
+		return $prefixedColumnNames;
+	}
 }
