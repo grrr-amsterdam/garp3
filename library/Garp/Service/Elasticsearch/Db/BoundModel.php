@@ -132,20 +132,11 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
 		}
 
 		$columnNames 			= $relatedBehavior->getColumns();
-		$columnNamesWithAliases = $this->_getColumnNamesWithAliases($relationConfig['name'], $columnNames);
-
+		
 		$select = $relatedModel->select()
-			->from($relatedTable, $columnNamesWithAliases)
+			->from($relatedTable, $columnNames)
 		;
 
 		return $select;
 	}
-
-	protected function _getColumnNamesWithAliases($relationName, $columnNames) {
-		$prefixedColumnNames 	= $this->_prefixColumnsWithRelationNamespace($relationName, $columnNames);
-		$columnNamesWithAliases = array_combine($prefixedColumnNames, $columnNames);
-
-		return $columnNamesWithAliases;
-	}
-
 }
