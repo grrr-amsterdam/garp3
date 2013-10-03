@@ -137,7 +137,7 @@ namespace :deploy do
   	tab_hourly 		= "0 * * * * #{php_exec} #{garp_exec} cron hourly --e=#{garp_env} >/dev/null 2>&1"
   	tab_daily 		= "0 4 * * * #{php_exec} #{garp_exec} cron daily --e=#{garp_env} >/dev/null 2>&1"
   	
-  	cron_tmp_file 			= ".crontab-tmp-output"
+  	cron_tmp_file 			= "/tmp/.crontab-tmp-output"
   	cmd_output_cron 		= "crontab -l > #{cron_tmp_file}"
 	cmd_append	 			= 'if [ ! "`cat %s | grep \'%s\'`" ]; then echo "%s" | tee -a %s; fi;'
 	cmd_install				= "crontab #{cron_tmp_file}"
