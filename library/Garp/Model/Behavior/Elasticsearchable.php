@@ -125,16 +125,15 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 	}
 
 	public function afterDelete(&$args) {
-		$model 		= $args[0];
-		$where 		= $args[2];
-		$search 	= "/\=\s*(\d+)/";
-		preg_match($search, $where, $matches);
-		
-		if (!array_key_exists(1, $matches)) {
+		$model       = $args[0];
+		$where       = $args[2];
+		$pkExtractor = new Garp_Db_PrimaryKeyExtractor($model, $where);
+		$matches = $pkExtractor->extract();
+		if (!array_key_exists('id', $matches)) {
 			throw new Exception(self::ERROR_NO_EXTRACTABLE_ID);
 		}
 
-		$dbId = $matches[1];
+		$dbId = $matches['id'];
 		$elasticModel = $this->_getElasticModel($model);
 		$elasticModel->delete($dbId);
 	}
