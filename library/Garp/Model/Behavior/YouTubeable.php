@@ -182,7 +182,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		$url = parse_url($watchUrl);
 		if (empty($url['query']) && $url['host'] == 'youtu.be') {
 			$videoId = substr($url['path'], 1);
-		} else {
+		} elseif (isset($url['query'])) {
 			parse_str($url['query'], $query);
 			if (isset($query['v']) && $query['v']) {
 				$videoId = $query['v'];

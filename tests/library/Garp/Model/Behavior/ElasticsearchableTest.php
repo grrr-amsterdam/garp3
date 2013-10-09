@@ -48,6 +48,9 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 		$firstGarpModelClass 	= get_class($this->getGarpModel());
 		$dbId 					= $dbIds[$firstGarpModelClass];
 
+		/* 	The Elasticsearch records should be inserted at this point,
+			because of the db trigger. */
+
 		$question 				= 'Is the bogus record present after insertion?';
 		$elasticRow 			= $elasticModel->fetch($dbId);
 		$this->assertTrue($elasticRow['exists'], $question);
@@ -60,8 +63,14 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 
 		$question 				= 'Is the bogus record cleaned up?';
 		$this->_deleteBogusRecords($dbIds);
-		$elasticRow 			= $elasticModel->fetch($dbId);
-		$this->assertFalse($elasticRow['exists'], $question);
+
+		$recordExists = false;
+		try {
+			$elasticRow = $elasticModel->fetch($dbId);
+			$recordExists = $elasticRow['exists'];
+		} catch (Exception $e) {}
+		
+		$this->assertFalse($recordExists, $question);
 	}
 
 	/**
