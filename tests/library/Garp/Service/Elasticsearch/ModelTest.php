@@ -5,7 +5,7 @@
  * @group Elasticsearch
  */
 class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
-	const BOGUS_MODEL_NAME = 'Bogus';
+	const BOGUS_MODEL_NAME = 'ElasticsearchBogus';
 	/**
 	 * @var Array $_bogusData
 	 */
@@ -37,8 +37,13 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
 
 		$this->_deleteBogusRecord();
 
-		$data = $this->_fetchBogusRecord();
-		$this->assertFalse($data['exists'], 'Is the bogus record actually removed?');
+		$recordExists = false;
+		try {
+			$data = $this->_fetchBogusRecord();
+			$recordExists = $data['exists'];
+		} catch (Exception $e) {}
+		
+		$this->assertFalse($recordExists, 'Is the bogus record actually removed?');
 	}
 
 	/**
