@@ -32,6 +32,10 @@ class Garp_Cli_Command_Cache extends Garp_Cli_Command {
 		return true;
 	}
 
+	public function info() {
+		Garp_Cache_Manager::info();
+	}
+
 
 	/**
  	 * Help
