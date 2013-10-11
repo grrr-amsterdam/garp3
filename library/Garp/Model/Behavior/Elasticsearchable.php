@@ -100,8 +100,10 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			throw new Exception(self::ERROR_PRIMARY_KEY_CANNOT_BE_ARRAY);
 		}
 
-		$rowSetObj = $this->_fetchRow($model, $primaryKey);
-		if (!$rowSetObj) {
+		$boundModel = new Garp_Service_Elasticsearch_Db_BoundModel($model);
+		$row = $boundModel->fetchRow($primaryKey);
+
+		if (!$row) {
 			/* This is not supposed to happen,
 			but due to concurrency it theoretically might. */
 			return;
@@ -114,8 +116,9 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 			return;
 		}
 
-		$row 				= $rowSetObj->current()->toArray();
-		$filteredRow 		= $this->_filterRow($row, $model);
+		$rowFilter 			= new Garp_Service_Elasticsearch_Db_RowFilter($model);
+		$columns 			= $this->getColumns();
+		$filteredRow 		= $rowFilter->filter($row, $columns);
 
 		$elasticModel 		= $this->_getElasticModel($model);
 		$pkMash				= $this->_mashPrimaryKey($primaryKey);
@@ -125,16 +128,15 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 	}
 
 	public function afterDelete(&$args) {
-		$model 		= $args[0];
-		$where 		= $args[2];
-		$search 	= "/\=\s*(\d+)/";
-		preg_match($search, $where, $matches);
-		
-		if (!array_key_exists(1, $matches)) {
+		$model       = $args[0];
+		$where       = $args[2];
+		$pkExtractor = new Garp_Db_PrimaryKeyExtractor($model, $where);
+		$matches = $pkExtractor->extract();
+		if (!array_key_exists('id', $matches)) {
 			throw new Exception(self::ERROR_NO_EXTRACTABLE_ID);
 		}
 
-		$dbId = $matches[1];
+		$dbId = $matches['id'];
 		$elasticModel = $this->_getElasticModel($model);
 		$elasticModel->delete($dbId);
 	}
@@ -177,79 +179,6 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		return $this;
 	}
 
-	protected function _filterRow(array $rowWithRelations, Garp_Model_Db $model) {
-		$filteredRow 	= array();
-		$columns 		= $this->getColumns();
-		
-		foreach ($rowWithRelations as $columnName => $value) {
-			if (
-				!is_array($value) &&
-				!in_array($columnName, $columns)
-			) {
-				// this is a column of the primary model that should not be indexed
-				continue;
-			}
-
-			if (is_array($value)) {
-				//	this is data from a related model
-				$value = $this->_filterRelatedData($value, $columnName, $model);
-			}
-
-			$filteredRow[$columnName] = $value;
-		}
-
-		return $filteredRow;
-	}
-
-	protected function _filterRelatedData(array &$data, $relationName, Garp_Model_Db $model) {
-		if ($data && is_array($data) && is_array(current($data))) {
-			$this->_filterRelatedRowSet($data, $relationName, $model);
-			//	this is not a row but a rowset, so walk over it.
-
-			return $data;
-		}
-
-		return $this->_filterRelatedRow($data, $relationName, $model);
-	}
-
-	protected function _filterRelatedRowSet(array &$data, $relationName, Garp_Model_Db $model) {
-		foreach ($data as $i => $dataNode) {
-			$data[$i] = $this->_filterRelatedRow($dataNode, $relationName, $model);
-		}
-
-		return $data;
-	}
-
-	protected function _filterRelatedRow(array &$data, $relationName, Garp_Model_Db $model) {
-		$modelClass 	= $this->_getModelClassFromRelationName($model, $relationName);
-		$relModel 		= new $modelClass();
-		$behavior 		= $relModel->getObserver('Elasticsearchable');
-
-		if (!$behavior) {
-			return;
-		}
-
-		$columns 		= $behavior->getColumns();
-
-		$columnsAsKeys 	= array_flip($columns);
-		$filteredData 	= array_intersect_key($data, $columnsAsKeys);
-
-		return $filteredData;
-	}
-
-	protected function _getModelClassFromRelationName(Garp_Model_Db $model, $relationName) {
-		$relations 		= $model->getConfiguration('relations');
-		if (!array_key_exists($relationName, $relations)) {
-			$error = sprintf(self::ERROR_RELATION_NOT_FOUND, $relationName, get_class($model));
-			throw new Exception($error);
-		}
-
-		$namespace = $this->_getModelNamespace();
-		$modelClass = $namespace . $relations[$relationName]['model'];
-
-		return $modelClass;
-	}
-
 	protected function _getElasticModel(Garp_Model_Db $model) {
 		$modelId 		= $model->getNameWithoutNamespace();
 		$elasticModel 	= new Garp_Service_Elasticsearch_Model($modelId);
@@ -268,71 +197,5 @@ class Garp_Model_Behavior_Elasticsearchable extends Garp_Model_Behavior_Abstract
 		}
 
 		return (string)$primaryKey;
-	}
-
-	protected function _fetchRow(Garp_Model_Db $model, $primaryKey) {
-		$relations = $model->getConfiguration('relations');
-
-		foreach ($relations as $relation) {
-			$this->_bindModel($model, $relation);
-		}
-
-		$select = $model->select()
-			->where('id = ?', $primaryKey)
-		;
-
-		$row = $model->fetchAll($select);
-		$model->unbindAllModels();
-		return $row;
-	}
-
-	protected function _getModelNamespace() {
-		$namespace = APPLICATION_ENV === 'testing'
-			? 'Mocks_Model_'
-			: 'Model_'
-		;
-
-		return $namespace;
-	}
-
-	protected function _bindModel(Garp_Model_Db $model, array $relationConfig) {
-		$namespace = $this->_getModelNamespace();
-
-		$relatedModelClass 	= $namespace . $relationConfig['model'];
-		$params 			= array(
-			'modelClass' => $relatedModelClass,
-			'rule' => $relationConfig['name']
-		);
-
-		if ($relationConfig['type'] === 'hasMany') {
-			$params['rule'] = $relationConfig['oppositeRule'];
-		}
-
-		$relatedModel 		= new $relatedModelClass();
-		$relatedBehavior 	= $relatedModel->getObserver('Elasticsearchable');
-
-		//	do not bind this model, if it doesn't display the Elasticsearchable behavior.
-		if (!$relatedBehavior) {
-			return;
-		}
-
-		if ($relationConfig['type'] === 'hasAndBelongsToMany') {
-			$bindingModelName 		= $this->_getBindingModelName($relationConfig);
-			$bindingModelClass 		= $namespace . $bindingModelName;
-			$params['bindingModel'] = $bindingModelClass;
-		}
-
-		$model->bindModel($relationConfig['name'], $params);
-	}
-
-	protected function _getBindingModelName(array $relationConfig) {
-		$modelNames = array(
-			$relationConfig['oppositeRule'],
-			$relationConfig['model']
-		);
-		sort($modelNames);
-		$bindingModelName = implode($modelNames);
-
-		return $bindingModelName;
 	}
 }

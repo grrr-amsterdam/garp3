@@ -1,6 +1,7 @@
 <?php
 /**
  * Garp_Service_Elasticsearch_Model
+ * A representation of a document (model) in an Elasticsearch index.
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $

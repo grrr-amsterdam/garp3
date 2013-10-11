@@ -142,7 +142,10 @@ class Mocks_Model_ElasticsearchFoo extends Garp_Model_Db {
 
 	public function init() {
 		parent::init();
-		$this->registerObserver(new Garp_Model_Behavior_Elasticsearchable(array('columns' => array('name', 'description'))));
+		$this->registerObserver(new Garp_Model_Behavior_Elasticsearchable(array(
+			'columns' => array('name', 'description'),
+			'rootable' => true
+		)));
 	}
 
 	public function getMockRowData() {

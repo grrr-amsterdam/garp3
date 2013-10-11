@@ -21,12 +21,12 @@ class G_Model_Video extends Model_Base_Video {
 				throw new Exception("Missing the 'url' parameter in provided video data.");
 			}
 
-			$videoUrl = $data['url'];
+			$videoUrl = trim($data['url']);
 
-			if ($this->_isVimeoUrl($videoUrl) || $this->_isYouTuBeUrl($videoUrl)) {
+			if ($this->_isVimeoUrl($videoUrl)) {
 				$select = $this->select()->where('url LIKE ?', "%{$videoUrl}%");
-			} elseif ($this->_isYouTubeComUrl($videoUrl)) {
-				$ytVideoId = $this->_getVideoIdFromYouTubeComUrl($videoUrl);
+			} elseif ($this->_isYouTuBeUrl($videoUrl) || $this->_isYouTubeComUrl($videoUrl)) {
+				$ytVideoId = $this->_getYouTubeIdFromURL($videoUrl);
 				$select = $this->select()->where('identifier = ?', $ytVideoId);
 			} else throw new Exception("Unknown video type.");
 
@@ -46,24 +46,22 @@ class G_Model_Video extends Model_Base_Video {
 		return strpos($url, 'vimeo.com') !== false;
 	}
 
-	protected function _isYouTubeComUrl($url) {
-		return strpos($url, 'youtube.com') !== false;
-	}
-
 	protected function _isYouTuBeUrl($url) {
 		return strpos($url, 'youtu.be') !== false;
 	}
 
+	protected function _isYouTubeComUrl($url) {
+		return strpos($url, 'youtube.com') !== false;
+	}
 
-	protected function _getVideoIdFromYouTubeComUrl($url) {
-		$query = parse_url($url, PHP_URL_QUERY);
-		$queryComponents = explode('&', $query);
-		foreach ($queryComponents as $queryComponent) {
-			if (substr($queryComponent, 0, 2) === 'v=') {
-				return substr($queryComponent, 2);
-			}
+	protected function _getYouTubeIdFromURL($url) {
+		$pattern = '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i';
+		preg_match($pattern, $url, $matches);
+
+		if (isset($matches[1])) {
+			return $matches[1];
 		}
 
-		throw new Exception("Cannot find YouTube.com video id in url.");
+		throw new Exception("Cannot find YouTube video id in url.");
 	}
 }

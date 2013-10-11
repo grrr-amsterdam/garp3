@@ -16,7 +16,6 @@ class G_ContentController extends Garp_Controller_Action {
  	 */
 	const UPLOAD_TYPE_ALL = 'all';
 
-
 	/**
 	 * Test page
 	 * @return Void
@@ -25,20 +24,18 @@ class G_ContentController extends Garp_Controller_Action {
 		$this->view->title = 'Garp API Console';
 	}
 
-	
 	/**
 	 * Display some information about cookies
 	 * @return Void
 	 */
 	public function cookiesAction() {
-		$config 		= Zend_Registry::get('config');
-		$viewBasePath 	= $config->resources->view->basePath ?: APPLICATION_PATH . '/modules/default/views';
+		$config       = Zend_Registry::get('config');
+		$viewBasePath = $config->resources->view->basePath ?: APPLICATION_PATH . '/modules/default/views';
 
 		$this->_helper->layout->setLayoutPath($viewBasePath . '/layouts/');
 		$this->view->title = 'Cookies';
 	}
-	
-	
+
 	/**
 	 * Landing page
 	 * @return Void
@@ -58,8 +55,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$this->view->locale = $ini->resources->locale->default;
 		$this->_helper->layout->setLayout('admin');
 	}
-	
-	
+
 	/**
 	 * JSON-RPC entrance.
 	 * @return Void
@@ -110,8 +106,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$response = str_replace('\/', '/', $response);
 		$this->view->response = $response;
 	}
-	
-	
+
 	/**
 	 * Upload a file.
 	 * @return Void
@@ -191,7 +186,6 @@ class G_ContentController extends Garp_Controller_Action {
 		$this->view->response = $response;
 	}
 
-		
 	/**
 	 * Download an uploaded file
 	 * @return Void
@@ -212,8 +206,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$url = $fileHandler->getUrl($file);
 		$this->_downloadFile($url);
 	}
-	
-	
+
 	/**
 	 * /g/content/download-zipped/dinges.pdf,jadda.gif/myZipArchiveName
 	 */
@@ -266,8 +259,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$this->_downloadFile($zipPath);
 		@unlink($zipPath);
 	}
-	
-	
+
 	/**
 	 * @param String $path Local path to a file, or a url.
 	 */
@@ -287,7 +279,6 @@ class G_ContentController extends Garp_Controller_Action {
 		Zend_Controller_Front::getInstance()->setParam('noViewRenderer', true);
 		$this->_helper->viewRenderer->setNoRender();
 	}
-
 
 	/**
 	 * Import content from various formats.
@@ -345,8 +336,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$this->_helper->layout->setLayout('json');
 		$this->renderScript('content/call.phtml');
 	}
-	
-	
+
 	/**
 	 * Export content in various formats
 	 * @return Void
@@ -370,8 +360,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$download->force($bytes, $filename, $this->_response);		
 		$this->_helper->viewRenderer->setNoRender();
 	}
-	
-	
+
 	/**
 	 * Clear all cache system wide.
 	 * Static Cache is tagged, so a comma-separated list of tags may be given to only clear cache tagged with those tags.
@@ -389,8 +378,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$this->view->title = 'Clear that cache';
 		Garp_Cache_Manager::purge($tags, $createClusterJob);
 	}
-	
-	
+
 	/**
 	 * Shortcut to phpinfo
 	 * @return Void
@@ -399,7 +387,6 @@ class G_ContentController extends Garp_Controller_Action {
 		phpinfo();
 		exit;
 	}
-
 
 	public function datamodelAction() {
 		/**
@@ -417,9 +404,6 @@ class G_ContentController extends Garp_Controller_Action {
 		// }
 	}
 
-
-	
-	
 	/**
 	 * Edit request so everything passes thru the Garp_Content_Manager_Proxy::pass
 	 * @param Array $request
@@ -440,8 +424,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$request['params'] = array($meth[0], $meth[1], $request['params']);
 		return $request;
 	}
-		
-	
+
 	/**
 	 * Retrieve POSTed JSON-RPC request
 	 * @return String
