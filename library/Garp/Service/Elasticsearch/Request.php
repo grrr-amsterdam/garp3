@@ -93,7 +93,10 @@ class Garp_Service_Elasticsearch_Request {
 	 */
 	public function getUrl() {
 		$config 	= $this->getConfig();
-		$baseUrl 	= $config->getBaseUrl();
+		$baseUrl 	= $this->isReadOnly()
+			? $config->getReadBaseUrl()
+			: $config->getWriteBaseUrl()
+		;
 		$index 		= $config->getIndex();
 		$path 		= $this->getPath();
 
@@ -187,6 +190,11 @@ class Garp_Service_Elasticsearch_Request {
 		}
 
 		$this->_data = $data;
+	}
+
+	public function isReadOnly() {
+		$method = $this->getMethod();
+		return $method === self::GET;
 	}
 
 	protected function _validateMethod($method) {
