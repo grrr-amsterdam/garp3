@@ -1,14 +1,11 @@
 <?php
 /**
  * Garp_Store_Cookie
- * Store data in cookies.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Store
- * @lastmodified $Date: $
+ * Store data in cookies
  *
+ * @author       Harmen Janssen | grrr.nl
+ * @version      1.1.0
+ * @package      Garp_Store
  */
 class Garp_Store_Cookie implements Garp_Store_Interface {
 	/**
@@ -16,8 +13,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 * @var Int
  	 * @todo Make this configurable, right now it's set to 30 days
  	 */
-	const DEFAULT_COOKIE_DURATION = 2592000;
-
+	const DEFAULT_COOKIE_DURATION = 2592000; 
 
 	/**
  	 * Cookie save path
@@ -26,13 +22,11 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 */
 	const DEFAULT_COOKIE_PATH = '/';
 
-
 	/**
  	 * Cookie namespace
  	 * @var String
  	 */
 	protected $_namespace = '';
-
 
 	/**
  	 * Cookie data, associative array or scalar value.
@@ -40,13 +34,11 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 */
 	protected $_data = array();
 
-
 	/**
  	 * Cookie duration
  	 * @var Int
  	 */
 	protected $_cookieDuration;
-
 
 	/**
  	 * Cookie path
@@ -54,22 +46,19 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 */
 	protected $_cookiePath;
 
-
 	/**
  	 * Cookie domain.
  	 * Note: leave this empty to make the cookie only work on
  	 * the current domain.
  	 * @var String
  	 */
-	protected $_cookieDomain = '';
-
+	protected $_cookieDomain = ''; 
 
 	/**
  	 * Record wether changes are made to the cookie
  	 * @var Boolean
  	 */
-	protected $_modified = false;
-
+	protected $_modified = false; 
 
 	/**
  	 * Class constructor
@@ -118,8 +107,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 				}
 			}
 		}
-	}
-
+	} 
 
 	/**
  	 * Write internal array to actual cookie.
@@ -129,8 +117,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 		if ($this->isModified()) {
 			$this->writeCookie();
 		}
-	}
-
+	} 
 
 	/**
  	 * Check if cookie is modified
@@ -138,8 +125,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 */
 	public function isModified() {
 		return $this->_modified;
-	}
-
+	} 
 
 	/**
  	 * Write internal array to actual cookie.
@@ -168,8 +154,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 		);
 		
 		$this->_modified = false;
-	}
-
+	} 
 
 	/**
  	 * Get value by key $key
@@ -181,8 +166,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 			return $this->_data[$key];
 		}
 		return null;
-	}
-
+	} 
 
 	/**
  	 * Store $value by key $key
@@ -200,6 +184,17 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 		return $this;
 	}
 
+	/**
+ 	 * Store a bunch of values all at once
+ 	 * @param Array $values
+ 	 * @return $this
+ 	 */
+	public function setFromArray(array $values) {
+		foreach ($values as $key => $val) {
+			$this->set($key, $val);
+		}
+		return $this;
+	}
 
 	/**
  	 * Magic getter
@@ -208,8 +203,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 */
 	public function __get($key) {
 		return $this->get($key);
-	}
-
+	} 
 
 	/**
  	 * Magic setter
@@ -221,7 +215,6 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 		$this->set($key, $value);
 	}
 
-
 	/**
  	 * Magic isset
  	 * @param String $key
@@ -230,7 +223,6 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 	public function __isset($key) {
 		return isset($this->_data[$key]);
 	}
-
 
 	/**
  	 * Magic unset
@@ -243,7 +235,6 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 			unset($this->_data[$key]);
 		}
 	}
-
 
 	/**
  	 * Remove a certain key from the store
@@ -267,4 +258,13 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 			$this->_modified = true;
 		}
 	}
+
+	/**
+ 	 * To array converter
+ 	 * @return Array
+ 	 */
+	public function toArray() {
+		return $this->_data;
+	}
+
 }

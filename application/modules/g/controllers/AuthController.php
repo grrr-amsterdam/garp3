@@ -220,7 +220,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$auth = Garp_Auth::getInstance();
 		$authVars = $auth->getConfigValues();
 		$request = $this->getRequest();
-
+		
 		if ($request->getParam('success') == '1') {
 			$this->view->successMessage = __($authVars['forgotpassword']['success_message']);
 		}
@@ -271,7 +271,9 @@ class G_AuthController extends Garp_Controller_Action {
 						$emailMessage = $this->view->render($authVars['forgotpassword']['email_partial']);
 					} else {
 						// ...or the email can be added as a snippet
-						$emailMessage = __('forgot password email');
+						$snippetModel = $this->_getSnippetModel();
+						$emailSnippet = $snippetModel->fetchByIdentifier('forgot password email');
+						$emailMessage = $emailSnippet->text;
 						$emailMessage = Garp_Util_String::interpolate($emailMessage, array(
 							'USERNAME'       => (string)new Garp_Util_FullName($user),
 							'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
@@ -570,5 +572,17 @@ class G_AuthController extends Garp_Controller_Action {
 			return $registerHelper;
 		}
 		return null;
+	}
+
+	/**
+ 	 * Retrieve snippet model for system messages.
+ 	 */
+	protected function _getSnippetModel() {
+		$snippetModel = new Model_Snippet();
+		if ($snippetModel->getObserver('Translatable')) {
+			$i18nModelFactory = new Garp_I18n_ModelFactory();
+			$snippetModel = $i18nModelFactory->getModel($snippetModel);
+		}
+		return $snippetModel;
 	}
 }
