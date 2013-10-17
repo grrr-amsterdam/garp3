@@ -1,7 +1,7 @@
 <?php
 /**
  * Garp_Model_Behavior_Videoable
- * @author Harmen Janssen | grrr.nl
+ * @author Harmen Janssen, David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
@@ -9,6 +9,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Model_Behavior_Videoable extends Garp_Model_Behavior_Abstract {
+	const ERROR_INVALID_VIDEO_URL =
+		'Invalid URL given. It was not recognized as either YouTube or Vimeo. Url: %s';
+
 	/**
 	 * Config. Field translation table is in 'fields'. Keys are internal names, values are the indexes of the output array.
 	 * Vimeo keys must be in $_config['fields']['vimeo'], YouTube keys must be in $_config['fields']['youtube'].
@@ -74,7 +77,8 @@ class Garp_Model_Behavior_Videoable extends Garp_Model_Behavior_Abstract {
 				$behavior = new Garp_Model_Behavior_Vimeoable($this->_config['vimeo']);
 				$data['type'] = 'vimeo';
 			} else {
-				throw new Garp_Model_Exception('Invalid URL given. It was not recognized as either YouTube or Vimeo.');
+				$error = self::ERROR_INVALID_VIDEO_URL . $url;
+				throw new Garp_Model_Exception($error);
 			}
 			$behavior->{$event}($args);
 		}
