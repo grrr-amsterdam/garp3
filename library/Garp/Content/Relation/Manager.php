@@ -369,6 +369,9 @@ class Garp_Content_Relation_Manager {
  	 */
 	protected static function _addForeignKeysToRow(Zend_Db_Table_Row_Abstract &$row, array $reference, array $values) {
 		foreach ($reference['columns'] as $i => $column) {
+			if (!isset($values[$i])) {
+				throw new Exception("Unable to fill $column because there is no value provided for it.");
+			}
 			$row->{$column} = $values[$i];
 		}
 	}
