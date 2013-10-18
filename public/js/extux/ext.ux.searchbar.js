@@ -54,7 +54,15 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 				});
 			}
 			
-			this.grid.getStore().setBaseParam('query', Ext.apply(this.convertQueryString(queryStr, this.getSelectedSearchFields()), preserve));
+			var selectedFields = this.getSelectedSearchFields();
+			// make sure there are fields to look in:
+			// fixes Melkweg Issue #958
+			if (!selectedFields.length && this.getAllSearchFields().length){
+				selectedFields = this.searchableFields;
+			}
+			
+			var _query = Ext.apply(this.convertQueryString(queryStr, selectedFields), preserve);
+			this.grid.getStore().setBaseParam('query', _query);
 			this.grid.getStore().setBaseParam('pageSize', Garp.pageSize);
 		}
 		this.fireEvent('search', this);
@@ -142,6 +150,7 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 			text: __('Search in:')
 		}, {
 			xtype: 'menucheckitem',
+			ref: 'selectAll',
 			hideOnClick: false,
 			checked: false,
 			text: __('Select All'),
@@ -156,13 +165,18 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 				});
 			}
 		}, '-'];
+		
+		this.searchableFields = [];
 		Ext.each(fields, function(f){
 			menuItems.push({
 				text: f.header,
 				checked: f.searchable || !f.hidden,
 				_dataIndex: f.dataIndex
 			});
-		});
+			if (f.searchable || !f.hidden) {
+				this.searchableFields.push(f.dataIndex);
+			}
+		}, this);
 		this.searchOptionsMenu = new Ext.menu.Menu({
 			defaults: {
 				xtype: 'menucheckitem',
@@ -274,20 +288,19 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 	 */
 	searchById: function(id){
 		// show the id in the search bar & update menu to only set 'id' checked 
-					var bb = this;
-					var sf = this.searchField;
-					var sm = this.searchOptionsMenu;
-					sf.setValue(id);
-					sf.triggers[0].show();
-					sf.hasSearch = true;
-					sf.fireEvent('change');
-					sm.items.each(function(item){
-						if (item.setChecked) {
-							item.setChecked(item.text == 'id' ? true : false);
-						}
-					});
-					bb.fireEvent('change');
-
+		var bb = this;
+		var sf = this.searchField;
+		var sm = this.searchOptionsMenu;
+		sf.setValue(id);
+		sf.triggers[0].show();
+		sf.hasSearch = true;
+		sf.fireEvent('change');
+		sm.items.each(function(item){
+			if (item.setChecked) {
+				item.setChecked(item.text == 'id' ? true : false);
+			}
+		});
+		bb.fireEvent('change');
 	},
 	
 	/**
