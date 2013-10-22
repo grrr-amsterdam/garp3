@@ -273,12 +273,18 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 				$ogData['type'] = 'article';
 			}
 		}
-		if (empty($ogData['title']) && $this->view->title) {
-			$ogData['title'] = $this->view->title;
-			if ($appName = $this->view->config()->app->name) {
-				$ogData['title'] .= ' | '.$appName;
+		if (empty($ogData['title'])) {
+			$title = array();
+ 		   	if ($this->view->title) {
+				$title[] = $this->view->title;
 			}
+			if ($appName = $this->view->config()->app->name) {
+				$title[] = $appName;
+			}
+			
+			$ogData['title'] = implode(' | ', $title);
 		}
+//exit($ogData['title']);
 		if (empty($ogData['image']) && !empty($this->view->config()->app->image)) {
 			$ogData['image'] = $this->view->assetUrl($this->view->config()->app->image);
 		}
