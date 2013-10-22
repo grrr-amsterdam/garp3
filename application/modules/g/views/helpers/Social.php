@@ -284,7 +284,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			
 			$ogData['title'] = implode(' | ', $title);
 		}
-//exit($ogData['title']);
+
 		if (empty($ogData['image']) && !empty($this->view->config()->app->image)) {
 			$ogData['image'] = $this->view->assetUrl($this->view->config()->app->image);
 		}
