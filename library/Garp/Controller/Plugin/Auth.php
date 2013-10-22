@@ -113,8 +113,8 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 		$request = $this->getRequest();
 		// Allow ?targetUrl=/path/to/elsewhere on any URL
 		if (!$targetUrl = $request->getParam('targetUrl')) {
-			$targetUrl = $this->getRequest()->getRequestUri();
-			$baseUrl = $this->getRequest()->getBaseUrl();
+			$targetUrl = $request->getRequestUri();
+			$baseUrl = $request->getBaseUrl();
 			/**
 		 	 * Remove the baseUrl from the targetUrl. This is neccessary
 		 	 * when Garp is installed in a subfolder.

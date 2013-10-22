@@ -17,22 +17,25 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 	 * @var String
 	 */
 	const FOREIGN_KEY_COLUMN_KEY = 'foreignKeyColumn';
-	
-	
+
 	/**
 	 * The key used to store the weight column name in the config array
 	 * @var String
 	 */
 	const WEIGHT_COLUMN_KEY = 'weightColumn';
-	
-	
+
 	/**
 	 * Store relationships, the foreign keys and the weight column here
 	 * @var Array
 	 */
 	protected $_relationConfig = array();
-	
-	
+
+	/**
+ 	 * Use this table alias in the query
+ 	 * @var String
+ 	 */
+	protected $_modelAlias = '';
+
 	/**
 	 * Set relationship configuration.
 	 * Must look like this:
@@ -58,8 +61,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		
 		$this->_relationConfig = $config;
 	}
-	
-	
+
 	/**
 	 * BeforeFetch callback: adds an order clause on the weight column.
 	 * @param Array $args Arguments associated with this event
@@ -74,6 +76,11 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		$originalOrder = $select->getPart(Zend_Db_Select::ORDER);
 		$select->reset(Zend_Db_Select::ORDER);
 		
+		$alias = '';
+		if ($this->_modelAlias) {
+			$alias = $this->_modelAlias . '.';
+		}
+
 		/**
 		 * If a registered foreign key (see self::_relationConfig) is found, this query is 
 		 * considered to be a related fetch() command, and an ORDER BY clause is added with
@@ -82,7 +89,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		foreach ($where as $w) {
 			foreach ($this->_relationConfig as $model => $modelRelationConfig) {
 				if (strpos($w, $modelRelationConfig[self::FOREIGN_KEY_COLUMN_KEY]) !== false) {
-					$select->order($modelRelationConfig[self::WEIGHT_COLUMN_KEY].' DESC');
+					$select->order($alias . $modelRelationConfig[self::WEIGHT_COLUMN_KEY].' DESC');
 				}
 			}
 		}
@@ -96,8 +103,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 			$select->order($order);
 		}
 	}
-	
-	
+
 	/**
 	 * BeforeInsert callback, find and insert the current highest 'weight' value + 1 
 	 * in the weight column
@@ -116,8 +122,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * BeforeUpdate callback, find and insert current highest 'weight' value + 1, if it is null
 	 * @param Array $args
@@ -159,8 +164,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * Find the highest weight value for a certain relationship with a foreign key
 	 * @param Garp_Model $model
@@ -182,8 +186,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		}
 		return 0;
 	}
-	
-	
+
 	/**
 	 * Return the current weight of a set of records.
 	 * Note that only the first record found will be used. Working with multiple records
@@ -210,4 +213,23 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		}
 		return 0;
 	}
+
+ 	/**
+ 	 * Set modelAlias
+ 	 * @param String $modelAlias
+ 	 * @return $this
+ 	 */
+ 	public function setModelAlias($modelAlias) {
+ 		$this->_modelAlias = $modelAlias;
+ 		return $this;
+ 	}
+ 	
+	/**
+	 * Get modelAlias
+	 * @return String
+	 */
+	public function getModelAlias() {
+		return $this->_modelAlias;
+	}
+
 }
