@@ -35,6 +35,7 @@ namespace :deploy do
       create_deploy_dirs
       set_shared_dirs_permissions
       create_webroot_reroute_htaccess
+      install_crontab
       prompt_to_set_newly_found_deploy_dir
     end
   end
@@ -108,6 +109,7 @@ namespace :deploy do
   desc "Mark Git server as safe"
   task :mark_git_server_safe do
     run "touch ~/.ssh/known_hosts && ssh-keyscan -t rsa,dsa flow.grrr.nl 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && cat ~/.ssh/tmp_hosts > ~/.ssh/known_hosts && rm ~/.ssh/tmp_hosts"
+    run "touch ~/.ssh/known_hosts && ssh-keyscan -t rsa,dsa code.grrr.nl 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && cat ~/.ssh/tmp_hosts > ~/.ssh/known_hosts && rm ~/.ssh/tmp_hosts"
   end
 
   desc "Create essential deploy directories"
@@ -125,6 +127,38 @@ namespace :deploy do
       run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/documents"
       run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/images"
       run "chmod -R g+w,o+rx #{deploy_to}/shared/logs"
+  end
+
+  desc "Install crontab"
+  task :install_crontab do
+  	php_exec 		= "/usr/bin/php"
+  	garp_exec 		= "#{deploy_to}/current/garp/scripts/garp.php"
+  	tab_frequent 	= "*/5 * * * * #{php_exec} #{garp_exec} cron frequently --e=#{garp_env} >/dev/null 2>&1"
+  	tab_hourly 		= "0 * * * * #{php_exec} #{garp_exec} cron hourly --e=#{garp_env} >/dev/null 2>&1"
+  	tab_daily 		= "0 4 * * * #{php_exec} #{garp_exec} cron daily --e=#{garp_env} >/dev/null 2>&1"
+  	
+  	cron_tmp_file 			= "/tmp/.crontab-tmp-output"
+  	cmd_output_cron 		= "crontab -l > #{cron_tmp_file}"
+	cmd_append	 			= 'if [ ! "`cat %s | grep \'%s\'`" ]; then echo "%s" | tee -a %s; fi;'
+	cmd_install				= "crontab #{cron_tmp_file}"
+	cmd_remove_cron_output 	= "rm #{cron_tmp_file}"
+
+	cmd_frequent 	= sprintf cmd_append, cron_tmp_file, "cron frequently --e=#{garp_env}", tab_frequent, cron_tmp_file
+	cmd_hourly 		= sprintf cmd_append, cron_tmp_file, "cron hourly --e=#{garp_env}", tab_hourly, cron_tmp_file
+	cmd_daily 		= sprintf cmd_append, cron_tmp_file, "cron daily --e=#{garp_env}", tab_daily, cron_tmp_file
+
+	begin 
+		run cmd_output_cron
+	rescue Exception => error
+		puts "No cronjob present yet"
+	end
+
+	# run cmd_output_cron
+	run cmd_frequent
+	run cmd_hourly
+	run cmd_daily
+	run cmd_install
+	run cmd_remove_cron_output
   end
   
   desc "Create .htaccess file to reroute webroot"

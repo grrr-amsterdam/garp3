@@ -43,24 +43,25 @@ class Garp_Controller_Helper_Upload extends Zend_Controller_Action_Helper_Abstra
 	public function uploadFromFiles($uploadType = Garp_File::TYPE_IMAGES, $singleFormKey = null, $allowBlank = false) {
 		$filesToUpload = $singleFormKey ? array($singleFormKey => $_FILES[$singleFormKey]) : $_FILES;
 		$newFilenames = array();
-
 		foreach ($filesToUpload as $formKey => $fileParams) {
 			$isArray = is_array($fileParams['tmp_name']);
 			if (!$isArray) {
 				// Generalize interface: always expect array
 				$this->_castToArray($fileParams);
 			}
-			$uploadedFilesByTheSameName = count($fileParams['tmp_name']);
-			for ($i = 0; $i < $uploadedFilesByTheSameName; $i++) {
+			// Keys might not be in order. This used to be a for loop, but extracting the 
+			// array keys like this allows us to use foreach without having to choke on 
+			// missing indexes (for instance when the keys are not 0 - 1 - 2 but 0 - 3 - 5).
+			$keys = array_keys($fileParams['tmp_name']);
+			foreach ($keys as $i) {
 				$name    = !empty($fileParams['name'][$i])     ? $fileParams['name'][$i]     : null;
 				$tmpName = !empty($fileParams['tmp_name'][$i]) ? $fileParams['tmp_name'][$i] : null;
-				
 				if (!empty($tmpName) || $allowBlank) {
 					if (is_uploaded_file($tmpName)) {
 						$newFilename = $this->_store($uploadType, $name, file_get_contents($tmpName));
 						if ($newFilename) {
 							if ($isArray) {
-								$newFilenames[$formKey][] = $newFilename;
+								$newFilenames[$formKey][$i] = $newFilename;
 							} else {
 								$newFilenames[$formKey] = $newFilename;
 							}

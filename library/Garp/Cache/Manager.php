@@ -203,6 +203,20 @@ class Garp_Cache_Manager {
 	}
 
 	/**
+ 	 * Returns information for debugging purposes.
+ 	 */
+	public static function info() {
+		Garp_Cli::lineOut('# Server cache backend');
+		if (Zend_Registry::isRegistered('CacheFrontend')) {
+			$cacheFront = Zend_Registry::get('CacheFrontend'); 
+			$cacheBack = $cacheFront->getBackend();
+			Garp_Cli::lineOut('Backend type: ' . get_class($cacheBack));
+		} else {
+			Garp_Cli::lineOut('No cache frontend registered.');
+		}
+	}
+
+	/**
  	 * Increment the version to invalidate a given model's cache.
  	 * @param Garp_Model_Db $model
  	 * @return Void

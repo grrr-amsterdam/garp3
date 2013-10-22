@@ -2,7 +2,7 @@
 /**
  * G_View_Helper_AssetUrl
  * Generate URLs for assets (CSS, Javascript, Images, Flash)
- * @author Harmen Janssen | grrr.nl
+ * @author Harmen Janssen, David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
@@ -17,14 +17,31 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	 */
 	public function assetUrl($file = null) {
 		$ini = Zend_Registry::get('config');
+
+		// For backwards compatibility: deprecated param assetType
 		if ($ini->cdn->assetType) {
 			return $this->_getUrl($file, $ini->cdn->assetType, $ini->cdn->domain);
-		} else {
-			return $this->_getUrl($file, $ini->cdn->type, $ini->cdn->domain);
 		}
+
+		$extension = $this->_getExtension($file);
+		if ($ini->cdn->{$extension}->location) {
+			return $this->_getUrl($file, $ini->cdn->{$extension}->location, $ini->cdn->domain);
+		}
+
+		return $this->_getUrl($file, $ini->cdn->type, $ini->cdn->domain);
 	}
-	
-	
+
+	protected function _getExtension($file) {
+		if (!$file) {
+			return;
+		}
+
+		$fileParts = explode('.', $file);
+		$lastPart = $fileParts[sizeof($fileParts) - 1];
+
+		return $lastPart;
+	}
+
 	protected function _getUrl($file, $cdnType, $domain) {
 		switch ($cdnType) {
 			case 's3':
