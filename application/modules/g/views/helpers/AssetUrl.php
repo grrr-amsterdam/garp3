@@ -24,7 +24,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		}
 
 		$extension = $this->_getExtension($file);
-		if ($ini->cdn->{$extension}->location) {
+		if (!empty($ini->cdn->{$extension}->location)) {
 			return $this->_getUrl($file, $ini->cdn->{$extension}->location, $ini->cdn->domain);
 		}
 
