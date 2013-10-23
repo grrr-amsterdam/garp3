@@ -16,7 +16,7 @@ class Garp_Application_Resource_Locale extends Zend_Application_Resource_Locale 
 	public function getLocale() {
 		$locale = parent::getLocale();
 		if ($locale) {
-			setlocale(LC_ALL, $locale->__toString());
+			//setlocale(LC_ALL, $locale->__toString());
 		}
 
 		return $locale;
