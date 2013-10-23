@@ -280,7 +280,7 @@ Garp.apply(Garp.FormHelper, {
 	fixPlaceholdersIfNeeded: function(){
 		var i = document.createElement('input');
 		if (typeof i.placeholder === 'undefined') {
-			Garp.asyncLoad(BASE + 'js/libs/jquery.addPlaceholder.js', 'js', function(){
+			Garp.asyncLoad(BASE + 'js/plugins/jquery.addPlaceholder.js', 'js', function(){
 				$('input[placeholder], textarea[placeholder]', this.form).addPlaceholder();
 				/*
 				this.form.bind('submit', function(){
@@ -707,8 +707,8 @@ Garp.FormHelper.Validator = function(cfg){
 		
 		// URL
 		url:{
-			mailtoOrUrlRe:  /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
-			stricter: 		/(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|(((^https?)|(^ftp)):\/\/([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
+			mailtoOrUrlRe: /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
+			stricter: /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|(((^https?)|(^ftp)):\/\/([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
 			init: function(field){
 				if(!field.attr('type') || field.attr('type') !== 'url'){
 					return;

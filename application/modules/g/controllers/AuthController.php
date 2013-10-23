@@ -220,7 +220,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$auth = Garp_Auth::getInstance();
 		$authVars = $auth->getConfigValues();
 		$request = $this->getRequest();
-
+		
 		if ($request->getParam('success') == '1') {
 			$this->view->successMessage = __($authVars['forgotpassword']['success_message']);
 		}
@@ -271,7 +271,13 @@ class G_AuthController extends Garp_Controller_Action {
 						$emailMessage = $this->view->render($authVars['forgotpassword']['email_partial']);
 					} else {
 						// ...or the email can be added as a snippet
-						$emailMessage = __('forgot password email');
+						$snippet_column = !empty($authVars['forgotpassword']['email_snippet_column']) ?
+							$authVars['forgotpassword']['email_snippet_column'] : 'text';
+						$snippet_identifier = !empty($authVars['forgotpassword']['email_snippet_identifier']) ?
+							$authVars['forgotpassword']['email_snippet_identifier'] : 'forgot password email';
+						$snippetModel = $this->_getSnippetModel();
+						$emailSnippet = $snippetModel->fetchByIdentifier($snippet_identifier);
+						$emailMessage = $emailSnippet->{$snippet_column};
 						$emailMessage = Garp_Util_String::interpolate($emailMessage, array(
 							'USERNAME'       => (string)new Garp_Util_FullName($user),
 							'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
@@ -281,6 +287,10 @@ class G_AuthController extends Garp_Controller_Action {
 					// Send mail to the user
 					// @todo Make this more transparent. Use a Strategy design pattern for instance.
 					$emailMethod = 'ses';
+					$email_content_type = 'Text';
+					if (!empty($authVars['forgotpassword']['email_content_type'])) {
+						$email_content_type = $authVars['forgotpassword']['email_content_type'];
+					}
 					if (!empty($authVars['forgotpassword']['email_method'])) {
 						$emailMethod = $authVars['forgotpassword']['email_method'];
 					}
@@ -288,7 +298,9 @@ class G_AuthController extends Garp_Controller_Action {
 						$ses = new Garp_Service_Amazon_Ses();
 						$response = $ses->sendEmail(array(
 							'Destination' => $email,
-							'Message'     => $emailMessage,
+							'Message'     => array(
+								$email_content_type => $emailMessage,
+							),
 							'Subject'     => __($authVars['forgotpassword']['email_subject']),
 							'Source'      => $authVars['forgotpassword']['email_from_address']
 						));
@@ -570,5 +582,17 @@ class G_AuthController extends Garp_Controller_Action {
 			return $registerHelper;
 		}
 		return null;
+	}
+
+	/**
+ 	 * Retrieve snippet model for system messages.
+ 	 */
+	protected function _getSnippetModel() {
+		$snippetModel = new Model_Snippet();
+		if ($snippetModel->getObserver('Translatable')) {
+			$i18nModelFactory = new Garp_I18n_ModelFactory();
+			$snippetModel = $i18nModelFactory->getModel($snippetModel);
+		}
+		return $snippetModel;
 	}
 }

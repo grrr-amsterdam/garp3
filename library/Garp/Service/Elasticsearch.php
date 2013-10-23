@@ -11,50 +11,53 @@
  * @lastmodified $Date: $
  */
 class Garp_Service_Elasticsearch extends Zend_Service_Abstract {
-	const MSG_INDEX_EXISTS =
-		'Index already exists';
-	const MSG_INDEX_CREATED =
-		'Index created';
-	const MSG_INDEX_CREATION_FAILURE =
-		'Could not create index';
+	const CUSTOM_MAPPING_FILE = '/configs/elasticsearch-mapping.json';
 
 
-	public function __construct() {}
+	public function createIndex() {
+		$mapping 	= $this->_getMapping();
+		$configJson	= $mapping
+			? '{"mappings": ' . $mapping . '}'
+			: null
+		;
 
-	/**
-	 * Makes sure the service can be used; creates a primary index.
-	 * @return String Log message
-	 */
-	public function prepare() {
-		return $this->_createIndexIfNotExists();
+		$request 	= new Garp_Service_Elasticsearch_Request('PUT', '/', $configJson);
+		$response 	= $request->execute();
+
+		return $response->isOk();
 	}
 
-	/**
-	 * @return String Log message
-	 */
-	protected function _createIndexIfNotExists() {
-		$indexExists = $this->_fetchIndexExistence();
+	public function doesIndexExist() {
+		try {
+			$request 	= new Garp_Service_Elasticsearch_Request('GET', '/_mapping');
+			$response 	= $request->execute();
+			return $response->isOk();
+		} catch (Exception $e) {}
 
-		if ($indexExists) {
-			return self::MSG_INDEX_EXISTS;
+		return false;
+	}
+
+	public function remap() {
+		$mappingJson 	= $this->_getMapping();
+		$mapping		= json_decode($mappingJson, true);
+
+		foreach ($mapping as $type => $typeMapping) {
+			$path 		= '/' . $type . '/_mapping';
+			$typeMappingJson = json_encode(array($type => $typeMapping));
+			$request 	= new Garp_Service_Elasticsearch_Request('PUT', $path, $mapping);
+			$response 	= $request->execute();			
 		}
 
-		return $this->_createIndex()
-			? self::MSG_INDEX_CREATED
-			: self::MSG_INDEX_CREATION_FAILURE;
+		return true;
 	}
 
-	protected function _createIndex() {
-		$request 	= new Garp_Service_Elasticsearch_Request('PUT', '/');
-		$response 	= $request->execute();
+	protected function _getMapping() {
+		$mappingFilePath = APPLICATION_PATH . self::CUSTOM_MAPPING_FILE;
+		$mapping = file_exists($mappingFilePath)
+			? file_get_contents($mappingFilePath)
+			: null
+		;
 
-		return $response->isOk();
-	}
-
-	protected function _fetchIndexExistence() {
-		$request 	= new Garp_Service_Elasticsearch_Request('GET', '/');
-		$response 	= $request->execute();
-
-		return $response->isOk();
+		return $mapping;
 	}
 }
