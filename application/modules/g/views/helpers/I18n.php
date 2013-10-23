@@ -17,14 +17,17 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 	}
 
 	/**
- 	 * Get the current route in a different language.
+ 	 * Get a route in a different language.
  	 * @param String $language
  	 * @param Array $routeParams Parameters used in assembling the alternate route
+ 	 * @param String $route Which route to use. Defaults to current route.
  	 * @return String
  	 */
-	public function getAlternateUrl($language, array $routeParams = array()) {
-		$router = Zend_Controller_Front::getInstance()->getRouter();
-		$currRoute = $router->getCurrentRouteName();
+	public function getAlternateUrl($language, array $routeParams = array(), $route = null) {
+		if (!$route) {
+			$router = Zend_Controller_Front::getInstance()->getRouter();
+			$route = $router->getCurrentRouteName();
+		}
 		if (empty($this->view->config()->resources->router->routesFile->{$language})) {
 			return null;
 		}
@@ -39,7 +42,7 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 
 		// @todo Also add existing GET params in the form of ?foo=bar
 		try {
-			$alternateRoute = $router->assemble($routeParams, $currRoute);
+			$alternateRoute = $router->assemble($routeParams, $route);
 		} catch (Exception $e) {
 			return null;
 		}

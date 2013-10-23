@@ -216,7 +216,8 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
 		$this->_setVimeoAccessToken($vimeo);
 
 		// check if a Vimeo URL is given
-		preg_match('~vimeo.com/([0-9]+)~', $url, $matches);
+		$pattern = '~vimeo.com/(?:video/)?([0-9]+)~';
+		preg_match($pattern, $url, $matches);
 		if (!isset($matches[1])) {
 			throw new Garp_Model_Behavior_Exception(self::EXCEPTION_MISSING_VIMEO_ID);
 		}

@@ -1,4 +1,0 @@
-<IfModule mod_expires.c>                                                                                          
-	ExpiresActive On
-	ExpiresDefault A0
-</IfModule>
