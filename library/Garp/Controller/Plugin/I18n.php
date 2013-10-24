@@ -80,8 +80,7 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 				$redirectUrl = '/'.$uiDefaultLanguage.$path;
 			}
 			$this->getResponse()
-				->setHttpResponseCode(301)
-				->setRedirect($redirectUrl)
+				->setRedirect($redirectUrl, 301)
 			;
 		}
     }
