@@ -16,7 +16,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	 */
 	protected $_name;
 	
-
 	/**
  	 * The join table name. This is the name of an SQL view containing the 
  	 * original table along with display fields for all possible belongsTo 
@@ -25,13 +24,11 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
  	 */
 	protected $_jointView;
 
-
 	/**
 	 * Default sorting of queries
 	 * @var Mixed Any type that's accepted by Zend_Db_Select::order()
 	 */
-	protected $_defaultOrder = null;
-
+	protected $_defaultOrder = null; 
 	
 	/**
 	 * Collection of model names that might be bound to this model in the future.
@@ -40,43 +37,43 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	 * @var Array
 	 */
 	protected $_bindable = array();
-	
-	
+
 	/**
 	 * Custom rowset class
 	 * @var String
 	 */
 	protected $_rowsetClass = 'Garp_Db_Table_Rowset';
-	
-	
+
 	/**
 	 * Custom row class
 	 * @var String
 	 */
 	protected $_rowClass = 'Garp_Db_Table_Row';
-	
-	
+
 	/**
 	 * Collection of observers
 	 * @var Array
 	 */
 	protected $_observers = array();
-	
-	
+
 	/**
 	 * Wether to cache queries
 	 * @var Boolean
 	 */
-	protected static $_cacheQueries = true;
-
+	protected static $_cacheQueries = true; 
 
 	/**
  	 * Configuration.
  	 * @var Array
  	 */
 	protected $_configuration = array();
-	
-	
+
+	/**
+ 	 * Parent model containing only the unilingual columns
+ 	 * @var Garp_Model_Db
+ 	 */
+	protected $_unilingualModel;
+
     /**
      * Initialize object
      * Called from {@link __construct()} as final step of object instantiation.
@@ -93,8 +90,30 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 			 ->registerObserver(new Garp_Model_Behavior_Cachable())
 		;
 	}
-	
-	
+
+	/**
+ 	 * Get the unilingual parent of a model.
+ 	 * Used for multilingual models (@see self::isMultilingual)
+ 	 * @return Garp_Model_Db
+ 	 */
+	public function getUnilingualModel() {
+		return $this->_unilingualModel ?: $this;
+	}
+
+	/**
+ 	 * Check if this is an i18n model.
+ 	 * @return Boolean
+ 	 */
+	public function isMultilingual() {
+		$field_config = $this->getFieldConfiguration();
+		foreach ($field_config as $config) {
+			if ($config['multilingual']) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Get name without namespace
 	 * @return String 
@@ -103,8 +122,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$name = get_class($this);
 		$name = explode('_', $name);
 		return array_pop($name);
-	}
-
+	} 
 
 	/**
  	 * Get namespace
@@ -115,7 +133,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$name = explode('_', $name);
 		return array_shift($name);
 	}
-	
 
 	/**
  	 * Get configuration
@@ -123,23 +140,25 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
  	 * @return Array
  	 */
 	public function getConfiguration($key = null) {
-		if ($key) {
-			if (!array_key_exists($key, $this->_configuration)) {
-				throw new Exception("'$key' is not a valid configuration key.");
-			}
-			return $this->_configuration[$key];
+		if (!$key) {
+			return $this->_configuration;
 		}
-		return $this->_configuration;
+		if (!array_key_exists($key, $this->_configuration)) {
+			throw new Exception("'$key' is not a valid configuration key.");
+		}
+		return $this->_configuration[$key];
 	}
-
 
 	/**
  	 * Get field configuration
  	 * @param String $column
  	 * @return Array
  	 */
-	public function getFieldConfiguration($column) {
+	public function getFieldConfiguration($column = null) {
 		$fields = $this->getConfiguration('fields');
+		if (!$column) {
+			return $fields;
+		}
 		foreach ($fields as $key => $value) {
 			if ($value['name'] == $column) {
 				return $value;
@@ -147,7 +166,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return null;
 	}
-
 
 	/**
  	 * Convert array to WHERE clause
@@ -168,7 +186,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		return $out;
 	}
 
-	
 	/**
 	 * Convenience method for creating SELECT objects
      * @param string|array|Zend_Db_Table_Select $where  OPTIONAL An SQL WHERE clause or Zend_Db_Table_Select object.
@@ -193,8 +210,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $select;
 	}
-	
-	
+
 	/**
 	 * Retrieve many-to-many binding model. (e.g; "Model_User" + "Model_Tag" becomes "Model_TagUser")
 	 * @param Garp_Model_Db|String $theOtherModel The other model or its classname
@@ -227,7 +243,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		return new $bindingModel();
 	}
 
-	
 	/**
 	 * Return default order for this model
 	 * @return String|Array
@@ -236,16 +251,14 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		return $this->_defaultOrder;
 	}
 
-
 	/**
  	 * Makes _getReferenceMapNormalized() available to the public.
  	 * @return Array
  	 */
 	public function getReferenceMapNormalized() {
 		return $this->_getReferenceMapNormalized();
-	}
-	
-	
+	} 
+
 	/**
 	 * Get bindable models
 	 * @return Array
@@ -253,8 +266,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getBindableModels() {
 		return $this->_bindable;
 	}
-	
-	
+
 	/**
 	 * Bind model. This activates a relation between models. With the next 
 	 * fetch operation related records from these models will be fetched 
@@ -296,8 +308,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		Garp_Model_Db_BindingManager::storeBinding(get_class($this), $alias, $options);
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Unbind model. Deactivate a relationship between models.
 	 * @param String $modelName The name of the model
@@ -308,8 +319,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		Garp_Model_Db_BindingManager::removeBinding(get_class($this), $alias);
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Unbind all models.
 	 * @return Garp_Model $this
@@ -320,8 +330,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Return all bound models
 	 * @return Array
@@ -329,7 +338,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getBindings() {
 		return Garp_Model_Db_BindingManager::getBindings(get_class($this));
 	}
-
 
 	/**
  	 * Fetch neighbours
@@ -358,7 +366,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		return $neighbours;
 	}
 
-
 	/**
  	 * Fetch all records created by a certain someone.
  	 * @param Int $authorId
@@ -373,7 +380,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		return $result;
 	}
 
-
 	/**
  	 * Quote an array of values
  	 * @param Array $values
@@ -386,7 +392,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		};
 		array_walk($values, $quoteInto);
 	}
-
 
 	/**
  	 * Extract primary key information from a WHERE clause and construct a cache
@@ -415,7 +420,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
         }
 		return $pkValues;
     }
-	
 
 	/**
  	 * Get wether this model caches queries
@@ -424,7 +428,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getCacheQueries() {
 		return self::$_cacheQueries;
 	}
-
 
 	/**
  	 * Set wether this model caches queries
@@ -435,15 +438,13 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		self::$_cacheQueries = $flag;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Modified Zend_Db_Table CRUD methods. 
 	 * (overwritten to support observers)
 	 * ----------------------------------------------------------------------
 	 */
 
-		
     /**
      * Fetches all rows.
      * Honors the Zend_Db_Adapter fetch mode.
@@ -461,7 +462,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $this->_improvedFetch($select, 'fetchAll');
     }
-
 
     /**
      * Fetches one row in an object of type Zend_Db_Table_Row_Abstract,
@@ -481,7 +481,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $this->_improvedFetch($select, 'fetchRow');
     }
-
 
 	/**
 	 * A utility method that extends both fetchRow and fetchAll.
@@ -509,7 +508,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $results;
 	}
-	
 
 	/**
 	 * Returns the number of records in the database, optionally limited by the provided select object.
@@ -526,7 +524,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		return 0;
 	}
 
-
 	/**
      * Inserts a new row.
      * @param  array  $data  Column-value pairs.
@@ -538,8 +535,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$this->notifyObservers('afterInsert', array($this, $data, $pkData));		
 		return $pkData;
 	}
-	
-	
+
 	/**
      * Updates existing rows.
      * @param  array        $data  Column-value pairs.
@@ -552,8 +548,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$this->notifyObservers('afterUpdate', array($this, $result, $data, $where));
 		return $result;
 	}
-	
-	
+
 	/**
      * Deletes existing rows.
      * @param  array|string $where SQL WHERE clause(s).
@@ -565,8 +560,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$this->notifyObservers('afterDelete', array($this, $result, $where));
 		return $result;
     }
-    
-	
+ 
 	/**
 	 * Observable methods
 	 * ----------------------------------------------------------------------
@@ -584,8 +578,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$this->_observers[$name] = $observer;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Unregister observer. The observer will no longer listen to 
 	 * events broadcasted from this class.
@@ -599,8 +592,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		unset($this->_observers[$observer]);
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Broadcast an event. Observers may implement their reaction however
 	 * they please. The Observable does not expect a return action.
@@ -636,7 +628,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $this;
 	}
-	
 
 	/**
 	 * Return an observer
@@ -646,7 +637,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getObserver($name) {
 		return array_key_exists($name, $this->_observers) ? $this->_observers[$name] : null;
 	}
-
 
 	/**
  	 * Return all observers
@@ -676,8 +666,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 			$this->{$event}($params);
 		}
 	}
-	
-	
+
 	/**
 	 * Return table name
 	 * @return String
@@ -685,7 +674,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getName() {
 		return $this->_name;
 	}
-
 
 	/**
  	 * Return joint view name
