@@ -34,6 +34,7 @@ class Garp_Cli_Command_Slugs extends Garp_Cli_Command {
 		$sluggable = $model->getObserver('Sluggable');
 		if (is_null($sluggable)) {
 			Garp_Cli::errorOut('This model is not sluggable.');
+			return false;
 		}
 
 		// Array to record fails
