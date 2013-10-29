@@ -75,13 +75,10 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		$baseFields = (array)$this->_config['baseField'];
 		$slugFields = (array)$this->_config['slugField'];
 
-		if (
-			count($baseFields) > 1 &&
-			count($slugFields) <= 1
-		) {
+		if (count($baseFields) > 1 && count($slugFields) <= 1) {
 			/**
-			* This slug is composed of multiple basefields
-			*/
+			 * This slug is composed of multiple basefields
+			 */
 			$baseData = '';
 			foreach ($baseFields as $b) {
 				if (!empty($data[$b])) {
@@ -92,14 +89,15 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 			$data[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField);
 		} else {
 			/**
-			* This record has one or more slugfields that are composed of a single basefield
-			*/
+			 * This record has one or more slugfields that are composed of a single basefield
+			 */
 			foreach ($baseFields as $i => $baseField) {
-				if (!empty($data[$baseField])) {
-					$baseData = $data[$baseField];
-					$slugField = $slugFields[$i];
-					$data[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField);
+				$baseData = $this->_getBaseValue($model, $data, $baseField);
+				if (!$baseData) {
+					return;
 				}
+				$slugField = $slugFields[$i];
+				$data[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField);
 			}
 		}
 	}
@@ -161,4 +159,40 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 				preg_replace('/('.static::VERSION_SEPARATOR.'[0-9]+$)/', static::VERSION_SEPARATOR.$n, $slug) : 
 				$slug.static::VERSION_SEPARATOR.$n;
 	}
+
+	protected function _getBaseValue($model, $data, $baseField) {
+		if (!empty($data[$baseField])) {
+			return $data[$baseField];
+		}
+		$isMultilingual = $model->isMultilingual();
+		$hasLangColumn = !empty($data[Garp_Model_Behavior_Translatable::LANG_COLUMN]);
+		if (!$isMultilingual || !$hasLangColumn) {
+			return null;
+		}
+
+		// Try to fetch the baseField from the localised model
+		$i18nModelFactory = new Garp_I18n_ModelFactory($data[Garp_Model_Behavior_Translatable::LANG_COLUMN]);
+		$unilingualModel = $model->getUnilingualModel();
+		$localizedModel = $i18nModelFactory->getModel($unilingualModel);
+		$localizedModel->unregisterObserver('Translatable');
+		$referenceMap = $model->getReference(get_class($unilingualModel));
+
+		// Construct a query that fetches the base fields from the parent model
+		$select = $localizedModel->select()
+			->from($localizedModel->getName(), array($baseField))
+		;
+		foreach ($referenceMap['columns'] as $i => $col) {
+			if (!isset($referenceMap['refColumns'][$i])) {
+				throw new Exception('ReferenceMap is invalid: columns does not match up with refColumns.');
+			}
+			$refCol = $referenceMap['refColumns'][$i];
+			// If the required foreign key is not in $data, we won't be able to solve the problem
+			if (!isset($data[$col])) {
+				return null;
+			}
+			$select->where("$refCol = ?", $data[$col]);
+		}
+		$localizedRecord = $localizedModel->fetchRow($select);
+		return $localizedRecord ? $localizedRecord->{$baseField} : null;
+	}		
 }
