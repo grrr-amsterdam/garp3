@@ -175,6 +175,7 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		$unilingualModel = $model->getUnilingualModel();
 		$localizedModel = $i18nModelFactory->getModel($unilingualModel);
 		$localizedModel->unregisterObserver('Translatable');
+		$localizedModel->unregisterObserver('Draftable');
 		$referenceMap = $model->getReference(get_class($unilingualModel));
 
 		// Construct a query that fetches the base fields from the parent model
