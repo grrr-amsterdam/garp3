@@ -174,11 +174,25 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		$i18nModelFactory = new Garp_I18n_ModelFactory($data[Garp_Model_Behavior_Translatable::LANG_COLUMN]);
 		$unilingualModel = $model->getUnilingualModel();
 		$localizedModel = $i18nModelFactory->getModel($unilingualModel);
+		$localizedModel->unregisterObserver('Translatable');
+		$referenceMap = $model->getReference(get_class($unilingualModel));
+
+		// Construct a query that fetches the base fields from the parent model
 		$select = $localizedModel->select()
 			->from($localizedModel->getName(), array($baseField))
-			->where('id = ?', $data['news_id'])
 		;
+		foreach ($referenceMap['columns'] as $i => $col) {
+			if (!isset($referenceMap['refColumns'][$i])) {
+				throw new Exception('ReferenceMap is invalid: columns does not match up with refColumns.');
+			}
+			$refCol = $referenceMap['refColumns'][$i];
+			// If the required foreign key is not in $data, we won't be able to solve the problem
+			if (!isset($data[$col])) {
+				return null;
+			}
+			$select->where("$refCol = ?", $data[$col]);
+		}
 		$localizedRecord = $localizedModel->fetchRow($select);
-		return $localizedRecord->{$baseField};
+		return $localizedRecord ? $localizedRecord->{$baseField} : null;
 	}		
 }

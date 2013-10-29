@@ -97,7 +97,10 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
  	 * @return Garp_Model_Db
  	 */
 	public function getUnilingualModel() {
-		return $this->_unilingualModel ?: $this;
+		if ($this->_unilingualModel) {
+			return new $this->_unilingualModel;
+		}
+		return $this;
 	}
 
 	/**
