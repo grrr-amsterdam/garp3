@@ -35,6 +35,14 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 		/* Primary */
 		$out .= $this->_rl("protected \$_primary = 'id';", 1, 2);
 
+		/* Unilingual model */
+		/*
+		if ($model->isMultilingual()) {
+			$unilingualModelName = ;
+			$out .= $this->_rl("protected \$_unilingualModel = new $unilingualModelName();", 1, 2);
+		}
+		 */
+
 		/* This model's scheme, deducted from the combined Spawn model configurations. */
 		$modelArray			= $this->_convertToArray($model);
 		$modelArrayScript 	= Garp_Spawn_Util::array2phpStatement($modelArray);
