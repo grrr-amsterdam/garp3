@@ -124,6 +124,9 @@ abstract class Garp_Content_Export_Abstract {
 		foreach ($data as $i => $datum) {
 			foreach ($datum as $column => $value) {
 				$field = $model->getFieldConfiguration($column);
+				if ($field['type'] === 'checkbox') {
+					$value = $value ? __('yes') : __('no');
+				}
 				$alias = $column;
 				if ($field) {
 					$alias = $field['label'];
