@@ -19,10 +19,13 @@ class G_View_Helper_HtmlTime extends Zend_View_Helper_HtmlElement {
 	public function htmlTime($datetime, $formatForHumans, $options = array()) {
 		$time = !is_numeric($datetime) ? strtotime($datetime) : $datetime;
 		$this->_setDefaultOptions($options);
+		$datetime = new Garp_DateTime('@' . $time);
+		
 		$attributes = array_merge($options['attributes'], array(
-			'datetime' => strftime($options['formatForRobots'], $time)
+			'datetime' => $datetime->format_local($options['formatForRobots'])
 		));
-		$label = strftime($formatForHumans, $time);
+
+		$label = $datetime->format_local($formatForHumans);
 		$html = '<time'.$this->_htmlAttribs($attributes).'>'.$label.'</time>';
 		return $html;
 	}
