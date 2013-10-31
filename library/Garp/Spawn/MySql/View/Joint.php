@@ -114,12 +114,12 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 	protected function _getRecordLabelSqlForModel($tableAlias, $modelName) {
 		$model = $this->_getModelFromModelName($modelName);
 
-		$tableName 				= $this->_getOtherTableName($modelName);
-		$recordLabelFieldDefs 	= $this->_getRecordLabelFieldDefinitions($tableAlias, $model);
+		$tableName            = $this->_getOtherTableName($modelName);
+		$recordLabelFieldDefs = $this->_getRecordLabelFieldDefinitions($tableAlias, $model);
 		
-		$labelColumnsListSql 	= implode(', ', $recordLabelFieldDefs);
-		$glue 					= $this->_modelHasFirstAndLastNameListFields($model) ? ' ' : ', ';
-		$sql 					= "CONVERT(CONCAT_WS('{$glue}', " . $labelColumnsListSql . ') USING utf8)';
+		$labelColumnsListSql = implode(', ', $recordLabelFieldDefs);
+		$glue                = $this->_modelHasFirstAndLastNameListFields($model) ? ' ' : ', ';
+		$sql                 = "CONVERT(CONCAT_WS('{$glue}', " . $labelColumnsListSql . ') USING utf8)';
 		
 		return $sql;
 	}
@@ -130,35 +130,11 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 	 * @param Garp_Spawn_Model_Abstract
 	 */
 	protected function _getRecordLabelFieldDefinitions($tableAlias, Garp_Spawn_Model_Abstract $model) {
-		$listFieldNames = $model->fields->listFieldNames;
-		$fieldDefs 		= array();
-
-		$self = $this;
-		$isSuitable = function($item) use ($self, $model) {
-			return $self->isSuitableListFieldName($model, $item);
-		};
-
-		$suitableFieldNames = array_filter($listFieldNames, $isSuitable);
-		if (!$suitableFieldNames) {
-			$suitableFieldNames = array('id');
-		}
-
-		$addFieldLabelDefinition 	= $this->_createAddFieldLabelDefinitionFn($tableAlias);
-		$fieldDefs 					= array_map($addFieldLabelDefinition, $suitableFieldNames);
+		$listFieldNames = $model->fields->getListFieldNames();
+		$addFieldLabelDefinition = $this->_createAddFieldLabelDefinitionFn($tableAlias);
+		$fieldDefs = array_map($addFieldLabelDefinition, $listFieldNames);
 
 		return $fieldDefs;
-	}
-	
-	public function isSuitableListFieldName(Garp_Spawn_Model_Abstract $model, $listFieldName) {	
-		try {
-			$field = $model->fields->getField($listFieldName);
-		} catch (Exception $e) {
-			return;
-		}
-
-		if ($field && $field->isSuitableAsLabel()) {
-			return true;
-		}
 	}
 	
 	/**

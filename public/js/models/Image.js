@@ -69,7 +69,7 @@ Garp.dataTypes.Image.on('init', function(){
 			xtype: 'uploadfield',
 			allowBlank: false,
 			emptyText: __('Drag image here, or click browse button'),
-			uploadURL: BASE + 'g/content/upload/image',
+			uploadURL: BASE + 'g/content/upload/type/image',
 			ref: '../../../../filename',
 			
 			listeners: {

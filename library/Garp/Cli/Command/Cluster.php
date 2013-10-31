@@ -11,8 +11,7 @@
 class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 	/**
 	 * Central start method
-	 * @param Array $args Various options. Must contain;
-	 * ['t']	String	Table name.
+	 * @param Array $args array('run')
 	 * @return Void
 	 */
 	public function main(array $args = array()) {

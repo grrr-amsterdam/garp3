@@ -44,6 +44,18 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	protected $_blockOfflineItems = true;
 
 	/**
+ 	 * Use this model alias
+ 	 * @var String
+ 	 */
+	protected $_modelAlias = '';
+
+	/**
+ 	 * Wether to force this behavior (AKA also act in CMS or preview mode)
+ 	 * @var String
+ 	 */
+	protected $_force = false;
+
+	/**
 	 * Configuration.
 	 * @return Void
 	 */
@@ -63,7 +75,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	public function beforeFetch(&$args) {
 		$is_cms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
 		$is_preview = isset($_GET) && array_key_exists('preview', $_GET) && Garp_Auth::getInstance()->isLoggedIn();
-		if ($is_cms || $is_preview) {
+		$force = $this->_force;
+		if (($is_cms || $is_preview) && !$force) {
 			// don't use in the CMS, or in preview mode
 			return;
 		}
@@ -85,6 +98,13 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	public function addWhereClause(&$model, Zend_Db_Select &$select) {
 		$statusColumn = $model->getAdapter()->quoteIdentifier(self::STATUS_COLUMN);
 		$publishedColumn = $model->getAdapter()->quoteIdentifier(self::PUBLISHED_COLUMN);
+
+		if ($this->_modelAlias) {
+			$modelAlias = $this->_modelAlias;
+			$modelAlias = $model->getAdapter()->quoteIdentifier($modelAlias);
+			$statusColumn = "$modelAlias.$statusColumn";
+			$publishedColumn = "$modelAlias.$publishedColumn";
+		}
 
 		// Add online_status check
 		$select->where($statusColumn.' = ?', self::ONLINE);
@@ -172,6 +192,42 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	 */
 	public function getBlockOfflineItems() {
 		return $this->_blockOfflineItems;
+	}
+	
+ 	/**
+ 	 * Set modelAlias
+ 	 * @param String $modelAlias
+ 	 * @return $this
+ 	 */
+ 	public function setModelAlias($modelAlias) {
+ 		$this->_modelAlias = $modelAlias;
+ 		return $this;
+ 	}
+ 	
+	/**
+	 * Get modelAlias
+	 * @return String
+	 */
+	public function getModelAlias() {
+		return $this->_modelAlias;
+	}
+	
+	/**
+	 * Set force
+	 * @param Boolean $force
+	 * @return $this
+	 */
+	public function setForce($force) {
+		$this->_force = $force;
+		return $this;
+	}
+
+	/**
+	 * Get force
+	 * @return Boolean
+	 */
+	public function getForce() {
+		return $this->_force;
 	}
 	
 }

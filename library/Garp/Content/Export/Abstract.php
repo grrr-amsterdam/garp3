@@ -120,17 +120,27 @@ abstract class Garp_Content_Export_Abstract {
  	 */
 	protected function _humanizeData($data, Garp_Model_Db $model) {
 		$humanizedData = array();
-		
 		foreach ($data as $i => $datum) {
 			foreach ($datum as $column => $value) {
 				$field = $model->getFieldConfiguration($column);
+				if ($field['type'] === 'checkbox') {
+					$value = $value ? __('yes') : __('no');
+				}
 				$alias = $column;
 				if ($field) {
 					$alias = $field['label'];
 				}
 
 				$alias = __($alias);
-				if (is_array($value)) {
+				if (is_array($value) && $this->_isMultilingualArray($value)) {
+					// special case: we convert the language keys to new columns in the output
+					foreach ($value as $key => $data) {
+						$i18n_alias = "$alias ($key)";
+						$humanizedData[$i][$i18n_alias] = $data;
+					}
+					// Continue so we don't add duplicate data
+					continue;
+				} elseif (is_array($value)) {
 					// OMG recursion!
 					$value = $this->_humanizeData($value, $model);
 				}
@@ -140,6 +150,35 @@ abstract class Garp_Content_Export_Abstract {
 		return $humanizedData;
 	}
 
+	/**
+ 	 * Humanize a multilingual data array
+ 	 * @param Array $value
+ 	 * @return String
+ 	 */
+	protected function _humanizeMultilingualData(array $value) {
+		$out = array();
+		foreach ($value as $key => $data) {
+			$out[] = "[$key]: $data";
+		}
+		return implode(" - ", $out);
+	}
+
+	/**
+ 	 * Check if value is a multilingual array.
+ 	 * @param Mixed $value
+ 	 * @return Boolean
+ 	 */
+	protected function _isMultilingualArray($value) {
+		if (!is_array($value)) {
+			return false;
+		}
+		$locales = Garp_I18n::getLocales();
+		$keys = array_keys($value);
+		sort($locales);
+		sort($keys);
+
+		return $locales === $keys;
+	}
 
 	/**
  	 * Bind all HABTM related models so they, too, get exported
@@ -155,22 +194,51 @@ abstract class Garp_Content_Export_Abstract {
 			}
 			$otherModelName = 'Model_'.$config['model'];
 			$otherModel = new $otherModelName();
+			$multilingual = false;
+			$modelFactory = new Garp_I18n_ModelFactory();
+
+			if ($otherModel->getObserver('Translatable')) {
+				$otherModel = $modelFactory->getModel($otherModel);
+				$multilingual = true;
+			}
+
 			$bindingModel = null;
 			if ($config['type'] === 'hasAndBelongsToMany') {
-				$bindingModel = $model->getBindingModel($otherModel);
+				if ($multilingual) {
+					$bindingModelName = $model->getBindingModelName($otherModelName);
+					$bindingModel = $modelFactory->getBindingModel($bindingModelName);
+				} else {
+					$bindingModel = $model->getBindingModel($otherModel);
+				}
 				$otherModelAlias = 'm';
 			} else {
 				$otherModelAlias = $otherModel->getName();
 			}
+
+			$labelFields = $otherModel->getListFields();
+			$prefixedLabelFields = array();
+			foreach ($labelFields as $labelField) {
+				$prefixedLabelFields[] = "$otherModelAlias.$labelField";
+			}
+			$labelFields = 'CONCAT_WS(", ", ' . implode(', ', $prefixedLabelFields) . ')';
+
+			// If the Translatable behavior would be effective, 
+			// the output would be in a localized array, which is overkill for this
+			// purpose.
+			$otherModel->unregisterObserver('Translatable');
+
 			$options = array(
 				'bindingModel' => $bindingModel,
 				'modelClass' => $otherModel,
 				'conditions' => $otherModel->select()->from(
 					array($otherModelAlias => $otherModel->getName()),
-					array($config['label'] => $otherModel->getRecordLabelSql($otherModelAlias))
-				)
+					array($config['label'] => $labelFields)
+				)->order("$otherModelAlias.id")
 			);
-			$model->bindModel($config['label'], $options);
+			// ¡delme!
+			if ($config['label'] == 'Event') {
+				$model->bindModel($config['label'], $options);
+			}
 		}
 	}
 }
