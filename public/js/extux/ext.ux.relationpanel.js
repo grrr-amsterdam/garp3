@@ -685,6 +685,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			this.relateStore.load();
 			this.relateeStore.load();
 			this._onActivate.isLoaded = true;
+			this.relatePanel.doLayout();
 		}
 	},
 	

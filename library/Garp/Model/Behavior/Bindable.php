@@ -140,7 +140,7 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 		
 		// many to many
 		if (!empty($options['bindingModel'])) {
-			$relatedRowset = $row->findManyToManyRowset($modelName, $options['bindingModel'], $options['rule2'], $options['rule'], $conditions);
+			$relatedRowset = $row->findManyToManyRowset($modelClass, $options['bindingModel'], $options['rule2'], $options['rule'], $conditions);
 		} else {
 			/**
 		 	 * 'mode' is used to clear ambiguity with homophilic relationships. For example,
@@ -154,7 +154,7 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 				// belongs to
 				try {
 					$model->getReference($modelName, $options['rule']);
-					$relatedRowset = $row->findParentRow($modelName, $options['rule'], $conditions);
+					$relatedRowset = $row->findParentRow($modelClass, $options['rule'], $conditions);
 				} catch(Exception $e) {
 					if (!Garp_Content_Relation_Manager::isInvalidReferenceException($e)) {
 						throw $e;
@@ -164,22 +164,22 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 						$otherModel = new $modelName();
 						// The following line triggers an exception if no reference is available
 						$otherModel->getReference(get_class($model), $options['rule']);
-						$relatedRowset = $row->findDependentRowset($modelName, $options['rule'], $conditions);
+						$relatedRowset = $row->findDependentRowset($modelClass, $options['rule'], $conditions);
 					} catch (Exception $e) {
 						if (!Garp_Content_Relation_Manager::isInvalidReferenceException($e)) {
 							throw $e;
 						}
 						$bindingModel = $model->getBindingModel($modelName);
-						$relatedRowset = $row->findManyToManyRowset($modelName, $bindingModel, $options['rule2'], $options['rule'], $conditions);
+						$relatedRowset = $row->findManyToManyRowset($modelClass, $bindingModel, $options['rule2'], $options['rule'], $conditions);
 					}
 				}
 			} else {
 				switch ($options['mode']) {
 					case 'parent':
-						$relatedRowset = $row->findParentRow($modelName, $options['rule'], $conditions);
+						$relatedRowset = $row->findParentRow($modelClass, $options['rule'], $conditions);
 					break;
 					case 'dependent':
-						$relatedRowset = $row->findDependentRowset($modelName, $options['rule'], $conditions);
+						$relatedRowset = $row->findDependentRowset($modelClass, $options['rule'], $conditions);
 					break;
 					default:
 						throw new Garp_Model_Exception('Invalid value for "mode" given. Must be either "parent" or '.

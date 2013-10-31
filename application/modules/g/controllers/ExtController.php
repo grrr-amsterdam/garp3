@@ -17,16 +17,14 @@ class G_ExtController extends G_ContentController {
 	 * @var Array
 	 */
 	protected $_postModifyMethods = array();
-	
-	
+
 	/**
 	 * Sometimes additional data from the original request is needed to properly modify the response.
 	 * Store the original request here. (Array because batches are possible)
 	 * @var Array
 	 */
 	protected $_originalRequests = array();
-	
-	
+
 	/**
 	 * Generate Ext.Direct API, publishing allowed actions to Ext.Direct, according to Service Mapping Description JSON-RPC protocol.
 	 * @return Void
@@ -36,14 +34,12 @@ class G_ExtController extends G_ContentController {
 		$api = new Garp_Content_Api();
 		$this->view->api = $api->getLayout();
 	}
-	
-	
+
 	/**
 	 * Peter considered this docblock not important.
 	 */
 	public function closevimeologinAction() {
 	}
-
 
 	/**
  	 * Get translation table
@@ -58,8 +54,7 @@ class G_ExtController extends G_ContentController {
 		$this->view->messages = $messages;
 		$this->_helper->layout->setLayout('json');
 	}
-	
-	
+
 	/**
 	 * Callback called before executing action.
 	 * Transforms requests to a format ExtJs accepts.
@@ -100,8 +95,7 @@ class G_ExtController extends G_ContentController {
 		parent::preDispatch();
 		$this->_toggleCache(false);
 	}
-	
-	
+
 	/**
 	 * Callback called after executing action.
 	 * Transforms requests to a format ExtJs accepts.
@@ -138,8 +132,7 @@ class G_ExtController extends G_ContentController {
 		}
 		$this->_toggleCache(true);
 	}
-	
-	
+
 	/**
 	 * Save a request preDispatch for modification postDispatch
 	 * @param Array $request The request
@@ -156,8 +149,7 @@ class G_ExtController extends G_ContentController {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * Fetch total amount of records condoning to a set of conditions
 	 * @param String $modelName The entity name
@@ -171,8 +163,7 @@ class G_ExtController extends G_ContentController {
 		$man = new Garp_Content_Manager($modelName);
 		return $man->count($conditions);
 	}
-	
-	
+
 	/**
 	 * Check if the JSON-RPC request failed
 	 * @param Array $obj The response object (json_decoded)
@@ -181,8 +172,7 @@ class G_ExtController extends G_ContentController {
 	protected function _methodFailed($response) {
 		return !empty($response['error']);
 	}
-	
-	
+
 	/**
 	 * Toggle cache on and off
 	 * @param Boolean $on
@@ -192,8 +182,7 @@ class G_ExtController extends G_ContentController {
 		Zend_Registry::set('readFromCache', $on);
 		return $on;
 	}
-	
-	
+
 	/**
 	 * MODIFICATION METHODS
 	 * these methods modify either the request or the response (post or pre dispatch)
@@ -221,8 +210,7 @@ class G_ExtController extends G_ContentController {
 		}
 		return $response;
 	}
-	
-	
+
 	/**
 	 * Modify results after create
 	 * @param Array $response The original response
@@ -251,8 +239,7 @@ class G_ExtController extends G_ContentController {
 		}
 		return $response;
 	}
-	
-	
+
 	/**
 	 * Modify results after update
 	 * @param Array $response The original response
@@ -260,21 +247,21 @@ class G_ExtController extends G_ContentController {
 	 * @return String
 	 */
 	protected function _modifyAfterUpdate($response, $request) {
-		if (!$this->_methodFailed($response)) {	
-			$methodParts = explode('.', $request['method']);
-			$modelClass  = Garp_Content_Api::modelAliasToClass(array_shift($methodParts)); 
-			$man = new Garp_Content_Manager($modelClass);
-			$rows = $man->fetch(array(
-				'query' => array('id' => $request['params'][0]['rows']['id'])
-			));
-			$response['result'] = array(
-				'rows' => $rows
-			);
+		if ($this->_methodFailed($response)) {	
+			return $response;
 		}
+		$methodParts = explode('.', $request['method']);
+		$modelClass  = Garp_Content_Api::modelAliasToClass(array_shift($methodParts)); 
+		$man = new Garp_Content_Manager($modelClass);
+		$rows = $man->fetch(array(
+			'query' => array('id' => $request['params'][0]['rows']['id'])
+		));
+		$response['result'] = array(
+			'rows' => $rows
+		);
 		return $response;
 	}
-	
-	
+
 	/**
 	 * Modify results after destroy
 	 * @param Array $response The original response
@@ -289,8 +276,7 @@ class G_ExtController extends G_ContentController {
 		}
 		return $response;
 	}
-	
-	
+
 	/**
 	 * Modify results before create
 	 * @param Array $request
@@ -300,8 +286,7 @@ class G_ExtController extends G_ContentController {
 		$request['params'] = array($request['params'][0]['rows']);
 		return $request;
 	}
-	
-	
+
 	/**
 	 * Modify results before update
 	 * @param Array $request
@@ -311,8 +296,7 @@ class G_ExtController extends G_ContentController {
 		$request['params'] = array($request['params'][0]['rows']);
 		return $request;
 	}
-	
-	
+
 	/**
 	 * Modify results before create
 	 * @param Array $request

@@ -17,6 +17,18 @@ class Garp_Util_FullUrl {
 	protected $_url;
 
 	/**
+ 	 * Wether to omit protocol
+ 	 * @var Boolean
+ 	 */
+	protected $_omitProtocol;
+
+	/**
+ 	 * Wether to omit baseUrl
+ 	 * @var Boolean
+ 	 */
+	protected $_omitBaseUrl;
+
+	/**
  	 * Class constructor
  	 * @param String|Array $route String containing the path or Array containing route properties
  	 *                            (@see Zend_View_Helper_Url for the format)
@@ -25,7 +37,9 @@ class Garp_Util_FullUrl {
  	 * @return Void
  	 */
 	public function __construct($route, $omitProtocol = false, $omitBaseUrl = false) {
-		$this->_url = $this->_createFullUrl($route, $omitProtocol, $omitBaseUrl);
+		$this->_omitProtocol = $omitProtocol;
+		$this->_omitBaseUrl = $omitBaseUrl;
+		$this->_url = $this->_createFullUrl($route);
 	}
 
 	/**
@@ -41,10 +55,12 @@ class Garp_Util_FullUrl {
  	 * @param String $route
  	 * @return String
  	 */
-	protected function _createFullUrl($route, $omitProtocol, $omitBaseUrl) {
+	protected function _createFullUrl($route) {
 		$application = Zend_Registry::get('application');
 		$bootstrap = $application->getBootstrap();
 		$viewObj = $bootstrap->getResource('view');
+		$omitProtocol = $this->_omitProtocol;
+		$omitBaseUrl = $this->_omitBaseUrl;
 
 		if (is_array($route)) {
 			$this->_validateRouteArray($route);
@@ -90,4 +106,21 @@ class Garp_Util_FullUrl {
 			throw new Exception('ini.cdn.domain is not defined in application.ini.');
 		}
 	}
+
+	/**
+	 * Get omitBaseUrl
+	 * @return Boolean
+	 */
+	public function getOmitBaseUrl() {
+		return $this->_omitBaseUrl;
+	}
+
+	/**
+	 * Get omitProtocol
+	 * @return Boolean
+	 */
+	public function getOmitProtocol() {
+		return $this->_omitProtocol;
+	}
+	
 }
