@@ -69,6 +69,12 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	protected $_configuration = array();
 
 	/**
+ 	 * List fields
+ 	 * @var Array
+ 	 */
+	protected $_listFields = array();
+
+	/**
  	 * Parent model containing only the unilingual columns
  	 * @var Garp_Model_Db
  	 */
@@ -135,6 +141,14 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$name = get_class($this);
 		$name = explode('_', $name);
 		return array_shift($name);
+	}
+
+	/**
+ 	 * Get list fields
+ 	 * @return Array
+ 	 */
+	public function getListFields() {
+		return $this->_listFields;
 	}
 
 	/**
@@ -220,6 +234,22 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	 * @return Garp_Model_Db The binding model.
 	 */
 	public function getBindingModel($theOtherModel) {
+		$bindingModelName = $this->getBindingModelName($theOtherModel);
+
+		/**
+		 * Here we load the bindingModel class. There is no check to see if 
+		 * the file can be loaded without throwing a fatal error that doesn't
+		 * require disc access, which is a waste of performance.
+		 * Therefore, just trigger the error: it's the developer's responsibility
+		 * to make sure live code never asks for an invalid relationship.
+		 */
+		return new $bindingModelName();
+	}
+
+	/**
+ 	 * Get bindingModel name
+ 	 */
+	public function getBindingModelName($theOtherModel) {
 		if (!$theOtherModel instanceof Garp_Model_Db) {
 			$theOtherModel = new $theOtherModel();
 		}
@@ -234,16 +264,8 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		if ($thisNamespace === $theOtherNamespace && $thisNamespace !== 'Model') {
 			$namespace = $thisNamespace.'_Model_';
 		}
-		$bindingModel = $namespace.implode('', $modelNames);
-		
-		/**
-		 * Here we load the bindingModel class. There is no check to see if 
-		 * the file can be loaded without throwing a fatal error that doesn't
-		 * require disc access, which is a waste of performance.
-		 * Therefore, just trigger the error: it's the developer's responsibility
-		 * to make sure live code never asks for an invalid relationship.
-		 */
-		return new $bindingModel();
+		$bindingModelName = $namespace.implode('', $modelNames);
+		return $bindingModelName;
 	}
 
 	/**
