@@ -59,6 +59,7 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		// to the specified language.
 		$langIsInUrl = preg_match('/^\/' . $language . '\/?/', $path);
 		$uiDefaultLangIsInUrl = false;
+		$uiDefaultLanguage = false;
 		if (isset($config->resources->locale->uiDefault)) {
 			$uiDefaultLanguage = $config->resources->locale->uiDefault;
 			$uiDefaultLangIsInUrl = preg_match('/^\/' . $uiDefaultLanguage . '\/?/', $path);
