@@ -37,7 +37,7 @@ class Garp_Form_Element_File extends Zend_Form_Element_Xhtml {
 				array(array('outer-wrapper' => 'HtmlTag'), array('tag' => 'div', 'class' => $parentClass))
 			)
 		);
-		if (!$this->getDescription()) {
+		if (is_null($this->getDescription())) {
 			$uploadInfoStr = $this->_getUploadInfoString();
 			$options['description'] = $uploadInfoStr;
 		}

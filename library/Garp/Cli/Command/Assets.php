@@ -29,7 +29,16 @@ class Garp_Cli_Command_Assets extends Garp_Cli_Command {
 		$jsRoot = ltrim($ini->assets->js->basePath ?: 'js', '/');
 		$assets = $ini->assets->js->toArray();
 		unset($assets['basePath']);
+
+		$selectedKey = null;
+		if (!empty($args)) {
+			$selectedKey = $args[0];
+		}
+
 		foreach ($assets as $key => $assetSettings) {
+			if (!is_null($selectedKey) && $key != $selectedKey) {
+				continue;
+			}
 			if (empty($assetSettings['sourcefiles']) ||
 				empty($assetSettings['filename'])) {
 				Garp_Cli::errorOut($key.' is not configured correctly. "sourcefiles" and "filename" are required keys.');

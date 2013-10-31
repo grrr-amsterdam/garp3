@@ -18,11 +18,11 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 	 * @param Array $options Various rendering options
 	 * @return String
 	 */
-	public function youTube($youtube = null, array $options = array()) {
+	public function youTube($youtube = null, array $options = array(), $class = null) {
 		if (!func_num_args()) {
 			return $this;
 		}
-		return $this->render($youtube, $options);
+		return $this->render($youtube, $options, $class);
 	}
 	
 	
@@ -32,7 +32,7 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 	 * @param Array $options Various rendering options
 	 * @return String
 	 */
-	public function render($youtube, array $options = array()) {
+	public function render($youtube, array $options = array(), $class) {
 		$options = $this->_setDefaultOptions($options);
 		$_attribs = $options['attribs'];
 		$_attribs['width'] = $options['width'];
@@ -55,7 +55,11 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 		$youtubeUrl .= http_build_query($options);
 		$_attribs['src'] = $youtubeUrl;
 
-		$html = '<iframe'.$this->_htmlAttribs($_attribs).'></iframe>'; 
+		$html = '<iframe'.$this->_htmlAttribs($_attribs);
+		if ($class) {
+			$html .= ' class="'.$class.'"';
+		}
+		$html .= '></iframe>'; 
 		return $html;
 	}
 	
