@@ -38,8 +38,8 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 		/* Unilingual model */
 		/*
 		if ($model->isMultilingual()) {
-			$unilingualModelName = ;
-			$out .= $this->_rl("protected \$_unilingualModel = new $unilingualModelName();", 1, 2);
+			$unilingualModelName = '???';
+			$out .= $this->_rl("protected \$_unilingualModel = '$unilingualModelName';", 1, 2);
 		}
 		 */
 
@@ -47,6 +47,11 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 		$modelArray			= $this->_convertToArray($model);
 		$modelArrayScript 	= Garp_Spawn_Util::array2phpStatement($modelArray);
 		$out .= $this->_rl("protected \$_configuration = " . $modelArrayScript .";", 1, 2);
+
+		/* List fields */
+		$listFields = $model->fields->getListFieldNames();
+		$listFieldsArrayScript = Garp_Spawn_Util::array2phpStatement($listFields);
+		$out .= $this->_rl("protected \$_listFields = $listFieldsArrayScript;", 1, 2);
 
 		/* Joint view to include labels of singular relations */
 		$jointViewProperty = $this->_renderJointViewProperty();
