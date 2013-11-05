@@ -74,9 +74,13 @@ class Garp_Cache_Manager {
 					// Make sure cache is cleared for all languages.
 					$locales = Garp_I18n::getLocales();
 					foreach ($locales as $locale) {
-						$modelFactory = new Garp_I18n_ModelFactory($locale);
-						$i18nModel = $modelFactory->getModel($model);
-						self::_incrementMemcacheVersion($i18nModel);
+						try {
+							$modelFactory = new Garp_I18n_ModelFactory($locale);
+							$i18nModel = $modelFactory->getModel($model);
+							self::_incrementMemcacheVersion($i18nModel);
+						} catch (Garp_I18n_ModelFactory_Exception_ModelAlreadyLocalized $e) {
+							// all good in the hood  ｡^‿^｡
+						}
 					}
 				}
 			}

@@ -138,8 +138,43 @@ class Garp_Spawn_Fields {
 		return $out;
 	}
 
+	/**
+	 * @return Array Containing fields that are used as list fields.
+	 */
+	public function getListFieldNames() {
+		$listFieldNames = $this->listFieldNames;
+		$fieldDefs 		= array();
 
+		$self = $this;
+		$isSuitable = function($item) use ($self) {
+			return $self->isSuitableListFieldName($item);
+		};
 
+		$suitableFieldNames = array_filter($listFieldNames, $isSuitable);
+		if (!$suitableFieldNames) {
+			$suitableFieldNames = array('id');
+		}
+		return $suitableFieldNames;
+	}
+
+	/**
+	 * Checks wether a field can be used as list field.
+	 * @param String $listFieldName
+	 * @return Boolean
+	 */
+	public function isSuitableListFieldName($listFieldName) {	
+		try {
+			$field = $this->getField($listFieldName);
+		} catch (Exception $e) {
+			return;
+		}
+
+		if ($field && $field->isSuitableAsLabel()) {
+			return true;
+		}
+	}
+
+	
 	public function exists($name) {
 		foreach ($this->_fields as $field) {
 			if ($field->name === $name)
