@@ -120,9 +120,9 @@ Garp.FilterMenu = function(){
 		
 		this.filterStatus = tb.add({
 			ref: 'filterStatus',
-			text: this.defaultFilter.text,
+			text: this.defaultFilter.ref !== 'all' ? this.defaultFilter.text : '',
 			xtype: 'tbtext',
-			hidden: (this.defaultFilter.ref == 'all')
+			hidden: (this.defaultFilter.ref === 'all')
 		});
 		
 		/**
@@ -149,22 +149,24 @@ Garp.FilterMenu = function(){
 		
 		// Reflect UI on menu changes:
 		this.filterBtn.menu.on('itemclick', function(item, evt){
-			if (item.text) {
-				this.filterStatus.update(item.text);
-			}
-			if (item.ref == 'all') {
+			if(item.ref === 'all'){
+				this.filterStatus.update('');
 				this.filterStatus.hide();
 				this.filterBtn.setIconClass('icon-filter-off');
-			} else {
-				this.filterStatus.show();
-				this.filterBtn.setIconClass('icon-filter-on');
+				return;
+			} else if (item.text) {
+				this.filterStatus.update(item.text);
 			}
+			this.filterStatus.show();
+			this.filterBtn.setIconClass('icon-filter-on');
 		}, this);
 		
 		// Make sure we don't end up with an "No items to display" AND a filter Status text: 
 		this.tb.on('change', function(tb){
 			if(tb.store.getCount() === 0){
 				this.filterStatus.hide();
+			} else {
+				this.filterStatus.show();
 			}
 		});
 	};
