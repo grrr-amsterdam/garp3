@@ -388,8 +388,8 @@ Garp.changeModel = function(doPushState, model, page, id){
 			},
 			single: true
 		});
-		Garp.gridPanel.getStore().load();
-		//Garp.gridPanel.loadStoreWithDefaults();
+		//Garp.gridPanel.getStore().load();
+		Garp.gridPanel.loadStoreWithDefaults();
 	} else {
 		//Garp.gridPanel.getStore().load();
 		Garp.gridPanel.loadStoreWithDefaults();
