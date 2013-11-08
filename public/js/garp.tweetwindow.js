@@ -158,7 +158,7 @@ Garp.TweetField = Ext.extend(Ext.Panel,{
 							}).error(function(error){
 								lm.hide();
 								Ext.MessageBox.alert(__('Garp'), __('Something went wrong while updating your status'));
-								console.log(error);
+								//console.log(error);
 							});
 						}
 					});

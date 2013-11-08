@@ -406,6 +406,16 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	}
 
 	/**
+ 	 * Shortcut method for fetching record by id
+ 	 * @param Int $id
+ 	 * @return Zend_Db_Table_Row
+ 	 */
+	public function fetchById($id) {
+		$select = $this->select()->where('id = ?', $id);
+		return $this->fetchRow($select);
+	}
+
+	/**
  	 * Quote an array of values
  	 * @param Array $values
  	 * @return Void
