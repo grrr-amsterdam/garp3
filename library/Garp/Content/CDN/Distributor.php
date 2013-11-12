@@ -66,7 +66,7 @@ class Garp_Content_CDN_Distributor {
 	public function distribute($env, $assetList, $assetCount) {
 		$this->_validateEnvironment($env);
 		
-		$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', $env);
+		$ini = new Garp_Config_Ini(APPLICATION_PATH.'/configs/application.ini', $env);
 
 		if (
 			count($assetList) &&
