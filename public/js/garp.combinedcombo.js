@@ -164,7 +164,7 @@ Garp.CombinedCombo = Ext.extend(Ext.form.FieldSet,{
 			},
 			'save-all': {
 				fn: function(){
-					console.log('DO SOMETHING, FOOL!');
+					//console.log('DO SOMETHING, FOOL!');
 				}
 			}
 		});
