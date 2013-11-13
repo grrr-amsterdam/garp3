@@ -353,6 +353,7 @@ Garp.Browsebox = function(config){
 	*/
 	this.afterLoad = function(data, options){
 		if (this.append) {
+			console.log('boem!');
 			$('.bb-next', $('#' + this.id)).replaceWith(Garp.innerShiv(data));
 		} else {
 			$('#' + this.id).html(Garp.innerShiv(data));
