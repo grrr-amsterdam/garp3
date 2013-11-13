@@ -33,7 +33,6 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 	 */
 	protected $_locale;
 
- 
 	/**
 	 * Retrieve router object
 	 * @return Zend_Controller_Router_Rewrite
@@ -135,7 +134,8 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
  	 */
 	protected function _getCurrentLanguage() {
 		if (!isset($_SERVER['REQUEST_URI'])) {
-			return null;
+			// Probably CLI context. Return the default route
+			return Garp_I18n::getDefaultLocale();
 		}
 		$requestUri = $_SERVER['REQUEST_URI'];
 		$bits = explode('/', $requestUri);
