@@ -175,7 +175,8 @@ function dump($file, $message, $priority = Zend_Log::INFO) {
 		@mkdir($target);
 	}
 
-	$stream = fopen($target . DIRECTORY_SEPARATOR . $file, 'a');
+	$target = $target . DIRECTORY_SEPARATOR . $file;
+	$stream = fopen($target, 'a');
 	$writer = new Zend_Log_Writer_Stream($stream);
 	$logger = new Zend_Log($writer);
 	$message = is_array($message) ? print_r($message, true) : $message;
@@ -189,7 +190,9 @@ function dump($file, $message, $priority = Zend_Log::INFO) {
  * @return String
  */
 function __($str) {
-	$translate = Zend_Registry::get('Zend_Translate');
-	return call_user_func_array(array($translate, '_'), func_get_args());
-	return $translate->_($str);
+	if (Zend_Registry::isRegistered('Zend_Translate')) {
+		$translate = Zend_Registry::get('Zend_Translate');
+		return call_user_func_array(array($translate, '_'), func_get_args());
+	}
+	return $str;
 }
