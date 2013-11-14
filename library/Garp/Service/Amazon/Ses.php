@@ -386,6 +386,10 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 
 		dump($filename, $logMessage);
 
-		throw new Garp_Service_Amazon_Exception($code->nodeValue.': '.$msg->nodeValue);
+		$msg = $msg->nodeValue;
+		if (is_object($code)) {
+			$msg = $code->nodeValue . ': ' . $msg;
+		}
+		throw new Garp_Service_Amazon_Exception($msg);
 	}
 }
