@@ -423,7 +423,7 @@ class Garp_Browsebox {
 		$lastChunk = ceil($this->_max / $this->_options['pageSize']);
 		if ($this->_chunk == $lastChunk) {
 			return $this->_options['cycle'] ? $this->createStateUrl(1) : false;
-		}		
+		}
 		return $this->createStateUrl($this->_chunk+1);
 	}
 	
