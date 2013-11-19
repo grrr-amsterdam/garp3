@@ -119,7 +119,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 		 	 * Remove the baseUrl from the targetUrl. This is neccessary
 		 	 * when Garp is installed in a subfolder.
 		 	 */
-			$targetUrl = str_replace($baseUrl, '', $targetUrl);
+			$targetUrl = Garp_Util_String::strReplaceOnce($baseUrl, '', $targetUrl);
 		}
 
 		if ($targetUrl !== '/favicon.ico' && !$request->isXmlHttpRequest()) {
