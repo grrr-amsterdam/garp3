@@ -313,7 +313,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 							', Algorithm=Hmac'.strtoupper(self::SIGNATURE_HASH_METHOD).
 							', Signature='.$sig;
 		
-		$client = $this->getHttpClient();
+		$client = $this->getHttpClient()->resetParameters();
 		$client->setUri(self::ENDPOINT);
 		$client->setHeaders(array(
 			'Date' => $date,
