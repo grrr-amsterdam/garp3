@@ -313,7 +313,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 							', Algorithm=Hmac'.strtoupper(self::SIGNATURE_HASH_METHOD).
 							', Signature='.$sig;
 		
-		$client = $this->getHttpClient();
+		$client = $this->getHttpClient()->resetParameters();
 		$client->setUri(self::ENDPOINT);
 		$client->setHeaders(array(
 			'Date' => $date,
@@ -386,6 +386,10 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 
 		dump($filename, $logMessage);
 
-		throw new Garp_Service_Amazon_Exception($code->nodeValue.': '.$msg->nodeValue);
+		$msg = $msg->nodeValue;
+		if (is_object($code)) {
+			$msg = $code->nodeValue . ': ' . $msg;
+		}
+		throw new Garp_Service_Amazon_Exception($msg);
 	}
 }
