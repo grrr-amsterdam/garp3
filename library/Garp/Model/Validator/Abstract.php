@@ -10,6 +10,7 @@
  * @lastmodified $Date: $
  */
 abstract class Garp_Model_Validator_Abstract extends Garp_Model_Helper {
+
 	/**
 	 * Validate wether the given columns are not empty
 	 * @param Array $data The data to validate
@@ -17,25 +18,29 @@ abstract class Garp_Model_Validator_Abstract extends Garp_Model_Helper {
 	 * @return Void
 	 * @throws Garp_Model_Validator_Exception
 	 */
-	abstract public function validate(array $data, $onlyIfAvailable = false);
-	
+	abstract public function validate(array $data, Garp_Model_Db $model, $onlyIfAvailable = false);
 
 	/**
 	 * BeforeInsert callback.
 	 * @param Array $args The new data is in $args[1]
 	 * @return Void
 	 */
-	public function beforeInsert($args) {
-		$this->validate($args[1]);
+	public function beforeInsert(&$args) {
+		$model = &$args[0];
+		$data  = &$args[1];
+		$this->validate($data, $model);
 	}
-	
-	
+
 	/**
 	 * BeforeUpdate callback.
 	 * @param Array $args The new data is in $args[1]
 	 * @return Void
 	 */
-	public function beforeUpdate($args) {
-		$this->validate($args[1], true);
+	public function beforeUpdate(&$args) {
+		$model = &$args[0];
+		$data  = &$args[1];
+		$where = &$args[2];
+		$this->validate($data, $model, true);
 	}
+
 }

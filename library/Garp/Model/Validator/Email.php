@@ -41,7 +41,7 @@ class Garp_Model_Validator_Email extends Garp_Model_Validator_Abstract {
 	 * @return Void
 	 * @throws Garp_Model_Validator_Exception
 	 */
-	public function validate(array $data, $onlyIfAvailable = true) {
+	public function validate(array $data, Garp_Model_Db $model, $onlyIfAvailable = true) {
 		$theColumns = $this->_fields;
 		$regexp = self::EMAIL_REGEXP;
 		$validate = function($c) use ($data, $onlyIfAvailable, $regexp) {
