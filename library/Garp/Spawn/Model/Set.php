@@ -57,7 +57,8 @@ class Garp_Spawn_Model_Set extends ArrayObject {
 	}
 	
 	protected function _sortModels() {
-		ArrayObject::ksort($this);
+		$this->ksort();
+		//ArrayObject::ksort($this);
 	}
 }
 
