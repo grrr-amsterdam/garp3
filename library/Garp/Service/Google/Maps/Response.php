@@ -11,13 +11,12 @@
  * @lastmodified $Date: $
  */
 class Garp_Service_Google_Maps_Response {
-	const ERROR_NO_VALID_RESPONSE = "No results were found.";
-
 	public $city;
 	public $province;
 	public $municipality;
 	public $latitude;
 	public $longitude;
+	public $error = false;
 
 
 	/**
@@ -27,7 +26,8 @@ class Garp_Service_Google_Maps_Response {
 		$response = json_decode($rawResponse, true);
 
 		if (!$response || !$this->_isValidResponse($response)) {
-			throw new Exception(self::ERROR_NO_VALID_RESPONSE);
+			$this->error = true;
+			return;
 		}
 
 		$this->_loadResponse($response);
