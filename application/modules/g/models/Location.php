@@ -66,6 +66,7 @@ class G_Model_Location extends Model_Base_Location {
 
 	protected function _storeLocation($zip, Garp_Service_Google_Maps_Response $location) {
 		$row = (array)$location;
+		unset($row['error']);
 		$row['zip'] = $zip;
 		$this->insert($row);
 	}
