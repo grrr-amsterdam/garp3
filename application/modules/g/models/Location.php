@@ -25,13 +25,11 @@ class G_Model_Location extends Model_Base_Location {
 
 		$googleLocation = $this->_fetchRowByZipFromGoogle($zip);
 
-		if (!$googleLocation) {
-			throw new Exception("Could not find location.");
+		if (!$googleLocation || $googleLocation->error) {
+			return null;
 		} 
 
-//exit('<hr>Deze wel...');
 		$this->_storeLocation($zip, $googleLocation);
-//exit('<hr>Deze niet...');
 		$row = $this->_fetchRowByZipFromDatabase($zip);
 
 		return $row;
@@ -68,8 +66,8 @@ class G_Model_Location extends Model_Base_Location {
 
 	protected function _storeLocation($zip, Garp_Service_Google_Maps_Response $location) {
 		$row = (array)$location;
+		unset($row['error']);
 		$row['zip'] = $zip;
-//exit('wut');
 		$this->insert($row);
 	}
 }
