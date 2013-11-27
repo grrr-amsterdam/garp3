@@ -486,9 +486,9 @@ class PHPExcel_Reader_Excel2007 implements PHPExcel_Reader_IReader
 	public function load($pFilename)
 	{
 		// Check if file exists
-		if (!file_exists($pFilename)) {
-			throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
-		}
+		//if (!file_exists($pFilename)) {
+			//throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+		//}
 
 		// Initialisations
 		$excel = new PHPExcel;
