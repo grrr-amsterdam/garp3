@@ -40,7 +40,7 @@ class G_Model_Location extends Model_Base_Location {
  	 */
 	protected function _normalizeZip($zip) {
 		if (strlen($zip) === 6) {
-			$zip = substr($zip, 0, 4) . ' ' . substr($zip, 4, 2);
+			$zip = substr($zip, 0, 4) . ' ' . strtoupper(substr($zip, 4, 2));
 		}
 
 		return $zip;
@@ -68,6 +68,7 @@ class G_Model_Location extends Model_Base_Location {
 		$row = (array)$location;
 		unset($row['error']);
 		$row['zip'] = $zip;
+		$row['source'] = 'Google';
 		$this->insert($row);
 	}
 }
