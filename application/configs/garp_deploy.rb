@@ -20,6 +20,13 @@ set (:document_root) {"#{deploy_to}/current/public"}
 set (:server_cache_dir) {"#{current_release}/application/data/cache"}
 set :ssh_keys, File.read("garp/application/configs/authorized_keys")
 
+basepath = "garp/application/configs/deploy/"
+load "#{basepath}disk.rb"
+load "#{basepath}webroot.rb"
+load "#{basepath}crontab.rb"
+load "#{basepath}auth.rb"
+load "#{basepath}garp.rb"
+
 
 
 #   d e p l o y
@@ -29,13 +36,14 @@ namespace :deploy do
   desc "Set up server instance"
   task :setup do
     transaction do
-      add_public_ssh_keys
-      find_webroot
-      mark_git_server_safe
-      create_deploy_dirs
-      set_shared_dirs_permissions
+      Auth.add_public_ssh_keys self, ssh_keys
+      Webroot.find_webroot self, deploy_to
+      Auth.mark_git_server_safe self
+
+	  Disk.create_deploy_dirs self, deploy_to
+      Auth.set_shared_dirs_permissions self, deploy_to
       create_webroot_reroute_htaccess
-      install_crontab
+      Crontab.install_crontab self, deploy_to, garp_env
       prompt_to_set_newly_found_deploy_dir
     end
   end
@@ -44,14 +52,14 @@ namespace :deploy do
   task :update do
     transaction do
       update_code
-      create_system_cache_dirs
-      create_static_cache_dir
-      create_log_dir
-      set_blackhole_path_symlink_fix
-      _spawn
-      update_version
-      env_setup
-      set_webroot_permissions
+      Disk.create_system_cache_dirs self, server_cache_dir
+      Disk.create_static_cache_dir self, current_release
+      Disk.create_log_dir self, current_release
+      Disk.set_blackhole_path_symlink_fix self
+      Garp.spawn
+      Garp.update_version
+      Garp.env_setup
+      Auth.set_webroot_permissions self, releases_path, release_name
       symlink
     end
   end
@@ -65,101 +73,7 @@ namespace :deploy do
   end
 
 
-  # ------- P R I V A T E   S E T U P   M E T H O D S
-  
-  desc "Add public SSH keys"
-  task :add_public_ssh_keys do
-    run "if [ ! -d '~/.ssh' ]; then mkdir -p ~/.ssh; fi"
-    run "chmod 700 ~/.ssh"
-    run "printf \'#{ssh_keys}\' > ~/.ssh/authorized_keys"
-    run "chmod 700 ~/.ssh/authorized_keys"
-  end
-
-  desc "Find webroot dir"
-  task :find_webroot do
-    if deploy_to.start_with?('/u/apps/')
-      # deploy_to is not set yet
-      set :pwd, capture("pwd").strip
-
-      if capture("[ -d #{pwd}/web ] && echo '1' || echo '0'").strip == '1'
-        set :deploy_to, "#{pwd}/web"
-        set :unset_deploy_to, deploy_to
-      elsif capture("[ -d #{pwd}/public ] && echo '1' || echo '0'").strip == '1'
-        set :deploy_to, "#{pwd}/public"
-        set :unset_deploy_to, deploy_to
-      elsif capture("[ -d #{pwd}/html ] && echo '1' || echo '0'").strip == '1'
-        find_servers_for_task(current_task).each do |current_server|
-          set :domain_dir, "#{pwd}/html/#{current_server.host}"
-          if capture("[ -d #{domain_dir} ] && echo '1' || echo '0'").strip == '1' and capture("[ -d #{domain_dir}/public ] && echo '1' || echo '0'").strip == '1'
-            set :deploy_to, "#{domain_dir}/public"
-            set :unset_deploy_to, deploy_to
-          else
-            raise "Can't autodetect the webroot dir, I know it's not: #{domain_dir}/public"
-          end
-        end
-      elsif capture("[ -d #{pwd}/httpdocs ] && echo '1' || echo '0'").strip == '1'
-        set :deploy_to, "#{pwd}/httpdocs"
-        set :unset_deploy_to, deploy_to
-      else
-        raise "Oops! :deploy_to is not set, and I can't seem to find the webroot directory myself..."
-      end
-    end
-  end
-
-  desc "Mark Git server as safe"
-  task :mark_git_server_safe do
-    run "touch ~/.ssh/known_hosts && ssh-keyscan -t rsa,dsa flow.grrr.nl 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && cat ~/.ssh/tmp_hosts > ~/.ssh/known_hosts && rm ~/.ssh/tmp_hosts"
-    run "touch ~/.ssh/known_hosts && ssh-keyscan -t rsa,dsa code.grrr.nl 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && cat ~/.ssh/tmp_hosts > ~/.ssh/known_hosts && rm ~/.ssh/tmp_hosts"
-  end
-
-  desc "Create essential deploy directories"
-  task :create_deploy_dirs do
-    run "if [ ! -d '#{deploy_to}/releases' ]; then mkdir -p #{deploy_to}/releases; fi"
-    run "if [ ! -d '#{deploy_to}/shared/backup/db' ]; then mkdir -p #{deploy_to}/shared/backup/db; fi"
-    run "if [ ! -d '#{deploy_to}/shared/uploads/documents' ]; then mkdir -p #{deploy_to}/shared/uploads/documents; fi"
-    run "if [ ! -d '#{deploy_to}/shared/uploads/images' ]; then mkdir -p #{deploy_to}/shared/uploads/images; fi"
-    run "if [ ! -d '#{deploy_to}/shared/logs' ]; then mkdir -p #{deploy_to}/shared/logs; fi"
-  end
-  
-  desc "Set permissions on essential deploy directories"
-  task :set_shared_dirs_permissions do
-      run "chmod -R g+w #{deploy_to}/shared/backup/db"
-      run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/documents"
-      run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/images"
-      run "chmod -R g+w,o+rx #{deploy_to}/shared/logs"
-  end
-
-  desc "Install crontab"
-  task :install_crontab do
-  	php_exec 		= "/usr/bin/php"
-  	garp_exec 		= "#{deploy_to}/current/garp/scripts/garp.php"
-  	tab_frequent 	= "*/5 * * * * #{php_exec} #{garp_exec} cron frequently --e=#{garp_env} >/dev/null 2>&1"
-  	tab_hourly 		= "0 * * * * #{php_exec} #{garp_exec} cron hourly --e=#{garp_env} >/dev/null 2>&1"
-  	tab_daily 		= "0 4 * * * #{php_exec} #{garp_exec} cron daily --e=#{garp_env} >/dev/null 2>&1"
-  	
-  	cron_tmp_file 			= "/tmp/.crontab-tmp-output"
-  	cmd_output_cron 		= "crontab -l > #{cron_tmp_file}"
-	cmd_append	 			= 'if [ ! "`cat %s | grep \'%s\'`" ]; then echo "%s" | tee -a %s; fi;'
-	cmd_install				= "crontab #{cron_tmp_file}"
-	cmd_remove_cron_output 	= "rm #{cron_tmp_file}"
-
-	cmd_frequent 	= sprintf cmd_append, cron_tmp_file, "cron frequently --e=#{garp_env}", tab_frequent, cron_tmp_file
-	cmd_hourly 		= sprintf cmd_append, cron_tmp_file, "cron hourly --e=#{garp_env}", tab_hourly, cron_tmp_file
-	cmd_daily 		= sprintf cmd_append, cron_tmp_file, "cron daily --e=#{garp_env}", tab_daily, cron_tmp_file
-
-	begin 
-		run cmd_output_cron
-	rescue Exception => error
-		puts "No cronjob present yet"
-	end
-
-	# run cmd_output_cron
-	run cmd_frequent
-	run cmd_hourly
-	run cmd_daily
-	run cmd_install
-	run cmd_remove_cron_output
-  end
+  # ------- P R I V A T E    M E T H O D S
   
   desc "Create .htaccess file to reroute webroot"
   task :create_webroot_reroute_htaccess do
@@ -170,56 +84,6 @@ namespace :deploy do
     if exists?(:unset_deploy_to)
       puts("\033[1;31mDone. Now please set :deploy_to in deploy.rb to:\n#{unset_deploy_to}\033[0m")
     end
-  end
-
-
-
-  # ------- P R I V A T E   D E P L O Y   M E T H O D S
-  
-  desc "Create backend cache directories"
-  task :create_system_cache_dirs do
-    run "if [ ! -d '#{server_cache_dir}' ]; then mkdir -p #{server_cache_dir}; fi";
-    run "if [ ! -d '#{server_cache_dir}/URI' ]; then mkdir -p #{server_cache_dir}/URI; fi";
-    run "if [ ! -d '#{server_cache_dir}/HTML' ]; then mkdir -p #{server_cache_dir}/HTML; fi";
-    run "if [ ! -d '#{server_cache_dir}/CSS' ]; then mkdir -p #{server_cache_dir}/CSS; fi";
-    run "if [ ! -d '#{server_cache_dir}/tags' ]; then mkdir -p #{server_cache_dir}/tags; fi";
-    # run "echo '<?php' > #{server_cache_dir}/pluginLoaderCache.php"
-  end
-  
-  desc "Create static html cache directory"
-  task :create_static_cache_dir do
-    run "if [ ! -d '#{current_release}/public/cached' ]; then mkdir -p #{current_release}/public/cached; fi";
-  end
-
-  desc "Make sure the log file directory is present"
-  task :create_log_dir do
-    run "if [ ! -d '#{current_release}/application/data/logs' ]; then mkdir -p #{current_release}/application/data/logs; fi";
-  end
-
-  desc "Fix casing"
-  task :set_blackhole_path_symlink_fix do
-		run "ln -nfs BlackHole.php #{current_release}/library/Zend/Cache/Backend/Blackhole.php"
-  end
-
-  desc "Spawn models"
-  task :_spawn do
-    run "php #{current_release}/garp/scripts/garp.php Spawn --e=#{garp_env}"
-  end
-    
-  desc "Update the application and Garp version numbers"
-  task :update_version do
-  	run "php #{current_release}/garp/scripts/garp.php Version update --e=#{garp_env}"
-  	run "php #{current_release}/garp/scripts/garp.php Version update garp --e=#{garp_env}"
-  end
-
-  desc "Perform administrative tasks after deploy"
-  task :env_setup do
-  	run "php #{current_release}/garp/scripts/garp.php Env setup --e=#{garp_env}"
-  end
-
-  desc "Set webroot directory permissions"
-  task :set_webroot_permissions do
-		run "chmod -R g+w #{releases_path}/#{release_name}"
   end
   
   desc "Point the webroot symlink to the current release"
