@@ -12,8 +12,15 @@
 class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 	const ERROR_NO_FILE_PROVIDED =
 		"No path provided to the 6PP CSV file from postcode.nl";
+	const SOURCE_LABEL = 
+		'Postcode.nl';
 
 	protected $_args;
+
+	/**
+ 	 * @var Int $_storedZips Number of inserted / updated zips this session
+ 	 */
+	protected $_storedZips = 0;
 
 
 	/**
@@ -26,8 +33,10 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 			return;
 		}
 
+		$mem = new Garp_Util_Memory();
+		$mem->useHighMemory();	
+		
 		$this->_args = $args;
-
 		$command = $args[0];
 		$this->{'_' . $command}();
 	}
@@ -41,18 +50,60 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 		$size = round(strlen($content) / 1024 / 1024);
 		Garp_Cli::lineOut("Thanks for feeding me {$size} MB of data.");
 
-		$this->_parse($content);
+		$zipSet = new Garp_Service_PostcodeNl_Zipcode_Set($content);
+
+		$linesCountLabel = $this->_formatBigNumber(count($zipSet)); 
+		Garp_Cli::lineOut("Parsing {$linesCountLabel} lines.");
+
+		$question = "Do you want this data to overwrite\n"
+			. "existing entries for matching zip codes?\n"
+			. "Warning: this can remove richer data."
+		;
+		$overwrite = Garp_Cli::confirm($question);
+		$this->_storeZipSet($zipSet, $overwrite);
+
+		$stored = $this->_formatBigNumber($this->_storedZips);
+		Garp_Cli::lineOut("Stored {$stored} zipcodes.");
 	}
 
 	/**
- 	 * @param String $content The content of the CSV 6PP file
+ 	 * @param Garp_Service_PostcodeNl_Zipcode_Set $zipSet
+ 	 * @param Boolean $overwrite Whether to overwrite existing location entries matching these zipcodes.
  	 */
-	protected function _parse($content) {
-		$response = new Garp_Service_PostcodeNl_Response($content);
-		$linesCountLabel = number_format(count($response), 0, ',', '.'); 
-		Garp_Cli::lineOut("Parsing {$linesCountLabel} lines.");
+	protected function _storeZipSet(Garp_Service_PostcodeNl_Zipcode_Set &$zipSet, $overwrite) {
+		array_walk($zipSet, array($this, '_storeZip'), $overwrite);
+	}
 
-		return $response;
+	protected function _formatBigNumber($number) {
+		return number_format($number, 0, ',', '.'); 
+	}
+
+	protected function _storeZip(Garp_Service_PostcodeNl_Zipcode &$zip, $key, $overwrite) {
+		$model = new Model_Location();
+		$select = $model->select()->where('zip = ?', $zip->zipcode);
+		$existingRow = $model->fetchRow($select);
+
+
+		if ($existingRow && $overwrite) {
+			$model->delete('id = ' . $existingRow->id);
+		}
+
+		if (!$existingRow || $overwrite) {
+			$this->_insertZip($zip, $model);
+		}
+	}
+
+	protected function _insertZip(Garp_Service_PostcodeNl_Zipcode &$zip, Garp_Model_Db &$model) {
+		$newRow = array(
+			'zip' => $zip->zipcode,
+			'latitude' => $zip->latitude,
+			'longitude' => $zip->longitude,
+			'source' => self::SOURCE_LABEL
+		);
+
+		if ($model->insert($newRow)) {
+			$this->_storedZips++;
+		}
 	}
 
 	protected function _obligateFileParam() {
