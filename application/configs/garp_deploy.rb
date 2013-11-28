@@ -55,7 +55,7 @@ namespace :deploy do
       Disk.create_system_cache_dirs self, server_cache_dir
       Disk.create_static_cache_dir self, current_release
       Disk.create_log_dir self, current_release
-      Disk.set_blackhole_path_symlink_fix self
+      Disk.set_blackhole_path_symlink_fix self, current_release
       Garp.spawn
       Garp.update_version
       Garp.env_setup
