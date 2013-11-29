@@ -20,6 +20,7 @@ module Auth
       cap.run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/documents"
       cap.run "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/images"
       cap.run "chmod -R g+w,o+rx #{deploy_to}/shared/logs"
+      cap.run "chmod -R g+w,o+rx #{deploy_to}/shared/tags"
   end
 
   # Set webroot directory permissions
