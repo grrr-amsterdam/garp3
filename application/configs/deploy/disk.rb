@@ -7,6 +7,7 @@ module Disk
     cap.run "if [ ! -d '#{deploy_to}/shared/uploads/documents' ]; then mkdir -p #{deploy_to}/shared/uploads/documents; fi"
     cap.run "if [ ! -d '#{deploy_to}/shared/uploads/images' ]; then mkdir -p #{deploy_to}/shared/uploads/images; fi"
     cap.run "if [ ! -d '#{deploy_to}/shared/logs' ]; then mkdir -p #{deploy_to}/shared/logs; fi"
+    cap.run "if [ ! -d '#{deploy_to}/shared/tags' ]; then mkdir -p #{deploy_to}/shared/tags; fi";
   end
 
   # Fix casing
