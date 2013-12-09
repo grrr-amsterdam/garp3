@@ -38,6 +38,12 @@ class Garp_I18n_ModelFactory {
 	public function getModel($model) {
 		$this->_normalizeModel($model);
 		$langSuffix = ucfirst(strtolower($this->_language));
+		// Sanity check: is the model already localized?
+		if ($this->_modelIsLocalized($model)) {
+			throw new Garp_I18n_ModelFactory_Exception_ModelAlreadyLocalized(
+				"Looks like model $model is already internationalized."
+			);
+		}
 		$modelName = $model.$langSuffix;
 		$model = new $modelName();
 		return $model;
@@ -55,10 +61,20 @@ class Garp_I18n_ModelFactory {
 
 		$referenceMap = $bindingModel->getReferenceMapNormalized();
 		foreach ($referenceMap as $rule => $reference) {
+			// Check here wether we need to internationalize the refTableClass
+			$refModel = new $reference['refTableClass'];
+			if ($refModel->getObserver('Translatable')) {
+				try {
+					$refModel = $this->getModel($reference['refTableClass']);
+				} catch (Garp_I18n_ModelFactory_Exception_ModelAlreadyLocalized $e) {
+					continue;
+				}
+			}
+			$refTableClass = get_class($refModel);
 			$bindingModel->addReference(
 				$rule,
 				$reference['columns'],
-				get_class($this->getModel($reference['refTableClass'])),
+				$refTableClass,
 				$reference['refColumns']
 			);
 		}
@@ -93,5 +109,16 @@ class Garp_I18n_ModelFactory {
 			$model = get_class($model);
 		}
 		$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
+	}
+
+	protected function _modelIsLocalized($model) {
+		$languages = Garp_I18n::getLocales();
+		foreach ($languages as $lang) {
+			$langSuffix = ucfirst($lang);
+			if (preg_match("/[a-z0-9]+$langSuffix$/", $model)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

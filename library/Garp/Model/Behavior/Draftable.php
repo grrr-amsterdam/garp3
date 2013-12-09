@@ -113,10 +113,11 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 		if ($this->_config['draft_only']) {
 			return;
 		}
+
 		$ini = Zend_Registry::get('config');
 		$timezone = !empty($ini->resources->db->params->timezone) ? $ini->resources->db->params->timezone : null;
 		$timecalc = '';
-		if ($timezone == 'GMT') {
+		if ($timezone == 'GMT' || $timezone == 'UTC') {
 			$dstStart = strtotime('Last Sunday of March');
 			$dstEnd   = strtotime('Last Sunday of October');
 			$now      = time();
@@ -163,16 +164,20 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
  	 */
 	public function afterSave($model, $data) {
 		// Check if the 'published column' is filled...
-		if (!empty($data[self::PUBLISHED_COLUMN])) {
-			$publishTime = strtotime($data[self::PUBLISHED_COLUMN]);
-			// ...and that it's in the future
-			if ($publishTime > time()) {
-				$tags = array(get_class($model));
-				$tags = array_merge($tags, $model->getBindableModels());
-				$tags = array_unique($tags);
-				Garp_Cache_Manager::scheduleClear($publishTime, $tags);
-			}
+		if (empty($data[self::PUBLISHED_COLUMN])) {
+			return;
 		}
+
+		// ...and that it's in the future
+		$publishTime = strtotime($data[self::PUBLISHED_COLUMN]);
+		if ($publishTime <= time()) {
+			return;
+		}
+
+		$tags = array(get_class($model));
+		$tags = array_merge($tags, $model->getBindableModels());
+		$tags = array_unique($tags);
+		Garp_Cache_Manager::scheduleClear($publishTime, $tags);
 	}
 
 	/**

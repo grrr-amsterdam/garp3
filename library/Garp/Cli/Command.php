@@ -40,6 +40,17 @@ abstract class Garp_Cli_Command {
 		return false;
 	}
 
+	/**
+ 	 * Assists in bash completion
+ 	 * @return Boolean
+ 	 */
+	public function complete(array $args = array()) {
+		$publicMethods = $this->getPublicMethods();
+		$ignoredMethods = array('complete');
+		$publicMethods = array_diff($publicMethods, $ignoredMethods);
+		Garp_Cli::lineOut(implode(' ', $publicMethods));
+		return true;
+	}	
 
 	/**
  	 * Return a list of all public methods available on this command.
