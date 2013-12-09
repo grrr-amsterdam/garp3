@@ -14,7 +14,7 @@ class Garp_Model_Validator_Email extends Garp_Model_Validator_Abstract {
 	 * The regular expression used to validate email addresses
 	 * @var String
 	 */
-	const EMAIL_REGEXP = '/^([0-9a-zA-Z-_+]([-.\w]*[0-9a-zA-Z-_+])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$/';
+	const EMAIL_REGEXP = '/^|\s([0-9a-zA-Z-_+]([-.\w]*[0-9a-zA-Z-_+])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$|\s/';
 	
 	
 	/**
@@ -41,7 +41,7 @@ class Garp_Model_Validator_Email extends Garp_Model_Validator_Abstract {
 	 * @return Void
 	 * @throws Garp_Model_Validator_Exception
 	 */
-	public function validate(array $data, $onlyIfAvailable = true) {
+	public function validate(array $data, Garp_Model_Db $model, $onlyIfAvailable = true) {
 		$theColumns = $this->_fields;
 		$regexp = self::EMAIL_REGEXP;
 		$validate = function($c) use ($data, $onlyIfAvailable, $regexp) {
@@ -55,7 +55,11 @@ class Garp_Model_Validator_Email extends Garp_Model_Validator_Abstract {
 				return;
 			}
 			if (empty($data[$c]) || !preg_match($regexp, $data[$c])) {
-				throw new Garp_Model_Validator_Email_Exception("Column $c must contain a valid email address.");
+				$error = "Column $c must contain a valid email address.";
+				if (!empty($data[$c])) {
+					$error .= " Got {$data[$c]}.";
+				}
+				throw new Garp_Model_Validator_Email_Exception($error);
 			}
 		};
 		array_walk($theColumns, $validate);
