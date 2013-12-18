@@ -458,7 +458,7 @@ if (Ext.isIE) {
 						allowBlank: true,
 						fieldLabel: __('Open in new window'),
 						name: 'target',
-						checked: target !== null ? true : false
+						checked: target !== true ? true : false
 					}]
 				}],
 				buttonAlign: 'right',
