@@ -37,7 +37,7 @@ namespace :deploy do
   task :setup do
     transaction do
       Auth.add_public_ssh_keys self, ssh_keys
-      Webroot.find_webroot self, deploy_to
+      Webroot.find_webroot self, deploy_to, current_task
       Auth.mark_git_server_safe self
 
 	  Disk.create_deploy_dirs self, deploy_to
