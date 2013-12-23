@@ -2,6 +2,8 @@ Ext.ns('Garp.dataTypes');
 Garp.dataTypes.Image.on('init', function(){
 
 	this.iconCls = 'icon-img';
+	
+	this.defaultData.filename = null;
 
 	// Thumbnail column:
 	this.insertColumn(0, {
@@ -14,6 +16,7 @@ Garp.dataTypes.Image.on('init', function(){
 	});
 
 	this.addListener('loaddata', function(rec, formPanel){
+		
 		function updateUI(){
 			formPanel.preview.update(Garp.renderers.imagePreviewRenderer(rec.get('filename'), null, rec));
 			formPanel.download.update({
@@ -93,12 +96,11 @@ Garp.dataTypes.Image.on('init', function(){
 						});
 						this.refOwner.fireEvent('save-all');
 					} else {
-						field.originalValue = ''; // mark dirty
+						this.refOwner.get(0).get(0).fireEvent('loaddata', this.refOwner.rec, this.refOwner);
 						this.refOwner.preview.update(Garp.renderers.uploadedImagePreviewRenderer(val));
 						this.refOwner.download.update({
 							filename: val
 						});
-						this.refOwner.fireEvent('save-all');
 					}
 					return true;
 				}
