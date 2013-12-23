@@ -1,8 +1,8 @@
 Ext.ns('Garp.dataTypes');
 Garp.dataTypes.Image.on('init', function(){
-	
+
 	this.iconCls = 'icon-img';
-	
+
 	// Thumbnail column:
 	this.insertColumn(0, {
 		header: '<span class="hidden">' + __('Image') + '</span>',
@@ -12,7 +12,7 @@ Garp.dataTypes.Image.on('init', function(){
 		renderer: Garp.renderers.imageRelationRenderer,
 		hidden: false
 	});
-	
+
 	this.addListener('loaddata', function(rec, formPanel){
 		function updateUI(){
 			formPanel.preview.update(Garp.renderers.imagePreviewRenderer(rec.get('filename'), null, rec));
@@ -33,12 +33,12 @@ Garp.dataTypes.Image.on('init', function(){
 			formPanel.center();
 		}
 	}, true);
-	
-	
-	// Remove these fields, cause we are about to change the order and appearance of them... 
+
+
+	// Remove these fields, cause we are about to change the order and appearance of them...
 	this.removeField('filename');
 	this.removeField('id');
-	
+
 	var fDesc = this.getField('filename_info');
 	if (fDesc) {
 		this.removeField('filename_info');
@@ -51,7 +51,7 @@ Garp.dataTypes.Image.on('init', function(){
 			fieldLabel: ' '
 		};
 	}
-	
+
 	// ...include them again:
 	this.insertField(0, {
 		xtype: 'fieldset',
@@ -71,7 +71,7 @@ Garp.dataTypes.Image.on('init', function(){
 			emptyText: __('Drag image here, or click browse button'),
 			uploadURL: BASE + 'g/content/upload/type/image',
 			ref: '../../../../filename',
-			
+
 			listeners: {
 				'change': function(field, val){
 					if (this.refOwner._id.getValue()) {
@@ -83,9 +83,9 @@ Garp.dataTypes.Image.on('init', function(){
 						if (DEBUG) {
 							url += '#DEBUG';
 						}
-						
-						// because images won't reload if their ID is 
-						// still the same, we need to reload the page 
+
+						// because images won't reload if their ID is
+						// still the same, we need to reload the page
 						this.refOwner.formcontent.on('loaddata', function(){
 							var lm = new Ext.LoadMask(Ext.getBody());
 							lm.show();
@@ -118,38 +118,38 @@ Garp.dataTypes.Image.on('init', function(){
 			tpl: new Ext.XTemplate('<tpl if="filename">', '<a href="' + IMAGES_CDN + '{filename}" target="_blank">' + __('View original file') + '</a>', '</tpl>')
 		}]
 	});
-	
-	
+
+
 	// Wysiwyg Editor
 	this.Wysiwyg = Ext.extend(Garp.WysiwygAbstract, {
-	
+
 		model: 'Image',
-		
+
 		idProperty: 'id',
-		
+
 		settingsMenu: true,
-		
+
 		margin: 0,
-		
+
 		getData: function(){
 			return {
 				id: this._data.id,
 				caption: this._data.caption
 			};
 		},
-		
+
 		// override: we don't need filtering for images:
 		filterHtml: function(){
 			return true;
 		},
-		
-		
+
+
 		setCaption: function(text){
 			this._data.caption = text;
 			this.el.child('.caption').update(text);
 			this.el.child('.caption').setDisplayed( text ? true : false);
 		},
-		
+
 		showCaptionEditor: function(setPosition){
 			if (!this.captionEditor) {
 				this.captionEditor = new Ext.Editor({
@@ -164,9 +164,9 @@ Garp.dataTypes.Image.on('init', function(){
 				});
 			}
 			this.el.child('.caption').setDisplayed(true);
-			// if the user clicks the upper 'settings' menu; the caption el should be displayed there, 
+			// if the user clicks the upper 'settings' menu; the caption el should be displayed there,
 			//... not below the image, where it might be "below the fold"
-			if (!setPosition) { 
+			if (!setPosition) {
 				this.el.child('.caption').setStyle('position', 'static');
 			}
 			this.captionEditor.startEdit(this.el.child('.caption'), this._data.caption);
@@ -175,22 +175,25 @@ Garp.dataTypes.Image.on('init', function(){
 				this.el.child('.caption').setStyle('position','absolute');
 			}, this);
 		},
-		
+
 		getMenuOptions: function(){
-			return [{
-				group: '',
-				text: 'Add / remove caption',
-				handler: this.showCaptionEditor.createDelegate(this, [false])
-			},{
-				group :'',
-				text: __('Add / remove animation classes'),
-				handler: this.showAnimClassesDialog
-			}];
-			
+			return [
+			// {
+			// 	group: '',
+			// 	text: 'Add / remove caption',
+			// 	handler: this.showCaptionEditor.createDelegate(this, [false])
+			// },
+			// {
+			// 	group :'',
+			// 	text: __('Add / remove animation classes'),
+			// 	handler: this.showAnimClassesDialog
+			// }
+			];
+
 		},
-		
-		
-		
+
+
+
 		/**
 		 * After pick:
 		 */
@@ -203,9 +206,9 @@ Garp.dataTypes.Image.on('init', function(){
 			args.shift();
 			afterInitCb.call(this, args);
 		},
-		
+
 		/**
-		 * 
+		 *
 		 * @param {Object} afterInitCb
 		 */
 		beforeInit: function(afterInitCb){
@@ -231,7 +234,7 @@ Garp.dataTypes.Image.on('init', function(){
 			});
 			picker.show();
 		},
-		
+
 		/**
 		 * Sets content height based on width (maintains aspect ratio)
 		 * @param {Number} new width
@@ -247,13 +250,13 @@ Garp.dataTypes.Image.on('init', function(){
 			}
 			return nHeight;
 		},
-		
-		
+
+
 		setContent: function(){
 			this.contentEditableEl = this.el.child('.contenteditable');
 			this.contentEditableEl.update('');
 			this.contentEditableEl.dom.setAttribute('contenteditable', false);
-			
+
 			var i = new Image();
 			var scope = this;
 			var path = IMAGES_CDN + 'scaled/cms_preview/' + this._data[this.idProperty];
@@ -265,30 +268,30 @@ Garp.dataTypes.Image.on('init', function(){
 				scope.contentEditableEl.update('<div class="img">' + __('Image not found') + '</div>');
 			};
 			i.onload = function(){
-				
+
 				Ext.apply(scope._data, {
 					width: i.width,
 					height: i.height
 				});
-				
+
 				scope.contentEditableEl.setStyle({
 					position: 'relative',
 					padding: 0
 				});
-				
+
 				scope.contentEditableEl.update('<div class="img"></div><p class="caption"></p>');
 				scope.contentEditableEl.child('.img').setStyle({
 					backgroundImage: 'url("' + path + '")'
 				});
-				var captionEl = scope.contentEditableEl.child('.caption');
-				if (scope._data.caption) {
-					captionEl.update(scope._data.caption);
-					captionEl.show();
-					captionEl.on('click', scope.showCaptionEditor, scope);
-				} else {
-					captionEl.hide();
-				}
-				
+				// var captionEl = scope.contentEditableEl.child('.caption');
+				// if (scope._data.caption) {
+				// 	captionEl.update(scope._data.caption);
+				// 	captionEl.show();
+				// 	captionEl.on('click', scope.showCaptionEditor, scope);
+				// } else {
+				// 	captionEl.hide();
+				// }
+
 				scope.resizeContent(scope.contentEditableEl.getWidth());
 				if (scope.ownerCt) {
 					scope.ownerCt.doLayout();
@@ -299,15 +302,15 @@ Garp.dataTypes.Image.on('init', function(){
 				i.onload();
 			}
 		},
-			
+
 		/**
 		 * init!
 		 * @param {Object} ct
 		 */
 		initComponent: function(ct){
-			
-			this.html += '<div class="contenteditable"></div>'; 
-		
+
+			this.html += '<div class="contenteditable"></div>';
+
 			this.addClass('wysiwyg-image');
 			this.addClass('wysiwyg-box');
 			if (this.col) {
