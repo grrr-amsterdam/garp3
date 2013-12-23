@@ -3,7 +3,7 @@ Garp.dataTypes.Image.on('init', function(){
 
 	this.iconCls = 'icon-img';
 	
-	this.defaultData.filename = null;
+	//this.defaultData.filename = null;
 
 	// Thumbnail column:
 	this.insertColumn(0, {
