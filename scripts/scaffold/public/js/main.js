@@ -1,0 +1,4 @@
+$(function() {
+	MBP.scaleFix();
+	
+});

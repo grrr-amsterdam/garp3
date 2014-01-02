@@ -1,0 +1,37 @@
+<?php
+$r = 0;
+$modelsPerRow = 5;
+$totalModels = count($this->models);
+$jsModels = array();
+
+foreach ($this->models as $model) {
+	$jsModels[$model->id] = array();
+	$m = &$jsModels[$model->id];
+
+	//$m['label'] = lcfirst($model->label);
+	$m['relations'] = $model->relations->getRelations();
+}
+
+?>
+<?php foreach ($this->models as $model): ?>
+	<a href="#" class="model" id="<?php echo $model->id ?>">
+		<div class="content_container">
+			<div class="content">
+				<h2><?php echo lcfirst($model->label) ?></h2>
+				<ul class="fields">
+					<?php $fields = $model->fields->getFields('editable', true); ?>
+					<?php foreach ($fields as $field): ?>
+					<li class="field"><?php echo str_replace('_', ' ', $field->name) ?></li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+		</div>
+	</a>
+	<?php $r++; ?>
+<?php endforeach; ?>
+
+<canvas id="canvas"></canvas>
+
+<script>
+	var modelData = <?php echo json_encode($jsModels) ?>;
+</script>
