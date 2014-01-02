@@ -1,0 +1,120 @@
+These are sample scripts that show how to use Amazon Simple Email Service 
+(Amazon SES) from the command line.  To learn more about these scripts, see 
+the Amazon SES Developer Guide. 
+
+PREREQUISITES
+-------------
+Before running these scripts, you must fulfill the following prerequisites:
+
+* You must have an Amazon Web Services account, and must also sign up for 
+  Amazon SES.  See the Amazon SES Getting Started Guide 
+  for more information.
+
+* You must install Perl version 5.6.0 or later.  If you already have Perl 
+  installed, you can determine your version number by typing
+
+      perl -v
+
+  at the command prompt.  If you do not have Perl installed, go to 
+  http://www.perl.org for more information.
+
+* Depending on the version of Perl that you are using, you may need to install
+  some additional Perl modules.  To install these modules, run the following
+  commands:
+
+      perl -MCPAN -e 'install Digest::SHA'
+      perl -MCPAN -e 'install URI::Escape'
+      perl -MCPAN -e 'install Bundle::LWP'
+      perl -MCPAN -e 'install MIME::Base64'
+      perl -MCPAN -e 'install Crypt::SSLeay'
+      perl -MCPAN -e 'install XML::LibXML'
+
+INSTALLATION
+------------
+To install these scripts, copy them to a directory of your choice.  We suggest 
+that you copy them to /opt/third-party/amazon/ses.  You might need 
+administrative privileges to do this.
+
+Help is available for these scripts - simply run one of them with the "--help"
+parameter.  Here is an example:
+
+      ses-get-stats.pl --help
+      Usage:
+         ses-get-stats.pl [--help] [-e URL] [-k FILE] [--verbose] -s | -q
+
+For more information, please refer to the Amazon SES Developer Guide.
+
+AWS CREDENTIALS FILE
+--------------------
+Each of these Amazon SES scripts requires an AWS credentials file.  To prepare 
+an AWS credentials file, follow these instructions:
+
+* Create a new text file.  In our example, we call it "aws-credentials".
+
+* Go to http://aws.amazon.com and look up your AWS credentials:  Click on 
+Account, and then Security Credentials.
+
+* Copy your Access Key ID and Secret Access Key into the "aws-credentials" file.
+
+* Change the permissions on the file so that only you have read/write access.
+(This step is *very* important, because no one else should see your Secret 
+Access Key.)
+
+* Your credentials file should look similar to the following:
+AWSAccessKeyId=022QF06E7MXBSH9DHM02
+AWSSecretKey=kWcrlUX5JEDGM/LtmEENI/aVmYvHNif5zB+d9+ct
+
+You can now use this AWS credentials file with the "-k" parameter when running
+any of the Amazon SES scripts.  For example:
+
+      ses-get-stats.pl -k aws-credentials -s
+
+TROUBLESHOOTING
+---------------
+
+* Command not found:
+
+      This means that your command line interpreter (or shell) cannot find the 
+      script.  Try running it again with a fully qualified path name, such as:
+
+         /opt/third-party/amazon/ses/bin/ses-send-email.pl 
+
+      If you change your current working directory to this location, you can 
+      run the script as follows:
+
+         ./ses-send-email.pl
+
+      Alternatively, you can include your current working directory in your 
+      PATH variable, so that you can run the script without prepending "./". 
+
+* /usr/bin/perl: bad interpreter: No such file or directory:
+
+      By default, these scripts expect the Perl interpreter to be located at 
+      "/usr/bin/perl".  If the Perl interpreter is installed elsewhere, or not
+      installed at all, you will receive the error message printed above.  
+
+      To correct this, you can edit the first line in the script so that it
+      refers to your Perl installation (for example, /opt/third-party/bin/perl).
+      You can also specify your Perl interpreter on the command line:
+
+         /opt/third-party/bin/perl ./ses-send-email.pl
+
+* Can't locate SES.pm in @INC:
+
+      Each of the Amazon SES scripts require the "SES.pm" Perl module.  This
+      error means that Perl could not find SES.pm in the list of directories 
+      where Perl modules are located.  By default, the Amazon SES scripts 
+      expect SES.pm to reside in the same directory as the scripts themselves.
+      To correct this error, try one of the following:
+
+      1) Before running the script, set the PERL5LIB variable to the directory
+      where SES.pm is located.  For example:
+         export PERL5LIB=/opt/third-party/amazon/ses
+
+      2) Modify the scripts so that they can find SES.pm in the correct
+      directory:
+         use lib '/opt/third-party/amazon/ses';
+
+      3) Use the "-I" command line switch to add the specified search path to 
+      Perl's list of module directories:
+         perl -I/opt/third-party/amazon/ses ./ses-send-email.pl 

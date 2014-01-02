@@ -1,0 +1,66 @@
+# pass the default character set
+AddDefaultCharset UTF-8
+
+SetEnvIf Host ^loc\.(.*) APPLICATION_ENV=development
+SetEnvIf Host ^dev\.(.*) APPLICATION_ENV=staging
+SetEnvIf Host gargamel.nl$ APPLICATION_ENV=staging
+
+php_value upload_max_filesize 30M
+php_value post_max_size 30M
+
+# Force the latest IE version, in various cases when it may fall back to IE7 mode
+#  github.com/rails/rails/commit/123eb25#commitcomment-118920
+# Use ChromeFrame if it's installed for a better experience for the poor IE folk
+<IfModule mod_setenvif.c>
+	<IfModule mod_headers.c>
+		BrowserMatch MSIE ie
+		Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
+	</IfModule>
+</IfModule>
+
+# cache rules
+<IfModule mod_expires.c>
+	ExpiresActive on
+
+	# rss feed
+	ExpiresByType application/rss+xml       "access plus 1 hour"
+
+	# favicon (cannot be renamed)
+	ExpiresByType image/vnd.microsoft.icon  "access plus 1 week" 
+
+	# webfonts
+	ExpiresByType font/truetype             "access plus 1 month"
+	ExpiresByType font/opentype             "access plus 1 month"
+	ExpiresByType font/woff                 "access plus 1 month"
+	ExpiresByType image/svg+xml             "access plus 1 month"
+	ExpiresByType application/vnd.ms-fontobject "access plus 1 month"
+
+	# css and javascript
+	ExpiresByType text/css                  "access plus 1 month"
+	ExpiresByType application/javascript    "access plus 1 month"
+	ExpiresByType text/javascript           "access plus 1 month"
+
+	Header append Cache-Control "public"
+</IfModule>
+
+
+# rewrite rules
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	# allow versioning of asset files (e.g. /123/css/screen.css)
+	RewriteRule ^(v\d+)/(css|js|media)/(.*) $2/$3 [L]
+
+	# admin route
+	RewriteRule ^admin /g/content/admin [R,L]
+
+	# require www
+	RewriteCond %{HTTP_HOST} ^dish2011\.nl$ [NC]
+	RewriteRule ^(.*)$ http://www.dish2011.nl/$1 [R=301,L]
+	
+	RewriteCond %{REQUEST_FILENAME} -s [OR]
+	RewriteCond %{REQUEST_FILENAME} -l [OR]
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteRule ^.*$ - [NC,L]
+	RewriteRule ^.*$ index.php [NC,L]
+</IfModule>

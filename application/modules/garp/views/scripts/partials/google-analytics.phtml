@@ -1,0 +1,13 @@
+<?php
+if (!$this->analyticsId):
+	throw new Exception('No Google Analytics ID given.');
+endif;
+if (APPLICATION_ENV === 'production'):
+?>
+<script>
+	window._gaq = [['_setAccount','<?php echo $this->analyticsId ?>'],['_trackPageview'],['_trackPageLoadTime']];
+  Modernizr.load({
+    load: ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js'
+  });
+</script>
+<?php endif; ?>
