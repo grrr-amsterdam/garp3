@@ -1,0 +1,14 @@
+Greetings fellow nerd!
+
+The namespace Garp_3rdParty_Ext_ contains classes that are custom extentions on 3rd party libraries.
+Please follow this convention...
+
+Garp_3rdParty_Ext_<libraryName>_<etc>_<etc>
+
+...where <libraryName> is the name of the 3rd party library.
+
+This namespace exists so that 3rd party libraries can be updated without messing up Garp-specific custom extentions.
+
+
+As you were.
+H.

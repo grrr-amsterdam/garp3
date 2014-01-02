@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Garp RichTextEditor - Test Environment</title>
+		<script type="text/javascript" src="../ext-3.3.1/adapter/ext/ext-base-debug.js"></script>
+		<script type="text/javascript" src="../ext-3.3.1/ext-all-debug.js"></script>
+		<!--<link rel="shortcut icon" type="image/x-icon" href="/images/garp/icons/favicon.png">-->
+		<link rel="stylesheet" href="../ext-3.3.1/resources/css/ext-all.css" type="text/css">
+		<link rel="stylesheet" href="../ext-3.3.1/resources/css/xtheme-gray.css" type="text/css">
+		<link rel="stylesheet" href="/css/garp/icons.css" type="text/css">
+		<link rel="stylesheet" href="/css/garp/garp.css" type="text/css">
+	</head>
+	<body>
+		<!-- Required fields for history management -->
+		<form id="history-form" class="x-hidden" action="">
+    		<input type="hidden" id="x-history-field">
+    		<iframe id="x-history-frame"></iframe>
+		</form>
+		<script type="text/javascript" src="../overrides.js"></script>
+		<script type="text/javascript" src="../garp.config.js"></script>
+		<script type="text/javascript" src="../extux/ext.ux.form.searchfield.js"></script>
+		<script type="text/javascript" src="../garp.imagepickerwindow.js"></script>
+		<script type="text/javascript" src="../extux/ext.ux.form.richtexteditor.js"></script>
+		<script type="text/javascript" src="../garp.imageeditor.js"></script>
+		
+		<!-- Garp components -->
+		<script>
+			Ext.QuickTips.init();
+			CDN = window.location.protocol + '//' + window.location.host;
+			BASE = '/';
+			ASSET_VERSION = Math.floor(Math.random()*99999);
+			var str = '<p>Contrary to popular belief, Lorem Ipsum is<br>a<br>b<br>c<br><br>def<br><br><br><li></li> not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p><dl class="figure" style="float: left;"><dt><img src="sneeuw.jpg"> </dt><dd>Sneeuw</dd></dl><p>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance.The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p><p>beer<br>bla<br><br>aap</p>';
+			
+			var viewport = new Ext.Viewport({
+				layout:'border',
+				items:[{
+					region: 'north',
+					title: 'Garp RichTextEditor - Test Environment'
+				},{
+					region: 'center',
+					id: 'rte',
+					xtype: 'richtexteditor',
+					value: str
+				}]
+			});
+			
+			field = Ext.getCmp('rte'); // debug
+			/*
+			var win = new Ext.Window({
+				title: 'Garp Image Cropper',
+				iconCls: 'icon-image',
+				modal: true,
+				maximizable: true,
+				layout:'fit',
+				width: 800,
+				height: 500,
+				items: [new Garp.ImageEditor({
+					image: 'sneeuw.jpg'
+				})]
+			});
+			win.show();
+			*/
+		</script>
+	</body>
+</html>
