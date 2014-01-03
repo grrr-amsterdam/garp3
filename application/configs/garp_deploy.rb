@@ -35,9 +35,8 @@ after "deploy:update_code", "deploy:cleanup"
 namespace :deploy do
   desc "Set up server instance"
   task :setup do
-    transaction do
       Auth.add_public_ssh_keys self, ssh_keys
-      Webroot.find_webroot self, deploy_to
+      Webroot.find_webroot self, deploy_to, current_task
       Auth.mark_git_server_safe self
 
 	  Disk.create_deploy_dirs self, deploy_to
@@ -45,7 +44,6 @@ namespace :deploy do
       create_webroot_reroute_htaccess
       Crontab.install_crontab self, deploy_to, garp_env
       prompt_to_set_newly_found_deploy_dir
-    end
   end
 
   desc "Deploy project"

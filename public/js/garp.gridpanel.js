@@ -148,6 +148,18 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	},
 	
 	/**
+	 * @function loadStoreWithDefaults
+	 * Conveniently load the store with potential filter defaults.
+	 */
+	loadStoreWithDefaults: function(){
+		if (this.filterMenu && this.filterMenu.defaultFilter) {
+			this.filterMenu.defaultFilter.handler(this.filterMenu.defaultFilter);
+		} else {
+			this.getStore().load();
+		}
+	},
+	
+	/**
 	 * @function selectAll
 	 * Selects all items on the grid -if not disabled-, or clears all selection(s).
 	 */
@@ -337,6 +349,8 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			}
 		}
 		
+		this.filterMenu = new Garp.FilterMenu();
+		
 		this.store = new Ext.data.DirectStore({
 			autoLoad: false,
 			autoSave: false,
@@ -409,7 +423,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 				pageSize: Garp.pageSize,
 				displayInfo: true,
 				store: this.store,
-				plugins: [new Garp.FilterMenu()]
+				plugins: [this.filterMenu]
 			}),
 			tbar: new Ext.ux.Searchbar({
 				layout: 'hbox',
