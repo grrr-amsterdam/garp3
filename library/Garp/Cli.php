@@ -24,13 +24,19 @@ class Garp_Cli {
 	 * @param String $s The string.
 	 * @param String $color Show string in color?
 	 * @param Boolean $appendNewline Wether to add a newline character
+	 * @param Boolean $echo Wether to echo
 	 * @return Void
 	 */
-	public static function lineOut($s, $color = null, $appendNewline = true) {
+	public static function lineOut($s, $color = null, $appendNewline = true, $echo = true) {
 		if ($color) {
 			self::addStringColoring($s, $color);
 		}
-		echo "{$s}".($appendNewline ? "\n" : '');
+		$out = "{$s}".($appendNewline ? "\n" : '');
+		if ($echo) {
+			print $out;
+		} else {
+			return $out;
+		}
 	}
 
 
