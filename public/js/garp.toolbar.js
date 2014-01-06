@@ -108,7 +108,9 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 								
 								var pw = Garp.gridPanel.ownerCt.getWidth();
 								Garp.gridPanel.getSelectionModel().clearSelections();
-								Garp.formPanel.ownerCt.collapse();
+								if (Garp.formPanel.ownerCt.collapse) {
+									Garp.formPanel.ownerCt.collapse();
+								}
 								Garp.gridPanel.ownerCt.collapse();
 								Garp.gridPanel.ownerCt.setWidth(640);
 								Garp.gridPanel.ownerCt.expand();
@@ -135,7 +137,9 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 									});
 									
 									Garp.gridPanel.ownerCt.setWidth(pw);
-									Garp.formPanel.ownerCt.expand();
+									if (Garp.formPanel.ownerCt.expand) {
+										Garp.formPanel.ownerCt.expand();
+									}
 									Garp.gridPanel.ownerCt.expand();
 									Garp.viewport.doLayout();
 									
