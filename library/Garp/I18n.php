@@ -114,7 +114,7 @@ class Garp_I18n {
  	 */
 	public static function languageToTerritory($lang) {
 		$config = Zend_Registry::get('config');
-		$territory = isset($config->resources->locale->territories) ? $config->resources->locale->territories->{$lang} : Zend_Locale::getLocaleToTerritory($lang);
+		$territory = isset($config->resources->locale->territories->{$lang}) ? $config->resources->locale->territories->{$lang} : Zend_Locale::getLocaleToTerritory($lang);
 		return $territory;
 	}
 }
