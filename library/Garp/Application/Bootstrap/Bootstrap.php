@@ -24,7 +24,6 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 		//Zend_Loader_PluginLoader::setIncludeFileCache($classFileIncCache);
 	}
 
-
 	/**
 	 * Load essential Garp Helpers
 	 * @return Void
@@ -39,7 +38,6 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 		$this->getResource('View')->addHelperPath(APPLICATION_PATH.'/modules/default/views/helpers', 'App_View_Helper');
 		$this->getResource('View')->addHelperPath(GARP_APPLICATION_PATH.'/modules/g/views/helpers', 'G_View_Helper');
 	}
-
 
 	/**
  	 * Combine the static info found in application.ini with the dynamic info found in the Info table.
@@ -72,16 +70,5 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 				}
 			}
 		}
-	}
-
-
-	/**
- 	 * Set locale
- 	 * @return Void
- 	 */
-	protected function _initSetLocale() {
-		$config = Zend_Registry::get('config');
-		$locale = $config->app->locale;
-		setlocale(LC_ALL, $locale);
 	}
 }
