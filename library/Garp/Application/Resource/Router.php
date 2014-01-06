@@ -88,6 +88,8 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 		;
 
 		$lang = $this->_getCurrentLanguage();
+		$territory = Garp_I18n::languageToTerritory($lang);
+		setlocale(LC_ALL, $territory);
 
 		if (
 			$this->_localeIsEnabled() &&
@@ -134,7 +136,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
  	 */
 	protected function _getCurrentLanguage() {
 		if (!isset($_SERVER['REQUEST_URI'])) {
-			// Probably CLI context. Return the default route
+			// Probably CLI context. Return the default locale
 			return Garp_I18n::getDefaultLocale();
 		}
 		$requestUri = $_SERVER['REQUEST_URI'];

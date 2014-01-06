@@ -21,7 +21,6 @@ class Garp_I18n {
 		return Zend_Registry::get('Zend_Locale')->getLanguage();
 	}
 	
-	
 	/**
 	 * Return the default locale (as defined in application.ini)
 	 * @return String
@@ -38,7 +37,6 @@ class Garp_I18n {
 		}
 		return $default;
 	}
-	
 	
 	/**
 	 * Return a list of all possible locales
@@ -107,5 +105,16 @@ class Garp_I18n {
 			}
 		}
 		return $localizedRoutes;
+	}
+
+	/**
+ 	 * Go from language to territory
+ 	 * @param String $lang
+ 	 * @return String
+ 	 */
+	public static function languageToTerritory($lang) {
+		$config = Zend_Registry::get('config');
+		$territory = isset($config->resources->locale->territories) ? $config->resources->locale->territories->{$lang} : Zend_Locale::getLocaleToTerritory($lang);
+		return $territory;
 	}
 }
