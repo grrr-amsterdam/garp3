@@ -205,7 +205,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 				(
 					!$field->required || $field->primary ||
 					$field->type === 'datetime' || $field->type === 'date' || $field->type === 'time' ||
-					$field->type === 'enum'
+					$field->type === 'enum' || $field->type === 'imagefile' || $field->type === 'document'
 				) ?
 					'null' :
 					(
