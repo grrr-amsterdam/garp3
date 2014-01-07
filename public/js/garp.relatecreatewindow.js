@@ -63,7 +63,8 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			writer: this.writer
 		});
 		
-		var items = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0]);
+		//var items = Ext.decode(Ext.encode(Ext.apply({}, Garp.dataTypes[this.model]).formConfig[0])); // cheap deep copy //@TODO: improve
+		var items = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0]); // better copy
 		var listeners = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].listeners);
 		items = {
 			ref: '../formcontent',
@@ -102,7 +103,23 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			text: __('Ok'),
 			ref: '../okBtn',
 			handler: function(){
-				this.saveAll(true);
+				this.form.getForm().updateRecord(this.rec);
+				if (this.store.getModifiedRecords().length) {
+					this.store.on({
+						'save': {
+							fn: function(){
+								this.fireEvent('aftersave', this, this.rec);
+								this.close();
+							},
+							single: true,
+							scope: this
+						}
+					});
+					this.saveAll();
+				} else {
+					this.fireEvent('aftersave', this, this.rec);
+					this.close();
+				}
 			},
 			scope: this
 		}]);
@@ -110,14 +127,12 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 		Garp.RelateCreateWindow.superclass.initComponent.call(this);
 	},
 	
-	saveAll: function(doClose){
-		if (!this.form.getForm().isValid()) {
-			this.form.getForm().items.each(function(){
-				this.isValid(); // marks the field also visually invalid if needed
-			});
-			return;
-		}
+	saveAll: function(){
+	
+		this.rec.reject();
+		this.rec.beginEdit();
 		this.form.getForm().updateRecord(this.rec);
+		this.rec.endEdit();
 		this.store.on({
 			'save': {
 				fn: function(){
@@ -127,22 +142,26 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 					}
 					this.fireEvent('aftersave', this, this.rec);
 					this.loadMask.hide();
-					if (doClose) {
-						this.close();
-					}
+					//this.close();
 				},
 				single: true,
 				scope: this
 			}
 		});
-		if(this.store.save() !== -1){
-			this.loadMask = new Ext.LoadMask(this.getEl());
+		
+		this.loadMask = new Ext.LoadMask(this.getEl(), {
+			store: this.store
+		});
+		
+		if (this.store.getModifiedRecords().length) {
 			this.loadMask.show();
+			this.store.save();
 		}
 	},
 	
 	afterRender: function(){
 		Garp.RelateCreateWindow.superclass.afterRender.call(this);
+		this.form.getForm().remove(this.form.getForm().findField('id'));
 		this.form.getForm().setValues(Garp.dataTypes[this.model].defaultData);
 		if (this.onShow) {
 			this.onShow.call(this);
@@ -162,6 +181,8 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			this.quickCreatableInit();
 			this.getForm().clearInvalid();
 			if (this.quickCreateReference) {
+				console.info(this.quickCreateReference);
+				console.info(this.parentId);
 				var id = this.parentId || Garp.gridPanel.getSelectionModel().getSelected().get('id');
 				this.getForm().findField(this.quickCreateReference).store.on('load', function(){
 					this.getForm().findField(this.quickCreateReference).setValue(id);

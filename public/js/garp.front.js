@@ -353,6 +353,7 @@ Garp.Browsebox = function(config){
 	*/
 	this.afterLoad = function(data, options){
 		if (this.append) {
+			console.log('boem!');
 			$('.bb-next', $('#' + this.id)).replaceWith(Garp.innerShiv(data));
 		} else {
 			$('#' + this.id).html(Garp.innerShiv(data));
@@ -1308,7 +1309,7 @@ Garp.Twitter = function(config){
 Garp.constrain = function(i){
 	var max = arguments[2];
 	var min = arguments[1];
-	if(typeof max != 'number'){
+	if(typeof max != 'Number'){
 		min = 0;
 		max = arguments[1];
 	}

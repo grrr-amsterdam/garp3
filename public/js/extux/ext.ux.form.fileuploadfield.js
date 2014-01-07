@@ -119,12 +119,9 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
     },
     
     reset : function(){
-		// Added by PP for i18n fieldset support; our parent may have removed us, so no reset is needed 
-		if (this.fileInput) {
-			this.fileInput.remove();
-			this.createFileInput();
-			this.bindListeners();
-		}
+        this.fileInput.remove();
+        this.createFileInput();
+        this.bindListeners();
         Ext.ux.form.FileUploadField.superclass.reset.call(this);
     },
 
