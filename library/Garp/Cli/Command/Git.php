@@ -21,43 +21,15 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 		passthru('git config core.fileMode false');
 		// configure color.ui
 		passthru('git config color.ui auto');
-		// checkout branch master in Garp submodule
-		// sanity check: do we have a garp folder?
-		if (is_dir('garp')) {
-			chdir('garp');
-			$branches = `git branch`;                                                               
-			$branches = explode("\n", $branches);
-			// only checkout master if it's currently not on any branch
-			if ($branches[0] == '* (no branch)') {
-				passthru('git checkout master');
-			}
-			// change dir back
-			chdir('..');
-		}
-		
+
 		// setup git hook for updating APP_VERSION... 
 		$hookSource = 'garp/scripts/util/post-commit';
 		$hookTarget = '.git/hooks/post-commit';
-		$this->_moveGitHook($hookSource, $hookTarget);
-		// ...and GARP_VERSION
-		$hookSource = 'garp/scripts/util/garp-post-commit';
-		// This one's tricky, because the hooks location seems to have changed 
-		// in recent versions.
-		// But that's why we have if statements
-		if (is_dir('garp/.git/hooks')) {
-			$hookTarget = 'garp/.git/hooks/post-commit';
-		} elseif (is_dir('.git/modules/garp/hooks')) {
-			$hookTarget = '.git/modules/garp/hooks/post-commit';
-		} else {
-			Garp_Cli::errorOut('I can\'t find the Garp hooks directory. Please check your setup for errors.');
-			return false;
-		}
 		$this->_moveGitHook($hookSource, $hookTarget);
 
 		Garp_Cli::lineOut('Done.');
 		return true;
 	}
-
 
 	/**
  	 * Move Git Hook into place
@@ -83,7 +55,6 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 		}		
 	}
 
-
 	/**
  	 * Automatically pulls submodules as well.
  	 * @param Array $args No arguments required, passing some will result in error.
@@ -96,7 +67,6 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 		}
 		passthru('git pull --recurse-submodules && git submodule foreach git pull');
 	}
-
 
 	/**
  	 * Commit a submodule
@@ -164,7 +134,6 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 		passthru('git commit -m \''.$submoduleCommitMessage.'\'');
 	}
 
-
 	/**
  	 * Help
  	 */
@@ -180,4 +149,5 @@ class Garp_Cli_Command_Git extends Garp_Cli_Command {
 		Garp_Cli::lineOut('  g Git commitSubmodule garp --m=\'<your commit message>\'', Garp_Cli::BLUE);
 		Garp_Cli::lineOut('');
 	}
+
 }
