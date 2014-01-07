@@ -15,18 +15,12 @@ Garp.FilterMenu = function(){
 		 */
 		this.tb = tb;
 		
-		this.defaultFilter = {
-			text: __('All'),
-			ref: 'all'
-		};
-		
 		/**
-		 * Resets the button and the menu. (Provides only visual feedback: no filter applied)
+		 * Resets the button and the menu. (Provides visual feedback: no filter applied)
 		 */
 		this.resetUI = function(){
 			this.tb.filterBtn.setIconClass('icon-filter-off');
 			this.tb.filterBtn.menu.all.setChecked(true);
-			this.tb.filterStatus.hide();
 		};
 		
 		/**
@@ -41,7 +35,11 @@ Garp.FilterMenu = function(){
 				});
 			}
 			var model = Garp.dataTypes[Garp.currentModel];
-			menuOptions.push(this.defaultFilter);
+			menuOptions.push({
+				text: __('All'),
+				ref: 'all',
+				checked: true
+			});
 			if(model.getColumn('published')){
 				menuOptions.push({
 					text: __('Drafts'),
@@ -57,14 +55,6 @@ Garp.FilterMenu = function(){
 					ref: 'my'
 				});
 			}
-			
-			Ext.each(menuOptions, function(option){
-				if(typeof option.isDefault !== 'undefined' && option.isDefault){
-					this.defaultFilter = option;
-					return false;
-				}
-			}, this);
-			
 			return menuOptions;
 		};
 		
@@ -81,13 +71,16 @@ Garp.FilterMenu = function(){
 				storeParams.query = {};
 			}
 			
+			tb.filterBtn.setIconClass('icon-filter-off');
 			delete storeParams.query.online_status;
 			delete storeParams.query.author_id;
 			
+			if(item.ref != 'all'){
+				tb.filterBtn.setIconClass('icon-filter-on');
+			}
+			
 			if(typeof Garp.dataTypes[Garp.currentModel].clearFilters == 'function'){
 				Garp.dataTypes[Garp.currentModel].clearFilters();
-			} else if (item.ref == 'all'){
-				storeParams.query = {};
 			}
 			
 			switch (item.ref) {
@@ -118,21 +111,14 @@ Garp.FilterMenu = function(){
 		 */
 		this.filterMenu = this.buildMenu();
 		
-		this.filterStatus = tb.add({
-			ref: 'filterStatus',
-			text: this.defaultFilter.ref !== 'all' ? this.defaultFilter.text : '',
-			xtype: 'tbtext',
-			hidden: (this.defaultFilter.ref === 'all')
-		});
-		
 		/**
 		 * Create the button
 		 */
 		this.filterBtn = tb.add({
 			ref: 'filterBtn',
 			tooltip: 'Filter',
-			iconCls: (this.defaultFilter.ref == 'all' ? 'icon-filter-off' : 'icon-filter-on'),
-			hidden: (this.filterMenu.length <= 1),
+			iconCls: 'icon-filter-off',
+			hidden: this.filterMenu.length <= 1,
 			menu: {
 				defaultType: 'menucheckitem',
 				defaults: {
@@ -141,32 +127,6 @@ Garp.FilterMenu = function(){
 					scope: this
 				},
 				items: this.filterMenu
-			}
-		});
-		
-		// Set default as checked:
-		this.filterBtn.menu.find('text', this.defaultFilter.text)[0].setChecked(true);
-		
-		// Reflect UI on menu changes:
-		this.filterBtn.menu.on('itemclick', function(item, evt){
-			if(item.ref === 'all'){
-				this.filterStatus.update('');
-				this.filterStatus.hide();
-				this.filterBtn.setIconClass('icon-filter-off');
-				return;
-			} else if (item.text) {
-				this.filterStatus.update(item.text);
-			}
-			this.filterStatus.show();
-			this.filterBtn.setIconClass('icon-filter-on');
-		}, this);
-		
-		// Make sure we don't end up with an "No items to display" AND a filter Status text: 
-		this.tb.on('change', function(tb){
-			if(tb.store.getCount() === 0){
-				this.filterStatus.hide();
-			} else {
-				this.filterStatus.show();
 			}
 		});
 	};
