@@ -1,0 +1,27 @@
+{
+	"quickAddable": true,
+
+	"order": "name ASC",
+
+	"listFields": ["name", "filename"],
+	
+	"module": "garp",
+
+	"inputs": {
+		"name": {
+			"info": "Please provide a name by which to recognize this file"
+		},
+
+		"filename": {
+			"type": "document",
+			"multilingual": true,
+			"maxLength": 255
+		},
+
+		"description": {
+			"type": "text",
+			"maxLength": 255,
+			"required": false
+		}
+	}
+}

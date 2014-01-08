@@ -1,0 +1,17 @@
+<?php
+if (APPLICATION_ENV === 'production'):
+
+	$analyticsId = $this->analyticsId;
+	if (!$analyticsId && !$analyticsId = $this->config()->google->analytics->id):
+		throw new Exception('No Google Analytics ID found in application.ini. Please configure google.analytics.id.');
+	endif;
+
+?>
+<script>
+    var _gaq=[['_setAccount','<?php echo $analyticsId ?>'],['_trackPageview'],['_trackPageLoadTime'],['_gat._anonymizeIp']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+<?php
+endif; 
