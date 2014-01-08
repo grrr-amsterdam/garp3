@@ -1,0 +1,62 @@
+{
+	"listFields": ["identifier"],
+	"inputs": {
+		"identifier": {
+			"maxLength": 255,
+			"unique": true
+		},
+		"uri": {
+			"required": false,
+			"maxLength": 255
+		},
+		"name": {
+			"required": false
+		},
+		"html": {
+			"type": "html",
+			"required": false
+		},
+		"text": {
+			"required": false
+		},
+		"has_name": {
+			"type": "checkbox",
+			"default": 0
+		},
+		"has_html": {
+			"type": "checkbox",
+			"default": 0
+		},
+		"has_text": {
+			"type": "checkbox",
+			"default": 0
+		},
+		"has_image": {
+			"type": "checkbox",
+			"default": 0
+		},
+		"is_editable": {
+			"type": "checkbox",
+			"default": 1,
+			"editable": false
+		},
+		"variables": {
+			"editable": false,
+			"required": false
+		}
+	},
+	
+	"relations": {
+		"Image": {
+			"type": "hasOne"
+		}
+	},
+
+	"behaviors": {
+		"Sluggable": {
+			"baseField": "identifier"
+		}
+	},
+		
+	"module": "garp"
+}

@@ -1,0 +1,61 @@
+{
+	"inputs": {
+		"identifier": {
+			"maxLength": 100,
+			"editable": false,
+			"unique": true
+		},
+		"type": {
+			"type": "enum",
+			"editable": false,
+			"options": ["youtube", "vimeo"]
+		},
+		"name": {
+			"required": false
+		},
+		"description": {
+			"required": false
+		},
+		"player": {
+			"required": false,
+			"maxLength": 100
+		},
+		"url": {
+			"maxLength": 100
+		},
+		"duration": {
+			"type": "numeric",
+			"editable": false,
+			"required": false
+		},
+		"tags": {
+			"maxLength": 255,
+			"required": false,
+			"editable": false
+		},
+		"image": {
+			"required": false,
+			"maxLength": 100,
+			"editable": false
+		},
+		"thumbnail": {
+			"required": false,
+			"maxLength": 100,
+			"editable": false
+		},
+		"video_author": {
+			"maxLength": 100,
+			"editable": false,
+			"required": false
+		}
+	},
+	
+	"module": "garp",
+	
+	"quickAddable": true,
+
+	"behaviors": {
+		"Videoable": {},
+		"Sluggable": {}
+	}
+}

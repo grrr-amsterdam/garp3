@@ -1,0 +1,10 @@
+<?php
+$field	= $this->field;
+
+$props = array(
+	"name: '{$field->name}'",
+	"xtype: 'i18nsource'"
+);
+
+?>
+				<?php echo implode(",\n\t\t\t\t", $props); ?>
