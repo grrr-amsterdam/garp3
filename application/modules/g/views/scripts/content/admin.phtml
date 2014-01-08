@@ -1,0 +1,163 @@
+<?php
+/**
+ * Attention!
+ * The Javascript files on this page should not be loaded from the CDN.
+ * Therefore, use baseUrl() and not assetUrl().
+ * Reason for this is that error messages after an ajax request can not
+ * be disclosed from one domain to another, in most browsers.
+ */
+?><noscript style="position:absolute;top:0;right:0;left:0;bottom:0;z-index:100000000000000;padding:25px;background:#000;color:#FFF;font-size:large;line-height:2;">
+	<p>Garp gebruikt Javascript om te functioneren. Javascript is op dit moment uitgeschakeld in je browser.</p>
+	<p>Op <a target="_blank" href="http://enable-javascript.com/">http://enable-javascript.com/</a> kun je zien hoe je Javascript inschakelt.</p>
+</noscript>
+
+<div id="icon-loading-spinner"></div>
+<div id="app-loader"><?php echo __('Loading Garp'); ?>&hellip;</div>
+<!-- Required fields for history management -->
+<form id="history-form" class="x-hidden" action="">
+	<input type="hidden" id="x-history-field">
+	<iframe id="x-history-frame"></iframe>
+</form>
+
+<div id="welcome-panel-content" class="x-hidden">
+	<div class="garp-welcome-body">
+		<h1><?php echo $this->escape($this->translate('garp welcome header')) ?></h1>
+		<p><?php echo $this->escape($this->translate('garp welcome tagline')) ?></p>
+	</div>
+</div>
+<div id="fb-root"></div>
+
+<!-- Ext & Garp locales -->
+<script type="text/javascript">
+	BASE = '<?php echo $this->baseUrl('/') ?>';
+	ASSET_URL = '<?php echo $this->assetUrl('/') ?>';
+	<?php
+		// $cdn = '';
+		// if ($this->config()->cdn->host):
+		// 	$cdn = $this->config()->cdn->host;
+		// 	if (!preg_match('~^https?://i~', $cdn)):
+		// 		$cdn = 'http://'.$cdn;
+		// 	endif;
+		// endif;
+	?>
+	IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
+	DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
+	ASSET_VERSION = '<?php echo APP_VERSION ?>';
+	GARP_VERSION = '<?php echo GARP_VERSION ?>';
+	<?php if (isset($this->config()->video->template->w)): ?>
+	VIDEO_WIDTH = <?php echo $this->config()->video->template->w ?>;
+	<?php endif; ?>
+	<?php if (isset($this->config()->video->template->h)): ?>
+	VIDEO_HEIGHT = <?php echo $this->config()->video->template->h ?>;
+	<?php endif; ?>
+	APP_TITLE = "<?php echo $this->escape($this->title) ?>";
+	<?php if (isset($this->config()->auth->adapters->facebook)): ?>
+	FB_APP_ID = "<?php echo $this->config()->auth->adapters->facebook->appId ?>";
+	<?php endif; ?>
+	DEBUG = window.location.hash.indexOf('debug') > -1;
+	LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getLocales()); ?>'];
+	DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
+	CURRENT_LANGUAGE = '<?php echo Garp_I18n::getCurrentLocale(); ?>';
+</script>
+
+<!-- Ext Overrides include -->
+<script src="<?php echo $this->baseUrl('/js/garp/overrides.js') ?>"></script>
+
+<?php if ($this->locale): ?>
+<script src="<?php echo $this->baseUrl('/js/garp/ext-3.4.0/src/locale/ext-lang-'.$this->locale.'.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/g/ext/getlocale/') ?>"></script>
+<?php endif; ?>
+<?php if(isset($this->config()->auth->adapters->linkedin->appId)): ?>
+<script type="text/javascript">function emptyFunction(){};</script>
+/*
+  api_key: <?php echo $this->config()->auth->adapters->linkedin->appId ?>
+  
+  onLoad: emptyFunction
+  authorize: true
+*/</script>
+<?php endif; ?>
+<!-- Garp config include -->
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.config.js') ?>"></script>
+
+<!-- General utility functions -->
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.renderers.js') ?>"></script>
+
+<!-- Ext extensions include -->
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.searchbar.js') ?>"></script>
+
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.datetime.js') ?>"></script><script type="text/javascript">
+	Ext.apply(Ext.ux.form.DateTime.prototype, {
+		dateFormat : 'd F Y',
+		timeFormat : 'H:i:s'
+	});		
+</script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.mapwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.mapfield.js') ?>"></script>
+
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.rendereddisplayfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.fileuploadfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.uploadcombo.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.uploadfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.pagingsearchbar.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.searchfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.richtexteditor.js') ?>"></script>
+<!-- Garp components -->
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.i18n.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.wysiwygct.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.wysiwygabstract.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.filtermenu.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.tweetwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.imageeditor.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.imagepickerwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.modelpickerwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.relatecreatewindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.inlinerelator.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.youtubeuploadwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.relationfield.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.relationpanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.superboxselect.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.metapanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.modelmenu.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.welcomepanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.gridpanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.formpanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.toolbar.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.infopanel.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.viewport.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.exportwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.importwindow.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.passwordfieldset.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.datetimepicker.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.menu.datetimemenu.js') ?>"></script>
+<!-- Set localUser object here: -->
+<?php
+	if ($this->auth()->isLoggedIn()):
+		$userData = $this->auth()->getUserData();
+?>
+<script type="text/javascript">
+	Garp.localUser = {
+			role: '<?php echo $this->escape($userData['role']); ?>',
+			id: '<?php echo $this->escape($userData['id']); ?>',
+			nick: ''
+	};
+</script>
+<?php endif; ?>
+
+<!-- Inform front-end of ACL setup -->
+<script type="text/javascript">
+	Garp.ACL = <?php echo json_encode($this->auth()->getRoles(true)) ?>;
+</script>
+
+<!-- Garp Models include -->
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.datatype.js') ?>"></script>
+<?php echo $this->partial('partials/models.phtml', 'default'); ?>
+
+<!-- Main Garp JS include -->
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/overrides.postinit.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.js') ?>"></script>
+ 
+ 
+<!-- Garp init -->
+<script type="text/javascript">
+Ext.onReady(Garp.init);
+</script>
