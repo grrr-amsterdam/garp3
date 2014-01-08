@@ -1,0 +1,24 @@
+{
+	"creatable": false,
+	"deletable": false,
+
+	"listFields": ["key"],
+
+	"module": "garp",
+
+	"inputs": {
+		"key": {
+			"maxLength": 124,
+			"unique": true,
+			"editable": false			
+		},
+		"value": {
+			"maxLength": 124
+		},
+		"type": {
+			"type": "enum",
+			"options": ["info", "setting", "message"],
+			"editable": false
+		}
+	}
+}

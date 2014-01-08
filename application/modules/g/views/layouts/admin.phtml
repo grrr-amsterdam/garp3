@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title><?php echo $this->escape($this->title) ?></title>
+		<meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width,height=device-height,target-densitydpi=device-dpi,user-scalable=yes">
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/js/garp/ext-3.4.0/resources/css/ext-all.css') ?>" type="text/css">
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/js/garp/ext-3.4.0/resources/css/xtheme-gray.css') ?>" type="text/css">
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/garp/garp.css') ?>" type="text/css">
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/garp/garp-print.css') ?>" type="text/css" media="print">
+		<link rel="stylesheet" href="<?php echo $this->assetUrl('/css/garp/icons.css') ?>" type="text/css">
+		<?php echo $this->partial('partials/cms-stylesheets.phtml', 'default') ?>
+		<link id="favicon" rel="icon" type="image/png" href="<?php echo $this->assetUrl('/css/garp/images/favicon.png') ?>">
+		<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/ext-3.4.0/adapter/ext/ext-base-debug.js') ?>"></script>
+		<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/ext-3.4.0/ext-all-debug.js') ?>"></script>
+		<script type="text/javascript">if(Ext.isIE && (Ext.isIE6 || Ext.isIE7 || Ext.isIE8)){
+			alert('Your browser is not supported by Garp.\n\n Please upgrade to Internet Explorer 9 or use Firefox, Chrome or Safari.');
+			document.location = '/';
+		}
+		</script>
+		<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.zendframeworkprovider.js') ?>"></script>
+		<script type="text/javascript" src="<?php echo $this->baseUrl('/g/ext/smd') ?>"></script>
+	</head>
+	<body>
+		<?php echo $this->layout()->content ?>
+	</body>
+</html>
