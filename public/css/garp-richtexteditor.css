@@ -1,0 +1,52 @@
+body {
+	border: 0;
+	margin: 0;
+	padding: 3px;
+	cursor: text;
+	font-family: tahoma, arial, helvetica, sans-serif !important;
+	font-size: 12px !important;
+}
+h4 {
+	font-weight: normal;
+	font-size: 1.25em;
+	color: #333;
+	margin: 0;
+}
+.garp-richtexteditor-highlight {
+	-moz-box-shadow: 0px 0px 5px #00f;
+	-webkit-box-shadow: 0px 0px 5px #00f;
+	box-shadow: 0px 0px 5px #00f;
+	background: rgba(0,0,255,.3);
+}
+dl {
+	border: 1px dotted #d0d0d0; margin: 10px; padding: 5px; 
+}
+dl.figure dd{
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	cursor: move;
+}
+dl.figure, img.figure { 
+	position: relative;
+	background: #eee; border: 1px #ddd solid; border-radius: 2px; text-align: center; padding: 2px;
+	margin: 10px;
+	padding: 0;
+	vertical-align: top;
+	display: inline-block;
+	cursor: move;
+}
+dl.figure img {
+	cursor: move;
+}
+dl.figure dt, dl.figure dd {
+	margin: 0; padding: 0; display: block;
+}
+
+iframe, object {
+	background: #ddf url('../../media/images/garp/icons/film.png') no-repeat center; 
+	border: 1px #cce solid; 
+	display: block;
+}
