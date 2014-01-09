@@ -46,42 +46,46 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 	public abstract function fetchConfig();
 
 	public function fetchTweets($config) {
-		$search = array();
-		$userTimeline = array();
-		$userList = array();
-
-		foreach ($config['search'] as $query) {
-			$search[$query] = $this->_searchTweets($query);
+		if (isset($config['search'])) {
+			foreach ($config['search'] as $query) {
+				$tweets['search'] = array($query => $this->_searchTweets($query));
+			}
 		}
 
-		foreach ($config['userTimeline'] as $screen_name) {
-			$userTimeline[$screen_name] = $this->_fetchUserTimeline($screen_name);
+		if (isset($config['userTimeline'])) {
+			foreach ($config['userTimeline'] as $screen_name) {
+				$tweets['userTimeline'] = array($screen_name => $this->_fetchUserTimeline($screen_name));
+			}
 		}
 
-		foreach ($config['userList'] as $list) {
-			$userList[$list['name']] = $this->_fetchUserList($list['owner'], $list['slug']);
+		if (isset($config['userList'])) {
+			foreach ($config['userList'] as $list) {
+				$tweets['userList'] = array($list['name'] => $this->_fetchUserList($list['owner'], $list['slug']));
+			}
 		}
 
-		return array(
-			'search' => $search,
-			'userTimeline' => $userTimeline,
-			'userList' => $userList
-		);
+		return $tweets;
 	}
 
 	private function _saveTweets($tweets) {
 		$file = new Garp_File();
 
-		foreach ($tweets['search'] as $query => $result) {
-			$file->store($query . '_search.json', json_encode($result), TRUE);
+		if (isset($tweets['search'])) {
+			foreach ($tweets['search'] as $query => $result) {
+				$file->store($query . '_search.json', json_encode($result), TRUE);
+			}
 		}
 
-		foreach ($tweets['userTimeline'] as $screen_name => $timeline) {
-			$file->store($screen_name . '_timeline.json', json_encode($timeline), TRUE);
+		if (isset($tweets['userTimeline'])) {
+			foreach ($tweets['userTimeline'] as $screen_name => $timeline) {
+				$file->store($screen_name . '_timeline.json', json_encode($timeline), TRUE);
+			}
 		}
 
-		foreach ($tweets['userList'] as $name => $list) {
-			$file->store($name . '_list.json', json_encode($list), TRUE);
+		if (isset($tweets['userList'])) {
+			foreach ($tweets['userList'] as $name => $list) {
+				$file->store($name . '_list.json', json_encode($list), TRUE);
+			}
 		}
 
 		Garp_Cli::lineOut("Done.");
