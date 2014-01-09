@@ -146,7 +146,25 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$model->insert(array('name' => 'henk jan de beuker', 'd' => '2013-10-12'));
 		$row = $model->fetchRow();
 
-		$this->assertEquals('2013-henk-jan-de-beuker', $row->slug);
+		$this->assertEquals('2013-henk-jan-de-beuker', $row->slug); 
+	}
+
+	public function testShouldIncrementSlugWithFormattedDate() {
+		$model = $this->_getConfiguredModel(array(
+			'baseField' => array(
+				array(
+					'column' => 'd',
+					'type' => 'date'
+				),
+				'name'
+			)
+		));
+
+		$model->insert(array('name' => 'henk jan de beuker', 'd' => '2013-10-12'));
+		$model->insert(array('name' => 'henk jan de beuker', 'd' => '2013-10-12'));
+		$row = $model->fetchRow($model->select()->order('id DESC'));
+
+		$this->assertEquals('12-10-2013-henk-jan-de-beuker-2', $row->slug);
 	}
 
 	protected function _getConfiguredModel($config) {
