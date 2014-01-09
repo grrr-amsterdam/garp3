@@ -25,8 +25,6 @@ class Garp_Cli_Command_Twitter extends Garp_Cli_Command_Twitter_Abstract {
 			}
 		}
 
-		var_dump($config);exit;
-
 		return $config;
 	}
 }
