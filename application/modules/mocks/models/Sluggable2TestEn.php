@@ -8,15 +8,7 @@
  * If the spawner changes its output, it's a good idea to change these
  * mocks as well.
  */
-class Mocks_Model_Sluggable2Test extends Garp_Model_Db {
-	protected $_name = '_sluggable_test_2';
-
-	public function init() {
-		$this->registerObserver(
-			new Garp_Model_Behavior_Translatable(array(
-				'columns' => array('name', 'slug', 'tag')
-			))
-		);
-	}
+class Mocks_Model_Sluggable2TestEn extends Mocks_Model_Sluggable2Test {
+	protected $_name = '_sluggable_test_2_en';
+	protected $_primary = 'id';
 }
-
