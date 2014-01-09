@@ -65,9 +65,9 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		Zend_Controller_Front::getInstance()->setParam('locales', array('nl', 'en'));
 
 		$model = new Mocks_Model_Sluggable2Test();
-		// Save only Dutch name
+		// Save only Dutch name, slug should appear in both Dutch and English records
 		$model->insert(array(
-			'name' => array('nl' => 'Henk Jan De Beuker')
+			'name' => array('nl' => 'Henk Jan De Beuker'),
 		));
 
 		$modelNl = new Mocks_Model_Sluggable2TestNl();
@@ -78,6 +78,36 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$row = $modelEn->fetchRow();
 		$this->assertEquals($row->slug, 'henk-jan-de-beuker');
 	}
+
+	/**
+ 	 * A known bug occurred in the past when a second-language row
+ 	 * would be updated after it already existed in the primary language.
+ 	 * It would then not receive a new slug in the second language.
+ 	 * This test checks for that.
+ 	 */
+	public function testShouldGenerateSlugForMultilingualModelAfterUpdate() {
+		Zend_Controller_Front::getInstance()->setParam('locales', array('nl', 'en'));
+
+		$model = new Mocks_Model_Sluggable2Test();
+		// Save primary language first
+		$id = $model->insert(array(
+			'name' => array('nl' => 'Henk Jan De Beuker'),
+			'tag' => 'nl__nl'
+		));
+		// Update with secondary language
+		$model->update(array(
+			'name' => array('en' => 'Hank John The Pounder'),
+			'tag' => 'en__en'
+		), "`id` = '$id'");
+
+		$modelNl = new Mocks_Model_Sluggable2TestNl();
+		$row = $modelNl->fetchRow();
+		$this->assertEquals($row->slug, 'henk-jan-de-beuker');
+
+		$modelEn = new Mocks_Model_Sluggable2TestEn();
+		$row = $modelEn->fetchRow();
+		$this->assertEquals($row->slug, 'hank-john-the-pounder');
+	}	
 
 	protected function _getConfiguredModel($config) {
 		$model = new Mocks_Model_SluggableTest();
@@ -107,6 +137,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$dbAdapter->query('
 		CREATE TABLE `_sluggable_test_2`(
 			`id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+			`tag` varchar(20) NULL,
 			PRIMARY KEY (`id`)
 		) ENGINE=`InnoDB`;');
 
