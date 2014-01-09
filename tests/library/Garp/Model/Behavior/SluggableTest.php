@@ -14,7 +14,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$model->insert(array('name' => 'henk jan de beuker'));
 		$row = $model->fetchRow();
 
-		$this->assertEquals($row->slug, 'henk-jan-de-beuker');
+		$this->assertEquals('henk-jan-de-beuker', $row->slug);
 	}
 
 	public function testShouldIncrementSlug() {
@@ -27,7 +27,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$model->insert(array('name' => 'henk jan de beuker'));
 		$row = $model->fetchRow($model->select()->order('id DESC'));
 
-		$this->assertEquals($row->slug, 'henk-jan-de-beuker-2');
+		$this->assertEquals('henk-jan-de-beuker-2', $row->slug);
 	}
 
 	public function testShouldGenerateMultipleSlugs() {
@@ -42,8 +42,8 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		));
 		$row = $model->fetchRow();
 
-		$this->assertEquals($row->slug, 'henk-jan-de-beuker');
-		$this->assertEquals($row->slug2, 'beukenlaan-20');
+		$this->assertEquals('henk-jan-de-beuker', $row->slug);
+		$this->assertEquals('beukenlaan-20', $row->slug2);
 	}
 
 	public function testShouldGenerateSlugFromMultipleFields() {
@@ -58,7 +58,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		));
 		$row = $model->fetchRow();
 
-		$this->assertEquals($row->slug, 'henk-jan-de-beuker-beukenlaan-20');
+		$this->assertEquals('henk-jan-de-beuker-beukenlaan-20', $row->slug);
 	}
 
 	public function testShouldGenerateSlugForMultilingualModel() {
@@ -72,17 +72,22 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 
 		$modelNl = new Mocks_Model_Sluggable2TestNl();
 		$row = $modelNl->fetchRow();
-		$this->assertEquals($row->slug, 'henk-jan-de-beuker');
+		$this->assertEquals('henk-jan-de-beuker', $row->slug);
 
 		$modelEn = new Mocks_Model_Sluggable2TestEn();
 		$row = $modelEn->fetchRow();
-		$this->assertEquals($row->slug, 'henk-jan-de-beuker');
+		$this->assertEquals('henk-jan-de-beuker', $row->slug);
 	}
 
 	/**
  	 * A known bug occurred in the past when a second-language row
  	 * would be updated after it already existed in the primary language.
- 	 * It would then not receive a new slug in the second language.
+ 	 * It would then not receive a new slug in the second language, if the 
+ 	 * baseField would not be specified in the second language. 
+ 	 * For instance: a record about Michael Jackson would receive the slug "michael-jackson" if 
+ 	 * the name is Michael Jackson. The second language doesn't have to 
+ 	 * update the name, but only the description. However, this would fail to
+ 	 * create the slug.
  	 * This test checks for that.
  	 */
 	public function testShouldGenerateSlugForMultilingualModelAfterUpdate() {
@@ -92,22 +97,57 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		// Save primary language first
 		$id = $model->insert(array(
 			'name' => array('nl' => 'Henk Jan De Beuker'),
-			'tag' => 'nl__nl'
+			'tag' => array('nl' => 'nl__nl'),
+			'something' => 'abc'
 		));
 		// Update with secondary language
 		$model->update(array(
-			'name' => array('en' => 'Hank John The Pounder'),
-			'tag' => 'en__en'
+			'tag' => array('en' => 'en__en'),
+			'something' => 'def' // <-- needed to generate valid UPDATE query... >.<
 		), "`id` = '$id'");
 
-		$modelNl = new Mocks_Model_Sluggable2TestNl();
-		$row = $modelNl->fetchRow();
-		$this->assertEquals($row->slug, 'henk-jan-de-beuker');
-
-		$modelEn = new Mocks_Model_Sluggable2TestEn();
-		$row = $modelEn->fetchRow();
-		$this->assertEquals($row->slug, 'hank-john-the-pounder');
+		$i18nModel = new Mocks_Model_Sluggable2TestI18n();
+		$row = $i18nModel->fetchRow(
+			$i18nModel->select()->where('lang = "en"')->where('_sluggable_test_2_id = ?', $id)
+		);
+		// @note: since its the second rendition of the record, the slug will be incremented
+		$this->assertEquals('henk-jan-de-beuker-2', $row->slug);
 	}	
+
+	public function testShouldGenerateSlugWithDate() {
+		$model = $this->_getConfiguredModel(array(
+			'baseField' => array(
+				array(
+					'column' => 'd',
+					'type' => 'date'
+				),
+				'name'
+			)
+		));
+
+		$model->insert(array('name' => 'henk jan de beuker', 'd' => '2013-10-12'));
+		$row = $model->fetchRow();
+
+		$this->assertEquals('12-10-2013-henk-jan-de-beuker', $row->slug); 
+	}
+
+	public function testShouldGenerateSlugWithFormattedDate() {
+		$model = $this->_getConfiguredModel(array(
+			'baseField' => array(
+				array(
+					'column' => 'd',
+ 				   	'format' => 'Y',
+					'type' => 'date'
+				),
+				'name'
+			)
+		));
+
+		$model->insert(array('name' => 'henk jan de beuker', 'd' => '2013-10-12'));
+		$row = $model->fetchRow();
+
+		$this->assertEquals('2013-henk-jan-de-beuker', $row->slug);
+	}
 
 	protected function _getConfiguredModel($config) {
 		$model = new Mocks_Model_SluggableTest();
@@ -119,6 +159,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
  	 * Setup db tables
  	 */
 	public function setUp() {
+		Garp_Cache_Manager::purge();
 		$dbAdapter = $this->getDatabaseAdapter();
 
 		$dbAdapter->query('SET foreign_key_checks = 0;');
@@ -130,6 +171,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 			`address` VARCHAR(124) NULL,
 			`slug` varchar(124) NULL,
 			`slug2` varchar(124) NULL,
+			`d` date NULL,
 			PRIMARY KEY (`id`)
 		) ENGINE=`InnoDB`;');
 
@@ -137,7 +179,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$dbAdapter->query('
 		CREATE TABLE `_sluggable_test_2`(
 			`id` int UNSIGNED NOT NULL AUTO_INCREMENT,
-			`tag` varchar(20) NULL,
+			`something` CHAR(2) NULL,
 			PRIMARY KEY (`id`)
 		) ENGINE=`InnoDB`;');
 
@@ -147,6 +189,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 			`id` int UNSIGNED NOT NULL AUTO_INCREMENT,
 			`name` varchar(124) NULL,
 			`slug` varchar(124) NULL,
+			`tag` varchar(20) NULL,
 			`_sluggable_test_2_id` int UNSIGNED,
 			`lang` CHAR(2),
 			PRIMARY KEY (`id`)
@@ -157,8 +200,10 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		CREATE VIEW `_sluggable_test_2_nl` AS
 		select
 		`_sluggable_test_2`.`id` AS `id`,
+		`_sluggable_test_2`.`something` AS `something`,
 		`_sluggable_test_2_nl`.`name` AS `name`,
-		`_sluggable_test_2_nl`.`slug` AS `slug`
+		`_sluggable_test_2_nl`.`slug` AS `slug`,
+		`_sluggable_test_2_nl`.`tag` AS `tag`
 		from (`_sluggable_test_2`
 		left join `_sluggable_test_2_i18n` `_sluggable_test_2_nl`
 		on(((`_sluggable_test_2_nl`.`_sluggable_test_2_id` = `_sluggable_test_2`.`id`) and (`_sluggable_test_2_nl`.`lang` = 'nl'))))");
@@ -168,8 +213,11 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		CREATE VIEW `_sluggable_test_2_en` AS
 		select
 		`_sluggable_test_2`.`id` AS `id`,
+		`_sluggable_test_2`.`something` AS `something`,
 		if(((`_sluggable_test_2_en`.`name` <> '') and (`_sluggable_test_2_en`.`name` is not null)),`_sluggable_test_2_en`.`name`,`_sluggable_test_2_nl`.`name`) AS `name`,
-		if(((`_sluggable_test_2_en`.`slug` <> '') and (`_sluggable_test_2_en`.`slug` is not null)),`_sluggable_test_2_en`.`slug`,`_sluggable_test_2_nl`.`slug`) AS `slug`
+		if(((`_sluggable_test_2_en`.`slug` <> '') and (`_sluggable_test_2_en`.`slug` is not null)),`_sluggable_test_2_en`.`slug`,`_sluggable_test_2_nl`.`slug`) AS `slug`,
+		if(((`_sluggable_test_2_en`.`tag` <> '') and (`_sluggable_test_2_en`.`tag` is not null)),`_sluggable_test_2_en`.`tag`,`_sluggable_test_2_nl`.`tag`) AS `tag`
+				
 		from
 		((`_sluggable_test_2`
 		left join `_sluggable_test_2_i18n` `_sluggable_test_2_en`
@@ -182,6 +230,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
  	 * Destroy db tables
  	 */
 	public function tearDown() {
+		Garp_Cache_Manager::purge();
 		$dbAdapter = $this->getDatabaseAdapter();
 		$dbAdapter->query('SET foreign_key_checks = 0;');
 		$dbAdapter->query('DROP TABLE `_sluggable_test`;');
