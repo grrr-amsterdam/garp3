@@ -3,25 +3,21 @@
 class Garp_Cli_Command_Twitter extends Garp_Cli_Command_Twitter_Abstract {
 
 	public function fetchConfig() {
-		$search = array();
-		$userTimeline = array();
-		$userList = array();
-
 		if (isset($this->config->twitter->search)) {
 			foreach ($this->config->twitter->search as $query) {
-				$search[] = $query;
+				$config['search'][] = $query;
 			}
 		}
 
 		if (isset($this->config->twitter->userTimeline)) {
 			foreach ($this->config->twitter->userTimeline as $screen_name) {
-				$userTimeline[] = $screen_name;
+				$config['userTimeline'][] = $screen_name;
 			}
 		}
 
 		if (isset($this->config->twitter->userList)) {
 			foreach ($this->config->twitter->userList as $name => $list) {
-				$userList[] = array(
+				$config['userList'][] = array(
 					'name'	=>	$name,
 					'owner'	=>	$list->owner,
 					'slug'	=>	$list->slug
@@ -29,11 +25,9 @@ class Garp_Cli_Command_Twitter extends Garp_Cli_Command_Twitter_Abstract {
 			}
 		}
 
-		return array(
-			'search' => $search,
-			'userTimeline' => $userTimeline,
-			'userList' => $userList
-		);
+		var_dump($config);exit;
+
+		return $config;
 	}
 }
 
