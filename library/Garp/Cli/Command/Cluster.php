@@ -9,40 +9,8 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
-	/**
-	 * Central start method
-	 * @param Array $args array('run')
-	 * @return Void
-	 */
-	public function main(array $args = array()) {
-		if (empty($args)) {
-			Garp_Cli::lineOut($this->_getHelpText());
-		} else {
-			if (!array_key_exists(0, $args)) {
-				Garp_Cli::lineOut("Please indicate what you want me to do.\n");
-				$this->_exit($this->_getHelpText());
-			} else {
-				$command = $args[0];
-			
-				if (method_exists($this, '_'.$command)) {
-					$this->{'_'.$command}($args);
-				} else {
-					$this->_exit("Sorry, I don't know the command '{$command}'.\n\n".$this->_getHelpText());
-				}
-			}
-		}
-	}
-
-
-	protected function _getHelpText() {
-		return "Usage:\n"
-			."  garp.php Cluster run\n\n"
-			."  From a cronjob, APPLICATION_ENV needs to be set explicitly:\n"
-			."  garp.php Cluster run --APPLICATION_ENV=development";
-	}
 	
-	
-	protected function _run($args) {
+	public function run() {
 		$clusterServerModel = new Model_ClusterServer();
 		list($serverId, $lastCheckIn) = $clusterServerModel->checkIn();
 
@@ -50,6 +18,24 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 		$this->_runRecurringJobs($serverId, $lastCheckIn);
 	}
 
+	public function clean() {
+		$jobModel = new Model_ClusterClearCacheJob();
+		$amount = $jobModel->deleteOld();
+		Garp_Cli::lineOut('Done.');
+		Garp_Cli::lineOut('Removed ' . number_format($amount, 0) . ' records.');
+	}
+
+	public function help() {
+		Garp_Cli::lineOut('Usage:');
+		Garp_Cli::lineOut(' g Cluster run', Garp_Cli::BLUE);
+		Garp_Cli::lineOut('');
+		Garp_Cli::lineOut('Clean old job records:');
+		Garp_Cli::lineOut(' g Cluster clean', Garp_Cli::BLUE);
+		Garp_Cli::lineOut('');
+		Garp_Cli::lineOut('From a cronjob, APPLICATION_ENV needs to be set explicitly:');
+		Garp_Cli::lineOut(' g Cluster run --APPLICATION_ENV=development', Garp_Cli::BLUE);
+		Garp_Cli::lineOut('');
+	}
 
 	/**
 	 * @param Int $serverId Database id of the current server in the cluster
@@ -64,10 +50,11 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 		}
 		
 		if (is_array($cluster->clearedTags)) {
-			if (empty($cluster->clearedTags))
+			if (empty($cluster->clearedTags)) {
 				Garp_Cli::lineOut('Clustered cache purged for all models.');
-			else
+			} else {
 				Garp_Cli::lineOut('Clustered cache purged for models '.implode(', ', $cluster->clearedTags));
+			}
 		} elseif (is_bool($cluster->clearedTags) && !$cluster->clearedTags) {
 			Garp_Cli::lineOut('No clustered cache purge jobs to run.');
 		} else {
