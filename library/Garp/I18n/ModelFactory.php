@@ -108,7 +108,7 @@ class Garp_I18n_ModelFactory {
 		if ($model instanceof Garp_Model_Db) {
 			$model = get_class($model);
 		}
-		$model = (substr($model, 0, 6) !== 'Model_' ? 'Model_' : '') . $model;
+		$model = strpos($model, 'Model_') !== false ? $model : 'Model_' . $model;
 	}
 
 	protected function _modelIsLocalized($model) {
