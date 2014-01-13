@@ -11,7 +11,6 @@ class G_Model_ClusterClearCacheJob extends Model_Base_ClusterClearCacheJob {
 		$this->unregisterObserver('Authorable');
 	}
 
-
 	/**
 	 * @param Int $serverId Database id of the current server in the cluster
 	 * @param String $lastCheckIn MySQL datetime that represents the last check-in time of this server
@@ -36,5 +35,14 @@ class G_Model_ClusterClearCacheJob extends Model_Base_ClusterClearCacheJob {
 		$row->tags = serialize($tags);
 
 		$row->save();
+	}
+
+	/**
+ 	 * Clean records older than 2 days.
+ 	 */
+	public function deleteOld() {
+		return $this->delete(
+			"created < DATE_SUB(NOW(), INTERVAL 2 DAY)"
+		);
 	}
 }
