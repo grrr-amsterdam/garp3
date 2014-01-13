@@ -16,11 +16,21 @@ Garp.dataTypes.Image.on('init', function(){
 	this.addListener('loaddata', function(rec, formPanel){
 		
 		function updateUI(){
+			// if we're in a relateCreateWindow, set it's height again, otherwise it might not fit.
+			if (typeof formPanel.center == 'function' && rec.get('filename')) {
+				var i = new Image();
+				i.onload = function(){
+					formPanel.setHeight(440);
+					formPanel.center();
+				};
+				i.src  = formPanel.preview.getEl().child('img').dom.src;
+			}
 			formPanel.preview.update(Garp.renderers.imagePreviewRenderer(rec.get('filename'), null, rec));
 			formPanel.download.update({
 				filename: rec.get('filename')
 			});
 		}
+		
 		if (formPanel.rendered) {
 			updateUI();
 		} else {
@@ -28,15 +38,10 @@ Garp.dataTypes.Image.on('init', function(){
 				single: true
 			});
 		}
-		// if we're in a relateCreateWindow, set it's height again, otherwise it might not fit.
-		if (typeof formPanel.center == 'function' && rec.get('filename')) {
-			formPanel.setHeight(440);
-			formPanel.center();
-		}
+		
 	}, true);
-
-
-	// Remove these fields, cause we are about to change the order and appearance of them...
+	
+	// Remove these fields, cause we are about to change the order and appearance of them... 
 	this.removeField('filename');
 	this.removeField('id');
 
