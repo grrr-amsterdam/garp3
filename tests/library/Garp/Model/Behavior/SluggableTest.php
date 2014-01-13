@@ -167,6 +167,29 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals('12-10-2013-henk-jan-de-beuker-2', $row->slug);
 	}
 
+	/**
+ 	 * In the past, base values ending in a number (for instance "Terminator 2") proved
+ 	 * to be difficult to make slugs from, because the second version would
+ 	 * become "terminator-3", instead of "terminator-2-2". This test checks for that.
+ 	 */
+	public function testShouldIncrementSlugEndingInNumber() {
+		$model = $this->_getConfiguredModel(array(
+			'baseField' => array('name')
+		));
+
+		$model->insert(array(
+			'name' => 'terminator 2'
+		));
+		$row = $model->fetchRow();
+		$this->assertEquals('terminator-2', $row->slug);
+
+		$model->insert(array(
+			'name' => 'terminator-2'
+		));
+		$row = $model->fetchRow($model->select()->order('id DESC'));
+		$this->assertEquals('terminator-2-2', $row->slug);
+	}
+
 	protected function _getConfiguredModel($config) {
 		$model = new Mocks_Model_SluggableTest();
 		$model->registerObserver(new Garp_Model_Behavior_Sluggable($config));
