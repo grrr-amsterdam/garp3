@@ -16,11 +16,27 @@ Garp.dataTypes.Image.on('init', function(){
 	this.addListener('loaddata', function(rec, formPanel){
 		
 		function updateUI(){
-			formPanel.preview.update(Garp.renderers.imagePreviewRenderer(rec.get('filename'), null, rec));
-			formPanel.download.update({
-				filename: rec.get('filename')
-			});
+			
+			// Upload callback does not contain a filename; it renderers the image itself. Do not overwrite:
+			if (rec.get('filename')) {
+				formPanel.preview.update(Garp.renderers.imagePreviewRenderer(rec.get('filename'), null, rec));
+				formPanel.download.update({
+					filename: rec.get('filename')
+				});
+			}
+			// if we're in a relateCreateWindow, set height again, otherwise it might not fit. We choose a safe 440px height
+			if (typeof formPanel.center == 'function') {
+				var i = new Image();
+				i.onload = function(){
+					if (formPanel && formPanel.el && formPanel.el.dom) {
+						formPanel.setHeight(440);
+						formPanel.center();
+					}
+				};
+				i.src  = formPanel.preview.getEl().child('img') ? formPanel.preview.getEl().child('img').dom.src : '';
+			}
 		}
+		
 		if (formPanel.rendered) {
 			updateUI();
 		} else {
@@ -28,11 +44,7 @@ Garp.dataTypes.Image.on('init', function(){
 				single: true
 			});
 		}
-		// if we're in a relateCreateWindow, set it's height again, otherwise it might not fit.
-		if (typeof formPanel.center == 'function' && rec.get('filename')) {
-			formPanel.setHeight(440);
-			formPanel.center();
-		}
+		
 	}, true);
 
 
@@ -94,8 +106,8 @@ Garp.dataTypes.Image.on('init', function(){
 						});
 						this.refOwner.fireEvent('save-all');
 					} else {
-						this.refOwner.get(0).get(0).fireEvent('loaddata', this.refOwner.rec, this.refOwner);
 						this.refOwner.preview.update(Garp.renderers.uploadedImagePreviewRenderer(val));
+						this.refOwner.get(0).get(0).fireEvent('loaddata', this.refOwner.rec, this.refOwner);
 						this.refOwner.download.update({
 							filename: val
 						});
