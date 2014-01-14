@@ -46,6 +46,11 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 	public abstract function fetchConfig();
 
 	public function fetchTweets($config) {
+		if (empty($config)) {
+			Garp_Cli::lineOut('The configuration is empty, yo!');
+			return;
+		}
+
 		if (isset($config['search'])) {
 			foreach ($config['search'] as $query) {
 				$tweets['search'] = array($query => $this->_searchTweets($query));
