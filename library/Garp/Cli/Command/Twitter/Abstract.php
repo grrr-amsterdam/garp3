@@ -74,22 +74,23 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 
 	private function _saveTweets($tweets) {
 		$file = new Garp_File();
+		$prefix = 'twitter';
 
 		if (isset($tweets['search'])) {
 			foreach ($tweets['search'] as $query => $result) {
-				$file->store($query . '_search.json', json_encode($result), TRUE);
+				$file->store($prefix . '_' . $query . '_search.json', json_encode($result), TRUE);
 			}
 		}
 
 		if (isset($tweets['userTimeline'])) {
 			foreach ($tweets['userTimeline'] as $screen_name => $timeline) {
-				$file->store($screen_name . '_timeline.json', json_encode($timeline), TRUE);
+				$file->store($prefix . '_' . $screen_name . '_timeline.json', json_encode($timeline), TRUE);
 			}
 		}
 
 		if (isset($tweets['userList'])) {
 			foreach ($tweets['userList'] as $name => $list) {
-				$file->store($name . '_list.json', json_encode($list), TRUE);
+				$file->store($prefix . '_' . $name . '_list.json', json_encode($list), TRUE);
 			}
 		}
 
