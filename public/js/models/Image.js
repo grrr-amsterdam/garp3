@@ -16,7 +16,7 @@ Garp.dataTypes.Image.on('init', function(){
 	this.addListener('loaddata', function(rec, formPanel){
 		
 		function updateUI(){
-			
+
 			// Upload callback does not contain a filename; it renderers the image itself. Do not overwrite:
 			if (rec.get('filename')) {
 				formPanel.preview.update(Garp.renderers.imagePreviewRenderer(rec.get('filename'), null, rec));
@@ -46,9 +46,8 @@ Garp.dataTypes.Image.on('init', function(){
 		}
 		
 	}, true);
-
-
-	// Remove these fields, cause we are about to change the order and appearance of them...
+	
+	// Remove these fields, cause we are about to change the order and appearance of them... 
 	this.removeField('filename');
 	this.removeField('id');
 
