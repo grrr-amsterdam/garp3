@@ -6,7 +6,8 @@
 	endif;
 	
 	if ($this->snippet->has_image && $this->snippet->Image):
-		$scalingTpl = property_exists($this, 'scaling_template') ? $this->scaling_template : null;
+		// Allow scalingTemplate as well as scaling_template... to preserve backward compatibility... >.< ugh
+		$scalingTpl = property_exists($this, 'scaling_template') ? $this->scaling_template : (property_exists($this, 'scalingTemplate') ? $this->scalingTemplate : null);
 		echo $this->image()->render($this->snippet->Image->id, $scalingTpl);
 	endif;
 	
