@@ -144,5 +144,3 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 		return $statuses;
 	}
 }
-
-# End of file

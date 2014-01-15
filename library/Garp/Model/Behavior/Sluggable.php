@@ -238,7 +238,7 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		$this->_setWhereClause($select, $slugField, $slug, $model);
 		$n = 1;
 		while ($this->_rowsExist($select)) {
-			$this->_incrementSlug($slug, ++$n);
+			$this->_incrementSlug($slug, ++$n, $base);
 			$this->_setWhereClause($select, $slugField, $slug, $model);
 		}
 		return $slug;
@@ -272,12 +272,13 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 	 * Increment the version number in a slug
 	 * @param String $slug
 	 * @param Int $n Version number
-	 * @return String The new slug
+	 * @param String $original_input The original base string
+	 * @return Void Edits slug reference
 	 */
-	protected function _incrementSlug(&$slug, $n) {
-		$slug = preg_match('/'.static::VERSION_SEPARATOR.'[0-9]+$/', $slug) ? 
-				preg_replace('/('.static::VERSION_SEPARATOR.'[0-9]+$)/', static::VERSION_SEPARATOR.$n, $slug) : 
-				$slug.static::VERSION_SEPARATOR.$n;
+	protected function _incrementSlug(&$slug, $n, $original_input) {
+		$original_slug = $this->generateSlug($original_input);
+		$slug = $original_slug . static::VERSION_SEPARATOR . $n;
+		return;
 	}
 
 	/**
