@@ -85,7 +85,7 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 
 		if (isset($tweets['userTimeline'])) {
 			foreach ($tweets['userTimeline'] as $screen_name => $timeline) {
-				var_dump($file->store($prefix . '_' . $screen_name . '_timeline.js', $this->_addCallback($timeline), TRUE));
+				$file->store($prefix . '_' . $screen_name . '_timeline.js', $this->_addCallback($timeline), TRUE);
 			}
 		}
 
