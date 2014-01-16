@@ -2,7 +2,7 @@
 
 require APPLICATION_PATH . '/../library/Garp/3rdParty/codebird/codebird.php';
 
-abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implements Garp_Cli_Command_Twitter_Interface {
+abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command {
 
 	private $cb;
 
