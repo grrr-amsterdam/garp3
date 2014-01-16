@@ -79,9 +79,13 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		$referenceData = $data;
 
 		// If the baseFields are not found in $data, and the model is multilingual,
-		// we might be able to cllect the baseField(s) from its primary language counterpart
+		// we might be able to collect the baseField(s) from its primary language counterpart
 		$hasLangColumn = !empty($data[Garp_Model_Behavior_Translatable::LANG_COLUMN]);
-		if ($model->isMultilingual() && $hasLangColumn) {
+		$keys = array_keys($data);
+		$baseColumns = $this->_baseFieldConfigToColumns($this->_config['baseField']);
+		$intersect = array_intersect($baseColumns, $keys);
+
+		if (count($intersect) != count($this->_config['baseField']) && $model->isMultilingual() && $hasLangColumn) {
 			$this->_modifyReferenceDataForMultilingualModels($referenceData, $model);
 		}
 
