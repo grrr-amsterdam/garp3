@@ -338,4 +338,5 @@ $translationTable = array(
 	'activate email error' => 'Er is een onbekende fout opgetreden, je e-mailadres kon niet worden geactiveerd. Probeer het later nog eens.',
 	'garp welcome header' => 'Garp',
 	'garp welcome tagline' => 'Beheer de inhoud van deze website.',
+	'invalid email activation code' => "De opgegeven code is ongeldig.",
 );
