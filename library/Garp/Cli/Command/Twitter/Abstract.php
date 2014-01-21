@@ -2,7 +2,7 @@
 
 require APPLICATION_PATH . '/../library/Garp/3rdParty/codebird/codebird.php';
 
-abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implements Garp_Cli_Command_Twitter_Interface {
+abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command {
 
 	private $cb;
 
@@ -46,21 +46,27 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 	public abstract function fetchConfig();
 
 	public function fetchTweets($config) {
+		if (empty($config)) {
+			Garp_Cli::lineOut('The configuration is empty, yo!');
+			return;
+		}
+
 		if (isset($config['search'])) {
 			foreach ($config['search'] as $query) {
-				$tweets['search'] = array($query => $this->_searchTweets($query));
+				$tweets['search'][$query] = $this->_searchTweets($query);
 			}
 		}
 
 		if (isset($config['userTimeline'])) {
 			foreach ($config['userTimeline'] as $screen_name) {
-				$tweets['userTimeline'] = array($screen_name => $this->_fetchUserTimeline($screen_name));
+				$tweets['userTimeline'][$screen_name] = $this->_fetchUserTimeline($screen_name);
 			}
 		}
 
 		if (isset($config['userList'])) {
 			foreach ($config['userList'] as $list) {
-				$tweets['userList'] = array($list['name'] => $this->_fetchUserList($list['owner'], $list['slug']));
+				$tweets['userList'][$list['name']] = $this->_fetchUserList($list['owner'], $list['slug']);
+
 			}
 		}
 
@@ -69,26 +75,33 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 
 	private function _saveTweets($tweets) {
 		$file = new Garp_File();
+		$prefix = 'twitter';
 
 		if (isset($tweets['search'])) {
 			foreach ($tweets['search'] as $query => $result) {
-				$file->store($query . '_search.json', json_encode($result), TRUE);
+				$file->store($prefix . '_' . $query . '_search.js', $this->_addCallback($result), TRUE);
 			}
 		}
 
 		if (isset($tweets['userTimeline'])) {
 			foreach ($tweets['userTimeline'] as $screen_name => $timeline) {
-				$file->store($screen_name . '_timeline.json', json_encode($timeline), TRUE);
+				$file->store($prefix . '_' . $screen_name . '_timeline.js', $this->_addCallback($timeline), TRUE);
 			}
 		}
 
 		if (isset($tweets['userList'])) {
 			foreach ($tweets['userList'] as $name => $list) {
-				$file->store($name . '_list.json', json_encode($list), TRUE);
+				$file->store($prefix . '_' . $name . '_list.js', $this->_addCallback($list), TRUE);
 			}
 		}
 
+
 		Garp_Cli::lineOut("Done.");
+	}
+
+	private function _addCallback($data) {
+		$json = json_encode($data);
+		return 'window.onTwitterStreamLoaded && onTwitterStreamLoaded(' . $json .');';
 	}
 
 	private function _searchTweets($query) {
@@ -107,7 +120,7 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 			return $this->_getTweets($reply);
 		}
 
-		Garp_Cli::lineOut("Error: " . $reply->errors[0]->message);
+		Garp_Cli::lineOut("Error (". $screen_name ."): ". $reply->errors[0]->message);
 		return FALSE;
 	}
 
@@ -131,5 +144,3 @@ abstract class Garp_Cli_Command_Twitter_Abstract extends Garp_Cli_Command implem
 		return $statuses;
 	}
 }
-
-# End of file

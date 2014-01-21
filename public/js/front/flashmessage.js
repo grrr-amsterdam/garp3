@@ -27,6 +27,7 @@ Garp.FlashMessage = function(msg, timeout) {
 		fm,
 		timer,
 		doc = document.documentElement,
+		body = document.getElementsByTagName('body')[0],
 		FM_ACTIVE_CLASS = 'flash-message-active',
 		FM_INACTIVE_CLASS = 'flash-message-inactive'
 	;
@@ -43,6 +44,9 @@ Garp.FlashMessage = function(msg, timeout) {
 	}
 	
 	var removeNode = function() {
+		if (!fm) {
+			return;
+		}
 		fm.parentNode.removeChild(fm);
 		fm = null;
 		doc.className = doc.className.replace(FM_INACTIVE_CLASS, '');
@@ -67,7 +71,7 @@ Garp.FlashMessage = function(msg, timeout) {
 			a = Garp.getStyle(fm, Garp.getAnimationProperty());
 
 		if (t || a) {
-			setRemoveHandler(t, a);
+			setRemoveHandler(t);
 		}
 		doc.className = doc.className.replace(FM_ACTIVE_CLASS, FM_INACTIVE_CLASS);
 
@@ -89,8 +93,10 @@ Garp.FlashMessage = function(msg, timeout) {
 			html += '<p>' + msg[i] + '</p>';
 		}
 		fm.innerHTML = html;
-		doc.appendChild(fm);
-		doc.className += ' ' + FM_ACTIVE_CLASS;
+		body.appendChild(fm);
+		setTimeout(function() {
+			doc.className += ' ' + FM_ACTIVE_CLASS;
+		}, 0);
 
 		// clicking on flash message hides it
 		fm.onclick = hide;
