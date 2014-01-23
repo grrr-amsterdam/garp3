@@ -121,7 +121,15 @@ class Garp_Content_Manager {
 			// ============================================================
 			// Prefix native columns with the table name (e.g. "id" becomes 
 			// "Thing.id")
-			$nativeColumns = $modelInfo[Zend_Db_Table_Abstract::COLS];
+			// Note that we create a mock table object based on the joint view 
+			// to collect column info.
+			// This should be more accurate than reading that info from the table.
+			$mockTable = new Zend_Db_Table(array(
+				Zend_Db_Table_Abstract::NAME => $tableName,
+				Zend_Db_Table_Abstract::PRIMARY => $this->_model->info(Zend_Db_Table_Abstract::PRIMARY)
+			));
+			$nativeColumns = $mockTable->info(Zend_Db_Table_Abstract::COLS);
+
 			$select->order(array_map(function ($s) use ($tableName, $nativeColumns) {
 				$nativeColTest = preg_replace('/(ASC|DESC)$/', '', $s);
 				$nativeColTest = trim($nativeColTest);
@@ -363,6 +371,11 @@ class Garp_Content_Manager {
 		$nativeColumns = $this->_model->info(Zend_Db_Table_Abstract::COLS);
 		if ($useJointView) {
 			$tableName = $this->_model->getJointView() ?: $this->_model->getName();
+			$mockTable = new Zend_Db_Table(array(
+				Zend_Db_Table_Abstract::NAME => $tableName,
+				Zend_Db_Table_Abstract::PRIMARY => $this->_model->info(Zend_Db_Table_Abstract::PRIMARY)
+			));
+			$nativeColumns = $mockTable->info(Zend_Db_Table_Abstract::COLS);
 		} else {
 			$tableName = $this->_model->getName();
 		}
