@@ -285,6 +285,37 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	} 
 
 	/**
+ 	 * Generates an ON clause from a referenceMap, 
+ 	 * for use in a JOIN statement.
+ 	 * @param String $ref
+ 	 * @param String $thisAlias
+ 	 * @param String $refAlias
+ 	 * @return String
+ 	 */
+	public function refMapToOnClause($refModel, $thisAlias = null, $refAlias = null) {
+		$thisAlias   = $thisAlias ?: $this->getName();
+		$thisAdapter = $this->getAdapter();
+		$thisAlias   = $thisAdapter->quoteIdentifier($thisAlias);
+		
+		$ref        = $this->getReference($refModel);
+		$refModel   = new $refModel();
+		$refAdapter = $refModel->getAdapter();
+		$refAlias   = $refAlias ?: $refModel->getName();
+		$refAlias   = $refAdapter->quoteIdentifier($refAlias);
+
+		$on = array();
+		foreach ($ref['columns'] as $i => $col) {
+			$col = $thisAdapter->quoteIdentifier($col);
+			$refCol = $refAdapter->quoteIdentifier($ref['refColumns'][$i]);
+			$_on = "{$thisAlias}.{$col} = {$refAlias}.{$refCol}";
+			$on[] = $_on;
+		}
+
+		$on = implode(' AND ', $on);
+		return $on;
+	}
+
+	/**
 	 * Get bindable models
 	 * @return Array
 	 */
