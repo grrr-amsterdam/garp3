@@ -19,6 +19,11 @@ class Garp_Cli {
 	const YELLOW = '0;33';
     /**#@-*/
 
+	/**
+ 	 * Wether output should be emitted
+ 	 * @var Boolean
+ 	 */
+	static protected $_quiet = false;
 
 	/**
 	 * Print line.
@@ -33,13 +38,12 @@ class Garp_Cli {
 			self::addStringColoring($s, $color);
 		}
 		$out = "{$s}".($appendNewline ? "\n" : '');
-		if ($echo) {
+		if ($echo && !static::$_quiet) {
 			print $out;
 		} else {
 			return $out;
 		}
 	}
-
 
 	/**
 	 * Print line in red.
@@ -47,10 +51,13 @@ class Garp_Cli {
 	 * @return Void
 	 */
 	public static function errorOut($s) {
-		self::addStringColoring($s, self::RED);
-		self::lineOut($s);
+		// Always output errors
+		$oldQuiet = self::getQuiet();
+		self::setQuiet(false);
+
+		self::lineOut($s, self::RED);
+		self::setQuiet($oldQuiet);
 	}
-	
 
 	/**
  	 * Print line in a certain color
@@ -82,8 +89,7 @@ class Garp_Cli {
 		}
 		return $response;
 	}
-	
-	
+
 	/**
 	 * Force user to confirm a question with yes or no.
 	 * @param String $msg Question or message to display. A prompt (>) will be added.
@@ -98,8 +104,21 @@ class Garp_Cli {
 		print "\n";
 		return $char === 'y' || $char === 'Y';
 	}
-	
-	
+
+	/**
+ 	 * Set quiet mode
+ 	 */
+	public static function setQuiet($quiet) {
+		static::$_quiet = $quiet;
+	}
+
+	/**
+ 	 * Get quiet mode
+ 	 */
+	public static function getQuiet() {
+		return static::$_quiet;
+	}
+
 	/**
 	 * PARSE ARGUMENTS
 	 * 
@@ -191,7 +210,6 @@ class Garp_Cli {
 		return $out;
 	}
 
-
 	/**
  	 * For some functionality you absolutely need an HTTP context.
  	 * This method mimics a standard Zend request.
@@ -219,7 +237,6 @@ class Garp_Cli {
 		return $response;
 	}
 
-
 	/**
  	 * On shell, you must return 0 on success, 1 on failure.
  	 * This method deals with that. Feed it any expression and 
@@ -234,4 +251,5 @@ class Garp_Cli {
 		$bool = !$bool;
 		exit((int)$bool);
 	}
+
 }
