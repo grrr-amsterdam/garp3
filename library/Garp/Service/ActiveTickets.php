@@ -38,18 +38,13 @@ class Garp_Service_ActiveTickets {
 		$args = current($args);
 		$args = $this->_addUsername($args);	
 		
-		return $this->_client->$method($args);
-
-		$resultKey = $methodName . 'Result';
+		$response = $this->_client->$method($args);
+		$resultKey = $method . 'Result';
 		$xml = $response->$resultKey;
-		//echo $response;
-		//echo $xml;
 
 		$xmlParser = new Zend_Config_Xml($xml);
-
-		//// levert op: array('ProgramList'=> array('Program' => array(0 => array(prop1, prop2, etc))))
-		var_dump($xmlParser->toArray());
-		//return parent::$method($args);
+		
+		return $xmlParser->toArray();
 	}
 
 	protected function _addUsername(array $args) {
