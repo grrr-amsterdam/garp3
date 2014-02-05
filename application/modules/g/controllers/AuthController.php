@@ -423,7 +423,7 @@ class G_AuthController extends Garp_Controller_Action {
 
 		$user = $userModel->fetchRow($select);
 		if (!$user) {
-			$this->view->error = 'De opgegeven code is ongeldig.';
+			$this->view->error = __('invalid email activation code');
 		} else {
 			$user->{$emailValidColumn} = 1;
 			if (!$user->save()) {
