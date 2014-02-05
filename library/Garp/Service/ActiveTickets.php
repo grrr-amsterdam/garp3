@@ -11,6 +11,7 @@
 class Garp_Service_ActiveTickets {
 	const WSDL = 
 		"http://webservices.activetickets.com/members/ActiveTicketsMembersServices.asmx?WSDL";	
+	const DATETIME_FORMAT = '%FT%T';
 
 	protected $_username;
 
@@ -31,20 +32,43 @@ class Garp_Service_ActiveTickets {
 	}
 
 	/**
+ 	 * Converts a timestamp to a date format AT accepts.
+ 	 * @param Int $timestamp Unix timestamp
+ 	 * @return String SOAP timestamp
+ 	 */
+	public function convertTimestampUnixToSoap($timestamp = null) {
+		if (is_null($timestamp)) {
+			return strftime(self::DATETIME_FORMAT);
+		}
+		/**
+ 		 * @todo: timezone erachter?
+ 		 */
+		return strftime(self::DATETIME_FORMAT, $timestamp);
+	}
+
+	/**
+ 	 * Converts a timestamp to a date format AT accepts.
+ 	 * @param String $timestamp SOAP timestamp
+ 	 * @return Int Unix timestamp
+ 	 */
+	public function convertTimestampSoapToUnix($soap = null) {
+		$dt = new DateTime($soap);
+		return $dt->format('U');
+	}
+
+	/**
  	 * @param String $method Name of the SOAP function
  	 * @param Array $args Arguments to provide the SOAP function
+ 	 * @return Garp_Service_ActiveTickets_Response
  	 */
 	public function __call($method, $args) {
 		$args = current($args);
 		$args = $this->_addUsername($args);	
 		
 		$response = $this->_client->$method($args);
-		$resultKey = $method . 'Result';
-		$xml = $response->$resultKey;
-
-		$xmlParser = new Zend_Config_Xml($xml);
+		$responseObj = new Garp_Service_ActiveTickets_Response($response, $method);
 		
-		return $xmlParser->toArray();
+		return $responseObj;
 	}
 
 	protected function _addUsername(array $args) {
