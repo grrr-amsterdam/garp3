@@ -99,19 +99,25 @@ class Garp_Social_Twitter {
 
 		if (isset($tweets['search'])) {
 			foreach ($tweets['search'] as $query => $result) {
-				$file->store($prefix . '_' . $query . '_search.js', $this->_addCallback($result), TRUE);
+				$filename = $prefix . '_' . $query . '_search.js';
+				$filename = Garp_File::formatFilename($filename);
+				$file->store($filename, $this->_addCallback($result), TRUE);
 			}
 		}
 
 		if (isset($tweets['userTimeline'])) {
 			foreach ($tweets['userTimeline'] as $screen_name => $timeline) {
-				$file->store($prefix . '_' . $screen_name . '_timeline.js', $this->_addCallback($timeline), TRUE);
+				$filename = $prefix . '_' . $screen_name . '_timeline.js';
+				$filename = Garp_File::formatFilename($filename);
+				$file->store($filename, $this->_addCallback($timeline), TRUE);
 			}
 		}
 
 		if (isset($tweets['userList'])) {
 			foreach ($tweets['userList'] as $name => $list) {
-				$file->store($prefix . '_' . $name . '_list.js', $this->_addCallback($list), TRUE);
+				$filename = $prefix . '_' . $name . '_list.js';
+				$filename = Garp_File::formatFilename($filename);
+				$file->store($filename, $this->_addCallback($list), TRUE);
 			}
 		}
 	}
