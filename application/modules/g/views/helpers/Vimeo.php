@@ -2,12 +2,10 @@
 /**
  * G_View_Helper_Vimeo
  * Helper for rendering embedded Vimeo players
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Helper
- * @lastmodified $Date: $
+ *
+ * @author       Harmen Janssen | grrr.nl
+ * @version      0.2.0
+ * @package      G_View_Helper
  */
 class G_View_Helper_Vimeo extends Zend_View_Helper_HtmlElement {
 	/**
