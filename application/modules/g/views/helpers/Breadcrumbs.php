@@ -1,13 +1,13 @@
 <?php
 /**
- * Garp_View_Helper_Breadcrumbs
+ * G_View_Helper_Breadcrumbs
  * Prints breadcrumbs.
  *
  * @author       Harmen Janssen | grrr.nl
  * @version      1.0
- * @package      Garp_View_Helper
+ * @package      G_View_Helper
  */
-class Garp_View_Helper_Breadcrumbs extends Zend_View_Helper_Abstract {
+class G_View_Helper_Breadcrumbs extends Zend_View_Helper_Abstract {
 	public function breadcrumbs(array $links) {
 		$out = '<ol class="breadcrumbs mb-half">'."\n";
 		foreach ($links as $url => $label) {
