@@ -31,13 +31,16 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	/**
 	 * @param Zend_Config $config The 'cdn' section from application.ini, containing S3 and general CDN configuration.
 	 * @param String $path Relative path to the location of the stored file, excluding trailing slash but always preceded by one.
+	 * @param Boolean $keepalive Wether to keep the socket open
 	 */
-	public function __construct(Zend_Config $config, $path = '/') {
+	public function __construct(Zend_Config $config, $path = '/', $keepalive = false) {
 		$this->_setConfigParams($config);
 		
 		if ($path) {
 			$this->_config['path'] = $path;
 		}
+
+		$this->_config['keepalive'] = $keepalive;
 	}
 
 
@@ -235,7 +238,10 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 				);
 			}
 		
-			$this->_api->getHttpClient()->setConfig(array('timeout' => self::TIMEOUT));
+			$this->_api->getHttpClient()->setConfig(array(
+				'timeout' => self::TIMEOUT, 
+				'keepalive' => $this->_config['keepalive']
+			));
 			
 			$this->_apiInitialized = true;
 		}
