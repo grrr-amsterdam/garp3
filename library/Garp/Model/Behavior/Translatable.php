@@ -72,21 +72,22 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		$select = &$args[1];
 
 		$isCms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
-		if ($isCms) {
-			if ($where = $select->getPart(Zend_Db_Select::WHERE)) {
-				foreach ($where as $clause) {
-					// Check if it's a search query
-					if (stripos($clause, 'like') !== false) {
-						preg_match('/%.*?%/', $clause, $matches);
-						if (!empty($matches[0])) {
-							$this->_joinCmsSearchQuery($model, $select, $matches[0]);
-							break;
-						}
+		if (!$isCms) {
+			return;
+		}
+		if ($where = $select->getPart(Zend_Db_Select::WHERE)) {
+			foreach ($where as $clause) {
+				// Check if it's a search query
+				if (stripos($clause, 'like') !== false) {
+					preg_match('/%.*?%/', $clause, $matches);
+					if (!empty($matches[0])) {
+						$this->_joinCmsSearchQuery($model, $select, $matches[0]);
+						break;
 					}
 				}
 			}
-			$this->bindWithI18nModel($model);
 		}
+		$this->bindWithI18nModel($model);
 	}	
 
 	/**
@@ -94,39 +95,30 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
  	 */
 	protected function _joinCmsSearchQuery(Garp_Model_Db $model, Zend_Db_Select &$select, $likeValue) {
 		$languages = Garp_I18n::getLocales();
+		$default_language = array(Garp_I18n::getDefaultLocale());
+		$langColumn = self::LANG_COLUMN;
+		// Exclude default language, since that's already joined in the joint view
+		$languages = array_diff($languages, $default_language);
+		$adapter = $model->getAdapter();
 		foreach ($languages as $language) {
-			$factory = new Garp_I18n_ModelFactory($language);
-			$translatedViewModel = $factory->getModel($model);
 			$i18nModel = $this->getI18nModel($model);
-			$referenceMap = $i18nModel->getReference(get_class($model));
-			$adapter = $model->getAdapter();
+			$i18nAlias = $model->getName() . '_i18n_' . $language;
+			$onClause = $i18nModel->refMapToOnClause(get_class($model), $i18nAlias, $model->getJointView());
 
-			$translatedFields = $this->_getSuffixedColumnNames($language);
-			$translatedFieldsSql = array();
-			foreach ($translatedFields as $i18nField => $field) {
-				$translatedFieldsSql[] = $field.' AS '.$i18nField;
-				$select->orWhere($i18nField.' LIKE ?', $likeValue);
-			}
-			$translatedFieldsSql = implode(',', $translatedFieldsSql);
-			$select->join(
-				array($translatedViewModel->getName() => new Zend_Db_Expr('(SELECT id AS id_'.$language.', '.$translatedFieldsSql.' FROM '.$translatedViewModel->getName().')')),
-				$adapter->quoteIdentifier($translatedViewModel->getName()) . '.id_'.$language.' = '.$adapter->quoteIdentifier($model->getJointView()) . '.id',
+			// join i18n model
+			$select->joinLeft(
+				array($i18nAlias => $i18nModel->getName()),
+				"$onClause AND {$langColumn} = '{$language}'",
 				array()
 			);
-		}
-	}
 
-	/**
- 	 * Get translated fields with a language suffix ("name_nl")
- 	 * @param String $language
- 	 * @return Array
- 	 */
-	protected function _getSuffixedColumnNames($language) {
-		$out = array();
-		foreach ($this->_translatableFields as $field) {
-			$out[$field.'_'.$language] = $field;
+			// add WHERE clauses that search in the i18n model
+			$translatedFields = $this->_translatableFields;
+			foreach ($translatedFields as $i18nField) {
+				$select->orWhere("{$i18nAlias}.{$i18nField} LIKE ?", $likeValue);
+			}
+			
 		}
-		return $out;
 	}
 
 	/**
