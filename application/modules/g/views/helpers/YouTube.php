@@ -1,13 +1,11 @@
 <?php
 /**
  * G_View_Helper_YouTube
- * Generate HTML Object tags to a YouTube video
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Helper
- * @lastmodified $Date: $
+ * Helper for rendering embedded YouTube players
+ *
+ * @author       Harmen Janssen | grrr.nl
+ * @version      0.2.0
+ * @package      G_View_Helper
  */
 class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 	/**
