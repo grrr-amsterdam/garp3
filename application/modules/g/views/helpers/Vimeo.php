@@ -2,12 +2,10 @@
 /**
  * G_View_Helper_Vimeo
  * Helper for rendering embedded Vimeo players
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Helper
- * @lastmodified $Date: $
+ *
+ * @author       Harmen Janssen | grrr.nl
+ * @version      0.2.0
+ * @package      G_View_Helper
  */
 class G_View_Helper_Vimeo extends Zend_View_Helper_HtmlElement {
 	/**
@@ -33,7 +31,7 @@ class G_View_Helper_Vimeo extends Zend_View_Helper_HtmlElement {
 	 * @return Mixed
 	 */
 	public function render($vimeo, array $options = array()) {
-		$options = $this->_setDefaultOptions($options);
+		$this->_setDefaultAttribs($options);
 		$_attribs = $options['attribs'];
 		$_attribs['width']  = $options['width'];
 		$_attribs['height'] = $options['height'];
@@ -42,31 +40,47 @@ class G_View_Helper_Vimeo extends Zend_View_Helper_HtmlElement {
 		unset($options['height']);
 		unset($options['attribs']);
 
-		$playerurl  = $vimeo instanceof Garp_Db_Table_Row ? $vimeo->player : $vimeo;
-		$playerurl .= '?'.http_build_query((array)$options);
+		$playerUrl = $this->getPlayerUrl($vimeo, $options);
 
 		$_attribs['frameborder'] = 0;
-		$_attribs['src'] = $playerurl;
+		$_attribs['src'] = $playerUrl;
 		
 		$html = '<iframe'.$this->_htmlAttribs($_attribs).'></iframe>';
 		return $html;
 	}
 	
+	public function getPlayerUrl($vimeo, $options = array()) {
+		$this->_setDefaultQueryParams($options);
+		$playerurl  = $vimeo instanceof Garp_Db_Table_Row ? $vimeo->player : $vimeo;
+		$playerurl .= '?'.http_build_query((array)$options);
+		return $playerurl;
+	}
 	
 	/**
 	 * Normalize some configuration values.
 	 * @param Array $options
 	 * @return Array Modified options
 	 */
-	protected function _setDefaultOptions(array $options) {
-		$config = new Garp_Util_Configuration($options);
-		$config->setDefault('height', isset($options['width']) ? round($options['width']*0.55) : 264)
-			   ->setDefault('width', 480)
-			   ->setDefault('portrait', 0)
-			   ->setDefault('title', 0)
-			   ->setDefault('byline', 0)
-			   ->setDefault('attribs', array())
-			   ;
-		return $config;
+	protected function _setDefaultAttribs(&$options) {
+		$options = $options instanceof Garp_Util_Configuration ? $options : new Garp_Util_Configuration($options);
+		$options
+			->setDefault('height', isset($options['width']) ? round($options['width']*0.55) : 264)
+			->setDefault('width', 480)
+			->setDefault('attribs', array())
+		;
+	}
+
+	/**
+	 * Normalize some query parameters
+	 * @see https://developers.google.com/youtube/player_parameters
+	 * @param Array $options
+	 */
+	protected function _setDefaultQueryParams(&$options) {
+		$options = $options instanceof Garp_Util_Configuration ? $options : new Garp_Util_Configuration($options);
+		$options
+			->setDefault('portrait', 0)
+			->setDefault('title', 0)
+			->setDefault('byline', 0)
+		;
 	}
 }
