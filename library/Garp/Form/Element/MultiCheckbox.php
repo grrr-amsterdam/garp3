@@ -34,7 +34,7 @@ class Garp_Form_Element_MultiCheckbox extends Zend_Form_Element_MultiCheckbox {
 			'decorators' => array(
 				'ViewHelper',
 				'Description',
-				array(array('tag1' => 'HtmlTag'), array('tag' => 'li')),
+				array('Wrapper' => array('tag1' => 'HtmlTag'), array('tag' => 'li')),
 				array(array('tag2' => 'HtmlTag'), array('tag' => 'ul', 'class' => $ulClass)),
 				array('AnyMarkup', array('markup' => $legendHtml, 'placement' => 'prepend')),
 				'Errors',
