@@ -48,6 +48,9 @@ class Garp_Model_Behavior_Truncatable extends Garp_Model_Behavior_Abstract {
 	
 	protected function _beforeSave(array &$data) {
 		foreach ($this->_config[self::CONFIG_KEY_COLUMNS] as $key => $maxLength) {
+			if (!isset($data[$key])) {
+				continue;
+			}
 			$data[$key] = substr($data[$key], 0, $maxLength);
 		}
 	}
