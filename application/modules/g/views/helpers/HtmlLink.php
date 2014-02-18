@@ -24,7 +24,7 @@ class G_View_Helper_HtmlLink extends Zend_View_Helper_HtmlElement {
 			$url = call_user_func_array(array($this->view, 'url'), $url);
 		} else {
 			$urlAttribs = parse_url($url);
-			if (empty($urlAttribs['scheme'])) {
+			if (empty($urlAttribs['scheme']) && substr($url, 0, 2) !== '//') {
 				$url = $this->view->baseUrl($url);
 			}
 		}
