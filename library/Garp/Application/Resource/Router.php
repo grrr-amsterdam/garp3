@@ -89,7 +89,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 
 		$lang = $this->_getCurrentLanguage();
 		$territory = Garp_I18n::languageToTerritory($lang);
-		setlocale(LC_ALL, $territory);
+		setlocale(LC_ALL, $territory . '.utf8');
 
 		if (
 			$this->_localeIsEnabled() &&
