@@ -79,17 +79,18 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 		$routes = $options['routesFile'];
 
 		if (is_string($routes)) {
-			return $this->_loadRoutesConfig($routes);
+			$genericRoutes = $this->_loadRoutesConfig($routes);
+		} else {
+			$genericRoutes = array_key_exists('generic', $routes) ?
+				$this->_loadRoutesConfig($routes['generic']) :
+				array()
+			;
 		}
-
-		$genericRoutes = array_key_exists('generic', $routes) ?
-			$this->_loadRoutesConfig($routes['generic']) :
-			array()
-		;
 
 		$lang = $this->_getCurrentLanguage();
 		$territory = Garp_I18n::languageToTerritory($lang);
-		setlocale(LC_ALL, $territory);
+		$utf8_extension = PHP_OS === 'Linux' ? '.utf8' : '.UTF-8';
+		setlocale(LC_ALL, $territory . $utf8_extension);
 
 		if (
 			$this->_localeIsEnabled() &&
@@ -149,6 +150,6 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 		if (array_key_exists(0, $bits) && in_array($bits[0], $locales)) {
 			return $bits[0];
 		}
-		return null;
+		return Garp_I18n::getDefaultLocale();
 	}
 }
