@@ -26,6 +26,7 @@ class Garp_Spawn_Relation {
 	public $limit;
 	public $column;
 	public $simpleSelect;
+	public $max;
 
 	/** Whether this relation field is editable in the cms. For instance, hasMany relations of which the opposite side is belongsTo (instead of hasOne), are not editable. */
 	public $editable;
