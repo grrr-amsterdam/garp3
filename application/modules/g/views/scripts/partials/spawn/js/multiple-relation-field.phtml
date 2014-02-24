@@ -57,5 +57,9 @@
 	if ($this->relation->weighable):
 		$params[] = "weighable: true";
 	endif;
+
+	if ($this->relation->max):
+		$params[] = "maxItems: {$this->relation->max}";
+	endif;
 ?>
 		<?php echo implode(",\n\t\t", $params) ?>
