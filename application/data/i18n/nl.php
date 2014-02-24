@@ -186,7 +186,6 @@ $translationTable = array(
 	'Duration' => 'Duur',
 	'Tags' => 'Tags',
 	'Thumbnail' => 'Thumbnail',
-	'Slug' => 'Kenmerk',
 	'Author id' => 'Auteur id',
 	'Modifier id' => 'Bewerker id',
 	'Caption' => 'Bijschrift',
