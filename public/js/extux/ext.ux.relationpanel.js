@@ -19,6 +19,11 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	minimalUI: false,
 	
 	/**
+	 * @cfg: Whether we want one long list (false) or paginate (true) the related items 
+	 */
+	paginated: false,
+	
+	/**
 	 * @cfg: whether or not we allow users to create a new instance
 	 */
 	quickCreatable: false,
@@ -796,7 +801,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				}
 			}, this.getGridCfg(false)));
 			
-			this.relateePanel = new Ext.grid.GridPanel(Ext.apply({}, {
+			var relateePanelCfg = Ext.apply({}, {
 				itemId: 'relateePanel',
 				title: __('Related'),
 				iconCls: 'icon-relatepanel-related',
@@ -816,7 +821,16 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					},
 					scope: this
 				})
-			}, this.getGridCfg(this.maxItems !== null)));
+			}, this.getGridCfg(this.maxItems !== null));
+			if (this.paginated) {
+				relateePanelCfg.bbar = new Ext.PagingToolbar({
+						pageSize: Garp.pageSize,
+						store: this.relateeStore,
+						beforePageText: '',
+						displayInfo: false
+				});
+			}
+			this.relateePanel = new Ext.grid.GridPanel(relateePanelCfg);
 			
 			if (this.minimalUI) {
 				this.items = [{
