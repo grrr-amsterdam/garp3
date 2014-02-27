@@ -1,0 +1,21 @@
+<RoutingRules>
+<?php
+$templates = array();
+if (!empty($this->config()->image->template)):
+	$templates = $this->config()->image->template;
+endif;
+foreach ($templates as $tplName => $tplConfig):
+?>
+    <RoutingRule>
+        <Condition>
+        	<KeyPrefixEquals>uploads/images/scaled/<?php echo $this->escape($tplName) ?></KeyPrefixEquals>
+            <HttpErrorCodeReturnedEquals>404</HttpErrorCodeReturnedEquals>
+        </Condition>
+        <Redirect>
+        	<ReplaceKeyWith>media/images/fallback-<?php echo $this->escape($tplName) ?>.jpg</ReplaceKeyWith>
+        </Redirect>
+    </RoutingRule>
+<?php
+endforeach;
+?>
+</RoutingRules>
