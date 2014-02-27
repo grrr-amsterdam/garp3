@@ -37,7 +37,6 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 		}
 	}
 
-
 	/**
  	 * Is called after an action is dispatched by the dispatcher.
  	 * Here we force a write to the Auth cookie. Because user data may be 
@@ -52,8 +51,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 			$store->writeCookie();
 		}
 	}
-	
-	
+
 	/**
 	 * See if a role is allowed to execute the current request.
 	 * @return Boolean
@@ -66,8 +64,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 			$request->getActionName()
 		);
 	}
-	
-	
+
 	/**
 	 * Redirect user to login page
 	 * @return Void
@@ -93,8 +90,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 		}
 		call_user_func_array(array($redirector, $redirectMethod), $redirectParams);
 	}
-	
-	
+
 	/**
 	 * Check if the current request is for the G_AuthController
 	 * @return Boolean
@@ -102,8 +98,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 	protected function _isAuthRequest() {
 		return 'auth' == $this->getRequest()->getControllerName();
 	}
-	
-	
+
 	/**
 	 * Store targetUrl in session. After login the user is redirected
 	 * back to this url.
@@ -111,6 +106,11 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 	 */
 	protected function _storeTargetUrl() {
 		$request = $this->getRequest();
+		// Only store targetUrl when method = GET. A redirect to a POST request is useless.
+		if (!$request->isGet()) {
+			return;
+		}
+
 		// Allow ?targetUrl=/path/to/elsewhere on any URL
 		if (!$targetUrl = $request->getParam('targetUrl')) {
 			$targetUrl = $request->getRequestUri();

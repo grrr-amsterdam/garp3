@@ -8,6 +8,7 @@ class Garp_Spawn_Field {
 	public $required = true;
 	public $type = 'text';
 	public $maxLength;
+	public $multiline;
 	public $label;
 	public $editable = true;
 	public $visible = true;
@@ -147,6 +148,10 @@ class Garp_Spawn_Field {
 						$this->maxLength = self::TEXTFIELD_MAX_LENGTH;
 					}
 			}
+		}
+
+		if (!array_key_exists('multiline', $config) && $this->isTextual()) {
+			$this->multiline = $this->maxLength > self::TEXTFIELD_MAX_LENGTH;
 		}
 
 		if ($this->type === 'checkbox') {
