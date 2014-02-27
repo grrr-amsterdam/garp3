@@ -5,6 +5,10 @@
 		"tabTip: __('{$this->relation->label}')"
 	);
 	
+	if ($this->relation->paginated):
+		$params[] = "paginated: true";
+	endif;
+
 	if (!$this->relation->editable):
 		$params[] = "minimalUI: true";
 	endif;
