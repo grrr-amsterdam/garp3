@@ -763,7 +763,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			
 			this.relateeStore = new Ext.data.DirectStore(Ext.apply({}, {
 				baseParams: {
-					limit: RELATEESTORE_LIMIT
+					limit: this.paginated ? Garp.pageSize : RELATEESTORE_LIMIT
 				},
 				writer: new Ext.data.JsonWriter({
 					paramsAsHash: false,
@@ -823,11 +823,12 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				})
 			}, this.getGridCfg(this.maxItems !== null));
 			if (this.paginated) {
+				relateePanelCfg.pageSize = Garp.pageSize;
 				relateePanelCfg.bbar = new Ext.PagingToolbar({
-						pageSize: Garp.pageSize,
-						store: this.relateeStore,
-						beforePageText: '',
-						displayInfo: false
+					pageSize: Garp.pageSize,
+					store: this.relateeStore,
+					beforePageText: '',
+					displayInfo: false
 				});
 			}
 			this.relateePanel = new Ext.grid.GridPanel(relateePanelCfg);
