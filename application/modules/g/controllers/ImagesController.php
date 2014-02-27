@@ -45,6 +45,10 @@ class G_ImagesController extends Garp_Controller_Action {
 		$this->_viewSourceById($filename);
 	}
 
+	public function s3fallbackAction() {
+		$this->_helper->layout->setLayout('xml');
+	}
+
 	private function _viewSourceById($id) {
 		$imageModel = new G_Model_Image();
 		$imageRow = $imageModel->fetchRow($imageModel->getAdapter()->quoteInto("id = ?", $id));
