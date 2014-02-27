@@ -9,7 +9,7 @@
  * @lastmodified $Date: $
  */
 class G_ImagesController extends Garp_Controller_Action {
-	protected $scaleParams = array(
+	protected $_scaleParams = array(
 		'w',
 		'h',
 		'bgcolor',
@@ -18,8 +18,7 @@ class G_ImagesController extends Garp_Controller_Action {
 		'grow',
 		'remote'	// <-- moet dit niet een autodetect zijn?
 	);
-	
-	
+
 	/**
 	 * Central entry point.
 	 * @return Void
@@ -28,26 +27,23 @@ class G_ImagesController extends Garp_Controller_Action {
 		exit('Browsing the list of images is not allowed.');
 	}
 
-
 	public function viewAction() {
 		$request = $this->getRequest();
 		$filename = $request->getParam('file');
 
-		if (
-			!$filename
-		) {
+		if (!$filename) {
 			throw new Zend_Controller_Action_Exception('No filename was provided.', 404);
-		} elseif (
-			is_numeric($filename)
-		) {
-			if ($tpl = $request->getParam('tpl')) {
-				throw new Zend_Controller_Action_Exception("Template-scaled images can no longer be acquired through this dynamic url. Please refer to the actual location of the file.", 404);
-			} else {
-				$this->_viewSourceById($filename);
-			}
-		} else throw new Zend_Controller_Action_Exception("Referring to images by their filename is no longer supported in this url format. Please use the image id.", 404);
-	}
+		} 
 
+		if (!is_numeric($filename)) {
+			throw new Zend_Controller_Action_Exception("Referring to images by their filename is no longer supported in this url format. Please use the image id.", 404);
+		}
+		if ($tpl = $request->getParam('tpl')) {
+			throw new Zend_Controller_Action_Exception("Template-scaled images can no longer be acquired through this dynamic url. Please refer to the actual location of the file.", 404);
+		}
+
+		$this->_viewSourceById($filename);
+	}
 
 	private function _viewSourceById($id) {
 		$imageModel = new G_Model_Image();
@@ -57,7 +53,8 @@ class G_ImagesController extends Garp_Controller_Action {
 			$url = $file->getUrl($imageRow->filename);
 			header("Location: ".$url);
 			exit;
-		} else throw new Zend_Controller_Action_Exception("Sorry, I can't find the requested image.", 404);
+		}
+		throw new Zend_Controller_Action_Exception("Sorry, I can't find the requested image.", 404);
 	}
 
 
@@ -88,7 +85,7 @@ class G_ImagesController extends Garp_Controller_Action {
 	// 		$scaleParams = array();
 	// 		$isInNeedOfScaling = false;
 	// 
-	// 		foreach ($this->scaleParams as $scaleParamName) {
+	// 		foreach ($this->_scaleParams as $scaleParamName) {
 	// 			$scaleParams[$scaleParamName] = $request->getParam($scaleParamName);
 	// 			if (!is_null($scaleParams[$scaleParamName]))
 	// 				$isInNeedOfScaling = true;
