@@ -164,7 +164,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	setupDD: function(){
 		var scope = this;
 		
-		new Ext.dd.DropTarget(this.relatePanel.getView().mainBody, {
+		new Ext.dd.DropTarget(this.relatePanel.getView().el, {
 			ddGroup: 'dd',
 			copy: true,
 			notifyOut: function(){
@@ -229,7 +229,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			notifyOver: function(ddSource, e, data){
 				scope.highlight(scope.relateePanel.getView().getRow(scope.getRowIndex(scope.relateePanel, e)), this.highlight);
 				if (!scope.weighable && ddSource.dragData.grid.itemId == 'relateePanel') {
-					return false;
+					return Ext.dd.DropZone.prototype.dropNotAllowed;
+				}
+				if (ddSource.dragData.grid.itemId == 'relateePanel') {
+					return Ext.dd.DropZone.prototype.dropAllowed;
 				}
 				if (scope.maxItems && scope.relateeStore.getCount() >= scope.maxItems) {
 					return Ext.dd.DropZone.prototype.dropNotAllowed;
@@ -267,15 +270,22 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 
 		// see if we may proceed with moving:
 		if(this.maxItems && this.relateeStore.getCount() >= this.maxItems && target == this.relateePanel){
-			return;
+			// re-ordering within the same region should however be possible:
+			if (source !== target) {
+				return;
+			}
 		}
 		if (!records) {
 			records = source.getSelectionModel().getSelections();
+		}
+		if (this.maxItems && (this.relateeStore.getCount() + records.length) > this.maxItems && source == this.relatePanel) {
+			return;
 		}
 		
 		// @TODO: Possibly check for duplicate items (decide later):
 		// if(!Ext.isDefined(target.store.getById(source.store.find('id'))))
 		Ext.each(records, function(rec, i){
+			
 			var nr = new source.store.recordType(rec.data);
 			if (Ext.isNumber(index)) {
 				target.store.insert(index, nr);
