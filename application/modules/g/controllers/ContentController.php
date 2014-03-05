@@ -398,6 +398,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$params = $request->getParams();
 		
 		if (array_key_exists('text', $params)) {
+			$this->view->textMode = true;
 			$this->_helper->layout->setLayout('blank');
 		} else {
 			$this->_helper->layout->setLayout('datamodel');
