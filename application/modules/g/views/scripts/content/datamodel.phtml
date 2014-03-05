@@ -3,6 +3,7 @@ $r = 0;
 $modelsPerRow = 5;
 $totalModels = count($this->models);
 $jsModels = array();
+$hiddenModels = array('AuthLocal', 'ClusterServer', 'ClusterClearCacheJob', 'ClusterRecurringJob');
 
 foreach ($this->models as $model) {
 	$jsModels[$model->id] = array();
@@ -30,7 +31,8 @@ foreach ($this->models as $model) {
 	?>
 </div>
 <div id="section-relations">
-	<?php foreach ($this->models as $model): ?>
+	<?php foreach ($this->models as $modelName => $model): ?>
+		<?php if (in_array($modelName, $hiddenModels)) continue; ?>
 		<a href="#" class="model" id="<?php echo $model->id ?>">
 			<div class="content_container">
 				<div class="content">
