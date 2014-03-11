@@ -17,6 +17,8 @@ class Garp_Spawn_Model_Binding_Factory {
 		}
 
 		$bindingModelConfig = $this->_getBindingModelConfig($relation);
+//var_dump($bindingModelConfig);
+
 		$model = new Garp_Spawn_Model_Binding($bindingModelConfig);
 
 		return $model;
@@ -55,6 +57,14 @@ class Garp_Spawn_Model_Binding_Factory {
 		);
 
 		return $bindingModelConfig;
+	}
+
+	protected function _getBindingModelName(Garp_Spawn_Relation $relation) {
+		$modelNames = array($relation->getLocalModel()->id, $relation->model);
+		sort($modelNames);
+		$firstAlphabeticModel = $modelNames[0];
+
+		return $firstAlphabeticModel . $relation->name;
 	}
 
 	protected function _getBindingModelParams(Garp_Spawn_Relation $relation, $relLabel1, $relLabel2) {
