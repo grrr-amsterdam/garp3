@@ -1,0 +1,18 @@
+@import 'imports/mixins';
+@import 'imports/variables';
+
+.wysiwyg-body {
+	/* To make the WYSIWYG editor look like the real deal, do something like
+	@import 'base' here */
+}
+
+/*
+ * Custom datatype icons
+ * Usage: .icon-article { @include cms-icon(newspaper); }
+ */
+@mixin cms-icon($icon) {
+	background-image: url(../../../media/images/garp/icons2/#{$icon}.png);
+}
+
+/* allow textarea's to be resized! */
+textarea { resize: vertical !important; }
