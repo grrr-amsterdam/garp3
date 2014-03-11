@@ -693,3 +693,9 @@ Ext.ux.form.DateTime = Ext.extend(Ext.form.Field, {
 
 // register xtype
 Ext.reg('xdatetime', Ext.ux.form.DateTime);
+
+// Added by Harmen :-) @ 11 March 2014
+Ext.apply(Ext.ux.form.DateTime.prototype, {
+	dateFormat : 'd F Y',
+	timeFormat : 'H:i:s'
+});		
