@@ -48,14 +48,14 @@ Garp.dataTypes.Snippet.on('init', function(){
 	this.getColumn('image_id').header = '';
 	
 	// Override some field properties as to hide and disable and such:
-	Ext.each(['identifier','uri'], function(i){
-		var f = this.getField(i);
+	//Ext.each(['identifier','uri'], function(i){
+		var f = this.getField('identifier');
 		Ext.apply(f, {
 			disabled: true,
 			xtype: 'textfield',
 			allowBlank: true
 		});
-	}, this);
+	//}, this);
 	
 	// "Variables" is kind of an odd platypus, we need to change the xtype and more; but only if it exists. We also move it to the bottom:
 	if (this.getField('variables')) {
