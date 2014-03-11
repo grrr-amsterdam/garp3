@@ -1,0 +1,42 @@
+/* ==========================================================================
+   variables
+   ========================================================================== */
+
+// COLORS (base)
+// The following is inspired by this article: http://sachagreif.com/sass-color-variables/
+
+$black: #000;
+$white: #ffffff;
+
+$blue--dark: #244057;
+$blue--light: #a7c0c6;
+$blue--lighter: tint($blue--light, 60%);
+$blue--lightest: tint($blue--light, 90%);
+
+$primaryColor: $blue--dark;
+
+
+// FONTS
+$defaultFontSize: 20;
+$defaultLineHeight: 1.6;
+
+$bodyFont: sans-serif;
+$headingFont: sans-serif;
+$smallCapFont: sans-serif;
+
+// WIDTHS & SIZES
+$siteInnerWidth: 1020px;
+$siteOuterWidth: 1440px;
+
+// MARGINS
+$margin: 45px;
+
+// BREAKPOINTS
+// The following is inspired by this article: http://css-tricks.com/media-queries-sass-3-2-and-codekit/
+$small: 640;
+$medium: 1024;
+$large: 1400;
+
+
+$fix-mqs: false !default;
+$old-ie: false !default;

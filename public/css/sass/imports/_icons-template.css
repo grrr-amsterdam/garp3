@@ -1,0 +1,86 @@
+/* ==========================================================================
+	Grunt icon template.
+	Generates _icons.scss, which is imported into base.scss
+
+	Author: Koen | grrr.nl
+
+	(original can be found in node_modules/grunt-webfont/tasks/templates/bem.css)
+   ========================================================================== */
+
+/* IE8 Fix */
+<% if (fontfaceStyles) { %>@font-face {
+	font-family:"<%= fontBaseName %>";
+	src:<%= fontSrc1 %>;
+	font-weight:normal;
+	font-style:normal;
+}<% } %>
+
+<% if (fontfaceStyles) { %>@font-face {
+	font-family:"<%= fontBaseName %>";<% if (fontSrc1) { %>
+	src:<%= fontSrc1 %>;<% }%>
+	src:<%= fontSrc2 %>;
+	font-weight:normal;
+	font-style:normal;
+}<% } %>
+
+<% if (baseStyles) { %>%icon<% if (addLigatures) { %>,
+.ligature-icons<% } %> {
+	font-family:"<%= fontBaseName %>";
+	display:inline-block;
+	font-weight:normal;
+	font-style:normal;
+	vertical-align: baseline;
+	line-height: 1;
+	speak:none;
+	text-decoration:inherit;
+	text-transform:none;
+	text-rendering:optimizeLegibility;
+	-webkit-font-smoothing:antialiased;
+	-moz-osx-font-smoothing:grayscale;
+}<% } %>
+
+<% if (iconsStyles) { %>
+/*
+ * Icons - HTML only
+ * Usage: <div class="icon-menu"><div>
+ *
+ * Will add :before of menu-icon (or specify after by adding __after
+ * or --after in de fontname before generating the icons
+ */
+<% for (var glyphIdx = 0; glyphIdx < glyphs.length; glyphIdx++) { %><%
+	if(!('contains' in String.prototype))
+ 		String.prototype.contains = function(str, startIndex) { return -1 !== String.prototype.indexOf.call(this, str, startIndex); };
+ 	if (glyphs[glyphIdx].contains('after')) { %>
+.icon-<%= glyphs[glyphIdx].slice(0, -6) %>:after { @extend %icon; content:"<% if (addLigatures) { %><%= glyphs[glyphIdx] %><% } else { %>\<%= (61696+glyphIdx).toString(16) %><% } %>"; }<% } else { %>
+.icon-<%= glyphs[glyphIdx] %>:before { @extend %icon; content:"<% if (addLigatures) { %><%= glyphs[glyphIdx] %><% } else { %>\<%= (61696+glyphIdx).toString(16) %><% } %>"; }<% }} %><% } %>
+
+<% if (iconsStyles) { %>
+/*
+ * Icons - HTML or CSS
+ * Usage: .blabla:before { @extend .EXTEND-icon-name; } or
+ * .blabla:after { @extend .EXTEND-icon-name; }
+ *
+ * Extends the icon in a before or after pseudo-element.
+ *
+ * Warning: NEVER extend/use it by specifying the unicode character (content: '\U2934';),
+ * as it will be overwritten when adding new icons. Character is added on alphabetical order.
+ */
+ <% for (var glyphIdx = 0; glyphIdx < glyphs.length; glyphIdx++) { %><%
+	if(!('contains' in String.prototype))
+ 		String.prototype.contains = function(str, startIndex) { return -1 !== String.prototype.indexOf.call(this, str, startIndex); }; %>
+.extend-icon-<%= glyphs[glyphIdx] %> {
+	font-family:"<%= fontBaseName %>";
+	display:inline-block;
+	font-weight:normal;
+	font-style:normal;
+	vertical-align: baseline;
+	line-height: 1;
+	speak:none;
+	text-decoration:inherit;
+	text-transform:none;
+	text-rendering:optimizeLegibility;
+	-webkit-font-smoothing:antialiased;
+	-moz-osx-font-smoothing:grayscale;
+	content:"<% if (addLigatures) { %><%= glyphs[glyphIdx] %><% } else { %>\<%= (61696+glyphIdx).toString(16) %><% } %>"; }
+	<% } %>
+<% } %>

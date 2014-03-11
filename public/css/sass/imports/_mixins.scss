@@ -1,0 +1,147 @@
+/* ==========================================================================
+   mixins and functions
+   ========================================================================== */
+
+/**
+ * For converting pixels to ems
+ * Based on a 10px font-size on the html
+ * Usage:
+ * div { width: pxToEm(300); }
+ * Returns:
+ * div { width: 30em; }
+ */
+@function pxToEm($pixels){
+	@return ($pixels/16)+0em;
+}
+
+/**
+ * Color mixins (other than lighten or darken)
+*/
+// Add percentage of white to a color
+@function tint($color, $percent){
+  @return mix(white, $color, $percent);
+}
+// Add percentage of black to a color
+@function shade($color, $percent){
+  @return mix(black, $color, $percent);
+}
+
+/**
+ * Responsive padding (include units, so: 20px, ...)
+ * Usage:
+ * .content { @include responsive-padding($margin, $margin*2, $margin, $margin*1.5): }
+ *
+ * author: Koen
+ */
+@mixin responsive-padding($top, $right, $bottom, $left) {
+								  padding: #{$top} #{$right} #{$bottom} #{$left};
+	@include bp-max($medium) 	{ padding: #{$top/2} #{$right/2} #{$bottom/2} #{$left/2}; }
+	@include bp-max($small) 	{ padding: #{$top/2} $margin/3 #{$bottom/2} $margin/3; }
+}
+
+/**
+ * For image replacement
+ */
+@mixin hide-text {
+	font: 0/0 a;
+	text-shadow: none;
+	color: transparent;
+	background-color: transparent;
+	border: 0 none;
+}
+
+/**
+ * For font-sizing in rem
+ * Usage:
+ * html { font-size: 62.5%; }
+ * p { @include font-size(16); }
+ */
+@mixin font-size($font-size) {
+	font-size: #{$font-size}px;
+	font-size: #{$font-size / 10}rem;
+}
+
+/**
+ * For using breakpoints
+ * Usage:
+ * div { width: 60px;
+ *	@include breakpoint-min($small) { width: 80px; }
+ * }
+ *
+ * Pass true as a second parameter to toggle high dpi screens
+ */
+@mixin bp-min($point: 0em, $highDpi: false) {
+	@if $fix-mqs {
+		@content;
+	} @else {
+		@if $highDpi == true {
+			@media only screen and (min-width: pxToEm($point)) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $point) and (min-device-pixel-ratio: 2) { @content; }
+		} @else {
+			@media only screen and (min-width: pxToEm($point)) { @content; }
+		}
+	}
+}
+
+@mixin bp-max($point: 0em, $highDpi: false) {
+	@if($highDpi == true) {
+		@media only screen and (max-width: (pxToEm($point) - 0.0625em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $point) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $point) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $point) and (min-device-pixel-ratio: 2) { @content; }
+	} @else {
+		@media only screen and (max-width: (pxToEm($point) - 0.0625em)) { @content; }
+	}
+}
+
+@mixin bp-min-max($minPoint: 0em, $maxPoint: 0em, $highDpi: false) {
+	@if($highDpi == true) {
+		@media only screen and (min-width: pxToEm($minPoint)) and (-webkit-min-device-pixel-ratio: 2), only screen and (min-width: $minPoint) and (min--moz-device-pixel-ratio: 2), only screen and (min-width: $minPoint) and (-o-min-device-pixel-ratio: 2/1), only screen and (min-width: $minPoint) and (min-device-pixel-ratio: 2) and (max-width: (pxToEm($maxPoint) - 0.0625em)) and (-webkit-min-device-pixel-ratio: 2), only screen and (max-width: $maxPoint) and (min--moz-device-pixel-ratio: 2), only screen and (max-width: $maxPoint) and (-o-min-device-pixel-ratio: 2/1), only screen and (max-width: $maxPoint) and (min-device-pixel-ratio: 2) { @content; }
+	} @else {
+		@media only screen and (min-width: pxToEm($minPoint)) and (max-width: (pxToEm($maxPoint) - 0.0625em)) { @content; }
+	}
+}
+
+/**
+ * For targetting high dpi screens
+ * Usage:
+ * div {
+ *	width: 30px; height: 30px; background: url('img.jpg');
+ *	@include high-dpi() { background: url('image-2x.jpg'); @include background-size(30px 30px); }
+ * }
+ */
+@mixin high-dpi() {
+	@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and(min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2) { @content; }
+}
+
+/**
+ * For targeting old-IE
+ * Usage:
+ * div {
+ *  @include old-ie { zoom: 1; }
+ * }
+ */
+@mixin old-ie {
+	// Only use this content if we're dealing with old IE
+	@if $old-ie {
+		@content;
+	}
+}
+
+/**
+ * Calculate fluid ratio based on two dimensions (width/height)
+ * @see http://voormedia.com/blog/2012/11/responsive-background-images-with-fixed-or-fluid-aspect-ratios
+ * Usage:
+ * .header { @include fluid-ratio(800px 200px, 300px 150px); background-image: url('img/branding.png'); }
+ */
+@mixin fluid-ratio($large-size, $small-size) {
+  $width-large: nth($large-size, 1);
+  $width-small: nth($small-size, 1);
+  $height-large: nth($large-size, 2);
+  $height-small: nth($small-size, 2);
+  $slope: ($height-large - $height-small) / ($width-large - $width-small);
+  $height: $height-small - $width-small * $slope;
+
+  padding-top: $slope * 100%;
+  height: $height;
+
+  background-size: cover;
+  -moz-background-size: cover;  /* Firefox 3.6 */
+  background-position: center;  /* Internet Explorer 7/8 */
+}
