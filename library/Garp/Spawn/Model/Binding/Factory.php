@@ -61,9 +61,15 @@ class Garp_Spawn_Model_Binding_Factory {
 	protected function _getBindingModelName(Garp_Spawn_Relation $relation) {
 		$modelNames = array($relation->getLocalModel()->id, $relation->model);
 		sort($modelNames);
-		$firstAlphabeticModel = $modelNames[0];
 
-		return $firstAlphabeticModel . $relation->name;
+		$bindingModelName = in_array($relation->name, $modelNames) 
+			// Rule name refers to one of the related models, so no custom relation key
+			? $modelNames[0] . $modelNames[1]
+			// Custom relation key
+			: $modelNames[0] . $relation->name
+		;
+
+		return $bindingModelName;
 	}
 
 	protected function _getBindingModelParams(Garp_Spawn_Relation $relation, $relLabel1, $relLabel2) {
