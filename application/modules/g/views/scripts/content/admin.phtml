@@ -27,7 +27,6 @@
 </div>
 <div id="fb-root"></div>
 
-<!-- Ext & Garp locales -->
 <script>
 	BASE = '<?php echo $this->baseUrl('/') ?>';
 	ASSET_URL = '<?php echo $this->assetUrl('/') ?>';
@@ -52,7 +51,9 @@
 </script>
 
 <?php
-echo $this->partial('partials/cms-script-includes.phtml', 'g');
+echo $this->partial('partials/cms-script-includes.phtml', 'g', array(
+	'locale' => $this->locale
+));
 echo $this->partial('partials/models.phtml', 'default');
 ?>
  
