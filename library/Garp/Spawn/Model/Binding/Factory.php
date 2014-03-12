@@ -17,8 +17,6 @@ class Garp_Spawn_Model_Binding_Factory {
 		}
 
 		$bindingModelConfig = $this->_getBindingModelConfig($relation);
-//var_dump($bindingModelConfig);
-
 		$model = new Garp_Spawn_Model_Binding($bindingModelConfig);
 
 		return $model;
