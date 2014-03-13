@@ -29,7 +29,25 @@
 			$isHomo 			= $this->relation->model === $this->modelId;
 			$hasConflictingName = $this->relation->name === $this->modelId;
 			$isCustomNamed		= $this->relation->name !== $this->relation->model;
-
+			/////////////////
+//var_dump($this->modelId);
+//var_dump($this->relation->name);
+//var_dump($this->relation->model);
+//var_dump($this->relation->oppositeRule);
+			$bindingModel = $this->relation->getBindingModel();
+			$habtmRels = $bindingModel->relations->getRelations();
+			//var_dump(array_keys($habtmRels));
+			//print_r($habtmRels);
+			//var_dump($bindingModel->id);
+			foreach ($habtmRels as $habtmRel) {
+				//var_dump($habtmRel->type);
+				//var_dump($habtmRel->name);
+				//var_dump($habtmRel->model);
+			}
+				
+			//
+			//
+			//////////////
 			if ($hasConflictingName):
 				$params[] = "rule: '{$this->relation->name}1'";
 				$params[] = "rule2: '{$this->relation->name}2'";
