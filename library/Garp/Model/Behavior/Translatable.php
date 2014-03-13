@@ -108,7 +108,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 			// join i18n model
 			$select->joinLeft(
 				array($i18nAlias => $i18nModel->getName()),
-				"$onClause AND {$langColumn} = '{$language}'",
+				"$onClause AND {$i18nAlias}.{$langColumn} = '{$language}'",
 				array()
 			);
 
