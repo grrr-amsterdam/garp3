@@ -4,6 +4,7 @@
 		return;
 	}
 	Garp.dataTypes.User.on('init', function(){
+		this.removeRelationPanel('AuthLocal');
 
 		Ext.apply(this.getColumn('fullname'), {
 			virtualSortField: 'first_name'
