@@ -3,6 +3,7 @@ $r = 0;
 $modelsPerRow = 5;
 $totalModels = count($this->models);
 $jsModels = array();
+$hiddenModels = array('AuthLocal', 'ClusterServer', 'ClusterClearCacheJob', 'ClusterRecurringJob');
 
 foreach ($this->models as $model) {
 	$jsModels[$model->id] = array();
@@ -15,22 +16,26 @@ foreach ($this->models as $model) {
 ?>
 <div id="section-fields">
 	<?php
-		foreach ($this->models as $model):
+		foreach ($this->models as $modelName => $model):
+			if (in_array($modelName, $hiddenModels)) continue;
 			if ($model->fields->exists('name')):
 				echo $this->partial('partials/datamodel/listmodel.phtml', array('model' => $model));
 			endif;
 		endforeach;
 	?>
 	<?php
-		foreach ($this->models as $model):
+		foreach ($this->models as $modelName => $model):
+			if (in_array($modelName, $hiddenModels)) continue;
 			if (!$model->fields->exists('name')):
 				echo $this->partial('partials/datamodel/listmodel.phtml', array('model' => $model));
 			endif;
 		endforeach;
 	?>
 </div>
+<?php if (!$this->textMode) : ?>
 <div id="section-relations">
-	<?php foreach ($this->models as $model): ?>
+	<?php foreach ($this->models as $modelName => $model): ?>
+		<?php if (in_array($modelName, $hiddenModels)) continue; ?>
 		<a href="#" class="model" id="<?php echo $model->id ?>">
 			<div class="content_container">
 				<div class="content">
@@ -49,6 +54,7 @@ foreach ($this->models as $model) {
 
 	<canvas id="canvas"></canvas>
 </div>
+<?php endif; ?>
 
 <script>
 	var modelData = <?php echo json_encode($jsModels) ?>;

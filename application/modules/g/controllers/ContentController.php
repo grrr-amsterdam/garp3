@@ -392,16 +392,17 @@ class G_ContentController extends Garp_Controller_Action {
 		/**
 		 * @todo: refactor naar nieuwe Spawn opbouw.
 		 */
-		// $this->view->models = Garp_Spawn_Model_Set::getInstance();
-		// 
-		// $request = $this->getRequest();
-		// $params = $request->getParams();
-		// 
-		// if (array_key_exists('text', $params)) {
-		// 	$this->_helper->layout->setLayout('blank');
-		// } else {
-		// 	$this->_helper->layout->setLayout('datamodel');
-		// }
+		$this->view->models = Garp_Spawn_Model_Set::getInstance();
+		 
+		$request = $this->getRequest();
+		$params = $request->getParams();
+		
+		if (array_key_exists('text', $params)) {
+			$this->view->textMode = true;
+			$this->_helper->layout->setLayout('blank');
+		} else {
+			$this->_helper->layout->setLayout('datamodel');
+		}
 	}
 
 	/**
