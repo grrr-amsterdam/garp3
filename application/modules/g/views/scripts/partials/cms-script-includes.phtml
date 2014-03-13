@@ -1,0 +1,72 @@
+<?php if ($this->locale): ?>
+<script src="<?php echo $this->baseUrl('/js/garp/ext-3.4.0/src/locale/ext-lang-'.$this->locale.'.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/g/ext/getlocale/') ?>"></script>
+<?php
+endif;
+
+if (isset($this->config()->cms->minifiedAssets) && $this->config()->cms->minifiedAssets):
+	echo $this->script()->src($this->config()->assets->js->root . '/cms.js', true);
+else:
+?>
+
+<!-- Ext Overrides include -->
+<script src="<?php echo $this->baseUrl('/js/garp/overrides.js') ?>"></script>
+
+<!-- Garp config include -->
+<script src="<?php echo $this->baseUrl('/js/garp/garp.config.js') ?>"></script>
+
+<!-- General utility functions -->
+<script src="<?php echo $this->baseUrl('/js/garp/garp.renderers.js') ?>"></script>
+
+<!-- Ext extensions include -->
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.searchbar.js') ?>"></script>
+
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.datetime.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.mapwindow.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.mapfield.js') ?>"></script>
+
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.rendereddisplayfield.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.fileuploadfield.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.uploadcombo.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.uploadfield.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.pagingsearchbar.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.searchfield.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.form.richtexteditor.js') ?>"></script>
+<!-- Garp components -->
+<script src="<?php echo $this->baseUrl('/js/garp/garp.i18n.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.wysiwygct.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.wysiwygabstract.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.filtermenu.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.tweetwindow.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.imageeditor.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.imagepickerwindow.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.modelpickerwindow.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.relatecreatewindow.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.inlinerelator.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.youtubeuploadwindow.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.relationfield.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.relationpanel.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.superboxselect.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.metapanel.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.modelmenu.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.welcomepanel.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.gridpanel.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.formpanel.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.toolbar.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.infopanel.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.viewport.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.exportwindow.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.importwindow.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/garp.passwordfieldset.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.datetimepicker.js') ?>"></script>
+<script src="<?php echo $this->baseUrl('/js/garp/extux/ext.ux.menu.datetimemenu.js') ?>"></script>
+
+<!-- Garp Models include -->
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.datatype.js') ?>"></script>
+
+<!-- Main Garp JS include -->
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/overrides.postinit.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('/js/garp/garp.js') ?>"></script>
+
+<?php
+endif;

@@ -24,6 +24,8 @@
 			$params[] = "quickCreateBtnLabel: '{$this->relation->label}'";
 		break;
 		case 'hasAndBelongsToMany':
+			// habtm property 'rule' is the rel rule to this model from the bindingModel
+			// habtm property 'rule2' is the rel rule from this model to the bindingModel
 			$isHomo 			= $this->relation->model === $this->modelId;
 			$hasConflictingName = $this->relation->name === $this->modelId;
 			$isCustomNamed		= $this->relation->name !== $this->relation->model;
@@ -32,12 +34,12 @@
 				$params[] = "rule: '{$this->relation->name}1'";
 				$params[] = "rule2: '{$this->relation->name}2'";
 			else:
-				$oppositeRule = $isCustomNamed
+				$relName = $isCustomNamed
 					? $this->relation->model
-					: $this->relation->oppositeRule
-				;
-				$params[] = "rule: '{$oppositeRule}'";
-				$params[] = "rule2: '{$this->relation->name}'";
+					: $this->relation->name
+					;
+				$params[] = "rule: '{$this->relation->oppositeRule}'";
+				$params[] = "rule2: '{$relName}'";
 			endif;
 
 			if ($isHomo && !$this->relation->inverse):

@@ -239,4 +239,16 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		return $this->_modelAlias;
 	}
 
+	/**
+ 	 * Get used weight columns
+ 	 * @return Array
+ 	 */
+	public function getWeightColumns() {
+		$out = array();
+		foreach ($this->_relationConfig as $i => $conf) {
+			$out[] = $conf[self::WEIGHT_COLUMN_KEY];
+		}
+		return $out;
+	}
+
 }
