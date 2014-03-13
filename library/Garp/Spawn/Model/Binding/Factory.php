@@ -22,13 +22,22 @@ class Garp_Spawn_Model_Binding_Factory {
 		return $model;
 	}
 
-	protected function _getBindingModelRelLabels(Garp_Spawn_Relation $relation) {
+	protected function _getBindingModelRelNames(Garp_Spawn_Relation $relation) {
 		$localModel = $relation->getLocalModel();
 
 		$hasNameConflict	= $relation->name === $localModel->id;
 		$relLabel1			= $hasNameConflict ? $relation->name . '1' : $relation->name;
 		$relLabel2 			= $hasNameConflict ? $relation->name . '2' : $localModel->id;
-
+		/////////////
+		var_dump($relation->type);
+		var_dump($localModel->id);
+		var_dump($relation->name);
+		var_dump($relation->oppositeRule);
+		var_dump($relation->model);
+		var_dump($relLabel1);
+		var_dump($relLabel2);
+		var_dump('____________');
+		///////////
 		return array($relLabel1, $relLabel2);
 	}
 
@@ -37,7 +46,7 @@ class Garp_Spawn_Model_Binding_Factory {
 	 */
 	protected function _getBindingModelConfig(Garp_Spawn_Relation $relation) {
 		$habtmModelId = $this->_getBindingModelName($relation);
-		list($relLabel1, $relLabel2) = $this->_getBindingModelRelLabels($relation);
+		list($relLabel1, $relLabel2) = $this->_getBindingModelRelNames($relation);
 		$config = $this->_getBindingModelParams($relation, $relLabel1, $relLabel2);
 
 		if ($relation->weighable) {
