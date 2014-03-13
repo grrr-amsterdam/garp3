@@ -185,6 +185,20 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		});
 		return panel;
 	},
+
+	/**
+	 * Remove a RelationPanel
+	 * @param String modelName
+	 * @return Void
+	 */
+	removeRelationPanel: function(modelName) {
+		for (var i = 0; i < this.formConfig.length; ++i) {
+			if (this.formConfig[i].model == modelName) {
+				this.formConfig.splice(i, 1);
+				break;
+			};
+		};
+	},
 	
 	/**
 	 * Retrieve all relation data 
