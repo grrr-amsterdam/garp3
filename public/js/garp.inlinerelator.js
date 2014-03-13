@@ -276,9 +276,11 @@ Garp.InlineForm = Ext.extend(Ext.Panel, {
 			if (!item.hasOwnProperty('flex')) {
 				item.flex = 1;
 			}
-			if (item.xtype == 'textarea') {
-				item.xtype = 'textfield';
-			}
+			// Uitgecomment door Harmen @ 4 maart 2014, omdat 
+			// we textarea's nodig hadden voor Filmhuis Den Haag!
+			//if (item.xtype == 'textarea') {
+				//item.xtype = 'textfield';
+			//}
 			item.margins = '0 0 0 1';
 		});
 		return copy;

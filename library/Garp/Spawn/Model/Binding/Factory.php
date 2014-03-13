@@ -36,8 +36,7 @@ class Garp_Spawn_Model_Binding_Factory {
 	 * @return Garp_Spawn_Config_Model_Binding
 	 */
 	protected function _getBindingModelConfig(Garp_Spawn_Relation $relation) {
-		$localModel = $relation->getLocalModel();
-		$habtmModelId = Garp_Spawn_Relation_Set::getBindingModelName($relation->name, $localModel->id);
+		$habtmModelId = $this->_getBindingModelName($relation);
 		list($relLabel1, $relLabel2) = $this->_getBindingModelRelLabels($relation);
 		$config = $this->_getBindingModelParams($relation, $relLabel1, $relLabel2);
 
@@ -55,6 +54,20 @@ class Garp_Spawn_Model_Binding_Factory {
 		);
 
 		return $bindingModelConfig;
+	}
+
+	protected function _getBindingModelName(Garp_Spawn_Relation $relation) {
+		$modelNames = array($relation->getLocalModel()->id, $relation->model);
+		sort($modelNames);
+
+		$bindingModelName = in_array($relation->name, $modelNames) 
+			// Rule name refers to one of the related models, so no custom relation key
+			? $modelNames[0] . $modelNames[1]
+			// Custom relation key
+			: $modelNames[0] . $relation->name
+		;
+
+		return $bindingModelName;
 	}
 
 	protected function _getBindingModelParams(Garp_Spawn_Relation $relation, $relLabel1, $relLabel2) {
