@@ -169,7 +169,13 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 					single: true
 				});
 				this.getForm().findField(this.quickCreateReference).store.load();
+				this.getForm().findField(this.quickCreateReference).hide();
+
+				// this is dumb... have to reset the height after hiding the field
+				this.setHeight(this.getHeight());
+				this.center();
 			}
+			window.weenerdog = this;
 			this.keymap = new Ext.KeyMap(this.formcontent.getEl(), [{
 				key: Ext.EventObject.ENTER,
 				ctrl: true,
