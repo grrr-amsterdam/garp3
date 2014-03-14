@@ -151,7 +151,7 @@ class Garp_Spawn_Field {
 		}
 
 		if (!array_key_exists('multiline', $config) && $this->isTextual()) {
-			$this->multiline = $this->maxLength > self::TEXTFIELD_MAX_LENGTH;
+			$this->multiline = !$this->maxLength || $this->maxLength > self::TEXTFIELD_MAX_LENGTH;
 		}
 
 		if ($this->type === 'checkbox') {
