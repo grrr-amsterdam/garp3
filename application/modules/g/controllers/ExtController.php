@@ -25,6 +25,12 @@ class G_ExtController extends G_ContentController {
 	 */
 	protected $_originalRequests = array();
 
+	public function init() {
+		$this->_helper->cache(array(
+			'smd', 'closevimeologin', 'getlocale'
+		));
+	}
+
 	/**
 	 * Generate Ext.Direct API, publishing allowed actions to Ext.Direct, according to Service Mapping Description JSON-RPC protocol.
 	 * @return Void
@@ -179,7 +185,7 @@ class G_ExtController extends G_ContentController {
 	 * @return Boolean Wether the cache is on or off
 	 */
 	protected function _toggleCache($on) {
-		Zend_Registry::set('readFromCache', $on);
+		//Zend_Registry::set('readFromCache', $on);
 		return $on;
 	}
 

@@ -135,11 +135,11 @@ class Garp_Spawn_Relation_Set {
 		$this->_mirrorHasManyRelations();
 	}
 
-	static public function getBindingModelName($modelAlias1, $modelAlias2) {
-		$modelNames = array($modelAlias1, $modelAlias2);
-		sort($modelNames);
-		return $modelNames[0] . $modelNames[1];
-	}	
+	//static public function getBindingModelName($modelAlias1, $modelAlias2) {
+		//$modelNames = array($modelAlias1, $modelAlias2);
+		//sort($modelNames);
+		//return $modelNames[0] . $modelNames[1];
+	//}	
 
 	/**
 	 * @param String $modelName Name of the model.
