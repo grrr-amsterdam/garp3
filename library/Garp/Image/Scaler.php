@@ -60,7 +60,7 @@ class Garp_Image_Scaler {
 	 * @var Int $ramRequired Amount of RAM in megabytes required to scale potentially large images. The current limit is raised to this only when needed.
 	 */
 	private $ramRequired = 240;
-	
+
 	const SCALED_FOLDER = 'scaled';
 
 
@@ -145,8 +145,8 @@ class Garp_Image_Scaler {
 	public function getTemplateNames() {
 		return array_keys($this->_config->template->toArray());
 	}
-	
-	
+
+
 	/**
 	* Generate versions of an image file that are scaled according to the configured scaling templates.
 	* @param String $filename The filename of the image to be scaled
@@ -187,7 +187,7 @@ class Garp_Image_Scaler {
 
 	/**
 	 * Scales an image according to an image template, and stores it.
-	 * 
+	 *
 	 * @param String $filename Filename of the source image
 	 * @param Int $id Id of the database record corresponding to this image file
 	 * @param String $template Name of the template, if left empty, scaled versions for all templates will be generated.
@@ -264,7 +264,7 @@ class Garp_Image_Scaler {
 	private function _loadIniDefaults() {
 		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
 		$this->_config = $ini->image;
-		
+
 		$this->params['bgcolor'] = $this->_config->bgcolor;
 	}
 
@@ -317,8 +317,8 @@ class Garp_Image_Scaler {
 			}
 		}
 	}
-	
-	
+
+
 	private function _createCanvasImage($imageType) {
 		switch ($imageType) {
 			case IMAGETYPE_GIF:
@@ -335,8 +335,8 @@ class Garp_Image_Scaler {
 		$this->_paintCanvas($canvas);
 		return $canvas;
 	}
-	
-	
+
+
 	/**
 	 * Fills the canvas with the provided background color.
 	 * @param Resource $image
@@ -380,8 +380,8 @@ class Garp_Image_Scaler {
 			imagesavealpha($image, true);
 		}
 	}
-	
-	
+
+
 	protected function _paintCanvasOpaque(&$image) {
 		$red	= '00';
 		$green	= '00';
@@ -476,7 +476,7 @@ class Garp_Image_Scaler {
 				} else {
 					$y = ($this->params['h'] - $projectionHeight) / 2;
 				}
-		} 
+		}
 
 		return array($x, $y);
 	}
