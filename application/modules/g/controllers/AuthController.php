@@ -34,6 +34,9 @@ class G_AuthController extends Garp_Controller_Action {
 
 			// Apply some mild validation
 			$password = $this->getRequest()->getPost('password');
+			if (!$password) {
+				$errors[] = sprintf(__('%s is a required field'), __('Password'));
+			}
 
 			$checkRepeatPassword = !empty($authVars['register']['repeatPassword']) && $authVars['register']['repeatPassword'];
 			if ($checkRepeatPassword) {
