@@ -7,10 +7,6 @@
  * @version      0.1.0
  * @package      Garp_Validate
  * @see http://nl1.php.net/manual/en/function.date.php
- *
- * @todo Build support for escaped characters. 
- * For instance: "\W\e\e\k W" should match "Week 20", but at the moment 
- * the regexp will match "\20\e\e\k 20".
  */
 class Garp_Validate_Date extends Zend_Validate_Abstract {
 
@@ -62,14 +58,22 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 	public function getRegexp() {
 		// construct regexp
 		$regexp = '~';
+		$escape = false;
 		for ($i = 0; $i < strlen($this->_format); ++$i) {
 			$char = $this->_format[$i];
 			$quotedChar = preg_quote($char, '~');
-			if (array_key_exists($char, $this->_dateRegexpMapper)) {
+			// look for escape characters, this enters escape mode (literal adding of the next char in the iteration
+			if ($char == '\\') {
+				$escape = true;
+				continue;
+			}
+			if (!$escape && array_key_exists($char, $this->_dateRegexpMapper)) {
 				$regexp .= "({$this->_dateRegexpMapper[$char]})";
 			} else {
 				$regexp .= $quotedChar;
 			}
+			// reset escape
+			$escape = false;
 		}
 		$regexp .= '~';
 		return $regexp;
@@ -77,9 +81,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 
 	public function isValid($value) {
 		$regexp = $this->getRegexp();
-		return preg_match($regexp, $value);
-
-		return true;
+		return (bool)preg_match($regexp, $value);
 	}
 
 }
