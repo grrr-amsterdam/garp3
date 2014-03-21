@@ -766,7 +766,7 @@ Garp.FormHelper.Validator = function(cfg){
 							var checked = false;
 							var fields = $(this.elements).filter($('input[name="' + field.attr('name') + '"]'));
 							fields.each(function(){
-								if ($(this).attr('checked')) {
+								if ($(this).is(':checked')) {
 									checked = true;
 								}
 							});
