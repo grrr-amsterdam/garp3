@@ -29,6 +29,8 @@ class Garp_Form_Element_Date extends Garp_Form_Element_Text {
 
 		// Add server validation/filtering
 		$this->addValidator(new Garp_Validate_Date($this->getAttrib('data-format')));
+		// Convert to MySQL compatible date by default
+		$this->addFilter(new Garp_Filter_MysqlDate());
 	}
 
 }
