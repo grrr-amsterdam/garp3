@@ -66,7 +66,6 @@ class Garp_Form_Element_Text extends Zend_Form_Element_Text {
 		parent::__construct($spec, $options);
 	}
 
-
 	public function init() {
 		// When using the AlphaNumeric validator, extra niftyness can be added 
 		// by using the HTML5 pattern attribute.
@@ -74,7 +73,6 @@ class Garp_Form_Element_Text extends Zend_Form_Element_Text {
 			$this->setAttrib('pattern', '[A-Za-z0-9]+');
 		}
 	}
-
 
 	/**
  	 * Take the type from the classname
