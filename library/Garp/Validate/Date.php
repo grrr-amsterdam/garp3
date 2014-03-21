@@ -10,6 +10,16 @@
  */
 class Garp_Validate_Date extends Zend_Validate_Abstract {
 
+	const FORMAT_MISMATCH = 'formatMismatch';
+
+	protected $_messageTemplates = array(
+		self::FORMAT_MISMATCH => "'%value%' does not fit the date format '%format%'",
+	);
+
+    protected $_messageVariables = array(
+        'format'  => '_format'
+    );	
+
 	/**
  	 * The chosen date format
  	 * @var String
@@ -52,7 +62,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
  	 * @return Void
  	 */
 	public function __construct($format) {
-		$this->_format = $format;
+		$this->setFormat($format);
 	}
 	
 	public function getRegexp() {
@@ -80,8 +90,31 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 	}
 
 	public function isValid($value) {
+        $this->_setValue($value);
 		$regexp = $this->getRegexp();
-		return (bool)preg_match($regexp, $value);
+		if (!preg_match($regexp, $value)) {
+			$this->_error(self::FORMAT_MISMATCH);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Get format
+	 * @return String
+	 */
+	public function getFormat() {
+		return $this->_format;
+	}
+
+	/**
+	 * Set format
+	 * @param String $format
+	 * @return $this
+	 */
+	public function setFormat($format) {
+		$this->_format = $format;
+		return $this;
 	}
 
 }
