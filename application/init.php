@@ -31,7 +31,7 @@ if (
 	);
 } else {
 	//	c l i   c o n t e x t
-	define('HTTP_HOST', gethostname());
+	define('HTTP_HOST', php_uname('n'));
 
 	set_include_path(
 		'.'
