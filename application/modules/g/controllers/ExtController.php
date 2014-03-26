@@ -25,12 +25,6 @@ class G_ExtController extends G_ContentController {
 	 */
 	protected $_originalRequests = array();
 
-	public function init() {
-		$this->_helper->cache(array(
-			'smd', 'closevimeologin', 'getlocale'
-		));
-	}
-
 	/**
 	 * Generate Ext.Direct API, publishing allowed actions to Ext.Direct, according to Service Mapping Description JSON-RPC protocol.
 	 * @return Void
