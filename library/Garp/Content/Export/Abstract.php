@@ -235,10 +235,7 @@ abstract class Garp_Content_Export_Abstract {
 					array($config['label'] => $labelFields)
 				)->order("$otherModelAlias.id")
 			);
-			// ¡delme!
-			if ($config['label'] == 'Event') {
-				$model->bindModel($config['label'], $options);
-			}
+			$model->bindModel($config['label'], $options);
 		}
 	}
 }
