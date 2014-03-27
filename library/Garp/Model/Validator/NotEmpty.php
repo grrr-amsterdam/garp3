@@ -70,7 +70,9 @@ class Garp_Model_Validator_NotEmpty extends Garp_Model_Validator_Abstract {
 			$val = trim($value);
 		}
 		if (!strlen($val)) {
-			throw new Garp_Model_Validator_Exception("Column $column cannot be empty.");
+			throw new Garp_Model_Validator_Exception(
+				sprintf(__('%s is a required field'), __(Garp_Util_String::underscoredToReadable($column)))
+			);
 		}
 	}
 
@@ -80,7 +82,9 @@ class Garp_Model_Validator_NotEmpty extends Garp_Model_Validator_Abstract {
 	protected function _validateNumber($value, $column) {
 		// Not much to check, since 0 is falsy but also a valid integer value.
 		if (is_null($value)) {
-			throw new Garp_Model_Validator_Exception("Column $column cannot be empty.");
+			throw new Garp_Model_Validator_Exception(
+				sprintf(__('%s is a required field'), __(Garp_Util_String::underscoredToReadable($column)))
+			);
 		}
 	}
 
