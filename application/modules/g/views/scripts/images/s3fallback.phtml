@@ -5,6 +5,7 @@ if (!empty($this->config()->image->template)):
 	$templates = $this->config()->image->template;
 endif;
 foreach ($templates as $tplName => $tplConfig):
+	$fallback = empty($tplConfig->fallback) ? 'fallback_' . $tplName . '.jpg' : $tplConfig->fallback;
 ?>
     <RoutingRule>
         <Condition>
@@ -12,7 +13,7 @@ foreach ($templates as $tplName => $tplConfig):
             <HttpErrorCodeReturnedEquals>404</HttpErrorCodeReturnedEquals>
         </Condition>
         <Redirect>
-        	<ReplaceKeyWith>media/images/fallback_<?php echo $this->escape($tplName) ?>.jpg</ReplaceKeyWith>
+        	<ReplaceKeyWith>media/images/<?php echo $this->escape($fallback) ?></ReplaceKeyWith>
         </Redirect>
     </RoutingRule>
 <?php

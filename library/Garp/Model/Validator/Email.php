@@ -55,10 +55,8 @@ class Garp_Model_Validator_Email extends Garp_Model_Validator_Abstract {
 				return;
 			}
 			if (empty($data[$c]) || !preg_match($regexp, $data[$c])) {
-				$error = "Column $c must contain a valid email address.";
-				if (!empty($data[$c])) {
-					$error .= " Got {$data[$c]}.";
-				}
+				$value = !empty($data[$c]) ? $data[$c] : '';
+				$error = sprintf(__("'%value%' is not a valid email address in the basic format local-part@hostname"), $value);
 				throw new Garp_Model_Validator_Email_Exception($error);
 			}
 		};
