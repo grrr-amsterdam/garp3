@@ -87,7 +87,12 @@ Ext.ns('Garp.dataTypes');
 		this.getField('player').hidden = true;
 		
 		this.addListener('loaddata', function(rec, formPanel){
-			function updateUI(){
+			function updateUI() {
+				
+				// relate create (quick add) may have already closed the window:
+				if (!formPanel.el || !formPanel.el.dom){
+					return;
+				}
 				if (rec.phantom) {
 					formPanel.uploadBtn.show();
 					formPanel.preview.update({
