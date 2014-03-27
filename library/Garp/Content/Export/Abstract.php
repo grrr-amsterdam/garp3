@@ -204,11 +204,11 @@ abstract class Garp_Content_Export_Abstract {
 
 			$bindingModel = null;
 			if ($config['type'] === 'hasAndBelongsToMany') {
+				$bindingModelName = 'Model_' . $config['bindingModel'];
+				$bindingModel = new $bindingModelName;
 				if ($multilingual) {
-					$bindingModelName = $model->getBindingModelName($otherModelName);
-					$bindingModel = $modelFactory->getBindingModel($bindingModelName);
-				} else {
-					$bindingModel = $model->getBindingModel($otherModel);
+					//$bindingModelName = $model->getBindingModelName($otherModelName);
+					$bindingModel = $modelFactory->getBindingModel($bindingModel);
 				}
 				$otherModelAlias = 'm';
 			} else {
