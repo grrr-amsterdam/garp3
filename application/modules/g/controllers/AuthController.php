@@ -34,6 +34,9 @@ class G_AuthController extends Garp_Controller_Action {
 
 			// Apply some mild validation
 			$password = $this->getRequest()->getPost('password');
+			if (!$password) {
+				$errors[] = sprintf(__('%s is a required field'), __('Password'));
+			}
 
 			$checkRepeatPassword = !empty($authVars['register']['repeatPassword']) && $authVars['register']['repeatPassword'];
 			if ($checkRepeatPassword) {
@@ -64,14 +67,24 @@ class G_AuthController extends Garp_Controller_Action {
 					$this->_afterRegister();
 
 					$this->_redirect($authVars['register']['successUrl']);
+				// Check for duplication errors in order to show
+				// a helpful error to the user.
 				} catch (Zend_Db_Statement_Exception $e) {
 					if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'email_unique') !== false) {
 						$errors[] = __('this email address already exists');
 					} else {
 						throw $e;
 					}
+				// Validation errors should be safe to show to the user (note: translation 
+				// must be done in the validator itself)
+				} catch (Garp_Model_Validator_Exception $e) {
+					$errors[] = $e->getMessage();
+
+				// Unknown error? Yikes... Show to developers, but show a
+				// generic error to the general public.
 				} catch (Exception $e) {
-					$errors[] = __('register error');
+					$error = APPLICATION_ENV === 'development' ? $e->getMessage() : __('register error');
+					$errors[] = $error;
 				}
 			}
 			$this->view->errors = $errors;
