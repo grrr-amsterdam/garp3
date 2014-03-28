@@ -109,7 +109,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 	public function getEtag($filename) {
 		$this->_initApi();
-		$info = $this->_api->getInfo($this->_config['bucket'].$this->_getUri($filename));
+		$path = $this->_config['bucket'] . $this->_getUri($filename);
+		$info = $this->_api->getInfo($path);
 
 		if (array_key_exists('etag', $info)) {
 			$info['etag'] = str_replace('"', '', $info['etag']);
