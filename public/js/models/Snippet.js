@@ -52,7 +52,7 @@ Ext.ns('Garp.dataTypes');
 		this.getColumn('image_id').header = '';
 		
 		// Override some field properties as to hide and disable and such:
-		Ext.each(['identifier','uri'], function(i){
+		Ext.each(['identifier'/*,'uri'*/], function(i){
 			var f = this.getField(i);
 			Ext.apply(f, {
 				disabled: true,
