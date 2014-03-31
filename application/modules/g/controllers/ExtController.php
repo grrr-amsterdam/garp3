@@ -179,7 +179,7 @@ class G_ExtController extends G_ContentController {
 	 * @return Boolean Wether the cache is on or off
 	 */
 	protected function _toggleCache($on) {
-		//Zend_Registry::set('readFromCache', $on);
+		Zend_Registry::set('readFromCache', $on);
 		return $on;
 	}
 
