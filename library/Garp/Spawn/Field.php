@@ -51,7 +51,7 @@ class Garp_Spawn_Field {
 
 
 	/**
-	* @param String $origin Context in which this field is added. Can be 'config', 'default' or 'behavior'.
+	* @param String $origin Context in which this field is added. Can be 'config', 'default', 'relation' or 'behavior'.
 	*/
 	public function __construct($origin, $name, array $config) {
 		$this->origin = $origin;
