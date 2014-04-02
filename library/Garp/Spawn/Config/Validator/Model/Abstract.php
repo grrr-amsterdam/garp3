@@ -153,13 +153,6 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 						. " Relation: {$config['id']} <-> {$relationName}"
 					);
 				}
-				if (
-					$relation['type'] === 'hasOne' &&
-					array_key_exists('required', $relation) &&
-					$relation['required']
-				) {
-					throw new Exception("Sorry to be a smartass, but you've configured a relation you shouldn't want. {$config['id']} <-> {$relationName} is hasOne AND required, but this would result in conflicting behavior. 'hasOne' relations cannot be required, since that could possibly result in corrupt data.");
-				}
 			}
 		}
 	}
