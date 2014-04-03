@@ -15,7 +15,7 @@ setlocale(LC_ALL, 'nl_NL');
 define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
 define('APPLICATION_PATH', BASE_PATH . '/application');
 defined('READ_FROM_CACHE') || define('READ_FROM_CACHE', true);
-defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', '127.0.0.1');
+defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', 'avro3aas');
 
 
 if (
@@ -31,7 +31,7 @@ if (
 	);
 } else {
 	//	c l i   c o n t e x t
-	define('HTTP_HOST', gethostname());
+	define('HTTP_HOST', php_uname('n'));
 
 	set_include_path(
 		'.'
