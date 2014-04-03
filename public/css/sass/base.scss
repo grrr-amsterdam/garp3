@@ -1,0 +1,187 @@
+/*!
+ _________   ________   ________   _______-+-
+/\* ______\ /\* ____ \ /\* ____ \ /\* ____ \
+\ \ \_____/ \ \ \__/\ \\ \ \__/\ \\ \ \__/\ \
+ \ \ \   ____\ \ \_\_\ \\ \ \_\_\ \\ \ \_\_\ \
+  \ \ \ /\__ \\ \  __  _\\ \  __  _\\ \  __  _\
+   \ \ \_/_/\ \\ \ \/\ \/_\ \ \/\ \/_\ \ \/\ \/_
+    \ \________\\ \_\ \___\\ \_\ \___\\ \_\ \___\
+     \/________/ \/_/\/___/ \/_/\/___/ \/_/\/___/.nl -->
+
+      Author: Grrr.nl
+*/
+
+/* ==========================================================================
+   CONTENTS
+   ==========================================================================
+
+ * Imports.............Import external stylesheets
+ * Primary styles......Non module styles  (e.g. basic typography)
+ * Specific styles.....Common styles used througout the site
+ * Layout..............General layout stuff
+ * Modules.............Modules based on SMACSS
+ * Helpers (margin)....Non semantic margin-helpers (like pulling, adding more margin, etc...)
+ * Helpers (color).....Color classes for direct painting
+ * Helpers (other).....Non-semantic helper classes (eg. clearfix)
+ * Print styles........Styles for printing
+ */
+
+
+/* import order is important */
+@import 'imports/mixins';
+@import 'imports/variables';
+
+@import 'imports/fonts';
+@import 'imports/icons';
+
+@import 'imports/normalize';
+@import 'imports/csswizardry-grids';
+
+
+/* ==========================================================================
+	STYLES (primary)
+	========================================================================== */
+
+* { box-sizing: border-box; }
+
+html { font-size: 62.5%; line-height: 1.4; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+	@include bp-max($small) { font-size: 50%; }}
+body, button, input, select, textarea { font-family: $bodyFont; @include font-size($defaultFontSize); color: #000; }
+body { background: #fff; margin: 0; }
+
+input { @include bp-max($small) { font-size: 16px; }} /* Min font size of 16px disables focus zoom on iOS */
+
+.unstyled-list { list-style: none; padding-left: 0; }
+.nav ul, .nav ol { @extend .unstyled-list; }
+
+a, a:hover, a:active { vertical-align: baseline; text-decoration: none; transition: all .2s;
+	-webkit-tap-highlight-color: rgba(0,0,0,0); -webkit-tap-highlight-color: transparent; /* Remove the blue tap-highlight on mobile */
+}
+a:hover, a:focus { text-decoration: underline; }
+a:hover, a:focus, a:active { outline: 0; }
+.block-link { display: block; overflow: hidden; }
+
+p { margin-top: 0; margin-bottom: $defaultLineHeight+em; &:last-child { margin-bottom: 0; }}
+
+h1, h2, h3, h4, h5, h6 { margin: 0; }
+h1, .alpha	 { }
+h2, .beta 	 { }
+h3, .gamma 	 { }
+h4, .delta   { }
+h5, .epsilon { }
+h6, .zeta    { }
+
+img, object, iframe, video { max-width: 100%; width: auto; height: auto; }
+
+.rich {
+	.figure[style*="float:left"], .figure[style*="float: left"] { margin: 0 10px 10px 0; }
+	.figure[style*="float:right"], .figure[style*="float: right"] { margin: 0 0 10px 10px; }
+	.figure dd { @include font-size(14); }
+}
+
+
+/* ==========================================================================
+	LAYOUT
+	========================================================================== */
+
+.content { max-width: $siteInnerWidth; margin: 0 auto; }
+
+/* ==========================================================================
+	MODULES
+	========================================================================== */
+
+/* import modules here, eg. _header.scss, _article.scss, etc... */
+
+@import 'modules/cookie-info';
+@import 'modules/flash-message';
+
+/* ==========================================================================
+	HELPERS - margin
+	========================================================================== */
+
+/* no margin */
+.nm 			{ margin: 0; }
+.nmb 			{ margin-bottom: 0; }
+.nmt 			{ margin-top: 0; }
+
+/* margin-top */
+.mt 			{ margin-top: $margin; }
+.mt--half 		{ margin-top: $margin / 2; }
+.mt--double 	{ margin-top: $margin * 2; }
+.mt--triple		{ margin-top: $margin * 3; }
+.mt--quad	 	{ margin-top: $margin * 4; }
+
+/* margin-bottom */
+.mb 			{ margin-bottom: $margin; }
+.mb--half 		{ margin-bottom: $margin / 2; }
+.mb--double 	{ margin-bottom: $margin * 2; }
+.mb--triple	 	{ margin-bottom: $margin * 3; }
+.mb--quad	 	{ margin-bottom: $margin * 4; }
+
+/* pull-top */
+.pt 	 		{ margin-top: -($margin); }
+.pt--double		{ margin-top: -($margin * 2); }
+.pt--triple		{ margin-top: -($margin * 3); }
+.pt--quad 		{ margin-top: -($margin * 4); }
+@include bp-max($medium) {
+	.pt 			{ margin-top: -($margin); }
+	.pt--double		{ margin-top: -($margin * 2); }
+	.pt--triple		{ margin-top: -($margin * 3); }
+	.pt--quad 		{ margin-top: -($margin * 4); }
+}
+@include bp-max($small) {
+	.pt 			{ margin-top: 0; }
+	.pt--double		{ margin-top: 0; }
+	.pt--triple		{ margin-top: 0; }
+	.pt--quad 		{ margin-top: 0; }
+}
+
+/* padding */
+/* this can be very site specific, so use only when needed. Examples: */
+.p--normal 				{ @include responsive-padding($margin*1.5, $margin*2, $margin, $margin*2); }
+.p--normal--more-left 	{ @include responsive-padding($margin*1.5, $margin*2, $margin, $margin*4); }
+.p--normal--more-right 	{ @include responsive-padding($margin*1.5, $margin*4, $margin, $margin*2); }
+.p--extreme 			{ @include responsive-padding($margin*1.5, $margin*5, $margin*1.5, $margin*5) }
+
+
+/* ==========================================================================
+	HELPERS - color
+	========================================================================== */
+
+.color--white 		{ color: $white; }
+.color--black		{ color: $black; }
+
+.bg--white 			{ background: $white; }
+.bg--black			{ background: $black; }
+
+
+/* ==========================================================================
+   HELPERS - other
+   ========================================================================== */
+
+.hidden { display: none !important; visibility: hidden !important; }
+.offscreen { position: absolute !important; left: -999em !important; }
+.invisible { visibility: hidden !important; }
+.clearfix { zoom: 1;
+	&:after { height: 0; visibility: hidden; display: block; clear: both; content: ''; }
+}
+
+/* Make sure Like buttons do not suffer from cut-off comment-box syndrome */
+.fb_iframe_widget span { width: 450px !important; }
+
+/* Hide form field that should be left empty */
+form .hp { display: none;}
+
+
+/* ==========================================================================
+	HOVER - disable on scroll (see function disableHoverStylesOnScroll() in main.js)
+	========================================================================== */
+
+.disable-hover { pointer-events: none; }
+
+
+/* ==========================================================================
+	PRINT
+	========================================================================== */
+
+@import 'imports/print';
