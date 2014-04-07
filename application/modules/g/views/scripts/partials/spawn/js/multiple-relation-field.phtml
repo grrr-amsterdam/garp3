@@ -24,17 +24,28 @@
 			$params[] = "quickCreateBtnLabel: '{$this->relation->label}'";
 		break;
 		case 'hasAndBelongsToMany':
-			// habtm property 'rule' is the rel rule to this model from the bindingModel
-			// habtm property 'rule2' is the rel rule from this model to the bindingModel
+			/* 	habtm property 'rule' is the rel rule to this model from the bindingModel.
+				habtm property 'rule2' is the rel rule from this model to the bindingModel. */
 			$isHomo 			= $this->relation->model === $this->modelId;
 			$bindingModel = $this->relation->getBindingModel();
 			$relations = $bindingModel->relations->getRelations();
 			$rules = array_keys($relations);
 
-			// now sort egocentrically, because current sorting is alphabetical
-			// (since $relations is an associative array)
+			/* 	Now sort egocentrically, because current sorting is alphabetical
+				(since $relations is an associative array) */
 			$firstRel = current($relations);
 			if ($firstRel->model !== $this->modelId) {
+				$rules = array_reverse($rules);
+			}
+
+			if (
+				$isHomo &&
+				(
+					$rules[0] !== $this->modelId &&
+					$rules[1] === $this->modelId
+				)
+			) {
+				// Make sure that the custom named relation always comes second. This is part of egocentrism.
 				$rules = array_reverse($rules);
 			}
 
