@@ -17,6 +17,11 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 	protected $_related = array();
 	
 	
+	/**
+ 	 * Virtual properties. Used with setVirtual() when you wish to transport arbitrary values
+ 	 * thru Row objects.
+ 	 * @var Array
+ 	 */
 	protected $_virtual = array();
 	
 	
@@ -120,8 +125,12 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		}
 		$joinCond = implode(' AND ', $joinCond);
 
-		$select->from(array('m' => $matchName), Zend_Db_Select::SQL_WILDCARD, $matchSchema)
-			   ->joinInner(array('i' => $interName), $joinCond, array(), $interSchema)
+		$currentFromPart = $select->getPart(Zend_Db_Select::FROM);
+		if (!is_array($currentFromPart) || !array_key_exists('m', $currentFromPart)) {
+			$select->from(array('m' => $matchName), Zend_Db_Select::SQL_WILDCARD, $matchSchema);
+		}
+
+		$select->joinInner(array('i' => $interName), $joinCond, array(), $interSchema)
 			   ->setIntegrityCheck(false);
 
 		$callerMap = $this->_prepareReference($intersectionTable, $this->_getTable(), $callerRefRule);
@@ -185,16 +194,100 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		$matchTable->notifyObservers('afterFetch', array($matchTable, $rowset));		
 		return $rowset;
 	}
+
+
+	/**
+     * ATTENTION
+     * This method is copied from Zend_Db_Table_Row_Abstract.
+     * It is altered to add the table name to the WHERE clause. So instead of
+     *
+     * WHERE id = 42
+     *
+     * the query becomes:
+     *
+     * WHERE MyStuff.id = 42
+     *
+     * Query a parent table to retrieve the single row matching the current row.
+     *
+     * @param string|Zend_Db_Table_Abstract $parentTable
+     * @param string                        OPTIONAL $ruleKey
+     * @param Zend_Db_Table_Select          OPTIONAL $select
+     * @return Zend_Db_Table_Row_Abstract   Query result from $parentTable
+     * @throws Zend_Db_Table_Row_Exception If $parentTable is not a table or is not loadable.
+     */
+    public function findParentRow($parentTable, $ruleKey = null, Zend_Db_Table_Select $select = null)
+    {
+        $db = $this->_getTable()->getAdapter();
+
+        if (is_string($parentTable)) {
+            $parentTable = $this->_getTableFromString($parentTable);
+        }
+
+        if (!$parentTable instanceof Zend_Db_Table_Abstract) {
+            $type = gettype($parentTable);
+            if ($type == 'object') {
+                $type = get_class($parentTable);
+            }
+            require_once 'Zend/Db/Table/Row/Exception.php';
+            throw new Zend_Db_Table_Row_Exception("Parent table must be a Zend_Db_Table_Abstract, but it is $type");
+        }
+
+        // even if we are interacting between a table defined in a class and a
+        // table via extension, ensure to persist the definition
+        if (($tableDefinition = $this->_table->getDefinition()) !== null
+            && ($parentTable->getDefinition() == null)) {
+            $parentTable->setOptions(array(Zend_Db_Table_Abstract::DEFINITION => $tableDefinition));
+        }
+
+        if ($select === null) {
+            $select = $parentTable->select();
+        } else {
+            $select->setTable($parentTable);
+        }
+
+        $map = $this->_prepareReference($this->_getTable(), $parentTable, $ruleKey);
+
+        // iterate the map, creating the proper wheres
+        for ($i = 0; $i < count($map[Zend_Db_Table_Abstract::COLUMNS]); ++$i) {
+            $dependentColumnName = $db->foldCase($map[Zend_Db_Table_Abstract::COLUMNS][$i]);
+            $value = $this->_data[$dependentColumnName];
+            // Use adapter from parent table to ensure correct query construction
+            $parentDb = $parentTable->getAdapter();
+            $parentColumnName = $parentDb->foldCase($map[Zend_Db_Table_Abstract::REF_COLUMNS][$i]);
+			$parentColumn = $parentDb->quoteIdentifier($parentTable->getName()).'.';
+            $parentColumn .= $parentDb->quoteIdentifier($parentColumnName, true);
+            $parentInfo = $parentTable->info();
+
+            // determine where part
+            $type     = $parentInfo[Zend_Db_Table_Abstract::METADATA][$parentColumnName]['DATA_TYPE'];
+            $nullable = $parentInfo[Zend_Db_Table_Abstract::METADATA][$parentColumnName]['NULLABLE'];
+            if ($value === null && $nullable == true) {
+                $select->where("$parentColumn IS NULL");
+            } elseif ($value === null && $nullable == false) {
+                return null;
+            } else {
+                $select->where("$parentColumn = ?", $value, $type);
+            }
+
+        }
+
+        return $parentTable->fetchRow($select);
+    }
 	
 		
 	/**
 	 * Return the value of the primary key(s) for this row.
+	 * Extended to not return arrays when primary key is just one column.
+	 * (which is true 99 out of a 100 times)
 	 * @return Mixed
 	 */
-	public function getPrimaryKey() {
+	public function getPrimaryKey($useDirty = true) {
 		$primary = (array)$this->_getTable()->info(Zend_Db_Table::PRIMARY);
 		$out = array();
 		foreach ($primary as $key) {
+			if (!isset($this->$key)) {
+				throw new Garp_Db_Table_Row_Exception_PrimaryKeyNotInRow("$key was not in the row");
+			}
 			$out[] = $this->$key;
 		}
 		return count($out) > 1 ? $out : $out[0];
@@ -218,383 +311,32 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 	 * @param String $binding The alias for the related rowset
 	 * @return Garp_Db_Table_Row|Garp_Db_Table_Rowset
 	 */
-	public function getRelated($binding) {
+	public function getRelated($binding = null) {
+		if (is_null($binding)) {
+			return $this->_related;
+		}
 		return $this->_related[$binding];
 	}
 	
 	
+	/**
+ 	 * Set arbitrary virtual value that is not a table column.
+ 	 * @param String $key
+ 	 * @param Mixed $value
+ 	 * @return Garp_Db_Table_Row $this
+ 	 */
 	public function setVirtual($key, $value) {
 		$this->_virtual[$key] = $value;
+		return $this;
 	}
 	
 	
+	/**
+ 	 * Return all virtual values
+ 	 * @return Array
+ 	 */
 	public function getVirtual() {
 		return $this->_virtual;
-	}
-	
-	
-	/**
-	 * Relate the fetched row to another record.
-	 * @param String 					$modelName 	The other model
-	 * @param Mixed 					$primaryKey	Primary key(s) of the other record. If compound key,
-	 * 												the keys must be in the same order as the foreign key
-	 * 												columns are specified in the referenceMap
-	 * @param Garp_Util_Configuration	$options	Various options such as;
-	 * ['rule']							String		The rule that defines this relation in the reference map
-	 * ['postponeSave']					Boolean		Wether to save directly after filling the foreign key
-	 * 												fields. If FALSE, the relation will not be saved 
-	 * 												automatically. Client code will have to manually call               
-	 * 												Garp_Db_Table_Row::save()                                           
-	 * ['extraFields']					Array		Associative array of extra columns and values.                      
-	 * 												In the case of a HABTM relationship it's sometimes                  
-	 * 												possible to fill extra columns on the binding row.                  
-	 * ['unrelateExisting]				Boolean		Wether to clear existing binding rows (in the case of HABTM)
-	 * @return Mixed 								Either the result of the save() call, or, if $postponeSave is true, 
-	 * 				 								$this, for chaining purposes.                                       
-	 * @throws Garp_Db_Exception 					When trying to save an invalid relation.                            
-	 */
-	public function relate($modelName, $primaryKey, Garp_Util_Configuration $options = null) {
-		$this->_normalizeOptionsForRelate($options);
-		$thisModel		= $this->_getTable();
-		$theOtherModel	= new $modelName();
-		$primaryKey		= (array) $primaryKey;
-		
-		if (is_null($options['rule'])) {
-			return $this->_resolveRelationRuleForRelate($modelName, $primaryKey, $options);
-		}
-		
-		$refMap = $thisModel->getReference($modelName, $options['rule']);
-
-		if (count($refMap['columns']) !== count($primaryKey)) {
-			throw new Garp_Db_Exception('Primary key values don\'t match columns listed in the referenceMap.');
-		}
-
-		foreach ($refMap['columns'] as $i => $column) {
-			$this->$column = $primaryKey[$i];
-		}
-		return !$options['postponeSave'] ? $this->save() : $this;
-	}
-	
-	
-	/**
-	 * Destroy a relationship between two models
-	 * @param String $modelName The other model
-	 * @param Mixed $primaryKey Primary key(s) of the other record. If compound key,
-	 * 							the keys must be in the same order as the foreign key
-	 * 							columns are specified in the referenceMap
-	 * @param String $rule The rule that defines this relation in the reference map
-	 * @return Mixed
-	 */
-	public function unrelate($modelName, $primaryKey, $rule = null) {
-		$thisModel		= $this->_getTable();
-		$theOtherModel	= new $modelName();
-		$primaryKey		= (array) $primaryKey;
-		
-		if (is_null($rule)) {
-			return $this->_resolveRelationRuleForUnrelate($modelName, $primaryKey);
-		}
-		
-		$refMap = $thisModel->getReference($modelName, $rule);
-		if (count($refMap['columns']) !== count($primaryKey)) {
-			throw new Garp_Db_Exception('Primary key values don\'t match columns listed in the referenceMap.');
-		}
-
-		foreach ($refMap['columns'] as $i => $column) {
-			if ($this->$column == $primaryKey[$i]) {
-				$this->$column = null;
-			}
-		}
-		return $this->save();
-	}
-
-
-	/**
-	 * Terminate the association with all records to this record.
-	 * @param String $modelName The other model
-	 * @return Int The amount of deleted rows
-	 */
-	public function unrelateAll($modelName) {
-		$thisModel = $this->_getTable();
-		$theOtherModel = new $modelName();
-
-		switch ($this->_getRelationType($modelName)) {
-			case 'belongsTo':
-				if ($rule = $thisModel->findRuleForRelation($modelName)) {
-					$reference = $thisModel->getReference($modelName, $rule);
-					foreach ($reference['columns'] as $column) {
-						$this->$column = null;
-					}
-					return $this->save();
-				}
-				throw new Garp_Db_Exception('Relationship between '.$modelName.' and '.get_class($thisModel).' not found.');
-			break;
-			case 'hasMany':
-				if ($rule = $theOtherModel->findRuleForRelation(get_class($thisModel))) {
-					$reference = $theOtherModel->getReference(get_class($thisModel), $rule);
-
-					$data = array();
-					$where = array();
-					$thisPrimaryKey = (array)$this->getPrimaryKey();
-					foreach ($reference['columns'] as $i => $column) {
-						$data[$column] = null;
-						$where[] = $theOtherModel->getAdapter()->quoteInto($column.' = ?', $thisPrimaryKey[$i]);
-					}
-					$where = implode(' AND ', $where);					
-					return $theOtherModel->update($data, $where);
-				}
-				throw new Garp_Db_Exception('Relationship between '.$modelName.' and '.get_class($thisModel).' not found.');
-			break;
-			case 'hasAndBelongsToMany':
-				$bindingModel = $thisModel->getBindingModel($theOtherModel);
-				if ($rule = $bindingModel->findRuleForRelation(get_class($thisModel))) {
-					$reference = $bindingModel->getReference(get_class($thisModel), $rule);
-
-					$where = array();
-					$thisPrimaryKey = (array)$this->getPrimaryKey();
-					foreach ($reference['columns'] as $i => $column) {
-						$where[] = $bindingModel->getAdapter()->quoteInto($column.' = ?', $thisPrimaryKey[$i]);
-					}
-					$where = implode(' AND ', $where);
-
-					if (get_class($thisModel) === get_class($theOtherModel)) {
-						//	homophile relation
-						$rule2 = $bindingModel->findRuleForRelation(get_class($thisModel), $rule);
-						$reference2 = $bindingModel->getReference(get_class($thisModel), $rule2);
-						$where2 = array();
-
-						foreach ($reference2['columns'] as $i => $column) {
-							$where2[] = $bindingModel->getAdapter()->quoteInto($column.' = ?', $thisPrimaryKey[$i]);
-						}
-						$where = '('.$where.') OR ('.implode(' AND ', $where2).')';
-					}
-
-					return $bindingModel->delete($where);
-				}
-				throw new Garp_Db_Exception('Relationship between '.get_class($bindingModel).' and '.get_class($thisModel).' not found.');
-			break;
-		}
-		return false;
-	}
-
-	
-	/**
-	 * We need a rule for saving a relation. If none is passed to self::relate, 
-	 * this method is called to handle the absence. This method then recursively 
-	 * calls self::relate again when it has resolved what rule to use.
-	 * @param String $modelName The other model
-	 * @param Mixed $primaryKey Primary key(s) of the other record. If compound key,
-	 * 							the keys must be in the same order as the foreign key
-	 * 							columns are specified in the referenceMap
-	 * @param Array $options Various options, @see self::relate for more information.
-	 * @return Mixed Either the result of the save() call, or, if $postponeSave is true, 
-	 * 				 $this, for chaining purposes.
-	 * @throws Garp_Db_Exception When trying to save an invalid relation.
-	 */
-	protected function _resolveRelationRuleForRelate($modelName, $primaryKey, Garp_Util_Configuration $options) {
-		$thisModel		= $this->_getTable();
-		$theOtherModel	= new $modelName();
-		$primaryKey		= (array) $primaryKey;
-
-		switch ($this->_getRelationType($modelName)) {
-			case 'belongsTo':
-				/**
-				 * Make the parameters complete by adding the rule
-				 * and calling relate() recursively
-				 */
-				$options['rule'] = $thisModel->findRuleForRelation($modelName);
-				return $this->relate($modelName, $primaryKey, $options);
-			break;
-			case 'hasMany':
-				/**
-				 * If so, we know it's not a belongsTo relationship.
-				 * To simplify things, a row can only save a belongsTo relationship.
-				 * So we flip it here; find the other row and call relate() on it
-				 * with reversed parameters.
-				 */
-				$theOtherRow = call_user_func_array(array($theOtherModel, 'find'), $primaryKey)->current();
-				$options['rule'] = $theOtherModel->findRuleForRelation(get_class($thisModel));
-				if (!$theOtherRow) {
-					$primKeyStr = implode(',', $primaryKey);
-					throw new Exception("Row from model \"$modelName\" with primary key ($primKeyStr) not found. Relation not possible.");
-				}
-				return $theOtherRow->relate(get_class($thisModel), $this->getPrimaryKey(), $options);
-			break;
-			case 'hasManyAndBelongsTo':
-			default:
-				return $this->_createBindingRow($thisModel, $theOtherModel, $primaryKey, $options);
-			break;
-		}
-	}
-	
-	
-	/**
-	 * We need a rule for saving a relation. If none is passed to self::relate, 
-	 * this method is called to handle the absence. This method then recursively 
-	 * calls self::relate again when it has resolved what rule to use.
-	 * @param String $modelName The other model
-	 * @param Mixed $primaryKey Primary key(s) of the other record. If compound key,
-	 * 							the keys must be in the same order as the foreign key
-	 * 							columns are specified in the referenceMap
-	 * @param String $rule The rule that defines this relation in the reference map
-	 * @return Mixed Either the result of the save() call (or delete call in the case of HABTM).
-	 * @throws Garp_Db_Exception When trying to save an invalid relation.
-	 */
-	protected function _resolveRelationRuleForUnrelate($modelName, $primaryKey) {
-		$thisModel		= $this->_getTable();
-		$theOtherModel	= new $modelName();
-		$primaryKey = (array) $primaryKey;
-		
-		switch ($this->_getRelationType($modelName)) {
-			case 'belongsTo':
-				/**
-				 * Make the parameters complete by adding the rule
-				 * and calling unrelate() recursively
-				 */
-				$rule = $thisModel->findRuleForRelation($modelName);
-				return $this->unrelate($modelName, $primaryKey, $rule);
-			break;
-			case 'hasMany':
-				/**
-				 * To simplify things, a row can only save a belongsTo relationship.
-				 * So we flip it here; find the other row and call unrelate() on it
-				 * with reversed parameters.
-				 */
-				$theOtherRow = call_user_func_array(array($theOtherModel, 'find'), $primaryKey)->current();
-				if (!$theOtherRow) {
-					$primKeyStr = implode(',', $primaryKey);
-					throw new Exception("Row from model \"$modelName\" with primary key ($primKeyStr) not found. Relation not possible.");
-				}
-				$rule = $theOtherModel->findRuleForRelation(get_class($thisModel));
-				return $theOtherRow->unrelate(get_class($thisModel), $this->getPrimaryKey(), $rule);
-			break;
-			case 'hasManyAndBelongsTo':
-			default:
-				return $this->_deleteBindingRow($thisModel, $theOtherModel, $primaryKey);
-			break;
-		}
-	}
-	
-
-	/**
-	 * Returns the type of relation between the model of the current row, and the given model.
-	 * @param String $modelName The name of the other model
-	 * @return String Relation type: either 'belongsTo', 'hasMany' or 'hasAndBelongsToMany'.
-	 */
-	protected function _getRelationType($modelName) {
-		$thisModel		= $this->_getTable();
-		$theOtherModel	= new $modelName();
-
-		// Check if a rule exists in this model's reference map
-		if ($thisModel->findRuleForRelation($modelName)) {
-			return 'belongsTo';
-		// Check if a rule exists in the other model's reference map
-		} elseif ($theOtherModel->findRuleForRelation(get_class($thisModel))) {
-			return 'hasMany';
-		/**
-		 * At this point the rule is not found in either model. This means either
-		 * this is a many to many relation that needs a binding model, or the 
-		 * relationship simply does not exist and is therefore invalid.
-		 */
-		} else {
-			return 'hasAndBelongsToMany';
-		}
-	}
-	
-	
-	/**
-	 * Create a row in a binding table, which relates two rows.
-	 * @param Garp_Model_Db $thisModel The parent table to this row
-	 * @param Garp_Model_Db $theOtherModel The related table
-	 * @param Array $primaryKey The primary key of the related table
-	 * @param Garp_Util_Configuration $options Various options. @see self::relate For more information.
-	 * @return Mixed The result of the save() call
-	 */
-	protected function _createBindingRow(Garp_Model_Db $thisModel, Garp_Model_Db $theOtherModel, array $primaryKey, Garp_Util_Configuration $options) {
-		$bindingModel = $thisModel->getBindingModel($theOtherModel);
-		$bindingRow = $bindingModel->createRow($options['extraFields']);
-
-		$originalPostponeSave = $options['postponeSave'];
-		$options['postponeSave'] = true;
-		// Relate the first model...
-		if ($rule1 = $bindingModel->findRuleForRelation(get_class($thisModel))) {
-			// unrelate existing records
-			if ($options['unrelateExisting']) {
-				$this->unrelateAll(get_class($theOtherModel));
-			}
-			
-			$options['rule'] = $rule1;
-			$bindingRow->relate(get_class($thisModel), $this->getPrimaryKey(), $options);
-			
-			// ...and relate the second one
-			if ($rule2 = $bindingModel->findRuleForRelation(get_class($theOtherModel), $rule1)) {
-				$options['rule'] = $rule2;
-				$bindingRow->relate(get_class($theOtherModel), $primaryKey, $options);
-
-				/**
-				 * Since save is postponed using the 4th parameter, call it now. 
-				 * This is done because in most cases, the two foreign keys will together
-				 * form the primary key and therefore the binding row cannot exist
-				 * without both.
-				 */
-				return $originalPostponeSave ? $this : $bindingRow->save();
-			} else {
-				throw new Garp_Db_Exception('Model '.get_class($bindingModel).' has no relation rule for '.
-											get_class($theOtherModel));
-			}
-		} else {
-			throw new Garp_Db_Exception('Model '.get_class($bindingModel).' has no relation rule for '.
-										get_class($thisModel));
-		}
-	}
-	
-	
-	/**
-	 * Delete a row from a binding table, effectively destroying
-	 * the relationship.
-	 * @param Garp_Model_Db $thisModel The parent table to this row
-	 * @param Garp_Model_Db $theOtherModel The related table
-	 * @param Array $primaryKey The primary key of the related table
-	 * @return Int Number of deleted rows
-	 */
-	protected function _deleteBindingRow(Garp_Model_Db $thisModel, Garp_Model_Db $theOtherModel, array $primaryKey) {
-		$bindingModel = $thisModel->getBindingModel($theOtherModel);
-		$rule1 = $bindingModel->findRuleForRelation(get_class($thisModel));
-		$rule2 = $bindingModel->findRuleForRelation(get_class($theOtherModel));
-		if (!$rule1 || !$rule2) {
-			throw new Garp_Db_Exception('Model '.get_class($bindingModel).' has no relation '.
-										'rule specified for '.get_class($thisModel).' or '.get_class($theOtherModel));
-		}
-		$refMap = $bindingModel->info(Zend_Db_Table::REFERENCE_MAP);
-		// create new select object to fetch the binding row
-		$select = $bindingModel->select();
-		// create WHERE clause for rules
-		foreach (array($rule1, $rule2) as $theOtherRow => $rule) {
-			$foreignKeyColumns = (array)$refMap[$rule]['columns'];
-			foreach ($foreignKeyColumns as $i => $column) {
-				if ($theOtherRow) {
-					$key = $primaryKey[$i];
-				} else {
-					$key = (array)$this->getPrimaryKey();
-					$key = $key[$i];
-				}
-				$select->where($column.' = ?', $key);
-			}
-		}
-		// DELETE the binding row
-		$where = implode(' ', $select->getPart(Zend_Db_Select::WHERE));
-		return $bindingModel->delete($where);
-	}
-	
-	
-	/**
-	 * Make sure default values are present in the $options array.
-	 * @param Garp_Util_Configuration $options Various options
-	 * @return Void
-	 */
-	protected function _normalizeOptionsForRelate(Garp_Util_Configuration $options) {
-		$options->setDefault('rule', null)
-				->setDefault('extraFields', array())
-				->setDefault('postponeSave', false);
 	}
 	
 	
@@ -620,6 +362,69 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $result;
 	}
 	
+
+	/**
+     * Set row field value
+     *
+     * @param  string $columnName The column key.
+     * @param  mixed  $value      The value for the property.
+     * @return void
+     * @throws Zend_Db_Table_Row_Exception
+     */
+    public function __set($columnName, $value) {
+		try {
+			parent::__set($columnName, $value);
+		} catch (Zend_Db_Table_Row_Exception $e) {
+			if (array_key_exists($columnName, $this->_related)) {
+				$this->_related[$columnName] = $value;
+			} elseif (array_key_exists($columnName, $this->_virtual)) {
+				$this->_virtual[$columnName] = $value;
+			} else {
+				throw $e;
+			}
+		}
+    }
+
+    /**
+     * Unset row field value
+     *
+     * @param  string $columnName The column key.
+     * @return Zend_Db_Table_Row_Abstract
+     * @throws Zend_Db_Table_Row_Exception
+     */
+    public function __unset($columnName)
+    {
+		try {
+			parent::__unset($columnName);
+		} catch (Zend_Db_Table_Row_Exception $e) {
+			if (array_key_exists($columnName, $this->_related)) {
+				unset($this->_related[$columnName]);
+			} elseif (array_key_exists($columnName, $this->_virtual)) {
+				unset($this->_virtual[$columnName]);
+			} else {
+				throw $e;
+			}
+		}
+		return $this;
+	}
+
+
+	/**
+ 	 * Test existence of row field
+ 	 * @param String $columnName The column key.
+ 	 * @return Boolean
+ 	 */
+	public function __isset($columnName) {
+		// Check if native column from database.
+		$result = parent::__isset($columnName);
+		if (!$result) {
+			// Check if "virtual" column added thru Garp modification.
+			$result = array_key_exists($columnName, $this->_related) ||
+				array_key_exists($columnName, $this->_virtual);
+		}
+		return $result;
+	}
+
 	
 	/**
      * Returns the column/value data as an array.
@@ -629,7 +434,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
     public function toArray() {
 		$data = parent::toArray();
 		foreach ($this->_related as $key => $rowset) {
-			if ($rowset) {
+			if ($rowset instanceof Zend_Db_Table_Row_Abstract || $rowset instanceof Zend_Db_Table_Rowset_Abstract) {
 				$data[$key] = $rowset->toArray();
 			} else {
 				$data[$key] = $rowset;

@@ -1,0 +1,96 @@
+<?php
+/**
+ * Attention!
+ * The Javascript files on this page should not be loaded from the CDN.
+ * Therefore, use baseUrl() and not assetUrl().
+ * Reason for this is that error messages after an ajax request can not
+ * be disclosed from one domain to another, in most browsers.
+ */
+?><noscript style="position:absolute;top:0;right:0;left:0;bottom:0;z-index:100000000000000;padding:25px;background:#000;color:#FFF;font-size:large;line-height:2;">
+	<p>Garp gebruikt Javascript om te functioneren. Javascript is op dit moment uitgeschakeld in je browser.</p>
+	<p>Op <a target="_blank" href="http://enable-javascript.com/">http://enable-javascript.com/</a> kun je zien hoe je Javascript inschakelt.</p>
+</noscript>
+
+<div id="icon-loading-spinner"></div>
+<div id="app-loader"><?php echo __('Loading Garp'); ?>&hellip;</div>
+<!-- Required fields for history management -->
+<form id="history-form" class="x-hidden" action="">
+	<input type="hidden" id="x-history-field">
+	<iframe id="x-history-frame"></iframe>
+</form>
+
+<div id="welcome-panel-content" class="x-hidden">
+	<div class="garp-welcome-body">
+		<h1><?php echo $this->escape($this->translate('garp welcome header')) ?></h1>
+		<p><?php echo $this->escape($this->translate('garp welcome tagline')) ?></p>
+	</div>
+</div>
+<div id="fb-root"></div>
+
+<script>
+	BASE = '<?php echo $this->baseUrl('/') ?>';
+	ASSET_URL = '<?php echo $this->assetUrl('/') ?>';
+	IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
+	DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
+	ASSET_VERSION = '<?php echo APP_VERSION ?>';
+	GARP_VERSION = '<?php echo GARP_VERSION ?>';
+	<?php if (isset($this->config()->video->template->w)): ?>
+	VIDEO_WIDTH = <?php echo $this->config()->video->template->w ?>;
+	<?php endif; ?>
+	<?php if (isset($this->config()->video->template->h)): ?>
+	VIDEO_HEIGHT = <?php echo $this->config()->video->template->h ?>;
+	<?php endif; ?>
+	APP_TITLE = "<?php echo $this->escape($this->title) ?>";
+	<?php if (isset($this->config()->auth->adapters->facebook)): ?>
+	FB_APP_ID = "<?php echo $this->config()->auth->adapters->facebook->appId ?>";
+	<?php endif; ?>
+	DEBUG = window.location.hash.indexOf('debug') > -1;
+	LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getLocales()); ?>'];
+	DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
+	CURRENT_LANGUAGE = '<?php echo Garp_I18n::getCurrentLocale(); ?>';
+</script>
+
+<?php
+echo $this->partial('partials/cms-script-includes.phtml', 'g', array(
+	'locale' => $this->locale
+));
+echo $this->partial('partials/models.phtml', 'default');
+?>
+ 
+<!-- Garp init -->
+<script>
+<?php
+
+// LinkedIn stuff. Was commented out? Does this even do anything?
+if (isset($this->config()->auth->adapters->linkedin->appId)):
+?>
+function emptyFunction(){};
+/*
+  api_key: <?php echo $this->config()->auth->adapters->linkedin->appId ?>
+  
+  onLoad: emptyFunction
+  authorize: true
+*/
+<?php
+endif; 
+
+// LocalUser object
+if ($this->auth()->isLoggedIn()):
+	$userData = $this->auth()->getUserData();
+	$localUser = array(
+		'role' => $userData['role'],
+		'id' => $userData['id'],
+		'nick' => '' // <-- why?
+	);
+?>
+Garp.localUser = <?php echo json_encode($localUser) ?>;
+<?php
+endif; 
+?>
+
+// Inform front-end of ACL setup
+Garp.ACL = <?php echo json_encode($this->auth()->getRoles(true)) ?>;
+	
+// Here we go
+Ext.onReady(Garp.init);
+</script>

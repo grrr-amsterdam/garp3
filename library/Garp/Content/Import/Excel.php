@@ -66,13 +66,19 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 				$cellData[] = $cell->getValue();
 			}
 			try {
+ 			 	// Sanity check: do not insert completely empty rows
+				$check = implode('', $cellData);
+				$check = trim($check);
+				if (!$check) {
+					continue;
+				}
 				$primaryKey = $this->_insert($model, $cellData, $mapping);
 				$pks[] = $primaryKey;
 			} catch (Exception $e) {
 				if (!$options['ignoreErrors']) {
 					$this->rollback($model, $pks);
-					throw $e;
 				}
+				throw $e;
 			}
 		}
 		return true;
@@ -87,6 +93,13 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 	 * @return Mixed primary key
 	 */
 	protected function _insert(Garp_Model $model, array $cellData, array $mapping) {
+		if (count($cellData) !== count($mapping)) {
+			throw new Exception(
+				"Cannot create rowdata from these keys and values.\nKeys:".
+				implode(', ', $mapping)."\n".
+				"Values:".implode(', ', $cellData)
+			);
+		}
 		$data = array_combine($mapping, $cellData);
 		// ignored columns have an empty key
 		unset($data['']);
@@ -101,13 +114,16 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 	 * @return Void
 	 */
 	public function rollback(Garp_Model $model, array $primaryKeys) {
+		if (empty($primaryKeys)) {
+			return;
+		}
 		$primaryCols = (array)$model->info(Zend_Db_Table::PRIMARY);
 		$where = array();
 		foreach ($primaryKeys as $pk) {
 			$recordWhere = array();
 			foreach ((array)$pk as $i => $key) {
 				$recordWhere[] = $model->getAdapter()->quoteIdentifier(current($primaryCols)).' = '.
-								 $model->getAdapter()->quoteInto('?',$key);
+								 $model->getAdapter()->quote($key);
 			}
 			$recordWhere = implode(' AND ', $recordWhere);
 			$recordWhere = '('.$recordWhere.')';
@@ -115,6 +131,9 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 			reset($primaryCols);
 		}
 		$where = implode(' OR ', $where);
+		if (empty($where)) {
+			return;
+		}
 		$model->delete($where);
 	}
 	
@@ -127,9 +146,14 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 		require APPLICATION_PATH.'/../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel.php';
 
 		$inputFileType = PHPExcel_IOFactory::identify($this->_importFile);
+		// HTML is never correct. Just default to Excel2007
+		// @todo Fix this. It should be able to determine the filetype correctly.
+		if ($inputFileType === 'HTML') {
+			$inputFileType = 'Excel2007';
+		}
 		$reader = PHPExcel_IOFactory::createReader($inputFileType);
 		// we are only interested in cell values (not formatting etc.), so set readDataOnly to true
-		$reader->setReadDataOnly(true);
+		// $reader->setReadDataOnly(true);
 		$phpexcel = $reader->load($this->_importFile);
 		
 		return $phpexcel;

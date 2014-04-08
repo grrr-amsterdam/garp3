@@ -1,0 +1,395 @@
+<?php
+	$model				= $this->model;
+	$fields 			= $model->fields->getFields();
+	$relFields 			= $model->fields->getFields('origin', 'relation');
+	$editableFields 	= $model->fields->getFields('editable', true);
+	$excludedFormFields	= $this->spawnJs()->getExcludedFormFields();
+	$singularRelations 	= $model->relations->getRelations('type', array('hasOne', 'belongsTo'));
+	$multipleRelations 	= $model->relations->getRelations(
+		array('type', 'inline'),
+		array(array('hasMany', 'hasAndBelongsToMany'), false)
+	);
+	$inlineMultipleRelations = $model->relations->getRelations(
+		array('type', 'inline'),
+		array(array('hasMany', 'hasAndBelongsToMany'), true)
+	);
+
+	$dashedModelId = Garp_Spawn_Util::camelcased2dashed($model->id);
+	$rolesThatShouldntSeeThisModelInTheirMenu = $this->spawnJs()->getAclRolesThatAreNotAllowedModelPrivilege($model, 'menu');
+
+?>Ext.ns('Garp.dataTypes');
+Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
+	text: __('<?php echo $model->label ?>'),
+	<?php if ($model->description): ?>
+	description: '<?php echo $this->escape($model->description) ?>',
+	<?php endif; ?>
+	iconCls: 'icon-<?php echo $dashedModelId ?>',
+	quickCreatable: <?php echo $model->quickAddable ? 'true' : 'false' ?>,
+	<?php if (!$model->visible): ?>
+	hidden: true,
+	<?php elseif ($rolesThatShouldntSeeThisModelInTheirMenu): ?>hidden: ['<?php
+		echo implode("','", $rolesThatShouldntSeeThisModelInTheirMenu) ?>'].indexOf(Garp.localUser.role) > -1,
+	<?php endif; ?>
+	<?php if (!$model->creatable): ?>
+	disableCreate: true,
+	<?php endif; ?>
+	<?php if (!$model->deletable): ?>
+	disableDelete: true,
+	<?php endif; ?>
+	
+	metaPanelItems: [
+		'created', 'modified'
+		<?php
+			if ($model->behaviors->displaysBehavior('Draftable')) {
+				echo ", 'published'";
+			}
+		?>
+	],
+
+	<?php 
+		echo $this->partial('partials/spawn/js/display-field.phtml', 'g', array('model' => $model));
+	?>,
+
+	<?php /* _____PreviewLink */
+	if ($model->route):
+		$route = $model->route;
+		if ($route[0] === '/'):
+			$route = substr($route, 1);
+		endif;
+		$urlParam = null;
+		$routeParts = explode("/", $route);
+
+		foreach ($routeParts as &$part) {
+			if (
+				strlen($part) > 0 &&
+				$part[0] === ':'
+			) {
+				$urlParam = substr($part, 1);
+				$part = '{0}';
+			}
+		}
+
+	?>
+	previewLink: {
+		urlTpl: '<?php echo implode("/", $routeParts) ?>?preview',
+		param: '<?php echo $urlParam ?>'
+	},
+	<?php endif;
+
+	/* _____DefaultData */
+	$i = 0;
+	?>
+	defaultData: {
+	<?php 
+	foreach ($fields as $field): ?>
+		
+		'<?php echo $field->name ?>': <?php echo $this->spawnJs()->getDefaultValue($field); echo ($i < (count($fields) - 1) ? ',' : ''); ?>
+		<?php
+		$i++;
+	endforeach;
+	?>
+	},
+
+	<?php
+		/* _____SortInfo */	
+		$sortParams = $this->spawnJs()->getSortParams($model->order);
+	?>
+	sortInfo: {
+		field: '<?php echo $sortParams['field'] ?>',
+		direction: '<?php echo $sortParams['direction'] ?>'
+	},
+
+	<?php
+		/* _____ColumnModel */
+		$columnModelNodes = array();
+	?>
+	columnModel: [{
+	<?php
+		/* __images in column model */
+		foreach ($fields as $field):
+			if ($this->spawnJs()->isImageField($field, $model)):
+				$lcFieldName = strtolower($field->name);
+				$nodeParams = array(
+					'dataIndex' => $lcFieldName,
+					'renderer' => 'Garp.renderers.imageRelationRenderer',
+					'width' => 84,
+					'fixed' => true,
+					'header' => ($field->name === 'image_id' ? 'Image' : $field->label),
+					'searchable' => false
+				);
+				if (
+					!$this->spawnJs()->isListField($field->name, $model) &&
+					!$field->visible
+				):
+					$nodeParams['hidden'] = true;
+				endif;
+				$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', $nodeParams);
+			endif;
+		endforeach;
+
+		/* __textual columns */
+		foreach ($fields as $field):
+			$isSingularRelationField = $this->spawnJs()->isSingularRelationField($field, $model);
+			$lcFieldName = strtolower($field->name);
+			
+			if (!$this->spawnJs()->isImageField($field, $model)):
+				$nodeParams = array(
+					'dataIndex' => $lcFieldName,
+					'header' => $field->label
+				);
+
+				switch ($field->type ):
+					case 'datetime':
+						$nodeParams['renderer'] = 'Garp.renderers.dateTimeRenderer';
+					break;
+					case 'date':
+						$nodeParams['renderer'] = 'Garp.renderers.dateRenderer';
+					break;
+					case 'time':
+						$nodeParams['renderer'] = 'Garp.renderers.timeRenderer';
+					break;
+					case 'html':
+						$nodeParams['renderer'] = 'Garp.renderers.htmlRenderer';
+						$nodeParams['searchable'] = true;
+					break;
+					case 'enum':
+						if (is_array($field->options) && key($field->options) !== 0):
+							$labeledEnumOptions = array();
+							foreach ($field->options as $value => $label):
+								$labeledEnumOptions[] = "'{$value}': __('{$label}')";
+							endforeach;
+
+							$nodeParams['renderer'] = "function(v) { return {".implode($labeledEnumOptions, ", ")."}[v] || '-';}";
+						endif;
+					break;
+					case 'checkbox':
+						$nodeParams['renderer'] = 'Garp.renderers.checkboxRenderer';
+					break;
+					default:
+						if ($isSingularRelationField) {
+							$nodeParams['searchable'] = false;
+							$nodeParams['sortable'] = false;
+						}
+
+						switch ($field->type) {
+							case 'text':
+							case 'email':
+								if ($field->isMultilingual()) {
+									$nodeParams['renderer'] = 'Garp.renderers.i18nRenderer';
+								}
+								$nodeParams['searchable'] = true;
+						}
+				endswitch;
+
+				if (
+					!$this->spawnJs()->isListField($field->name, $model) ||
+					!$field->visible ||
+					(
+						$this->spawnJs()->modelHasFirstAndLastName($model) &&
+						(
+							$field->name === 'first_name' ||
+							$field->name === 'last_name_prefix' ||
+							$field->name === 'last_name'
+						)
+
+					)
+				):
+					$nodeParams['hidden'] = true;
+				endif;
+
+				// @todo: 	dit is wat overbodig, maar komt door het conflict tussen listField en visible.
+				//			heeft ook te maken met editable vs visible, dat sowieso nog opgelost moet worden.
+				if ($this->spawnJs()->isListField($field->name, $model)) {
+					unset($nodeParams['hidden']);
+				}
+
+				if ($isSingularRelationField) {
+					$nodeParams['headerPostFix'] = ' id';
+					$nodeParams['hideable'] = false;
+				}
+				$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', $nodeParams);
+
+				//	create an extra column model entry for relation fields
+				if ($isSingularRelationField):
+					$relations = $model->relations->getRelations('column', $field->name);
+					$relModelName = key($relations);
+					$lcRelModelName = strtolower($relModelName);
+
+					$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
+						'dataIndex' => $lcRelModelName,
+						'header' => $relModelName,
+						'hidden' => true,
+						'sortable' => true,
+						'searchable' => true
+					));
+				endif;
+			endif;
+		endforeach;
+
+		if ($this->spawnJs()->modelHasFirstAndLastName($model)):
+			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
+				'dataIndex' => 'fullname',
+				'header' => 'Full name',
+				'virtual' => true,
+				'convert' => 'Garp.renderers.fullNameConverter',
+				'virtualSortField' => 'first_name',
+				'hidden' => true
+			));
+		endif;
+		
+		/* Article / Chapter behavior */
+		if ($model->behaviors->displaysBehavior('Article')):
+			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
+				'dataIndex' => 'chapters',
+				'hidden' => true,
+				'visible' => false
+			));
+		endif;
+		
+
+		if ($columnModelNodes):
+			echo implode("}, {", $columnModelNodes);
+		endif;
+	?>
+	}],
+	<?php /* _____FormConfig */ ?>
+	formConfig: [{
+		layout: 'form',
+		defaults: {
+			defaultType: 'textfield'
+		},
+		<?php
+		if (
+			count($singularRelations) ||
+			$model->behaviors->displaysBehavior('Locatable')
+		): ?>
+		listeners: {
+			loaddata: function(rec, formPanel){
+		<?php
+			if (count($singularRelations)):
+				$singularImageRelations = array_filter($singularRelations, function ($n) {return $n->model === 'Image';});
+				foreach ($singularImageRelations as $imageRelation):
+					$imagePreviewId = $this->spawnJs()->getImagePreviewId($imageRelation->column);
+				?>
+				formPanel.<?php echo $imagePreviewId ?>.setText(Garp.renderers.imageRelationRenderer(rec.get('<?php echo $imageRelation->column ?>'), null, rec) || __('Add image'));
+				<?php
+				endforeach;
+			endif;
+
+			if ($model->behaviors->displaysBehavior('Locatable')): 
+				echo $this->partial('partials/spawn/js/locatable.phtml', 'g');
+			endif; ?>
+			}
+		},
+		<?php
+		endif; ?>
+		items: [{
+			xtype: "fieldset",
+			items: [{
+		<?php
+		$formFields = array();
+
+		/* _____ID Field */
+		$idField = $model->fields->getField('id');
+		if ($idField) {
+			$formFields[] = $this->partial('partials/spawn/js/input-field.phtml', 'g', array(
+				'field' => $idField
+			));
+		}
+
+		/* _____Image Fields */
+		foreach ($singularRelations as $rel):
+			if ($rel->model === 'Image'):
+				$formFields[] = $this->partial('partials/spawn/js/image-field.phtml', 'g', array(
+					'relation' => $rel,
+					'modelSet' => $this->modelSet
+				));
+			endif;
+		endforeach;
+
+		/* _____Geo Location Fields */
+		if ($model->behaviors->displaysBehavior('Locatable')) {
+			$formFields[] = $this->partial('partials/spawn/js/geolocation-field.phtml', 'g', array(
+				'model' => $model
+			));
+		}
+		
+		/* _____InputFields */
+		foreach ($editableFields as $field) {
+			if (in_array($field->name, $excludedFormFields)) {
+				break;
+			}
+			
+			$fieldParam = array('field' => $field);
+			if ($field->isMultilingual()) {
+				$formFields[] = $this->partial('partials/spawn/js/input-i18nsource.phtml', 'g', $fieldParam);
+			} else {
+				$formFields[] = $this->partial('partials/spawn/js/input-field.phtml', 'g', $fieldParam);
+			}
+		}
+		
+		/* _____Chapter / Article Fields */
+		if ($model->behaviors->displaysBehavior('Article')) {
+			$formFields[] = $this->partial('partials/spawn/js/article-field.phtml', 'g');
+		}
+
+
+		/* _____Single Relation Fields */
+		foreach ($singularRelations as $relName => $rel) {
+			if (
+				$rel->model !== 'Image' &&
+				$rel->column !== 'author_id' &&
+				$rel->column !== 'modifier_id'
+			) {
+				$formFields[] = $this->partial('partials/spawn/js/singular-relation-field.phtml', 'g', array(
+					'relationName' 	=> $relName,
+					'relation' 		=> $rel,
+					'simpleSelect' 	=> $rel->simpleSelect,
+					'modelSet' 		=> $this->modelSet
+				));
+			}
+		}
+
+		/* _____Inline Multiple Relation Fields */
+		foreach ($inlineMultipleRelations as $rel) {
+			$formFields[] = $this->partial('partials/spawn/js/inline-relation-field.phtml', 'g', array(
+				'relation' => $rel
+			));
+		}
+
+		if ($model->isMultilingual()) {
+			$formFields[] = $this->partial('partials/spawn/js/input-i18n-field-sets.phtml', 'g', array(
+				'fieldSet' => $editableFields
+			));
+		};
+
+		echo implode("\n\t\t\t}, {\n", $formFields)."\n";
+?>
+			}]
+		}]
+<?php
+		if (count($multipleRelations)):
+			$multiRelFields = array();
+
+			foreach ($multipleRelations as $rel):
+				if ( $rel->isPlural() &&
+					(!
+						($rel->model === 'Chapter' && $model->behaviors->displaysBehavior('Article'))
+					)
+				):
+					$multiRelFields[] = $this->partial('partials/spawn/js/multiple-relation-field.phtml', 'g', array(
+						'relation' => $rel,
+						'modelId' => $model->id
+					));
+				endif;
+			endforeach;
+
+			if ($multiRelFields) {
+				echo "\t}, {";
+				echo implode("\t}, {", $multiRelFields);
+			}
+		endif;
+
+?>
+	}]
+});

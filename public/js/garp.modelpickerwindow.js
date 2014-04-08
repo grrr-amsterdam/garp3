@@ -1,5 +1,8 @@
 Ext.ns('Garp');
 
+/**
+ * Simple extension upon image picker window. We need 'half' it's functionality
+ */
 Garp.ModelPickerWindow = Ext.extend(Garp.ImagePickerWindow, {
 	
 	/**
@@ -7,6 +10,9 @@ Garp.ModelPickerWindow = Ext.extend(Garp.ImagePickerWindow, {
 	 */
 	model: null,
 	
+	/**
+	 * @cfg: hide the default wizard text above
+	 */
 	hideWizardText: true,
 	
 	/**
@@ -14,29 +20,31 @@ Garp.ModelPickerWindow = Ext.extend(Garp.ImagePickerWindow, {
 	 */
 	allowBlank: false,
 	
-	/**
-	 * private :
-	 */
+	// 'private' :
 	activeItem: 0,
 	
-		
-	initComponent: function(){
-		var m = Garp.dataTypes[this.model];
-		this.setTitle(m.text);
-		this.setIconClass(m.iconCls);
-		Garp.ModelPickerWindow.superclass.initComponent.call(this);
-	},
-	
+	/**
+	 * Override default navigation 
+	 * @param {Object} dir
+	 */
 	navHandler: function(dir){
 		var page = this.getLayout().activeItem.id;
-		page = parseInt(page.substr(5, page.length));
+		page = parseInt(page.substr(5, page.length), 10);
 		page += dir;
 		if(page <= 0){
 			page = 0;
 		}
 		
 		switch(page){
-			case 0: default:
+			case 1:
+				var selected = this.imgGrid.getSelectionModel().getSelected();
+				this.fireEvent('select', {
+					selected: selected || null
+				});
+				this.close();
+			break;
+			//case 0:
+			default:
 				if (!this.allowBlank) {
 					var sm =this.imgGrid.getSelectionModel();
 					sm.on('selectionchange', function(){
@@ -47,15 +55,17 @@ Garp.ModelPickerWindow = Ext.extend(Garp.ImagePickerWindow, {
 				this.nextBtn.setText(__('Ok'));
 				this.nextBtn.setDisabled(!this.allowBlank);
 			break;
-			case 1:
-				var selected = this.imgGrid.getSelectionModel().getSelected();
-				this.fireEvent('select', {
-					selected: selected || null
-				});
-				this.close();
-			break;
+			
 		}
 		
 		this.getLayout().setActiveItem('page-' + page);
+	},
+	
+	initComponent: function(){
+		var m = Garp.dataTypes[this.model];
+		this.setTitle(__(m.text));
+		this.setIconClass(m.iconCls);
+		Garp.ModelPickerWindow.superclass.initComponent.call(this);
 	}
+	
 });

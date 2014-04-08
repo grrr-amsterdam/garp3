@@ -23,11 +23,9 @@ abstract class Garp_Content_Import_Abstract {
 	 * @return Void
 	 */
 	public function __construct($fileName) {
-		$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
-		//$uploadPath = $ini->app->uploadsDirectory;
-		//@TODO: FIXME this uploadsDirectory doesn't exist anymore
-		$uploadPath = APPLICATION_PATH.'/../public/uploads/documents';
-		$this->_importFile = rtrim($uploadPath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$fileName;
+		$gf = new Garp_File();
+		$fileUrl = $gf->getUrl($fileName);
+		$this->_importFile = $fileUrl;
 	}
 	
 	

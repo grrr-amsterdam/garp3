@@ -25,4 +25,14 @@ class Garp_Cli_Command_Figlet extends Garp_Cli_Command {
 			Garp_Cli::lineOut($figlet->render($text));
 		}
 	}
+
+	/**
+ 	 * Help
+ 	 */
+	public function help() {
+		Garp_Cli::lineOut('Usage:');
+		Garp_Cli::lineOut('Display "Eat My Shorts":');
+		Garp_Cli::lineOut(' g Figlet display Eat My Shorts');
+		Garp_Cli::lineOut('');
+	}
 }

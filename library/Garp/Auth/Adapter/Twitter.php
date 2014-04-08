@@ -84,8 +84,17 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 			'last_name' => !empty($name[1]) ? $name[1] : ''
 		);
 
+		$ini = Zend_Registry::get('config');
+		$sessionColumns = Zend_Db_Select::SQL_WILDCARD;
+		if (!empty($ini->auth->login->sessionColumns)) {
+ 		   	$sessionColumns = $ini->auth->login->sessionColumns;
+ 		   	$sessionColumns = explode(',', $sessionColumns);
+		}
+		$userModel = new Model_User();
+		$userConditions = $userModel->select()->from($userModel->getName(), $sessionColumns);
+
 		$model = new G_Model_AuthTwitter();
-		$model->bindModel('Model_User');
+		$model->bindModel('Model_User', array('conditions' => $userConditions));
 		$userData = $model->fetchRow(
 			$model->select()
 				  ->where('twitter_uid = ?', $id)

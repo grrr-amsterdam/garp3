@@ -25,7 +25,7 @@ class Garp_Content_Export_Html extends Garp_Content_Export_Abstract {
 	 */
 	protected function _format(Garp_Model $model, array $rowset) {
 		$view = new Zend_View();
-		$view->setScriptPath(APPLICATION_PATH.'/modules/g/views/scripts/content/export/');
+		$view->setScriptPath(GARP_APPLICATION_PATH.'/modules/g/views/scripts/content/export/');
 		$view->data = $rowset;
 		$view->name = $model->getName();
 		$out = $view->render('html.phtml');

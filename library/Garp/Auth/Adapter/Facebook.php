@@ -35,38 +35,67 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 			exit;
 		}
 		
-		$session = $facebook->getSession();		
-		$userData = $uid = null;
 		// Session based API call.
 		try {
-			$uid = $facebook->getUser();
-			// If a user is authenticated, $userData will be filled with user data
-			$userData = $facebook->api('/me');
-			return $this->_getUserData($uid, $userData);
+			$userData = $facebook->login();
+			$userData = $this->_getUserData($userData);
+
+			$authVars = $this->_getAuthVars();
+			// Automatically fetch friends if so configured.
+			if (!empty($authVars->friends->collect) && $authVars->friends->collect) {
+				$bindingModel = 'Model_UserUser'; // A Sensible Default™
+				if (empty($authVars->friends->bindingModel)) {
+					$bindingModel = $authVars->friends->bindingModel;
+				}
+				$facebook->mapFriends(array(
+					'bindingModel' => $bindingModel,
+					'user_id'      => $userData['id']
+				));
+			}
+			return $userData;
 		} catch (FacebookApiException $e) {
 			$this->_addError($e->getMessage());
-			return false;				
+			return false;
+		} catch (Exception $e) {
+			$this->_addError('Er is een onbekende fout opgetreden. Probeer het later opnieuw.');
+			return false;
 		}
 	}
 	
 	
 	/**
 	 * Store the user's profile data in the database, if it doesn't exist yet.
-	 * @param String $uid The Facebook UID
 	 * @param Array $facebookData The profile data received from Facebook
 	 * @return Void
 	 */
-	protected function _getUserData($uid, array $facebookData) {
+	protected function _getUserData(array $facebookData) {
+		$uid = $facebookData['id'];
+		$ini = Zend_Registry::get('config');
+		$sessionColumns = Zend_Db_Select::SQL_WILDCARD;
+		if (!empty($ini->auth->login->sessionColumns)) {
+ 		   	$sessionColumns = $ini->auth->login->sessionColumns;
+ 		   	$sessionColumns = explode(',', $sessionColumns);
+		}
+		$userModel = new Model_User();
+		$userConditions = $userModel->select()->from($userModel->getName(), $sessionColumns);
 		$model = new G_Model_AuthFacebook();
-		$model->bindModel('Model_User');
+		$model->bindModel('Model_User', array('conditions' => $userConditions));
 		$userData = $model->fetchRow(
 			$model->select()
 				  ->where('facebook_uid = ?', $uid)
 		);
  		if (!$userData || !$userData->Model_User) {
-			$userData = $model->createNew($uid, $this->_mapProperties($facebookData));
+			$userData = $model->createNew(
+				array(
+					'facebook_uid' => $uid,
+					'access_token' => $facebookData['access_token'],
+				),
+				$this->_mapProperties($facebookData)
+			);
 		} else {
-			$model->updateLoginStats($userData->user_id);
+			$model->updateLoginStats($userData->user_id, array(
+				'access_token' => $facebookData['access_token'],
+			));
 			$userData = $userData->Model_User;
 		}
 		return $userData;
@@ -79,8 +108,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 	 */
 	protected function _getFacebookClient() {
 		$authVars = $this->_getAuthVars();
-		require_once APPLICATION_PATH.'/../garp/library/Garp/3rdParty/facebook/src/facebook.php';
-		$facebook = new Facebook(array(
+		$facebook = Garp_Social_Facebook::getInstance(array(
 			'appId'  => $authVars->appId,
 			'secret' => $authVars->secret,
 			'cookie' => false,

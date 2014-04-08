@@ -22,7 +22,8 @@ Ext.override(Ext.Element, {
 */
 
 (function(){
-	var mailtoOrUrlRe = /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i;
+	var  mailtoOrUrlRe = /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i;
+	//   mailtoOrUrlRe = /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i;
 	Ext.apply(Ext.form.VTypes, {
 		mailtoOrUrl: function(val, field){
 			return mailtoOrUrlRe.test(val);
@@ -36,7 +37,7 @@ Garp.mailtoOrUrlPlugin = {
 		var stricter = /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|(((^https?)|(^ftp)):\/\/([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i;
 		field.on({
 			'change': function(f, n, o){
-				if (!stricter.test(n)) {
+				if (!stricter.test(n) && n) {
 					f.setValue('http://' + n);
 				}
 			}
@@ -44,6 +45,44 @@ Garp.mailtoOrUrlPlugin = {
 		
 	}
 };
+
+/**
+ * Override  updateRecord. We don't want non-dirty values to get synced. It causes empty string instead of null values...
+ */
+Ext.apply(Ext.form.BasicForm.prototype, {
+	/**
+     * Persists the values in this form into the passed {@link Ext.data.Record} object in a beginEdit/endEdit block.
+     * @param {Record} record The record to edit
+     * @return {BasicForm} this
+     */
+    updateRecord : function(record){
+        record.beginEdit();
+        var fs = record.fields,
+            field,
+            value;
+        fs.each(function(f){
+            field = this.findField(f.name);
+			if(field){
+				// ADDED BECAUSE OF NULL VALUES:
+				if(typeof field.isDirty !== 'undefined' && !field.isDirty()){
+					return;
+				}
+                value = field.getValue();
+                if (Ext.type(value) !== false && value.getGroupValue) {
+                    value = value.getGroupValue();
+                } else if ( field.eachItem ) {
+                    value = [];
+                    field.eachItem(function(item){
+                        value.push(item.getValue());
+                    });
+                }
+                record.set(f.name, value);
+            }
+        }, this);
+        record.endEdit();
+        return this;
+    }
+});
 
 /**
  * Define default fieldset config:
@@ -113,30 +152,6 @@ Ext.apply(Ext.form.BasicForm.prototype,{
 			}
 			this.originalValue = this.getValue();
 		});
-	},
-	
-	updateRecord: function(record){
-		record.beginEdit();
-		var fs = record.fields, field, value;
-		fs.each(function(f){
-			field = this.findField(f.name);
-			if (field) {
-				value = field.getValue();
-				if (value !== null) {
-					if (typeof value != undefined && value.getGroupValue) {
-						value = value.getGroupValue();
-					} else if (field.eachItem) {
-						value = [];
-						field.eachItem(function(item){
-							value.push(item.getValue());
-						});
-					}
-					record.set(f.name, value);
-				}
-			}
-		}, this);
-		record.endEdit();
-		return this;
 	}
 });
 
@@ -175,29 +190,49 @@ Ext.override(Ext.data.Store, {
  * Fancier menu show
  * Give all menus (but not submenus) a fade In
  */
-Ext.apply(Ext.menu.Menu.prototype, {
-	listeners:{
-		'show': function(){
-			if (!this.parentMenu) {
-				var el = this.getEl();
-				var o = {duration:.2};
-				el.fadeIn(o);
-				if (el.shadow && el.shadow.el) {
-					el.shadow.el.fadeIn(o);
+if (!Ext.isIE) {
+	Ext.apply(Ext.menu.Menu.prototype, {
+		listeners: {
+			'show': function(){
+				if (!this.parentMenu) {
+					var el = this.getEl();
+					var o = {
+						duration: 0.2
+					};
+					el.fadeIn(o);
+					if (el.shadow && el.shadow.el) {
+						el.shadow.el.fadeIn(o);
+					}
 				}
+				return true;
 			}
-			return true;
 		}
-	}
-});
-
-/**
- * Clear selections, when clicking outside of selection
- */
+	});
+}
 Ext.apply(Ext.grid.GridPanel.prototype, {
 	listeners:{
+		/**
+		 * Clear selections, when clicking outside of selection:
+ 		 */
 		'containerclick': function(){
 			this.getSelectionModel().clearSelections(); 
+		},
+		
+		/**
+		 * Hide columns with no title/text from columnMenu's:
+		 */
+		'viewready': function(){
+			if (this.getView() && this.getView().hmenu) {
+				var columnMenu = this.getView().hmenu.get('columns');
+				columnMenu.menu.on('beforeshow', function(){
+					var items = this.items;
+					items.each(function(menuItem){
+						if (!menuItem.text) {
+							columnMenu.menu.remove(menuItem.itemId);
+						}
+					});
+				});
+			}
 		}
 	}
 });
@@ -230,18 +265,6 @@ Ext.override(Ext.Panel, {
         this.fireEvent('titlechange', this, title);
         return this;
     }
-});
-
-/**
- * Defaults changes & clearInvalid update:
- */
-Ext.apply(Ext.form.CompositeField.prototype, {	
-	combineErrors: false,
-	clearInvalid: function(){
-		this.items.each(function(item){
-			item.clearInvalid();
-		}, this);
-	}
 });
 
 /**
@@ -292,7 +315,9 @@ Ext.apply(Ext.BasicForm.prototype, {
 				
 				if (!f.disabled && (dirtyOnly !== true || f.isDirty())) {
 					n = f.getName();
-					if(!n) return;
+					if (!n) {
+						return;
+					}
 					key = o[n];
 					val = f.getValue();
 					
@@ -307,7 +332,7 @@ Ext.apply(Ext.BasicForm.prototype, {
 					}
 				}
 			}
-			if ((f.xtype == 'compositefield' || f.xtype == 'tweetfield') && f.items) {
+			if ((f.xtype == 'tweetfield') && f.items) {
 				f.items.each(function(cf){
 					walk(cf);
 				});
@@ -329,7 +354,10 @@ Ext.override(Ext.grid.Column,{
 /**
  * 
  */
+
 Ext.override(Ext.form.Field,{
+	// necessary for 'one' field models. Otherwise formDirty will not fire until field blur, which is odd
+	enableKeyEvents: true,
 	
 	// countBox helper functions:	
 	getCountBox: function(){
@@ -337,7 +365,7 @@ Ext.override(Ext.form.Field,{
 		if (this.refOwner) {
 			cb = this.refOwner[this.countBox];
 		} else if (this.ownerCt.ownerCt) {
-			this.ownerCt.ownerCt.ownerCt.ownerCt[this.countBox];
+			cb = this.ownerCt.ownerCt.ownerCt.ownerCt[this.countBox];
 		}
 		return cb;
 	},
@@ -352,21 +380,24 @@ Ext.override(Ext.form.Field,{
 	},
 	hideCountBox: function(){
 		this.getCountBox().update('');
+		return true;
 	},
 	
 	initComponent: function(){
 
 		Ext.form.Field.superclass.initComponent.call(this);
 		
-		
-		/* Override: */
-		
+		// Prevent conflicts with superbox select. We'll quit here:
+		if(this.xtype && this.xtype == 'superboxselect'){
+			return true;
+		}
 		this.on('blur', function(){
 			if (this.getValue()) {
 				if (this.getValue() === String(this.getValue())) {
 					this.setValue(String(this.getValue()).trim());
 				}
 			}
+			return true;
 		}, this);
 		
 		this.on('afterrender', function(){
@@ -384,7 +415,7 @@ Ext.override(Ext.form.Field,{
 				this.on('change',  this.updateCountBox, this);
 			}
 		
-			if (this.allowBlank == false && this.label) {
+			if (!this.allowBlank && this.label) {
 				this.label.addClass('required-field');
 			}
 			if (this.xtype == 'numberfield' && this.label){
@@ -395,93 +426,14 @@ Ext.override(Ext.form.Field,{
 				}
 			}
 		}, this);
-		/* End Override */
-		
         this.addEvents(
-            /**
-             * @event focus
-             * Fires when this field receives input focus.
-             * @param {Ext.form.Field} this
-             */
             'focus',
-            /**
-             * @event blur
-             * Fires when this field loses input focus.
-             * @param {Ext.form.Field} this
-             */
             'blur',
-            /**
-             * @event specialkey
-             * Fires when any key related to navigation (arrows, tab, enter, esc, etc.) is pressed.
-             * To handle other keys see {@link Ext.Panel#keys} or {@link Ext.KeyMap}.
-             * You can check {@link Ext.EventObject#getKey} to determine which key was pressed.
-             * For example: <pre><code>
-var form = new Ext.form.FormPanel({
-    ...
-    items: [{
-            fieldLabel: 'Field 1',
-            name: 'field1',
-            allowBlank: false
-        },{
-            fieldLabel: 'Field 2',
-            name: 'field2',
-            listeners: {
-                specialkey: function(field, e){
-                    // e.HOME, e.END, e.PAGE_UP, e.PAGE_DOWN,
-                    // e.TAB, e.ESC, arrow keys: e.LEFT, e.RIGHT, e.UP, e.DOWN
-                    if (e.{@link Ext.EventObject#getKey getKey()} == e.ENTER) {
-                        var form = field.ownerCt.getForm();
-                        form.submit();
-                    }
-                }
-            }
-        }
-    ],
-    ...
-});
-             * </code></pre>
-             * @param {Ext.form.Field} this
-             * @param {Ext.EventObject} e The event object
-             */
             'specialkey',
-            /**
-             * @event change
-             * Fires just before the field blurs if the field value has changed.
-             * @param {Ext.form.Field} this
-             * @param {Mixed} newValue The new value
-             * @param {Mixed} oldValue The original value
-             */
             'change',
-            /**
-             * @event invalid
-             * Fires after the field has been marked as invalid.
-             * @param {Ext.form.Field} this
-             * @param {String} msg The validation message
-             */
             'invalid',
-            /**
-             * @event valid
-             * Fires after the field has been validated with no errors.
-             * @param {Ext.form.Field} this
-             */
             'valid'
         );
-	}
-});
-
-/**
- * MySQL doesn't like null for TimeFields and DateFields. It's picky on time format too:
- */
-Ext.override(Ext.form.TimeField, {
-	format: 'H:i', // we default to 24Hr format. "12:00 AM" is not supported
-	getValue: function(){
-		var v = Ext.form.TimeField.superclass.getValue.call(this);
-        return this.formatDate(this.parseDate(v)) || null;
-	}
-});
-Ext.override(Ext.form.DateField, {
-	getValue: function(){
-		return this.parseDate(Ext.form.DateField.superclass.getValue.call(this)) || null;
 	}
 });
 
@@ -529,6 +481,29 @@ Ext.override(Ext.form.DisplayField, {
 		}
 		this.setRawValue(v);
 		return this;
+	}
+});
+
+/**
+ * MySQL doesn't like null for TimeFields and DateFields. It's picky on time format too:
+ */
+Ext.override(Ext.form.TimeField, {
+	format: 'H:i', // we default to 24Hr format. "12:00 AM" is not supported
+	getValue: function(){
+		var v = Ext.form.TimeField.superclass.getValue.call(this);
+        return this.formatDate(this.parseDate(v)) || null;
+	}
+});
+
+Ext.override(Ext.form.DateField, {
+	getValue: function(){
+		return this.parseDate(Ext.form.DateField.superclass.getValue.call(this)) || null;
+	},
+	setValue: function(date){
+		if (date && ((date.getFullYear && date.getFullYear() > -1) || this.parseDate(date))) {
+			return Ext.form.DateField.superclass.setValue.call(this, this.formatDate(this.parseDate(date)));
+		}
+		return Ext.form.DateField.superclass.setValue.call(this, null);
 	}
 });
 

@@ -107,6 +107,9 @@ class Garp_Browsebox {
 		if (is_null($chunk) && is_null($chunk = $this->_getCurrentStateFromRequest())) {
 			$chunk = 1;
 		}
+		if ($chunk < 1) {
+			$chunk = 1;
+		}
 		$this->_chunk	= $chunk;
 		$this->_results = $this->_fetchContent($chunk);
 		$this->_max	= $this->_fetchMaxChunks();
@@ -130,7 +133,9 @@ class Garp_Browsebox {
 				->setDefault('bindings', array())
 				->setDefault('filters', array())
 				->setDefault('cycle', false)
-				->setDefault('javascriptOptions', new Garp_Util_Configuration());
+				->setDefault('javascriptOptions', new Garp_Util_Configuration())
+				->setDefault('select', null)
+		;
 		if (!empty($options['filters'])) {
 			$options['filters'] = $this->_parseFilters($options['filters']);
 		}
@@ -172,11 +177,26 @@ class Garp_Browsebox {
 
 
 	/**
+ 	 * Get option
+ 	 * @return Mixed
+ 	 */
+	public function getOption($key) {
+		if (array_key_exists($key, $this->_options)) {
+			return $this->_options[$key];
+		}
+		throw new Garp_Browsebox_Exception('Undefined key given: '.$key);
+	}
+
+
+	/**
 	 * Create the Zend_Db_Select object that generates the results
 	 * @return Garp_Browsebox $this
 	 */
 	public function setSelect() {
-		$select = $this->getModel()->select();
+		$select = $this->_options['select'];
+		if (!$select) {
+			$select = $this->getModel()->select();
+		}
 		if ($this->_options['conditions']) {
 			$select->where($this->_options['conditions']);
 		}		
@@ -265,7 +285,11 @@ class Garp_Browsebox {
 		$count = 'COUNT(*)';
 		$model = $this->getModel();
 		$select = clone $this->getSelect();
-		$select->reset(Zend_Db_Select::COLUMNS)->reset(Zend_Db_Select::FROM);
+		$select->reset(Zend_Db_Select::COLUMNS)
+			   ->reset(Zend_Db_Select::FROM)
+			   ->reset(Zend_Db_Select::ORDER)
+			   ->reset(Zend_Db_Select::GROUP)
+		;
 		$select->from($model->getName(), array('c' => $count));
 
 		if ($max = $this->_fetchMaxChunksFromFilters($select)) {
@@ -399,7 +423,7 @@ class Garp_Browsebox {
 		$lastChunk = ceil($this->_max / $this->_options['pageSize']);
 		if ($this->_chunk == $lastChunk) {
 			return $this->_options['cycle'] ? $this->createStateUrl(1) : false;
-		}		
+		}
 		return $this->createStateUrl($this->_chunk+1);
 	}
 	

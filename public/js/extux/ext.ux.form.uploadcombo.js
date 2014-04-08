@@ -103,11 +103,11 @@ Ext.ux.form.UploadCombo = Ext.extend(Ext.form.TriggerField, {
 				success: this.uploadCallback.createSequence(function(){
 					mask.hide();
 				}).createDelegate(this),
-				failure: function(conn, form){
+				failure: function(form, action){
 					mask.hide();
 					var msg = '';
 					if (action && action.result && action.result.messages && action.result.messages.length) {
-						var msg = action.result.messages.join('<br />');
+						msg = action.result.messages.join('<br />');
 					}
 					Ext.Msg.alert(__('Error'), '<b>' + __('Error uploading file') + '</b>:<br />' + msg);
 					
@@ -174,7 +174,7 @@ Ext.ux.form.UploadCombo = Ext.extend(Ext.form.TriggerField, {
 						var result = Ext.decode(e.target.responseText);
 						var action = {
 							result: result
-						}
+						};
 						scope.uploadCallback.call(scope, null, action);
 					}, false);
 
@@ -217,7 +217,7 @@ Ext.ux.form.UploadCombo = Ext.extend(Ext.form.TriggerField, {
 	 */
 	getValue: function(){
 		var val = Ext.ux.form.UploadCombo.superclass.getValue.call(this);
-		if(val == ''){
+		if(!val){
 			val = null;
 		}
 		return val;

@@ -29,36 +29,46 @@ Garp.TweetWindow = Ext.extend(Ext.util.Observable,{
 /**
  * Garp TweetField. Simple extension with default handlers.
  */
-Garp.TweetField = Ext.extend(Ext.form.CompositeField,{
-
+Garp.TweetField = Ext.extend(Ext.Panel,{
+	border:false,
+	layout:'hbox',
 	fieldLabel: __('Twitter description'),
+	showTW: true,
+	showFB: true,
+	showIN: true,
 	
-	isDirty: function(){
-		if (this.twitterExcerpt && this.twitterExcerpt.rendered) {
-			return this.twitterExcerpt.isDirty();
+	loadScript: function(src, load){
+		var s = document.createElement('script');
+		if (load) {
+			s.src = src;
+		} else {
+			s.innerHtml = src;
 		}
-		return false;
+		Ext.select('head').first().dom.appendChild(s);
 	},
 	
-	initComponent: function(){
+	initComponent: function(ct){
+		
+		this.loadScript('http://platform.linkedin.com/in.js', true);
+		this.loadScript('http://connect.facebook.net/en_US/all.js', true);
+		this.loadScript("if(typeof FB != 'undefined' && FB.init){FB.init({ appId: FB_APP_ID,cookie:true, status:true, xfbml:true});}");
 		
 		this.twitterExcerpt = new Ext.form.TextArea({
-			'name': 'twitter_description',
-			label: null,
+			name:'twitter_description',
 			messageTarget: 'side',
-			'fieldLabel': __('Twitter description'),
-			'disabled': false,
-			'hidden': false,
-			'maxLength': 119,
-			'countBox': 'twitterCount',
+			maxLength: 119,
+			countBox: 'twitterCount',
 			flex: 1,
+			margins: '0 5 0 0',
 			ref: '../../../../twitterExcerpt',
-			'allowBlank': true
+			allowBlank: true
 		});
 		
 		this.items = [this.twitterExcerpt, {
 			xtype: 'button',
 			name: 'tweetBtn',
+			margins: '0 5 0 0',
+			hidden: !this.showTW,
 			ref: '../../../../tweetBtn',
 			width: 32,
 			handler: function(b, e){
@@ -84,6 +94,8 @@ Garp.TweetField = Ext.extend(Ext.form.CompositeField,{
 			iconCls: 'icon-twitter'
 		}, {
 			xtype: 'button',
+			margins: '0 5 0 0',
+			hidden: !this.showFB,
 			name: 'fbBtn',
 			ref: '../../../../fbBtn',
 			width: 32,
@@ -102,9 +114,9 @@ Garp.TweetField = Ext.extend(Ext.form.CompositeField,{
 					lm.show();
 					FB.ui({
 						method: 'feed',
-						message: fp.twitterExcerpt.getValue(),
+						description: fp.twitterExcerpt.getValue(),
 						link: fp.bitly_url.getValue(),
-						redirectUri: CDN + BASE + 'g/content/admin'
+						show_error: true
 					}, function(response){
 						lm.hide();
 					});
@@ -115,6 +127,7 @@ Garp.TweetField = Ext.extend(Ext.form.CompositeField,{
 			iconCls: 'icon-fb'
 		}, {
 			xtype: 'button',
+			hidden: !this.showIN,
 			name: 'inBtn',
 			ref: '../../../../inBtn',
 			width: 32,
@@ -139,13 +152,13 @@ Garp.TweetField = Ext.extend(Ext.form.CompositeField,{
 								text: __('Please wait')
 							});
 							lm.show();
-							updateURL = "/people/~/person-activities"
+							updateURL = "/people/~/person-activities";
 							IN.API.Raw(updateURL).method("POST").body('{"contentType":"linkedin-html","body":"' + msg + '"}').result(function(r){
 								lm.hide();
 							}).error(function(error){
 								lm.hide();
-								Ext.MessageBox.alert(__('Garp'), __('Something went wrong while updating your status'))
-								console.log(error);
+								Ext.MessageBox.alert(__('Garp'), __('Something went wrong while updating your status'));
+								//console.log(error);
 							});
 						}
 					});
@@ -159,13 +172,13 @@ Garp.TweetField = Ext.extend(Ext.form.CompositeField,{
 			},
 			iconCls: 'icon-linkedin'
 		}, {
-			xtype: 'displayfield',
+			xtype: 'box',
 			ref: '../../../../twitterCount',
 			width: 60,
 			cls: 'garp-countbox'
 		}];
 		
-		Garp.TweetField.superclass.initComponent.call(this);
+		Garp.TweetField.superclass.initComponent.call(this, ct);
 	}
 });
 Ext.reg('tweetfield',Garp.TweetField);

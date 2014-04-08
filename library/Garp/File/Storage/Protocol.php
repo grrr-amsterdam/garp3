@@ -6,6 +6,9 @@
  */
 interface Garp_File_Storage_Protocol {
 	public function __construct(Zend_Config $config, $path);
+	
+	/** Overrides the components path, as opposed to the path provided in the constructor. */
+	public function setPath($path);
 
 	public function exists($filename);
 
@@ -28,7 +31,7 @@ interface Garp_File_Storage_Protocol {
 	public function getTimestamp($filename);
 
 	/** @return String Destination filename. */
-	public function store($filename, $data, $overwrite, $formatFilename);
+	public function store($filename, $data, $overwrite = false, $formatFilename = true);
 
 
 	public function remove($filename);

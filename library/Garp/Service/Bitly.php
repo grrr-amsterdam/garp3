@@ -38,7 +38,7 @@ class Garp_Service_Bitly extends Zend_Service_Abstract {
 	 * @return Void
 	 */
 	public function __construct($login = null, $apiKey = null) {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$ini = Zend_Registry::get('config');
 		
 		if (!$login) {
 			if (!$login = $ini->bitly->login) {

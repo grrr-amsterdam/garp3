@@ -26,18 +26,25 @@ class Garp_Cli_Command_Admin extends Garp_Cli_Command {
 			$newUserData = array(
 				'role' => 'admin'
 			);
-			$promptData = array(
-				$ini['adapters']['db']['identityColumn']
-			);
+			$promptData = array();
 
-			if (empty($ini['displayField'])) {
-				$promptData[] = 'name';
-			} else {
-				foreach ((array) $ini['displayField'] as $key) {
-					$promptData[] = $key;
+			// Pull required fields from Spawner config
+			$modelSet = Garp_Spawn_Model_Set::getInstance();
+			$userModelConfig = $modelSet['User'];
+			$requiredFields = $userModelConfig->fields->getFields('required', true);
+			foreach ($requiredFields as $field) {
+				if ($field->origin == 'config' && $field->name !== 'id') {
+					$promptData[] = $field->name;
+				} elseif ($field->origin == 'relation') {
+					Garp_Cli::errorOut('Field '.$field->name.' is required but must be filled by way of relation. '.
+						'This makes it impossible to create an admin from the commandline.');
 				}
 			}
-		
+
+			if (!in_array($ini['adapters']['db']['identityColumn'], $promptData)) {
+				$promptData[] = $ini['adapters']['db']['identityColumn'];
+			}
+
 			// prompt for the new data
 			Garp_Cli::lineOut('Please fill the following columns:');
 			foreach ($promptData as $key) {
@@ -60,13 +67,20 @@ class Garp_Cli_Command_Admin extends Garp_Cli_Command {
 		 	 * In that case however, this CLI command is not for you.
 		 	 */
 			$user = new Model_User();
-			if ($id = $user->insert($newUserData)) {
+			try {
+				$id = $user->insert($newUserData);
 				$authLocal = new G_Model_AuthLocal();
 				$newAuthLocalData['user_id'] = $id;
 				if ($authLocal->insert($newAuthLocalData)) {
-					Garp_Cli::lineOut('Successfully created the administrator.');
+					Garp_Cli::lineOut('Successfully created the administrator. (id: '.$id.')');
 				} else {
 					Garp_Cli::errorOut('Error: could not create administrator.');
+				}
+			} catch (Zend_Db_Statement_Exception $e) {
+				if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'email_unique') !== false) {
+					Garp_Cli::errorOut('Error: this email address is already in use. Maybe you meant to use Garp Admin make?');
+				} else {
+					throw $e;
 				}
 			}
 		}
@@ -83,18 +97,51 @@ class Garp_Cli_Command_Admin extends Garp_Cli_Command {
 		if (!empty($args)) {
 			$id = $args[0];
 		} else {
-			$id = Garp_Cli::prompt('What is the id of the user?');
+			$id = Garp_Cli::prompt('What is the id or email address of the user?');
 		}
-		$user = $userModel->fetchRow($userModel->select()->where('id = ?', $id));
+		$select = $userModel->select();
+		if (is_numeric($id)) {
+			$filterColumn = 'id';
+		} else {
+			$filterColumn = 'email';
+		}
+		$select->where($filterColumn.' = ?', $id);
+		$user = $userModel->fetchRow($select);
 		if (!$user) {
-			Garp_Cli::errorOut('Error: could not find user #'.$id);
+			Garp_Cli::errorOut('Error: could not find user with '.$filterColumn.' '.$id);
 		} else {
 			$user->role = 'admin';
 			if ($user->save()) {
-				Garp_Cli::lineOut('User #'.$id.' is now administrator');
+				// For completeness sake, check if the user has an AuthLocal 
+				// record. We disregard the fact wether the user already has any 
+				// of the other Auth- records.
+				$authLocalModel = new G_Model_AuthLocal();
+				$authLocalRecord = $authLocalModel->fetchRow($authLocalModel->select()->where('user_id = ?', $user->id));
+				if (!$authLocalRecord) {
+					$newAuthLocalData = array(
+						'password' => trim(Garp_Cli::prompt('Choose a password:')),
+						'user_id'  => $user->id
+					);
+					$authLocalModel->insert($newAuthLocalData);
+				}
+				Garp_Cli::lineOut('User with '.$filterColumn.' '.$id.' is now administrator');
 			} else {
-				Garp_Cli::errorOut('Error: could not make user #'.$id.' administrator');
+				Garp_Cli::errorOut('Error: could not make user with '.$filterColumn.' '.$id.' administrator');
 			}
 		}
+	}
+
+
+	/**
+ 	 * Help
+ 	 */
+	public function help() {
+		Garp_Cli::lineOut('Usage:');
+		Garp_Cli::lineOut('Add a new admin:');
+		Garp_Cli::lineOut('  g Admin add');
+		Garp_Cli::lineOut('');
+		Garp_Cli::lineOut('Make an existing user admin:');
+		Garp_Cli::lineOut('  g Admin make');
+		Garp_Cli::lineOut('');
 	}
 }

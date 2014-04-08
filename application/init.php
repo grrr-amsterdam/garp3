@@ -9,15 +9,15 @@
 * 	string MEMCACHE_HOST, default '127.0.0.1'
 * 	
 */
-
-setlocale(LC_ALL, 'nl_NL');
-
-define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
+if (!defined('BASE_PATH')) {
+	define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
+}
 define('APPLICATION_PATH', BASE_PATH . '/application');
+define('GARP_APPLICATION_PATH', BASE_PATH . '/garp/application');
 defined('READ_FROM_CACHE') || define('READ_FROM_CACHE', true);
-defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', 'avro3aas');
+defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', '127.0.0.1');
 
-
+$isCli = false;
 if (
 	array_key_exists('HTTP_HOST', $_SERVER) &&
 	$_SERVER['HTTP_HOST']
@@ -29,35 +29,71 @@ if (
 		realpath(APPLICATION_PATH.'/../library')
 		. PATH_SEPARATOR . '.'
 	);
+
 } else {
 	//	c l i   c o n t e x t
-	define('HTTP_HOST', php_uname('n'));
+	define('HTTP_HOST', gethostname());
 
 	set_include_path(
 		'.'
 		. PATH_SEPARATOR . BASE_PATH . '/library'
 		. PATH_SEPARATOR . get_include_path()
 	);
+
+	$isCli = true;
 }
 
-require_once(APPLICATION_PATH.'/configs/version.php');
-require_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+@include_once(APPLICATION_PATH.'/configs/version.php');
+if (!defined('APP_VERSION')) {
+	define('APP_VERSION', 1);
+}
+@include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
+if (!defined('GARP_VERSION')) {
+	define('GARP_VERSION', 1);
+}
 
 
-require 'Garp/Util/Loader.php';
+require 'Garp/Loader.php';
 
 /**
  * Set up class loading.
  */ 
-// library files
-$libraryLoader = new Garp_Util_Loader(APPLICATION_PATH.'/../library');
-$libraryLoader->register();
-// model loading is done via Bootstrap
+$classLoader = Garp_Loader::getInstance(array(
+	'paths' => array(
+		array(
+			'namespace' => '*',
+			'path' => realpath(APPLICATION_PATH.'/../library')
+		),
+		array(
+			'namespace' => 'Model',
+			'path' => APPLICATION_PATH.'/modules/default/models/',
+			'ignore' => 'Model_'
+		),
+		array(
+			'namespace' => 'G_Model',
+			'path' => GARP_APPLICATION_PATH.'/modules/g/models/',
+			'ignore' => 'G_Model_'
+		),
+		array(
+			'namespace' => 'Mocks_Model',
+			'path' => GARP_APPLICATION_PATH.'/modules/mocks/models/',
+			'ignore' => 'Mocks_Model_'
+		)
+	)
+));
+$classLoader->register();
+
+/**
+ * Save wether we are in a cli context
+ */
+Zend_Registry::set('CLI', $isCli);
 
 /**
  * Set up caching
 */
-$filePrefix = HTTP_HOST.'_'.APPLICATION_ENV;
+$rootFolder = strtolower(dirname(APPLICATION_PATH.'/'));
+$rootFolder = str_replace(DIRECTORY_SEPARATOR, '_', $rootFolder);
+$filePrefix = $rootFolder.'_'.APPLICATION_ENV;
 $filePrefix = preg_replace('/[^a-zA-A0-9_]/', '_', $filePrefix).'_';
 
 $frontendName = 'Core';
@@ -130,9 +166,33 @@ function dump($file, $message, $priority = Zend_Log::INFO) {
 		$file .= '.log';
 	}
 
-	$stream = fopen(APPLICATION_PATH.'/data/logs/'.$file, 'a');
+	$target = APPLICATION_PATH.'/data/logs/';
+	if (Zend_Registry::isRegistered('config') &&
+		!empty(Zend_Registry::get('config')->logging->directory)) {
+		$target = Zend_Registry::get('config')->logging->directory;
+	}
+	if (!is_dir($target)) {
+		@mkdir($target);
+	}
+
+	$target = $target . DIRECTORY_SEPARATOR . $file;
+	$stream = fopen($target, 'a');
 	$writer = new Zend_Log_Writer_Stream($stream);
 	$logger = new Zend_Log($writer);
 	$message = is_array($message) ? print_r($message, true) : $message;
 	$logger->log($message, $priority);
+}
+
+
+/**
+ * Translate text
+ * @param String $str
+ * @return String
+ */
+function __($str) {
+	if (Zend_Registry::isRegistered('Zend_Translate')) {
+		$translate = Zend_Registry::get('Zend_Translate');
+		return call_user_func_array(array($translate, '_'), func_get_args());
+	}
+	return $str;
 }

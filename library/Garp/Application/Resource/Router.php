@@ -1,8 +1,17 @@
 <?php
 /**
  * Garp_Application_Resource_Router
- * Handles internationalized routes
- * @author Joe Gornick | joegornick.com
+ * Creates internationalized versions of known routes.
+ *
+ * Example: when you have defined "/blog/:slug" and you have configured 
+ * "en" and "nl" as available locales, this resource will silently add aliases
+ * for this route:
+ *
+ * /en/blog/:slug
+ * /nl/blog/:slug
+ *
+ * @author Harmen Janssen, David Spreekmeester | grrr.nl
+ * @inspiration Joe Gornick | joegornick.com
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
@@ -10,6 +19,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Application_Resource_Router extends Zend_Application_Resource_Router {
+	const ERROR_NO_ROUTE_DEFINED =
+		'There was no routes file defined. Please fill resources.router.routesFile or resources.router.routesFile.generic in core.ini';
+
 	/**
 	 * This property lets this Resource override the existing Resource
 	 * @var String
@@ -17,98 +29,127 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 	public $_explicitType = 'router';
  
 	/**
-	 * @var Zend_Application_Resource_Frontcontroller
-	 */
-	protected $_front;
-
-	/**
 	 * @var Zend_Locale
 	 */
 	protected $_locale;
- 
+
 	/**
 	 * Retrieve router object
 	 * @return Zend_Controller_Router_Rewrite
 	 */
 	public function getRouter() {
-		$ini = new Zend_Config_Ini(APPLICATION_PATH.'/configs/routes.ini', APPLICATION_ENV);
-		$this->setOptions($ini->toArray());
+		$routesIni = $this->_getRoutesConfig();
+		$this->setOptions($routesIni->toArray());
 		$options = $this->getOptions();
-		
-		if (!isset($options['locale']['enabled']) ||
-			!$options['locale']['enabled']) {
-			return parent::getRouter();
-		}
 
-		$bootstrap = $this->getBootstrap();
- 		
-		if (!$this->_front) {
-			$bootstrap->bootstrap('FrontController');
-			$this->_front = $bootstrap->getContainer()->frontcontroller;
-		}
- 
-		if (!$this->_locale) {
-			$bootstrap->bootstrap('Locale');
-			$this->_locale = $bootstrap->getContainer()->locale;
-		}
- 
-		$defaultLocale = array_keys($this->_locale->getDefault());
-		$defaultLocale = $defaultLocale[0];
- 
-		$locales = $this->_front->getParam('locales');
-		$requiredLocalesRegex = '^('.join('|', $locales).')$';
- 
-		$routes = $options['routes'];
-		foreach ($routes as $key => $value) {
-			// First let's add the default locale to this routes defaults.
-			$defaults = isset($value['defaults'])
-				? $value['defaults']
-				: array();
-			
-			// Always default all routes to the Zend_Locale default
-			$value['defaults'] = array_merge(array('locale' => $defaultLocale ), $defaults);
- 			
-			$routes[$key] = $value;
- 			
-			// Get our route and make sure to remove the first forward slash
-			// since it's not needed.
-			$routeString = $value['route'];
-			$routeString = ltrim($routeString, '/\\');
-			
-			// Modify our normal route to have the locale parameter.
-			if (!isset($value['type']) || $value['type'] === 'Zend_Controller_Router_Route') {
-				$value['route'] = ':locale/'.$routeString;
-				$value['reqs']['locale'] = $requiredLocalesRegex;
-				$routes['locale_'.$key] = $value;
-			} else if ($value['type'] === 'Zend_Controller_Router_Route_Regex') {
-				$value['route'] = '('.join('|', $locales).')\/'.$routeString;
-				
-				// Since we added the local regex match, we need to bump the existing
-				// match numbers plus one.
-				$map = isset($value['map']) ? $value['map'] : array();
-				foreach ($map as $index => $word) {
-					unset($map[$index++]);
-					$map[$index] = $word;
-				}
- 				
-				// Add our locale map
-				$map[1] = 'locale';
-				ksort($map);
-				
-				$value['map'] = $map;
- 				
-				$routes['locale_'.$key] = $value;
-			} elseif ($value['type'] === 'Zend_Controller_Router_Route_Static') {
-				foreach ($locales as $locale) {
-					$value['route'] = $locale.'/'.$routeString;
-					$value['defaults']['locale'] = $locale;
-					$routes['locale_'.$locale.'_'.$key] = $value;
-				}
+		if ($this->_localeIsEnabled()) {
+			$bootstrap = $this->getBootstrap();
+
+			if (!$this->_locale) {
+				$bootstrap->bootstrap('Locale');
+				$this->_locale = $bootstrap->getContainer()->locale;
 			}
+
+			$defaultLocale = array_keys($this->_locale->getDefault());
+			$defaultLocale = $defaultLocale[0];
+
+			$locales = $this->_getPossibleLocales();
+			$routes = $options['routes'];
+			$localizedRoutes = Garp_I18n::getLocalizedRoutes($routes, $locales);
+			$options['routes'] = array_merge($routes, $localizedRoutes);
+			$this->setOptions($options);
 		}
 
-		$options['routes'] = $routes;
-		$this->setOptions($options);		
-		return parent::getRouter();
+		$router = parent::getRouter();
+		$router->addDefaultRoutes();
+		return $router;
+	}
+
+	/**
+	 * Retrieve a routes.ini file containing routes
+	 * @return Zend_Config_Ini
+	 */
+	protected function _getRoutesConfig() {
+		$options = $this->getOptions();
+
+		if (!isset($options['routesFile'])) {
+			throw new Exception(self::ERROR_NO_ROUTE_DEFINED);
+		}
+		
+		$routes = $options['routesFile'];
+
+		if (is_string($routes)) {
+			$genericRoutes = $this->_loadRoutesConfig($routes);
+		} else {
+			$genericRoutes = array_key_exists('generic', $routes) ?
+				$this->_loadRoutesConfig($routes['generic']) :
+				array()
+			;
+		}
+
+		$lang = $this->_getCurrentLanguage();
+		$territory = Garp_I18n::languageToTerritory($lang);
+		$utf8_extension = PHP_OS === 'Linux' ? '.utf8' : '.UTF-8';
+		setlocale(LC_ALL, $territory . $utf8_extension);
+
+		if (
+			$this->_localeIsEnabled() &&
+			$lang &&
+			isset($options['routesFile'][$lang])
+		) {
+			$langFile = $options['routesFile'][$lang];
+			$langRoutes = $this->_loadRoutesConfig($langFile);
+
+			return $genericRoutes->merge($langRoutes);
+		}
+
+		return $genericRoutes;
+	}
+	
+	protected function _loadRoutesConfig($path) {
+		return new Garp_Config_Ini($path, APPLICATION_ENV);
+	}
+
+	/**
+	 * Fetch all possible locales from the front controller parameters.
+	 * @return Array
+	 */
+	protected function _getPossibleLocales() {
+		$bootstrap = $this->getBootstrap();
+		$bootstrap->bootstrap('FrontController');
+		$frontController = $bootstrap->getContainer()->frontcontroller;
+		$locales = $frontController->getParam('locales');
+		return $locales;
+	}
+
+	/**
+ 	 * Check if locale is enabled
+ 	 * @return Boolean
+ 	 */
+	protected function _localeIsEnabled() {
+		$options = $this->getOptions();
+		return isset($options['locale']['enabled']) && $options['locale']['enabled'];
+	}
+
+	/**
+ 	 * Get current language from URL
+ 	 * @return String
+ 	 */
+	protected function _getCurrentLanguage() {
+		if (!isset($_SERVER['REQUEST_URI'])) {
+			// Probably CLI context. Return the default locale
+			return Garp_I18n::getDefaultLocale();
+		}
+		$requestUri = $_SERVER['REQUEST_URI'];
+		$bits = explode('/', $requestUri);
+		// remove empty values
+		$bits = array_filter($bits, 'strlen');
+		// reindex the array
+		$bits = array_values($bits);
+		$locales = $this->_getPossibleLocales();
+		if (array_key_exists(0, $bits) && in_array($bits[0], $locales)) {
+			return $bits[0];
+		}
+		return Garp_I18n::getDefaultLocale();
 	}
 }

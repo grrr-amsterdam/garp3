@@ -39,14 +39,22 @@ class Garp_Auth_Adapter_Db extends Garp_Auth_Adapter_Abstract {
 		
 		$identityValue = $request->getPost($authVars['identityColumn']);
 		$credentialValue = $request->getPost($authVars['credentialColumn']);
-		
+
+		$ini = Zend_Registry::get('config');
+		$sessionColumns = null;
+ 	   	if (!empty($ini->auth->login->sessionColumns)) {
+ 		   	$sessionColumns = $ini->auth->login->sessionColumns;
+ 		   	$sessionColumns = explode(',', $sessionColumns);
+		}
+
 		$model = new G_Model_AuthLocal();
-		$result = $model->tryLogin($identityValue, $credentialValue, $authVars);
-		
-		if ($result) {
+		try {
+			$result = $model->tryLogin($identityValue, $credentialValue, $authVars, $sessionColumns);
 			return $result->toArray();
-		} else {
-			$this->_addError('No record of that user was found');
+		} catch (Garp_Auth_Adapter_Db_UserNotFoundException $e) {
+			$this->_addError('The email address is not found');
+		} catch (Garp_Auth_Adapter_Db_InvalidPasswordException $e) {
+			$this->_addError('The password is invalid');
 		}
 		return false;
 	}

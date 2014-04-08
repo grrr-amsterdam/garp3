@@ -32,8 +32,10 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 		$props = $phpexcel->getProperties();
 		if (Garp_Auth::getInstance()->isLoggedIn()) {
 			$userData = Garp_Auth::getInstance()->getUserData();
-			$props->setCreator($userData['name'])
-				  ->setLastModifiedBy($userData['name']);
+			$view = Zend_Controller_Front::getInstance()->getParam('bootstrap')->getResource('view');
+			$userName = $view->fullName($userData);
+			$props->setCreator($userName)
+				->setLastModifiedBy($userName);
 		}
 		$props->setTitle('Garp content export – '.$model->getName());
 
@@ -91,6 +93,16 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 		$col = 0;
 		foreach ($row as $key => $value) {
 			$colIndex = $col++;
+			if (is_array($value)) {
+				$rowset = $value;
+				$value = array();
+				foreach ($rowset as $row) {
+					$values = array_values($row);
+					$values = implode(' : ', $values);
+					$value[] = $values;
+				}
+				$value = implode("\n", $value);
+			}
 			$phpexcel->getActiveSheet()->setCellValueByColumnAndRow($colIndex, $rowIndex, $value);
 		}
 	}	

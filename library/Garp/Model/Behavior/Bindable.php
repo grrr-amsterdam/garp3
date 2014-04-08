@@ -125,43 +125,73 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 		 * previous query.
 		 */
 		$conditions = is_null($options['conditions']) ? null : clone $options['conditions'];
-		$modelName = $options['modelClass'];
+		$modelClass = $options['modelClass'];
+		if (!$modelClass instanceof Zend_Db_Table_Abstract) {
+			$modelClass = new $modelClass();
+		}
+		/**
+ 		 * Do not cache related queries. The "outside" query should be the only 
+ 		 * query that's cached.
+ 		 */
+		$originalCacheQueriesFlag = $modelClass->getCacheQueries();
+		$modelClass->setCacheQueries(false);
+		$modelName = get_class($modelClass);
+		$relatedRowset = null;
 		
 		// many to many
 		if (!empty($options['bindingModel'])) {
-			$data = $row->findManyToManyRowset($modelName, $options['bindingModel'], $options['rule'], $options['rule2'], $conditions);
-			return $data;
-		}
-
-		/**
-		 * 'mode' is used to clear ambiguity with homophilic relationships. For example,
-		 * a Model_Doc can have have child Docs and one parent Doc. The conditionals below can never tell 
-		 * which method to call (findParentRow or findDependentRowset) from the referenceMap.
-		 * Therefore, we can help the decision-making by passing "mode". This can either be 
-		 * "parent" or "dependent", which will then force a call to findParentRow and findDependentRowset, 
-		 * respectively.
-		 */
-		if (is_null($options['mode'])) {
-			// belongs to
-			if ($model->findRuleForRelation($modelName)) {
-				return $row->findParentRow($modelName, $options['rule'], $conditions);
-			}
-
-			// one to many - one to one	
-			return $row->findDependentRowset($modelName, $options['rule'], $conditions);
+			$relatedRowset = $row->findManyToManyRowset($modelClass, $options['bindingModel'], $options['rule2'], $options['rule'], $conditions);
 		} else {
-			switch ($options['mode']) {
-				case 'parent':
-					return $row->findParentRow($modelName, $options['rule'], $conditions);
-				break;
-				case 'dependent':
-					return $row->findDependentRowset($modelName, $options['rule'], $conditions);
-				break;
-				default:
-					throw new Garp_Model_Exception('Invalid value for "mode" given. Must be either "parent" or '.
-													'"dependent", but "'.$options['mode'].'" was given.');
-				break;
+			/**
+		 	 * 'mode' is used to clear ambiguity with homophilic relationships. For example,
+		 	 * a Model_Doc can have have child Docs and one parent Doc. The conditionals below can never tell 
+		 	 * which method to call (findParentRow or findDependentRowset) from the referenceMap.
+		 	 * Therefore, we can help the decision-making by passing "mode". This can either be 
+		 	 * "parent" or "dependent", which will then force a call to findParentRow and findDependentRowset, 
+		 	 * respectively.
+		 	 */
+			if (is_null($options['mode'])) {
+				// belongs to
+				try {
+					$model->getReference($modelName, $options['rule']);
+					$relatedRowset = $row->findParentRow($modelClass, $options['rule'], $conditions);
+				} catch(Exception $e) {
+					if (!Garp_Content_Relation_Manager::isInvalidReferenceException($e)) {
+						throw $e;
+					}
+					try {
+						// one to many - one to one	
+						$otherModel = new $modelName();
+						// The following line triggers an exception if no reference is available
+						$otherModel->getReference(get_class($model), $options['rule']);
+						$relatedRowset = $row->findDependentRowset($modelClass, $options['rule'], $conditions);
+					} catch (Exception $e) {
+						if (!Garp_Content_Relation_Manager::isInvalidReferenceException($e)) {
+							throw $e;
+						}
+						$bindingModel = $model->getBindingModel($modelName);
+						$relatedRowset = $row->findManyToManyRowset($modelClass, $bindingModel, $options['rule2'], $options['rule'], $conditions);
+					}
+				}
+			} else {
+				switch ($options['mode']) {
+					case 'parent':
+						$relatedRowset = $row->findParentRow($modelClass, $options['rule'], $conditions);
+					break;
+					case 'dependent':
+						$relatedRowset = $row->findDependentRowset($modelClass, $options['rule'], $conditions);
+					break;
+					default:
+						throw new Garp_Model_Exception('Invalid value for "mode" given. Must be either "parent" or '.
+														'"dependent", but "'.$options['mode'].'" was given.');
+					break;
+				}
 			}
 		}
+		// Reset the cacheQueries value. It's a static property,
+		// so leaving it FALSE will affect all future fetch() calls to this 
+		// model. Not good.
+		$modelClass->setCacheQueries($originalCacheQueriesFlag);
+		return $relatedRowset;
 	}
 }
