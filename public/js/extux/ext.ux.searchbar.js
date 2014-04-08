@@ -34,24 +34,39 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 	 */
 	makeQuery: function(queryStr){
 		if (!queryStr) {
-			this.grid.store.baseParams = this.originalBaseParams;
+			this.grid.getStore().baseParams = Ext.apply({},this.originalBaseParams);
 		} else {
-			var q = this.grid.store.baseParams ? this.grid.store.baseParams.query : '';
+			var q = this.grid.getStore().baseParams ? this.grid.getStore().baseParams.query : '';
 			var dt = new Ext.util.MixedCollection();
 			dt.addAll(Garp.dataTypes);
 			var preserve = {};
 			
 			if (Ext.isObject(q)) {
 				dt.eachKey(function(key){
-					key = key + '.id';
-					if (q[key]) {
-						preserve[key] = q[key];
+					var keyId = key + '.id';
+					if (q[keyId]) {
+						preserve[keyId] = q[keyId];
+					}
+					var keyNotId = key + '.id <>';
+					if (q[keyNotId]) {
+						preserve[keyNotId] = q[keyNotId];
 					}
 				});
 			}
-			this.grid.store.setBaseParam('query', Ext.apply(this.convertQueryString(queryStr, this.getSelectedSearchFields()), preserve));
+			
+			var selectedFields = this.getSelectedSearchFields();
+			// make sure there are fields to look in:
+			// fixes Melkweg Issue #958
+			if (!selectedFields.length && this.getAllSearchFields().length){
+				selectedFields = this.searchableFields;
+			}
+			
+			var _query = Ext.apply(this.convertQueryString(queryStr, selectedFields), preserve);
+			this.grid.getStore().setBaseParam('query', _query);
+			this.grid.getStore().setBaseParam('pageSize', Garp.pageSize);
 		}
-		this.grid.store.load();
+		this.fireEvent('search', this);
+		this.grid.getStore().load();
 		//this.grid.getSelectionModel().selectFirstRow();
 	},
 	
@@ -99,9 +114,13 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 	 */
 	getAllSearchFields: function(){
 		var fields = [];
-		if(!this.grid) return;
+		if (!this.grid) {
+			return;
+		}
 		Ext.each(this.grid.getColumnModel().config, function(col){
-			if (col.dataIndex !== 'relationMetadata' && !col.virtual) {
+			if (col.searchable === false) {
+				return;
+			} else if (col.searchable || (col.dataIndex !== 'relationMetadata')) {
 				fields.push(col);
 			}
 		});
@@ -131,8 +150,9 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 			text: __('Search in:')
 		}, {
 			xtype: 'menucheckitem',
+			ref: 'selectAll',
 			hideOnClick: false,
-			checked: true,
+			checked: false,
 			text: __('Select All'),
 			checkHandler: function(ci, checked){
 				if(!ci.parentMenu){
@@ -145,17 +165,22 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 				});
 			}
 		}, '-'];
+		
+		this.searchableFields = [];
 		Ext.each(fields, function(f){
 			menuItems.push({
 				text: f.header,
+				checked: f.searchable || !f.hidden,
 				_dataIndex: f.dataIndex
 			});
-		});
+			if (f.searchable || !f.hidden) {
+				this.searchableFields.push(f.dataIndex);
+			}
+		}, this);
 		this.searchOptionsMenu = new Ext.menu.Menu({
 			defaults: {
 				xtype: 'menucheckitem',
-				hideOnClick: false,
-				checked: true
+				hideOnClick: false
 			},
 			items: menuItems
 		});
@@ -169,6 +194,9 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 	 * @function initComponent
 	 */
 	initComponent: function(){
+		
+		this.addEvents('search');
+		
 		// Build the options menu, when the grid finishes loading its data:
 		this.store.on({
 			'load': {
@@ -176,8 +204,14 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 				single: true,
 				fn: function(){
 					if (!this.grid) {
-						this.grid = this.ownerCt; // Can this be done in a better way?	
+						this.grid = this.ownerCt; // Can this be done in a better way?
 					}
+					if(!this.grid){
+						return;
+					}
+					this.grid.getColumnModel().on('hiddenchange', function(){
+						this.buildSearchOptionsMenu();
+					}, this);
 					this.buildSearchOptionsMenu();
 				}
 			}
@@ -203,7 +237,7 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 			flex: 1,
 			//style: 'paddingLeft: 22px;',
 			store: this.store,
-			value: this.store.baseParams.query,
+			value: Ext.isObject(this.store.baseParams.query) ? '' : this.store.baseParams.query,
 			listeners:{
 				'change': function(){
 					var v = this.getValue();
@@ -249,6 +283,27 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 	},
 	
 	/**
+	 * Sets the UI as if one searched for an id
+	 * @param {Object} id
+	 */
+	searchById: function(id){
+		// show the id in the search bar & update menu to only set 'id' checked 
+		var bb = this;
+		var sf = this.searchField;
+		var sm = this.searchOptionsMenu;
+		sf.setValue(id);
+		sf.triggers[0].show();
+		sf.hasSearch = true;
+		sf.fireEvent('change');
+		sm.items.each(function(item){
+			if (item.setChecked) {
+				item.setChecked(item.text == 'id' ? true : false);
+			}
+		});
+		bb.fireEvent('change');
+	},
+	
+	/**
 	 * @function afterRender
 	 */
 	afterRender: function(){
@@ -259,6 +314,7 @@ Ext.ux.Searchbar = Ext.extend(Ext.Toolbar, {
 			},
 			scope: this
 		});
+		this.setBaseParams();
 		Ext.ux.Searchbar.superclass.afterRender.call(this);
 	}
 });

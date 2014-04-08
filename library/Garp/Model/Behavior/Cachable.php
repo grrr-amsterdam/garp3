@@ -44,16 +44,13 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 		$model = &$args[0];
 		$select = &$args[1];
 		// check if the cache is in use
-		if ($model->cacheQueries && Zend_Registry::get('readFromCache')) {
-			$cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
-			$id = $this->_createUniqueId($model, $select);
-			$results = $cache->read($id);
-
+		if ($model->getCacheQueries() && Zend_Registry::get('readFromCache')) {
+			$cacheKey = $this->createCacheKey($model, $select);
+			$results = Garp_Cache_Manager::readQueryCache($model, $cacheKey);
 			if ($results !== -1) {
-				// populate the third parameter with the cached version
 				$args[2] = $results;
 			} else {
-				$this->_openCacheKey = $id;
+				$this->_openCacheKey = $cacheKey;
 			}
 		}
 	}
@@ -68,9 +65,9 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 		if ($this->_openCacheKey) {
 			$model = $args[0];
 			$results = $args[1];
-					
-			$cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
-			$cache->write($this->_openCacheKey, $results);
+			$cacheKey = $this->_openCacheKey;
+
+			Garp_Cache_Manager::writeQueryCache($model, $cacheKey, $results);
 
 			// reset the key
 			$this->_openCacheKey = '';
@@ -85,7 +82,7 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 */
 	public function afterInsert(&$args) {
 		$model = &$args[0];
-		$this->_clearCache($model);
+		Garp_Cache_Manager::purge($model);
 	}
 	
 	
@@ -96,7 +93,8 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 */
 	public function afterUpdate(&$args) {
 		$model = &$args[0];
-		$this->_clearCache($model);
+		$where = $args[3];
+		Garp_Cache_Manager::purge($model);
 	}
 	
 	
@@ -107,53 +105,25 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 */
 	public function afterDelete(&$args) {
 		$model = &$args[0];
-		$this->_clearCache($model);
+		$where = $args[2];
+		Garp_Cache_Manager::purge($model);
 	}
-	
-	
+
+
 	/**
 	 * Create a unique hash for cache entries, based on the SELECT object,
 	 * but also on the registered bindings, because a query might be the same
-	 * with different results when bindings come in to play.
+	 * with different results when bindings come into play.
 	 * @param Garp_Model $model
 	 * @param Zend_Db_Select $select
 	 * @return String
 	 */
-	protected function _createUniqueId(Garp_Model $model, Zend_Db_Select $select) {
+	public function createCacheKey(Garp_Model $model, Zend_Db_Select $select) {
 		$boundModels = serialize(Garp_Model_Db_BindingManager::getBindingTree(get_class($model)));
 		$hash = md5(
 			md5($select).
 			md5($boundModels)
 		);
 		return $hash;
-	}
-	
-	
-	/**
-	 * Clear all cache for a given model
-	 * @param Garp_Model $model
-	 * @return Void
-	 */
-	protected function _clearCache(Garp_Model $model) {
-		$models = array(get_class($model));
-		foreach ($model->getBindableModels() as $modelName) {
-			if (!in_array($modelName, $models)) {
-				$models[] = $modelName;
-			}
-		}
-		/**
- 		 * Purge query cache using all bindable models.
- 		 * This is done because the subject model may be fetched thru another model, 
- 		 * and thus end up in the cache of the other model.
- 		 */
-		Garp_Cache_Manager::purgeQueryCache($models);
-
-		/**
- 		 * Static cache is much more controlled area, because we can know beforehand
- 		 * exactly which URLs will contain which models. Therefore, it's the 
- 		 * developer's responsibility to add those URLs to cache.ini to make sure
- 		 * the correct cache gets cleared. 
- 		 */
-		Garp_Cache_Manager::purgeStaticCache(array(get_class($model)));
 	}
 }

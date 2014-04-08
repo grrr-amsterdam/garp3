@@ -9,16 +9,41 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli {
+	/**@#+
+ 	 * String coloring constants
+ 	 * @var String
+ 	 */
+	const RED = '2;31';
+	const GREEN = '2;32';
+	const BLUE = '2;34';
+	const YELLOW = '0;33';
+    /**#@-*/
+
+	/**
+ 	 * Wether output should be emitted
+ 	 * @var Boolean
+ 	 */
+	static protected $_quiet = false;
+
 	/**
 	 * Print line.
-	 * @param String $s
+	 * @param String $s The string.
+	 * @param String $color Show string in color?
 	 * @param Boolean $appendNewline Wether to add a newline character
+	 * @param Boolean $echo Wether to echo
 	 * @return Void
 	 */
-	public static function lineOut($s, $appendNewline = true) {
-		echo "{$s}".($appendNewline ? "\n" : '');
+	public static function lineOut($s, $color = null, $appendNewline = true, $echo = true) {
+		if ($color) {
+			self::addStringColoring($s, $color);
+		}
+		$out = "{$s}".($appendNewline ? "\n" : '');
+		if ($echo && !static::$_quiet) {
+			print $out;
+		} else {
+			return $out;
+		}
 	}
-
 
 	/**
 	 * Print line in red.
@@ -26,9 +51,27 @@ class Garp_Cli {
 	 * @return Void
 	 */
 	public static function errorOut($s) {
-		echo "\033[1;31m{$s}\033[0m\n";
+		// Always output errors
+		$oldQuiet = self::getQuiet();
+		self::setQuiet(false);
+
+		self::lineOut($s, self::RED);
+		self::setQuiet($oldQuiet);
 	}
-	
+
+	/**
+ 	 * Print line in a certain color
+ 	 * Inspired by Garp_Spawn_Util::addStringColoring()
+ 	 * @param String $s
+ 	 * @param String $color
+ 	 * @return Void
+ 	 */
+	public static function addStringColoring(&$s, $color) {
+		$prevEnc = mb_internal_encoding();
+		mb_internal_encoding("UTF-8");
+		$s = "\033[{$color}m{$s}\033[0m";
+		mb_internal_encoding($prevEnc);
+	}
 	
 	/**
 	 * Receive input from the commandline.
@@ -38,7 +81,7 @@ class Garp_Cli {
 	 */
 	public static function prompt($prompt = '', $trim = true) {
 		$prompt && self::lineOut($prompt);
-		self::lineOut('> ', false);
+		self::lineOut('> ', null, false);
 		$response = fgets(STDIN);
 		
 		if ($trim) {
@@ -46,8 +89,36 @@ class Garp_Cli {
 		}
 		return $response;
 	}
-	
-	
+
+	/**
+	 * Force user to confirm a question with yes or no.
+	 * @param String $msg Question or message to display. A prompt (>) will be added.
+	 * @return Boolean Returns true if answer was 'y' or 'Y', no enter needed.
+	 */
+	public static function confirm($msg) {
+		print $msg.' > ';
+		system('stty -icanon');
+		$handle = fopen ('php://stdin', 'r');
+		$char = fgetc($handle);
+		system('stty icanon');
+		print "\n";
+		return $char === 'y' || $char === 'Y';
+	}
+
+	/**
+ 	 * Set quiet mode
+ 	 */
+	public static function setQuiet($quiet) {
+		static::$_quiet = $quiet;
+	}
+
+	/**
+ 	 * Get quiet mode
+ 	 */
+	public static function getQuiet() {
+		return static::$_quiet;
+	}
+
 	/**
 	 * PARSE ARGUMENTS
 	 * 
@@ -139,7 +210,6 @@ class Garp_Cli {
 		return $out;
 	}
 
-
 	/**
  	 * For some functionality you absolutely need an HTTP context.
  	 * This method mimics a standard Zend request.
@@ -158,7 +228,7 @@ class Garp_Cli {
 			);
 		}
 		$front->setParam('bootstrap', $application->getBootstrap());
-		// Make sure we aren't blocked from the ContentController as per the rules in acl.ini
+		// Make sure we aren't blocked from the ContentController as per the rules in the ACL
 		$front->unregisterPlugin('Garp_Controller_Plugin_Auth');
 		// Make sure no output is rendered
 		$front->returnResponse(true);
@@ -166,4 +236,20 @@ class Garp_Cli {
 		$response = $front->dispatch($request);
 		return $response;
 	}
+
+	/**
+ 	 * On shell, you must return 0 on success, 1 on failure.
+ 	 * This method deals with that. Feed it any expression and 
+ 	 * it will exit the right way
+ 	 * @param Mixed $bool
+ 	 * @return Void
+ 	 */
+	public static function halt($bool) {
+		// Convert to boolean
+		$bool = !!$bool;
+		// Toggle it: PHP uses 0 for FALSE, shell uses 0 for TRUE
+		$bool = !$bool;
+		exit((int)$bool);
+	}
+
 }

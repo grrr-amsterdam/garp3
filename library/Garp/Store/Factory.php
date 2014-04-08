@@ -18,7 +18,7 @@ class Garp_Store_Factory {
  */
 	public static function getStore($namespace, $type = null) {
 		if (is_null($type)) {
-			$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+			$ini = Zend_Registry::get('config');
 			$type = !empty($ini->store->type) ? $ini->store->type : 'Session';
 		}
 		$type = ucfirst($type);

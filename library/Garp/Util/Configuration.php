@@ -46,4 +46,13 @@ class Garp_Util_Configuration extends ArrayIterator {
 		}
 		return $this;
 	}
+
+
+	/**
+ 	 * Convert to simple array
+ 	 * @return Array
+ 	 */
+	public function toArray() {
+		return (array)$this;
+	}
 }

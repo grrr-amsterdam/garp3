@@ -17,22 +17,25 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 	 * @var String
 	 */
 	const FOREIGN_KEY_COLUMN_KEY = 'foreignKeyColumn';
-	
-	
+
 	/**
 	 * The key used to store the weight column name in the config array
 	 * @var String
 	 */
 	const WEIGHT_COLUMN_KEY = 'weightColumn';
-	
-	
+
 	/**
 	 * Store relationships, the foreign keys and the weight column here
 	 * @var Array
 	 */
 	protected $_relationConfig = array();
-	
-	
+
+	/**
+ 	 * Use this table alias in the query
+ 	 * @var String
+ 	 */
+	protected $_modelAlias = '';
+
 	/**
 	 * Set relationship configuration.
 	 * Must look like this:
@@ -58,8 +61,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		
 		$this->_relationConfig = $config;
 	}
-	
-	
+
 	/**
 	 * BeforeFetch callback: adds an order clause on the weight column.
 	 * @param Array $args Arguments associated with this event
@@ -67,34 +69,9 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 	 */
 	public function beforeFetch(array &$args) {
 		$select = $args[1];
-		// Distill the WHERE class from the Select object
-		$where = $select->getPart(Zend_Db_Select::WHERE);
-		
-		// Save the existing ORDER clause.
-		$originalOrder = $select->getPart(Zend_Db_Select::ORDER);
-		$select->reset(Zend_Db_Select::ORDER);
-		
-		/**
-		 * If a registered foreign key (see self::_relationConfig) is found, this query is 
-		 * considered to be a related fetch() command, and an ORDER BY clause is added with
-		 * the registered weight column.
-		 */
-		foreach ($where as $w) {
-			foreach ($this->_relationConfig as $model => $modelRelationConfig) {
-				if (strpos($w, $modelRelationConfig[self::FOREIGN_KEY_COLUMN_KEY]) !== false) {
-					$select->order($modelRelationConfig[self::WEIGHT_COLUMN_KEY].' DESC');
-				}
-			}
-		}
-		
-		// Return the existing ORDER clause, only this time '<weight-column> DESC' will be in front of it
-		foreach ($originalOrder as $order) {
-			// [0] = column, [1] = direction
-			$select->order($order[0].' '.$order[1]);
-		}
+		$this->addOrderClause($select);
 	}
-	
-	
+
 	/**
 	 * BeforeInsert callback, find and insert the current highest 'weight' value + 1 
 	 * in the weight column
@@ -107,14 +84,13 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		foreach ($this->_relationConfig as $foreignModel => $modelRelationConfig) {
 			$foreignKey = $modelRelationConfig[self::FOREIGN_KEY_COLUMN_KEY];
 			// only act if the foreign key column is filled
-			if ($data[$foreignKey]) {
+			if (!empty($data[$foreignKey])) {
 				$maxWeight = $this->findHighestWeight($model, $data[$foreignKey], $modelRelationConfig);
 				$data[$modelRelationConfig[self::WEIGHT_COLUMN_KEY]] = ($maxWeight+1);
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * BeforeUpdate callback, find and insert current highest 'weight' value + 1, if it is null
 	 * @param Array $args
@@ -156,8 +132,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * Find the highest weight value for a certain relationship with a foreign key
 	 * @param Garp_Model $model
@@ -179,8 +154,7 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		}
 		return 0;
 	}
-	
-	
+
 	/**
 	 * Return the current weight of a set of records.
 	 * Note that only the first record found will be used. Working with multiple records
@@ -207,4 +181,74 @@ class Garp_Model_Behavior_Weighable extends Garp_Model_Behavior_Abstract {
 		}
 		return 0;
 	}
+
+	/**
+ 	 * Modify the order clause to reflect the record's weight
+ 	 * @param Zend_Db_Select $select
+ 	 */
+	public function addOrderClause(Zend_Db_Select &$select) {
+		// Distill the WHERE class from the Select object
+		$where = $select->getPart(Zend_Db_Select::WHERE);
+		// Save the existing ORDER clause.
+		$originalOrder = $select->getPart(Zend_Db_Select::ORDER);
+		$select->reset(Zend_Db_Select::ORDER);
+		
+		$alias = '';
+		if ($this->_modelAlias) {
+			$alias = $this->_modelAlias . '.';
+		}
+
+		/**
+		 * If a registered foreign key (see self::_relationConfig) is found, this query is 
+		 * considered to be a related fetch() command, and an ORDER BY clause is added with
+		 * the registered weight column.
+		 */
+		foreach ($where as $w) {
+			foreach ($this->_relationConfig as $model => $modelRelationConfig) {
+				if (strpos($w, $modelRelationConfig[self::FOREIGN_KEY_COLUMN_KEY]) !== false) {
+					$select->order($alias . $modelRelationConfig[self::WEIGHT_COLUMN_KEY].' DESC');
+				}
+			}
+		}
+		
+		// Return the existing ORDER clause, only this time '<weight-column> DESC' will be in front of it
+		foreach ($originalOrder as $order) {
+			// [0] = column, [1] = direction
+			if (is_array($order)) {
+				$order = $order[0].' '.$order[1];
+			}
+			$select->order($order);
+		}		
+	}
+
+ 	/**
+ 	 * Set modelAlias
+ 	 * @param String $modelAlias
+ 	 * @return $this
+ 	 */
+ 	public function setModelAlias($modelAlias) {
+ 		$this->_modelAlias = $modelAlias;
+ 		return $this;
+ 	}
+ 	
+	/**
+	 * Get modelAlias
+	 * @return String
+	 */
+	public function getModelAlias() {
+		return $this->_modelAlias;
+	}
+
+	/**
+ 	 * Get used weight columns
+ 	 * @return Array
+ 	 */
+	public function getWeightColumns() {
+		$out = array();
+		foreach ($this->_relationConfig as $i => $conf) {
+			$out[] = $conf[self::WEIGHT_COLUMN_KEY];
+		}
+		return $out;
+	}
+
 }

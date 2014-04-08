@@ -43,8 +43,30 @@ class Garp_Content_Export_Txt extends Garp_Content_Export_Abstract {
 	protected function _formatRow(array $row) {
 		$out = '';
 		foreach ($row as $key => $value) {
+			if (is_array($value)) {
+				// This is the case with hasMany and hasAndBelongsToMany related 
+				// rowsets.
+				$value = $this->_formatRelatedRowset($value);
+			}
 			$out .= "$key: $value\n";
 		}
+		return $out;
+	}
+
+
+	/**
+ 	 * Format a related rowset (hasMany or hasAndBelongsToMany)
+ 	 * @param Array $rowset
+ 	 * @return String
+ 	 */
+	protected function _formatRelatedRowset($rowset) {
+		$out = array();
+		foreach ($rowset as $row) {
+			$values = array_values($row);
+			$values = implode(' : ', $values);
+			$out[] = $values;
+		}
+		$out = implode(' | ', $out);
 		return $out;
 	}
 }

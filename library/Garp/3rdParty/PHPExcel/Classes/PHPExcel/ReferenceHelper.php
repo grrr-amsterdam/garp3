@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2010 PHPExcel
+ * Copyright (c) 2006 - 2012 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
  *
  * @category   PHPExcel
  * @package	PHPExcel
- * @copyright  Copyright (c) 2006 - 2010 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2012 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license	http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version	1.7.5, 2010-12-10
+ * @version	##VERSION##, ##DATE##
  */
 
 
@@ -31,7 +31,7 @@
  *
  * @category   PHPExcel
  * @package	PHPExcel
- * @copyright  Copyright (c) 2006 - 2010 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2012 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 class PHPExcel_ReferenceHelper
 {
@@ -55,7 +55,7 @@ class PHPExcel_ReferenceHelper
 	 * @return PHPExcel_ReferenceHelper
 	 */
 	public static function getInstance() {
-		if (!isset(self::$_instance) || is_null(self::$_instance)) {
+		if (!isset(self::$_instance) || (self::$_instance === NULL)) {
 			self::$_instance = new PHPExcel_ReferenceHelper();
 		}
 
@@ -137,7 +137,8 @@ class PHPExcel_ReferenceHelper
 				if ($cell->getDataType() == PHPExcel_Cell_DataType::TYPE_FORMULA) {
 					// Formula should be adjusted
 					$pSheet->getCell($newCoordinates)
-						   ->setValue($this->updateFormulaReferences($cell->getValue(), $pBefore, $pNumCols, $pNumRows, $pSheet->getTitle()));
+						   ->setValue($this->updateFormulaReferences($cell->getValue(),
+						   					$pBefore, $pNumCols, $pNumRows, $pSheet->getTitle()));
 				} else {
 					// Formula should not be adjusted
 					$pSheet->getCell($newCoordinates)->setValue($cell->getValue());
@@ -145,6 +146,16 @@ class PHPExcel_ReferenceHelper
 
 				// Clear the original cell
 				$pSheet->getCell($cell->getCoordinate())->setValue('');
+
+			} else {
+				/*	We don't need to update styles for rows/columns before our insertion position,
+						but we do still need to adjust any formulae	in those cells					*/
+				if ($cell->getDataType() == PHPExcel_Cell_DataType::TYPE_FORMULA) {
+					// Formula should be adjusted
+					$cell->setValue($this->updateFormulaReferences($cell->getValue(),
+										$pBefore, $pNumCols, $pNumRows, $pSheet->getTitle()));
+				}
+
 			}
 		}
 
@@ -203,7 +214,7 @@ class PHPExcel_ReferenceHelper
 
 		// Update worksheet: column dimensions
 		$aColumnDimensions = array_reverse($pSheet->getColumnDimensions(), true);
-		if (count($aColumnDimensions) > 0) {
+		if (!empty($aColumnDimensions)) {
 			foreach ($aColumnDimensions as $objColumnDimension) {
 				$newReference = $this->updateCellReference($objColumnDimension->getColumnIndex() . '1', $pBefore, $pNumCols, $pNumRows);
 				list($newReference) = PHPExcel_Cell::coordinateFromString($newReference);
@@ -217,7 +228,7 @@ class PHPExcel_ReferenceHelper
 
 		// Update worksheet: row dimensions
 		$aRowDimensions = array_reverse($pSheet->getRowDimensions(), true);
-		if (count($aRowDimensions) > 0) {
+		if (!empty($aRowDimensions)) {
 			foreach ($aRowDimensions as $objRowDimension) {
 				$newReference = $this->updateCellReference('A' . $objRowDimension->getRowIndex(), $pBefore, $pNumCols, $pNumRows);
 				list(, $newReference) = PHPExcel_Cell::coordinateFromString($newReference);
@@ -248,6 +259,14 @@ class PHPExcel_ReferenceHelper
 			}
 		}
 
+		// Update worksheet: comments
+		$aComments = $pSheet->getComments();
+		$aNewComments = array(); // the new array of all comments
+		foreach ($aComments as $key => &$value) {
+			$newReference = $this->updateCellReference($key, $pBefore, $pNumCols, $pNumRows);
+			$aNewComments[$newReference] = $value;
+		}
+		$pSheet->setComments($aNewComments); // replace the comments array
 
 		// Update worksheet: hyperlinks
 		$aHyperlinkCollection = array_reverse($pSheet->getHyperlinkCollection(), true);
@@ -348,9 +367,10 @@ class PHPExcel_ReferenceHelper
 	public function updateFormulaReferences($pFormula = '', $pBefore = 'A1', $pNumCols = 0, $pNumRows = 0, $sheetName = '') {
 		//	Update cell references in the formula
 		$formulaBlocks = explode('"',$pFormula);
-		foreach($formulaBlocks as $i => &$formulaBlock) {
-			//	Ignore blocks that were enclosed in quotes (even entries in the $formulaBlocks array after the explode)
-			if (($i % 2) == 0) {
+		$i = false;
+		foreach($formulaBlocks as &$formulaBlock) {
+			//	Ignore blocks that were enclosed in quotes (alternating entries in the $formulaBlocks array after the explode)
+			if ($i = !$i) {
 				$adjustCount = 0;
 				$newCellTokens = $cellTokens = array();
 				//	Search for row ranges (e.g. 'Sheet1'!3:5 or 3:5) with or without $ absolutes (e.g. $3:5)
@@ -510,7 +530,7 @@ class PHPExcel_ReferenceHelper
 		foreach ($pPhpExcel->getWorksheetIterator() as $sheet) {
 			foreach ($sheet->getCellCollection(false) as $cellID) {
 				$cell = $sheet->getCell($cellID);
-				if (!is_null($cell) && $cell->getDataType() == PHPExcel_Cell_DataType::TYPE_FORMULA) {
+				if (($cell !== NULL) && ($cell->getDataType() == PHPExcel_Cell_DataType::TYPE_FORMULA)) {
 					$formula = $cell->getValue();
 					if (strpos($formula, $oldName) !== false) {
 						$formula = str_replace("'" . $oldName . "'!", "'" . $newName . "'!", $formula);
@@ -525,7 +545,7 @@ class PHPExcel_ReferenceHelper
 	/**
 	 * Update cell range
 	 *
-	 * @param	string	$pCellRange			Cell range
+	 * @param	string	$pCellRange			Cell range	(e.g. 'B2:D4', 'B:C' or '2:3')
 	 * @param	int		$pBefore			Insert before this one
 	 * @param	int		$pNumCols			Number of columns to increment
 	 * @param	int		$pNumRows			Number of rows to increment
@@ -540,7 +560,15 @@ class PHPExcel_ReferenceHelper
 			for ($i = 0; $i < $ic; ++$i) {
 				$jc = count($range[$i]);
 				for ($j = 0; $j < $jc; ++$j) {
-					$range[$i][$j] = $this->_updateSingleCellReference($range[$i][$j], $pBefore, $pNumCols, $pNumRows);
+					if (ctype_alpha($range[$i][$j])) {
+						$r = PHPExcel_Cell::coordinateFromString($this->_updateSingleCellReference($range[$i][$j].'1', $pBefore, $pNumCols, $pNumRows));
+						$range[$i][$j] = $r[0];
+					} elseif(ctype_digit($range[$i][$j])) {
+						$r = PHPExcel_Cell::coordinateFromString($this->_updateSingleCellReference('A'.$range[$i][$j], $pBefore, $pNumCols, $pNumRows));
+						$range[$i][$j] = $r[1];
+					} else {
+						$range[$i][$j] = $this->_updateSingleCellReference($range[$i][$j], $pBefore, $pNumCols, $pNumRows);
+					}
 				}
 			}
 

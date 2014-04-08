@@ -2,7 +2,7 @@
 /**
  * Garp_Model_Db
  * Model implementation for database tables.
- * @author Harmen Janssen | grrr.nl
+ * @author $Author: $
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
@@ -16,13 +16,19 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	 */
 	protected $_name;
 	
+	/**
+ 	 * The join table name. This is the name of an SQL view containing the 
+ 	 * original table along with display fields for all possible belongsTo 
+ 	 * related records.
+ 	 * @var String
+ 	 */
+	protected $_jointView;
 
 	/**
 	 * Default sorting of queries
 	 * @var Mixed Any type that's accepted by Zend_Db_Select::order()
 	 */
-	protected $_defaultOrder = null;
-
+	protected $_defaultOrder = null; 
 	
 	/**
 	 * Collection of model names that might be bound to this model in the future.
@@ -31,36 +37,49 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	 * @var Array
 	 */
 	protected $_bindable = array();
-	
-	
+
 	/**
 	 * Custom rowset class
 	 * @var String
 	 */
 	protected $_rowsetClass = 'Garp_Db_Table_Rowset';
-	
-	
+
 	/**
 	 * Custom row class
 	 * @var String
 	 */
 	protected $_rowClass = 'Garp_Db_Table_Row';
-	
-	
+
 	/**
 	 * Collection of observers
 	 * @var Array
 	 */
 	protected $_observers = array();
-	
-	
+
 	/**
 	 * Wether to cache queries
 	 * @var Boolean
 	 */
-	public $cacheQueries = true;
-	
-	
+	protected static $_cacheQueries = true; 
+
+	/**
+ 	 * Configuration.
+ 	 * @var Array
+ 	 */
+	protected $_configuration = array();
+
+	/**
+ 	 * List fields
+ 	 * @var Array
+ 	 */
+	protected $_listFields = array();
+
+	/**
+ 	 * Parent model containing only the unilingual columns
+ 	 * @var Garp_Model_Db
+ 	 */
+	protected $_unilingualModel;
+
     /**
      * Initialize object
      * Called from {@link __construct()} as final step of object instantiation.
@@ -77,8 +96,33 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 			 ->registerObserver(new Garp_Model_Behavior_Cachable())
 		;
 	}
-	
-	
+
+	/**
+ 	 * Get the unilingual parent of a model.
+ 	 * Used for multilingual models (@see self::isMultilingual)
+ 	 * @return Garp_Model_Db
+ 	 */
+	public function getUnilingualModel() {
+		if ($this->_unilingualModel) {
+			return new $this->_unilingualModel;
+		}
+		return $this;
+	}
+
+	/**
+ 	 * Check if this is an i18n model.
+ 	 * @return Boolean
+ 	 */
+	public function isMultilingual() {
+		$field_config = $this->getFieldConfiguration();
+		foreach ($field_config as $config) {
+			if ($config['multilingual']) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Get name without namespace
 	 * @return String 
@@ -87,9 +131,78 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$name = get_class($this);
 		$name = explode('_', $name);
 		return array_pop($name);
+	} 
+
+	/**
+ 	 * Get namespace
+ 	 * @return String
+ 	 */
+	public function getNamespace() {
+		$name = get_class($this);
+		$name = explode('_', $name);
+		return array_shift($name);
 	}
-	
-	
+
+	/**
+ 	 * Get list fields
+ 	 * @return Array
+ 	 */
+	public function getListFields() {
+		return $this->_listFields;
+	}
+
+	/**
+ 	 * Get configuration
+ 	 * @param String $key Pick one specific configuration item.
+ 	 * @return Array
+ 	 */
+	public function getConfiguration($key = null) {
+		if (!$key) {
+			return $this->_configuration;
+		}
+		if (!array_key_exists($key, $this->_configuration)) {
+			throw new Exception("'$key' is not a valid configuration key.");
+		}
+		return $this->_configuration[$key];
+	}
+
+	/**
+ 	 * Get field configuration
+ 	 * @param String $column
+ 	 * @return Array
+ 	 */
+	public function getFieldConfiguration($column = null) {
+		$fields = $this->getConfiguration('fields');
+		if (!$column) {
+			return $fields;
+		}
+		foreach ($fields as $key => $value) {
+			if ($value['name'] == $column) {
+				return $value;
+			}
+		}
+		return null;
+	}
+
+	/**
+ 	 * Convert array to WHERE clause
+ 	 * @param Array $data
+ 	 * @param Boolean $and Wether to use AND or OR
+ 	 * @return String
+ 	 */
+	public function arrayToWhereClause(array $data, $and = true) {
+		$out = array();
+		$adapter = $this->getAdapter();
+		foreach ($data as $key => $value) {
+			$quotedKey = $adapter->quoteIdentifier($key);
+			$quotedValue = $adapter->quote($value);
+			$out[] = "$quotedKey = $quotedValue";
+		}
+		$glue = $and ? 'AND' : 'OR';
+		$out = implode(" $glue ", $out);
+		return $out;
+	}
+
 	/**
 	 * Convenience method for creating SELECT objects
      * @param string|array|Zend_Db_Table_Select $where  OPTIONAL An SQL WHERE clause or Zend_Db_Table_Select object.
@@ -114,18 +227,15 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $select;
 	}
-	
-	
+
 	/**
 	 * Retrieve many-to-many binding model. (e.g; "Model_User" + "Model_Tag" becomes "Model_TagUser")
-	 * @param Garp_Model_Db $theOtherModel The other model
+	 * @param Garp_Model_Db|String $theOtherModel The other model or its classname
 	 * @return Garp_Model_Db The binding model.
 	 */
-	public function getBindingModel(Garp_Model_Db $theOtherModel) {
-		$modelNames = array($this->getNameWithoutNamespace(), $theOtherModel->getNameWithoutNamespace());
-		sort($modelNames);
-		$bindingModel = 'Model_'.implode('', $modelNames);
-		
+	public function getBindingModel($theOtherModel) {
+		$bindingModelName = $this->getBindingModelName($theOtherModel);
+
 		/**
 		 * Here we load the bindingModel class. There is no check to see if 
 		 * the file can be loaded without throwing a fatal error that doesn't
@@ -133,56 +243,31 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		 * Therefore, just trigger the error: it's the developer's responsibility
 		 * to make sure live code never asks for an invalid relationship.
 		 */
-		return new $bindingModel();
+		return new $bindingModelName();
 	}
 
-	
-	
 	/**
-	 * Check to see if this model has a reference to a
-	 * relation with another model.
-	 * @param String $modelName The name of the other model
-	 * @param String $nameException Optional rule name that should not be returned, for homophile relations.
-	 * @return Mixed String on success, FALSE on failure
-	 */
-	public function findRuleForRelation($modelName, $nameException = null) {
-		if (!is_array($nameException) && $nameException) {
-			$nameException = array($nameException);
-		} elseif (!is_array($nameException)) {
-			$nameException = array();
-		}
-
-	/**
- __   _      ___      _____     _  __  
-| || | ||   / _ \\   / ____||  | |/ // 
-| '--' ||  / //\ \\ / //---`'  | ' //  
-| .--. || |  ___  ||\ \\___    | . \\  
-|_|| |_|| |_||  |_|| \_____||  |_|\_\\ 
-`-`  `-`  `-`   `-`   `----`   `-` --` 
-                                       
-   ___      __       _____     ____      ______  
-  / _ \\   | ||     |  ___||  |  _ \\   /_   _// 
- / //\ \\  | ||     | ||__    | |_| ||  `-| |,-  
-|  ___  || | ||__   | ||__    | .  //     | ||   
-|_||  |_|| |____//  |_____||  |_|\_\\     |_||   
-`-`   `-`  `----`   `-----`   `-` --`     `-`'
+ 	 * Get bindingModel name
  	 */
-		$nameException[] = 'Author';
-		$nameException[] = 'Modifier';
-		
-		foreach ($this->_referenceMap as $refKey => $refOptions) {
-			if (
-				//$refKey !== $nameException &&
-				!in_array($refKey, $nameException) &&
-				$refOptions['refTableClass'] === $modelName
-			) {
-				return $refKey;
-			}
+	public function getBindingModelName($theOtherModel) {
+		if (!$theOtherModel instanceof Garp_Model_Db) {
+			$theOtherModel = new $theOtherModel();
 		}
-		return false;
+		$modelNames = array($this->getNameWithoutNamespace(), $theOtherModel->getNameWithoutNamespace());
+		sort($modelNames);
+		$namespace = 'Model_';
+
+		// The following makes sure the namespace used is the same as that of 
+		// the given models, but only if they both use the same namespace.
+		$thisNamespace = $this->getNamespace();
+		$theOtherNamespace = $theOtherModel->getNamespace();
+		if ($thisNamespace === $theOtherNamespace && $thisNamespace !== 'Model') {
+			$namespace = $thisNamespace.'_Model_';
+		}
+		$bindingModelName = $namespace.implode('', $modelNames);
+		return $bindingModelName;
 	}
-		
-	
+
 	/**
 	 * Return default order for this model
 	 * @return String|Array
@@ -190,8 +275,46 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getDefaultOrder() {
 		return $this->_defaultOrder;
 	}
-	
-	
+
+	/**
+ 	 * Makes _getReferenceMapNormalized() available to the public.
+ 	 * @return Array
+ 	 */
+	public function getReferenceMapNormalized() {
+		return $this->_getReferenceMapNormalized();
+	} 
+
+	/**
+ 	 * Generates an ON clause from a referenceMap, 
+ 	 * for use in a JOIN statement.
+ 	 * @param String $ref
+ 	 * @param String $thisAlias
+ 	 * @param String $refAlias
+ 	 * @return String
+ 	 */
+	public function refMapToOnClause($refModel, $thisAlias = null, $refAlias = null) {
+		$thisAlias   = $thisAlias ?: $this->getName();
+		$thisAdapter = $this->getAdapter();
+		$thisAlias   = $thisAdapter->quoteIdentifier($thisAlias);
+		
+		$ref        = $this->getReference($refModel);
+		$refModel   = new $refModel();
+		$refAdapter = $refModel->getAdapter();
+		$refAlias   = $refAlias ?: $refModel->getName();
+		$refAlias   = $refAdapter->quoteIdentifier($refAlias);
+
+		$on = array();
+		foreach ($ref['columns'] as $i => $col) {
+			$col = $thisAdapter->quoteIdentifier($col);
+			$refCol = $refAdapter->quoteIdentifier($ref['refColumns'][$i]);
+			$_on = "{$thisAlias}.{$col} = {$refAlias}.{$refCol}";
+			$on[] = $_on;
+		}
+
+		$on = implode(' AND ', $on);
+		return $on;
+	}
+
 	/**
 	 * Get bindable models
 	 * @return Array
@@ -199,8 +322,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getBindableModels() {
 		return $this->_bindable;
 	}
-	
-	
+
 	/**
 	 * Bind model. This activates a relation between models. With the next 
 	 * fetch operation related records from these models will be fetched 
@@ -214,19 +336,35 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	 * 						 					 		 $options['bindingModel'].
 	 * @return Garp_Model $this
 	 */
-	public function bindModel($alias, $options = null) {
+	public function bindModel($alias, $options = array()) {
 		if ($alias instanceof Garp_Model_Db) {
 			$alias = get_class($alias);
 		}
-		if (!is_null($options) && !$options instanceof Garp_Util_Configuration) {
+
+		if (!is_array($options) && !$options instanceof Garp_Util_Configuration) {
+			throw new Exception('$options must be an array or Garp_Util_Configuration');
+		}
+
+		if (empty($options['modelClass']) && empty($options['rule']) && substr($alias, 0, 6) !== 'Model_') {
+			// Assume $alias is actually a rule and fetch the required info from 
+			// the reference.
+			$referenceMap = $this->_getReferenceMapNormalized();
+			if (empty($referenceMap[$alias])) {
+				throw new Exception('Not enough options given. Alias '.$alias.' is not usable as a rule.');
+			}
+			$reference = $referenceMap[$alias];
+			$options['modelClass'] = $reference['refTableClass'];
+			$options['rule'] = $alias;
+		}
+
+		if (is_array($options)) {
 			$options = new Garp_Util_Configuration($options);
 		}
 		$this->notifyObservers('beforeBindModel', array($this, $alias, &$options));
 		Garp_Model_Db_BindingManager::storeBinding(get_class($this), $alias, $options);
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Unbind model. Deactivate a relationship between models.
 	 * @param String $modelName The name of the model
@@ -237,8 +375,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		Garp_Model_Db_BindingManager::removeBinding(get_class($this), $alias);
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Unbind all models.
 	 * @return Garp_Model $this
@@ -249,8 +386,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Return all bound models
 	 * @return Array
@@ -258,15 +394,123 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	public function getBindings() {
 		return Garp_Model_Db_BindingManager::getBindings(get_class($this));
 	}
-	
-	
+
+	/**
+ 	 * Fetch neighbours
+ 	 * @param String $sortColumn The column that determines the neighbours
+ 	 * @param Mixed $sortValue The value of the sortColumn on the middle record
+ 	 * @param Zend_Db_Select $select SELECT object can be filled with additional query parameters.
+ 	 * @return Array
+ 	 */
+	public function fetchNeighbors($sortColumn, $sortValue, Zend_Db_Select $select = null) {
+		$select = $select ?: $this->select();
+
+		$prevSelect = clone $select;
+		$nextSelect = clone $select;
+
+		$prevSortOrder = $sortColumn.' DESC';
+		$nextSortOrder = $sortColumn.' ASC';
+
+		$quotedSortColumn = $this->getAdapter()->quoteIdentifier($sortColumn);
+		$prevSelect->where($quotedSortColumn.' < ?', $sortValue)->order($prevSortOrder);
+		$nextSelect->where($quotedSortColumn.' > ?', $sortValue)->order($nextSortOrder);
+
+		$neighbours = array(
+			'prev' => $this->fetchRow($prevSelect),
+			'next' => $this->fetchRow($nextSelect)
+		);
+		return $neighbours;
+	}
+
+	/**
+ 	 * Fetch all records created by a certain someone.
+ 	 * @param Int $authorId
+	 * @param Zend_Db_Select $select
+	 * @return Zend_Db_Table_Rowset_Abstract
+	 */
+	public function fetchByAuthor($authorId, Zend_Db_Select $select = null) {
+		$select = $select ?: $this->select();
+		$select->where('author_id = ?', $authorId);
+
+		$result = $this->fetchAll($select);
+		return $result;
+	}
+
+	/**
+ 	 * Shortcut method for fetching record by id
+ 	 * @param Int $id
+ 	 * @return Zend_Db_Table_Row
+ 	 */
+	public function fetchById($id) {
+		$select = $this->select()->where('id = ?', $id);
+		return $this->fetchRow($select);
+	}
+
+	/**
+ 	 * Quote an array of values
+ 	 * @param Array $values
+ 	 * @return Void
+ 	 */
+	public function quoteValues(array &$values) {
+		$adapter = $this->getAdapter();
+		$quoteInto = function(&$item) use ($adapter) {
+			$item = $adapter->quote($item);
+		};
+		array_walk($values, $quoteInto);
+	}
+
+	/**
+ 	 * Extract primary key information from a WHERE clause and construct a cache
+ 	 * key from it.
+ 	 * @param Mixed $where
+ 	 * @return String
+     */
+    public function extractPrimaryKey($where) {
+      	if (is_array($where)) {
+            $where = implode(' AND ', $where);
+        }
+        $pkColumns = $this->info(Zend_Db_Table_Abstract::PRIMARY);
+        $pkValues = array();
+        foreach ($pkColumns as $pk) {
+            $regexp = '/(?:`?'.preg_quote($this->getName()).'`?\.)?`?(?:'.preg_quote($pk).')`?\s?=\s?(?:(?P<q>[\'"])(?P<value>(?:(?!\k<q>).)*)\k<q>|(?P<rest>\w*))/';
+            if (preg_match($regexp, $where, $matches)) {
+                // Note: backreference "rest" is there to catch unquoted
+                // values. (id = 100 instead of id = "100")
+                if (!empty($matches['rest'])) {
+                    $value = $matches['rest'];
+        		} else {
+            		$value = $matches['value'];
+        		}
+        		$pkValues[$pk] = $value;
+        	}
+        }
+		return $pkValues;
+    }
+
+	/**
+ 	 * Get wether this model caches queries
+ 	 * @return Boolean
+ 	 */
+	public function getCacheQueries() {
+		return self::$_cacheQueries;
+	}
+
+	/**
+ 	 * Set wether this model caches queries
+ 	 * @param $flag Boolean 
+ 	 * @return $this
+ 	 */
+	public function setCacheQueries($flag) {
+		self::$_cacheQueries = $flag;
+		return $this;
+	}
+
 	/**
 	 * Modified Zend_Db_Table CRUD methods. 
 	 * (overwritten to support observers)
 	 * ----------------------------------------------------------------------
 	 */
 
-		
     /**
      * Fetches all rows.
      * Honors the Zend_Db_Adapter fetch mode.
@@ -284,7 +528,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $this->_improvedFetch($select, 'fetchAll');
     }
-
 
     /**
      * Fetches one row in an object of type Zend_Db_Table_Row_Abstract,
@@ -305,7 +548,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		return $this->_improvedFetch($select, 'fetchRow');
     }
 
-
 	/**
 	 * A utility method that extends both fetchRow and fetchAll.
 	 * @param Zend_Db_Select $select Select object passed to either parent::fetchRow or parent::fetchAll
@@ -323,15 +565,30 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		 * For instance, the Cachable behavior might fetch data from the cache
 		 * instead of the database.
 		 */		
-		$results = null;
+		$results = -1;
 		$this->notifyObservers('beforeFetch', array($this, $select, &$results));
-		if (is_null($results)) {
+		// Results was untouched, fetch a live result.
+		if ($results === -1) {
 			$results = parent::$method($select);
 			$this->notifyObservers('afterFetch', array($this, &$results, $select));
 		}
 		return $results;
 	}
 
+	/**
+	 * Returns the number of records in the database, optionally limited by the provided select object.
+	 * @return Int Number of records
+	 */
+	public function count(Zend_Db_Select $select = null) {
+		if (!$select) {
+			$select = $this->select();
+		}
+		$select->from($this->getName(), array('count' => new Zend_Db_Expr('COUNT(*)')));
+		if ($row = $this->fetchRow($select)) {
+			return (int)$row->count;
+		}
+		return 0;
+	}
 
 	/**
      * Inserts a new row.
@@ -344,8 +601,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$this->notifyObservers('afterInsert', array($this, $data, $pkData));		
 		return $pkData;
 	}
-	
-	
+
 	/**
      * Updates existing rows.
      * @param  array        $data  Column-value pairs.
@@ -358,8 +614,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$this->notifyObservers('afterUpdate', array($this, $result, $data, $where));
 		return $result;
 	}
-	
-	
+
 	/**
      * Deletes existing rows.
      * @param  array|string $where SQL WHERE clause(s).
@@ -371,8 +626,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$this->notifyObservers('afterDelete', array($this, $result, $where));
 		return $result;
     }
-    
-	
+ 
 	/**
 	 * Observable methods
 	 * ----------------------------------------------------------------------
@@ -390,8 +644,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		$this->_observers[$name] = $observer;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Unregister observer. The observer will no longer listen to 
 	 * events broadcasted from this class.
@@ -405,8 +658,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		unset($this->_observers[$observer]);
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Broadcast an event. Observers may implement their reaction however
 	 * they please. The Observable does not expect a return action.
@@ -442,17 +694,22 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 		}
 		return $this;
 	}
-	
 
 	/**
-	 * @author David Spreekmeester | grrr.nl
+	 * Return an observer
+	 * @param String $name The name of the observer
+	 * @return Garp_Util_Observer Or null if not found
 	 */
 	public function getObserver($name) {
-		print '<pre>';
-		print_r($this->_observers);
-		print '</pre>';
-		exit;
-		
+		return array_key_exists($name, $this->_observers) ? $this->_observers[$name] : null;
+	}
+
+	/**
+ 	 * Return all observers
+ 	 * @return Array
+ 	 */
+	public function getObservers() {
+		return $this->_observers;
 	}
 	
 	
@@ -475,13 +732,20 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 			$this->{$event}($params);
 		}
 	}
-	
-	
+
 	/**
 	 * Return table name
 	 * @return String
 	 */
 	public function getName() {
 		return $this->_name;
+	}
+
+	/**
+ 	 * Return joint view name
+ 	 * @return String
+ 	 */
+	public function getJointView() {
+		return $this->_jointView;
 	}
 }

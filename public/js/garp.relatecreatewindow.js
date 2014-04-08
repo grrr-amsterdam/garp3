@@ -1,5 +1,5 @@
 /**
- * 
+ * Quick Create: RelateCreateWindow; simple form in a popup window to create a new record
  */
 Ext.ns('Garp');
 
@@ -13,15 +13,21 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 	width: 640,
 	border: true,
 	preventBodyReset: false,
+	autoScroll: true,
+	
+	rec: null,
+	
+	quickCreatableInit: Ext.emptyFn,
 	
 	initComponent: function(){
-		if(!this.iconCls){
+	
+		if (!this.iconCls) {
 			this.setIconClass(Garp.dataTypes[this.model].iconCls);
 		}
-		if(!this.title){
+		if (!this.title) {
 			this.setTitle(Garp.dataTypes[this.model].text);
 		}
-		this.addEvents('aftersave');
+		this.addEvents('aftersave', 'afterinit');
 		
 		this.writer = new Ext.data.JsonWriter({
 			paramsAsHash: false,
@@ -32,7 +38,7 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 		Ext.each(cm, function(c){
 			fields.push(c.dataIndex);
 		});
-	
+		
 		this.store = new Ext.data.DirectStore({
 			fields: fields,
 			autoLoad: false,
@@ -57,46 +63,23 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			writer: this.writer
 		});
 		
-		//var items = Ext.decode(Ext.encode(Ext.apply({}, Garp.dataTypes[this.model]).formConfig[0])); // cheap deep copy //@TODO: improve
-		
-		var items = Ext.apply({},Garp.dataTypes[this.model].formConfig[0]);
-		Ext.apply(items, {
-			ref: '../formcontent'
-		});
+		var items = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0]);
+		var listeners = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].listeners);
+		items = {
+			ref: '../formcontent',
+			items: [items],
+			listeners: listeners,
+			bodyCssClass: 'garp-formpanel',
+			border: false
+		};
 		
 		// Now hide disabled items, they have no function when adding a new item. It may otherwise confuse users:
 		// Also: if the field is not in the columnModel, it has no place here in this window
-		/*
-		Ext.each(items.items,function(i){
-			Ext.each(i.items,function(j){
-				var inColumnModel = false
-				
-				delete j.tpl;
-				
-				Ext.each(cm, function(c){
-					if(j.name == c.dataIndex){
-						inColumnModel = true;
-						return true;
-					}
-				});
-				if(j.disabled || !inColumnModel || j.xtype == 'displayfield' &&  j.xtype != 'box'){
-					Ext.apply(j,{
-						hidden: true,
-						fieldLabel: '',
-						hideMode: 'display',
-						hideFieldLabel: true
-					});
-				}
-			});
-		});
-		*/
 		this.items = [{
 			border: false,
 			xtype: 'form',
 			layout: 'form',
 			ref: 'form',
-			height: 440,
-			autoScroll: true,
 			defaults: {
 				autoWidth: true,
 				border: false,
@@ -105,50 +88,108 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			items: items
 		}];
 		
-		this.buttons = [{
-			text: __('Ok'),
-			handler: function(){
-				if (this.form.getForm().isValid()) {
-					var rec = new this.store.recordType(Ext.apply({},Garp.dataTypes[this.model].defaultData));
-					this.store.add(rec);
-					this.form.getForm().updateRecord(rec);
-					this.store.on({
-						'save': {
-							fn: function(){
-								this.fireEvent('aftersave', this, rec);
-								this.close();
-							},
-							single: true,
-							scope: this
-						}
-					});
-					this.loadMask = new Ext.LoadMask(this.getEl(), {
-						store: this.store
-					});
-					
-					this.loadMask.show();
-					this.store.save();
-					
-				}
-			},
-			scope: this
-		}, {
+		if (!this.buttons) {
+			this.buttons = [];
+		}
+		this.buttons.push([{
 			text: __('Cancel'),
+			ref: '../cancelBtn',
 			handler: function(){
 				this.close();
 			},
 			scope: this
-		}];
+		}, {
+			text: __('Ok'),
+			ref: '../okBtn',
+			handler: function(){
+				this.saveAll(true);
+			},
+			scope: this
+		}]);
+		
 		Garp.RelateCreateWindow.superclass.initComponent.call(this);
+	},
+	
+	saveAll: function(doClose){
+		if (!this.form.getForm().isValid()) {
+			this.form.getForm().items.each(function(){
+				this.isValid(); // marks the field also visually invalid if needed
+			});
+			return;
+		}
+		this.form.getForm().updateRecord(this.rec);
+		this.store.on({
+			'save': {
+				fn: function(){
+					this.rec = this.store.getAt(0);
+					if (this.formcontent) {
+						this.formcontent.fireEvent('loaddata', this.rec, this);
+					}
+					this.fireEvent('aftersave', this, this.rec);
+					this.loadMask.hide();
+					if (doClose) {
+						this.close();
+					}
+				},
+				single: true,
+				scope: this
+			}
+		});
+		if(this.store.save() !== -1){
+			this.loadMask = new Ext.LoadMask(this.getEl());
+			this.loadMask.show();
+		}
 	},
 	
 	afterRender: function(){
 		Garp.RelateCreateWindow.superclass.afterRender.call(this);
-		this.form.getForm().remove(this.form.getForm().findField('id'));
 		this.form.getForm().setValues(Garp.dataTypes[this.model].defaultData);
 		if (this.onShow) {
 			this.onShow.call(this);
 		}
+		var rec = new this.store.recordType(Ext.apply({}, Garp.dataTypes[this.model].defaultData));
+		this.rec = rec;
+		this.store.insert(0, rec);
 		
+		this.getForm = function(){
+			return this.form.getForm();
+		};
+		
+		this.on('save-all', this.saveAll, this);
+		
+		this.on('show', function(){
+			this.formcontent.fireEvent('loaddata', rec, this);
+			this.quickCreatableInit();
+			this.getForm().clearInvalid();
+			if (this.quickCreateReference) {
+				var id = this.parentId || Garp.gridPanel.getSelectionModel().getSelected().get('id');
+				this.getForm().findField(this.quickCreateReference).store.on('load', function(){
+					this.getForm().findField(this.quickCreateReference).setValue(id);
+				}, this, {
+					single: true
+				});
+				this.getForm().findField(this.quickCreateReference).store.load();
+				this.getForm().findField(this.quickCreateReference).hide();
+
+				// this is dumb... have to reset the height after hiding the field
+				this.setHeight(this.getHeight());
+				this.center();
+			}
+			window.weenerdog = this;
+			this.keymap = new Ext.KeyMap(this.formcontent.getEl(), [{
+				key: Ext.EventObject.ENTER,
+				ctrl: true,
+				scope: this,
+				handler: function(e){
+					this.form.getForm().items.each(function(){
+						this.fireEvent('blur', this);
+					});
+					this.okBtn.handler.call(this);
+					return false;
+				}
+			}]);
+			this.keymap.stopEvent = true; // prevents browser key handling.
+			this.fireEvent('afterinit', this);
+		}, this);
 	}
 });

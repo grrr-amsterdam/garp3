@@ -40,7 +40,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      */
 	public function __construct($accessKey = null, $secretKey = null) {
 		if (!$accessKey || !$secretKey) {
-			$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+			$ini = Zend_Registry::get('config');
 			if (!$accessKey && isset($ini->amazon->ses->accessKey)) {
 				$accessKey = $ini->amazon->ses->accessKey;
 			}
@@ -245,7 +245,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		unset($args['Destination']);
 
 		if (!empty($args['ReplyToAddresses'])) {
-			$replyTos = $this->_arrayToStringList($args['ReplyToAddresses'], 'ReplyToAddresses');
+			$replyTos = $this->_arrayToStringList((array)$args['ReplyToAddresses'], 'ReplyToAddresses');
 			$args += $replyTos;
 			unset($args['ReplyToAddresses']);
 		}
@@ -313,7 +313,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 							', Algorithm=Hmac'.strtoupper(self::SIGNATURE_HASH_METHOD).
 							', Signature='.$sig;
 		
-		$client = $this->getHttpClient();
+		$client = $this->getHttpClient()->resetParameters();
 		$client->setUri(self::ENDPOINT);
 		$client->setHeaders(array(
 			'Date' => $date,
@@ -330,7 +330,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		$response = $client->request(Zend_Http_Client::POST);
 
 		if ($response->getStatus() !== 200) {
-			self::throwException($response->getBody());
+			$this->throwException($response->getBody());
 		}		
 		return $response->getBody();
 	}
@@ -368,11 +368,28 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 	 * @return Void
 	 * @throws Garp_Service_Amazon_Exception
 	 */
-	public static function throwException($body) {
+	public function throwException($body) {
 		$dom = new DOMDocument();
 		$dom->loadXML($body);
 		$code = $dom->getElementsByTagName('Code')->item(0);
 		$msg  = $dom->getElementsByTagName('Message')->item(0);
-		throw new Garp_Service_Amazon_Exception($code->nodeValue.': '.$msg->nodeValue);
+
+		// Log last request and response in case of an error
+		$lastRequest = $this->getHttpClient()->getLastRequest();
+		$lastResponse = $this->getHttpClient()->getLastResponse();
+		$filename = date('Y-m-d').'-amazon-ses.log';
+		$logMessage  = "\n";
+		$logMessage .= '[REQUEST]'."\n";
+		$logMessage .= $lastRequest."\n\n";
+		$logMessage .= '[RESPONSE]'."\n";
+		$logMessage .= $lastResponse."\n\n";
+
+		dump($filename, $logMessage);
+
+		$msg = $msg->nodeValue;
+		if (is_object($code)) {
+			$msg = $code->nodeValue . ': ' . $msg;
+		}
+		throw new Garp_Service_Amazon_Exception($msg);
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * Garp_Model_Behavior_Videoable
- * @author Harmen Janssen | grrr.nl
+ * @author Harmen Janssen, David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
@@ -9,12 +9,15 @@
  * @lastmodified $Date: $
  */
 class Garp_Model_Behavior_Videoable extends Garp_Model_Behavior_Abstract {
+	const ERROR_INVALID_VIDEO_URL =
+		'Invalid URL given. It was not recognized as either YouTube or Vimeo. Url: %s';
+
 	/**
-	 * Field translation table. Keys are internal names, values are the indexes of the output array.
-	 * Vimeo keys must be in $_fields['vimeo'], YouTube keys must be in $_fields['youtube'].
+	 * Config. Field translation table is in 'fields'. Keys are internal names, values are the indexes of the output array.
+	 * Vimeo keys must be in $_config['fields']['vimeo'], YouTube keys must be in $_config['fields']['youtube'].
 	 * @var Array
 	 */
-	protected $_fields;
+	protected $_config;
 
 
 	/**
@@ -31,6 +34,7 @@ class Garp_Model_Behavior_Videoable extends Garp_Model_Behavior_Abstract {
 		if (empty($config['youtube'])) {
 			$config['youtube'] = array();
 		}
+		$this->_config = $config;
 	}
 	
 	
@@ -66,14 +70,15 @@ class Garp_Model_Behavior_Videoable extends Garp_Model_Behavior_Abstract {
 			$url = $data['url'];
 			if ($this->_isYouTubeUrl($url)) {
 				// check for YouTube
-				$behavior = new Garp_Model_Behavior_YouTubeable($this->_fields['youtube']);
+				$behavior = new Garp_Model_Behavior_YouTubeable($this->_config['youtube']);
 				$data['type'] = 'youtube';
 			} elseif ($this->_isVimeoUrl($url)) {
 				// check for Vimeo
-				$behavior = new Garp_Model_Behavior_Vimeoable($this->_fields['vimeo']);
+				$behavior = new Garp_Model_Behavior_Vimeoable($this->_config['vimeo']);
 				$data['type'] = 'vimeo';
 			} else {
-				throw new Garp_Model_Exception('Invalid URL given. It was not recognized as either YouTube or Vimeo.');
+				$error = self::ERROR_INVALID_VIDEO_URL . $url;
+				throw new Garp_Model_Exception($error);
 			}
 			$behavior->{$event}($args);
 		}

@@ -6,7 +6,7 @@
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
- * @subpackage Validator
+ * @subpackage Util
  * @lastmodified $Date: $
  */
 class Garp_Util_Configuration_Exception extends Exception {

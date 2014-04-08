@@ -6,71 +6,67 @@
  */
 
 Garp.ModelMenu = function(cfg){
-
-	var menuItems = [{
-		text: '<b>' + __('Welcome') + '</b>',
-		handler: function(){
-			if (Garp.checkForModified()) {
-				return;
-			}
-			this.setText(__('Choose content type'));
-			this.setIconClass('icon-no-model');
-			Garp.setFavicon();
-			
-			Garp.viewport.formPanelCt.hide();
-			if (Garp.formPanel) {
-				Garp.viewport.formPanelCt.remove(Garp.formPanel);
-			}
-			Garp.viewport.gridPanelCt.removeAll(true);
-			Garp.gridPanel = new Garp.WelcomePanel({});
-			Garp.viewport.gridPanelCt.add(Garp.gridPanel);
-			
-			Garp.viewport.infoPanel.clearInfo();
-			Garp.viewport.infoPanel.show();
-			Garp.viewport.infoPanel.ownerCt.expand();
-			Garp.viewport.infoPanel.ownerCt.show();
-		
-			Garp.viewport.doLayout();
-		},
-		scope: this
-	},'-'];
-	var models = (function(){
-		var models = [];
-		var prevModel;
-		for (var i in Garp.dataTypes) {
-			var model = Garp.dataTypes[i];
-			if(model == '-'){
-				if (prevModel != '-') {
-					models.push('-');
+	
+	Ext.apply(this, cfg);
+	
+	var menuItems = [];
+	
+	for (var key in Garp.dataTypes){
+		if(this.menuItems.indexOf(key) == -1){
+			this.menuItems.push(key);
+		}	
+	}
+	
+	menuItems.push((function(){
+		var model, models = [];
+		Ext.each(this.menuItems, function(model){
+			if ((model == '-') && (models.length > 0) && models[models.length - 1] != '-') {
+				models.push('-');
+			} else {
+				if(!Garp.dataTypes[model]){
+					throw 'Oops! JS model "' + model + '" not found! Is it spawned and bugfree?';
 				}
-			} else{
-				(function(i){
+				var dataType = Garp.dataTypes[model];
+				if(!Garp[model]){
+					throw 'Oops! dataType "' + model + '" not found! Does it exist in the smd?';
+				}
+				if (dataType.setupACL(Garp[model])) {
+					dataType.fireEvent('init');	
 					models.push({
-						hidden: model.hidden,
-						text: __(model.text),
-						name: model.text,
-						iconCls: model.iconCls,
+						hidden: dataType.hidden,
+						text: __(dataType.text),
+						name: dataType.text,
+						iconCls: dataType.iconCls,
 						handler: function(){
 							Garp.viewport.formPanelCt.show();
-							Garp.eventManager.fireEvent('modelchange', i, true);
+							Garp.viewport.gridPanelCt.expand();
+							Garp.eventManager.fireEvent('modelchange', true, model, null, null);
 						}
 					});
-				})(i);
+				} else {
+					delete Garp.dataTypes[dataType.text];
+				}
 			}
-			prevModel = model;
-		}
+		});
 		return models;
-	})();
-	menuItems.push(models);
+	}).call(this));
 	
 	Garp.ModelMenu.superclass.constructor.call(this, Ext.applyIf(cfg, {
 		cls: 'garp-model-menu',
-		text: __('Choose content type'),
+		text: __('Content'),
 		iconCls: 'icon-no-model',
 		menu: new Ext.menu.Menu({
 			items: menuItems
 		})
-	}))
+	}));
+
+	this.on('afterrender', function(){
+		this.getEl().on('click', function(){
+			Garp.viewport.gridPanelCt.expand();
+		});
+	}, this);
+	
+	
 };
 
 Ext.extend(Garp.ModelMenu, Ext.Button, {});

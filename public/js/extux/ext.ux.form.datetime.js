@@ -110,8 +110,10 @@ Ext.ux.form.DateTime = Ext.extend(Ext.form.Field, {
 			,hidden:this.hidden
             ,selectOnFocus:this.selectOnFocus
             ,validator:this.dateValidator
+			,enableKeyEvents:true
             ,listeners:{
                   blur:{scope:this, fn:this.onBlur}
+				 ,keypress:{scope:this, fn:this.onBlur}
                  ,focus:{scope:this, fn:this.onFocus}
             }
         }, this.dateConfig);
@@ -127,8 +129,10 @@ Ext.ux.form.DateTime = Ext.extend(Ext.form.Field, {
 			,hidden:this.hidden
             ,selectOnFocus:this.selectOnFocus
             ,validator:this.timeValidator
+			,enableKeyEvents:true
             ,listeners:{
                   blur:{scope:this, fn:this.onBlur}
+				 ,keypress:{scope:this, fn:this.onBlur}
                  ,focus:{scope:this, fn:this.onFocus}
             }
         }, this.timeConfig);
@@ -141,7 +145,7 @@ Ext.ux.form.DateTime = Ext.extend(Ext.form.Field, {
         this.relayEvents(this.tf, ['focus', 'specialkey', 'invalid', 'valid']);
 
         this.on('specialkey', this.onSpecialKey, this);
-
+		
     } // eo function initComponent
     // }}}
     // {{{
@@ -450,6 +454,7 @@ Ext.ux.form.DateTime = Ext.extend(Ext.form.Field, {
         }
         // otherwise it misbehaves in editor grid
         if(key === e.ENTER) {
+			this.tf.setValue(this.tf.getRawValue()); // Added by Peter (4-1-2012) to accept for different times than in the dropdown
             this.updateValue();
         }
 
@@ -461,8 +466,11 @@ Ext.ux.form.DateTime = Ext.extend(Ext.form.Field, {
      * and clears any validation messages. See Ext.form.BasicForm.trackResetOnLoad
      */
     ,reset:function() {
+		// commented-out by PP [14-05-2012]
+		/*
         this.df.setValue(this.originalValue);
         this.tf.setValue(this.originalValue);
+        */
     } // eo function reset
     // }}}
     // {{{
@@ -685,3 +693,9 @@ Ext.ux.form.DateTime = Ext.extend(Ext.form.Field, {
 
 // register xtype
 Ext.reg('xdatetime', Ext.ux.form.DateTime);
+
+// Added by Harmen :-) @ 11 March 2014
+Ext.apply(Ext.ux.form.DateTime.prototype, {
+	dateFormat : 'd F Y',
+	timeFormat : 'H:i:s'
+});		

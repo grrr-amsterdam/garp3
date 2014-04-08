@@ -3,13 +3,63 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Garp RichTextEditor - Test Environment</title>
-		<script type="text/javascript" src="../ext-3.3.1/adapter/ext/ext-base-debug.js"></script>
-		<script type="text/javascript" src="../ext-3.3.1/ext-all-debug.js"></script>
+		<script type="text/javascript" src="../ext-3.4.0/adapter/ext/ext-base-debug.js"></script>
+		<script type="text/javascript" src="../ext-3.4.0/ext-all-debug.js"></script>
 		<!--<link rel="shortcut icon" type="image/x-icon" href="/images/garp/icons/favicon.png">-->
-		<link rel="stylesheet" href="../ext-3.3.1/resources/css/ext-all.css" type="text/css">
-		<link rel="stylesheet" href="../ext-3.3.1/resources/css/xtheme-gray.css" type="text/css">
+		<link rel="stylesheet" href="../ext-3.4.0/resources/css/ext-all.css" type="text/css">
+		<link rel="stylesheet" href="../ext-3.4.0/resources/css/xtheme-gray.css" type="text/css">
 		<link rel="stylesheet" href="/css/garp/icons.css" type="text/css">
 		<link rel="stylesheet" href="/css/garp/garp.css" type="text/css">
+		<style>
+			
+			.wysiwyg-ct { overflow: hidden; }
+
+			.grid-col-12-12 { width: 100%; }
+			.grid-col-11-12 { width: 91.666666%; }
+			.grid-col-10-12 { width: 83.333333%; }
+			.grid-col-9-12 { width: 75%; }
+			.grid-col-8-12 { width: 66.666666%; }
+			.grid-col-7-12 { width: 58.333333%; }
+			.grid-col-6-12 { width: 50%; }
+			.grid-col-5-12 { width: 41.666666%; }
+			.grid-col-4-12 { width: 33.333333%; }
+			.grid-col-3-12 { width: 25%; }
+			.grid-col-2-12 { width: 16.666666%; }
+			.grid-col-1-12 { width: 8.333333%; }
+			
+			.wysiwyg-box { position: relative; float: left; border: none; outline: none; clear: none;  }
+			.wysiwyg-box .dd-handle { display: none; position: absolute; right: 5px; top: 5px; background-color: #fff; width: 30px; height: 30px; border: 1px #ddd solid; border-radius: 4px;  background-position: 50% 50%; background-repeat: no-repeat; z-index: 3;}
+			.wysiwyg-box:hover .dd-handle { display: block; }
+			.wysiwyg-box .dd-handle:hover { background-color: #eee; }
+			.x-panel-body-noheader .wysiwyg-box .x-panel-body { border: none; }
+
+			.wysiwyg-box .contenteditable { margin: 10px; padding: 10px; border: 1px #ccc dashed; z-index: 2;}
+			
+			.wysiwyg-box .contenteditable:-moz-focusring:not(input):not(button):not(select){ outline: none; }
+			
+			.wysiwyg-box .target { position: absolute; background: #000; z-index: 1; opacity:0; display: block; }
+			.disabled-targets .wysiwyg-box .target { z-index: -3; }
+			.wysiwyg-box .target.active { background: #57b; opacity: 1; }
+			
+			.wysiwyg-box .target.top { top: 0; left: 0; width: 100%; height: 30%;}
+			.wysiwyg-box .target.right { right: 0; top: 0; height: 100%; width: 30%;}
+			.wysiwyg-box .target.bottom { bottom: 0; left: 0; width: 100%;  height: 30%; }
+			.wysiwyg-box .target.left { left: 0; top: 0; height: 100%; width: 30%;}
+			.wysiwyg-box .target.top.active { height: 5px;}
+			.wysiwyg-box .target.right.active { width: 5px; }
+			.wysiwyg-box .target.bottom.active { height: 5px; }
+			.wysiwyg-box .target.left.active { width: 5px; }
+			
+			
+			.wysiwyg-box { z-index: 1; }
+			.wysiwyg-box.in-drag { z-index: 2; }
+			.wysiwyg-box.in-drag .contenteditable { border: 1px #888 dashed; opacity: .5}
+			
+			.row:before, .row:after { content: ""; display: table; }
+			.row:after { clear: both; }
+			.row { zoom: 1; }
+			
+		</style>
 	</head>
 	<body>
 		<!-- Required fields for history management -->
@@ -19,48 +69,83 @@
 		</form>
 		<script type="text/javascript" src="../overrides.js"></script>
 		<script type="text/javascript" src="../garp.config.js"></script>
-		<script type="text/javascript" src="../extux/ext.ux.form.searchfield.js"></script>
-		<script type="text/javascript" src="../garp.imagepickerwindow.js"></script>
-		<script type="text/javascript" src="../extux/ext.ux.form.richtexteditor.js"></script>
-		<script type="text/javascript" src="../garp.imageeditor.js"></script>
+		<script type="text/javascript" src="rte-tryout.js"></script>
 		
 		<!-- Garp components -->
-		<script>
+		<script type="text/javascript">
+			
 			Ext.QuickTips.init();
 			CDN = window.location.protocol + '//' + window.location.host;
 			BASE = '/';
 			ASSET_VERSION = Math.floor(Math.random()*99999);
-			var str = '<p>Contrary to popular belief, Lorem Ipsum is<br>a<br>b<br>c<br><br>def<br><br><br><li></li> not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p><dl class="figure" style="float: left;"><dt><img src="sneeuw.jpg"> </dt><dd>Sneeuw</dd></dl><p>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance.The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p><p>beer<br>bla<br><br>aap</p>';
-			
+
 			var viewport = new Ext.Viewport({
-				layout:'border',
-				items:[{
+				layout: 'border',
+				items: [{
 					region: 'north',
 					title: 'Garp RichTextEditor - Test Environment'
-				},{
+				}, {
 					region: 'center',
-					id: 'rte',
-					xtype: 'richtexteditor',
-					value: str
+					id: 'rte-container',
+					xtype: 'wysiwygct',
+					bodyStyle: 'overflow-y: auto',
+					defaults: {
+						xtype: 'container',
+						cls: 'row'
+					},
+					items: [{
+						defaults: {
+							xtype: 'wysiwyg'
+						},
+						items: [{
+							cls: 'grid-col-6-12'
+						}, {
+							cls: 'grid-col-6-12'
+						}]
+					}, {
+						defaults: {
+							xtype: 'wysiwyg'
+						},
+						items: [{
+							cls: 'grid-col-12-12'
+						}]
+					},{
+						defaults: {
+							xtype: 'wysiwyg'
+						},
+						items: [{
+							cls: 'grid-col-4-12'
+						},{
+							cls: 'grid-col-4-12'
+						},{
+							cls: 'grid-col-4-12'
+						}]
+					},{
+						defaults: {
+							xtype: 'wysiwyg'
+						},
+						items: [{
+							cls: 'grid-col-12-12'
+						}]
+					},{
+						defaults: {
+							xtype: 'wysiwyg'
+						},
+						items: [{
+							cls: 'grid-col-12-12'
+						}]
+					},{
+						defaults: {
+							xtype: 'wysiwyg'
+						},
+						items: [{
+							cls: 'grid-col-12-12'
+						}]
+					}]
 				}]
 			});
 			
-			field = Ext.getCmp('rte'); // debug
-			/*
-			var win = new Ext.Window({
-				title: 'Garp Image Cropper',
-				iconCls: 'icon-image',
-				modal: true,
-				maximizable: true,
-				layout:'fit',
-				width: 800,
-				height: 500,
-				items: [new Garp.ImageEditor({
-					image: 'sneeuw.jpg'
-				})]
-			});
-			win.show();
-			*/
+			
 		</script>
 	</body>
 </html>

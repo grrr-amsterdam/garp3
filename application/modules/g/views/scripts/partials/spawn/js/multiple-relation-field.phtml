@@ -1,0 +1,81 @@
+<?php
+	$params = array(
+		"xtype: 'relationpanel'",
+		"model: '{$this->relation->model}'",
+		"tabTip: __('{$this->relation->label}')"
+	);
+	
+	if ($this->relation->paginated):
+		$params[] = "paginated: true";
+	endif;
+
+	if (!$this->relation->editable):
+		$params[] = "minimalUI: true";
+	endif;
+	
+	if ($this->relation->limit):
+		$params[] = "maxItems: '{$this->relation->limit}'";
+	endif;
+
+	switch ($this->relation->type):
+		case 'hasMany':
+			$params[] = "rule: '{$this->relation->oppositeRule}'";
+			$params[] = "title: __('{$this->relation->label}')";
+			$params[] = "quickCreateBtnLabel: '{$this->relation->label}'";
+		break;
+		case 'hasAndBelongsToMany':
+			/* 	habtm property 'rule' is the rel rule to this model from the bindingModel.
+				habtm property 'rule2' is the rel rule from this model to the bindingModel. */
+			$isHomo 			= $this->relation->model === $this->modelId;
+			$bindingModel = $this->relation->getBindingModel();
+			$relations = $bindingModel->relations->getRelations();
+			$rules = array_keys($relations);
+
+			/* 	Now sort egocentrically, because current sorting is alphabetical
+				(since $relations is an associative array) */
+			$firstRel = current($relations);
+			if ($firstRel->model !== $this->modelId) {
+				$rules = array_reverse($rules);
+			}
+
+			if (
+				$isHomo &&
+				(
+					$rules[0] !== $this->modelId &&
+					$rules[1] === $this->modelId
+				)
+			) {
+				// Make sure that the custom named relation always comes second. This is part of egocentrism.
+				$rules = array_reverse($rules);
+			}
+
+			$params[] = "rule: '{$rules[0]}'";
+			$params[] = "rule2: '{$rules[1]}'";
+
+			if ($isHomo && !$this->relation->inverse):
+				$params[] = "bidirectional: false";
+			endif;
+
+			$params[] = "bindingModel: '{$bindingModel->id}'";
+			$params[] = "title: __('{$this->relation->label}')";
+			$params[] = "quickCreateBtnLabel: '{$this->relation->label}'";
+		break;
+		default:
+			$params[] = "rule: '{$this->relation->name}'";
+	endswitch;
+
+
+	if ($this->relation->type !== 'hasAndBelongsToMany'):
+		$quickCreateReference = strtolower($this->modelId);
+		$params[] = "quickCreateReference: '{$quickCreateReference}'";
+	endif;
+
+	if ($this->relation->weighable):
+		$params[] = "weighable: true";
+	endif;
+
+	if ($this->relation->max):
+		$params[] = "maxItems: {$this->relation->max}";
+	endif;
+?>
+		<?php echo implode(",\n\t\t", $params) ?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * Garp_Controller_Helper_Auth
- * This helper ensures the right layout folder is used from within a module.
+ * Interface to the Garp_Auth object.
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $

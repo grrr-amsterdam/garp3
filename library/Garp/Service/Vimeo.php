@@ -44,9 +44,10 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
 	 */
 	public function video($videoId) {
 		// check if a Vimeo URL is given
-		if (preg_match('~vimeo.com/([0-9]+)~', $videoId, $matches)) {
+		$pattern = '~vimeo.com/(?:video/)?([0-9]+)~';
+		if (preg_match($pattern, $videoId, $matches)) {
 			$videoId = $matches[1];
-		}		
+		}
 		return $this->request('video/'.$videoId);
 	}
 	

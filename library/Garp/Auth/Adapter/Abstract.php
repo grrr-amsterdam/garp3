@@ -58,7 +58,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 		if (!$this->_configKey) {
 			throw new Garp_Auth_Exception('No config key found in '.__CLASS__.'::_configKey.');
 		}
-		$config	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$config = Zend_Registry::get('config');
 		if ($config->auth && $config->auth->adapters && $config->auth->adapters->{$this->_configKey}) {
 			return $config->auth->adapters->{$this->_configKey};
 		}

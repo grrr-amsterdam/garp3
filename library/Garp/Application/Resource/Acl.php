@@ -36,8 +36,11 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
 	 * @return Zend_Acl
 	 */
 	public function init() {
-		$this->getAcl();
-		$this->store();
+		$options = $this->getOptions();
+		if ($options['enabled']) {
+			$this->getAcl();
+			$this->store();
+		}
 		return $this->_acl;
 	}
 	
@@ -47,8 +50,16 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
 	 * @return Array
 	 */
 	public function getOptions() {
-		$config	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/acl.ini', APPLICATION_ENV);
-		return $config->acl->toArray();
+		$options = parent::getOptions();
+		if (!array_key_exists('enabled', $options)) {
+			$options['enabled'] = true;
+		}
+		if ($options['enabled']) {
+			$config	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/acl.ini', APPLICATION_ENV);
+			$aclOptions = $config->acl->toArray();
+			$options = array_merge($options, $aclOptions);
+		}
+		return $options;
 	}
 
 
@@ -57,10 +68,10 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
 	 * @return Zend_Acl
 	 */
 	public function getAcl() {
+		$options = $this->getOptions();
 		if ($this->_acl === null) {
 			$this->_acl = new Zend_Acl();
 
-			$options = $this->getOptions();
 
 			$roles = array();
 			$resources = array();

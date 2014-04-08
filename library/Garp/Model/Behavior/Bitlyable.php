@@ -77,7 +77,18 @@ class Garp_Model_Behavior_Bitlyable extends Garp_Model_Behavior_Abstract {
  	 * #return Void
  	 */
 	public function beforeUpdate(array &$args) {
+		$model = $args[0];
 		$data = &$args[1];
+		$where = $args[2];
+
+		// When updating, it's quite possible {$this->_column} is not in $data.
+		// If so, collect it live.
+		if (empty($data[$this->_column])) {
+			$row = $model->fetchRow($where);
+			if ($row->{$this->_column}) {
+				$data[$this->_column] = $row->{$this->_column};
+			}
+		}
 		$this->_setBitlyUrl($data);
 	}
 
