@@ -59,20 +59,22 @@ class Garp_Auth {
 	
 	/**
 	 * Private constructor. Here be Singletons.
+	 * @param Garp_Store_Interface $store Session or cookie, for instance
 	 * @return Void
 	 */
-	private function __construct() {
-		$this->_store = Garp_Store_Factory::getStore('Garp_Auth');
+	private function __construct(Garp_Store_Interface $store = null) {
+		$this->setStore($store ?: Garp_Store_Factory::getStore('Garp_Auth'));
 	}
 	
 	
 	/**
 	 * Get Garp_Auth instance
+	 * @param Garp_Store_Interface $store Session or cookie, for instance
 	 * @return Garp_Auth
 	 */
-	public static function getInstance() {
+	public static function getInstance(Garp_Store_Interface $store = null) {
 		if (!Garp_Auth::$_instance) {
-			Garp_Auth::$_instance = new Garp_Auth();
+			Garp_Auth::$_instance = new Garp_Auth($store);
 		}
 		return Garp_Auth::$_instance;
 	}
@@ -80,10 +82,20 @@ class Garp_Auth {
 
 	/**
  	 * Return the currently used storage object
- 	 * @return Garp_Auth_Store
+ 	 * @return Garp_Store_Interface
  	 */
 	public function getStore() {
 		return $this->_store;
+	}
+
+
+	/**
+ 	 * Set storage object
+ 	 * @return Garp_Auth
+ 	 */
+	public function setStore(Garp_Store_Interface $store) {
+		$this->_store = $store;
+		return $this;
 	}
 	
 	
@@ -92,10 +104,18 @@ class Garp_Auth {
 	 * @return Boolean
 	 */
 	public function isLoggedIn() {
-		$hasUserData = isset($this->_store->userData);
+		$hasUserData    = isset($this->_store->userData);
 		$hasLoginMethod = isset($this->_store->method);
-		$hasValidToken = isset($this->_store->token) && $this->validateToken($this->_store->token);
-		return $hasUserData && $hasLoginMethod && $hasValidToken;
+		$hasValidToken  = isset($this->_store->token) && $this->validateToken();
+		$isLoggedIn     = $hasUserData && $hasLoginMethod && $hasValidToken;
+
+		// Don't leave invalid cookies laying around.
+		// Clear data only when data is present, but it is invalid.
+		if ($hasUserData && $hasLoginMethod && !$hasValidToken) {
+			$this->_store->userData = null;
+			$this->_store->method   = null;
+		}
+		return $isLoggedIn;
 	}
 	
 	
@@ -121,7 +141,18 @@ class Garp_Auth {
 		$token .= !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		$token .= md5($input);
 		$token .= md5($salt);
-		$token  = md5($token);
+
+		/**
+ 		 * Embed an outline of the User table columns in the token. That way, whenever the database changes,
+ 		 * all current cookies are made invalid and users have to generate a new cookie afresh by logging in.
+ 		 * This ensures the user cookies always contain all the columns.
+ 		 */
+		$userModel = new Model_User();
+		$columns = $userModel->info(Zend_Db_Table_Abstract::COLS);
+		$columns = implode('.', $columns);
+
+		$token .= $columns;
+		$token = md5($token);
 
 		return $token;
 	}
@@ -145,7 +176,7 @@ class Garp_Auth {
 	 * @param String $method The method used to login
 	 * @return Void
 	 */
-	public function store($data, $method) {
+	public function store($data, $method = 'db') {
 		$token = $this->createToken(serialize($data));
 		$this->_store->userData = $data;
 		$this->_store->method = $method;
@@ -167,7 +198,7 @@ class Garp_Auth {
 	 * @return Array
 	 */
 	public function getConfigValues() {
-		$config	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini', APPLICATION_ENV);
+		$config = Zend_Registry::get('config');
 		// set defaults
 		$values = $this->_defaultConfigValues;
 		if ($config->auth) {
@@ -216,17 +247,68 @@ class Garp_Auth {
 	
 	
 	/**
+	 * Return all available roles from the ACL tree.
+	 * @param Boolean $verbose Wether to include a role's parents
 	 * @return Array A numeric array consisting of role strings
 	 */
-	public function getRoles() {
-		$aclConfig	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/acl.ini', APPLICATION_ENV);
-		$aclArray = $aclConfig->acl->toArray();
-		
-		if (array_key_exists('roles', $aclArray)) {
-			return array_keys($aclArray['roles']);
-		} else {
-			throw new Exception("No roles could be found in the ACL configuration.");
+	public function getRoles($verbose = false) {
+		if (Zend_Registry::isRegistered('Zend_Acl')) {
+			$acl = Zend_Registry::get('Zend_Acl');
+			$roles = $acl->getRoles();
+
+			// collect parents
+			if ($verbose) {
+				$roles = array_fill_keys($roles, array());
+				foreach (array_keys($roles) as $role) {
+					$roles[$role]['parents'] = $this->getRoleParents($role);
+					$roles[$role]['children'] = $this->getRoleChildren($role);
+				}
+			}
+			return $roles;
 		}
+		return array();
 	}
 	
+
+	/**
+ 	 * Return the parents of a given role
+ 	 * @param String $role
+ 	 * @param Boolean $onlyParents Wether to only return direct parents
+ 	 * @return Array
+ 	 */
+	public function getRoleParents($role, $onlyParents = true) {
+		$parents = array();
+		if (Zend_Registry::isRegistered('Zend_Acl')) {
+			$acl = Zend_Registry::get('Zend_Acl');
+			$roles = $acl->getRoles();
+
+			foreach ($roles as $potentialParent) {
+				if ($acl->inheritsRole($role, $potentialParent, $onlyParents)) {
+					$parents[] = $potentialParent;
+				}
+			}
+		}
+		return $parents;
+	}
+
+
+	/**
+ 	 * Return the children of a given role
+ 	 * @param String $role
+ 	 * @return Array
+ 	 */
+	public function getRoleChildren($role) {
+		$children = array();
+		if (Zend_Registry::isRegistered('Zend_Acl')) {
+			$acl = Zend_Registry::get('Zend_Acl');
+			$roles = $acl->getRoles();
+
+			foreach ($roles as $potentialChild) {
+				if ($acl->inheritsRole($potentialChild, $role)) {
+					$children[] = $potentialChild;
+				}
+			}
+		}
+		return $children;	
+	}
 }

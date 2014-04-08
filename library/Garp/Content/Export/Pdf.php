@@ -24,8 +24,8 @@ class Garp_Content_Export_Pdf extends Garp_Content_Export_Html {
 	 * @return String
 	 */
 	protected function _format(Garp_Model $model, array $rowset) {
-		require APPLICATION_PATH.'/../garp/library/Garp/3rdParty/dompdf/dompdf_config.inc.php';
-		
+		include_once APPLICATION_PATH.'/../garp/library/Garp/3rdParty/dompdf/dompdf_config.inc.php';
+
 		/**
 		 * FIXME: Dompdf fails when the locale is set to 'nl_NL' (which is the Garp default).
 		 * This issue is known (see http://code.google.com/p/dompdf/issues/detail?id=20), so 
@@ -35,14 +35,15 @@ class Garp_Content_Export_Pdf extends Garp_Content_Export_Html {
 		$prevLocale = setlocale(LC_ALL, 0);
 		setlocale(LC_ALL, null); // <-- return to system default
 		
-		$loader = new Garp_Util_Loader(DOMPDF_INC_DIR);
-		$loader->setFileExtension('.cls.php')
-			   ->setFolderSeparator('*')	// folder separator not used in this case
-			   ->addFilter('lowercase', function($s) {
-			return mb_strtolower($s);
-		})->register();
+		/**
+ 		 * DOMPDF has its own autoloader. checkIfFileExists(true) allows our 
+ 		 * loader to be chainable. That way the DOMPDF autoloader will take over 
+ 		 * when our loader cannot find the class.
+ 		 */
+		$loader = Garp_Loader::getInstance();
+		$loader->checkIfFileExists(true);
 
-		$html = parent::_format($model, $rowset);		
+		$html = parent::_format($model, $rowset);
 		$dompdf = new DOMPDF();
 		$dompdf->load_html($html);
 		$dompdf->set_paper('a4', 'portrait');

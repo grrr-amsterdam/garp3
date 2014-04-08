@@ -22,38 +22,7 @@ class Garp_Controller_Action extends Zend_Controller_Action {
 	 */
 	public function preDispatch() {
 		parent::preDispatch();
-		$this->_setLayout();
 		$this->_setFlashMessage();
-	}
-	
-
-	/**
-	 * Post-dispatch routines
-	 *
-	 * Called after action method execution. If using class with
-	 * {@link Zend_Controller_Front}, it may modify the
-	 * {@link $_request Request object} and reset its dispatched flag in order
-	 * to process an additional action.
-	 *
-	 * Common usages for postDispatch() include rendering content in a sitewide
-	 * template, link url correction, setting headers, etc.
-	 *
-	 * @return void
-	 */
-	public function postDispatch() {
-		parent::postDispatch();
-	}
-	
-	
-	/**
-	 * Make sure the layout from the current module is used.
-	 * @return Void
-	 */
-	protected function _setLayout() {
-		$request = $this->getRequest();
-		$moduleName = $request->getModuleName();
-		// make sure the layout directory defaults to /views/layouts in the correct module directory
-		$this->_helper->layout->setLayoutPath(APPLICATION_PATH.'/modules/'.$moduleName.'/views/layouts')->setLayout('layout');
 	}
 
 
@@ -63,8 +32,8 @@ class Garp_Controller_Action extends Zend_Controller_Action {
 	 * @return Void
 	 */
 	protected function _setFlashMessage() {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
-		if (!isset($ini->store->type) || $ini->store->type == 'Session') {
+		$ini = Zend_Registry::get('config');
+		if (!isset($ini->store->type) || strtolower($ini->store->type) == 'session') {
 			$this->view->flashMessages = $this->getHelper('FlashMessenger')->getMessages();
 		}
 	}

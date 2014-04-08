@@ -78,8 +78,17 @@ class Garp_Auth_Adapter_OpenId extends Garp_Auth_Adapter_Abstract {
 	 * @return Void
 	 */
 	protected function _getUserData($id, array $props) {
+		$ini = Zend_Registry::get('config');
+		$sessionColumns = Zend_Db_Select::SQL_WILDCARD;
+		if (!empty($ini->auth->login->sessionColumns)) {
+ 		   	$sessionColumns = $ini->auth->login->sessionColumns;
+ 		   	$sessionColumns = explode(',', $sessionColumns);
+		}
+		$userModel = new Model_User();
+		$userConditions = $userModel->select()->from($userModel->getName(), $sessionColumns);
+
 		$model = new G_Model_AuthOpenId();
-		$model->bindModel('Model_User');
+		$model->bindModel('Model_User', array('conditions' => $userConditions));
 		$userData = $model->fetchRow(
 			$model->select()
 				  ->where('openid = ?', $id)

@@ -3,7 +3,7 @@
 */
 
 Datamodel = {
-	models: models,
+	models: modelData,
 	
 	Relations: {
 		_ctx: null,
@@ -25,7 +25,7 @@ Datamodel = {
 			this._ctx = this._canvasEl.getContext("2d");
 			this.clearCanvas();
 			this._ctx.lineWidth = 5;
-			this._ctx.strokeStyle = "#ca7";	
+			this._ctx.strokeStyle = "#805D8C";	
 		},
 		
 		clearCanvas: function() {
@@ -148,5 +148,14 @@ $(document).ready(function(){
 		// $("#dimmer").fadeOut();
 		return false;
    });
+
+	$("#nav-selector-fields").click(function(){
+		$('#section-fields').show();
+		$('#section-relations').hide();
+	});
+	$("#nav-selector-relations").click(function(){
+		$('#section-fields').hide();
+		$('#section-relations').show();
+	});
 
 });

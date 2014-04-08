@@ -3,7 +3,7 @@
  * Garp_Cli_Command_Db
  * Contains various database related methods.
  *  
- * @author Harmen Janssen | grrr.nl
+ * @author Harmen Janssen, David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
@@ -11,6 +11,23 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Db extends Garp_Cli_Command {
+	/**
+ 	 * Help
+ 	 */
+	public function help() {
+		Garp_Cli::lineOut('Usage:');
+		Garp_Cli::lineOut('Show table info:');
+		Garp_Cli::lineOut('  g Db info <tablename>');
+		Garp_Cli::lineOut('');
+		Garp_Cli::lineOut('Sync database with database of different environment:');
+		Garp_Cli::lineOut('  g Db sync <environment>');
+		Garp_Cli::lineOut('');
+		Garp_Cli::lineOut('Replace a string in the database, across tables and columns:');
+		Garp_Cli::lineOut('  g Db replace');
+		Garp_Cli::lineOut('');
+	}
+
+
 	/**
 	 * Show table info (DESCRIBE query) for given table
 	 * @param Array $args
@@ -25,6 +42,12 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
 		$db = new Zend_Db_Table($args[0]);
 		print_r($db->info());
 		Garp_Cli::lineOut('');
+	}
+	
+	
+	public function sync(array $args = array()) {
+		$sourceEnv = $args ? current($args) : null;
+		new Garp_Db_Synchronizer($sourceEnv);
 	}
 
 

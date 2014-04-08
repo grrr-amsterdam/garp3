@@ -1,23 +1,19 @@
 <?php
 /**
  * Garp_Store_Cookie
- * Store data in cookies.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Store
- * @lastmodified $Date: $
+ * Store data in cookies
  *
+ * @author       Harmen Janssen | grrr.nl
+ * @version      1.1.0
+ * @package      Garp_Store
  */
-class Garp_Store_Cookie {
+class Garp_Store_Cookie implements Garp_Store_Interface {
 	/**
  	 * Expiration time
  	 * @var Int
- 	 * @todo Make this configurable
+ 	 * @todo Make this configurable, right now it's set to 30 days
  	 */
-	const DEFAULT_COOKIE_DURATION = 31536000;
-
+	const DEFAULT_COOKIE_DURATION = 2592000; 
 
 	/**
  	 * Cookie save path
@@ -26,20 +22,17 @@ class Garp_Store_Cookie {
  	 */
 	const DEFAULT_COOKIE_PATH = '/';
 
-
 	/**
  	 * Cookie namespace
  	 * @var String
  	 */
 	protected $_namespace = '';
 
-
 	/**
- 	 * Cookie data
- 	 * @var Array
+ 	 * Cookie data, associative array or scalar value.
+ 	 * @var Mixed
  	 */
 	protected $_data = array();
-
 
 	/**
  	 * Cookie duration
@@ -47,27 +40,25 @@ class Garp_Store_Cookie {
  	 */
 	protected $_cookieDuration;
 
-
 	/**
  	 * Cookie path
  	 * @var String
  	 */
 	protected $_cookiePath;
 
-
 	/**
- 	 * Cookie domain
+ 	 * Cookie domain.
+ 	 * Note: leave this empty to make the cookie only work on
+ 	 * the current domain.
  	 * @var String
  	 */
-	protected $_cookieDomain = '';
-
+	protected $_cookieDomain = ''; 
 
 	/**
  	 * Record wether changes are made to the cookie
  	 * @var Boolean
  	 */
-	protected $_modified = false;
-
+	protected $_modified = false; 
 
 	/**
  	 * Class constructor
@@ -81,14 +72,14 @@ class Garp_Store_Cookie {
 		$this->_namespace = $namespace;
 		$this->_cookieDuration = $cookieDuration;
 		$this->_cookiePath = $cookiePath;
-		$this->_cookieDomain = $cookieDomain ?: '.'.(!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : gethostname());
+		/* $this->_cookieDomain = $cookieDomain ?: (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : gethostname()); */
 
 		// fill internal array with existing cookie values
 		if (array_key_exists($namespace, $_COOKIE)) {
 			$this->_data = json_decode($_COOKIE[$namespace], true);
 			if ($jsonError = json_last_error()) {
 				$this->_data = array();
-				$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+				$ini = Zend_Registry::get('config');
 				if (!empty($ini->logging->enabled) && $ini->logging->enabled) {
 					$jsonErrorStr = '';
 					switch ($jsonError) {
@@ -116,8 +107,7 @@ class Garp_Store_Cookie {
 				}
 			}
 		}
-	}
-
+	} 
 
 	/**
  	 * Write internal array to actual cookie.
@@ -127,8 +117,7 @@ class Garp_Store_Cookie {
 		if ($this->isModified()) {
 			$this->writeCookie();
 		}
-	}
-
+	} 
 
 	/**
  	 * Check if cookie is modified
@@ -136,28 +125,36 @@ class Garp_Store_Cookie {
  	 */
 	public function isModified() {
 		return $this->_modified;
-	}
-
+	} 
 
 	/**
  	 * Write internal array to actual cookie.
  	 * @return Void
  	 */
 	public function writeCookie() {
-		if (headers_sent()) {
-			throw new Garp_Store_Exception('Error: headers are already sent, cannot set cookie.');
+		/**
+ 	 	 * When Garp is used from the commandline, writing cookies is impossible.
+ 	 	 * And that's okay.
+ 	 	 */
+		if (Zend_Registry::isRegistered('CLI') && Zend_Registry::get('CLI')) {
+			return true;
 		}
+
+		if (headers_sent($file, $line)) {
+			throw new Garp_Store_Exception('Error: headers are already sent, cannot set cookie. '."\n".
+				'Output already started at: '.$file.'::'.$line);
+		}
+		$data = is_array($this->_data) ? json_encode($this->_data, JSON_FORCE_OBJECT) : $this->_data;
 		setcookie(
 			$this->_namespace,
-			json_encode($this->_data, JSON_FORCE_OBJECT),
+			$data,
 			time()+$this->_cookieDuration,
 			$this->_cookiePath,
 			$this->_cookieDomain
 		);
 		
 		$this->_modified = false;
-	}
-
+	} 
 
 	/**
  	 * Get value by key $key
@@ -169,21 +166,35 @@ class Garp_Store_Cookie {
 			return $this->_data[$key];
 		}
 		return null;
-	}
-
+	} 
 
 	/**
  	 * Store $value by key $key
- 	 * @param String $key
+ 	 * @param String $key Key name of the cookie var, or leave null to make this a cookie with a scalar value.
  	 * @param Mixed $value
  	 * @return $this
  	 */
-	public function set($key, $value) {
-		$this->_data[$key] = $value;
+	public function set($key = null, $value) {
+		if ($key) {
+			$this->_data[$key] = $value;
+		} else {
+			$this->_data = $value;
+		}
 		$this->_modified = true;
 		return $this;
 	}
 
+	/**
+ 	 * Store a bunch of values all at once
+ 	 * @param Array $values
+ 	 * @return $this
+ 	 */
+	public function setFromArray(array $values) {
+		foreach ($values as $key => $val) {
+			$this->set($key, $val);
+		}
+		return $this;
+	}
 
 	/**
  	 * Magic getter
@@ -192,8 +203,7 @@ class Garp_Store_Cookie {
  	 */
 	public function __get($key) {
 		return $this->get($key);
-	}
-
+	} 
 
 	/**
  	 * Magic setter
@@ -205,7 +215,6 @@ class Garp_Store_Cookie {
 		$this->set($key, $value);
 	}
 
-
 	/**
  	 * Magic isset
  	 * @param String $key
@@ -214,7 +223,6 @@ class Garp_Store_Cookie {
 	public function __isset($key) {
 		return isset($this->_data[$key]);
 	}
-
 
 	/**
  	 * Magic unset
@@ -227,7 +235,6 @@ class Garp_Store_Cookie {
 			unset($this->_data[$key]);
 		}
 	}
-
 
 	/**
  	 * Remove a certain key from the store
@@ -251,4 +258,13 @@ class Garp_Store_Cookie {
 			$this->_modified = true;
 		}
 	}
+
+	/**
+ 	 * To array converter
+ 	 * @return Array
+ 	 */
+	public function toArray() {
+		return $this->_data;
+	}
+
 }

@@ -15,15 +15,13 @@ class Garp_Content_Api {
 	 * @var stdClass
 	 */
 	protected $_layout = null;
-	
-	
+
 	/**
 	 * The namespace for all models.
 	 * @var String
 	 */
 	const ENTITIES_NAMESPACE = 'Model';
 
-	
 	/**
 	 * Return the API layout, e.g. which methods may be called on which entities.
 	 * @return stdClass
@@ -44,7 +42,7 @@ class Garp_Content_Api {
 			// read content managing configuration from content.ini
 			// note; Garp_Cache_Config is not used here because we always want fresh data in the CMS, 
 			// no cached versions
-			$config = new Zend_Config_Ini(APPLICATION_PATH.'/configs/content.ini', APPLICATION_ENV);
+			$config = Garp_Content_Api::_getConfig();
 			$classes = $config->content->commands;
 			$api = new stdClass();
 			$api->actions = array();
@@ -84,8 +82,7 @@ class Garp_Content_Api {
 		}
 		return $this->_layout;
 	}
-	
-	
+
 	/**
 	 * Retrieve a list of all models
 	 * @return Array
@@ -93,11 +90,10 @@ class Garp_Content_Api {
 	public static function getAllModels() {
 		// note; Garp_Cache_Config is not used here because we always want fresh data in the CMS, 
 		// no cached versions
-		$config = new Zend_Config_Ini(APPLICATION_PATH.'/configs/content.ini', APPLICATION_ENV);
+		$config = self::_getConfig();
 		$classes = $config->content->commands;
 		return $classes;
 	}
-
 
 	/**
 	 * Convert a model alias to the real class name
@@ -114,4 +110,12 @@ class Garp_Content_Api {
 		}
 		throw new Garp_Content_Exception('Invalid model alias specified: '.$model);
 	}
+
+	/**
+ 	 * Return configuration for the api
+ 	 * @return Garp_Config_Ini
+ 	 */
+	protected static function _getConfig() {
+		return new Garp_Config_Ini(APPLICATION_PATH.'/configs/content.ini', APPLICATION_ENV);
+	}		
 }

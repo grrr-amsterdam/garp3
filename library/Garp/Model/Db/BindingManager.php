@@ -65,7 +65,10 @@ class Garp_Model_Db_BindingManager {
 	 * @param String $subjectModel
 	 * @return Array 
 	 */
-	public static function getBindings($subjectModel) {
+	public static function getBindings($subjectModel = null) {
+		if (is_null($subjectModel)) {
+			return static::$_bindings;
+		}
 		return !empty(static::$_bindings[$subjectModel]) ? static::$_bindings[$subjectModel] : array();
 	}
 	

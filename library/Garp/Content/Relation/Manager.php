@@ -33,6 +33,9 @@ class Garp_Content_Relation_Manager {
  		 	 */
 			$reference = $modelA->getReference(get_class($modelB), $options['rule']);
 		} catch (Exception $e) {
+			if (!self::isInvalidReferenceException($e)) {
+				throw $e;
+			}
 			try {
 				/**
  		 	 	 * If this succeeds, the foreign key resides in the modelA.
@@ -49,6 +52,9 @@ class Garp_Content_Relation_Manager {
 				$options['keyB'] = $keyA;
 				return Garp_Content_Relation_Manager::relate($options);
 			} catch (Exception $e) {
+				if (!self::isInvalidReferenceException($e)) {
+					throw $e;
+				}
 				/**
  			 	 * Goody, we're dealing with a hasAndBelongsToMany relationship here. 
  			 	 * Try to construct the intersection model and save the relation
@@ -59,7 +65,7 @@ class Garp_Content_Relation_Manager {
 		}
 
 		$rowA = call_user_func_array(array($options['modelA'], 'find'), (array)$options['keyA']);
-		if (!$rowA) {
+		if (!count($rowA)) {
 			$errorMsg = sprintf('Row of type %s with primary key (%s) not found.', $modelA->getName(), implode(',', (array)$options['keyA']));
 			throw new Garp_Content_Relation_Exception($errorMsg);
 		}
@@ -79,8 +85,9 @@ class Garp_Content_Relation_Manager {
 		$modelB = $options['modelB'];
 		$keyA   = $options['keyA'];
 		$keyB   = $options['keyB'];
-
-		$bindingModel = $modelA->getBindingModel($modelB);
+		$ruleA  = $options['ruleA'];
+		$ruleB  = $options['ruleB'];
+		$bindingModel = !$options['bindingModel'] ? $modelA->getBindingModel($modelB) : $options['bindingModel'];
 
 		/**
  		 * Warning: assumptions are made!
@@ -90,15 +97,24 @@ class Garp_Content_Relation_Manager {
  		 * - also, we assume the references can be found from the bindingModel. There will be
  		 *   no trying nor catching, if the reference is not here, we just crash the heck out of it.
  		 */ 
-		$referenceA = $bindingModel->getReference(get_class($modelA));
-		$referenceB = $bindingModel->getReference(get_class($modelB));
+		$referenceA = $bindingModel->getReference(get_class($modelA), $ruleA);
+		$referenceB = $bindingModel->getReference(get_class($modelB), $ruleB);
 
 		// The only place where extraFields is used: to fill fields other than the primary key references in the binding row
 		$bindingRow = $bindingModel->createRow($options['extraFields']);
 		self::_addForeignKeysToRow($bindingRow, $referenceA, $keyA);
 		self::_addForeignKeysToRow($bindingRow, $referenceB, $keyB);
+		$success = $bindingRow->save();
 
-		return $bindingRow->save();
+		// Homophyllic relations can be saved bidirectionally
+		if ($options['bidirectional'] && $modelA->getName() == $modelB->getName()) {
+			$bidirectionalRow = $bindingModel->createRow($options['extraFields']);
+			self::_addForeignKeysToRow($bidirectionalRow, $referenceA, $keyB);
+			self::_addForeignKeysToRow($bidirectionalRow, $referenceB, $keyA);
+			$success = $success && $bidirectionalRow->save();
+		}
+		
+		return $success;
 	}
 
 
@@ -114,7 +130,11 @@ class Garp_Content_Relation_Manager {
 			->obligate('keyA')
 			->obligate('keyB')
 			->setDefault('rule', null)
+			->setDefault('ruleA', null)
+			->setDefault('ruleB', null)
 			->setDefault('extraFields', array())
+			->setDefault('bindingModel', null)
+			->setDefault('bidirectional', true)
 			;
 		// use models, not class names
 		if (is_string($options['modelA'])) {
@@ -123,8 +143,23 @@ class Garp_Content_Relation_Manager {
 		if (is_string($options['modelB'])) {
 			$options['modelB'] = new $options['modelB']();
 		}
+		if (is_string($options['bindingModel'])) {
+			$options['bindingModel'] = new $options['bindingModel']();
+		}
+		// Important to collect fresh data
+		$options['modelA']->setCacheQueries(false);
+		$options['modelB']->setCacheQueries(false);
+		
 		$options['keyA'] = (array)$options['keyA'];
 		$options['keyB'] = (array)$options['keyB'];
+
+		// allow 'rule' key to be set when 'ruleA' is meant
+		if ($options['rule'] && !$options['ruleA']) {
+			$options['ruleA'] = $options['rule'];
+		// also allow it the other way around
+		} else if ($options['ruleA'] && !$options['rule']) {
+			$options['rule'] = $options['ruleA'];
+		}
 	}
 
 
@@ -150,6 +185,9 @@ class Garp_Content_Relation_Manager {
  		 	 */
 			$reference = $modelA->getReference(get_class($modelB), $options['rule']);
 		} catch (Exception $e) {
+			if (!self::isInvalidReferenceException($e)) {
+				throw $e;
+			}
 			try {
 				/**
  		 	 	 * If this succeeds, the foreign key resides in the modelA.
@@ -164,8 +202,11 @@ class Garp_Content_Relation_Manager {
 				$options['modelB'] = $modelA;
 				$options['keyA'] = $keyB;
 				$options['keyB'] = $keyA;
-				return Garp_Content_Relation_Manager::relate($options);
+				return Garp_Content_Relation_Manager::unrelate($options);
 			} catch (Exception $e) {
+				if (!self::isInvalidReferenceException($e)) {
+					throw $e;
+				}
 				/**
  			 	 * Goody, we're dealing with a hasAndBelongsToMany relationship here. 
  			 	 * Try to construct the intersection model and save the relation
@@ -219,8 +260,9 @@ class Garp_Content_Relation_Manager {
 		$modelB = $options['modelB'];
 		$keyA   = $options['keyA'];
 		$keyB   = $options['keyB'];
-
-		$bindingModel = $modelA->getBindingModel($modelB);
+		$ruleA  = $options['ruleA'];
+		$ruleB  = $options['ruleB'];
+		$bindingModel = !$options['bindingModel'] ? $modelA->getBindingModel($modelB) : $options['bindingModel'];
 
 		/**
  		 * Warning: assumptions are made!
@@ -230,8 +272,8 @@ class Garp_Content_Relation_Manager {
  		 * - also, we assume the references can be found from the bindingModel. There will be
  		 *   no trying nor catching, if the reference is not here, we just crash the heck out of it.
  		 */ 
-		$referenceA = $bindingModel->getReference(get_class($modelA));
-		$referenceB = $bindingModel->getReference(get_class($modelB));
+		$referenceA = $bindingModel->getReference(get_class($modelA), $ruleA);
+		$referenceB = $bindingModel->getReference(get_class($modelB), $ruleB);
 
 		// Construct WHERE clause
 		$where = array();
@@ -251,7 +293,21 @@ class Garp_Content_Relation_Manager {
 			$where[] = $createWhereBit($referenceB, $keyB);
 		}
 
-		$where = implode(' AND ', $where);
+		$where = '('.implode(' AND ', $where).')';
+
+		// Homophyllic relations can be deleted bidirectionally
+		if ($options['bidirectional'] && $modelA->getName() == $modelB->getName()) {
+			$homoWhere = array();
+			if ($keyA) {
+				$homoWhere[] = $createWhereBit($referenceB, $keyA);
+			}
+			if ($keyB) {
+				$homoWhere[] = $createWhereBit($referenceA, $keyB);
+			}
+
+			$where .= ' OR ('.implode(' AND ', $homoWhere).')';
+		}
+		
 		return $bindingModel->delete($where);
 	}
 
@@ -268,6 +324,10 @@ class Garp_Content_Relation_Manager {
 			->setDefault('keyA', null)
 			->setDefault('keyB', null)
 			->setDefault('rule', null)
+			->setDefault('ruleA', null)
+			->setDefault('ruleB', null)
+			->setDefault('bindingModel', null)
+			->setDefault('bidirectional', true)
 			;
 		if (!$options['keyA'] && !$options['keyB']) {
 			throw new Garp_Content_Relation_Exception('Either keyA or keyB must be provided when unrelating.');
@@ -280,8 +340,23 @@ class Garp_Content_Relation_Manager {
 		if (is_string($options['modelB'])) {
 			$options['modelB'] = new $options['modelB']();
 		}
+		if (is_string($options['bindingModel'])) {
+			$options['bindingModel'] = new $options['bindingModel']();
+		}
+		// Important to collect fresh data
+		$options['modelA']->setCacheQueries(false);
+		$options['modelB']->setCacheQueries(false);
+
 		$options['keyA'] = (array)$options['keyA'];
 		$options['keyB'] = (array)$options['keyB'];
+
+		// allow 'rule' key to be set when 'ruleA' is meant
+		if ($options['rule'] && !$options['ruleA']) {
+			$options['ruleA'] = $options['rule'];
+		// also allow it the other way around
+		} else if ($options['ruleA'] && !$options['rule']) {
+			$options['rule'] = $options['ruleA'];
+		}
 	}
 
 
@@ -294,7 +369,22 @@ class Garp_Content_Relation_Manager {
  	 */
 	protected static function _addForeignKeysToRow(Zend_Db_Table_Row_Abstract &$row, array $reference, array $values) {
 		foreach ($reference['columns'] as $i => $column) {
+			if (!isset($values[$i])) {
+				throw new Exception("Unable to fill $column because there is no value provided for it.");
+			}
 			$row->{$column} = $values[$i];
 		}
+	}
+
+
+	/**
+ 	 * Unfortunately, almost all the Zend exceptions coming from Zend_Db_Table_Abstract are of type 
+ 	 * Zend_Db_Table_Exception, so we cannot check wether a query fails or wether there is no binding possible.
+ 	 * This method checks wether the exception describes an invalid reference.
+ 	 * @param Exception $e
+ 	 * @return Boolean
+ 	 */
+	static public function isInvalidReferenceException(Exception $e) {
+		return stripos($e->getMessage(), 'No reference') !== false;
 	}
 }

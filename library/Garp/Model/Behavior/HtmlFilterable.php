@@ -59,7 +59,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
 		$config->set('HTML.Trusted', true);
 		$config->set('HTML.AllowedElements', array(
-			'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'dd', 'del', 'dfn', 'dl', 'dt', 'em', 'embed', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'iframe', 'img', 'ins', 'kbd', 'li', 'object', 'ol', 'p', 'param', 'pre', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul', 'var'
+			'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'dd', 'del', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'iframe', 'img', 'ins', 'kbd', 'li', 'object', 'ol', 'p', 'param', 'pre', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul', 'var'
 		));
 
 		$config->set('AutoFormat.RemoveEmpty', true);
@@ -71,7 +71,9 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		$config->set('CSS.MaxImgLength', null);
     	$config->set('Cache.SerializerPath', APPLICATION_PATH.'/data/cache');
 		$config->set('URI.MakeAbsolute', true);
-		$config->set('URI.Base', 'http://'.$_SERVER['HTTP_HOST'].Zend_Controller_Front::getInstance()->getBaseUrl().'/');
+		if (!empty($_SERVER['HTTP_HOST'])) {
+			$config->set('URI.Base', 'http://'.$_SERVER['HTTP_HOST'].Zend_Controller_Front::getInstance()->getBaseUrl().'/');
+		}
 		$config->set('Filter.Custom', array(
 			new Garp_3rdParty_Ext_HTMLPurifier_Filter_MyIframe(),
 			new Garp_3rdParty_Ext_HTMLPurifier_Filter_MyEmbed(),
@@ -121,7 +123,9 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 	public function beforeInsert(array &$args) {
 		$data = &$args[1];
 		foreach ($this->_fields as $field) {
-			$data[$field] = $this->filter($data[$field]);
+			if (array_key_exists($field, $data)) {
+				$data[$field] = $this->filter($data[$field]);
+			}
 		}
 	}
 

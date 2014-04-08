@@ -15,12 +15,19 @@ class Garp_Cache_Store_Cluster {
 
 
 
-	public function executeDueJobs() {
-		$serverRow = $this->_checkInServer();
+	/**
+	 * @param Int $serverId Database id of the current server in the cluster
+	 * @param String $lastCheckIn MySQL datetime that represents the last check-in time of this server
+	 */
+	public function executeDueJobs($serverId, $lastCheckIn) {
+		//	if the last check-in was more than two hours ago, first clear the cache.
+		if ((time() - strtotime($lastCheckIn)) > (60 * 60 * 2)) {
+			Garp_Cache_Manager::purge(array(), false);
+			$this->clearedTags = array();
+		} else {
+			$clusterClearCacheJobModel = new Model_ClusterClearCacheJob();
+			$jobs = $clusterClearCacheJobModel->fetchDue($serverId, $lastCheckIn);
 
-		if (count($serverRow)) {
-			//	server was previously registered
-			$jobs = $this->_findDueJobs($serverRow->modified, $serverRow->id);
 			if (count($jobs)) {
 				if ($this->_containsGeneralClearJob($jobs)) {
 					Garp_Cache_Manager::purge(array(), false);
@@ -33,23 +40,18 @@ class Garp_Cache_Store_Cluster {
 			} else {
 				$this->clearedTags = false;
 			}
-		} else {
-			Garp_Cache_Manager::purge(array(), false);
-			$this->clearedTags = array();
 		}
 	}
 
 
 	static public function createJob(Array $tags = array()) {
-		$serverRow = self::_checkInServer();
+		$clusterServerModel = new Model_ClusterServer();
+		if (!($serverId = $clusterServerModel->fetchServerId())) {
+			list($serverId, $lastCheckIn) = $clusterServerModel->checkIn();
+		}
 
 		$jobModel = new Model_ClusterClearCacheJob();
-		$jobRow = $jobModel->createRow();
-
-		$jobRow->creator_id = $serverRow->id;
-		$jobRow->tags = serialize($tags);
-
-		$jobRow->save();
+		$jobModel->create($serverId, $tags);
 	}
 
 
@@ -78,46 +80,5 @@ class Garp_Cache_Store_Cluster {
 		}
 		
 		return false;
-	}
-
-
-	/**
-	 * Registers this server node in the ClusterServer table.
-	 * @return Garp_Db_Table_Row Database row of this server node
-	 */
-	static protected function _checkInServer() {
-		$hostname = gethostname();
-
-		$serverRow = self::_fetchServerRow();
-		if (!$serverRow) {
-			$serverModel = new Model_ClusterServer();
-			$serverRow = $serverModel->createRow();
-		}
-
-		$serverRow->hostname = $hostname;
-		$serverRow->save();
-
-		return $serverRow;
-	}
-	
-	
-	protected function _findDueJobs($lastCheckIn, $serverId) {
-		$jobModel = new Model_ClusterClearCacheJob();
-		return $jobModel->fetchAll(
-			$jobModel->select()
-				->where('id != ?', $serverId)
-				->where('created > ?', $lastCheckIn)
-		);
-	}
-
-
-	static protected function _fetchServerRow() {
-		$hostname = gethostname();
-
-		$serverModel = new Model_ClusterServer();
-		return $serverModel->fetchRow(
-			$serverModel->select()
-				->where('hostname = ?', $hostname)
-		);
 	}
 }

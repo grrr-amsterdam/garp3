@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2010 PHPExcel
+ * Copyright (c) 2006 - 2012 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Cell
- * @copyright  Copyright (c) 2006 - 2010 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2012 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.7.5, 2010-12-10
+ * @version    ##VERSION##, ##DATE##
  */
 
 
@@ -41,7 +41,7 @@ if (!defined('PHPEXCEL_ROOT')) {
  *
  * @category   PHPExcel
  * @package    PHPExcel_Cell
- * @copyright  Copyright (c) 2006 - 2010 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2012 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 class PHPExcel_Cell_AdvancedValueBinder extends PHPExcel_Cell_DefaultValueBinder implements PHPExcel_Cell_IValueBinder
 {
@@ -85,6 +85,26 @@ class PHPExcel_Cell_AdvancedValueBinder extends PHPExcel_Cell_DefaultValueBinder
 				$cell->setValueExplicit( (float)str_replace('%', '', $value) / 100, PHPExcel_Cell_DataType::TYPE_NUMERIC);
 				// Set style
 				$cell->getParent()->getStyle( $cell->getCoordinate() )->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE );
+				return true;
+			}
+
+			// Check for currency
+			$currencyCode = PHPExcel_Shared_String::getCurrencyCode();
+			if (preg_match('/^'.preg_quote($currencyCode).' ?(\d{1,3}(\,\d{3})*|(\d+))(\.\d{2})?$/', $value)) {
+				// Convert value to number
+				$cell->setValueExplicit( trim(str_replace($currencyCode, '', $value)), PHPExcel_Cell_DataType::TYPE_NUMERIC);
+				// Set style
+				$cell->getParent()->getStyle( $cell->getCoordinate() )
+					->getNumberFormat()->setFormatCode(
+						str_replace('$', $currencyCode, PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE )
+					);
+				return true;
+			} elseif (preg_match('/^\$ ?(\d{1,3}(\,\d{3})*|(\d+))(\.\d{2})?$/', $value)) {
+				// Convert value to number
+				$cell->setValueExplicit( trim(str_replace('$', '', $value)), PHPExcel_Cell_DataType::TYPE_NUMERIC);
+				// Set style
+				$cell->getParent()->getStyle( $cell->getCoordinate() )
+					->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE );
 				return true;
 			}
 

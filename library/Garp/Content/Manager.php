@@ -19,11 +19,14 @@ class Garp_Content_Manager {
 	
 	/**
 	 * Class constructor
-	 * @param String $modelName The model to execute methods on
+	 * @param Garp_Model|String $model The model to execute methods on
 	 * @return Void
 	 */
-	public function __construct($modelName) {
-		$this->_model = new $modelName();
+	public function __construct($model) {
+		if (is_string($model)) {
+			$model = new $model();
+		}
+		$this->_model = $model;
 		if (!$this->_model instanceof Garp_Model) {
 			throw new Garp_Content_Exception('The selected model must be a Garp_Model.');
 		}
@@ -52,52 +55,98 @@ class Garp_Content_Manager {
 		}
 
 		if ($this->_model instanceof Garp_Model_Db) {
-			$sort  = array();
-			$start = null;
-			$limit = null;
-			$query = false;
-			$fields = $this->_model->info(Zend_Db_Table::COLS);
-			$group = array();
-			$rule = null;
-			// make all properties of $options available in the current scope
-			extract($options, EXTR_IF_EXISTS);
-			$sort = (array)$sort;		
-			$fields = (array)$fields;
-			$tableName = $this->_model->getName();
+			$options = $options instanceof Garp_Util_Configuration ? $options : new Garp_Util_Configuration($options);
+			$options
+				->setDefault('sort', array())
+				->setDefault('start', null)
+				->setDefault('limit', null)
+				->setDefault('query', false)
+				->setDefault('fields', Zend_Db_Table_Select::SQL_WILDCARD)
+				->setDefault('group', array())
+				->setDefault('rule', null)
+				->setDefault('bindingModel', null)
+				->setDefault('filterForeignKeys', false)
+			;
+			$options['sort']   = (array)$options['sort'];
+			$options['fields'] = (array)$options['fields'];
+			$tableName         = $this->_model->getJointView() ?: $this->_model->getName();
+			$options           = (array)$options;
+			$modelInfo         = $this->_model->info();
+			$referenceMap      = $modelInfo['referenceMap'];
 
+			// SELECT
+			// ============================================================
 			$select = $this->_model->select();
+			$select->setIntegrityCheck(false);
+
+			// FROM
+			// ============================================================
+			$fields = $options['fields'];
+			// If filterForeignKeys is true, filter out the foreign keys 
+			if ($options['filterForeignKeys']) {
+				$fields = $this->_filterForeignKeyColumns($fields, $referenceMap);
+			}
 			$select->from($tableName, $fields);
-			$select->limit($limit, $start);
-			$select->order(array_map(function($s) use ($tableName) {
-				if (strpos($s, '.') === false) {
-					$s = $tableName.'.'.$s;
-				}
-				return $s;
-			}, $sort));
-			$select->group($group);
-			if ($query && !empty($query)) {
-				$columns = $this->_model->info(Zend_Db_Table::COLS);			
+
+			// WHERE
+			// ============================================================
+			if ($options['query'] && !empty($options['query'])) {
 				$related = array();
 				/**
 				 * Check for other model names in the conditions. These are indicated by a dot (".") in the name.
 				 * If available, add these models as joins to the Select object.
 				 * The format is <related-model-name>.<primary-key> => <value>.
 				 */
-				foreach ($query as $column => $value) {
+				foreach ($options['query'] as $column => $value) {
 					if (strpos($column, '.') !== false) {
 						$related[$column] = $value;
-						unset($query[$column]);
+						unset($options['query'][$column]);
 					}
 				}
 
-				$this->_addJoinClause($select, $related, $rule);
+				$this->_addJoinClause($select, $related, $options['rule'], $options['bindingModel']);
 
-				// Add WHERE clause
-				if ($query) {
-					$select->where($this->_createWhereClause($query));
+				// Add WHERE clause if there still remains something after 
+				// filtering.
+				if ($options['query']) {
+					$select->where($this->_createWhereClause($options['query']));
 				}
 			}
 
+			// GROUP
+			// ============================================================
+			$select->group($options['group']);
+
+			// ORDER
+			// ============================================================
+			// Prefix native columns with the table name (e.g. "id" becomes 
+			// "Thing.id")
+			// Note that we create a mock table object based on the joint view 
+			// to collect column info.
+			// This should be more accurate than reading that info from the table.
+			$mockTable = new Zend_Db_Table(array(
+				Zend_Db_Table_Abstract::NAME => $tableName,
+				Zend_Db_Table_Abstract::PRIMARY => $this->_model->info(Zend_Db_Table_Abstract::PRIMARY)
+			));
+			$nativeColumns = $mockTable->info(Zend_Db_Table_Abstract::COLS);
+
+			$select->order(array_map(function ($s) use ($tableName, $nativeColumns) {
+				$nativeColTest = preg_replace('/(ASC|DESC)$/', '', $s);
+				$nativeColTest = trim($nativeColTest);
+
+				if (in_array($nativeColTest, $nativeColumns) && strpos($s, '.') === false) {
+					$s = $tableName.'.'.$s;
+				}
+				return $s;
+			}, $options['sort']));
+
+			// LIMIT
+			// ============================================================
+			// Do not limit when a COUNT(*) is performed, this skews results.
+			$isCountQuery = count($fields) == 1 && !empty($fields[0]) && strtolower($fields[0]) == 'count(*)';
+			if (!$isCountQuery) {
+				$select->limit($options['limit'], $options['start']);
+			}			
 			$results = $this->_model->fetchAll($select)->toArray();
 		} else {
 			$results = $this->_model->fetchAll();
@@ -108,7 +157,7 @@ class Garp_Content_Manager {
 				if (strpos($column, '.') !== false) {
 					$keyParts = explode('.', $column, 2);
 					$newKey = $keyParts[1];
-					$relModelKey = str_replace($this->_model->getNameWithoutNamespace(), '', $keyParts[0]);
+					$relModelKey = Garp_Util_String::strReplaceOnce($this->_model->getNameWithoutNamespace(), '', $keyParts[0]);
 					$result['relationMetadata'][$relModelKey][$newKey] = $value;
 					unset($result[$column]);
 				}
@@ -123,14 +172,11 @@ class Garp_Content_Manager {
 	 * @param Array $options Options
 	 * @return Int
 	 */
-	public function count(array $where = null) {
+	public function count(array $options = null) {
 		if ($this->_model instanceof Garp_Model_Db) {
-			$conditions = array(
-				'fields' => 'COUNT(*)',
-				'query'  => $where,
-			);
+			$options['fields'] = 'COUNT(*)';
 			try {
-				$result = $this->fetch($conditions);
+				$result = $this->fetch($options);
 				return !empty($result[0]['COUNT(*)']) ? $result[0]['COUNT(*)'] : 0;
 			} catch (Zend_Db_Statement_Exception $e) {
 				/**
@@ -142,7 +188,7 @@ class Garp_Content_Manager {
 				 * GROUP BY clause is mandatory. This must be fixed in 
 				 * the future.
 				 */
-				return 1;
+				return 1000;
 			}
 		} else {
 			return $this->_model->count();
@@ -212,7 +258,7 @@ class Garp_Content_Manager {
 	 * @return Boolean
 	 */
 	public function destroy(array $where) {
-		$where = $this->_createWhereClause($where);
+		$where = $this->_createWhereClause($where, 'AND', false);
 		try {
 			/**
  		 	 * First, see if the user is allowed to update everything
@@ -251,39 +297,52 @@ class Garp_Content_Manager {
 		if (!isset($primaryKey) || !isset($model) || !isset($foreignKeys)) {
 			throw new Garp_Content_Exception('Not enough options. "primaryKey", "model" and "foreignKeys" are required.');
 		}
-		$primaryKey = (array)$primaryKey;
-		$foreignKeys = (array)$foreignKeys;
+		$model         = Garp_Content_Api::modelAliasToClass($model);
+		$primaryKey    = (array)$primaryKey;
+		$foreignKeys   = (array)$foreignKeys;
+		$rule          = isset($rule) ? $rule : null;
+		$rule2         = isset($rule2) ? $rule2 : null;
+		$bindingModel  = isset($bindingModel) ? 'Model_' . $bindingModel : null;
+		$bidirectional = isset($bidirectional) ? $bidirectional : null;
 
-		$theRecord = call_user_func_array(array($this->_model, 'find'), $primaryKey)->current();
-		if (!$theRecord) {
-			$primaryKey = implode(', ', $primaryKey);
-			throw new Garp_Content_Exception("Record with primary key ($primaryKey) not found.");
-		}
-
-		// delete existing relations
 		if (array_key_exists('unrelateExisting', $options) && $options['unrelateExisting']) {
-			$theRecord->unrelateAll(Garp_Content_Api::modelAliasToClass($model));
+			Garp_Content_Relation_Manager::unrelate(array(
+				'modelA'        => $this->_model,
+				'modelB'        => $model,
+				'keyA'          => $primaryKey,
+				'rule'          => $rule,
+				'ruleB'         => $rule2,
+				'bindingModel'  => $bindingModel,
+				'bidirectional' => $bidirectional,
+			));
 		}
 
-		$success = 0;
+		$success = $attempts = 0;
+
 		foreach ($foreignKeys as $i => $relationData) {
 			if (!array_key_exists('key', $relationData)) {
 				throw new Garp_Content_Exception('Foreign key is a required key.');
 			}
 
-			$foreignKey = $relationData['key'];
+			$foreignKey  = $relationData['key'];
 			$extraFields = array_key_exists('relationMetadata', $relationData) ? $relationData['relationMetadata'] : array();
-			$related = $theRecord->relate(Garp_Content_Api::modelAliasToClass($model), $foreignKey, new Garp_Util_Configuration(array(
-				// in the case of HABTM; delete existing records on the first iteration
-				'unrelateExisting'	=> $i === 0 && (array_key_exists('unrelateExisting', $options) && $options['unrelateExisting']),
-				'extraFields'		=> $extraFields
-			)));
-			if ($related) {
+
+			if (Garp_Content_Relation_Manager::relate(array(
+				'modelA'        => $this->_model,
+				'modelB'        => $model,
+				'keyA'          => $primaryKey,
+				'keyB'          => $foreignKey,
+				'extraFields'   => $extraFields,
+				'rule'          => $rule,
+				'ruleB'         => $rule2,
+				'bindingModel'  => $bindingModel,
+				'bidirectional' => $bidirectional,
+			))) {
 				$success++;
 			}
+			$attempts++;
 		}
-		$success = count($foreignKeys) === $success;
-		return $success;
+		return $success == $attempts;
 	}
 	
 	
@@ -303,15 +362,29 @@ class Garp_Content_Manager {
 	 * Create a WHERE clause for use with Zend_Db_Select
 	 * @param Array $query WHERE options
 	 * @param String $separator AND/OR
+	 * @param Boolean $useJointView Wether to use the *_joint view or the table.
 	 * @return String WHERE clause
 	 */
-	protected function _createWhereClause(array $query, $separator = 'AND') {
+	protected function _createWhereClause(array $query, $separator = 'AND', $useJointView = true) {
 		$where = array();
+		$adapter = $this->_model->getAdapter();
+		$nativeColumns = $this->_model->info(Zend_Db_Table_Abstract::COLS);
+		if ($useJointView) {
+			$tableName = $this->_model->getJointView() ?: $this->_model->getName();
+			$mockTable = new Zend_Db_Table(array(
+				Zend_Db_Table_Abstract::NAME => $tableName,
+				Zend_Db_Table_Abstract::PRIMARY => $this->_model->info(Zend_Db_Table_Abstract::PRIMARY)
+			));
+			$nativeColumns = $mockTable->info(Zend_Db_Table_Abstract::COLS);
+		} else {
+			$tableName = $this->_model->getName();
+		}
+		
 		foreach ($query as $column => $value) {
 			if (strtoupper($column) === 'OR' && is_array($value)) {
 				$where[] = $this->_createWhereClause($value, 'OR');
 			} elseif (is_array($value)) {
-				$where[] = Zend_Db_Table::getDefaultAdapter()->quoteInto($column.' IN(?)', $value);
+				$where[] = $adapter->quoteInto($adapter->quoteIdentifier($tableName).'.'.$column.' IN(?)', $value);
 			} elseif (is_null($value)) {
 				if (substr($column, -2) == '<>') {
 					$column = preg_replace('/<>$/', '', $column);
@@ -320,14 +393,23 @@ class Garp_Content_Manager {
 					$where[] = $column.' IS NULL';
 				}
 			} elseif (is_scalar($value)) {				
+				// Use $refColumn to see if this column is native to the current 
+				// model.
+				$refColumn = null;
 				if (!preg_match('/(>=?|<=?|like|<>)/i', $column, $matches)) {
-					$column = Zend_Db_Table::getDefaultAdapter()->quoteIdentifier($column).' =';
+					$refColumn = $column;
+					$column = $adapter->quoteIdentifier($column).' =';
 				} else {
 					// explode column so the actual column name can be quoted
 					$parts = explode(' ', $column);
-					$column = Zend_Db_Table::getDefaultAdapter()->quoteIdentifier($parts[0]).' '.$parts[1];
+					$refColumn = $parts[0];
+					$column = $adapter->quoteIdentifier($parts[0]).' '.$parts[1];
 				}
-				$where[] = Zend_Db_Table::getDefaultAdapter()->quoteInto($column.' ?', $value);
+
+				if (strpos($refColumn, '.') === false && in_array($refColumn, $nativeColumns)) {
+					$column = $adapter->quoteIdentifier($tableName).'.'.$column;
+				}
+				$where[] = $adapter->quoteInto($column.' ?', $value);
 			}
 		}
 		return '('.implode(" $separator ", $where).')';
@@ -339,9 +421,10 @@ class Garp_Content_Manager {
 	 * @param Zend_Db_Select $select The select object
 	 * @param Array $related Collection of related models
 	 * @param String $rule Used to figure out the relationship metadata from the referencemap
+	 * @param String $bindingModel Binding model used in HABTM relations
 	 * @return Void
 	 */
-	protected function _addJoinClause(Zend_Db_Select $select, array $related, $rule = null) {
+	protected function _addJoinClause(Zend_Db_Select $select, array $related, $rule = null, $bindingModel = null) {
 		foreach ($related as $filterModelName => $filterValue) {
 			$fieldInfo = explode('.', $filterModelName, 2);
 			$filterModelName = Garp_Content_Api::modelAliasToClass($fieldInfo[0]);
@@ -360,7 +443,7 @@ class Garp_Content_Manager {
 					The following condition prevents a 'relatable' list to include the current record,
 					because a record cannot be related to itself.
 				*/
-				$select->where($filterModel->getName().'.'.$filterColumn.' != ?', $filterValue);
+				$select->where($filterModel->getJointView().'.'.$filterColumn.' != ?', $filterValue);
 			}
 
 			try {
@@ -393,7 +476,8 @@ class Garp_Content_Manager {
 							'filterModel'	=> $filterModel,
 							'filterColumn'	=> $filterColumn,
 							'filterValue'	=> $filterValue,
-							'negation'		=> $negation
+							'negation'		=> $negation,
+							'bindingModel'  => $bindingModel
 						));
 					} catch (Zend_Db_Table_Exception $e) {
 						throw $e;
@@ -424,18 +508,18 @@ class Garp_Content_Manager {
 	protected function _addHasManyClause(array $options) {
 		// keys of $options available in the local space as variables
 		extract($options);
-		$select->setIntegrityCheck(false);
 		$select->distinct();
 		
 		$filterModelName = $filterModel->getName();
+		$thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
 		// in the case of homophile relationships...
-		if ($filterModelName == $this->_model->getName()) {
+		if ($filterModelName == $thisTableName) {
 			$filterModelName = $filterModelName.'_2';
 		}
 		
 		foreach ($reference['refColumns'] as $i => $column) {
 			if ($column === $filterColumn) {
-				$joinColumn = $this->_model->getName().'.'.$column;
+				$joinColumn = $thisTableName.'.'.$column;
 				/**
 				 * Map the index of the found column to the foreign key column.
 				 * Note that these columns are paired by index, 
@@ -455,7 +539,7 @@ class Garp_Content_Manager {
 		$bindingCondition .= $filterModel->getAdapter()->quoteInto(' AND '.$filterModelName.'.'.$filterColumn.' = ?', $filterValue);
 		
 		$select->joinLeft(
-			array($filterModelName => $filterModel->getName()),
+			array($filterModelName => $filterModelName),
 			$bindingCondition,
 			array()
 		);		
@@ -466,7 +550,7 @@ class Garp_Content_Manager {
 		 */
 		$nullFix = $negation ? " OR $foreignKeyColumn IS NULL" : '';
 		$operator = $negation ? '!=' : '=';
-		$select->where("({$filterModel->getName()}.$filterColumn $operator ?".$nullFix.")", $filterValue);
+		$select->where("({$filterModelName}.$filterColumn $operator ?".$nullFix.")", $filterValue);
 	}
 	
 	
@@ -486,6 +570,7 @@ class Garp_Content_Manager {
 	 * @return Void
 	 */
 	protected function _addBelongsToClause(array $options) {
+		$thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
 		// keys of $options available in the local space as variables
 		extract($options);
 		foreach ($reference['refColumns'] as $i => $column) {
@@ -495,7 +580,7 @@ class Garp_Content_Manager {
 				 * Note that these columns are paired by index, 
 				 * so the order in the reference map must be the same.
 				 */
-				$filterColumn = $this->_model->getName().'.'.$reference['columns'][$i];
+				$filterColumn = $thisTableName.'.'.$reference['columns'][$i];
 				break;
 			}
 		}
@@ -531,11 +616,16 @@ class Garp_Content_Manager {
 	protected function _addHasAndBelongsToManyClause(array $options) {
 		// keys of $options available in the local space as variables
 		extract($options);
-		$select->setIntegrityCheck(false);
-		$modelNames = array($this->_model->getNameWithoutNamespace(), $filterModel->getNameWithoutNamespace());
-		sort($modelNames);
-		$bindingModelName = 'Model_'.implode('', $modelNames);
+		if (!isset($bindingModel)) {
+			$modelNames = array($this->_model->getNameWithoutNamespace(), $filterModel->getNameWithoutNamespace());
+			sort($modelNames);
+			$bindingModelName = 'Model_'.implode('', $modelNames);
+		} else {
+			$bindingModelName = 'Model_'.$bindingModel;
+		}
 		$bindingModel = new $bindingModelName();
+		$thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
+		$bindingModelTable = $bindingModel->getName();
 
 		$reference = $bindingModel->getReference(get_class($this->_model));
 		foreach ($reference['refColumns'] as $i => $column) {
@@ -554,30 +644,40 @@ class Garp_Content_Manager {
 			}
 		}
 
-		$bindingCondition = $bindingModel->getName().'.'.$bindingModelForeignKeyField.' = '.$this->_model->getName().'.'.$foreignKeyField;
-		$bindingCondition .= $bindingModel->getAdapter()->quoteInto(' AND '.$bindingModel->getName().'.'.$filterField.' = ?', $filterValue);
+		$bindingCondition = $bindingModelTable.'.'.$bindingModelForeignKeyField.' = '.$thisTableName.'.'.$foreignKeyField;
+		$bindingCondition .= $bindingModel->getAdapter()->quoteInto(' AND '.$bindingModelTable.'.'.$filterField.' = ?', $filterValue);
 		if ($this->_isHomophile($filterModel)) {
-			$bindingCondition .= ' OR '.$bindingModel->getName().'.'.$filterField.' = '.$this->_model->getName().'.'.$foreignKeyField;
-			$bindingCondition .= $bindingModel->getAdapter()->quoteInto(' AND '.$bindingModel->getName().'.'.$bindingModelForeignKeyField.' = ?', $filterValue);
+			$bindingCondition .= ' OR '.$bindingModelTable.'.'.$filterField.' = '.$thisTableName.'.'.$foreignKeyField;
+			$bindingCondition .= $bindingModel->getAdapter()->quoteInto(' AND '.$bindingModelTable.'.'.$bindingModelForeignKeyField.' = ?', $filterValue);
 		}
 		
+		// Add columns of bindingTable to the query (namespaced using dot)
 		$tmpBindingColumns = $bindingModel->info(Zend_Db_Table::COLS);
 		$bindingColumns = array();
+		$weighableColumns = array();
+		if ($weighable = $bindingModel->getObserver('Weighable')) {
+			$weighableColumns = $weighable->getWeightColumns();
+		}
 		foreach ($tmpBindingColumns as $bc) {
+			// Exclude foreign key fields
 			if (in_array($bc, array($bindingModelForeignKeyField, $filterField))) {
+				continue;
+			}
+			// Exclude columns generated by a Weighable behavior
+			if (in_array($bc, $weighableColumns)) {
 				continue;
 			}
 			$bindingColumns[$bindingModel->getNameWithoutNamespace().'.'.$bc] = $bc;
 		}
-		
-		$select->joinLeft($bindingModel->getName(), $bindingCondition, $bindingColumns);
+
+		$select->joinLeft($bindingModelTable, $bindingCondition, $bindingColumns);
 
 		if ($negation) {
-			$select->where($bindingModel->getName().'.'.$filterField.' IS NULL');
+			$select->where($bindingModelTable.'.'.$filterField.' IS NULL');
 		} else {
-			$select->where($bindingModel->getName().'.'.$filterField.' = ?', $filterValue);
+			$select->where($bindingModelTable.'.'.$filterField.' = ?', $filterValue);
 			if ($this->_isHomophile($filterModel)) {
-				$select->orWhere($bindingModel->getName().'.'.$bindingModelForeignKeyField.' = ?', $filterValue);
+				$select->orWhere($bindingModelTable.'.'.$bindingModelForeignKeyField.' = ?', $filterValue);
 				$select->group('id');
 			}
 		}
@@ -586,6 +686,24 @@ class Garp_Content_Manager {
 		$bindingModel->notifyObservers('beforeFetch', array($bindingModel, $select));
 	}
 	
+
+	/**
+ 	 * Filter columns that are foreign keys.
+ 	 * @param Array $fields All columns
+ 	 * @param Array $referenceMap The model's referenceMap
+ 	 * @return Array
+ 	 */
+	protected function _filterForeignKeyColumns($fields, $referenceMap) {
+		$out = array();
+		$foreignKeys = array();
+		// create an array of foreign keys...
+		foreach ($referenceMap as $relName => $relConfig) {
+			$foreignKeys = array_merge($foreignKeys, (array)$relConfig['columns']);
+		}
+		// ...and return the values that are not in that array.
+		return array_diff($fields, $foreignKeys);
+	}
+
 	
 	/**
 	 * Checks if this is a homophile relation: an association between records of the same model.

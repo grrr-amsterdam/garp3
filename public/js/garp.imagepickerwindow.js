@@ -2,19 +2,47 @@ Ext.ns('Garp');
 
 Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 	
+	/**
+	 * @cfg image grid query, to instantiate the grid with (search for current images' id for example)
+	 */
 	imgGridQuery: null,
+	
+	/**
+	 * @cfg the current image caption value
+	 */
 	captionValue: null,
+	
+	/**
+	 * @cfg the current image align value
+	 */
 	alignValue: '',
-	hideWizardText: false,
+	
+	/**
+	 * @cfg curent crop template value
+	 */
 	cropTemplateName: null,
 	
-	// debug only:
-	id: 'IPW',
-	//@TODO: remove
+	/**
+	 * @cfg hide the wizard text
+	 */
+	hideWizardText: false,
 	
+	/**
+	 * @cfg model reference. Usefull for extending imagePickerWindow for other datatypes
+	 */
 	model: 'Image',
+	
+	/**
+	 * @cfg Title for dialog
+	 */
 	title: __('Image'),
+	
+	/**
+	 * @cfg Icon for dialog
+	 */
 	iconCls: 'icon-image',
+	
+	// 'prviate' :
 	layout: 'card',
 	activeItem: 0,
 	width: 640,
@@ -27,9 +55,13 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 		border: false
 	},
 
+	/**
+	 * pageHandler navigates to page
+	 * @param {Number} direction (-1 = previous / 1 = next)
+	 */
 	navHandler: function(dir){
 		var page = this.getLayout().activeItem.id;
-		page = parseInt(page.substr(5, page.length));
+		page = parseInt(page.substr(5, page.length), 10);
 		page += dir;
 		if(page <= 0){
 			page = 0;
@@ -73,7 +105,7 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 				
 				this.close();
 			break;
-			case 0: 
+			//case 0: 
 			default:
 				this.prevBtn.disable();
 				this.nextBtn.setDisabled( this.imgGrid.getSelectionModel().getCount() < 1 );
@@ -97,12 +129,13 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 			autoDestroy: true,
 			root: 'rows',
 			idProperty: 'id',
-			fields: Garp.getStoreFieldsFromColumnModel(Garp.dataTypes[this.model].columnModel),
+			fields: Garp.dataTypes[this.model].getStoreFieldsFromColumnModel(),
 			totalProperty: 'total',
 			sortInfo: Garp.dataTypes[this.model].sortInfo || null,
 			baseParams: {
 				start: 0,
 				limit: Garp.pageSize,
+				query: this.query || null
 			},
 			api: {
 				create: Ext.emptyFn,
@@ -123,8 +156,8 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 			border: true,
 			region: 'center',
 			hideHeaders: hideHeaders,
-			enableDragDrop: true,
-			ddGroup: 'dd',
+			enableDragDrop: false,
+			//ddGroup: 'dd',
 			sm: new Ext.grid.RowSelectionModel({
 				singleSelect: true
 			}),
@@ -151,6 +184,9 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 		};
 	},
 	
+	/**
+	 * update Preview panel
+	 */
 	updatePreview: function(){
 		var tpl = this.tplGrid.getSelectionModel().getSelected().get('name');
 		var w = 170;
@@ -164,15 +200,12 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 			width: w,
 			height: h,
 			'float': this.alignment.getForm().getValues().align
-		//,
-		//marginTop: Math.max((h - (rec.get('h') || h)) / 2, 3),
-		//marginLeft: Math.max((w - (rec.get('w') || w)) / 2, 3)
 		});
 		
 	},
 	
 	/**
-	 * 
+	 * clears a current selection
 	 */
 	clearSelection: function(){
 		this.fireEvent('select', {
@@ -182,7 +215,7 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 	},
 	
 	/**
-	 * 
+	 * initComponent
 	 */
 	initComponent: function(){
 		this.addEvents('select');
@@ -222,7 +255,6 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 			}
 		}, this.getGridCfg(true)));
 		
-		//
 		this.tplGrid = new Ext.grid.GridPanel({
 			itemId: 'tplPanel',
 			margins: '15 15 0 15',
@@ -246,7 +278,7 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 				}],
 				api: {
 					create: Ext.emptyFn,
-					read: Garp['CropTemplate'].fetch,
+					read: Garp.CropTemplate.fetch,
 					update: Ext.emptyFn,
 					destroy: Ext.emptyFn
 				}
@@ -295,7 +327,7 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 		// "validate" upon selection:		
 		this.imgGrid.getSelectionModel().on('selectionchange', this.navHandler.createDelegate(this,[0]));
 		this.tplGrid.getSelectionModel().on('selectionchange', function(){
-			this.nextBtn.setDisabled(this.tplGrid.getSelectionModel().getCount() == 0 );
+			this.nextBtn.setDisabled(this.tplGrid.getSelectionModel().getCount() === 0 );
 		}, this);
 		
 		var headerTpl = new Ext.Template('<h2>',__('Step'),' {step} ', __('of'), ' 2</h2><p>{description}</p>');
@@ -315,7 +347,6 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 					step: 1
 				}),
 				margins: '10 15 0 15',
-				bodyStyle: 'background: #eee;',
 				bodyBorder: false,
 				bbar: new Ext.Toolbar({
 					style: 'border:0; margin-top: 10px;',
@@ -335,10 +366,10 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 									'aftersave': function(rcwin, rec){
 										this.imgStore.insert(0, rec);
 										this.imgGrid.getSelectionModel().selectRecords([rec], true);
+										this.imgStore.reload();
 									}
 								}
 							});
-							
 							win.show();
 						},
 						scope: this
@@ -353,25 +384,19 @@ Garp.ImagePickerWindow = Ext.extend(Ext.Window, {
 			split: false,
 			items: [{
 				region: 'north',
-				bodyStyle: 'background: #eee',
 				border: false,
 				margins: '10 15 0 15',
 				html: headerTpl.apply({
 					description: __('Specify a crop template, set aligning and/or add a caption'),
 					step: 2
-				}),
-			
+				})
 			},this.tplGrid, {
 				region: 'east',
 				margins: '15 15 0 0',
-//			
-id: 'previewpanel',
-//
 				ref: '../previewpanel',
 				width: 260,
-				bodyStyle: 'background:#eee;',
+				bodyStyle: 'background:#e0e0e0;',
 				title: __('Preview'),
-				//tpl: '<img src="{BASE}images/{id}/tpl/{tpl}" style="max-width: {width}px; max-height: {height}px; border: 1px #ddd solid; margin: {marginTop}px {marginLeft}px;" />'
 				tpl: '<p style="font-size:9px;"><img src="{IMAGES_CDN}scaled/{tpl}/{id}" style="float: {float};max-width: {width}px; max-height: {height}px; border: 1px #ddd solid; margin: 3px;" />Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>'
 			},{
 				region: 'south',
@@ -382,13 +407,12 @@ id: 'previewpanel',
 				bodyStyle: 'background-color: #eee',
 				layout: 'border',
 				defaults: {
-					
 					xtype: 'form',
 					layout: 'form',
 					labelWidth: 180,
 					labelSeparator: '',
 					border: true,
-					bodyStyle: 'padding: 5px 0 0 5px',
+					bodyStyle: 'padding: 5px 0 0 5px'
 				},
 				items: [{
 					title: __('Caption'),
@@ -421,7 +445,7 @@ id: 'previewpanel',
 						fieldLabel: __('No alignment'),
 						xtype: 'radio',
 						name: 'align',
-						checked: this.alignValue == '',
+						checked: this.alignValue === '',
 						inputValue: ''
 					}, {
 						fieldLabel: __('Align left'),
@@ -437,43 +461,6 @@ id: 'previewpanel',
 						inputValue: 'right'
 					}]
 				}]
-				/*
-				,tbar: new Ext.Toolbar({
-					style: 'border:0; padding: 0px 15px 0 15px;',
-					border: false,
-					items:[
-						
-					,{
-						iconCls: 'icon-crop',
-						text: __('Crop manually'),
-						handler: function(){
-							//@TODO : cleanup / refactor this, for events and maintainability these parts need to work together better: 
-							
-							var cropper = new Garp.ImageEditor({
-									image: BASE + 'images/' + this.imgGrid.getSelectionModel().getSelected().get('filename')
-								});
-							var win = new Ext.Window({
-								title: __('Image Cropper'),
-								iconCls: 'icon-image',
-								modal: true,
-								maximizable: true,
-								layout: 'fit',
-								width: 800,
-								height: 500,
-								items: [cropper]
-							});
-							cropper.on('done', function(args){
-								this.fireEvent('select', args[0], 300,300);
-								this.close();
-								win.close();
-							}, this);
-							win.show();
-						},
-						scope: this
-					}
-					
-					]
-				})*/
 			}]
 		}];
 		
@@ -483,7 +470,10 @@ id: 'previewpanel',
 			handler: this.navHandler.createDelegate(this, [-1])
 		}, '->',{
 			text: __('Cancel'),
-			handler: this.close.createDelegate(this)
+			handler: function(){
+				this.close();
+			},
+			scope: this
 		},{
 			text: __('Clear selection'),
 			ref: '../clearBtn',
@@ -504,8 +494,6 @@ id: 'previewpanel',
 					fn: function(){
 						this.imgGrid.getSelectionModel().selectFirstRow();
 						this.navHandler(1); // go to page-2
-						//this.imgGrid.getStore().setBaseParam('query', null); // ...and then clear search results for when the user wants to go back to page-1
-						//this.imgGrid.getStore().load(); 
 					}
 				}
 			});
@@ -519,11 +507,15 @@ id: 'previewpanel',
 		Garp.ImagePickerWindow.superclass.initComponent.call(this);
 		this.on('show', function(){
 			this.navHandler(-1);
+			if(!this.imgGridQuery){
+				var keyNav = new Ext.KeyNav(this.imgGrid.getEl(), {
+					'enter': this.navHandler.createDelegate(this, [1])
+				});
+			}
 			this.imgStore.load();
 			if(this.allowBlank){
 				this.clearBtn.show();
 			}
 		},this);
 	}
-	
 });

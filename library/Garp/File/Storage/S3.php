@@ -5,41 +5,60 @@
  * @package Garp
  */
 class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
-	protected $_apikey;
-	
-	protected $_secret;
-	
-	protected $_bucket;
-	
-	protected $_domain;
-	
-	protected $_path;
-	
+	/**
+ 	 * Store the configuration so that it is built just once per session.
+ 	 * @var Boolean
+ 	 */
+	protected $_config = array();
+
+
 	protected $_requiredS3ConfigParams = array('apikey', 'secret', 'bucket');
+
 	
 	/** @var Zend_Service_Amazon_S3 $_api */
 	protected $_api;
+	
+	
+	protected $_apiInitialized = false;
+
+	protected $_bucketExists = false;
+
 
 	/** @const Int TIMEOUT Number of seconds after which to timeout the S3 action. Should support uploading large (20mb) files. */
 	const TIMEOUT = 400;
 
 
+	/**
+	 * @param Zend_Config $config The 'cdn' section from application.ini, containing S3 and general CDN configuration.
+	 * @param String $path Relative path to the location of the stored file, excluding trailing slash but always preceded by one.
+	 * @param Boolean $keepalive Wether to keep the socket open
+	 */
+	public function __construct(Zend_Config $config, $path = '/', $keepalive = false) {
+		$this->_setConfigParams($config);
+		
+		if ($path) {
+			$this->_config['path'] = $path;
+		}
 
-	public function __construct(Zend_Config $config, $path) {
-		$this->_validateConfig($config, $path);
-		$this->_setConfigParams($config, $path);
+		$this->_config['keepalive'] = $keepalive;
+	}
+
+
+	public function setPath($path) {
+		$this->_config['path'] = $path;
 	}
 
 
 	public function exists($filename) {
 		$this->_initApi();
-		return $this->_api->isObjectAvailable($this->_getUri($filename));
+		return $this->_api->isObjectAvailable($this->_config['bucket'] . $this->_getUri($filename));
 	}
 
 
 	/** Fetches the url to the file, suitable for public access on the web. */
 	public function getUrl($filename) {
-		return 'http://'.$this->_domain.$this->_path.'/'.$filename;
+		$this->_verifyPath();
+		return 'http://' . $this->_config['domain'] . $this->_config['path'] . '/' . $filename;
 	}
 
 
@@ -47,21 +66,27 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	public function fetch($filename) {
 		// return fopen($this->getUrl($filename), 'r');
 		$this->_initApi();
-		return $this->_api->getObject($this->_getUri($filename));
+		return $this->_api->getObject($this->_config['bucket'].$this->_getUri($filename));
 	}
 
 
 	/** Lists all files in the upload directory. */
 	public function getList() {
 		$this->_initApi();
-		return $this->_api->getObjectsByBucket($this->_bucket);
+		$this->_verifyPath();
+
+		// strip off preceding slash, add trailing one.
+		$path = substr($this->_config['path'], 1) . '/';
+		$objects = $this->_api->getObjectsByBucket($this->_config['bucket'], array('prefix' => $path));
+
+		return $objects;
 	}
 
 
 	/** Returns mime type of given file. */
 	public function getMime($filename) {
 		$this->_initApi();
-		$info = $this->_api->getInfo($this->_getUri($filename));
+		$info = $this->_api->getInfo($this->_config['bucket'].$this->_getUri($filename));
 
 		if (array_key_exists('type', $info)) {
 			return $info['type'];
@@ -71,7 +96,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	
 	public function getSize($filename) {
 		$this->_initApi();
-		$info = $this->_api->getInfo($this->_getUri($filename));
+		$info = $this->_api->getInfo($this->_config['bucket'].$this->_getUri($filename));
 
 		if (
 			array_key_exists('size', $info) &&
@@ -82,10 +107,22 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	}
 
 
+	public function getEtag($filename) {
+		$this->_initApi();
+		$path = $this->_config['bucket'] . $this->_getUri($filename);
+		$info = $this->_api->getInfo($path);
+
+		if (array_key_exists('etag', $info)) {
+			$info['etag'] = str_replace('"', '', $info['etag']);
+			return $info['etag'];
+		} else throw new Exception("Could not retrieve eTag of {$filename}.");
+	}
+
+
 	/** Returns last modified time of file, as a Unix timestamp. */
 	public function getTimestamp($filename) {
 		$this->_initApi();
-		$info = $this->_api->getInfo($this->_getUri($filename));
+		$info = $this->_api->getInfo($this->_config['bucket'].$this->_getUri($filename));
 
 		if (array_key_exists('mtime', $info)) {
 			return $info['mtime'];
@@ -95,10 +132,11 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 	/**
 	* @param String $filename
-	* @param String $data Binary file data
-	* @param Boolean $overwrite Whether to overwrite this file, or create a unique name
-	* @param Boolean $formatFilename Whether to correct the filename, f.i. ensuring lowercase characters.
-	* @return String Destination filename.
+	* @param String $data				Binary file data
+	* @param Boolean $overwrite			Whether to overwrite this file, or create a unique name
+	* @param Boolean $formatFilename	Whether to correct the filename, f.i. ensuring lowercase characters.
+	* @param Boolean $initialize
+	* @return String					Destination filename.
 	*/
 	public function store($filename, $data, $overwrite = false, $formatFilename = true) {
 		$this->_initApi();
@@ -113,74 +151,107 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			}
 		}
 
+		$path = $this->_config['bucket'] . $this->_getUri($filename);
+		$meta = array(
+			Zend_Service_Amazon_S3::S3_ACL_HEADER => Zend_Service_Amazon_S3::S3_ACL_PUBLIC_READ,
+		);
+
+		if (false === strpos($filename, '.')) {
+			$finfo = new finfo(FILEINFO_MIME);
+			$mime  = $finfo->buffer($data);
+			$meta[Zend_Service_Amazon_S3::S3_CONTENT_TYPE_HEADER] = $mime;
+		}
+
 		if ($this->_api->putObject(
-			$this->_getUri($filename),
+			$path,
 			$data,
-			array(
-				Zend_Service_Amazon_S3::S3_ACL_HEADER => Zend_Service_Amazon_S3::S3_ACL_PUBLIC_READ
-			)
+			$meta
 		)) {
 			return $filename;
-		} else return false;
+		}
+
+		return false;
 	}
 
 
 	public function remove($filename) {
 		$this->_initApi();
-		return $this->_api->removeObject($this->_getUri($filename));
+		return $this->_api->removeObject($this->_config['bucket'].$this->_getUri($filename));
 	}
 
 
 	/** Returns the uri for internal Zend_Service_Amazon_S3 use. */
 	protected function _getUri($filename) {
-		return $this->_bucket.$this->_path.'/'.$filename;
+		// return $this->_bucket.$this->_path.'/'.$filename;
+		//	bucket should no longer be prefixed to the path, or perhaps this never should have been done in the first place.
+		//	david, 2012-01-30
+		$this->_verifyPath();
+		$p = $this->_config['path'];
+		
+		return 
+			$p
+			.($p[strlen($p)-1] === '/' ? null : '/')
+			.$filename
+		;
 	}
 
 
 	protected function _createBucketIfNecessary() {
-		if (!$this->_api->isBucketAvailable($this->_bucket)) {
-			$this->_api->createBucket($this->_bucket);
+		if (!$this->_bucketExists) {
+			if (!$this->_api->isBucketAvailable($this->_config['bucket'])) {
+				$this->_api->createBucket($this->_config['bucket']);
+			}
+
+			$this->_bucketExists = true;
 		}
 	}
 
 
-	protected function _validateConfig(Zend_Config $config, $path) {
-		foreach ($this->_requiredS3ConfigParams as $reqPar)
-			if (!$config->s3->{$reqPar})
+	protected function _validateConfig(Zend_Config $config) {
+		foreach ($this->_requiredS3ConfigParams as $reqPar) {
+			if (!$config->s3->{$reqPar}) {
 				throw new Exception("'cdn.s3.{$reqPar}' must be set in application.ini.");
-
-		if (!$path)
-			throw new Exception("Did not receive a valid path to store uploads.");
-	}
-	
-	
-	protected function _setConfigParams(Zend_Config $config, $path) {
-		foreach ($config as $paramName => $paramValue) {
-			if ($paramName !== 's3') {
-				if (property_exists($this, '_'.$paramName))
-					$this->{'_'.$paramName} = $paramValue;
 			}
 		}
-		foreach ($config->s3 as $paramName => $paramValue) {
-			if (property_exists($this, '_'.$paramName)) {
-				$this->{'_'.$paramName} = $paramValue;
-			} else throw new Exception("cdn.s3.{$paramName} is an invalid parameter.");
+	}
+	
+	
+	protected function _setConfigParams(Zend_Config $config) {
+		if (!$this->_config) {
+			$this->_validateConfig($config);
+
+			$this->_config['apikey'] = $config->s3->apikey;
+			$this->_config['secret'] = $config->s3->secret;
+			$this->_config['bucket'] = $config->s3->bucket;
+			$this->_config['domain'] = !empty($config->domain) ? $config->domain : null;
 		}
-		
-		$this->_path = $path;
 	}
 	
 	
 	protected function _initApi() {
-		@ini_set('max_execution_time', self::TIMEOUT);
-		@set_time_limit(self::TIMEOUT);
-		if (!$this->_api) {
-			$this->_api = new Zend_Service_Amazon_S3(
-				$this->_apikey,
-				$this->_secret
-			);
-		}
+		if (!$this->_apiInitialized) {
+			@ini_set('max_execution_time', self::TIMEOUT);
+			@set_time_limit(self::TIMEOUT);
+			if (!$this->_api) {
+				$this->_api = new Garp_Service_Amazon_S3(
+					$this->_config['apikey'],
+					$this->_config['secret']
+				);
+			}
 		
-		$this->_api->getHttpClient()->setConfig(array('timeout' => self::TIMEOUT));
+			$this->_api->getHttpClient()->setConfig(array(
+				'timeout' => self::TIMEOUT, 
+				'keepalive' => $this->_config['keepalive']
+			));
+			
+			$this->_apiInitialized = true;
+		}
+	}
+	
+	
+	protected function _verifyPath() {
+		if (!$this->_config['path']) {
+			throw new Exception("There is not path configured, please do this with setPath().");
+		}
 	}
 }

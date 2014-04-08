@@ -23,6 +23,12 @@ Garp.MapWindow = Ext.extend(Ext.Window,{
 	 */
 	'long': null,
 	/**
+	 * @cfg long
+	 * contains the ref to the address box
+	 */
+	'address': null,
+	
+	/**
 	 * @cfg fieldRef
 	 * pointer to common container for both location fields
 	 */
@@ -48,6 +54,8 @@ Garp.MapWindow = Ext.extend(Ext.Window,{
 			scope.latlng = e.latLng;
 			scope.map.setCenter(e.latLng);
 		});
+		this.pointer.setMap(this.map);
+
 	},
 	
 	/**
@@ -80,7 +88,7 @@ Garp.MapWindow = Ext.extend(Ext.Window,{
 	drawMap: function(){
 		this.map = new google.maps.Map(this.body.dom, {
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
-			zoom: 11 // @TODO: should this be overidable?
+			zoom: 11 // @TODO: should this be overridable?
 		});
 		if (this.pointer) {
 			this.map.setCenter(this.latlng);
@@ -90,16 +98,34 @@ Garp.MapWindow = Ext.extend(Ext.Window,{
 		} else {
 			this.addLocationBtn.show();
 			this.removeLocationBtn.hide();
-			this.map.setCenter(new google.maps.LatLng(52.3650012, 5.0692639)); // @TODO: (see this.map comment above)
+		
+			var lat = this.fieldRef.find('name', this['lat'])[0].getValue();
+			var lng = this.fieldRef.find('name', this['long'])[0].getValue();
+			if (lat && lng) {
+				this.latlng = new google.maps.LatLng(lat, lng);
+				this.map.setCenter(this.latlng);
+				this.buildPointer();
+			} else {
+				this.map.setCenter(new google.maps.LatLng(52.3650012, 5.0692639)); // @TODO: (see this.map comment above)
+			}
 		}
 	},
 	
 	// Init: //
 	initComponent: function(){
-	
+		// <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+		
+		
 		this.on({
 			'afterrender': {
-				fn: this.drawMap
+				scope: this,
+				fn: function(){
+					if (typeof google == 'undefined') {
+						Garp.lazyLoad('//maps.googleapis.com/maps/api/js?sensor=false', this.drawMap.createDelegate(this));
+					} else {
+						this.drawMap();
+					}
+				}
 			}
 		}, {
 			'resize': {
@@ -110,14 +136,6 @@ Garp.MapWindow = Ext.extend(Ext.Window,{
 				}
 			}
 		});
-		
-		var lat = this.fieldRef.find('name', this['lat'])[0].getValue();
-		var lng = this.fieldRef.find('name', this['long'])[0].getValue();
-		
-		if (lat && lng) {
-			this.latlng = new google.maps.LatLng(lat, lng);
-			this.buildPointer();
-		}
 		
 		Ext.apply(this, {
 			buttons: [{
@@ -159,8 +177,11 @@ Garp.MapWindow = Ext.extend(Ext.Window,{
 				text: __('Ok'),
 				scope: this,
 				handler: function(){
-					this.fieldRef.find('name', this['lat'])[0].setValue(this.latlng.lat());
-					this.fieldRef.find('name', this['long'])[0].setValue(this.latlng.lng());
+					
+					this.fieldRef.find('name', this['lat'])[0].setValue('' + this.latlng.lat()); // cast to string!
+					this.fieldRef.find('name', this['long'])[0].setValue('' + this.latlng.lng());
+					this.fieldRef.find('name', this['lat'])[0].fireEvent('change');
+					this.fieldRef.find('name', this['long'])[0].fireEvent('change');
 					this.close();
 				}
 			}, {

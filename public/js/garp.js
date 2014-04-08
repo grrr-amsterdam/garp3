@@ -1,628 +1,642 @@
 /**
  * Garp CMS
- * 
  * Garp.js
- * 
  * Main setup for Garp CMS
-   
+ *  
  * @namespace Garp
  * @copyright (c) 2010 Grrr.nl / eenengelswoord.nl
  * @author Peter
  */
-if(Ext.isIE){
-	alert('Internet Explorer is not supported by Garp.\n\nPlease login with another browser.');
-}
-Ext.ns('Garp');
-Ext.enableListenerCollection = true;
-//Ext.enableNestedListenerRemoval = true; 
-Ext.QuickTips.init();
-Ext.Direct.addProvider(Garp.API);
-Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 
-Ext.Direct.on({
-	'exception': {
-		fn: function(e, p){
-			if(!this.msg){
-				this.msg = '';
-			}
-			
-			var transaction = '', action = '', method = '', message = '', tid = '';
-			
-			if (Ext.isObject(e)) {
-				var message = e.error ? e.error.message : __('No connection');
-				var tid = e.tid;
-				var transaction = e.getTransaction();
-				if (Ext.isObject(transaction)) {
-					var action = transaction.action;
-					var method = transaction.method;
-				}
-			}
-			
-			this.msg = (
-				'<b>' + __('Error trying to ') + method + ' ' + (Garp.dataTypes[action] ? '<i>'+__(Garp.dataTypes[action].text)+'</i>' : action) + '</b><br><br>' +
-				__('Server response: ') + message + '<br>' +
-				__('Transaction id: ') + (tid || __('None'))+
-				'<hr>'
-			) + this.msg;
-			
-			Ext.Msg.show({
-				title: __('Error'),
-				msg: '<div class="garp-error-dialog">' + this.msg + '</div>',
-				icon: Ext.Msg.ERROR,
-				width: 500,
-				buttons: Ext.Msg.OK,
-				fn: function(){
-					this.msg = '';
-				},
-				scope: this
-			});
-		}
-	}
-});
+window.onbeforeunload = function(){
+	if (Garp.checkForModified()) {
+		return __('Are you sure you want to navigate away from Garp?');
+	} 
+};
 
 /**
- * We can override Ext.ux.form.dateTime just now
- * Override it, so that the columnModel doesn't think it got changed. (isDirty fix)
+ * Checks for grid modifications
+ * @return number records modified
  */
-Ext.override(Ext.ux.form.DateTime, {
-	getValue: function(){
-		return this.dateValue ? this.dateValue.format(this.hiddenFormat) : '';
+Garp.checkForModified = function(){
+	if(Garp.gridPanel && Garp.gridPanel.getStore && Garp.gridPanel.getStore()){
+		var count = Garp.gridPanel.getStore().getModifiedRecords().length;
+		return count; // > 0;
 	}
-});
+	return false;
+};
+
 /**
- * Idem
+ * util function
  */
-Ext.override(Ext.form.Checkbox,{
-	getValue: function(){
-		if (this.rendered) {
-			return this.el.dom.checked ? "1" : "0";
+Garp.lazyLoad = function(url, cb){
+	var cbId = Ext.id(null, 'garp');
+	window['cb' + cbId] = cb.createDelegate(this).createSequence(function(){
+		delete window['cb' + cbId];
+	}, this);
+	var script = document.createElement("script");
+	script.type = "text/javascript";
+	script.src = url + "&callback=cb" + cbId;
+	document.body.appendChild(script);
+};
+
+/**
+ * UI dirty
+ */
+Garp.dirty = function(){
+	Garp.gridPanel.disable();
+	Garp.toolbar.disable();
+};
+
+/**
+ * UI undirty
+ */
+Garp.undirty = function(){
+	Garp.gridPanel.enable();
+	Garp.toolbar.enable();
+};
+
+
+/**
+ * @function updateUI
+ * @param {object} selectionModel
+ * Gets called whenever a selection change occurs. Reflect the UI:
+ * 
+ * 0 items selected: hide  
+ * 1 item : show
+ * 2 items: show & display mode Indicator
+ */
+Garp.updateUI =function(sm){
+	if (!sm || !sm.getCount) {
+		if(!Garp.gridPanel){
+			return;
 		}
-		return this.checked ? "1" : "0";
+		sm = Garp.gridPanel.getSelectionModel ? Garp.gridPanel.getSelectionModel() : false;
+		if (!sm) {
+			return;
+		}
 	}
-});
+	var count = sm.getCount();
+	if(count > 1){
+		count = 2;
+	}
+	if(window.innerWidth <= Garp.SMALLSCREENWIDTH && count == 1){
+		Garp.viewport.gridPanelCt.collapse();
+	}
+	
+	if (Garp.updateUI.prevCount && Garp.updateUI.prevCount == count) {
+		return;
+	}
+	switch (count) {
+		case 1: // single mode
+			//Garp.viewport.formPanelCt.doLayout();
+			Garp.viewport.formPanelCt.getLayout().setActiveItem(1);
+			Garp.formPanel.show();
+			break;
+		case 0: //default: // no items selected, or multiple items:
+			Garp.viewport.formPanelCt.getLayout().setActiveItem(0);
+			Garp.viewport.infoPanel.setInfo(Garp.dataTypes[Garp.currentModel]);
+			Garp.viewport.formPanelCt.doLayout();
+			Garp.viewport.infoPanel.updateCount(Garp.gridPanel.getStore().getTotalCount());
+			break;
+	}
+	
+	Garp.updateUI.prevCount = count;
+	return true;
+};
+
 /**
- * Idem
+ * Simple singleton for managing state 
  */
-Ext.override(Ext.form.DateField, {
-	format: 'd F Y',
-	altFormats: 'Y-m-d|d F Y|j F Y'
-});
-Ext.apply(Ext.form.TimeField.prototype, {
-    altFormats: 'g:ia|g:iA|g:i a|g:i A|h:i|g:i|H:i|ga|ha|gA|h a|g a|g A|gi|hi|gia|hia|g|H|H:i:s'
-});
-/**
- * Idem
- */
-Ext.apply(Ext.PagingToolbar.prototype, {
-	beforePageText: '',
-	displayMsg: ''
-});
-/**
- * Idem
- */
-Ext.apply(Ext.ux.form.DateTime.prototype, {
-	timeFormat: 'G:i',
-	otherToNow: false,
-	initDateValue:function() {
-        this.dateValue = this.otherToNow ? new Date() : new Date(new Date().getFullYear(), 0, 1, 12, 0, 0);
-    },
-	timeConfig: {
-		increment: 30
+Garp.history = Ext.apply(Garp.history || {}, {
+
+	pastModel: null,
+	
+	pushState: function(state){
+		if (!state) {
+			state = this.getCurrentState();
+		}
+		if (state && history.pushState) {
+			if (state.model !== Garp.history.pastModel) {
+				history.pushState(state, '' + __(Garp.dataTypes[state.model].text || ''), BASE + 'admin/?' + Ext.urlEncode(state));
+			} else {
+				history.replaceState(state, '' + __(Garp.dataTypes[state.model].text || ''), BASE + 'admin/?' + Ext.urlEncode(state));
+			}
+			Garp.history.pastModel = state.model;
+		}
 	},
-	timeWidth: 70
-});
-
-Ext.form.VTypes.mailtoOrUrlText = __('Not a valid Url');
-
-
 	
-	window.onbeforeunload = function(){
-		if (Garp.checkForModified()) {
-			return __('Are you sure you want to navigate away from Garp?');
-		} 
-	};
-
-	/**
-	 * Checks for grid modifications
-	 * @return bool true if modified
-	 */
-	Garp.checkForModified = function(){
-		if(Garp.gridPanel && Garp.gridPanel.getStore && Garp.gridPanel.getStore()){
-			var count = Garp.gridPanel.getStore().getModifiedRecords().length;
-			return count; // > 0;
+	getCurrentState: function(){
+		if (Garp.gridPanel && Garp.gridPanel.store) {
+			var state = {};
+			var pt = Garp.gridPanel.getBottomToolbar();
+			var tt = Garp.gridPanel.getTopToolbar();
+			var sm = Garp.gridPanel.getSelectionModel();
+			if (tt && tt.searchField.getValue() === '') { // make sure there is no query
+				state.page = Math.ceil((pt.cursor + pt.pageSize) / pt.pageSize) || null;
+			}
+			state.id = sm.getSelected() ? parseInt(sm.getSelected().get('id'), 10) || null : null;
+			state.model = Garp.currentModel;
+			return state;
+		} else {
+			return null;
 		}
-		return false;
-	};
+	},
 	
-	/**
-	 * 
-	 */
-	Garp.getStoreFieldsFromColumnModel = function(cm){
-		var fields = [];
-		Ext.each(cm, function(col){
-			var o = {};
-			if(col.dataIndex){
-				o.name = col.dataIndex;
-			}
-			if(col.convert){
-				o.convert = col.convert;
-			}
-			if(col.mapping){
-				o.mapping = col.mapping;
-			}
-			fields.push(o);
-		});
-		return fields;
-	}
-	
-	/**
-	 * Changes the model to a new one. Then rebuild the UI. 
-	 * @param {String} model
-	 * @param {Bool} overrideURI whether or not to check for URL parameters
-	 */
-	Garp.changeModel = function(model, overrideURI){
-		
-		if (typeof Garp.dataTypes[model] == 'undefined') {
-			return false;
-			//throw ("Unknown model specified.");
+	parseState: function(state){
+		if (!state) {
+			state = Ext.urlDecode(document.location.search.replace(/\?/, ''));
 		}
-		
-			if (Garp.checkForModified() > 1  || (Garp.checkForModified() == 1 && !Garp.gridPanel.getSelectionModel().getSelected().phantom)) {
-				var store = Garp.gridPanel.getStore();
-				Ext.Msg.show({
-					animEl: Garp.viewport.getEl(),
-					icon: Ext.MessageBox.QUESTION,
-					title: __('Garp'),
-					msg: __('Would you like to save your changes?'),
-					buttons: Ext.Msg.YESNOCANCEL,
-					fn: function(btn){
-						switch (btn) {
-							case 'yes':
-								store.on({
-									save: {
-										single: true,
-										fn: function(){
-											Garp.changeModel(model, true);
-										}
-									}
-								});
-								store.save();
-								
-								break;
-							case 'no':
-								store.rejectChanges();
-								Garp.changeModel(model, true);
-								break;
-							case 'cancel':
-							default:
-								break;
-						}
-					}
-				});
+		if (state.model) {
+			Garp.eventManager.fireEvent('modelchange', false, state.model || null, state.page || null, state.id || null);
+		}
+	},
+	
+	setupListeners: function(){
+		var scope = this;
+		window.addEventListener('popstate', function(e){
+			if(!e || !e.state){
 				return;
 			}
-		
-		
-		Garp.eventManager.purgeListeners();
-		Garp.setupEventManager();
-		
-		Garp.currentModel = model;
-		
-		Ext.state.Manager.set('model', model);
-		
-		Garp.modelMenu.setIconClass(Garp.dataTypes[model].iconCls);
-		Garp.modelMenu.setText(__(Garp.dataTypes[model].text));
-		if(Garp.viewport.infoPanel){
-			Garp.viewport.infoPanel.setInfo(Garp.dataTypes[model]);
-		}
-		if(Garp.viewport.formPanelCt){
-			Garp.viewport.formPanelCt.getLayout().setActiveItem(0);
-		}
-		if (Garp.gridPanel) {
-			Garp.gridPanel.ownerCt.remove(Garp.gridPanel);
-		}
-		
-		if (Garp.formPanel && Garp.formPanel.ownerCt) {
-			Garp.formPanel.ownerCt.remove(Garp.formPanel);
-		}
-		
-		Garp.toolbar.removeColumnMenu();
-		
-		Garp.gridPanel = new Garp.GridPanel({
-			model: model,
-			listeners: {
-				'beforesave': function(){
-					Garp.syncValues();
-				},
-				'rowdblclick' : function(){
-					Garp.formPanel.focusFirstField();
-				},
-				'afterdelete': function(){
-					Garp.formPanel.hide();
-					Garp.gridPanel.enable();
-					
-					// force toolbar enable:
-					Garp.eventManager.fireEvent('clientvalidation', true, true, true);
-				},
-				'defocus': function(){
-					Garp.formPanel.focusFirstField();
-				},
-				'storeloaded': {
-					fn: function(){
-						// add a columnMenu to the Garp toolbar: 
-						Garp.toolbar.addColumnMenu(this);
-						// Enable this thing. It might be disabled on change:
-						this.enable();
-					},
-					single: true
-				},
-				'after-save': function(){
-					//@TODO: fixme
-					//Can this try/catch be done in a better way? 
-					try {
-						if (window.opener && typeof window.opener.Garp != 'undefined') {
-							// window.opener is always true... but window.opener.Garp is not accessible if we didn't open the window ourselves
-							window.opener.Garp.eventManager.fireEvent('external-relation-save');
-						}
-					} 
-					catch (e) {
-					}
-					if (Garp.gridPanel && Garp.formPanel) {
-						var sm = Garp.gridPanel.getSelectionModel();
-						if (sm && sm.getCount() == 1) {
-							// let the form update if we have one record selected.
-							// the formpanel listens for gridPanel's  rowselect event.
-							// we use it here:
-							Garp.gridPanel.fireEvent('rowselect', sm);
-						}
-					}
-				}
-			}
+			scope.parseState(e.state ? e.state : e.originalEvent.state ? e.originalEvent.state : null);
 		});
-		Garp.gridPanel.on({
-			'storeloaded': function(){
-				Garp.viewport.infoPanel.updateCount(this.getStore().getTotalCount());
-				if(!Garp.gridPanel.grid){
-					return;
-				}
-				var sm = Garp.gridPanel.getSelectionModel();
-				var selected = sm.getSelections();
-				sm.clearSelections();
-				sm.selectRecords(selected);
-			}
-		});
-		Garp.formPanel = new Garp.FormPanel({
-			previousValidFlag: true,
-			listeners: {
-				'defocus': Garp.gridPanel.focus.createDelegate(Garp.gridPanel),
-				'clientvalidation': function(fp,valid){
-					if (valid) {
-						Garp.syncValues();
-					}
-				}
-			}
-		});
-		Garp.gridPanel.relayEvents(Garp.eventManager, ['new', 'save-all', 'delete', 'clientvalidation']);
-		Garp.formPanel.relayEvents(Garp.eventManager, ['new', 'rowselect', 'selectionchange']);
-		
-		Garp.eventManager.relayEvents(Garp.gridPanel, ['beforerowselect', 'rowselect', 'storeloaded', 'selectionchange']);
-		Garp.eventManager.relayEvents(Garp.formPanel, ['clientvalidation', 'save-all', 'open-new-window', 'preview']);
-		Garp.rebuildViewportItems();
-		
-		// And fetch them data:
-		var query = Ext.urlDecode(window.location.search);
-		if(!overrideURI && query['id']){
-			Garp.gridPanel.getStore().load({
-				params:{
-					query:{
-						id: decodeURIComponent(query['id'])
-					}
-				},
-				callback: function(){
-					//@TODO: Refactor this callback. Put it in Ext.ux.pagingSearchbar?
-					
-					// select the item to show the formpanel:  
-					Garp.gridPanel.getSelectionModel().selectFirstRow();
-					
-					// show the id in the search bar & update menu to only set 'id' checked 
-					var bb = Garp.gridPanel.getTopToolbar();
-					var sf = bb.searchField;
-					var sm = bb.searchOptionsMenu;
-					sf.setValue(query['id']);
-					sf.triggers[0].show();
-					sf.hasSearch = true;
-					sf.fireEvent('change');
-					sm.items.each(function(item){
-						if (item.setChecked) {
-							item.setChecked(item.text == 'id' ? true : false);
-						}
-					});
-					bb.fireEvent('change');
-					Garp.formPanel.on({
-						'show': function(){
-							var tt = new Ext.ToolTip({
-								target: sf.triggers[0],
-								anchor: 'top',
-								anchorOffset: -13,
-								html: __('Click here to view all items again'),
-								closable: true,
-								autoHide: true
-							});
-							tt.show();
-						},
-						'single': true,
-						'delay': 100
-					});
-				}
-			});
-		} else {
-			Garp.gridPanel.getStore().load();
-		}
-		// And force toolbar enable:
-		Garp.eventManager.fireEvent('clientvalidation', true, true, true);
-		
-		// Disable toolbar items if neccesary:
-		Garp.toolbar.fileMenu.menu.newButton.setVisible(!Garp.dataTypes[model].disableCreate);
-		Garp.toolbar.fileMenu.menu.deleteButton.setVisible(!Garp.dataTypes[model].disableDelete);
-		Garp.viewport.doLayout();
+	}
+});
 
-		// Preview functionality is depended upon support from the dataType: 
-		Garp.formPanel.getTopToolbar().previewButton.setVisible(Ext.isObject(Garp.dataTypes[model].previewLink));
-		
-		document.title = __(Garp.dataTypes[model].text) + ' | ' + APP_TITLE;
-		Garp.setFavicon(Garp.dataTypes[model].iconCls);
-	};
+/**
+ * Changes the model to a new one. Then rebuild the UI.
+ * @param {Bool} true to save state.
+ * @param {String} model
+ * //@param {Bool} overrideURI whether or not to check for URL parameters
+ * @param {Number} page
+ * @param {Number} id
+ */
+Garp.changeModel = function(doPushState, model, page, id){
+
+	if (typeof Garp.dataTypes[model] == 'undefined') {
+		return false;
+		//throw ("Unknown model specified.");
+	}
 	
-	/**
-	 * setFavicon
-	 * @param {String} iconCls (optional, leave blank for Garp favicon)
-	 */
-	Garp.setFavicon = function(iconCls){
-		var d = document;
-		var iconCss = Ext.get('icons').dom;
-		if (iconCss.sheet && iconCss.sheet.cssRules) {
-			var found = false;
-			Ext.each(iconCss.sheet.cssRules, function(){
-				if (this.selectorText == '.' + iconCls) {
-					found = this.style.backgroundImage.trim();
-					found = found.substr(8, found.length - 10); // remove url() shizzle
-					found = d.location.protocol + '//' + d.location.host + BASE + found; // absolute path
-					return;
-				}
-			});
-			if (!found) {
-				found = Ext.get('favicon').dom.href;
-			}
-			var link = d.createElement('link'), old = d.getElementById('dynamic-favicon');
-			link.id = 'dynamic-favicon';
-			link.rel = 'shortcut icon';
-			link.href = found;
-			if (old) {
-				d.head.removeChild(old);
-			}
-			d.head.appendChild(link);
-		}
-	};
-	
-	/**
-	 * Sync the values from the form to the grid.
-	 */
-	Garp.syncValues = function(){
-		// various situations simply require nothing to sync:
-		var fp = Garp.formPanel;
-		if(fp.isLocked()){
-			return;
-		}
-		var form = fp.getForm();
-		if(!form.isValid()){
-			fp.getTopToolbar().previewButton.setDisabled(true);
-		}
-		if (!form.isDirty() || !form.isValid()) {
-			return;
-		}
-		if (Ext.Ajax.isLoading()){
-			return;
-		}
-		//var fields = form.getValues(); 
-		//Ext.apply(fields, form.getFieldValues()); // @TODO: @FIXME: getFieldValues() does not contain compositefields. getValues() does not contain checkboxes...
+	if (Garp.checkForModified() > 1 || (Garp.checkForModified() == 1 && !Garp.gridPanel.getSelectionModel().getSelected().phantom)) {
+		var store = Garp.gridPanel.getStore();
+		var state = Garp.history.getCurrentState();
 		
-		var fields = form.getFieldValues();
-		
-		var recs = Garp.gridPanel.getSelectionModel().getSelections();
-		if (recs.length === 0) {
-			return;
-		}
-		// if we're still here, sync grid from form:
-		Garp.gridPanel.suspendEvents();
-		Ext.each(recs, function(rec){
-			rec.beginEdit();
-			for (var field in fields) {
-				var ff = form.findField(field);
-				if (ff && ff.isDirty() && !ff.disabled) { // sync dirty items only
-					rec.set(field, fields[field]);
-					// Only "unDirty" dirty fields (except rte fields), so we're not calling form.unDirty() here
-					if (ff.xtype === 'richtexteditor' || ff.xtype === 'htmleditor') {
-						// Do not let the rte push textarea contents to iframe. It causes the caret to move to the end of the content... 
-						ff.on({
-							'beforepush': {
+		Ext.Msg.show({
+			animEl: Garp.viewport.getEl(),
+			icon: Ext.MessageBox.QUESTION,
+			title: __('Garp'),
+			msg: __('Would you like to save your changes?'),
+			buttons: Ext.Msg.YESNOCANCEL,
+			fn: function(btn){
+				switch (btn) {
+					case 'yes':
+						store.on({
+							save: {
+								single: true,
 								fn: function(){
-									return false;
-								},
-								'single': true
+									Garp.changeModel(doPushState, model, page, id);
+								}
 							}
 						});
-					}
-					ff.originalValue = ff.getValue();
+						store.save();
+						
+						break;
+					case 'no':
+						store.rejectChanges();
+						Garp.changeModel(doPushState, model, page, id);
+						break;
+					//case 'cancel':
+					default:
+						break;
 				}
 			}
-			rec.endEdit();
 		});
-		//Do not refresh. Not sure why this would be needed.
-		//Garp.gridPanel.getView().refresh();
-		fp.getTopToolbar().previewButton.setDisabled(true);
-		Garp.gridPanel.resumeEvents();
-	};
+		return;
+	}
+	Garp.infoPanel.clearInfo();
+
+	Garp.eventManager.purgeListeners();
+	Garp.setupEventManager();
 	
-	/**
-	 * (Re-) add the grid and the form to the viewport. 
-	 */
-	Garp.rebuildViewportItems = function(){
-		if (Garp.formPanel) {
-			Garp.viewport.formPanelCt.remove(Garp.formPanel);
-		}
-		if (Garp.gridPanel) {
-			Garp.viewport.gridPanelCt.remove(Garp.gridPanel);
-		}
-		Garp.viewport.gridPanelCt.add(Garp.gridPanel);
-		Garp.viewport.formPanelCt.add(Garp.formPanel);
-		Garp.viewport.doLayout();
-	};
+	Garp.currentModel = model;
 	
-	/**
-	 * Eventmanager and subscriptions to various events.
-	 */
-	Garp.setupEventManager = function(){
-		Garp.eventManager = new Ext.util.Observable();
-		
-		Garp.eventManager.addEvents('modelchange', 'beforerowselect', 'rowselect', 'storeloaded', 'new', 'save-all', 'after-save', 'delete','logout','open-new-window','external-relation-save');
-		Garp.eventManager.on({
-			'modelchange': Garp.changeModel,
-			'beforerowselect': Garp.syncValues,
-			//'save-all': Garp.syncValues, // this should get called before gridpanel's save method, because grid is not constructed yet. Consequently, it's listener for 'save' is not yet defined
-			'clientvalidation': function(fp, valid, force){
-				
-				if(!Garp.checkForModified() && force !== true){
-					return;
-				}
-				if (fp.previousValidFlag !== valid) {
-					Ext.each(['newButton', 'saveButton', 'exportButton'], function(item){
-						Garp.toolbar.fileMenu.menu[item].setDisabled(!valid);
-						Garp.gridPanel.setDisabled(!valid);
+	if (doPushState) {
+		Garp.history.pushState({
+			model: model
+		});
+	}		
+	
+	Garp.modelMenu.setIconClass(Garp.dataTypes[model].iconCls);
+	Garp.modelMenu.setText(__(Garp.dataTypes[model].text));
+	if (Garp.gridPanel) {
+		Garp.gridPanel.ownerCt.remove(Garp.gridPanel);
+	}
+	
+	if (Garp.formPanel && Garp.formPanel.ownerCt) {
+		Garp.viewport.formPanelCt.getLayout().setActiveItem(0);
+		Garp.viewport.formPanelCt.remove(Garp.formPanel);
+	}
+	
+	Garp.formPanel = new Garp.FormPanel({
+		previousValidFlag: true,
+		listeners: {
+			'cancel': function(){
+				// reselect item to revert formPanel contents:
+				var s = Garp.gridPanel.getSelectionModel().getSelected(); 
+				Garp.gridPanel.getSelectionModel().clearSelections();
+				Garp.gridPanel.getSelectionModel().selectRecords([s]);
+			},
+			'defocus': function(){
+				Garp.gridPanel.focus.call(Garp.gridPanel);
+			},
+			'dirty': Garp.dirty,
+			'undirty': Garp.undirty
+		}
+	});
+	Garp.viewport.formPanelCt.add(Garp.formPanel);
+	Garp.viewport.formPanelCt.doLayout();
+	
+	Garp.gridPanel = new Garp.GridPanel({
+		model: model,
+		listeners: {
+			'beforesave': function(){
+				Garp.syncValues();
+			},
+			'rowdblclick': function(){
+				Garp.formPanel.focusFirstField();
+			},
+			'afterdelete': function(){
+				Garp.formPanel.hide();
+				Garp.gridPanel.enable();
+				Garp.undirty();
+			},
+			'defocus': function(){
+				Garp.formPanel.focusFirstField();
+			},
+			'storeloaded': {
+				fn: function(){
+					this.enable();
+					if (document.location.hash == '#selectfirst') {
+						Garp.gridPanel.getSelectionModel().selectFirstRow();
+					}
+					// wait for store load before pushing history actions. It might just be that (previous) state we loaded from!
+					Garp.gridPanel.on('rowselect', function(){
+						Garp.history.pushState();
+					}, this, {
+						buffer: 500
 					});
-					if (fp.rendered) {
-						fp.getTopToolbar().saveButton.setDisabled(!valid);
+				},
+				buffer: 300,
+				delay: 300,
+				single: true
+			},
+			'after-save': function(){
+				//@TODO: fixme
+				//Can this try/catch be done in a better way? 
+				try {
+					if (window.opener && typeof window.opener.Garp != 'undefined') {
+						// window.opener is always true... but window.opener.Garp is not accessible if we didn't open the window ourselves
+						window.opener.Garp.eventManager.fireEvent('external-relation-save');
 					}
-					
-					if (Ext.isObject(fp)) {
-						fp.previousValidFlag = valid;
-					}
+				} 
+				catch (e) {
+				}
+			}
+		}
+	});
+	Garp.viewport.gridPanelCt.add(Garp.gridPanel);
+	Garp.viewport.gridPanelCt.doLayout();
+	
+	//Garp.rebuildViewportItems();
+	
+	Garp.gridPanel.on({
+		'storeloaded': function(){
+			Garp.updateUI.prevCount = -1;
+			Garp.updateUI();
+			if (!Garp.gridPanel.grid) {
+				return;
+			}
+			var sm = Garp.gridPanel.getSelectionModel();
+			var selected = sm.getSelections();
+			sm.clearSelections();
+			sm.selectRecords(selected);
+		},
+		'selectionchange': {
+			fn: Garp.updateUI,
+			buffer: 110
+		}
+	});
+	
+	Garp.gridPanel.relayEvents(Garp.eventManager, ['new', 'save-all', 'delete', 'clientvalidation']);
+	Garp.formPanel.relayEvents(Garp.eventManager, ['new', 'rowselect', 'after-save']);
+	
+	Garp.eventManager.relayEvents(Garp.gridPanel, ['beforerowselect', 'rowselect', 'storeloaded', 'after-save', 'selectionchange', 'open-new-window']);
+	Garp.eventManager.relayEvents(Garp.formPanel, ['clientvalidation', 'save-all', 'open-new-window', 'preview', 'delete']);
+	
+	Garp.infoPanel.clearInfo();
+
+	// And fetch them data:
+	// var query = Ext.urlDecode(window.location.search);
+	if (id && !page) {
+		Garp.gridPanel.getStore().load({
+			params: {
+				query: {
+					id: id
 				}
 			},
-			'open-new-window': function(){
-					if(!Garp.formPanel){
-						return;
-					}
-					var id = Garp.formPanel.getForm().findField('id').getValue();
-					if (id) {
-						var url = BASE + 'admin?' + Ext.urlEncode({
-							model: Garp.currentModel,
-							id: id
+			callback: function(){
+				// select the item to show the formpanel:  
+				Garp.gridPanel.getSelectionModel().selectFirstRow();
+				Garp.gridPanel.getTopToolbar().searchById(id); // only visually set the UI as if searched, no real DB call.
+				Garp.formPanel.on({
+					'show': function(){
+						var tt = new Ext.ToolTip({
+							target: Garp.gridPanel.getTopToolbar().items.get(1).triggers[0],
+							anchor: 'top',
+							anchorOffset: -13,
+							html: __('Click here to view all items again'),
+							closable: true,
+							autoHide: true
 						});
-						var win = window.open(url);
-					}
-			},
-			
-			'logout': function(){
-				window.location = BASE + 'g/auth/logout';
-			},
-			
-			'preview': function(){
-				var t = Garp.dataTypes[Garp.currentModel].previewLink;
-				var s = Garp.gridPanel.getSelectionModel().getSelected();
-				if (s) {
-					var tpl = new Ext.Template(t.urlTpl);
-					var url = tpl.apply([s.get(t.param)]);
-					var win = window.open(BASE + url);
-				}
+						tt.show();
+					},
+					'single': true,
+					'delay': 100
+				});
 			}
 		});
+	} else if(page){
 		
-		Garp.eventManager.relayEvents(Garp.toolbar, ['logout', 'delete', 'new', 'open-new-window']);
-	};
+		// @TODO: Find out if we can do this better. Two loads is a bit awkward!
+		Garp.gridPanel.getStore().on({
+			load: function(){
+				if (id) {
+					Garp.gridPanel.getStore().on({
+						'load': function(){
+							var idx = Garp.gridPanel.getStore().find('id', id);
+							if (idx > -1) {
+								var rec = Garp.gridPanel.getStore().getAt(idx);
+								Garp.gridPanel.getSelectionModel().selectRecords([rec]);
+							}
+						},
+						scope: this,
+						single: true
+					});
+				}
+				Garp.gridPanel.getBottomToolbar().changePage(page);
+			},
+			single: true
+		});
+		//Garp.gridPanel.getStore().load();
+		Garp.gridPanel.loadStoreWithDefaults();
+	} else {
+		//Garp.gridPanel.getStore().load();
+		Garp.gridPanel.loadStoreWithDefaults();
+	}
 	
-	/**
-	 * Setup Global Keyboard shortcuts:
-	 */
-	Garp.setupGlobalKeys = function(){
-		Garp.keyMap = new Ext.KeyMap(Ext.getBody(), [{
-			key: Ext.EventObject.ENTER,
-			ctrl: true,
-			handler: function(e){
-				Garp.eventManager.fireEvent('save-all');
+	// Disable toolbar items if neccesary:
+	var tb = Garp.toolbar;
+	tb.newButton.setVisible(!Garp.dataTypes[model].disableCreate);
+	tb.deleteButton.setVisible(!Garp.dataTypes[model].disableDelete);
+	tb.separator.setVisible(!Garp.dataTypes[model].disableDelete || !Garp.dataTypes[model].disableCreate);
+	tb.extraMenu.menu.importButton.show();
+	tb.extraMenu.menu.exportButton.show();
+	tb.extraMenu.menu.printButton.show();
+	
+	document.title = __(Garp.dataTypes[model].text) + ' | ' + (typeof APP_TITLE != 'undefined' ? APP_TITLE : '');
+	Garp.setFavicon(Garp.dataTypes[model].iconCls);
+	
+};
+
+
+/**
+ * setFavicon
+ * @param {String} iconCls (optional, leave blank for Garp favicon)
+ */
+Garp.setFavicon = function(iconCls){
+	var d = document;
+	var iconCss = Ext.get('icons').dom;
+	if (iconCss.sheet && iconCss.sheet.cssRules) {
+		var found = false;
+		Ext.each(iconCss.sheet.cssRules, function(){
+			if (this.selectorText == '.' + iconCls) {
+				found = this.style.backgroundImage.trim();
+				found = found.substr(8, found.length - 10); // remove url() shizzle
+				found = d.location.protocol + '//' + d.location.host + BASE + found; // absolute path
+				return;
 			}
-		},{
-			key: Ext.EventObject.DELETE,
-			ctrl: true,
-			handler: function(e){
-				if(Garp.dataTypes[Garp.currentModel].disableDelete){
+		});
+		if (!found) {
+			found = Ext.get('favicon').dom.href;
+		}
+		var link = d.createElement('link'), old = d.getElementById('dynamic-favicon');
+		link.id = 'dynamic-favicon';
+		link.rel = 'shortcut icon';
+		link.href = found;
+		if (old) {
+			d.head.removeChild(old);
+		}
+		d.head.appendChild(link);
+	}
+};
+
+/**
+ * Sync the values from the form to the grid.
+ */
+Garp.syncValues = function(){
+	var fp = Garp.formPanel;
+	fp.getForm().updateRecord(fp.rec);
+};
+
+/**
+ * (Re-) add the grid and the form to the viewport. 
+ */
+Garp.rebuildViewportItems = function(){
+	if(Garp.infoPanel){
+		Garp.infoPanel.clearInfo();
+	}
+	if (Garp.gridPanel) {
+		Garp.viewport.gridPanelCt.remove(Garp.gridPanel);
+	}
+	if (Garp.formPanel) {
+		Garp.viewport.formPanelCt.remove(Garp.formPanel);
+	}
+	Garp.viewport.formPanelCt.add(Garp.formPanel);
+	Garp.formPanel.hide();	
+	Garp.viewport.gridPanelCt.add(Garp.gridPanel);
+	Garp.viewport.gridPanelCt.doLayout();
+};
+
+/**
+ * Eventmanager and subscriptions to various events.
+ */
+Garp.setupEventManager = function(){
+	Garp.eventManager = new Ext.util.Observable();
+	
+	Garp.eventManager.addEvents('modelchange', 'beforerowselect', 'rowselect', 'storeloaded', 'new', 'save-all', 'after-save', 'delete','logout','open-new-window','external-relation-save', 'after-init');
+	Garp.eventManager.on({
+		'new': function(){
+			Garp.updateUI.defer(20);	
+		},
+		'modelchange': Garp.changeModel,
+		'open-new-window': function(){
+				if(!Garp.formPanel){
 					return;
 				}
-				Garp.eventManager.fireEvent('delete');
-			}
-		},{
-			key: 'N',
-			ctrl: true,
-			handler: function(e){
-				if(Garp.dataTypes[Garp.currentModel].disableCreate){
-					return;
+				var id = Garp.formPanel.getForm().findField('id').getValue();
+				if (id) {
+					var url = BASE + 'admin?' + Ext.urlEncode({
+						model: Garp.currentModel,
+						id: id
+					});
+					var win = window.open(url);
 				}
-				Garp.eventManager.fireEvent('new');
+		},
+		'logout': function(){
+			window.location = BASE + 'g/auth/logout';
+		},
+		'preview': function(){
+			var t = Garp.dataTypes[Garp.currentModel].previewLink;
+			var s = Garp.gridPanel.getSelectionModel().getSelected();
+			if (t && s) {
+				var tpl = new Ext.Template(t.urlTpl);
+				var url = tpl.apply([s.get(t.param)]);
+				var win = window.open(BASE + url);
 			}
-		}]);
-		Garp.keyMap.stopEvent = true; // prevents browser key handling. 
-	};
-	
-	//
-	// @TODO: Refactor Garp.init & Garp.afterInit and Garp.modelChange()
-	// 		  It looks kind of odd to first load welcomepanel ...and  
-	//		  ... then looking for and possibly loading models
-	
-	/**
-	 * Afterinit
-	 * Looks for possible URI or cookie based 'states' to recall; model to be loaded, etc...
-	 */
-	Garp.afterInit = function(){
-		var query = Ext.urlDecode(window.location.search);
-		if(query){
-			var model = query['?model'] || query['model']; 
+		},
+		/**
+ 	 	 * Afterinit
+ 	 	 * Sets up history & displays flashMessages if needed. Also hides the loader anim. 
+ 	 	 */
+		'after-init': function() {
+
+			Garp.history.setupListeners();
+			Garp.history.parseState();
+
+			var timeout = 610;		
+			if (Garp.flashMessage()) {
+				timeout = 2000;
+			} 
+			setTimeout(function(){
+				Ext.get('app-loader').fadeOut();
+			}, timeout);
+
+			// Trigger queued functions
+			Garp.afterInit();
 		}
-		if (!model) {
-			model = Ext.state.Manager.get('model');
-		}
-		if (model) {
-			Garp.eventManager.fireEvent('modelchange', model, false);
-		}
-		setTimeout(function(){
-			Ext.select('#app-loader').fadeOut();	
-		}, 310);
-	};
+	});
 	
-	/**
-	 * Set up basic 'ACL'-like behaviour and then fires every model's init event; so custom overrides could take place here
-	 */
-	Garp.initModels = function(){
-		for(var i in Garp.dataTypes){
-			var model = Garp.dataTypes[i];
-			if (model instanceof Garp.DataType) { // model might actually not be a Garp.dataType model but a '-' separator for the modelMenu
-				if (model.setupACL(Garp[i])) {
-					model.fireEvent('init');
-				} else {
-					delete Garp.dataTypes[i];
-				}
+	Garp.eventManager.relayEvents(Garp.toolbar, ['logout', 'delete', 'new', 'open-new-window']);
+};
+
+/**
+ * Setup Global Keyboard shortcuts:
+ */
+Garp.setupGlobalKeys = function(){
+	Garp.keyMap = new Ext.KeyMap(Ext.getBody(), [{
+		key: Ext.EventObject.ENTER,
+		ctrl: true,
+		handler: function(e){
+			if (Garp.formPanel.formcontent.getTopToolbar().saveButton.disabled) {
+				return;
 			}
+			Garp.eventManager.fireEvent('save-all');
 		}
-	};
-	
-	/**
-	 * Init
-	 */
-	Garp.init = function(){
-		Garp.initModels();
-		Garp.gridPanel = new Garp.WelcomePanel({}); // temporarily call it Garp.gridPanel, so the viewport doesn't have to reconfigure.
-		Garp.modelMenu = new Garp.ModelMenu({});
-		Garp.viewport = new Garp.Viewport({});
-		Garp.setupEventManager();
-		Garp.setupGlobalKeys();
-		Garp.afterInit();
-	};
-	
+	},{
+		key: 'N',
+		ctrl: true,
+		handler: function(e){
+			if(Garp.dataTypes[Garp.currentModel].disableCreate || Garp.toolbar.newButton.disabled){
+				return;
+			}
+			Garp.eventManager.fireEvent('new');
+		}
+	}]);
+	Garp.keyMap.stopEvent = true; // prevents browser key handling. 
+};
+
+/**
+ * Displays flashMessage from cookie
+ * @returns {bool} if a flashMessage is shown
+ */
+Garp.flashMessage = function(){
+	var cookie = Ext.decode(Ext.util.Cookies.get('FlashMessenger'));
+	var str = '';
+	if(cookie.messages){
+		for(var msg in cookie.messages){
+			msg = cookie.messages[msg];
+			if (msg) {
+				msg = msg.replace(/\+/g, ' ');
+				str += msg + '<br>';
+			} 
+		}
+		if(str){
+			var elm = Ext.get('app-loader'); 
+			elm.update(str);
+			elm.setWidth(300);
+			elm.setHeight((cookie.messages.length-1) * 20 + 30);
+			
+			var value = "; path=/";
+			var date = new Date();
+			date.setHours(date.getHours(-1));
+			value += ((date===null) ? "" : "; expires="+date.toGMTString());
+			document.cookie='FlashMessenger' + "=" + value;
+			return true;
+		}
+	}
+	return false;
+};
+
+
+/**
+ * Global Ajax event's will show a small spinner for the user to see activity with the server:
+ */
+Garp.setupAjaxSpinner = function(){
+	var spinner = Ext.select('#icon-loading-spinner');
+	spinner.hide();
+	Ext.Ajax.on('requestcomplete', function(){
+		if (!Ext.Ajax.isLoading()) {
+			spinner.hide.defer(200, spinner); // defer makes it a bit less flashy & hyperactive
+		}
+	});
+	Ext.Ajax.on('beforerequest', function(){
+		spinner.show();
+	});
+	Ext.Ajax.on('requestexception', function(){
+		spinner.hide();
+	});
+};
+
+/**
+ * Lo-fi event listener: allow models to queue functionality until Garp is fully initialized.
+ * That way, models may register functionality that manipulates for instance the toolBar or gridPanel,
+ * that would otherwise not yet exist at the time of initialization.
+ */
+Garp.afterInitListeners = [];
+Garp.afterInit = function(fn) {
+	if (!arguments.length) {
+		// Execute after init listeners
+		Ext.each(Garp.afterInitListeners, function(fn) {
+			if (typeof fn !== 'function') {
+				return;
+			}
+			fn();
+		});
+		return;
+	}
+	// If given a function, add it to the stack
+	Garp.afterInitListeners.push(fn);
+};
+
+/**
+ * Init
+ */
+Garp.init = function(){
+	Garp.gridPanel = new Garp.WelcomePanel(); // temporarily call it Garp.gridPanel, so the viewport doesn't have to reconfigure.
+	Garp.viewport = new Garp.Viewport();
+	Garp.setupEventManager();
+	Garp.setupGlobalKeys();
+	Garp.setupAjaxSpinner();
+	Garp.eventManager.fireEvent('after-init');
+};

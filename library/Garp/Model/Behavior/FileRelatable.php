@@ -112,7 +112,7 @@ class Garp_Model_Behavior_FileRelatable extends Garp_Model_Behavior_Abstract {
 	 * @return Void
 	 */
 	protected function _deleteFile($filename) {
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		$ini = Zend_Registry::get('config');
 		$uploadPath = $ini->app->uploadsDirectory;
 		$uploadPath = rtrim($uploadPath, '/\\').DIRECTORY_SEPARATOR;
 		$filePath   = $uploadPath.$filename;

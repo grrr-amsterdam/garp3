@@ -14,7 +14,8 @@ Garp.WelcomePanel = function(cfg){
 };
 
 Ext.extend(Garp.WelcomePanel, Ext.Container, {
-	border: false,
+	border: true
+	/*,
 	hideButtonArr: ['fileMenu', 'editMenu', 'viewMenu'],
 	listeners: {
 		'render': function(){
@@ -34,5 +35,5 @@ Ext.extend(Garp.WelcomePanel, Ext.Container, {
 				Garp.viewport.formPanelCt.show();
 			}
 		}
-	}
+	}*/
 });

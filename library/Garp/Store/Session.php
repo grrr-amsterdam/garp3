@@ -10,7 +10,7 @@
  * @lastmodified $Date: $
  *
  */
-class Garp_Store_Session {
+class Garp_Store_Session implements Garp_Store_Interface {
 	/**
  	 * @var Zend_Session_Namespace
  	 */

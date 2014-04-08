@@ -1,0 +1,29 @@
+<?php
+	if ($this->snippet->has_name):
+		$headerTag = $this->headerTag ?: 'h3';
+		$headerClass = $this->headerClass ?: '';
+		echo '<'.$headerTag.($headerClass ? ' class="'.$headerClass.'"' : '').'>'.nl2br($this->escape($this->snippet->name)).'</'.$headerTag.'>';
+	endif;
+	
+	if ($this->snippet->has_image && $this->snippet->Image):
+		// Allow scalingTemplate as well as scaling_template... to preserve backward compatibility... >.< ugh
+		$scalingTpl = property_exists($this, 'scaling_template') ? $this->scaling_template : (property_exists($this, 'scalingTemplate') ? $this->scalingTemplate : null);
+		echo $this->image()->render($this->snippet->Image->id, $scalingTpl);
+	endif;
+	
+	if ($this->snippet->has_html || $this->snippet->has_text):
+		if ($this->snippet->has_text):
+			$theContent = nl2br($this->escape($this->snippet->text));
+			if ($this->linkify !== false):
+				$theContent = $this->string()->linkify($theContent);
+			endif;
+		elseif ($this->snippet->has_html):
+			$bodyClass = 'rich';
+			if ($this->bodyClass):
+				$bodyClass .= ' '.$this->bodyClass;
+			endif;
+			$theContent = '<div class="'.$bodyClass.'">'.$this->snippet->html.'</div>';
+		endif;
+		echo $theContent;
+	endif;
+?>

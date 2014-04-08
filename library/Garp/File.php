@@ -5,6 +5,16 @@
  * @package Garp
  */
 class Garp_File {
+
+	/**
+	 * Constants that are used for filetypes
+	 * @var string
+	 */
+    const TYPE_IMAGES = 'image';
+	const TYPE_DOCUMENTS = 'document';
+	
+	const SEPERATOR = '-';
+
 	protected $_storageTypes = array('local', 's3');
 	
 	protected $_requiredConfigParams = array('type', 'domain', 'path', 'extensions');
@@ -20,10 +30,19 @@ class Garp_File {
 
 	protected $_uploadOrStatic = 'upload';
 	
-	const SEPERATOR = '-';
-	
 	protected $_path;
 
+	/**
+ 	 * Cache storage in a static property to save performance
+ 	 * @var Array
+ 	 */
+	static protected $_cachedStorage = array();
+
+	/**
+ 	 * Store config from ini file statically to save performance when using a lot of Garp_File instances.
+ 	 * @var Zend_Config
+ 	 */
+	static protected $_config;
 
 
 	/**
@@ -32,12 +51,12 @@ class Garp_File {
 	*/
 	public function __construct($uploadType = null, $uploadOrStatic = null) {
 		$ini = $this->_getIni();
-		$this->_validateConfig($ini);
-		$this->_validateUploadType($uploadType);
+		$this->validateUploadType($uploadType);
 		$this->_validateUploadOrStatic($uploadOrStatic);
 
-		if (!is_null($uploadOrStatic))
+		if (!is_null($uploadOrStatic)) {
 			$this->_uploadOrStatic = $uploadOrStatic;
+		}
 
 		$this->_path = $this->_getPath($ini, $uploadType);
 		$this->_initStorage($ini);
@@ -61,7 +80,7 @@ class Garp_File {
 			return call_user_func_array(array($this->_storage, $method), $args);
 		}
 	}
-	
+
 
 	public static function formatFilename($filename) {
 		if (strpos($filename, '/') === false) {
@@ -77,7 +96,11 @@ class Garp_File {
 				),
 				$filename
 			);
-			return trim($plainFilename, self::SEPERATOR);
+			$plainFilename = trim($plainFilename, self::SEPERATOR);
+			return !empty($plainFilename) ?
+				$plainFilename :
+				'untitled'
+			;
 		} else throw new Exception(__FUNCTION__.'() is not for paths, please stick to filenames.');
 	}
 
@@ -100,6 +123,75 @@ class Garp_File {
 		;
 
 		return $base.'.'.$ext;
+	}
+
+
+	public function validateUploadType($uploadType) {
+		if (
+			!is_null($uploadType) &&
+			!in_array($uploadType, $this->_allowedTypes)
+		) {
+			throw new Exception("'{$uploadType}' is not a valid upload type. Try: '".implode("' or '", $this->_allowedTypes)."'.");
+		}
+	}
+
+
+	/**
+	 * @param Boolean $returnNonImageExtensions Whether to return only non-image extensions, or all uploadable extensions.
+	 * @return Array List of uploadable extensions
+	 */
+	public function getAllowedExtensions() {
+		$ini = $this->_getIni();		
+		$extensions = explode(',', $ini->cdn->extensions);
+
+		$imageFile = new Garp_Image_File($this->_uploadOrStatic);
+		$imageExtensions = $imageFile->getAllowedExtensions();
+
+		$extensions = array_filter($extensions, function($element) use ($imageExtensions) {
+			return !in_array($element, $imageExtensions);
+		});
+
+		return $extensions;
+	}
+
+
+	/**
+	 * @return Float Maximum upload filesize in megabytes.
+	 */
+	public function getUploadMaxFilesize() {
+		$val = null;
+
+		if (Zend_Registry::get('CLI')) {
+			$htaccess = file_get_contents(APPLICATION_PATH . '/../public/.htaccess');
+			$htaccessLines = explode("\n", $htaccess);
+			foreach ($htaccessLines as $line) {
+				$line = trim($line);
+				if (strpos($line, 'php_value upload_max_filesize') !== false) {
+					$lineParts = explode(" ", $line);
+					$val = $lineParts[sizeof($lineParts) - 1];
+				}
+			}
+		}
+
+		if (!$val) {
+			$val = ini_get('upload_max_filesize');
+		}
+
+		if ($val) {
+		    $val = trim($val);
+		    $last = strtolower($val[strlen($val)-1]);
+		    switch($last) {
+		        // The 'G' modifier is available since PHP 5.1.0
+		        case 'g':
+		            $val *= 1024;
+		        case 'm':
+		            $val *= 1024;
+		        case 'k':
+		            $val *= 1024;
+		    }
+
+		    return $val / 1024 / 1024;
+		} else throw new Exception("Could not retrieve the maximum filesize for uploads.");
 	}
 
 
@@ -151,16 +243,6 @@ class Garp_File {
 			} else throw new Exception("'{$ini->cdn->type}' is not a valid CDN type. Try: ".implode(" or ", $this->_storageTypes).'.');
 		} else throw new Exception("The 'cdn' variable is not set in application.ini.");
 	}
-	
-	
-	protected function _validateUploadType($uploadType) {
-		if (
-			!is_null($uploadType) &&
-			!in_array($uploadType, $this->_allowedTypes)
-		) {
-			throw new Exception("'{$uploadType}' is not a valid upload type. Try: '".implode("' or '", $this->_allowedTypes)."'.");
-		}
-	}
 
 
 	protected function _validateUploadOrStatic($uploadOrStatic) {
@@ -174,15 +256,21 @@ class Garp_File {
 
 
 	protected function _initStorage($ini) {
-		switch ($ini->cdn->type) {
-			case 's3':
-				$this->_storage = new Garp_File_Storage_S3($ini->cdn, $this->_path);
-			break;
+		if (!empty(self::$_cachedStorage[$ini->cdn->type][$this->_path]) &&
+			self::$_cachedStorage[$ini->cdn->type][$this->_path] instanceof Garp_File_Storage) {
+			$this->_storage = self::$_cachedStorage[$ini->cdn->type][$this->_path];
+		} else {
+			switch ($ini->cdn->type) {
+				case 's3':
+					$this->_storage = new Garp_File_Storage_S3($ini->cdn, $this->_path);
+				break;
 			case 'local':
-				$this->_storage = new Garp_File_Storage_Local($ini->cdn, $this->_path);
-			break;
-			default:
-				throw new Exception("The '{$ini->cdn->type}' protocol is not yet implemented.");
+					$this->_storage = new Garp_File_Storage_Local($ini->cdn, $this->_path);
+				break;
+				default:
+					throw new Exception("The '{$ini->cdn->type}' protocol is not yet implemented.");
+			}
+			self::$_cachedStorage[$ini->cdn->type][$this->_path] = $this->_storage;
 		}
 	}
 
@@ -190,21 +278,20 @@ class Garp_File {
 	protected function _restrictExtension($filename) {
 		if ($filename) {
 			$extension = $this->_getExtension($filename);
-			$allowedExtensions = $this->_getAllowedExtensions();
+			$allowedExtensions = $this->getAllowedExtensions();
 			if (!in_array(strtolower($extension), $allowedExtensions)) {
 				throw new Exception("The file type you're trying to upload is not allowed. Try: ".$this->_humanList($allowedExtensions, null, 'or'));
 			}
 		} else throw new Exception("The filename was empty.");
 	}
 	
-	protected function _getAllowedExtensions() {
-		$ini = $this->_getIni();		
-		return explode(',', $ini->cdn->extensions);
-	}
-	
 	
 	protected function _getIni() {
-		return Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/application.ini');
+		if (!self::$_config) {
+			self::$_config = Zend_Registry::get('config');
+			$this->_validateConfig(self::$_config);
+		}
+		return self::$_config;
 	}
 	
 	

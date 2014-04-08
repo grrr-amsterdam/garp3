@@ -37,6 +37,21 @@ class Garp_Content_Export_Csv extends Garp_Content_Export_Abstract {
 		foreach ($rowset as $i => $row) {
 			$outValues = array();
 			foreach ($row as $key => $value) {
+				// In the case of related hasMany or hasAndBelongsToMany 
+				// rowsets...
+				if (is_array($value)) {
+					$rowset = $value;
+					$values = array();
+					foreach ($rowset as $row) {
+						$rowVals = array();
+						foreach ($row as $key => $value) {
+							$rowVals[] = $value;
+						}
+						$rowVals = implode(', ', $rowVals);
+						$values[] = $rowVals;
+					}
+					$value = implode($values, "\n");
+				}
 				$outValues[] = $this->_escape($value);
 			}
 			$out .= implode(',', $outValues)."\n";
