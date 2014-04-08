@@ -111,12 +111,6 @@ $frontendOptions = array(
 	'caching' => $cacheStoreEnabled,
 	'lifetime' => 7200,
 	'cache_id_prefix' => $filePrefix,
-	'servers' => array(
-		array(
-			'host' => MEMCACHE_HOST,
-			'port' => '11211'
-		)
-	),
 	// slightly slower, but necessary when caching arrays or objects (like query results)
 	'automatic_serialization' => true,
 );
@@ -124,6 +118,12 @@ $backendOptions = array(
 	'cache_dir' => APPLICATION_PATH.'/data/cache',
 	// include the hostname and app environment in the filename for security
 	'file_name_prefix' => $filePrefix,
+	'servers' => array(
+		array(
+			'host' => MEMCACHE_HOST,
+			'port' => '11211'
+		)
+	),
 );
 
 $cache = Zend_Cache::factory(
