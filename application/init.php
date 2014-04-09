@@ -9,6 +9,8 @@
 * 	string MEMCACHE_HOST, default '127.0.0.1'
 * 	
 */
+@include_once(APPLICATION_PATH . '/configs/init.php');
+
 if (!defined('BASE_PATH')) {
 	define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
 }
@@ -105,6 +107,11 @@ if (!extension_loaded('memcache')) {
 	$backendName = 'Memcached';
 	$cacheStoreEnabled = true;	
 }
+
+//var_dump(Zend_Registry::get('config'));
+var_dump(Zend_Registry::isRegistered('config'));
+
+exit('booya');
 
 $frontendOptions = array(
 	// for debug purposes; quickly turn off caching here
