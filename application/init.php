@@ -9,13 +9,18 @@
 * 	string MEMCACHE_HOST, default '127.0.0.1'
 * 	
 */
-@include_once(APPLICATION_PATH . '/configs/init.php');
 
 if (!defined('BASE_PATH')) {
 	define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
 }
 define('APPLICATION_PATH', BASE_PATH . '/application');
 define('GARP_APPLICATION_PATH', BASE_PATH . '/garp/application');
+
+$appSpecificInit = APPLICATION_PATH . '/configs/init.php';
+if (file_exists($appSpecificInit)) {
+	include_once($appSpecificInit);
+}
+
 defined('READ_FROM_CACHE') || define('READ_FROM_CACHE', true);
 defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', '127.0.0.1');
 
