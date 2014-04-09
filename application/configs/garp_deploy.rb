@@ -12,7 +12,7 @@ set :scm, :git
 #   r e m o t e   s e r v e r
 set :deploy_via, :remote_cache
 ssh_options[:forward_agent] = true
-set :git_enable_submodules, 1
+set :git_enable_submodules, 0
 set :use_sudo, false
 set :keep_releases, 2
 
