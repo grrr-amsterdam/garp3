@@ -108,11 +108,6 @@ if (!extension_loaded('memcache')) {
 	$cacheStoreEnabled = true;	
 }
 
-//var_dump(Zend_Registry::get('config'));
-var_dump(Zend_Registry::isRegistered('config'));
-
-exit('booya');
-
 $frontendOptions = array(
 	// for debug purposes; quickly turn off caching here
 	'caching' => $cacheStoreEnabled,
