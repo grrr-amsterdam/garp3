@@ -38,6 +38,10 @@ class Garp_Spawn_Field {
 	/** @var String $origin Context in which this field is added. Can be 'config', 'default', 'relation' or 'behavior'. */
 	public $origin;
 
+	/** @var String $relationType Type of singular relation that this field references.
+ 	 * Only set in case of singular relation fields. Can be 'hasOne' or 'belongsTo'. */
+	public $relationType;
+
 	
 	protected $_types = array('text', 'html', 'email', 'url', 'numeric', 'checkbox', 'datetime', 'date', 'time', 'enum', 'document', 'imagefile');
 	protected $_defaultTypeByNameEnding = array(
@@ -51,7 +55,7 @@ class Garp_Spawn_Field {
 
 
 	/**
-	* @param String $origin Context in which this field is added. Can be 'config', 'default' or 'behavior'.
+	* @param String $origin Context in which this field is added. Can be 'config', 'default', 'relation' or 'behavior'.
 	*/
 	public function __construct($origin, $name, array $config) {
 		$this->origin = $origin;
