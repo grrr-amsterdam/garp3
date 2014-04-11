@@ -1,6 +1,6 @@
 /**
  * garp.viewport.js
- * 
+ *
  */
 
 Garp.Viewport = function(cfg){
@@ -20,7 +20,6 @@ Garp.Viewport = function(cfg){
 			border: false,
 			height: 40,
 			bodyCssClass: 'garp-bg',
-			border: false,
 			cls: 'toolbarCt',
 			items: Garp.toolbar = new Garp.Toolbar()
 		}, {
@@ -29,7 +28,6 @@ Garp.Viewport = function(cfg){
 			cls: 'gridPanelCt',
 			layout: 'fit',
 			xtype: 'panel',
-			margins: '0 0 2 2',
 			width: 360,
 			minWidth: 360,
 			height: 200,
