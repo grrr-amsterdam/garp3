@@ -32,6 +32,7 @@
 	ASSET_URL = '<?php echo $this->assetUrl('/') ?>';
 	IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
 	DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
+	WYSIWYG_CSS_URL = '<?php echo $this->assetUrl($this->config()->assets->css->root . '/base.css') ?>';
 	ASSET_VERSION = '<?php echo APP_VERSION ?>';
 	GARP_VERSION = '<?php echo GARP_VERSION ?>';
 	<?php if (isset($this->config()->video->template->w)): ?>
@@ -48,7 +49,6 @@
 	LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getLocales()); ?>'];
 	DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
 	CURRENT_LANGUAGE = '<?php echo Garp_I18n::getCurrentLocale(); ?>';
-	GARP_MODE = <?php echo isset($this->isImageBrowser) ? '"IMAGE_BROWSER"' : '"FULL"' ?>;
 </script>
 
 <?php

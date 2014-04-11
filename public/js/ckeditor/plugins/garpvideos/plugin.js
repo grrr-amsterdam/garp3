@@ -5,7 +5,9 @@ CKEDITOR.plugins.add('garpvideos', {
                 var command = this;
 
                 // Open Extjs picker
-                var win = new Garp.ModelPickerWindow({model: "Video"});
+                var win = new Garp.ModelPickerWindow({
+                    model: "Video"
+                });
                 win.on('select', function(data) {
                     // Insert element
                     var html = Garp.videoTpl.apply({
