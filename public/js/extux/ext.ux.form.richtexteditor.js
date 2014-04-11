@@ -693,7 +693,7 @@ if (Ext.isIE) {
          * @param {Object} selected
          */
         putImage: function(selected){
-            var tpl = new Ext.XTemplate(['<tpl if="caption">', '<tpl if="align">', '<dl class="figure" style="float: {align};">', '</tpl>', '<tpl if="!align">', '<dl class="figure" style="float: none;">', '</tpl>', '<dt>', '<img src="{path}" draggable="false"> ', '</dt>', '<dd draggable="false">{caption}</dd>', '</dl>', '</tpl>', '<tpl if="!caption">', '<tpl if="align">', '<img class="figure" src="{path}" style="float: {align};">', '</tpl>', '<tpl if="!align">', '<img class="figure" src="{path}" style="float: none;">', '</tpl>', '</tpl>']);
+            var tpl = Garp.imageTpl;
 
             // Create selection to be replace by the new image:
             var sel = this.getSelection();
@@ -2040,7 +2040,7 @@ Ext.reg('richtexteditor', Ext.ux.form.RichTextEditor);
 Ext.form.CKEditor = function(config){
     this.config = config;
     config.CKEditor = {
-        filebrowserImageBrowseUrl: "?model=Image"
+        extraPlugins: "garpimages,garpvideos"
     };
     Ext.form.CKEditor.superclass.constructor.call(this, config);
 };
@@ -2107,5 +2107,10 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea,  {
     }
 });
 
+Ext.form.RichCKEditor = function(config){
+    Ext.form.RichCKEditor.superclass.constructor.call(this, config);
+};
+Ext.extend(Ext.form.RichCKEditor, Ext.form.CKEditor);
+
 // Enable the CKEditor as default richtexteditor
-// Ext.reg('richtexteditor', Ext.form.CKEditor);
+Ext.reg('richtexteditor', Ext.form.RichCKEditor);
