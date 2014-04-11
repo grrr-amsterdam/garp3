@@ -6,13 +6,13 @@ Ext.ns('Garp');
 
 /**
  * @DEBUG utility function. ONLY Needed if Ticket #70 (CMS JS error) occurs again.
- * 
+ *
 Ext.override(Ext.Element, {
 	getValue : function(asNumber){
 		if (!this.dom) {
 			\\TEMP = this;
 			throw __('Error! Element "' + this.id + '" doesn\'t exist anymore.');
-			
+
 		} else {
 			var val = this.dom.value;
 			return asNumber ? parseInt(val, 10) : val;
@@ -41,8 +41,8 @@ Garp.mailtoOrUrlPlugin = {
 					f.setValue('http://' + n);
 				}
 			}
-		});	
-		
+		});
+
 	}
 };
 
@@ -91,11 +91,11 @@ Ext.apply(Ext.form.FieldSet.prototype,{
 	border: false,
 	buttonAlign: 'left',
 	collapsible: true,
-	
+
 	defaults: {
 		anchor: '-30',
 		msgTarget: 'under'
-		
+
 	},
 	hideCollapseTool: true,
 	labelWidth: 120,
@@ -104,7 +104,7 @@ Ext.apply(Ext.form.FieldSet.prototype,{
 });
 
 /**
- * Defaults for combo: 
+ * Defaults for combo:
  */
 Ext.apply(Ext.form.ComboBox.prototype, {
 	triggerAction: 'all',
@@ -131,16 +131,16 @@ Ext.apply(Ext.form.BasicForm.prototype,{
 		});
 		return me;
 	},
-	
+
 	onFieldChange: function(){
 		this.fireEvent('change', this);
 	},
 	// end see
-	
+
 	unDirty: function(){
 		Ext.each(this.items.items, function(){
 			if (this.xtype === 'richtexteditor' || this.xtype === 'htmleditor') {
-				// Do not let the rte push textarea contents to iframe. It causes the caret to move to the end of the content... 
+				// Do not let the rte push textarea contents to iframe. It causes the caret to move to the end of the content...
 				this.on({
 					'beforepush': {
 						fn: function(){
@@ -156,13 +156,13 @@ Ext.apply(Ext.form.BasicForm.prototype,{
 });
 
 /**
- * Override data Store for Zend Compatibility: 
- * 
+ * Override data Store for Zend Compatibility:
+ *
  */
 Ext.override(Ext.data.Store, {
-	
+
 	/**
-	 * Sort as a string ("name ASC") instead of object { sort : 'name', dir : 'ASC' } 
+	 * Sort as a string ("name ASC") instead of object { sort : 'name', dir : 'ASC' }
 	 */
 	load: function(options){
 		options = Ext.apply({}, options);
@@ -170,15 +170,15 @@ Ext.override(Ext.data.Store, {
 		if (this.sortInfo && this.remoteSort) {
 			var pn = this.paramNames;
 			options.params = Ext.apply({}, options.params);
-			
+
 			// sort as a string:
 			options.params[pn.sort] = this.sortInfo.field + ' ' + this.sortInfo.direction;
-			
+
 			delete options.params[pn.dir];
 		}
 		try {
 			return this.execute('read', null, options); // <-- null represents rs.  No rs for load actions.
-		} 
+		}
 		catch (e) {
 			this.handleException(e);
 			return false;
@@ -215,9 +215,9 @@ Ext.apply(Ext.grid.GridPanel.prototype, {
 		 * Clear selections, when clicking outside of selection:
  		 */
 		'containerclick': function(){
-			this.getSelectionModel().clearSelections(); 
+			this.getSelectionModel().clearSelections();
 		},
-		
+
 		/**
 		 * Hide columns with no title/text from columnMenu's:
 		 */
@@ -237,7 +237,10 @@ Ext.apply(Ext.grid.GridPanel.prototype, {
 	}
 });
 
-
+/**
+ * Image Template for embeding images
+ */
+Garp.imageTpl = new Ext.XTemplate(['<tpl if="caption">', '<tpl if="align">', '<dl class="figure" style="float: {align};">', '</tpl>', '<tpl if="!align">', '<dl class="figure" style="float: none;">', '</tpl>', '<dt>', '<img src="{path}" draggable="false"> ', '</dt>', '<dd draggable="false">{caption}</dd>', '</dl>', '</tpl>', '<tpl if="!caption">', '<tpl if="align">', '<img class="figure" src="{path}" style="float: {align};">', '</tpl>', '<tpl if="!align">', '<img class="figure" src="{path}" style="float: none;">', '</tpl>', '</tpl>']);
 
 /**
  * Video Template for embeding videos
@@ -255,7 +258,7 @@ Ext.override(Ext.Panel, {
 			title = Ext.util.Format.ellipsis(title, 25, true);
 		}
         this.title = title;
-				
+
         if(this.header && this.headerAsText){
             this.header.child('span').update(title);
         }
@@ -276,11 +279,11 @@ Ext.form.BasicForm.prototype.getFieldValues = function(dirtyOnly){
 	var o = {}, n, key, val;
 	function walk(f){
 		n = f.getName();
-		if (!n) 
+		if (!n)
 			return;
 		key = o[n];
 		val = f.getValue();
-		
+
 		if (Ext.isDefined(key)) {
 			if (Ext.isArray(key)) {
 				o[n].push(val);
@@ -310,9 +313,9 @@ Ext.apply(Ext.BasicForm.prototype, {
             key,
             val;
         this.items.each(function(f) {
-			
+
 			function walk(f){
-				
+
 				if (!f.disabled && (dirtyOnly !== true || f.isDirty())) {
 					n = f.getName();
 					if (!n) {
@@ -320,7 +323,7 @@ Ext.apply(Ext.BasicForm.prototype, {
 					}
 					key = o[n];
 					val = f.getValue();
-					
+
 					if (Ext.isDefined(key)) {
 						if (Ext.isArray(key)) {
 							o[n].push(val);
@@ -352,14 +355,14 @@ Ext.override(Ext.grid.Column,{
 });
 
 /**
- * 
+ *
  */
 
 Ext.override(Ext.form.Field,{
 	// necessary for 'one' field models. Otherwise formDirty will not fire until field blur, which is odd
 	enableKeyEvents: true,
-	
-	// countBox helper functions:	
+
+	// countBox helper functions:
 	getCountBox: function(){
 		var cb;
 		if (this.refOwner) {
@@ -382,11 +385,11 @@ Ext.override(Ext.form.Field,{
 		this.getCountBox().update('');
 		return true;
 	},
-	
+
 	initComponent: function(){
 
 		Ext.form.Field.superclass.initComponent.call(this);
-		
+
 		// Prevent conflicts with superbox select. We'll quit here:
 		if(this.xtype && this.xtype == 'superboxselect'){
 			return true;
@@ -399,9 +402,9 @@ Ext.override(Ext.form.Field,{
 			}
 			return true;
 		}, this);
-		
+
 		this.on('afterrender', function(){
-			
+
 			if (this.countBox && this.maxLength) {
 				this.getEl().on({
 					'keypress': {
@@ -414,7 +417,7 @@ Ext.override(Ext.form.Field,{
 				this.on('blur',  this.hideCountBox, this);
 				this.on('change',  this.updateCountBox, this);
 			}
-		
+
 			if (!this.allowBlank && this.label) {
 				this.label.addClass('required-field');
 			}
@@ -442,14 +445,14 @@ Ext.override(Ext.form.Field,{
  */
 Ext.override(Ext.Button, {
 	initComponent: function(){
-	
+
 		if (this.menu) {
 			this.menu = Ext.menu.MenuMgr.get(this.menu);
 			this.menu.ownerCt = this;
 		}
-		
+
 		Ext.Button.superclass.initComponent.call(this);
-		
+
 		// fieldLabel class support:
 		if (this.allowBlank !== true) {
 			this.on('afterrender', function(){
@@ -457,11 +460,11 @@ Ext.override(Ext.Button, {
 					this.label.addClass('required-field');
 				}
 			}, this);
-			
+
 		}
-		
+
 		this.addEvents('click', 'toggle', 'mouseover', 'mouseout', 'menushow', 'menuhide', 'menutriggerover', 'menutriggerout');
-		
+
 		if (this.menu) {
 			this.menu.ownerCt = undefined;
 		}
@@ -516,7 +519,7 @@ Ext.override(Ext.PagingToolbar, {
 		this.first = new T.Button({});
 		this.last = new T.Button({});
 		this.refresh = new T.Button({});
-		
+
         var pagingItems = [ this.prev = new T.Button({
             tooltip: this.prevText,
             overflowText: this.prevText,
