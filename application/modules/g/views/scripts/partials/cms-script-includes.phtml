@@ -9,6 +9,9 @@ if (isset($this->config()->cms->minifiedAssets) && $this->config()->cms->minifie
 else:
 ?>
 
+<!-- ckeditor -->
+<script src="<?php echo $this->baseUrl('/js/garp/ckeditor/ckeditor.js') ?>"></script>
+
 <!-- Ext Overrides include -->
 <script src="<?php echo $this->baseUrl('/js/garp/overrides.js') ?>"></script>
 

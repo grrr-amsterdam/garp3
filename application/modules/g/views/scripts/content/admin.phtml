@@ -48,6 +48,7 @@
 	LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getLocales()); ?>'];
 	DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
 	CURRENT_LANGUAGE = '<?php echo Garp_I18n::getCurrentLocale(); ?>';
+	GARP_MODE = <?php echo isset($this->isImageBrowser) ? '"IMAGE_BROWSER"' : '"FULL"' ?>;
 </script>
 
 <?php
@@ -56,7 +57,7 @@ echo $this->partial('partials/cms-script-includes.phtml', 'g', array(
 ));
 echo $this->partial('partials/models.phtml', 'default');
 ?>
- 
+
 <!-- Garp init -->
 <script>
 <?php
@@ -67,12 +68,12 @@ if (isset($this->config()->auth->adapters->linkedin->appId)):
 function emptyFunction(){};
 /*
   api_key: <?php echo $this->config()->auth->adapters->linkedin->appId ?>
-  
+
   onLoad: emptyFunction
   authorize: true
 */
 <?php
-endif; 
+endif;
 
 // LocalUser object
 if ($this->auth()->isLoggedIn()):
@@ -85,12 +86,12 @@ if ($this->auth()->isLoggedIn()):
 ?>
 Garp.localUser = <?php echo json_encode($localUser) ?>;
 <?php
-endif; 
+endif;
 ?>
 
 // Inform front-end of ACL setup
 Garp.ACL = <?php echo json_encode($this->auth()->getRoles(true)) ?>;
-	
+
 // Here we go
 Ext.onReady(Garp.init);
 </script>
