@@ -14,12 +14,12 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 	monitorValid: true,
 	trackResetOnLoad: false,
 	clientValidation: true,
-	
+
 	/**
 	 * private
 	 */
 	state: null,
-	
+
 	/**
 	 * Sets the UI for all dirty / undirty / phantom combinations
 	 * It enables / disabled buttons and such. It also fires 'dirty' & 'undirty' events
@@ -29,18 +29,18 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 		if(!this.rec || !this.formcontent.rendered || this.hidden){
 			return;
 		}
-		
-		var  
+
+		var
 		PHANTOM_VALID = 1,
 		PHANTOM_INVALID = 2,
 		EXISTING_NON_DIRTY_VALID = 4,
 		EXISTING_NON_DIRTY_INVALID = 8,
 		EXISTING_DIRTY_VALID = 16,
 		EXISTING_DIRTY_INVALID = 32;
-		
+
 		var valid = this.getForm().isValid();
 		var dirty = this.getForm().isDirty();
-		
+
 		var prevState = this.state;
 		if(this.rec.phantom){
 			if(valid){
@@ -63,12 +63,12 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 				}
 			}
 		}
-		
+
 		if(this.state != prevState){
 			var tb = this.formcontent.getTopToolbar();
-			
+
 			switch(this.state){
-				
+
 				case PHANTOM_VALID:
 					this.fireEvent('dirty');
 					this.disableTabs();
@@ -78,69 +78,69 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 					tb.cancelButton.enable();
 					tb.previewButton.disable();
 				break;
-				
+
 				case PHANTOM_INVALID:
 					this.fireEvent('dirty');
 					this.disableTabs();
 					this.metaPanel.disable();
 					tb.saveButton.disable();
-					tb.saveAsDraftButton.disable();						
+					tb.saveAsDraftButton.disable();
 					tb.cancelButton.enable();
 					tb.previewButton.disable();
 				break;
-				
+
 				case EXISTING_NON_DIRTY_VALID:
 					this.fireEvent('undirty');
 					this.enableTabs();
 					this.metaPanel.enable();
-					tb.saveButton.disable();	
-					tb.saveAsDraftButton.disable();					
+					tb.saveButton.disable();
+					tb.saveAsDraftButton.disable();
 					tb.cancelButton.disable();
 					tb.previewButton.enable();
 				break;
-				
+
 				case EXISTING_NON_DIRTY_INVALID:
 				//.. SHOULD NOT OCCUR! (possible if model file is not valid)
 					//this.fireEvent('dirty');
 					//this.disableTabs();
-					//tb.saveButton.disable();						
+					//tb.saveButton.disable();
 					//tb.cancelButton.enable();
 					//tb.previewButton.enable();
-					
+
 					this.fireEvent('undirty');
 					this.enableTabs();
 					this.metaPanel.enable();
 					tb.saveButton.disable();
-					tb.saveAsDraftButton.disable();						
+					tb.saveAsDraftButton.disable();
 					tb.cancelButton.disable();
 					tb.previewButton.disable();
-					
+
 				break;
-				
+
 				case EXISTING_DIRTY_VALID:
 					this.fireEvent('dirty');
 					this.disableTabs();
 					this.metaPanel.enable();
-					tb.saveButton.enable();	
-					tb.saveAsDraftButton.enable();					
+					tb.saveButton.enable();
+					tb.saveAsDraftButton.enable();
 					tb.cancelButton.enable();
 					tb.previewButton.disable();
 				break;
-				
+
 				//case EXISTING_DIRTY_INVALID:
 				default:
 					this.fireEvent('dirty');
 					this.disableTabs();
 					this.metaPanel.disable();
-					tb.saveButton.disable();	
-					tb.saveAsDraftButton.disable();					
+					tb.saveButton.disable();
+					tb.saveAsDraftButton.disable();
 					tb.cancelButton.enable();
 					tb.previewButton.disable();
 				break;
 			}
 		}
 	},
-	
+
 	/**
 	 * Disables the other tabpanels (relatepanels)
 	 */
@@ -152,7 +152,7 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			}
 		}, this);
 	},
-	
+
 	/**
 	 * Enables the other tabpanels (relatepanels) (duh)
 	 */
@@ -164,9 +164,9 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			}
 		}, this);
 	},
-	
+
 	/**
-	 * Retrieves relationTabPanel based on modelName 
+	 * Retrieves relationTabPanel based on modelName
 	 * @param {Object} modelName
 	 */
 	getTab: function(modelName){
@@ -174,8 +174,8 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			return (i.model == modelName);
 		});
 	},
-	
-	
+
+
 	/**
 	 * @function newItem
 	 * Makes sure the panel is shown and focuses the first field.
@@ -202,9 +202,9 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 		}).defer(100,this);
 		this.getForm().clearInvalid();
 	},
-	
+
 	/**
-	 * @returns {String} All errors from all fields in the form 
+	 * @returns {String} All errors from all fields in the form
 	 */
 	getErrors: function(){
 		var str = '';
@@ -215,14 +215,14 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 		});
 		return str;
 	},
-	
+
 	/**
 	 * @function updateTitle
 	 */
 	updateTitle: function(){
 		if (Garp.dataTypes[Garp.currentModel].displayFieldRenderer) {
 			var panel = this.items.itemAt(0).items.itemAt(0);
-			if (panel.xtype !== 'relationpanel') { 
+			if (panel.xtype !== 'relationpanel') {
 				panel.setTitle(Garp.dataTypes[Garp.currentModel].displayFieldRenderer(this.rec));
 			}
 		}
@@ -231,7 +231,7 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 	/**
 	 * @function loadData
 	 * loads Data in the form and makes sure the panel is visible
-	 * 
+	 *
 	 * @param {Object} sm selectionModel
 	 */
 	loadData: function(sm){
@@ -244,17 +244,17 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 		if (!this.rec) {
 			return;
 		}
-		
+
 		this.state = null;
 		form.loadRecord(this.rec);
-		
+
 		if (!this.ownerCt) {
 			return;
 		}
 		this.updateTitle();
-		
+
 		this.fireEvent('defocus');
-		
+
 		function relayEvent(){
 			if(this.formcontent.rendered){
 				this.formcontent.fireEvent('loaddata', this.rec, this);
@@ -266,7 +266,7 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			this.startMonitoring();
 			this.getForm().clearInvalid();
 		}
-		
+
 		relayEvent.call(this);
 		this.formcontent.on('activate', relayEvent, this, {
 			single: true
@@ -276,10 +276,10 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 		});
 			var draftable = Garp.dataTypes[Garp.currentModel].getColumn('online_status') && Garp.dataTypes[Garp.currentModel].getColumn('published') ? true : false;
 			this.formcontent.getTopToolbar().saveAsDraftButton.setVisible(draftable);
-		
+
 		form.unDirty();
 	},
-	
+
 	/**
 	 * @function focusFirstField
 	 * Focuses the first editable & visible field
@@ -287,9 +287,9 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 	focusFirstField: function(){
 		var fp = this;
 		this.getForm().items.each(function(item){
-			
+
 			// See Garp changelist 3.4 'compositefield' not supported anymore
-			
+
 			/*if(item.xtype == 'compositefield'){
 				item.items.each(function(item){
 					if (!item.hidden && !item.disabled && item.focus && Ext.isFunction(item.focus)) {
@@ -299,8 +299,8 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 						return true;
 					}
 				});
-			}*/ 
-			
+			}*/
+
 			if (!item.hidden && !item.disabled && item.focus && Ext.isFunction(item.focus)) {
 				item.focus(100);
 				return false;
@@ -309,10 +309,10 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			}
 		});
 	},
-	
+
 	/**
 	 * @function afterRender
-	 * Sets up keyboard handlin & events for the tabs 
+	 * Sets up keyboard handlin & events for the tabs
 	 */
 	afterRender: function(){
 		var keyMap = new Ext.KeyMap(this.getEl(), [{
@@ -330,39 +330,39 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 		}, this);
 		Garp.FormPanel.superclass.afterRender.call(this);
 	},
-	
+
 	/*
 	setLocked: function(lock){
 		this.locked = lock;
 		this.fireEvent(lock ? 'lock' : 'unlock', this);
 		if(lock){
-			this.getEl().addClass('locked');	
+			this.getEl().addClass('locked');
 		} else {
 			this.getEl().removeClass('locked');
 		}
 	},
-	
+
 	lock: function(){
 		this.setLocked(true);
 	},
-	
+
 	unlock: function(){
 		this.setLocked(false);
 	},
-	
+
 	isLocked: function(){
 		return this.locked;
 	},
 	*/
-	
+
 	/**
 	 * init
 	 */
 	initComponent: function(){
-		
+
 		this.id = Ext.id();
 		this.addEvents('save-all','cancel','preview','open-new-window','lock','unlock','dirty','undirty','delete');
-		
+
 		this.on({
 			scope: this,
 			'new': {
@@ -396,12 +396,12 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 				}
 			}
 		});
-		
+
 		var items = [];
 		Ext.each(Garp.dataTypes[Garp.currentModel].formConfig, function(o){
 			items.push(Ext.apply({}, o));
 		});
-		
+
 		Ext.apply(items[0],{
 			ref: '../formcontent',
 			title: '&nbsp;', // misformed tab otherwise
@@ -413,7 +413,7 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			autoScroll: true,
 			margins: '0 0 0 10'
 		});
-		
+
 		items[0].tbar = {
 			cls: 'garp-formpanel-toolbar',
 			items: [{
@@ -497,12 +497,31 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 				}
 			}]
 		};
-		
+
 		var cm = Garp.dataTypes[Garp.currentModel];
 		var metaPanelCfg = Ext.apply({
 			hidden: window.innerWidth <= Garp.SMALLSCREENWIDTH
 		}, cm.metaPanelConfig ? cm.metaPanelConfig : {});
 		items[0].items.push(this.metaPanel = new Garp.MetaPanel(metaPanelCfg));
+
+		// Image selection for when in a CKEditor image browser popup
+		function addChooseImageButton() {
+			items[0].tbar.items.unshift({
+				text: __('Use Image'),
+				iconCls: 'icon-camera',
+				ref: 'chooseButton',
+				disabled: false,
+				handler: function(){
+					// Communicate the choice to CKEditor and close
+					window.opener.CKEDITOR.tools.callFunction( 1, "test.jpg" );
+					window.close();
+				},
+				scope: this
+			});
+		}
+		if (Garp.currentModel === "Image" && IS_CKEDITOR_IMAGE_BROWSER) {
+			addChooseImageButton();
+		}
 
 		this.items = {
 			xtype:'tabpanel',
@@ -521,13 +540,13 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 			},
 			items: items
 		};
-		
+
 		this.relayEvents(this.metaPanel, ['save-all', 'dirty', 'undirty']);
-		
+
 		Garp.FormPanel.superclass.initComponent.call(this, arguments);
 		this.stopMonitoring();
 	}
-	
+
 });
 
 Ext.reg('garpformpanel', Garp.FormPanel);
