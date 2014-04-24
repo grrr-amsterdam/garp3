@@ -48,6 +48,7 @@ namespace :deploy do
   desc "Deploy project"
   task :update do
     transaction do
+	  appHooks
       update_code
       Disk.create_system_cache_dirs self, server_cache_dir
       Disk.create_static_cache_dir self, current_release
@@ -67,6 +68,13 @@ namespace :deploy do
 	  transaction do
 	  	  # zzzz
 	  end
+  end
+
+  task :appHooks do
+	begin
+		AppHooks.after_deploy
+	rescue NameError
+    end
   end
 
 
