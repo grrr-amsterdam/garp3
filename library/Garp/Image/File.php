@@ -95,12 +95,26 @@ class Garp_Image_File extends Garp_File {
 			$filename = $this->_correctExtension($filename);
 		}
 
-		$pngQuant = new Garp_Image_PngQuant();
-		if ($pngQuant->isAvailable()) {
-			$data = $pngQuant->optimizeData($data);
+		if ($this->_pngQuantIsEnabled()) {	
+			$pngQuant = new Garp_Image_PngQuant();
+			if ($pngQuant->isAvailable()) {
+				$data = $pngQuant->optimizeData($data);
+			}
 		}
 		
 		return array($filename, $data, $overwrite, $formatFilename);
+	}
+
+	/**
+ 	 * Checks if pngQuant is explicitly disabled for this project, to prevent exec() calls.
+ 	 */
+	protected function _pngQuantIsEnabled() {
+		$ini = Zend_Registry::get('config');
+		if (isset($ini->pngquant) && isset($ini->pngquant->enabled) {
+			return $ini->pngquant->enabled;
+		}
+
+		return true;
 	}
 
 	protected function _correctExtension($filename) {
