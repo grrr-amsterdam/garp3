@@ -110,7 +110,7 @@ class Garp_Image_File extends Garp_File {
  	 */
 	protected function _pngQuantIsEnabled() {
 		$ini = Zend_Registry::get('config');
-		if (isset($ini->pngquant) && isset($ini->pngquant->enabled) {
+		if (isset($ini->pngquant) && isset($ini->pngquant->enabled)) {
 			return $ini->pngquant->enabled;
 		}
 
