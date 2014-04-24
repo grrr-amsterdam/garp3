@@ -416,6 +416,10 @@ class G_AuthController extends Garp_Controller_Action {
 		$activationEmail = $request->getParam('e');
 		$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
 
+		if (!$activationEmail || !$activationCode) {
+			throw new Zend_Controller_Action_Exception('Invalid request.', 404);
+		}
+
 		$userModel = new Model_User();
 		// always collect fresh data for this one
 		$userModel->setCacheQueries(false);
