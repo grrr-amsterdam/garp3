@@ -58,8 +58,8 @@ namespace :deploy do
       Garp.update_version self, current_release, garp_env
       Garp.env_setup self, current_release, garp_env
       Auth.set_webroot_permissions self, releases_path, release_name
-	  after_deploy
       symlink
+	  after_deploy
     end
   end
 
