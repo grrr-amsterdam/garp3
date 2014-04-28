@@ -447,6 +447,16 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract implements Garp_Mode
 	}
 
 	/**
+ 	 * Shortcut method for fetching record by slug
+ 	 * @param String $slug
+ 	 * @return Zend_Db_Table_Row
+ 	 */
+	public function fetchBySlug($slug) {
+		$select = $this->select()->where('slug = ?', $slug);
+		return $this->fetchRow($select);
+	}
+
+	/**
  	 * Quote an array of values
  	 * @param Array $values
  	 * @return Void
