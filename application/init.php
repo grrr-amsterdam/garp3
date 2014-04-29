@@ -9,11 +9,18 @@
 * 	string MEMCACHE_HOST, default '127.0.0.1'
 * 	
 */
+
 if (!defined('BASE_PATH')) {
 	define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
 }
 define('APPLICATION_PATH', BASE_PATH . '/application');
 define('GARP_APPLICATION_PATH', BASE_PATH . '/garp/application');
+
+$appSpecificInit = APPLICATION_PATH . '/configs/init.php';
+if (file_exists($appSpecificInit)) {
+	include_once($appSpecificInit);
+}
+
 defined('READ_FROM_CACHE') || define('READ_FROM_CACHE', true);
 defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', '127.0.0.1');
 
@@ -111,12 +118,6 @@ $frontendOptions = array(
 	'caching' => $cacheStoreEnabled,
 	'lifetime' => 7200,
 	'cache_id_prefix' => $filePrefix,
-	'servers' => array(
-		array(
-			'host' => MEMCACHE_HOST,
-			'port' => '11211'
-		)
-	),
 	// slightly slower, but necessary when caching arrays or objects (like query results)
 	'automatic_serialization' => true,
 );
@@ -124,6 +125,12 @@ $backendOptions = array(
 	'cache_dir' => APPLICATION_PATH.'/data/cache',
 	// include the hostname and app environment in the filename for security
 	'file_name_prefix' => $filePrefix,
+	'servers' => array(
+		array(
+			'host' => MEMCACHE_HOST,
+			'port' => '11211'
+		)
+	),
 );
 
 $cache = Zend_Cache::factory(
