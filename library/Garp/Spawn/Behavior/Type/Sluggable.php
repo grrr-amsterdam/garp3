@@ -19,7 +19,8 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 		'maxLength' => 255,
 		'editable' => false,
 		'unique' => true,
-		'required' => false
+		'required' => false,
+		'multiline' => false,
 	);		
 
 
@@ -75,6 +76,11 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 			$slugFieldConfig['multilingual'] = true;
 		}
 
+		$params = $this->getParams();
+		if (array_key_exists('editable', $params)) {
+			$slugFieldConfig['editable'] = $params['editable'];
+		}
+
 		return $slugFieldConfig;
 	}
 
@@ -107,7 +113,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 			}
 			$baseFields[] = $model->fields->getField($name);
 		}
-				
+
 		return $baseFields;
 	}
 
