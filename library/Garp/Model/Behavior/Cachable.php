@@ -15,8 +15,7 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 * @var String
 	 */
 	protected $_executionPosition = self::EXECUTE_LAST;
-	
-	
+
 	/**
 	 * Key used to write data to cache. This is populated by beforeFetch
 	 * if no valid data is found in the cache. The id is then written
@@ -26,15 +25,13 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 * @var String
 	 */
 	protected $_openCacheKey;
-	
-	
+
 	/**
 	 * Configuration.
 	 * @return Void
 	 */
 	protected function _setup($config) {}
-	
-	
+
 	/**
 	 * Before fetch callback, checks the cache for valid data.
 	 * @param Array $args
@@ -44,37 +41,37 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 		$model = &$args[0];
 		$select = &$args[1];
 		// check if the cache is in use
-		if ($model->getCacheQueries() && Zend_Registry::get('readFromCache')) {
-			$cacheKey = $this->createCacheKey($model, $select);
-			$results = Garp_Cache_Manager::readQueryCache($model, $cacheKey);
-			if ($results !== -1) {
-				$args[2] = $results;
-			} else {
-				$this->_openCacheKey = $cacheKey;
-			}
+		if (!$model->getCacheQueries() || !Zend_Registry::get('readFromCache')) {
+			return;
 		}
-	}
-	
-	
+		$cacheKey = $this->createCacheKey($model, $select);
+		$results = Garp_Cache_Manager::readQueryCache($model, $cacheKey);
+		if ($results !== -1) {
+			$args[2] = $results;
+		} else {
+			$this->_openCacheKey = $cacheKey;
+		}
+	} 
+
 	/**
 	 * After fetch callback, writes data back to the cache.
 	 * @param Array $args
 	 * @return Void
 	 */
 	public function afterFetch(&$args) {
-		if ($this->_openCacheKey) {
-			$model = $args[0];
-			$results = $args[1];
-			$cacheKey = $this->_openCacheKey;
-
-			Garp_Cache_Manager::writeQueryCache($model, $cacheKey, $results);
-
-			// reset the key
-			$this->_openCacheKey = '';
+		if (!$this->_openCacheKey) {
+			return;
 		}
+		$model = $args[0];
+		$results = $args[1];
+		if ($model->getCacheQueries() && Zend_Registry::get('readFromCache')) {
+			Garp_Cache_Manager::writeQueryCache($model, $this->_openCacheKey, $results);
+		}
+
+		// reset the key
+		$this->_openCacheKey = '';
 	}
-	
-	
+
 	/**
 	 * After insert callback, will destroy the existing cache for this model
 	 * @param Array $args
@@ -82,10 +79,11 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 */
 	public function afterInsert(&$args) {
 		$model = &$args[0];
-		Garp_Cache_Manager::purge($model);
+		if ($model->getCacheQueries() && Zend_Registry::get('readFromCache')) {
+			Garp_Cache_Manager::purge($model);
+		}
 	}
-	
-	
+
 	/**
 	 * After update callback, will destroy the existing cache for this model
 	 * @param Array $args
@@ -93,11 +91,11 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 */
 	public function afterUpdate(&$args) {
 		$model = &$args[0];
-		$where = $args[3];
-		Garp_Cache_Manager::purge($model);
+		if ($model->getCacheQueries() && Zend_Registry::get('readFromCache')) {
+			Garp_Cache_Manager::purge($model);
+		}
 	}
-	
-	
+
 	/**
 	 * After delete callback, will destroy the existing cache for this model
 	 * @param Array $args
@@ -105,10 +103,10 @@ class Garp_Model_Behavior_Cachable extends Garp_Model_Behavior_Core {
 	 */
 	public function afterDelete(&$args) {
 		$model = &$args[0];
-		$where = $args[2];
-		Garp_Cache_Manager::purge($model);
+		if ($model->getCacheQueries() && Zend_Registry::get('readFromCache')) {
+			Garp_Cache_Manager::purge($model);
+		}
 	}
-
 
 	/**
 	 * Create a unique hash for cache entries, based on the SELECT object,
