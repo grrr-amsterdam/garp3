@@ -100,7 +100,16 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	 * @cfg: metaDataEditors: editors to use in metaDataPanel
 	 */
 	metaDataEditors: null,
+	metaDataRenderers: null,
 	metaDataValidator: function(){return true;},
+	
+	/**
+	 * For fine-grained control over the metaDataPanel, models
+	 * can configure a full configuration object. 
+	 * @see http://docs.sencha.com/extjs/3.4.0/#!/api/Ext.grid.PropertyGrid for
+	 * available options.
+	 */
+	metaDataConfig: {},
 	
 	dirty: function(){
 		this.fireEvent('dirty');
@@ -866,7 +875,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					}
 				}
 				
-				this.metaDataPanel = new Ext.grid.PropertyGrid({
+				var metaDataPanelConfig = {
 					split: true,
 					__relationPanel: this,
 					layout: 'fit',
@@ -883,7 +892,9 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					listeners:{
 						propertychange: validateMetaPanel
 					}
-				});
+				};
+				Ext.apply(metaDataPanelConfig, this.metaDataConfig);
+				this.metaDataPanel = new Ext.grid.PropertyGrid(metaDataPanelConfig);
 				this.metaDataPanel.store.on('load', validateMetaPanel, this);
 				
 				
