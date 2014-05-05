@@ -550,57 +550,56 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			continueAction = Ext.emptyFn;
 		}
 		
-		if (this.relateStore.getModifiedRecords().length > 0 || this.relateeStore.getModifiedRecords().length > 0) {
-			Ext.Msg.show({
-				animEl: Garp.viewport.getEl(),
-				icon: Ext.MessageBox.QUESTION,
-				title: __('Garp'),
-				msg: __('Would you like to save your changes?'),
-				buttons: Ext.Msg.YESNOCANCEL,
-				scope: this,
-				fn: function(btn){
-					switch (btn) {
-						case 'yes':
-							this.saveRelations();
-							var c = 2;
-							function async(){
-								c--;
-								if(c === 0){
-									this.relateStore.rejectChanges();
-									this.relateeStore.rejectChanges();
-									continueAction();
-								}
-							}
-							
-							this.relateeStore.on({
-								'load': {
-									fn: async,
-									scope: this,
-									single: true
-								}
-							});
-							this.relateStore.on({
-								'load': {
-									fn: async,
-									scope: this,
-									single: true
-								}
-							});
-							break;
-						case 'no':
-							this.relateStore.rejectChanges();
-							this.relateeStore.rejectChanges();
-							continueAction();
-						//case 'cancel':
-						//default:
-							break;
-					}
-				}
-			});
-			return false;
-		} else {
+		if (this.relateStore.getModifiedRecords().length == 0 && this.relateeStore.getModifiedRecords().length == 0) {
 			return true;
 		}
+		Ext.Msg.show({
+			animEl: Garp.viewport.getEl(),
+			icon: Ext.MessageBox.QUESTION,
+			title: __('Garp'),
+			msg: __('Would you like to save your changes?'),
+			buttons: Ext.Msg.YESNOCANCEL,
+			scope: this,
+			fn: function(btn){
+				switch (btn) {
+					case 'yes':
+						this.saveRelations();
+						var c = 2;
+						function async(){
+							c--;
+							if(c === 0){
+								this.relateStore.rejectChanges();
+								this.relateeStore.rejectChanges();
+								continueAction();
+							}
+						}
+						
+						this.relateeStore.on({
+							'load': {
+								fn: async,
+								scope: this,
+								single: true
+							}
+						});
+						this.relateStore.on({
+							'load': {
+								fn: async,
+								scope: this,
+								single: true
+							}
+						});
+						break;
+					case 'no':
+						this.relateStore.rejectChanges();
+						this.relateeStore.rejectChanges();
+						continueAction();
+					//case 'cancel':
+					//default:
+						break;
+				}
+			}
+		});
+		return false;
 	},
 	
 	/**
@@ -876,7 +875,8 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					height: 200,
 					collapsed: false,
 					customEditors: this.metaDataEditors,
-					foceValidation: true,
+					customRenderers: this.metaDataRenderers,
+					forceValidation: true,
 					hidden: true,
 					collapsible: false,
 					source: this.source || {},
@@ -1016,8 +1016,8 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			});
 			
 			/**
-		 *  Event handling:
-		 */
+		 	 *  Event handling:
+		 	 */
 			//this.on('afterlayout', this._onActivate, this); // was bugy, caused weired layout issues sometimes, changed event order... 
 			this.on('activate', this._onActivate, this); // @TODO: refactor method names to cope with new event names
 			this.on('hide', function(){
