@@ -240,7 +240,7 @@ Ext.apply(Ext.grid.GridPanel.prototype, {
 /**
  * Image Template for embeding images
  */
-Garp.imageTpl = new Ext.XTemplate(['<tpl if="caption">', '<tpl if="align">', '<dl class="figure" style="float: {align};">', '</tpl>', '<tpl if="!align">', '<dl class="figure" style="float: none;">', '</tpl>', '<dt>', '<img src="{path}" draggable="false"> ', '</dt>', '<dd draggable="false">{caption}</dd>', '</dl>', '</tpl>', '<tpl if="!caption">', '<tpl if="align">', '<img class="figure" src="{path}" style="float: {align};">', '</tpl>', '<tpl if="!align">', '<img class="figure" src="{path}" style="float: none;">', '</tpl>', '</tpl>']);
+Garp.imageTpl = new Ext.XTemplate(['<tpl if="caption">', '<tpl if="align">', '<dl class="figure" style="float: {align};">', '</tpl>', '<tpl if="!align">', '<dl class="figure" style="float: none;">', '</tpl>', '<dt>', '<img src="{path}" draggable="false"> ', '</dt>', '<dd draggable="false">{caption}</dd>', '</dl>', '</tpl>', '<tpl if="!caption">', '<tpl if="align">', '<img class="figure" src="{path}" class="{align}">', '</tpl>', '<tpl if="!align">', '<img class="figure" src="{path}" style="float: none;">', '</tpl>', '</tpl>']);
 
 /**
  * Video Template for embeding videos
