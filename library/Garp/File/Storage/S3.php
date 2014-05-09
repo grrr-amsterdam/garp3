@@ -11,18 +11,23 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
  	 */
 	protected $_config = array();
 
-
 	protected $_requiredS3ConfigParams = array('apikey', 'secret', 'bucket');
 
-	
 	/** @var Zend_Service_Amazon_S3 $_api */
 	protected $_api;
-	
 	
 	protected $_apiInitialized = false;
 
 	protected $_bucketExists = false;
 
+	protected $_knownMimeTypes = array(
+		'js' => 'text/javascript',
+		'css' => 'text/css',
+		'html' => 'text/html',
+		'jpg' => 'image/jpeg',
+		'png' => 'image/png',
+		'gif' => 'image/gif'
+	);
 
 	/** @const Int TIMEOUT Number of seconds after which to timeout the S3 action. Should support uploading large (20mb) files. */
 	const TIMEOUT = 400;
@@ -157,10 +162,18 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		);
 
 		if (false !== strpos($filename, '.')) {
+			$ext = substr($filename, strrpos($filename, '.')+1);
+			if (array_key_exists($ext, $this->_knownMimeTypes)) {
+				$mime = $this->_knownMimeTypes[$ext];
+			} else {
+				$finfo = new finfo(FILEINFO_MIME);
+				$mime  = $finfo->buffer($data);
+			}				
+		} else {
 			$finfo = new finfo(FILEINFO_MIME);
 			$mime  = $finfo->buffer($data);
-			$meta[Zend_Service_Amazon_S3::S3_CONTENT_TYPE_HEADER] = $mime;
 		}
+		$meta[Zend_Service_Amazon_S3::S3_CONTENT_TYPE_HEADER] = $mime;
 
 		if ($this->_api->putObject(
 			$path,
