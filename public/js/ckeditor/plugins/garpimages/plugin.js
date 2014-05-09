@@ -35,6 +35,7 @@ CKEDITOR.plugins.add('garpimages', {
 		editor.ui.addButton('Garpimage', {
 			label: 'Insert Image',
 			command: 'garpimageDialog',
+            icon: this.path + 'picture.png',
 			toolbar: 'insert'
 		});
 	}

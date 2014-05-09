@@ -19,8 +19,9 @@ class Garp_Spawn_Field {
 	public $index;
 	public $multilingual = false;
 	public $comment;
+	public $wysiwyg = false;
 
-	
+
 	const TEXTFIELD_MAX_LENGTH = 124;
 
 	/** @var Array $options Optional values for an enum field */
@@ -38,7 +39,7 @@ class Garp_Spawn_Field {
 	/** @var String $origin Context in which this field is added. Can be 'config', 'default', 'relation' or 'behavior'. */
 	public $origin;
 
-	
+
 	protected $_types = array('text', 'html', 'email', 'url', 'numeric', 'checkbox', 'datetime', 'date', 'time', 'enum', 'document', 'imagefile');
 	protected $_defaultTypeByNameEnding = array(
 		'email' => 'email',
@@ -69,16 +70,16 @@ class Garp_Spawn_Field {
 	public function isMultilingual() {
 		return $this->multilingual;
 	}
-	
+
 	public function isRelationField() {
 		return $this->origin === 'relation';
 	}
-	
+
 	public function isSuitableAsLabel() {
 		$nonLabelFieldTypes 	= array('html', 'checkbox');
 		$isSuitableType 		= !in_array($this->type, $nonLabelFieldTypes);
 		$isSuitableField		= $isSuitableType && !$this->isRelationField();
-		
+
 		return $isSuitableField;
 	}
 

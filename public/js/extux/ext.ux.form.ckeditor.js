@@ -8,24 +8,41 @@
 Ext.form.CKEditor = function(config) {
     this.config = config;
 
-    // Always load the images picker
-    var extraPlugins = "garpimages";
-
-    // Only load the video picker when a VIDEO_WIDTH template is defined
-    if (VIDEO_WIDTH) {
-        extraPlugins += ",garpvideos";
-    }
-
     config.CKEditor = {
-        // Load the garp content plugins
-        extraPlugins: extraPlugins,
-
         // Allow only these tags (=true for all of them)
         allowedContent: true,
 
-        // Load the site's styling
-        contentsCss: WYSIWYG_CSS_URL
+        // Available buttons
+        toolbar: [
+            ['Bold', 'Italic', '-', 'RemoveFormat'],
+            ['Link', 'Unlink'],
+            ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source']
+        ]
     };
+
+    // Load the site's own styling
+    if (window.WYSIWYG_CSS_URL) {
+        config.CKEditor.contentsCss = window.WYSIWYG_CSS_URL;
+    }
+
+    // Load the garp content plugins for richwyswig editor types
+    if (config.rich) {
+        // Always load the images picker
+        var extraPlugins = "garpimages";
+        var richButtons = ["Garpimage"];
+
+        // Only load the video picker when a VIDEO_WIDTH template is defined
+        if (VIDEO_WIDTH) {
+            extraPlugins += ",garpvideos";
+            richButtons.push("Garpvideo");
+        }
+
+        // Let the editor know
+        config.CKEditor.extraPlugins = extraPlugins;
+        config.CKEditor.toolbar.push(richButtons);
+    }
+
+    // Attach to Ext
     Ext.form.CKEditor.superclass.constructor.call(this, config);
 };
 
@@ -56,8 +73,9 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
         value = value || "";
 
         // Working around CKEditor's crazy-assync setData
-        // There were problems when setting data twice in short succession
+        // (When setting data twice in short succession only the first data gets set)
         var that = this;
+
         function retrySetValue(event) {
             that.setValue(that.orgValue);
             that.waitingForSetData = false;
@@ -89,11 +107,13 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
     }
 });
 
-// Rich CKEditor (which allows for some more options such as image and video embeds)
+// Define "Rich CKEditor" (which allows for some more options such as image and video embeds)
 Ext.form.RichCKEditor = function(config) {
+    config.rich = true;
     Ext.form.RichCKEditor.superclass.constructor.call(this, config);
 };
 Ext.extend(Ext.form.RichCKEditor, Ext.form.CKEditor);
 
 // Enable the CKEditor as default richtexteditor
-Ext.reg('richtexteditor', Ext.form.RichCKEditor);
+Ext.reg('wysiwygeditor', Ext.form.CKEditor);
+Ext.reg('richwysiwygeditor', Ext.form.RichCKEditor);
