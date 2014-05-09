@@ -32,6 +32,7 @@ CKEDITOR.plugins.add('garpvideos', {
         editor.ui.addButton('Garpvideo', {
             label: 'Insert Video',
             command: 'garpvideoDialog',
+            icon: this.path + 'video-film.png',
             toolbar: 'insert'
         });
     }
