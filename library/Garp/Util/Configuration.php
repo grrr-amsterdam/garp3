@@ -21,13 +21,11 @@ class Garp_Util_Configuration extends ArrayIterator {
 	 */
 	public function obligate($key, $msg = '') {
 		$msg = $msg ?: "\"$key\" is required but not set.";
-		// if (!$this->offsetExists($key)) {
 		if (!$this->offsetExists($key)) {
 			throw new Garp_Util_Configuration_Exception($msg);
 		}
 		return $this;
 	}
-	
 	
 	/**
 	 * Convenience method for setting default values.
@@ -47,6 +45,28 @@ class Garp_Util_Configuration extends ArrayIterator {
 		return $this;
 	}
 
+	public function obligateType($key, $type, $msg = '') {
+		$this->obligate($key);
+		$val = $this[$key];
+		$msg = $msg ?: "\"$key\" is set but not the correct type.";
+		$valid = true;
+		if ($type === 'array') {
+			$valid = is_array($val);
+		} elseif ($type === 'object') {
+			$valid = is_object($val);
+		} elseif ($type === 'number') {
+			$valid = is_int($val) || is_float($val);
+		} elseif ($type === 'numeric') {
+			$valid = is_numeric($val);
+		} elseif ($type === 'string') {
+			$valid = is_string($val);
+		}
+
+		if (!$valid) {
+			throw new Garp_Util_Configuration_Exception($msg);
+		}
+		return $this;
+	}
 
 	/**
  	 * Convert to simple array
