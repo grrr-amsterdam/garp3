@@ -63,7 +63,7 @@ class Garp_Util_Configuration extends ArrayIterator {
 		}
 
 		if (!$valid) {
-			throw new Garp_Util_Configuration_Exception($msg);
+			throw new Garp_Util_Configuration_Exception_IncorrectType($msg);
 		}
 		return $this;
 	}
