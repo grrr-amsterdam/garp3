@@ -3,7 +3,7 @@
  * Generic extendable singleton class to deal with Cli output and input.
  * @author David Spreekmeester | Grrr.nl
  */
-class Garp_Cli_Ui {
+abstract class Garp_Cli_Ui implements Garp_Cli_Ui_Protocol {
 	public static function getInstance() {
 		static $ui = null;
 		if ($ui === null) {
@@ -15,12 +15,6 @@ class Garp_Cli_Ui {
 	
 
 	protected function __construct() {}
-
-
-	public function display($string) {
-	  return Garp_Cli::lineOut($string);
-	}
-
 
 	public function displayError($string) {
 		return Garp_Cli::errorOut($string);
