@@ -100,7 +100,16 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	 * @cfg: metaDataEditors: editors to use in metaDataPanel
 	 */
 	metaDataEditors: null,
+	metaDataRenderers: null,
 	metaDataValidator: function(){return true;},
+	
+	/**
+	 * For fine-grained control over the metaDataPanel, models
+	 * can configure a full configuration object. 
+	 * @see http://docs.sencha.com/extjs/3.4.0/#!/api/Ext.grid.PropertyGrid for
+	 * available options.
+	 */
+	metaDataConfig: {},
 	
 	dirty: function(){
 		this.fireEvent('dirty');
@@ -550,57 +559,56 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			continueAction = Ext.emptyFn;
 		}
 		
-		if (this.relateStore.getModifiedRecords().length > 0 || this.relateeStore.getModifiedRecords().length > 0) {
-			Ext.Msg.show({
-				animEl: Garp.viewport.getEl(),
-				icon: Ext.MessageBox.QUESTION,
-				title: __('Garp'),
-				msg: __('Would you like to save your changes?'),
-				buttons: Ext.Msg.YESNOCANCEL,
-				scope: this,
-				fn: function(btn){
-					switch (btn) {
-						case 'yes':
-							this.saveRelations();
-							var c = 2;
-							function async(){
-								c--;
-								if(c === 0){
-									this.relateStore.rejectChanges();
-									this.relateeStore.rejectChanges();
-									continueAction();
-								}
-							}
-							
-							this.relateeStore.on({
-								'load': {
-									fn: async,
-									scope: this,
-									single: true
-								}
-							});
-							this.relateStore.on({
-								'load': {
-									fn: async,
-									scope: this,
-									single: true
-								}
-							});
-							break;
-						case 'no':
-							this.relateStore.rejectChanges();
-							this.relateeStore.rejectChanges();
-							continueAction();
-						//case 'cancel':
-						//default:
-							break;
-					}
-				}
-			});
-			return false;
-		} else {
+		if (this.relateStore.getModifiedRecords().length == 0 && this.relateeStore.getModifiedRecords().length == 0) {
 			return true;
 		}
+		Ext.Msg.show({
+			animEl: Garp.viewport.getEl(),
+			icon: Ext.MessageBox.QUESTION,
+			title: __('Garp'),
+			msg: __('Would you like to save your changes?'),
+			buttons: Ext.Msg.YESNOCANCEL,
+			scope: this,
+			fn: function(btn){
+				switch (btn) {
+					case 'yes':
+						this.saveRelations();
+						var c = 2;
+						function async(){
+							c--;
+							if(c === 0){
+								this.relateStore.rejectChanges();
+								this.relateeStore.rejectChanges();
+								continueAction();
+							}
+						}
+						
+						this.relateeStore.on({
+							'load': {
+								fn: async,
+								scope: this,
+								single: true
+							}
+						});
+						this.relateStore.on({
+							'load': {
+								fn: async,
+								scope: this,
+								single: true
+							}
+						});
+						break;
+					case 'no':
+						this.relateStore.rejectChanges();
+						this.relateeStore.rejectChanges();
+						continueAction();
+					//case 'cancel':
+					//default:
+						break;
+				}
+			}
+		});
+		return false;
 	},
 	
 	/**
@@ -867,7 +875,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					}
 				}
 				
-				this.metaDataPanel = new Ext.grid.PropertyGrid({
+				var metaDataPanelConfig = {
 					split: true,
 					__relationPanel: this,
 					layout: 'fit',
@@ -876,14 +884,17 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					height: 200,
 					collapsed: false,
 					customEditors: this.metaDataEditors,
-					foceValidation: true,
+					customRenderers: this.metaDataRenderers,
+					forceValidation: true,
 					hidden: true,
 					collapsible: false,
 					source: this.source || {},
 					listeners:{
 						propertychange: validateMetaPanel
 					}
-				});
+				};
+				Ext.apply(metaDataPanelConfig, this.metaDataConfig);
+				this.metaDataPanel = new Ext.grid.PropertyGrid(metaDataPanelConfig);
 				this.metaDataPanel.store.on('load', validateMetaPanel, this);
 				
 				
@@ -1016,8 +1027,8 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			});
 			
 			/**
-		 *  Event handling:
-		 */
+		 	 *  Event handling:
+		 	 */
 			//this.on('afterlayout', this._onActivate, this); // was bugy, caused weired layout issues sometimes, changed event order... 
 			this.on('activate', this._onActivate, this); // @TODO: refactor method names to cope with new event names
 			this.on('hide', function(){
