@@ -12,12 +12,18 @@ Ext.form.CKEditor = function(config) {
         // Allow only these tags (=true for all of them)
         allowedContent: true,
 
+        format_tags: 'p;h2;h3',
+
         // Available buttons
         toolbar: [
             ['Bold', 'Italic', '-', 'RemoveFormat'],
             ['Link', 'Unlink'],
+            ['NumberedList','BulletedList', 'Format'],
             ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source']
-        ]
+        ],
+
+        // Disable CKEditor's own image plugin
+        removePlugins: 'image'
     };
 
     // Load the site's own styling
@@ -36,6 +42,8 @@ Ext.form.CKEditor = function(config) {
             extraPlugins += ",garpvideos";
             richButtons.push("Garpvideo");
         }
+
+        config.CKEditor.height = "400px";
 
         // Let the editor know
         config.CKEditor.extraPlugins = extraPlugins;
