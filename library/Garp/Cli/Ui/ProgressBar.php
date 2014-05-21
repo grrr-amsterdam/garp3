@@ -78,12 +78,15 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 		return Garp_Cli::lineOut("\n" . $string);
 	}
 	
-	
 	/**
 	 * Returns the current progress value. For custom purposes.
 	 */
 	public function getProgress() {
 		return $this->_currentValue;
+	}
+
+	public function isInteractive() {
+		return true;
 	}
 
 	protected function _preventOverflow() {

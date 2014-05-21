@@ -16,4 +16,6 @@ interface Garp_Cli_Ui_Protocol {
 	public function displayError($string);
 
 	public function displayHeader($string);
+
+	public function isInteractive();
 }
