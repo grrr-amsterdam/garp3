@@ -16,4 +16,7 @@ class Garp_Cli_Ui_BatchOutput extends Garp_Cli_Ui {
 		return Garp_Cli::errorOut($string);
 	}
 
+	public function isInteractive() {
+		return false;
+	}
 }
