@@ -1428,6 +1428,10 @@ Garp.CountDownArea = function(fieldSelector, counterSelector, maxCharacters, all
 	textarea.keyup(checkLength).keypress(checkLength).blur(checkLength).click(checkLength);
 	
 	checkLength();
+
+	this.isValid = function() {
+		return textarea.val().length < maxCharacters;
+	};
 };
 
 Garp.scrollHandler = (function(){
