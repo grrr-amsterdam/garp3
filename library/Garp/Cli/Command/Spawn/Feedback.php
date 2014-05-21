@@ -47,6 +47,6 @@ class Garp_Cli_Command_Spawn_Feedback {
  	 * @return Boolean
  	 */
 	public function isInteractive() {
-		return array_key_exists(self::BATCH_MODE_COMMAND, $this->getArgs());
+		return !array_key_exists(self::BATCH_MODE_COMMAND, $this->getArgs());
 	}
 }

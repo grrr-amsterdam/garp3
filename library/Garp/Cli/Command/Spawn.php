@@ -140,17 +140,13 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	protected function _spawnDb() {
 		$modelSet = $this->getModelSet();
 
-		if ($this->getFeedback()->isInteractive()) {
-			Garp_Cli::lineOut("\nDatabase");
-		}
+		$progress = $this->_getFeedbackInstance();
+		$progress->displayHeader("Database");
 
 		$dbManager = Garp_Spawn_MySql_Manager::getInstance();
+		$dbManager->setInteractive($this->getFeedback()->isInteractive());
 		$dbManager->run($modelSet);
 		
-		if ($this->getFeedback()->isInteractive()) {
-			Garp_Cli::lineOut("\n");
-		}
-
 		$cacheDir = $this->_getCacheDir();
 		Garp_Cache_Manager::purgeStaticCache(null, $cacheDir);
 		Garp_Cache_Manager::purgeMemcachedCache(null);
@@ -167,42 +163,42 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		$jsShouldSpawn	= $this->getFilter()->shouldSpawnJs();
 		$phpShouldSpawn	= $this->getFilter()->shouldSpawnPhp();
 
-		$progress 		= $this->getFeedback()->isInteractive()
-			? Garp_Cli_Ui_ProgressBar::getInstance()
-			: Garp_Cli_Ui_BatchOutput::getInstance()
-		;
-
+		$progress 		= $this->_getFeedbackInstance();
 		$progress->init($totalActions);
-			
-		if ($this->getFeedback()->isInteractive()) {
-			Garp_Cli::lineOut("\nFiles");
-		}
+		$progress->displayHeader("Files");
 
 		if ($jsShouldSpawn) {
 			$progress->display("Cooking up base model goo.");
 			$modelSet->materializeCombinedBaseModel();
 			$progress->advance();
 	
-			$progress->display("Including models in model loader");
+			$progress->display("Including models in model loader.");
 			$modelSet->includeInJsModelLoader();
 			$progress->advance();
 		}
 
 		foreach ($modelSet as $model) {
 			if ($phpShouldSpawn) {
-				$progress->display($model->id . " PHP models, %d to go.");
+				$progress->display($model->id . " PHP models", "%d to go.");
 				$model->materializePhpModels($model);
 				$progress->advance();
 			}
 
 			if ($jsShouldSpawn) {
-				$progress->display($model->id . " extended models, %d to go.");
+				$progress->display($model->id . " extended models", "%d to go.");
 				$model->materializeExtendedJsModels($modelSet);
 				$progress->advance();
 			}
 		}
 		
 		$progress->display("√ Done");
+	}
+
+	protected function _getFeedbackInstance() {
+		return $this->getFeedback()->isInteractive()
+			? Garp_Cli_Ui_ProgressBar::getInstance()
+			: Garp_Cli_Ui_BatchOutput::getInstance()
+		;
 	}
 	
 	protected function _calculateTotalFileActions() {

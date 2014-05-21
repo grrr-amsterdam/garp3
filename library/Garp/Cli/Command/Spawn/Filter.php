@@ -110,13 +110,14 @@ class Garp_Cli_Command_Spawn_Filter {
 	protected function _validateModuleFilterArgument(array $args) {
 		$only 			= self::FILTER_MODULE_COMMAND;
 		$allowedFilters = $this->getAllowedFilters();
+		$filter = array_key_exists($only, $args)
+			? strtolower($args[$only])
+			: null
+		;	
 		
-		if (
-			array_key_exists($only, $args) &&
-			$filter	= strtolower($args[$only]) &&
-			!in_array($filter, $allowedFilters)
-		) {
+		if ($filter && !in_array($filter, $allowedFilters)) {
 			$error = sprintf(self::ERROR_ILLEGAL_MODULE_FILTER, $args[$only]);
+			$error .= "\nTry: " . implode(", ", $this->getAllowedFilters());
 			Garp_Cli::errorOut($error);
 			exit;
 		}

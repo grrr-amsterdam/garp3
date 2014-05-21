@@ -22,6 +22,11 @@ class Garp_Spawn_MySql_Manager {
      * @var Garp_Spawn_MySql_Manager
      */
     private static $_instance = null;
+
+	/**
+ 	 * @var Boolean	$_interactive Whether the feedback mode is interactive (progress bar) or not (batch mode).
+ 	 */
+	protected $_interactive = true;
 	
 	/** @param Array $_models Array of Garp_Spawn_Model_Base objects */
 	protected $_modelSet;
@@ -34,7 +39,7 @@ class Garp_Spawn_MySql_Manager {
      * Private constructor. Here be Singletons.
      * @return Void
      */
-    private function __construct() {}
+    private function __construct() {}		
 	
     /**
      * Get Garp_Auth instance
@@ -54,7 +59,7 @@ class Garp_Spawn_MySql_Manager {
 	 */
 	public function run(Garp_Spawn_Model_Set $modelSet) {
 		$totalActions = count($modelSet) * 5;
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress = $this->_getFeedbackInstance();
 		$progress->init($totalActions);
 		$progress->display(self::MSG_INITIALIZING);
 
@@ -146,15 +151,36 @@ class Garp_Spawn_MySql_Manager {
 		new Garp_Spawn_MySql_I18nForker($model);
 	}
 	
+	/**
+ 	 * @param Boolean $interactive Whether interactive feedback mode should be enabled.
+ 	 */
+	public function setInteractive($interactive) {
+		$this->_interactive = $interactive;
+	}
+
+	/**
+ 	 * @return Boolean
+ 	 */
+	public function getInteractive() {
+		return $this->_interactive;
+	}
+
+	protected function _getFeedbackInstance() {
+		return $this->getInteractive()
+			? Garp_Cli_Ui_ProgressBar::getInstance()
+			: Garp_Cli_Ui_BatchOutput::getInstance()
+		;
+	}
+
 	protected function _createBaseModelTableAndAdvance(Garp_Spawn_Model_Base $model) {
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " base table");
 		$this->_createBaseModelTableIfNotExists($model);
 		$progress->advance();
 	}
 		
 	protected function _createBaseModelTableIfNotExists(Garp_Spawn_Model_Base $model) {
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " SQL render.");
 
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($model);
@@ -190,12 +216,11 @@ class Garp_Spawn_MySql_Manager {
 
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($bindingModel);
 		$configTable 	= $tableFactory->produceConfigTable();
-// Zend_Debug::dump($configTable->name);
 		$this->_createTableIfNotExists($configTable);
 	}
 
 	protected function _syncBaseModel(Garp_Spawn_Model_Base $model) {
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " table comparison");
 
 		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model);
@@ -203,7 +228,7 @@ class Garp_Spawn_MySql_Manager {
 	}
 	
 	protected function _cleanUpBaseModel(Garp_Spawn_Model_Base $model) {
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " table comparison");
 
 		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model);
@@ -215,7 +240,7 @@ class Garp_Spawn_MySql_Manager {
 			return;
 		}
 
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " i18n comparison");
 
 		$i18nModel 		= $model->getI18nModel();
@@ -228,7 +253,7 @@ class Garp_Spawn_MySql_Manager {
 	}
 
 	protected function _syncBindingModel(Garp_Spawn_Relation $relation) {
-		$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$progress = $this->_getFeedbackInstance();
 		$bindingModel = $relation->getBindingModel();
 		$progress->display($bindingModel->id . " table comparison");
 		
@@ -238,7 +263,7 @@ class Garp_Spawn_MySql_Manager {
 
 	protected function _createTableIfNotExists(Garp_Spawn_MySql_Table_Abstract $table) {
 		if (!Garp_Spawn_MySql_Table_Base::exists($table->name)) {
-			$progress = Garp_Cli_Ui_ProgressBar::getInstance();
+			$progress = $this->_getFeedbackInstance();
 			$progress->display($table->name . " table creation");
 			if (!$table->create()) {
 				$error = sprintf(self::ERROR_CANT_CREATE_TABLE, $table->name);

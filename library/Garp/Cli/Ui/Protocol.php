@@ -5,11 +5,15 @@
  */
 interface Garp_Cli_Ui_Protocol {
 
-	public function init($totalValue);
-
-	public function advance($newValue = null);
-	    
-	public function display($message = null);
+	/**
+ 	 * Displays a message about the progress, and an optional message about the number of items left.
+ 	 * @param String $message
+ 	 * @param String $itemsLeftMessage	Optional message to indicate number of items left.
+ 	 *									Use '%d' for the number. For instance: "%d items left".
+ 	 */
+	public function display($message = null, $itemsLeftMessage = null);
 	
 	public function displayError($string);
+
+	public function displayHeader($string);
 }
