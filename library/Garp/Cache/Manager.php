@@ -165,30 +165,32 @@ class Garp_Cache_Manager {
 		$time = date('H:i d.m.y', $timestamp);
 
 		// Sanity check: are php and at available? ('which' returns an empty string in case of failure)
-		if (exec('which php') && exec('which at')) {
-			// The command must come from a file, create that in the data folder of this project.
-			// Add timestamp to the filename so we can safely delete the file later
-			$tags = implode(' ', $tags);
-			$file = APPLICATION_PATH.'/data/at_cmd_'.time().md5($tags);
-			$garpScriptFile = realpath(APPLICATION_PATH.'/../garp/scripts/garp.php');
-			$cmd  = 'php '.$garpScriptFile.' Cache clear --APPLICATION_ENV='.APPLICATION_ENV.' '.$tags.';';
-			if (file_put_contents($file, $cmd)) {
-				$atCmd = 'at -f '.$file.' '.$time;
-				exec($atCmd);
-				// @todo Actually evaluate the status of the command.
-				// This returning true is a bit arbitrary.. I have actually not found a way to read
-				// the error messages returned from the command line.
-
-				// Clean up the tmp file
-				@unlink($file);
-				return true;
-			} else {
-				throw new Garp_Model_Behavior_Exception('Cannot write tmp file for at job');
-			}
-		} else {
+		if (!exec('which php') || !exec('which at')) {
 			throw new Garp_Model_Behavior_Exception('php and/or at are not available in this shell.');
 		}
-		return false;
+		// The command must come from a file, create that in the data folder of this project.
+		// Add timestamp to the filename so we can safely delete the file later
+		$tags = implode(' ', $tags);
+		$file = APPLICATION_PATH.'/data/at_cmd_'.time().md5($tags);
+		$garpScriptFile = realpath(APPLICATION_PATH.'/../garp/scripts/garp.php');
+		$cmd  = 'php '.$garpScriptFile.' Cache clear --APPLICATION_ENV='.APPLICATION_ENV.' '.$tags.';';
+
+		// Create temp file
+		$tmpFile = tmpfile();
+		// Write temp file
+		fwrite($tmpFile, $cmd);
+		// Get path to temp file
+		$tempFileMeta = stream_get_meta_data($tmpFile);
+		$tempFilePath = $tempFileMeta['uri'];
+		$atCmd = "at -f {$tempFilePath} {$time}";
+		exec($atCmd);
+		// @todo Actually evaluate the status of the command.
+		// This returning true is a bit arbitrary.. I have actually not found a way to read
+		// the error messages returned from at.
+
+		// Clean up the tmp file
+		fclose($tmpFile);
+		return true;
 	}
 
 	/**
