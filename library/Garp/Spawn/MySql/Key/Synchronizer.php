@@ -24,12 +24,6 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 	public $droppedForeignKeyNamesDuringColumnSync = array();
 
 	
-	//public function sync() {
-
-	//}
-
-	//public function __construct(Array $createStatementLines, $tableName, Garp_Spawn_Model_Abstract $model, Garp_Spawn_Cli_Ui_Protocol $progress) {
-	//}
 
 	public function setSource(Garp_Spawn_MySql_Key_Set $configKeys) {
 		$this->_source = $configKeys;
@@ -66,48 +60,69 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 	}
 	
 	
+	protected function _addUniqueKeys(array $keysToAdd) {
+		$tableName 	= $this->getTableName();
+		$progress	= $this->getFeedback();
+
+		foreach ($keysToAdd as $key) {
+			$fields = $this->_model->fields->getFields('name', $key->column);
+			$field = current($fields);
+			$column = is_array($key->column) ?
+				implode(', ', $key->column) :
+				$key->column
+			;
+
+			if ($progress->isInteractive()) {
+				$question = sprintf(self::QUESTION_MAKE_COLUMN_UNIQUE, $this->_model->id, $column);
+				$progress->display($question . " ");
+				if (!Garp_Spawn_Util::confirm()) {
+					continue;
+				}
+			}
+
+			if (!Garp_Spawn_MySql_UniqueKey::add($tableName, $key)) {
+				$error 	= sprintf(self::ERROR_SET_UNIQUE_NOT_POSSIBLE, $column);
+				throw new Exception($error);
+			}
+		}
+	}
+
+	protected function _addForeignKeys(array $keysToAdd) {
+		$tableName 	= $this->getTableName();
+
+		foreach ($keysToAdd as $key) {
+			$this->_addIndexForForeignKey($key);
+
+			if (!Garp_Spawn_MySql_ForeignKey::add($tableName, $key)) {
+				throw new Exception("Could not create '{$key->localColumn}' foreign key.");
+			}
+		}
+	}
+
+	protected function _addIndices(array $keysToAdd) {
+		$tableName 	= $this->getTableName();
+		
+		foreach ($keysToAdd as $key) {
+			if (!Garp_Spawn_MySql_IndexKey::add($tableName, $key)) {
+				throw new Exception("Could not make column '{$key->column}' indexable.");
+			}
+		}
+	}
+
 	protected function _addKeysPerType($keyType, Garp_Spawn_MySql_Keys $liveKeys) {
-		$progress 	= Garp_Cli_Ui_ProgressBar::getInstance();
 		$inSync 	= true;
 		$tableName 	= $this->getTableName();
 
 		if ($keysToAdd = $this->_getKeysToAdd($keyType, $liveKeys)) {
 			switch ($keyType) {
 				case 'unique':
-					foreach ($keysToAdd as $key) {
-						$fields = $this->_model->fields->getFields('name', $key->column);
-						$field = current($fields);
-						$column = is_array($key->column) ?
-							implode(', ', $key->column) :
-							$key->column
-						;
-
-						$question = sprintf(self::QUESTION_MAKE_COLUMN_UNIQUE, $this->_model->id, $column);
-						$progress->display($question . " ");
-						if (
-							Garp_Spawn_Util::confirm() &&
-							!Garp_Spawn_MySql_UniqueKey::add($tableName, $key)
-						) {
-							$error 	= sprintf(self::ERROR_SET_UNIQUE_NOT_POSSIBLE, $column);
-							throw new Exception($error);
-						}
-					}
+					$this->_addUniqueKeys($keysToAdd);
 				break;
 				case 'foreign':
-					foreach ($keysToAdd as $key) {
-						$this->_addIndexForForeignKey($key);
-
-						if (!Garp_Spawn_MySql_ForeignKey::add($tableName, $key)) {
-							throw new Exception("Could not create '{$key->localColumn}' foreign key.");
-						}
-					}
+					$this->_addForeignKeys($keysToAdd);
 				break;
 				case 'index':
-					foreach ($keysToAdd as $key) {
-						if (!Garp_Spawn_MySql_IndexKey::add($tableName, $key)) {
-							throw new Exception("Could not make column '{$key->column}' indexable.");
-						}
-					}
+					$this->_addIndices($keysToAdd);
 				break;
 				default:
 					$error = "Syncing {$keyType} keys is not yet supported. ";
@@ -160,44 +175,64 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 		return $inSync;
 	}
 	
-	
-	protected function _removeKeysPerType($keyType, Garp_Spawn_MySql_Keys $liveKeys) {
+	protected function _removeUniqueKeys(array $keysToRemove) {
+		$tableName 	= $this->getTableName();
 		$progress 	= Garp_Cli_Ui_ProgressBar::getInstance();
+
+		foreach ($keysToRemove as $key) {
+			$fields = $this->_model->fields->getFields('name', $key->column);
+			$field = current($fields);
+
+			if ($progress->isInteractive()) {
+				$progress->display("Make {$this->_model->id}.{$key->column} no longer unique? ");
+				if (!Garp_Spawn_Util::confirm()) {
+					continue;
+				}
+			}
+
+			if (!Garp_Spawn_MySql_UniqueKey::delete($tableName, $key)) {
+				throw new Exception("Could not set column '{$key->column}' to non-unique.");
+			}
+		}
+	}	
+
+	protected function _removeForeignKeys(array $keysToRemove) {
+		$tableName 	= $this->getTableName();
+
+		foreach ($keysToRemove as $key) {
+			if (!(
+				in_array($key->name, $this->droppedForeignKeyNamesDuringColumnSync) ||
+				Garp_Spawn_MySql_ForeignKey::delete($tableName, $key)
+			)) {
+				throw new Exception("Could not delete '{$key->localColumn}' foreign key.");
+			}
+		}
+	}	
+
+	protected function _removeIndices(array $keysToRemove) {
+		$tableName 	= $this->getTableName();
+
+		foreach ($keysToRemove as $key) {
+			if (!Garp_Spawn_MySql_IndexKey::delete($tableName, $key)) {
+				throw new Exception("Could not set column '{$key->column}' to non-indexable.");
+			}
+		}
+	}
+
+	protected function _removeKeysPerType($keyType, Garp_Spawn_MySql_Keys $liveKeys) {
 		$inSync 	= true;
 		$tableName	= $this->getTableName();
 		
 		if ($keysToRemove = $this->_getKeysToRemove($keyType, $liveKeys)) {
 			switch ($keyType) {
 				case 'unique':
-					foreach ($keysToRemove as $key) {
-						$fields = $this->_model->fields->getFields('name', $key->column);
-						$field = current($fields);
-
-						$progress->display("Make {$this->_model->id}.{$key->column} no longer unique? ");
-						if (Garp_Spawn_Util::confirm()) {
-							if (!Garp_Spawn_MySql_UniqueKey::delete($tableName, $key)) {
-								throw new Exception("Could not set column '{$key->column}' to non-unique.");
-							}
-						}
-					}
-
+					$this->_removeUniqueKeys($keysToRemove);
 				break;
 				case 'foreign':
-					foreach ($keysToRemove as $key) {
-						if (!(
-							in_array($key->name, $this->droppedForeignKeyNamesDuringColumnSync) ||
-							Garp_Spawn_MySql_ForeignKey::delete($tableName, $key)
-						)) {
-							throw new Exception("Could not delete '{$key->localColumn}' foreign key.");
-						}
-					}
+					$this->_removeForeignKeys($keysToRemove);
 				break;
 				case 'index':
-					foreach ($keysToRemove as $key) {
-						if (!Garp_Spawn_MySql_IndexKey::delete($tableName, $key)) {
-							throw new Exception("Could not set column '{$key->column}' to non-indexable.");
-						}
-					}
+					$this->_removeIndices($keysToRemove);
 				break;
 				default:
 					$error = "Syncing {$keyType} keys is not yet supported. ";
@@ -320,6 +355,9 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 	}
 	
 	
+	/**
+ 	 * @return Array
+ 	 */
 	protected function _getKeysToRemove($keyType, Garp_Spawn_MySql_Keys $liveKeys) {
 		$keyTypeVarName = $keyType === 'index' ?
 			'indices' :
