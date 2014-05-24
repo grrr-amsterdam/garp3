@@ -225,10 +225,14 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 			return;
 		}
 		
-		$progress->display("Delete column {$target->name}.{$targetColumn->name}? ");
-		if (Garp_Spawn_Util::confirm()) {
-			$target->deleteColumn($targetColumn);
+		if ($this->getFeedback()->isInteractive()) {
+			$progress->display("Delete column {$target->name}.{$targetColumn->name}? ");
+			if (!Garp_Spawn_Util::confirm()) {
+				return;
+			}
 		}
+
+		$target->deleteColumn($targetColumn);
 	}
 	
 	protected function _ifNullableChangesThenDeleteForeignKeys(Garp_Spawn_MySql_Column $sourceColumn, array $diffProperties) {
