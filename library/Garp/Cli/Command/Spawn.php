@@ -143,7 +143,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		$progress = $this->_getFeedbackInstance();
 		$progress->displayHeader("Database");
 
-		$dbManager = Garp_Spawn_MySql_Manager::getInstance();
+		$dbManager = Garp_Spawn_MySql_Manager::getInstance($progress);
 		$dbManager->setInteractive($this->getFeedback()->isInteractive());
 		$dbManager->run($modelSet);
 		

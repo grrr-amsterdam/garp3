@@ -34,20 +34,26 @@ class Garp_Spawn_MySql_Manager {
 	
 	protected $_priorityModel = 'User';
 
+	/**
+ 	 * Garp_Cli_Protocol $_feedback
+ 	 */
+	protected $_feedback;
 
     /**
      * Private constructor. Here be Singletons.
      * @return Void
      */
-    private function __construct() {}		
+    private function __construct(Garp_Cli_Ui_Protocol $feedback) {
+		$this->setFeedback($feedback);
+	}		
 	
     /**
      * Get Garp_Auth instance
      * @return Garp_Auth
      */
-    public static function getInstance() {
+    public static function getInstance(Garp_Cli_Ui_Protocol $feedback = null) {
          if (!Garp_Spawn_MySql_Manager::$_instance) {
-              Garp_Spawn_MySql_Manager::$_instance = new Garp_Spawn_MySql_Manager();
+             Garp_Spawn_MySql_Manager::$_instance = new Garp_Spawn_MySql_Manager($feedback);
          }
    
          return Garp_Spawn_MySql_Manager::$_instance;
@@ -165,6 +171,20 @@ class Garp_Spawn_MySql_Manager {
 		return $this->_interactive;
 	}
 
+	/**
+ 	 * @param Garp_Cli_Ui_Protocol $feedback
+ 	 */
+	public function setFeedback(Garp_Cli_Ui_Protocol $feedback) {
+		$this->_feedback = $feedback;
+	}
+
+	/**
+ 	 * @return Garp_Cli_Ui_Protocol
+ 	 */
+	public function getFeedback() {
+		return $this->_feedback;
+	}
+
 	protected function _getFeedbackInstance() {
 		return $this->getInteractive()
 			? Garp_Cli_Ui_ProgressBar::getInstance()
@@ -223,7 +243,7 @@ class Garp_Spawn_MySql_Manager {
 		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " table comparison");
 
-		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model);
+		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model, $progress);
 		$baseSynchronizer->sync(false);
 	}
 	
@@ -231,7 +251,7 @@ class Garp_Spawn_MySql_Manager {
 		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " table comparison");
 
-		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model);
+		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model, $progress);
 		$baseSynchronizer->cleanUp();
 	}
 
@@ -244,7 +264,7 @@ class Garp_Spawn_MySql_Manager {
 		$progress->display($model->id . " i18n comparison");
 
 		$i18nModel 		= $model->getI18nModel();
-		$synchronizer 	= new Garp_Spawn_MySql_Table_Synchronizer($i18nModel);
+		$synchronizer 	= new Garp_Spawn_MySql_Table_Synchronizer($i18nModel, $progress);
 		$synchronizer->sync();
 
 		try {
@@ -257,7 +277,7 @@ class Garp_Spawn_MySql_Manager {
 		$bindingModel = $relation->getBindingModel();
 		$progress->display($bindingModel->id . " table comparison");
 		
-		$synchronizer = new Garp_Spawn_MySql_Table_Synchronizer($bindingModel);
+		$synchronizer = new Garp_Spawn_MySql_Table_Synchronizer($bindingModel, $progress);
 		$synchronizer->sync();
 	}
 
