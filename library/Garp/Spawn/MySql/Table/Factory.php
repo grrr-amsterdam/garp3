@@ -11,7 +11,9 @@ class Garp_Spawn_MySql_Table_Factory {
 	 */
 	protected $_model;
 	
-	
+	/**	
+	 * @param	Garp_Spawn_Model_Abstract	$model
+	 */
 	public function __construct(Garp_Spawn_Model_Abstract $model) {
 		$this->setModel($model);
 	}
