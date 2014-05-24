@@ -21,9 +21,14 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 	protected $_model;
 
 	/**
+ 	 * @var Garp_Cli_Ui_Protocol $_feedback
+ 	 */
+	protected $_feedback;
+
+	/**
 	 * @param 	Garp_Spawn_Model_Abstract 		$model
 	 */
-	public function __construct(Garp_Spawn_Model_Abstract $model) {
+	public function __construct(Garp_Spawn_Model_Abstract $model, Garp_Cli_Ui_Protocol $feedback) {
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($model);
 		$configTable 	= $tableFactory->produceConfigTable();
 		$liveTable 		= $tableFactory->produceLiveTable();
@@ -31,6 +36,7 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 		$this->setSource($configTable);
 		$this->setTarget($liveTable);
 		$this->setModel($model);
+		$this->setFeedback($feedback);
 	}
 	
 	/**
@@ -44,8 +50,9 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 		$keysInSync 	= true;
 
 		$configuredKeys = $this->_getConfiguredKeys();
+		$keySyncer		= new Garp_Spawn_MySql_Key_Set_Synchronizer($configuredKeys, $target->keys, $this->getFeedback());
 		
-		if (!$configuredKeys->removeKeys($target->keys)) {
+		if (!$keySyncer->removeKeys()) {
 			$keysInSync = false;
 		}
 		
@@ -62,8 +69,8 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 		}
 		
 		if (
-			!$configuredKeys->addKeys($target->keys) ||
-			!$configuredKeys->modifyKeys($target->keys)
+			!$keySyncer->addKeys() ||
+			!$keySyncer->modifyKeys()
 		) {
 			$keysInSync = false;
 		}
@@ -118,6 +125,20 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 	 */
 	public function setModel($model) {
 		$this->_model = $model;
+	}
+
+	/**
+	 * @return Garp_Cli_Ui_Protocol
+	 */
+	public function getFeedback() {
+		return $this->_feedback;
+	}
+
+	/**
+	 * @param Garp_Cli_Protocol $feedback
+	 */
+	public function setFeedback(Garp_Cli_Ui_Protocol $feedback) {
+		$this->_feedback = $feedback;
 	}
 	
 	protected function _detectI18nTableFork() {
@@ -232,13 +253,16 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 		return $diffProperties;
 	}
 
+	/** 
+ 	 * @return Garp_Spawn_MySql_Key_Set
+ 	 */
 	protected function _getConfiguredKeys() {
 		$model 					= $this->getModel();
 		$source					= $this->getSource();
 		$createStatementLines 	= explode("\n", $source->getCreateStatement());
 
 		$keys = $this->_isBindingModel($model) ?
-			new Garp_Spawn_MySql_Keys(
+			new Garp_Spawn_MySql_Key_Set(
 				$createStatementLines,
 				$source->name,
 				$model
