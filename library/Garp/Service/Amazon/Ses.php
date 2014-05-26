@@ -14,50 +14,80 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 	 * Amazon web service url
 	 * @var String
 	 */
-	const ENDPOINT = 'https://email.us-east-1.amazonaws.com/';
-	
-	
+	const ENDPOINT = 'https://email.%s.amazonaws.com/';
+
+	/**
+ 	 * Default region
+ 	 * @var String
+ 	 */
+	const DEFAULT_REGION = 'us-east-1';
+
 	/**
 	 * What hash method to use when creating the signature
 	 * @var String
 	 */
 	const SIGNATURE_HASH_METHOD = 'sha256';
-	
-	
+
 	/**
 	 * SES API version
 	 * @var String
 	 */
 	const API_VERSION = '2010-12-01';
-	
-	
+
+	/**
+ 	 * Region to use in the endpoint
+ 	 */
+	protected $_region;
+
 	/**
      * Create Amazon client.
      *
      * @param  string $access_key       Override the default Access Key
      * @param  string $secret_key       Override the default Secret Key
+     * @param  string $region           Override the default Region
      * @return void
      */
-	public function __construct($accessKey = null, $secretKey = null) {
+	public function __construct($accessKey = null, $secretKey = null, $region = null) {
+		$ini = Zend_Registry::get('config');
 		if (!$accessKey || !$secretKey) {
-			$ini = Zend_Registry::get('config');
 			if (!$accessKey && isset($ini->amazon->ses->accessKey)) {
 				$accessKey = $ini->amazon->ses->accessKey;
 			}
 			if (!$secretKey && isset($ini->amazon->ses->secretKey)) {
 				$secretKey = $ini->amazon->ses->secretKey;
 			}
-		}		
+		}
+		if (!$region) {
+			$region = isset($ini->amazon->ses->region) ?
+				$ini->amazon->ses->region : self::DEFAULT_REGION;
+		}
+		$this->setRegion($region);
 		parent::__construct($accessKey, $secretKey);
 	}
-	
-	
+
+	/**
+	 * Get region
+	 * @return String
+	 */
+	public function getRegion() {
+		return $this->_region;
+	}
+
+	/**
+	 * Set region
+	 * @param String $region
+	 * @return $this
+	 */
+	public function setRegion($region) {
+		$this->_region = $region;
+		return $this;
+	}
+
 	/**
 	 * AWS Action mappers
 	 * -----------------------------------------------------------------------------------------------
 	 */
-	
-	
+
 	/**
 	 * Deletes the specified email address from the list of verified addresses.
 	 * @param String $email An email address to be removed from the list of verified addreses.
@@ -70,8 +100,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		));
 		return true;
 	}
-	
-	
+
 	/**
 	 * Returns the user's current activity limits.
 	 * @return Array Describing various statistics about your usage. The keys correspond to 
@@ -90,8 +119,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		);
 		return $out;
 	}
-	
-	
+
 	/**
 	 * Returns the user's sending statistics. The result is a list of data points, representing the last two weeks of sending activity.
 	 * Each data point in the list contains statistics for a 15-minute interval.
@@ -116,8 +144,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		}
 		return $out;
 	}
-	
-	
+
 	/**
 	 * Returns a list containing all of the email addresses that have been verified.
 	 * @return Array
@@ -135,8 +162,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		}		
 		return $out;
 	}
-	
-	
+
 	/**
 	 * Composes an email message based on input data, and then immediately queues the message for sending.
 	 * @param Array|Garp_Util_Configuration $args Might contain;
@@ -253,8 +279,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		$response = $this->_makeRequest((array)$args);		
 		return true;
 	}
-	
-	
+
 	/**
 	 * Sends an email message, with header and content specified by the client. The SendRawEmail action is useful for sending multipart MIME emails. 
 	 * The raw text of the message must comply with Internet email standards; otherwise, the message cannot be sent.
@@ -282,8 +307,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		$response = $this->_makeRequest((array)$args);
 		return true;
 	}
-	
-	
+
 	/**
 	 * Verifies an email address. 
 	 * This action causes a confirmation email message to be sent to the specified address.
@@ -297,8 +321,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		));
 		return true;
 	}
-	
-	
+
 	/**
 	 * Makes the actual AWS request.
 	 * @param String $method
@@ -314,7 +337,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 							', Signature='.$sig;
 		
 		$client = $this->getHttpClient()->resetParameters();
-		$client->setUri(self::ENDPOINT);
+		$endpoint = sprintf(self::ENDPOINT, $this->_region);
+		$client->setUri($endpoint);
 		$client->setHeaders(array(
 			'Date' => $date,
 			'X-Amzn-Authorization' => $amznAuthHeader
@@ -334,8 +358,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		}		
 		return $response->getBody();
 	}
-	
-	
+
 	/**
 	 * Create the HMAC-SHA signature required for every request.
 	 * @return String
@@ -344,8 +367,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		$sig = Zend_Crypt_Hmac::compute($this->_secretKey, self::SIGNATURE_HASH_METHOD, $date, Zend_Crypt_Hmac::BINARY);
 		return base64_encode($sig);
 	}
-	
-	
+
 	/**
 	 * Create AWS String List from array (which is also an array, but with 
 	 * specific Amazonesque keys)
@@ -360,8 +382,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		}
 		return $out;
 	}
-	
-	
+
 	/**
 	 * Throw exceptions
 	 * @param String $body XML body containing error response from AWS
