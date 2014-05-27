@@ -24,7 +24,7 @@ class Garp_Cli_Command_Spawn_Filter {
 	/**
 	 * @var Array $_allowedFilters
 	 */
-	protected $_allowedFilters = array('files', 'db', 'js', 'php');
+	protected $_allowedFilters = array(self::FILTER_MODULE_FILES, self::FILTER_MODULE_DB, self::FILTER_MODULE_JS, self::FILTER_MODULE_PHP);
 
 	/**
  	 * @var Array $_args
