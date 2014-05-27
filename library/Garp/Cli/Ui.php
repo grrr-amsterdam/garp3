@@ -6,6 +6,7 @@
 abstract class Garp_Cli_Ui implements Garp_Cli_Ui_Protocol {
 	protected $_totalValue = null;
 	protected $_currentValue = 0;
+	protected $_isInteractive = false;
 
 	public static function getInstance() {
 		static $ui = null;
@@ -40,5 +41,9 @@ abstract class Garp_Cli_Ui implements Garp_Cli_Ui_Protocol {
 		}
 
 		$this->_currentValue++;
+	}
+
+	public function isInteractive() {
+		return $this->_isInteractive;
 	}
 }
