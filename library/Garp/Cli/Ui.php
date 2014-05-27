@@ -36,6 +36,9 @@ abstract class Garp_Cli_Ui implements Garp_Cli_Ui_Protocol {
 	public function advance($newValue = null) {
 		if (!is_null($newValue)) {
 			$this->_currentValue = $newValue;
-		} else $this->_currentValue++;
+			return;
+		}
+
+		$this->_currentValue++;
 	}
 }
