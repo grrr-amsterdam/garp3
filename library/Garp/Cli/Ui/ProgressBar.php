@@ -13,6 +13,8 @@
  * 	$progress->display("halfway");
  */
 class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
+	protected $_isInteractive = true;
+
 	protected $_totalProgressBlocks;
 	
 	/**
@@ -83,10 +85,6 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 	 */
 	public function getProgress() {
 		return $this->_currentValue;
-	}
-
-	public function isInteractive() {
-		return true;
 	}
 
 	protected function _preventOverflow() {
