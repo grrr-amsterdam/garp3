@@ -13,8 +13,8 @@
  * 	$progress->display("halfway");
  */
 class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
-	protected $_totalValue = null;
-	protected $_currentValue = 0;
+	protected $_isInteractive = true;
+
 	protected $_totalProgressBlocks;
 	
 	/**
@@ -33,11 +33,10 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 	 * 							with the current value provided in $this->render();
 	 */
 	public function init($totalValue) {
+		parent::init($totalValue);
+
 		$this->_columns = $this->_detectNumberOfTerminalColumns();
 		$this->_totalProgressBlocks = $this->_getBarWidthByScreenSize();
-
-		$this->_totalValue = $totalValue;
-		$this->_currentValue = 0;
 	}
 
 	
@@ -49,9 +48,7 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 	 * @param Int $newValue The new value. Leave empty to advance 1 step. This will be compared to $this->_totalValue.
 	 */
 	public function advance($newValue = null) {
-		if (!is_null($newValue)) {
-			$this->_currentValue = $newValue;
-		} else $this->_currentValue++;
+		parent::advance($newValue);
 
 		$this->_preventOverflow();
 	}
@@ -59,21 +56,29 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 
 	/**
 	 * Output the progressbar to the screen.
-	 * @param String $message 	Optional message displayed next to the progress bar.
-	 * 							Indicate optional remaining value position with %d.
+	 * @param String $message			Optional message displayed next to the progress bar.
+	 * @param String $itemsLeftMessage	Indicate optional remaining value position with %d.
 	 */
-	public function display($message = null) {
+	public function display($message = null, $itemsLeftMessage = null) {
 		$this->_verifyTotalValue();
 		$this->_clearLine();
 		$this->_renderProgress();
 
 		if ($message) {
 			echo self::SPACING;
-			$output = sprintf($message, $this->_totalValue - $this->_currentValue);
+			$itemsLeft = $this->_totalValue - $this->_currentValue;
+			$output = $message . ', ' . sprintf($itemsLeftMessage, $itemsLeft);
 			echo substr($output, 0, $this->_getMaximumMessageLength());
 		}
 	}
-	
+
+	public function displayError($string) {
+		return Garp_Cli::errorOut($string);
+	}
+
+	public function displayHeader($string) {
+		return Garp_Cli::lineOut("\n" . $string);
+	}
 	
 	/**
 	 * Returns the current progress value. For custom purposes.
