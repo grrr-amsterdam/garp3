@@ -338,4 +338,7 @@ $translationTable = array(
 	'garp welcome header' => 'Garp',
 	'garp welcome tagline' => 'Beheer de inhoud van deze website.',
 	'invalid email activation code' => "De opgegeven code is ongeldig.",
+	'author' => 'Auteur',
+	'modifier' => 'Bewerker',
+	'no results found' => 'geen resultaten gevonden',
 );
