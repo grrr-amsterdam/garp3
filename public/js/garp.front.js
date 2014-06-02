@@ -723,8 +723,9 @@ Garp.Validator = (function() {
 		},
 		// add errors
 		triggerError: function(id, msg) {
-			if ($('#' + id).attr('data-err-msg')) {
-				Garp.Validator.errorMessages[id] = $('#' + id).attr('data-err-msg');
+			var elm = $('#' + id);
+			if (elm.attr('data-err-msg')) {
+				Garp.Validator.errorMessages[id] = elm.attr('data-err-msg');
 			} else {
 				var label = $('label[for=' + id + ']');
 				var labelText = label.text().replace(/\*$/, '');
