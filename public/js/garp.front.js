@@ -618,7 +618,7 @@ Garp.Validator = (function() {
 	var rules = {
 		required: function(elm) {
 			if (!elm.val()) {
-				Garp.Validator.triggerError(elm.attr('id'), __('%s is een verplicht veld.'));
+				Garp.Validator.triggerError(elm.attr('id'), __('%s is a required field'));
 			}
 		},
 		noBMP: function(elm) {
@@ -627,7 +627,7 @@ Garp.Validator = (function() {
 				e = e.substring(e.length-4, e.length);
 				e = e.toUpperCase();
 				if (e === '.BMP') {
-					Garp.Validator.triggerError(elm.attr('id'), __('Geen geldig bestandsformaat.'));
+					Garp.Validator.triggerError(elm.attr('id'), __('Invalid filetype'));
 				}
 			}
 		},
@@ -642,9 +642,23 @@ Garp.Validator = (function() {
 				var theOtherPwdField = $('#'+elm.attr('rel'));
 				if (theOtherPwdField.length) {
 					if (theOtherPwdField.val() !== elm.val()) {
-						Garp.Validator.triggerError(elm.attr('id'), __('De wachtwoorden komen niet overeen.'));
+						Garp.Validator.triggerError(elm.attr('id'), __('the passwords do not match'));
 					}
 				}
+			}
+		},
+		/**
+		 * Okay, this is really dumb: this method is only here to avoid the 
+		 * oddly specific error message in the above repeatPassword rule. 
+		 * I'd rather phase out that one, but we'll keep it for backward compatibility.
+		 */
+		repeat: function(elm) {
+			if (!elm.attr('rel') || !$('#'+elm.attr('rel')).length) {
+				return;
+			}
+			var theOtherField = $('#'+elm.attr('rel'));
+			if (theOtherField.val() !== elm.val()) {
+				Garp.Validator.triggerError(elm.attr('id'), __('The two given tokens do not match'));
 			}
 		},
 		requiredIf: function(elm) {
@@ -709,11 +723,13 @@ Garp.Validator = (function() {
 		},
 		// add errors
 		triggerError: function(id, msg) {
-			if ($('#' + id).attr('data-err-msg')) {
-				Garp.Validator.errorMessages[id] = $('#' + id).attr('data-err-msg');
+			var elm = $('#' + id);
+			if (elm.attr('data-err-msg')) {
+				Garp.Validator.errorMessages[id] = elm.attr('data-err-msg');
 			} else {
 				var label = $('label[for=' + id + ']');
-				Garp.Validator.errorMessages[id] = msg.replace('%s', label.text());
+				var labelText = label.text().replace(/\*$/, '');
+				Garp.Validator.errorMessages[id] = msg.replace('%s', labelText);
 			}
 		}
 	};
