@@ -36,12 +36,10 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 		$out .= $this->_rl("protected \$_primary = 'id';", 1, 2);
 
 		/* Unilingual model */
-		/*
-		if ($model->isMultilingual()) {
-			$unilingualModelName = '???';
-			$out .= $this->_rl("protected \$_unilingualModel = '$unilingualModelName';", 1, 2);
+		if (get_class($model) === 'Garp_Spawn_Model_I18n') {
+			$coreModelId = substr($model->id, 0, -4);
+			$out .= $this->_rl("protected \$_unilingualModel = 'Model_$coreModelId';", 1, 2);
 		}
-		 */
 
 		/* This model's scheme, deducted from the combined Spawn model configurations. */
 		$out .= $this->_renderFlattenedConfiguration();
