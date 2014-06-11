@@ -10,6 +10,7 @@ $translationTable = array(
 	'Insufficient data received' => 'Niet alle velden zijn ingevuld',
 	'The email address is not found' => 'Het e-mailadres is niet gevonden',
 	'The password is invalid' => 'Het wachtwoord is onjuist',
+	'Invalid filetype' => 'Ongeldig bestandsformaat',
 	/**
  	 * CMS strings
  	 * ==================================================================================================================================
