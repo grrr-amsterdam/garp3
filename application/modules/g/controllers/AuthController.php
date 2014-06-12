@@ -34,6 +34,9 @@ class G_AuthController extends Garp_Controller_Action {
 
 			// Apply some mild validation
 			$password = $this->getRequest()->getPost('password');
+			if (!$password) {
+				$errors[] = sprintf(__('%s is a required field'), __('Password'));
+			}
 
 			$checkRepeatPassword = !empty($authVars['register']['repeatPassword']) && $authVars['register']['repeatPassword'];
 			if ($checkRepeatPassword) {
@@ -63,15 +66,40 @@ class G_AuthController extends Garp_Controller_Action {
 					// After register hook
 					$this->_afterRegister();
 
-					$this->_redirect($authVars['register']['successUrl']);
+					// Determine targetUrl. This is the URL the user was trying to access before registering, or a default URL.
+					$router = Zend_Controller_Front::getInstance()->getRouter();
+					if (!empty($authVars['register']['successRoute'])) {
+						$targetUrl = $router->assemble(array(), $authVars['register']['successRoute']);
+					} elseif (!empty($authVars['register']['successUrl'])) {
+						$targetUrl = $authVars['register']['successUrl'];
+					} else {
+						$targetUrl = '/';
+					}
+					$store = Garp_Auth::getInstance()->getStore();
+					if ($store->targetUrl) {
+						$targetUrl = $store->targetUrl;
+						unset($store->targetUrl);
+					}
+
+					$this->_redirect($targetUrl);
+				// Check for duplication errors in order to show
+				// a helpful error to the user.
 				} catch (Zend_Db_Statement_Exception $e) {
 					if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'email_unique') !== false) {
 						$errors[] = __('this email address already exists');
 					} else {
 						throw $e;
 					}
+				// Validation errors should be safe to show to the user (note: translation 
+				// must be done in the validator itself)
+				} catch (Garp_Model_Validator_Exception $e) {
+					$errors[] = $e->getMessage();
+
+				// Unknown error? Yikes... Show to developers, but show a
+				// generic error to the general public.
 				} catch (Exception $e) {
-					$errors[] = __('register error');
+					$error = APPLICATION_ENV === 'development' ? $e->getMessage() : __('register error');
+					$errors[] = $error;
 				}
 			}
 			$this->view->errors = $errors;
@@ -402,6 +430,10 @@ class G_AuthController extends Garp_Controller_Action {
 		$activationCode = $request->getParam('c');
 		$activationEmail = $request->getParam('e');
 		$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
+
+		if (!$activationEmail || !$activationCode) {
+			throw new Zend_Controller_Action_Exception('Invalid request.', 404);
+		}
 
 		$userModel = new Model_User();
 		// always collect fresh data for this one

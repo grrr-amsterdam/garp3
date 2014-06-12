@@ -61,6 +61,15 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 	protected $_modified = false; 
 
 	/**
+ 	 * Check if a cookie is available
+ 	 * @param String $namespace
+ 	 * @return Boolean
+ 	 */
+	public static function exists($namespace) {
+		return isset($_COOKIE[$namespace]);
+	}
+
+	/**
  	 * Class constructor
  	 * @param String $namespace 
  	 * @param String $cookieDuration

@@ -196,7 +196,7 @@ class Garp_Spawn_MySql_Column {
 
 	static public function getRequiredAndDefault(Garp_Spawn_Field $field) {
 		$out = array();
-		if ($field->required) {
+		if ($field->required && $field->relationType !== 'hasOne') {
 			$out[] = 'NOT NULL';
 		}
 		

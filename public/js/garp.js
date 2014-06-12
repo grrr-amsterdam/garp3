@@ -422,8 +422,10 @@ Garp.setFavicon = function(iconCls){
 		Ext.each(iconCss.sheet.cssRules, function(){
 			if (this.selectorText == '.' + iconCls) {
 				found = this.style.backgroundImage.trim();
-				found = found.substr(8, found.length - 10); // remove url() shizzle
-				found = d.location.protocol + '//' + d.location.host + BASE + found; // absolute path
+				found = found.substr(4, found.length - 5); // remove url() shizzle
+				if (found.indexOf('http') === -1) {
+					found = d.location.protocol + '//' + d.location.host + BASE + found; // absolute path
+				}
 				return;
 			}
 		});
@@ -474,7 +476,7 @@ Garp.rebuildViewportItems = function(){
 Garp.setupEventManager = function(){
 	Garp.eventManager = new Ext.util.Observable();
 	
-	Garp.eventManager.addEvents('modelchange', 'beforerowselect', 'rowselect', 'storeloaded', 'new', 'save-all', 'after-save', 'delete','logout','open-new-window','external-relation-save');
+	Garp.eventManager.addEvents('modelchange', 'beforerowselect', 'rowselect', 'storeloaded', 'new', 'save-all', 'after-save', 'delete','logout','open-new-window','external-relation-save', 'after-init');
 	Garp.eventManager.on({
 		'new': function(){
 			Garp.updateUI.defer(20);	
@@ -504,6 +506,26 @@ Garp.setupEventManager = function(){
 				var url = tpl.apply([s.get(t.param)]);
 				var win = window.open(BASE + url);
 			}
+		},
+		/**
+ 	 	 * Afterinit
+ 	 	 * Sets up history & displays flashMessages if needed. Also hides the loader anim. 
+ 	 	 */
+		'after-init': function() {
+
+			Garp.history.setupListeners();
+			Garp.history.parseState();
+
+			var timeout = 610;		
+			if (Garp.flashMessage()) {
+				timeout = 2000;
+			} 
+			setTimeout(function(){
+				Ext.get('app-loader').fadeOut();
+			}, timeout);
+
+			// Trigger queued functions
+			Garp.afterInit();
 		}
 	});
 	
@@ -570,24 +592,6 @@ Garp.flashMessage = function(){
 
 
 /**
- * Afterinit
- * Sets up history & displays flashMessages if needed. Also hides the loader anim. 
- */
-Garp.afterInit = function(){
-
-	Garp.history.setupListeners();
-	Garp.history.parseState();
-
-	var timeout = 610;		
-	if (Garp.flashMessage()) {
-		timeout = 2000;
-	} 
-	setTimeout(function(){
-		Ext.get('app-loader').fadeOut();
-	}, timeout);
-};
-
-/**
  * Global Ajax event's will show a small spinner for the user to see activity with the server:
  */
 Garp.setupAjaxSpinner = function(){
@@ -607,6 +611,27 @@ Garp.setupAjaxSpinner = function(){
 };
 
 /**
+ * Lo-fi event listener: allow models to queue functionality until Garp is fully initialized.
+ * That way, models may register functionality that manipulates for instance the toolBar or gridPanel,
+ * that would otherwise not yet exist at the time of initialization.
+ */
+Garp.afterInitListeners = [];
+Garp.afterInit = function(fn) {
+	if (!arguments.length) {
+		// Execute after init listeners
+		Ext.each(Garp.afterInitListeners, function(fn) {
+			if (typeof fn !== 'function') {
+				return;
+			}
+			fn();
+		});
+		return;
+	}
+	// If given a function, add it to the stack
+	Garp.afterInitListeners.push(fn);
+};
+
+/**
  * Init
  */
 Garp.init = function(){
@@ -615,5 +640,5 @@ Garp.init = function(){
 	Garp.setupEventManager();
 	Garp.setupGlobalKeys();
 	Garp.setupAjaxSpinner();
-	Garp.afterInit();
+	Garp.eventManager.fireEvent('after-init');
 };

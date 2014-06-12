@@ -220,7 +220,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$dbAdapter->query('
 		CREATE TABLE `_sluggable_test_2`(
 			`id` int UNSIGNED NOT NULL AUTO_INCREMENT,
-			`something` CHAR(2) NULL,
+			`something` VARCHAR(100) NULL,
 			PRIMARY KEY (`id`)
 		) ENGINE=`InnoDB`;');
 

@@ -44,7 +44,11 @@ switch ($field->type) {
 	break;
 	case 'html':
 		if ($field->rich) {
-			$props[] = 'enableSourceEdit: false';
+			array_push($props,
+				'enableSourceEdit: false',
+				'enableEmbed: false',
+				'enableDefinitionList: false'
+			);
 		} else {
 			array_push($props,
 				'enableMedia: false',      

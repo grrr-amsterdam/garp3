@@ -10,6 +10,7 @@ $translationTable = array(
 	'Insufficient data received' => 'Niet alle velden zijn ingevuld',
 	'The email address is not found' => 'Het e-mailadres is niet gevonden',
 	'The password is invalid' => 'Het wachtwoord is onjuist',
+	'Invalid filetype' => 'Ongeldig bestandsformaat',
 	/**
  	 * CMS strings
  	 * ==================================================================================================================================
@@ -186,7 +187,6 @@ $translationTable = array(
 	'Duration' => 'Duur',
 	'Tags' => 'Tags',
 	'Thumbnail' => 'Thumbnail',
-	'Slug' => 'Kenmerk',
 	'Author id' => 'Auteur id',
 	'Modifier id' => 'Bewerker id',
 	'Caption' => 'Bijschrift',
@@ -339,4 +339,7 @@ $translationTable = array(
 	'garp welcome header' => 'Garp',
 	'garp welcome tagline' => 'Beheer de inhoud van deze website.',
 	'invalid email activation code' => "De opgegeven code is ongeldig.",
+	'author' => 'Auteur',
+	'modifier' => 'Bewerker',
+	'no results found' => 'geen resultaten gevonden',
 );

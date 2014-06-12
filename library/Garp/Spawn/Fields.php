@@ -225,4 +225,8 @@ class Garp_Spawn_Fields {
 			$this->add('relation', Garp_Spawn_Util::camelcased2underscored($relName.'_weight'), $fieldConfig);
 		}
 	}
+
+	public function toArray() {
+		return $this->_fields;
+	}
 }

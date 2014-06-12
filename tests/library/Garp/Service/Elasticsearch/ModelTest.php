@@ -27,6 +27,10 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testSavingRecordShouldBeFetchable() {
+		// only test ElasticSearch in a project that uses ElasticSearch
+		if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+			return;
+		}
 		$bogusData = $this->getBogusData();
 		$this->_createBogusRecord();
 
