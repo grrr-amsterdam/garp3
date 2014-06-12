@@ -4,11 +4,15 @@
 	endif;
 ?>
 	xtype: 'inlinerelatorlabels',
-	model: '<?php echo $this->relation->model ?>'
+	model: '<?php echo $this->relation->model ?>',
+	name: '<?php echo $this->relation->model ?>_relatorlabels',
+	ref: '../../../<?php echo $this->relation->model ?>_relatorlabels'
 },
 {
 	xtype: 'inlinerelator',
-	model: '<?php echo $this->relation->model ?>'
+	model: '<?php echo $this->relation->model ?>',
+	name: '<?php echo $this->relation->model ?>_relator',
+	ref: '../../../<?php echo $this->relation->model ?>_relator'	
 	<?php if ($this->relation->weighable): ?>,
 	weighable: true
 	<?php endif;?>

@@ -290,9 +290,9 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		}
 		if (empty($ogData['description'])) {
 			if ($this->view->description) {
-				$ogData['description'] = $this->view->description;
+				$ogData['description'] = __($this->view->description);
 			} elseif (!empty($this->view->config()->app->description)) {
-				$ogData['description'] = $this->view->config()->app->description;
+				$ogData['description'] = __($this->view->config()->app->description);
 			}
 		}
 		if (empty($ogData['locale']) && !empty($this->view->config()->app->locale)) {

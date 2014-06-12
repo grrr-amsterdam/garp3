@@ -36,17 +36,13 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 		$out .= $this->_rl("protected \$_primary = 'id';", 1, 2);
 
 		/* Unilingual model */
-		/*
-		if ($model->isMultilingual()) {
-			$unilingualModelName = '???';
-			$out .= $this->_rl("protected \$_unilingualModel = '$unilingualModelName';", 1, 2);
+		if (get_class($model) === 'Garp_Spawn_Model_I18n') {
+			$coreModelId = substr($model->id, 0, -4);
+			$out .= $this->_rl("protected \$_unilingualModel = 'Model_$coreModelId';", 1, 2);
 		}
-		 */
 
 		/* This model's scheme, deducted from the combined Spawn model configurations. */
-		$modelArray			= $this->_convertToArray($model);
-		$modelArrayScript 	= Garp_Spawn_Util::array2phpStatement($modelArray);
-		$out .= $this->_rl("protected \$_configuration = " . $modelArrayScript .";", 1, 2);
+		$out .= $this->_renderFlattenedConfiguration();
 
 		/* List fields */
 		$listFields = $model->fields->getListFieldNames();
@@ -185,7 +181,14 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
 		
 		return $entry;
 	}
-	
+
+	protected function _renderFlattenedConfiguration() {
+		$model 				= $this->getModel();
+		$modelArray			= $this->_convertToArray($model);
+		$modelArrayScript 	= Garp_Spawn_Util::array2phpStatement($modelArray);
+		return $this->_rl("protected \$_configuration = " . $modelArrayScript .";", 1, 2);
+	}
+
 	protected function _getBindableModelNames() {
 		$relations 	= $this->getModel()->relations->getRelations();
 		$modelNames	= array();

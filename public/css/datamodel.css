@@ -4,25 +4,12 @@ body {
 	padding: 0;
 	height: 100%;
 	line-height: 1.4em;
-	background-color: #777;
-/*	background-color: #a78746;*/
+	background-color: #eee;
 
-	background-image: linear-gradient(bottom, rgb(10,10,10) 2%, rgb(166,134,70) 56%, rgb(199,181,126) 78%);
-	background-image: -o-linear-gradient(bottom, rgb(10,10,10) 2%, rgb(166,134,70) 56%, rgb(199,181,126) 78%);
-	background-image: -moz-linear-gradient(bottom, rgb(10,10,10) 2%, rgb(166,134,70) 56%, rgb(199,181,126) 78%);
-	background-image: -webkit-linear-gradient(bottom, rgb(10,10,10) 2%, rgb(166,134,70) 56%, rgb(199,181,126) 78%);
-	background-image: -ms-linear-gradient(bottom, rgb(10,10,10) 2%, rgb(166,134,70) 56%, rgb(199,181,126) 78%);
+	background: linear-gradient(to bottom, #ddd 0%,#fff 20%,#fff 80%,#ddd 100%);
 
-/*	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0.2, rgb(10,10,10)),
-		color-stop(0.56, rgb(166,134,70)),
-		color-stop(0.78, rgb(199,181,126))
-	);
 	
-*/    background-repeat: no-repeat;
+    background-repeat: no-repeat;
     background-attachment: fixed;
 
 	
@@ -32,7 +19,8 @@ body {
 h1, h2, h3, h4 {
 	font-family: 'Nunito', Arial, sans-serif;
 	color: #222;
-	text-shadow: 0 1px 1px #555;
+	text-shadow: 0 0.5px 0.5px #555;
+	
 }
 
 /* MENU */
@@ -71,8 +59,7 @@ div.listmodel {
 	
 	background-color: #fff;
 	border: 3px solid black;
-	-moz-border-radius: 30px;
-	-webkit-border-radius: 30px;
+	border-radius: 20px;
 	color: black;
 	padding: 20px;
 }
@@ -113,12 +100,11 @@ div#section-fields {
 
 	background-color: #fff;
 	border: 3px solid black;
-	-moz-border-radius: 30px;
-	-webkit-border-radius: 30px;
+	border-radius: 30px;
 	text-decoration: none;
 	color: black;
 	
-	padding: 3px;
+	padding: 7px;
 	
 	-moz-transition: all 0.1s ease-in-out;
 	-webkit-transition: all 0.1s ease-in-out;
@@ -127,16 +113,14 @@ div#section-fields {
 }
 
 .model.dimmed {
-/*	background-color: #809860;*/
-/*	color: #785;*/
-/*	border-color: #a78746;*/
 	border-color: #433720;
 
-	background-image: linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);
-	background-image: -o-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);
-	background-image: -moz-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);
-	background-image: -webkit-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);
-	background-image: -ms-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);
+	/*background: linear-gradient(to bottom, #ddd 0%,#fff 20%,#fff 80%,#ddd 100%);*/
+	/*background-image: linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
+	/*background-image: -o-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
+	/*background-image: -moz-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
+	/*background-image: -webkit-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
+	/*background-image: -ms-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
 
 	background-image: -webkit-gradient(
 		linear,
@@ -171,7 +155,7 @@ div#section-fields {
 .model div.content h2 {
 	margin: 0;
 	padding: 0;
-	font-size: 20px;
+	font-size: 17px;
 }
 
 .model:hover {

@@ -113,6 +113,10 @@ class Garp_Image_Scaler {
 			$canvas = $this->_createCanvasImage($imageType);
 
 			$this->_projectSourceOnCanvas($source, $canvas);
+	
+			// Enable progressive jpegs
+			imageinterlace($canvas, true); 
+			
 			$outputImage = $this->_renderToImageData($canvas);
 			imagedestroy($canvas);
 		}

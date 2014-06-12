@@ -1,14 +1,8 @@
 /** EXTENDED MODEL **/
-Garp.dataTypes.Document.on('init', function(){
-	/*
-
-	this.iconCls = 'icon-other-bogus';
-	Ext.apply(this.getColumn('email'),{
-		hidden: true,
-		header: __('Thingmail')
+(function() {
+	if (!('Document' in Garp.dataTypes)) {
+		return;
+	}
+	Garp.dataTypes.Document.on('init', function(){
 	});
-	this.getField('description').fieldLabel = __('Content:');
-	this.removeField('year');
-
-	*/
-});
+})();

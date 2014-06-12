@@ -19,6 +19,11 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	minimalUI: false,
 	
 	/**
+	 * @cfg: Whether we want one long list (false) or paginate (true) the related items 
+	 */
+	paginated: false,
+	
+	/**
 	 * @cfg: whether or not we allow users to create a new instance
 	 */
 	quickCreatable: false,
@@ -95,7 +100,16 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	 * @cfg: metaDataEditors: editors to use in metaDataPanel
 	 */
 	metaDataEditors: null,
+	metaDataRenderers: null,
 	metaDataValidator: function(){return true;},
+	
+	/**
+	 * For fine-grained control over the metaDataPanel, models
+	 * can configure a full configuration object. 
+	 * @see http://docs.sencha.com/extjs/3.4.0/#!/api/Ext.grid.PropertyGrid for
+	 * available options.
+	 */
+	metaDataConfig: {},
 	
 	dirty: function(){
 		this.fireEvent('dirty');
@@ -159,7 +173,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	setupDD: function(){
 		var scope = this;
 		
-		new Ext.dd.DropTarget(this.relatePanel.getView().mainBody, {
+		new Ext.dd.DropTarget(this.relatePanel.getView().el, {
 			ddGroup: 'dd',
 			copy: true,
 			notifyOut: function(){
@@ -224,7 +238,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			notifyOver: function(ddSource, e, data){
 				scope.highlight(scope.relateePanel.getView().getRow(scope.getRowIndex(scope.relateePanel, e)), this.highlight);
 				if (!scope.weighable && ddSource.dragData.grid.itemId == 'relateePanel') {
-					return false;
+					return Ext.dd.DropZone.prototype.dropNotAllowed;
+				}
+				if (ddSource.dragData.grid.itemId == 'relateePanel') {
+					return Ext.dd.DropZone.prototype.dropAllowed;
 				}
 				if (scope.maxItems && scope.relateeStore.getCount() >= scope.maxItems) {
 					return Ext.dd.DropZone.prototype.dropNotAllowed;
@@ -262,15 +279,22 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 
 		// see if we may proceed with moving:
 		if(this.maxItems && this.relateeStore.getCount() >= this.maxItems && target == this.relateePanel){
-			return;
+			// re-ordering within the same region should however be possible:
+			if (source !== target) {
+				return;
+			}
 		}
 		if (!records) {
 			records = source.getSelectionModel().getSelections();
+		}
+		if (this.maxItems && (this.relateeStore.getCount() + records.length) > this.maxItems && source == this.relatePanel) {
+			return;
 		}
 		
 		// @TODO: Possibly check for duplicate items (decide later):
 		// if(!Ext.isDefined(target.store.getById(source.store.find('id'))))
 		Ext.each(records, function(rec, i){
+			
 			var nr = new source.store.recordType(rec.data);
 			if (Ext.isNumber(index)) {
 				target.store.insert(index, nr);
@@ -535,57 +559,56 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			continueAction = Ext.emptyFn;
 		}
 		
-		if (this.relateStore.getModifiedRecords().length > 0 || this.relateeStore.getModifiedRecords().length > 0) {
-			Ext.Msg.show({
-				animEl: Garp.viewport.getEl(),
-				icon: Ext.MessageBox.QUESTION,
-				title: __('Garp'),
-				msg: __('Would you like to save your changes?'),
-				buttons: Ext.Msg.YESNOCANCEL,
-				scope: this,
-				fn: function(btn){
-					switch (btn) {
-						case 'yes':
-							this.saveRelations();
-							var c = 2;
-							function async(){
-								c--;
-								if(c === 0){
-									this.relateStore.rejectChanges();
-									this.relateeStore.rejectChanges();
-									continueAction();
-								}
-							}
-							
-							this.relateeStore.on({
-								'load': {
-									fn: async,
-									scope: this,
-									single: true
-								}
-							});
-							this.relateStore.on({
-								'load': {
-									fn: async,
-									scope: this,
-									single: true
-								}
-							});
-							break;
-						case 'no':
-							this.relateStore.rejectChanges();
-							this.relateeStore.rejectChanges();
-							continueAction();
-						//case 'cancel':
-						//default:
-							break;
-					}
-				}
-			});
-			return false;
-		} else {
+		if (this.relateStore.getModifiedRecords().length == 0 && this.relateeStore.getModifiedRecords().length == 0) {
 			return true;
 		}
+		Ext.Msg.show({
+			animEl: Garp.viewport.getEl(),
+			icon: Ext.MessageBox.QUESTION,
+			title: __('Garp'),
+			msg: __('Would you like to save your changes?'),
+			buttons: Ext.Msg.YESNOCANCEL,
+			scope: this,
+			fn: function(btn){
+				switch (btn) {
+					case 'yes':
+						this.saveRelations();
+						var c = 2;
+						function async(){
+							c--;
+							if(c === 0){
+								this.relateStore.rejectChanges();
+								this.relateeStore.rejectChanges();
+								continueAction();
+							}
+						}
+						
+						this.relateeStore.on({
+							'load': {
+								fn: async,
+								scope: this,
+								single: true
+							}
+						});
+						this.relateStore.on({
+							'load': {
+								fn: async,
+								scope: this,
+								single: true
+							}
+						});
+						break;
+					case 'no':
+						this.relateStore.rejectChanges();
+						this.relateeStore.rejectChanges();
+						continueAction();
+					//case 'cancel':
+					//default:
+						break;
+				}
+			}
+		});
+		return false;
 	},
 	
 	/**
@@ -758,7 +781,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			
 			this.relateeStore = new Ext.data.DirectStore(Ext.apply({}, {
 				baseParams: {
-					limit: RELATEESTORE_LIMIT
+					limit: this.paginated ? Garp.pageSize : RELATEESTORE_LIMIT
 				},
 				writer: new Ext.data.JsonWriter({
 					paramsAsHash: false,
@@ -796,7 +819,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				}
 			}, this.getGridCfg(false)));
 			
-			this.relateePanel = new Ext.grid.GridPanel(Ext.apply({}, {
+			var relateePanelCfg = Ext.apply({}, {
 				itemId: 'relateePanel',
 				title: __('Related'),
 				iconCls: 'icon-relatepanel-related',
@@ -816,7 +839,17 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					},
 					scope: this
 				})
-			}, this.getGridCfg(this.maxItems !== null)));
+			}, this.getGridCfg(this.maxItems !== null));
+			if (this.paginated) {
+				relateePanelCfg.pageSize = Garp.pageSize;
+				relateePanelCfg.bbar = new Ext.PagingToolbar({
+					pageSize: Garp.pageSize,
+					store: this.relateeStore,
+					beforePageText: '',
+					displayInfo: false
+				});
+			}
+			this.relateePanel = new Ext.grid.GridPanel(relateePanelCfg);
 			
 			if (this.minimalUI) {
 				this.items = [{
@@ -842,7 +875,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					}
 				}
 				
-				this.metaDataPanel = new Ext.grid.PropertyGrid({
+				var metaDataPanelConfig = {
 					split: true,
 					__relationPanel: this,
 					layout: 'fit',
@@ -851,14 +884,17 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					height: 200,
 					collapsed: false,
 					customEditors: this.metaDataEditors,
-					foceValidation: true,
+					customRenderers: this.metaDataRenderers,
+					forceValidation: true,
 					hidden: true,
 					collapsible: false,
 					source: this.source || {},
 					listeners:{
 						propertychange: validateMetaPanel
 					}
-				});
+				};
+				Ext.apply(metaDataPanelConfig, this.metaDataConfig);
+				this.metaDataPanel = new Ext.grid.PropertyGrid(metaDataPanelConfig);
 				this.metaDataPanel.store.on('load', validateMetaPanel, this);
 				
 				
@@ -991,8 +1027,8 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			});
 			
 			/**
-		 *  Event handling:
-		 */
+		 	 *  Event handling:
+		 	 */
 			//this.on('afterlayout', this._onActivate, this); // was bugy, caused weired layout issues sometimes, changed event order... 
 			this.on('activate', this._onActivate, this); // @TODO: refactor method names to cope with new event names
 			this.on('hide', function(){
