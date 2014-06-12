@@ -72,12 +72,19 @@ abstract class Garp_Content_Export_Abstract {
 		$mem = new Garp_Util_Memory();
 		$mem->useHighMemory();
 
+		// Allow the model or its observers to modify the fetchOptions
+		$model->notifyObservers('beforeExport', array(&$fetchOptions));
+
 		$manager = new Garp_Content_Manager($model);
 		$data = $manager->fetch($fetchOptions);
 		$data = (array)$data;
+
+		// Allow the model or its observers to modify the data
+		$model->notifyObservers('afterExport', array(&$data, &$fetchOptions));
+
 		if (empty($data)) {
 			$data = array(
-				array('message' => 'Geen resultaten gevonden.')
+				array('message' => __('no results found'))
 			);
 		}
 		$humanizedData = $this->_humanizeData($data, $model);
@@ -131,7 +138,7 @@ abstract class Garp_Content_Export_Abstract {
 					$alias = $field['label'];
 				}
 
-				$alias = __($alias);
+				$alias = ucfirst(__($alias));
 				if (is_array($value) && $this->_isMultilingualArray($value)) {
 					// special case: we convert the language keys to new columns in the output
 					foreach ($value as $key => $data) {
@@ -204,11 +211,11 @@ abstract class Garp_Content_Export_Abstract {
 
 			$bindingModel = null;
 			if ($config['type'] === 'hasAndBelongsToMany') {
+				$bindingModelName = 'Model_' . $config['bindingModel'];
+				$bindingModel = new $bindingModelName;
 				if ($multilingual) {
-					$bindingModelName = $model->getBindingModelName($otherModelName);
-					$bindingModel = $modelFactory->getBindingModel($bindingModelName);
-				} else {
-					$bindingModel = $model->getBindingModel($otherModel);
+					//$bindingModelName = $model->getBindingModelName($otherModelName);
+					$bindingModel = $modelFactory->getBindingModel($bindingModel);
 				}
 				$otherModelAlias = 'm';
 			} else {
@@ -235,10 +242,7 @@ abstract class Garp_Content_Export_Abstract {
 					array($config['label'] => $labelFields)
 				)->order("$otherModelAlias.id")
 			);
-			// ¡delme!
-			if ($config['label'] == 'Event') {
-				$model->bindModel($config['label'], $options);
-			}
+			$model->bindModel($config['label'], $options);
 		}
 	}
 }

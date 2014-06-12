@@ -14,7 +14,6 @@
 
 		"filename": {
 			"type": "document",
-			"multilingual": true,
 			"maxLength": 255
 		},
 

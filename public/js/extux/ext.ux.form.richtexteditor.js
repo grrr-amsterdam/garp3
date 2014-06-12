@@ -44,7 +44,7 @@ if (Ext.isIE) {
 		 * Override functions:
 		 */
 		isDirty: function(){
-			if (this.disabled || !this.rendered || !this.isVisible()) {
+			if (this.disabled || !this.rendered || !this.isVisible() || !this.getWin()) {
 				return false;
 			}
 			return String(this.getValue()) !== String(this.originalValue);
@@ -1083,7 +1083,7 @@ if (Ext.isIE) {
 		 * Override functions:
 		 */
 		isDirty: function(){
-			if (this.disabled || !this.rendered || !this.isVisible()) {
+			if (this.disabled || !this.rendered || !this.isVisible() || !this.getWin()) {
 				return false;
 			}
 			if ((String(this.originalValue) === '<p>&#8203;</p>') && this.getValue() === null) {

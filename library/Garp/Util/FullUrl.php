@@ -10,6 +10,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Util_FullUrl {
+	const INVALID_ROUTE = 'Given route is invalid. Please provide an array with valid keys 0 and 1.';
+	const CANNOT_RESOLVE_HTTP_HOST = 'Unable to resolve host. Please configure app.domain.';
+
 	/**
  	 * The URL
  	 * @var String
@@ -56,32 +59,56 @@ class Garp_Util_FullUrl {
  	 * @return String
  	 */
 	protected function _createFullUrl($route) {
-		$application = Zend_Registry::get('application');
-		$bootstrap = $application->getBootstrap();
-		$viewObj = $bootstrap->getResource('view');
-		$omitProtocol = $this->_omitProtocol;
-		$omitBaseUrl = $this->_omitBaseUrl;
+		$route = $this->_resolveRoute($route);
+		$httpHost = $this->_getHttpHost();
 
+		$url = $this->_omitProtocol ? '' : $this->_getScheme() . ':';
+		$url .= '//' . $httpHost . $route;
+		return $url;
+	}
+
+	protected function _resolveRoute($route) {
 		if (is_array($route)) {
 			$this->_validateRouteArray($route);
 			$router = Zend_Controller_Front::getInstance()->getRouter();
-			$route = $router->assemble($route[0], $route[1]);
-		} elseif (!$omitBaseUrl) {
-			$route = $viewObj->baseUrl($route);
+			return $router->assemble($route[0], $route[1]);
+		} 
+		if (!$this->_omitBaseUrl) {
+			$application = Zend_Registry::get('application');
+			$bootstrap = $application->getBootstrap();
+			$viewObj = $bootstrap->getResource('view');
+			return $viewObj->baseUrl($route);
+		}
+		return $route;
+	}		
+
+	protected function _getHttpHost() {
+		// Check what the developer has configured.
+		$config = Zend_Registry::get('config');
+		if (isset($config->app->domain)) {
+			return $config->app->domain;
 		}
 
+		// Check what Zend has picked up from the request.
 		if ($request = Zend_Controller_Front::getInstance()->getRequest()) {
 			$httpHost = $request->getHttpHost();
-			$url = $omitProtocol ? '' : $request->getScheme() . ':';
-		} else {
-			$ini = Zend_Registry::get('config');
-			$this->_validateIniConfig($ini);
-			$httpHost = $ini->cdn->domain;
-			$url = $omitProtocol ? '' : 'http:';
+			return $httpHost;
 		}
 
-		$url .= '//' . $httpHost . $route;
-		return $url;
+		// If all else fails, use cdn domain... but you probably don't want that.
+		if (isset($config->cdn->domain)) {
+			$httpHost = $config->cdn->domain;
+			return $httpHost;
+		}
+		
+		throw new Garp_Exception(CANNOT_RESOLVE_HTTP_HOST);
+	}
+
+	protected function _getScheme() {
+		if ($request = Zend_Controller_Front::getInstance()->getRequest()) {
+			return $request->getScheme();
+		}
+		return 'http';
 	}
 
 	/**
@@ -91,21 +118,9 @@ class Garp_Util_FullUrl {
  	 */
 	protected function _validateRouteArray(array $route) {
 		if (!array_key_exists(0, $route) || !array_key_exists(1, $route)) {
-			throw new Garp_Exception('Given route is invalid. Please provide an array '.
-				'with valid keys 0 and 1.');
+			throw new Garp_Exception(self::INVALID_ROUTE);
 		}
 	}		
-
-	/**
- 	 * Check ini config for required keys
- 	 * @param Zend_Config $ini
- 	 * @return Boolean
- 	 */
-	protected function _validateIniConfig(Zend_Config $ini) {
-		if (!isset($ini->cdn->domain) || !$ini->cdn->domain) {
-			throw new Exception('ini.cdn.domain is not defined in application.ini.');
-		}
-	}
 
 	/**
 	 * Get omitBaseUrl

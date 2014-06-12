@@ -206,6 +206,125 @@ Garp.apply(Garp.FormHelper, {
 			}, this);
 		}
 	},
+
+	/**
+	 * Setup datepickers (requires jQuery UI!)
+	 * @param fh FormHelper reference
+	 */
+	setupDatePickers: function(fh) {
+		var $fields = fh.form.find('.date');
+		if (!$fields.length) {
+			return;
+		}
+		if (typeof $fields.datepicker !== 'function') {
+			if (typeof console != 'undefined' && 'log' in console) {
+				console.log('In order to use date-pickers, include jQuery UI!');
+			}
+			return;
+		}
+		var dayNames = [__('Sunday'), __('Monday'), __('Tuesday'), __('Wednesday'), __('Thursday'), __('Friday'), __('Saturday')];
+		var dayNamesMin = [__('Sun'), __('Mon'), __('Tue'), __('Wed'), __('Thu'), __('Fri'), __('Sat')];
+		$fields.each(function() {
+			var $this = $(this);
+			var datepickerConfig = {
+				dayNames: dayNames,
+				dayNamesMin: dayNamesMin,
+				dayNamesShort: dayNamesMin,
+				firstDay: 1,
+				monthNames: [__('January'), __('February'), __('March'), __('April'), __('May'), __('June'), 
+					__('July'), __('August'), __('September'), __('October'), __('November'), __('December')],
+				monthNamesShort: [__('Jan'), __('Feb'), __('Mar'), __('Apr'), __('May'), __('Jun'),
+					__('Jul'), __('Aug'), __('Sep'), __('Oct'), __('Nov'), __('Dec')],
+				prevText: __('Previous'),
+				nextText: __('Next'),
+				dateFormat: fh.phpDateFormatToJqueryDateFormat($this.data('format')),
+				changeMonth: true,
+				changeYear: true
+			};
+			// Look for data-attributes to customize config
+			/*
+			var attrs = this.attributes;
+			console.dir(attrs);
+			for (var i in attrs) {
+				if (i.indexOf('data-datepicker-') !== 0) {
+					continue;
+				}
+				i = i.replace(/^data-datepicker-/, '');
+				datepickerConfig[i] = data[i];
+				console.log('setting datepicker config: ', i, data[i]);
+			}
+			*/
+			$this.datepicker(datepickerConfig);
+		});
+	},
+
+	/**
+	 * Convert PHP date format to a jQuery date format
+	 * @param phpFormat String
+	 * @see http://stackoverflow.com/questions/16702398/convert-a-php-date-format-to-a-jqueryui-datepicker-date-format
+	 */
+	phpDateFormatToJqueryDateFormat: function(phpFormat) {
+		var symbolMapper = {
+        	// Day
+        	'd': 'dd',
+        	'D': 'D',
+        	'j': 'd',
+        	'l': 'DD',
+        	'N': '',
+        	'S': '',
+        	'w': '',
+        	'z': 'o',
+        	// Week
+        	'W': '',
+        	// Month
+        	'F': 'MM',
+        	'm': 'mm',
+        	'M': 'M',
+        	'n': 'm',
+        	't': '',
+        	// Year
+        	'L': '',
+        	'o': '',
+        	'Y': 'yy',
+        	'y': 'y',
+        	// Time
+        	'a': '',
+        	'A': '',
+        	'B': '',
+        	'g': '',
+        	'G': '',
+        	'h': '',
+        	'H': '',
+        	'i': '',
+        	's': '',
+        	'u': ''
+    	};
+    	var jqFormat = '';
+    	var escaping = false;
+    	for (var i = 0; i < phpFormat.length; ++i) {
+        	var chr = phpFormat[i];
+        	if (chr === '\\') { // PHP date format escaping character
+            	i++;
+            	if (escaping) {
+            		jqFormat += phpFormat[i];
+            	} else {
+            		jqFormat += '\'' . phpFormat[i];
+            	}
+            	escaping = true;
+        	} else {
+            	if (escaping) {
+            		jqFormat += "'";
+            		escaping = false;
+            	}
+            	if (chr in symbolMapper) {
+                	jqFormat += symbolMapper[chr];
+            	} else {
+                	jqFormat += chr;
+                }
+        	}
+    	}
+    	return jqFormat;
+	},
 	
 	/**
 	 * Turns the form into an Ajaxable thing
@@ -319,6 +438,7 @@ Garp.apply(Garp.FormHelper, {
 		Garp.apply(this, cfg);
 		
 		this.setupDuplicators(this);
+		this.setupDatePickers(this);
 		this.hijackUploadFields(null, this);
 		this.setupValidation(this);
 		
@@ -664,7 +784,7 @@ Garp.FormHelper.Validator = function(cfg){
 							var checked = false;
 							var fields = $(this.elements).filter($('input[name="' + field.attr('name') + '"]'));
 							fields.each(function(){
-								if ($(this).attr('checked')) {
+								if ($(this).is(':checked')) {
 									checked = true;
 								}
 							});

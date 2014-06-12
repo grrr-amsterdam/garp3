@@ -26,6 +26,8 @@ class Garp_Spawn_Relation {
 	public $limit;
 	public $column;
 	public $simpleSelect;
+	public $max;
+	public $paginated;
 
 	/** Whether this relation field is editable in the cms. For instance, hasMany relations of which the opposite side is belongsTo (instead of hasOne), are not editable. */
 	public $editable;
@@ -64,6 +66,11 @@ class Garp_Spawn_Relation {
 	 */
 	public $mirrored = false;
 
+	/**
+ 	 * Contains the ID (string) of the bindingModel if this is a Habtm relation
+ 	 */
+	public $bindingModel = false;
+
 	/** @var Garp_Spawn_Model_Base $_model The local model in which this relation is defined. */
 	protected $_localModel;
 
@@ -93,6 +100,8 @@ class Garp_Spawn_Relation {
 		$this->_addRelationColumn();
 		$this->_addRelationFieldInLocalModel();
 		$this->_addOppositeRule();
+
+		$this->_initBindingModelIdProp();
 	}
 	
 	/**
@@ -304,7 +313,8 @@ class Garp_Spawn_Relation {
 			'type' => 'numeric',
 			'editable' => false,
 			'visible' => false,
-			'required' => $this->required
+			'required' => $this->required,
+			'relationType' => $this->type
 		);
 		$this->_localModel->fields->add('relation', $column, $fieldParams);
 	}	
@@ -321,6 +331,15 @@ class Garp_Spawn_Relation {
 	protected function _createBindingModel() {
 		$factory = new Garp_Spawn_Model_Binding_Factory();
 		return $factory->produceByRelation($this);
+	}
+
+	protected function _initBindingModelIdProp() {
+		if ($this->type !== 'hasAndBelongsToMany') {
+			return;
+		}
+
+		$bindingModel = $this->getBindingModel();
+		$this->bindingModel = $bindingModel->id;
 	}
 
 }

@@ -334,12 +334,14 @@ class Garp_Form extends Zend_Form {
 			$labelOptions['escape'] = false;
 			unset($options['escape']);
 		}
-		$options['decorators'] = array(
-			'ViewHelper',
-			array('Label', $labelOptions),
-			'Description',
-			'Errors'
-		);
+		if (!isset($options['decorators'])) {
+			$options['decorators'] = array(
+				'ViewHelper',
+				array('Label', $labelOptions),
+				'Description',
+				'Errors'
+			);
+		}
 
 		if ($type != 'hidden') {
 			$divWrapperOptions = array('tag' => 'div');

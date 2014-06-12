@@ -95,10 +95,10 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 							 
 						'</tpl>',
 						'<div id="online-status">', __('Draft'), ': ', 
-						'<tpl if="typeof online_status !== &quot;undefined&quot; && online_status === &quot;1&quot;">', 
+						'<tpl if="typeof online_status !== &quot;undefined&quot; && online_status == &quot;1&quot;">', 
 							'<input type="checkbox">',
 						'</tpl>', 
-						'<tpl if="typeof online_status !== &quot;undefined&quot;  && online_status === &quot;0&quot;">',
+						'<tpl if="typeof online_status !== &quot;undefined&quot;  && (!online_status || online_status === &quot;0&quot;) ">',
 							'<input type="checkbox" checked>', 
 						'</tpl></div>');
 				break;

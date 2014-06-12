@@ -27,7 +27,6 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 		return $this->render($video, $options);
 	}
 
-
 	/**
  	 * Render a video player.
 	 * @param Garp_Db_Table_Row $video A record from a video table
@@ -35,13 +34,47 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 	 * @return Mixed
  	 */
 	public function render($video, $options = array()) {
+		$helper = $this->_getSpecializedHelper($video);
+		return $helper->render($video, $options);
+	}
+
+	/**
+ 	 * Get only a player URL. Some sensible default parameters will be applied.
+	 * @param Garp_Db_Table_Row $video A record from a video table
+	 * @param Array $options Various rendering options
+ 	 */
+	public function getPlayerUrl($video, $options = array()) {
+		$helper = $this->_getSpecializedHelper($video);
+		return $helper->getPlayerUrl($video, $options);
+	}
+
+	/**
+ 	 * Check if video is Vimeo
+ 	 */
+	public function isVimeo($video) {
 		$playerurl = $video instanceof Garp_Db_Table_Row ? $video->player : $video;
-		if (preg_match('~player\.vimeo\.com~', $playerurl)) {
-			return $this->view->vimeo($video, $options);
-		} elseif (preg_match('~youtube\.com~', $playerurl)) {
-			return $this->view->youTube($video, $options);
-		} else {
-			throw new Exception('Unsupported media type detected: '.$playerurl);
-		}
+		return preg_match('~player\.vimeo\.com~', $playerurl);
+	}
+
+	/**
+ 	 * Check if video is Youtube
+ 	 */
+	public function isYoutube($video) {
+		$playerurl = $video instanceof Garp_Db_Table_Row ? $video->player : $video;
+		return preg_match('~youtube\.com~', $playerurl);
 	}		
+
+	/**
+ 	 * Return either the Vimeo or YouTube helper
+ 	 * @return Zend_View_Helper_Abstract
+ 	 */
+	protected function _getSpecializedHelper($video) {
+		if ($this->isVimeo($video)) {
+			return $this->view->vimeo();
+		} elseif ($this->isYoutube($video)) {
+			return $this->view->youTube();
+		}
+		throw new Exception('Unsupported media type detected: '.$playerurl);
+	}
+	
 }

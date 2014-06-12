@@ -44,6 +44,10 @@ class Garp_Spawn_Php_Renderer {
 	}
 	
 	protected function _saveBindingModel(Garp_Spawn_Relation $habtmRelation, $relationName) {
+		if (!$this->_shouldRenderBindingModel($habtmRelation)) {
+			return;
+		}
+
 		$model 			= $this->getModel();
 		$bindingModel 	= $habtmRelation->getBindingModel();
 		$factory		= new Garp_Spawn_Php_Model_Factory($model);
@@ -56,6 +60,19 @@ class Garp_Spawn_Php_Renderer {
 			->setModel($bindingModel)
 			->produce(Garp_Spawn_Php_Model_Factory::TYPE_EXTENDED);
 		$bindingExtendedPhpModel->save();
+	}
+
+	/**
+	 * Returns true if binding model file should be rendered from this direction (alphabetically by model)
+ 	 */
+	protected function _shouldRenderBindingModel(Garp_Spawn_Relation $habtmRelation) {
+		$modelId = $this->getModel()->id;
+		$relatedModelId = $habtmRelation->model;
+
+		$modelIds = array($modelId, $relatedModelId);
+		sort($modelIds);
+		
+		return $modelId === $modelIds[0];
 	}
 	
 	protected function _saveLocalizedModels() {
