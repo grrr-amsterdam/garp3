@@ -90,4 +90,4 @@
 .icon-relatepanel-unrelate{background-image:url(../../media/images/garp/icons2/arrow-left.png);}
 
 .icon-passwordwindow { background-image:url(../../media/images/garp/icons2/key.png); }
-#icon-loading-spinner { background-image:url(../../js/garp/ext-3.4.0/resources/images/default/grid/loading.gif); display: none; width: 16px; height: 16px; position: absolute; top: 10px; right: 5px; z-index: 999999999}
+#icon-loading-spinner { background-image:url(../../js/garp/ext-3.4.1/resources/images/default/grid/loading.gif); display: none; width: 16px; height: 16px; position: absolute; top: 10px; right: 5px; z-index: 999999999}

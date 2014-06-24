@@ -28,11 +28,20 @@ class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_Tes
 
 
 	public function setUp() {
+		// only test ElasticSearch in a project that uses ElasticSearch
+		if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+			return;
+		}
 		$this->setConfig(new Garp_Service_Elasticsearch_Configuration());
 	}
 
 
 	public function testShouldHaveBaseUrl() {
+		// only test ElasticSearch in a project that uses ElasticSearch
+		if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+			return;
+		}
+		
 		$config 	= $this->getConfig();
 		$baseUrl 	= $config->getBaseUrl();
 
@@ -40,6 +49,10 @@ class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_Tes
 	}
 
 	public function testShouldHaveIndex() {
+		// only test ElasticSearch in a project that uses ElasticSearch
+		if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+			return;
+		}
 		$config = $this->getConfig();
 		$index 	= $config->getIndex();
 
