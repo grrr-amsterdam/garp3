@@ -226,17 +226,35 @@ Garp.apply(Garp.FormHelper, {
 		var dayNamesMin = [__('Sun'), __('Mon'), __('Tue'), __('Wed'), __('Thu'), __('Fri'), __('Sat')];
 		$fields.each(function() {
 			var $this = $(this);
-			$this.datepicker({
+			var datepickerConfig = {
 				dayNames: dayNames,
 				dayNamesMin: dayNamesMin,
 				dayNamesShort: dayNamesMin,
 				firstDay: 1,
 				monthNames: [__('January'), __('February'), __('March'), __('April'), __('May'), __('June'), 
 					__('July'), __('August'), __('September'), __('October'), __('November'), __('December')],
+				monthNamesShort: [__('Jan'), __('Feb'), __('Mar'), __('Apr'), __('May'), __('Jun'),
+					__('Jul'), __('Aug'), __('Sep'), __('Oct'), __('Nov'), __('Dec')],
 				prevText: __('Previous'),
 				nextText: __('Next'),
-				dateFormat: fh.phpDateFormatToJqueryDateFormat($this.data('format'))
-			});
+				dateFormat: fh.phpDateFormatToJqueryDateFormat($this.data('format')),
+				changeMonth: true,
+				changeYear: true
+			};
+			// Look for data-attributes to customize config
+			/*
+			var attrs = this.attributes;
+			console.dir(attrs);
+			for (var i in attrs) {
+				if (i.indexOf('data-datepicker-') !== 0) {
+					continue;
+				}
+				i = i.replace(/^data-datepicker-/, '');
+				datepickerConfig[i] = data[i];
+				console.log('setting datepicker config: ', i, data[i]);
+			}
+			*/
+			$this.datepicker(datepickerConfig);
 		});
 	},
 

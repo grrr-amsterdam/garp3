@@ -66,7 +66,22 @@ class G_AuthController extends Garp_Controller_Action {
 					// After register hook
 					$this->_afterRegister();
 
-					$this->_redirect($authVars['register']['successUrl']);
+					// Determine targetUrl. This is the URL the user was trying to access before registering, or a default URL.
+					$router = Zend_Controller_Front::getInstance()->getRouter();
+					if (!empty($authVars['register']['successRoute'])) {
+						$targetUrl = $router->assemble(array(), $authVars['register']['successRoute']);
+					} elseif (!empty($authVars['register']['successUrl'])) {
+						$targetUrl = $authVars['register']['successUrl'];
+					} else {
+						$targetUrl = '/';
+					}
+					$store = Garp_Auth::getInstance()->getStore();
+					if ($store->targetUrl) {
+						$targetUrl = $store->targetUrl;
+						unset($store->targetUrl);
+					}
+
+					$this->_redirect($targetUrl);
 				// Check for duplication errors in order to show
 				// a helpful error to the user.
 				} catch (Zend_Db_Statement_Exception $e) {
@@ -415,6 +430,10 @@ class G_AuthController extends Garp_Controller_Action {
 		$activationCode = $request->getParam('c');
 		$activationEmail = $request->getParam('e');
 		$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
+
+		if (!$activationEmail || !$activationCode) {
+			throw new Zend_Controller_Action_Exception('Invalid request.', 404);
+		}
 
 		$userModel = new Model_User();
 		// always collect fresh data for this one

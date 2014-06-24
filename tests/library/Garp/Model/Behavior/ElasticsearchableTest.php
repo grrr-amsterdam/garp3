@@ -43,6 +43,10 @@ class Garp_Model_Behavior_ElasticsearchableTest extends Garp_Test_PHPUnit_TestCa
 	}
 
 	public function testAfterCreateShouldCreateElasticDocument() {
+		// only test ElasticSearch in a project that uses ElasticSearch
+		if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+			return;
+		}
 		$elasticModel 			= $this->getElasticModel();
 		$dbIds 					= $this->_updateBogusRecords();
 		$firstGarpModelClass 	= get_class($this->getGarpModel());

@@ -9,6 +9,10 @@ class Garp_Service_Elasticsearch_RequestTest extends PHPUnit_Framework_TestCase 
 
 
 	public function testRequestShouldNotHaveDuplicateSlashes() {
+		// only test ElasticSearch in a project that uses ElasticSearch
+		if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+			return;
+		}
 		$method 	= Garp_Service_Elasticsearch_Request::GET;
 		$request 	= new Garp_Service_Elasticsearch_Request($method, self::BOGUS_PATH);
 		$url 		= $request->getUrl();
