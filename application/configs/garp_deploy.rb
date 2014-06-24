@@ -12,7 +12,6 @@ set :scm, :git
 #   r e m o t e   s e r v e r
 set :deploy_via, :remote_cache
 ssh_options[:forward_agent] = true
-set :git_enable_submodules, 1
 set :use_sudo, false
 set :keep_releases, 2
 
@@ -49,6 +48,7 @@ namespace :deploy do
   desc "Deploy project"
   task :update do
     transaction do
+	  before_deploy
       update_code
       Disk.create_system_cache_dirs self, server_cache_dir
       Disk.create_static_cache_dir self, current_release
@@ -59,6 +59,7 @@ namespace :deploy do
       Garp.env_setup self, current_release, garp_env
       Auth.set_webroot_permissions self, releases_path, release_name
       symlink
+	  after_deploy
     end
   end
 
@@ -68,6 +69,20 @@ namespace :deploy do
 	  transaction do
 	  	  # zzzz
 	  end
+  end
+
+  task :before_deploy do
+	begin
+		AppHooks.before_deploy
+	rescue NameError
+    end
+  end
+
+  task :after_deploy do
+	begin
+		AppHooks.after_deploy
+	rescue NameError
+    end
   end
 
 

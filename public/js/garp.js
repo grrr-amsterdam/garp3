@@ -422,8 +422,10 @@ Garp.setFavicon = function(iconCls){
 		Ext.each(iconCss.sheet.cssRules, function(){
 			if (this.selectorText == '.' + iconCls) {
 				found = this.style.backgroundImage.trim();
-				found = found.substr(8, found.length - 10); // remove url() shizzle
-				found = d.location.protocol + '//' + d.location.host + BASE + found; // absolute path
+				found = found.substr(4, found.length - 5); // remove url() shizzle
+				if (found.indexOf('http') === -1) {
+					found = d.location.protocol + '//' + d.location.host + BASE + found; // absolute path
+				}
 				return;
 			}
 		});

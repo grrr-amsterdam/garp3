@@ -313,7 +313,8 @@ class Garp_Spawn_Relation {
 			'type' => 'numeric',
 			'editable' => false,
 			'visible' => false,
-			'required' => $this->required
+			'required' => $this->required,
+			'relationType' => $this->type
 		);
 		$this->_localModel->fields->add('relation', $column, $fieldParams);
 	}	
