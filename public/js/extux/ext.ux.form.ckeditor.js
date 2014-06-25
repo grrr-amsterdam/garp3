@@ -31,6 +31,8 @@ Ext.form.CKEditor = function(config) {
         config.CKEditor.contentsCss = window.WYSIWYG_CSS_URL;
     }
 
+    config.CKEditor.height = "400px";
+
     // Load the garp content plugins for richwyswig editor types
     if (config.rich) {
         // Always load the images picker
@@ -42,8 +44,6 @@ Ext.form.CKEditor = function(config) {
             extraPlugins += ",garpvideos";
             richButtons.push("Garpvideo");
         }
-
-        config.CKEditor.height = "400px";
 
         // Let the editor know
         config.CKEditor.extraPlugins = extraPlugins;
