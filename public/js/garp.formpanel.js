@@ -519,7 +519,7 @@ Garp.FormPanel = Ext.extend(Ext.FormPanel, {
 				scope: this
 			});
 		}
-		if (Garp.currentModel === "Image" && IS_CKEDITOR_IMAGE_BROWSER) {
+		if (Garp.currentModel === "Image" && typeof IS_CKEDITOR_IMAGE_BROWSER !== 'undefined' && IS_CKEDITOR_IMAGE_BROWSER) {
 			addChooseImageButton();
 		}
 
