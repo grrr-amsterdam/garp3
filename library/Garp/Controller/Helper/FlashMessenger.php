@@ -17,7 +17,6 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
  	 */
 	protected static $_store;
 
-
 	/**
  	 * Class constructor
  	 * @return Void 
@@ -26,13 +25,11 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 		self::$_store = Garp_Store_Factory::getStore('FlashMessenger');
 	}
 
-
 	public function postDispatch() {
 		if (self::$_store instanceof Garp_Store_Cookie && self::$_store->isModified()) {
 			self::$_store->writeCookie();
 		}
 	}
-
 
 	/**
  	 * Add message
@@ -44,11 +41,14 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 			self::$_store->messages = array();
 		}
 		$messages = self::$_store->messages;
+		// Duplicates are wack
+		if (in_array($message, $messages)) {
+			return $this;
+		}
 		$messages[] = $message;
 		self::$_store->messages = $messages;
 		return $this;
 	}
-
 
 	/**
  	 * Get messages
@@ -67,7 +67,6 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 		return array();
 	}
 
-
 	/**
  	 * Check if messages are set
  	 * @return Boolean
@@ -75,7 +74,6 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 	public function hasMessages() {
 		return is_array(self::$_store->messages);
 	}
-
 
 	/**
  	 * Remove messages
@@ -85,14 +83,13 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 		self::$_store->destroy();
 	}
 
-
 	/**
-   * Strategy pattern: proxy to addMessage()
-   *
-   * @param  string $message
-   * @return void
-   */
-  public function direct($message) {
-    return $this->addMessage($message);
-  }
+	 * Strategy pattern: proxy to addMessage()
+	 *
+	 * @param  string $message
+	 * @return void
+	 */
+	public function direct($message) {
+		return $this->addMessage($message);
+	}
 }
