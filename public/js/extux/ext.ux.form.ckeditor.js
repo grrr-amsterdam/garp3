@@ -33,7 +33,7 @@ Ext.form.CKEditor = function(config) {
 
     config.CKEditor.height = "400px";
 
-	config.CKEditor.maxLength = 1020;
+	config.CKEditor.maxLength = 700;
 	var extraPlugins = 'charcount';
 
     // Load the garp content plugins for richwyswig editor types
@@ -72,6 +72,21 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
         });
         this.setValue(this.orgValue);
     },
+
+	isValid: function(value) {
+		if (this.maxLength && this.getCharCount() >= this.maxLength) {
+			return false;
+		}
+        return true;
+	},
+
+	// Get char count, stripped of HTML tags
+	getCharCount: function() {
+		if (this.editor && this.editor.document) {
+			return this.editor.document.getBody().getText().length;
+		}
+		return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
+	},
 
     setValue: function(value) {
         // Save the value as the elements original value
