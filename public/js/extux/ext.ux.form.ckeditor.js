@@ -19,7 +19,7 @@ Ext.form.CKEditor = function(config) {
             ['Bold', 'Italic', '-', 'RemoveFormat'],
             ['Link', 'Unlink'],
             ['NumberedList','BulletedList', 'Format'],
-            ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source']
+            ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source', '-', 'CharCount']
         ],
 
         // Disable CKEditor's own image plugin
@@ -33,10 +33,13 @@ Ext.form.CKEditor = function(config) {
 
     config.CKEditor.height = "400px";
 
+	config.CKEditor.maxLength = 1020;
+	var extraPlugins = 'charcount';
+
     // Load the garp content plugins for richwyswig editor types
     if (config.rich) {
         // Always load the images picker
-        var extraPlugins = "garpimages";
+        extraPlugins += ",garpimages";
         var richButtons = ["Garpimage"];
 
         // Only load the video picker when a VIDEO_WIDTH template is defined
@@ -46,9 +49,10 @@ Ext.form.CKEditor = function(config) {
         }
 
         // Let the editor know
-        config.CKEditor.extraPlugins = extraPlugins;
         config.CKEditor.toolbar.push(richButtons);
     }
+
+    config.CKEditor.extraPlugins = extraPlugins;
 
     // Attach to Ext
     Ext.form.CKEditor.superclass.constructor.call(this, config);
