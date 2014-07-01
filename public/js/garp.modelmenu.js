@@ -20,8 +20,11 @@ Garp.ModelMenu = function(cfg){
 	menuItems.push((function(){
 		var model, models = [];
 		Ext.each(this.menuItems, function(model){
-			if ((model == '-') && (models.length > 0) && models[models.length - 1] != '-') {
-				models.push('-');
+			if (model == '-') { 
+				// Check if models are already in array, otherwise a separator doesn't make sense.
+				if (models.length > 0 && models[models.length - 1] != '-') {
+					models.push('-');
+				}
 			} else {
 				if(!Garp.dataTypes[model]){
 					throw 'Oops! JS model "' + model + '" not found! Is it spawned and bugfree?';
