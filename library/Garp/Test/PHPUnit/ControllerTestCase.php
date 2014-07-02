@@ -3,6 +3,14 @@ ob_start();
 
 abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_ControllerTestCase {
     public $application;
+
+	/** @var Garp_Test_PHPUnit_Helper */
+	protected $_helper;
+
+	public function __construct() {
+		$this->_helper = new Garp_Test_PHPUnit_Helper();
+		parent::__construct();
+	}
 	
     public function setUp() {
 		$this->application = new Garp_Application(

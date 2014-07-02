@@ -17,6 +17,27 @@ class G_ContentController extends Garp_Controller_Action {
 	const UPLOAD_TYPE_ALL = 'all';
 
 	/**
+ 	 * Called before all actions
+ 	 */
+	public function init() {
+		$config = Zend_Registry::get('config');
+		if (!$config->cms || !$config->cms->ipfilter || !count($config->cms->ipfilter->toArray())) {
+			return true;
+		}
+		$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;
+		if ($ip === '127.0.0.1') {
+			// i mean come on
+			return true;
+		}
+		if (!in_array($ip, $config->cms->ipfilter->toArray())) {
+			$authVars = Garp_Auth::getInstance()->getConfigValues();
+			$this->_helper->flashMessenger(__($authVars['noPermissionMsg']));
+			$this->_helper->redirector->gotoRoute(array(), $authVars['login']['route']);
+			return false;
+		}
+	}
+
+	/**
 	 * Test page
 	 * @return Void
 	 */
