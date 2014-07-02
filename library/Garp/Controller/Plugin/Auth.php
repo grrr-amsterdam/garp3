@@ -32,7 +32,6 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 			 	 */
 				$this->getResponse()->setHttpResponseCode(403);
 				$this->getResponse()->sendHeaders();
-				exit;
 			}
 		}
 	}
@@ -85,7 +84,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 		$redirectParams = array('/g/auth/login');
 		
 		if (!empty($authVars['login']['route'])) {
-			$redirectMethod = 'gotoRouteAndExit';
+			$redirectMethod = 'gotoRoute'; //AndExit';
 			$redirectParams = array(array(), $authVars['login']['route']);
 		}
 		call_user_func_array(array($redirector, $redirectMethod), $redirectParams);
