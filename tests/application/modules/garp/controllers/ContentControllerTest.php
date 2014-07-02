@@ -5,20 +5,54 @@
 class G_ContentControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 
 	public function setUp() {
-		$this->request->clearCookies();
 	}
 
 	public function testVisitorCannotAccessCms() {
 		$this->dispatch('/admin');
-		$this->assertRedirectTo('/g/auth/login');
+		$this->assertRedirectTo('/g/auth/login', 'Could happen due to acl being disabled in auth.ini');
 	}
 
 	public function testAdminCanAccessCms() {
 		$this->_mockLogin();
 		$this->dispatch('/admin');
 		$this->assertController('content');
-		$this->request->setMethod('GET');
 		$this->assertAction('admin');
+	}
+
+	public function testUserCanBeBlockedBasedOnIpFilter() {
+		$this->_mockLogin();
+
+		$this->_helper->injectConfigValues(array(
+			'cms' => array(
+				'ipfilter' => array(
+					'11.122.21.21'
+				)
+			)
+		));
+		// mock ip address
+		$_SERVER['REMOTE_ADDR'] = '99.100.192.12';
+
+		$this->dispatch('/admin');
+		$this->assertRedirectTo('/g/auth/login');
+	}
+
+	public function testUserWithMatchingIpIsAllowed() {
+		$this->_mockLogin();
+
+		$this->_helper->injectConfigValues(array(
+			'cms' => array(
+				'ipfilter' => array(
+					'11.122.21.21'
+				)
+			)
+		));
+		// mock ip address
+		$_SERVER['REMOTE_ADDR'] = '11.122.21.21';
+
+		$this->dispatch('/admin');
+		$this->assertController('content');
+		$this->assertAction('admin');
+	
 	}
 
 	protected function _mockLogin() {
