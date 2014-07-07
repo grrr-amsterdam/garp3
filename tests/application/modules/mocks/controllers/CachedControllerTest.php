@@ -30,7 +30,9 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		$this->assertController('staticcache');
 	
 		// Flush the buffer manually: this triggers creation of cache files
-		ob_end_flush();
+		while (ob_get_level() > 0) {
+			ob_end_flush();
+		}
 	
 		$this->assertTrue(file_exists($this->_cachePath.'/mocks/staticcache/index.html'));
 	
