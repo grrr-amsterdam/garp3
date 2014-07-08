@@ -18,11 +18,19 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	public function testRouteShouldBeCached() {
 		$this->dispatch('/mocks/staticcache/index/');
 		$this->assertController('staticcache');
+		$this->assertNotRedirect();
 	
 		// Flush the buffer manually: this triggers creation of cache files
 		ob_end_flush();
 	
-		$this->assertTrue(file_exists($this->_cachePath.'/mocks/staticcache/index.html'));
+		$expectedPath = '/mocks/staticcache/index.html';
+		foreach ($this->response->getHeaders() as $i => $header) {
+			if ($header['name'] == 'Location') {
+				$expectedPath = $header['value'];
+				break;
+			}
+		}
+		$this->assertTrue(file_exists($this->_cachePath.$expectedPath));
 	}
 
 	public function testPurgeShouldClearCache() {
@@ -30,9 +38,7 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		$this->assertController('staticcache');
 	
 		// Flush the buffer manually: this triggers creation of cache files
-		while (ob_get_level() > 0) {
-			ob_end_flush();
-		}
+		ob_end_flush();
 	
 		$this->assertTrue(file_exists($this->_cachePath.'/mocks/staticcache/index.html'));
 	
@@ -43,6 +49,25 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 
 	public function setUp() {
 		parent::setUp();
+
+		// Make sure route is allowed
+		$acl = Zend_Registry::get(Garp_Application_Resource_Acl::DEFAULT_REGISTRY_KEY);
+		if (!$acl->has('staticcache')) {
+			$acl->addResource(new Zend_Acl_Resource('staticcache'));
+			$acl->allow(null, 'staticcache');
+		}
+
+		// Make sure route is not localised and redirected
+		$this->_helper->injectConfigValues(array(
+			'resources' => array(
+				'router' => array(
+					'locale' => array(
+						'enabled' => false
+					)
+				)
+			)
+		));
+		
 		$this->_cachePath = GARP_APPLICATION_PATH.'/../tests/tmp';
 
 		// Store static HTML cache in handily accessible location
