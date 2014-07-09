@@ -19,7 +19,7 @@ Ext.form.CKEditor = function(config) {
             ['Bold', 'Italic', '-', 'RemoveFormat'],
             ['Link', 'Unlink'],
             ['NumberedList','BulletedList', 'Format'],
-            ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source']
+            ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source', '-', 'CharCount']
         ],
 
         // Disable CKEditor's own image plugin
@@ -32,11 +32,14 @@ Ext.form.CKEditor = function(config) {
     }
 
     config.CKEditor.height = "400px";
+	config.CKEditor.maxLength = config.maxLength || 0;
+
+	var extraPlugins = 'charcount';
 
     // Load the garp content plugins for richwyswig editor types
     if (config.rich) {
         // Always load the images picker
-        var extraPlugins = "garpimages";
+        extraPlugins += ",garpimages";
         var richButtons = ["Garpimage"];
 
         // Only load the video picker when a VIDEO_WIDTH template is defined
@@ -46,9 +49,10 @@ Ext.form.CKEditor = function(config) {
         }
 
         // Let the editor know
-        config.CKEditor.extraPlugins = extraPlugins;
         config.CKEditor.toolbar.push(richButtons);
     }
+
+    config.CKEditor.extraPlugins = extraPlugins;
 
     // Attach to Ext
     Ext.form.CKEditor.superclass.constructor.call(this, config);
@@ -68,6 +72,21 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
         });
         this.setValue(this.orgValue);
     },
+
+	isValid: function(value) {
+		if (this.maxLength && this.getCharCount() >= this.maxLength) {
+			return false;
+		}
+        return true;
+	},
+
+	// Get char count, stripped of HTML tags
+	getCharCount: function() {
+		if (this.editor && this.editor.document) {
+			return this.editor.document.getBody().getText().length;
+		}
+		return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
+	},
 
     setValue: function(value) {
         // Save the value as the elements original value
