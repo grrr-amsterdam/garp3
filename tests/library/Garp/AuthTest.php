@@ -18,9 +18,8 @@ class Garp_AuthTest extends Garp_Test_PHPUnit_TestCase {
 	protected $_auth;
 
 	public function setUp() {
-		$this->_auth = Garp_Auth::getInstance(
-			new Garp_Store_Array('Garp_Auth')
-		);
+		$this->_auth = Garp_Auth::getInstance();
+		$this->_auth->setStore(new Garp_Store_Array('Garp_Auth'));
 	}
 
 	public function testIsLoggedIn() {
