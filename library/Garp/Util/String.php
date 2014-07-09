@@ -273,14 +273,14 @@ class Garp_Util_String {
 			$search = strtolower($search);
 			$check = strtolower($check);
 		}
-		$last_pos = -1;
+		$last_pos = 0;
 		for ($j = 0, $l = strlen($search); $j < $l; ++$j) {
 			$c = $search[$j];
-			$p = strpos($check, $c);
+			$p = strpos($check, $c, $last_pos);
 			if (false === $p) {
 				return false;
 			}
-			$check = substr($check, $p);
+			$last_pos = $p;
 		}
 		return true;
 	}
