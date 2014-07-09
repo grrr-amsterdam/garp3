@@ -27,6 +27,7 @@ Garp.FilterMenu = function(){
 			this.tb.filterBtn.setIconClass('icon-filter-off');
 			this.tb.filterBtn.menu.all.setChecked(true);
 			this.tb.filterStatus.hide();
+			this.tb.filterStatus.update('');
 		};
 		
 		/**
