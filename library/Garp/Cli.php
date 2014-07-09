@@ -102,6 +102,13 @@ class Garp_Cli {
 		$char = fgetc($handle);
 		system('stty icanon');
 		print "\n";
+
+		$allowedResponses = array('y', 'Y', 'n', 'N');
+		if (!in_array($char, $allowedResponses)) {
+			// nag 'em some more
+			Garp_Cli::errorOut('Please respond with a clear y or n');
+			return static::confirm($msg);
+		}
 		return $char === 'y' || $char === 'Y';
 	}
 
