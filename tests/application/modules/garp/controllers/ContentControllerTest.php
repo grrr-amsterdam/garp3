@@ -67,4 +67,9 @@ class G_ContentControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 			Garp_Auth::getInstance()->getStore()->toArray()
 		));
 	}		
+
+	public function tearDown() {
+		// hurray for globals...
+		Zend_Registry::set('CMS', false);
+	}		
 }
