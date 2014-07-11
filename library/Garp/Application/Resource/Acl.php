@@ -70,7 +70,8 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
 	public function getAcl() {
 		$options = $this->getOptions();
 		if ($this->_acl === null) {
-			$this->_acl = new Zend_Acl();
+			$this->_acl = Zend_Registry::isRegistered(self::DEFAULT_REGISTRY_KEY) ?
+				Zend_Registry::get(self::DEFAULT_REGISTRY_KEY) : new Zend_Acl();
 
 
 			$roles = array();

@@ -259,4 +259,29 @@ class Garp_Util_String {
 		}
 		return $tmp;
 	}
+
+	/**
+ 	 * Matches when the chars of $search appear in the same order in $check.
+ 	 * E.g. "munchkin" matches "m19302390iu23983n2893ch28302jdk2399i2903910hfwen"
+ 	 * @param String $search 
+ 	 * @param String $check 
+ 	 * @param Boolean $caseInsensitive
+ 	 * @return Boolean
+ 	 */
+	static public function fuzzyMatch($search, $check, $caseInsensitive = true) {
+		if ($caseInsensitive) {
+			$search = strtolower($search);
+			$check = strtolower($check);
+		}
+		$last_pos = 0;
+		for ($j = 0, $l = strlen($search); $j < $l; ++$j) {
+			$c = $search[$j];
+			$p = strpos($check, $c, $last_pos);
+			if (false === $p) {
+				return false;
+			}
+			$last_pos = $p;
+		}
+		return true;
+	}
 }

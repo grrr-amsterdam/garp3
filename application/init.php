@@ -105,7 +105,12 @@ $filePrefix = preg_replace('/[^a-zA-A0-9_]/', '_', $filePrefix).'_';
 
 $frontendName = 'Core';
 
-if (!extension_loaded('memcache')) {
+$memcacheAvailable = extension_loaded('memcache');
+if ($memcacheAvailable) {
+	$memcache = new Memcache;
+	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST);
+}
+if (!$memcacheAvailable) {
 	$backendName = 'BlackHole';
 	$cacheStoreEnabled = false;
 } else {
