@@ -10,9 +10,6 @@ class G_ContentControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 
 	public function testVisitorCannotAccessCms() {
 		$this->dispatch('/admin');
-		// @todo More specific: what should it redirect to?
-		// But we can't figure out which route was redirected to...
-		// Bugger.
 		$this->assertRedirect('Could happen due to acl being disabled in auth.ini');
 	}
 
@@ -69,5 +66,10 @@ class G_ContentControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		$this->request->setCookie('Garp_Auth', json_encode(
 			Garp_Auth::getInstance()->getStore()->toArray()
 		));
+	}		
+
+	public function tearDown() {
+		// hurray for globals...
+		Zend_Registry::set('CMS', false);
 	}		
 }
