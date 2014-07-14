@@ -12,6 +12,12 @@
  */
 abstract class Garp_Cli_Command {
 	/**
+ 	 * Restrict arguments
+ 	 * @var Array
+ 	 */
+	protected $_allowedArguments = array();
+
+	/**
 	 * Central start method
 	 * By default expects the first parameter (index 1 in $args) to be the requested method.
 	 * @param Array $args Various options. Must contain at least a method name as the first parameter.
@@ -29,15 +35,18 @@ abstract class Garp_Cli_Command {
 		}
 
 		$methodName = $args[0];
-		if (in_array($methodName, $publicMethods)) {
-			unset($args[0]);
-			$args = $this->_remapArguments($args);
-			$result = call_user_func_array(array($this, $methodName), array($args));
-			return $result;
-		} else {
+		if (!in_array($methodName, $publicMethods)) {
 			Garp_Cli::errorOut('Unknown command \''.$methodName.'\'');
+			return false;
 		}
-		return false;
+		unset($args[0]);
+		$args = $this->_remapArguments($args);
+		if (!$this->_validateArguments($methodName, $args)) {
+			// Note, _validateArguments also provides the CLI feedback
+			return false;
+		}
+		$result = call_user_func_array(array($this, $methodName), array($args));
+		return $result;
 	}
 
 	/**
@@ -50,7 +59,7 @@ abstract class Garp_Cli_Command {
 		$publicMethods = array_diff($publicMethods, $ignoredMethods);
 		Garp_Cli::lineOut(implode(' ', $publicMethods));
 		return true;
-	}	
+	}
 
 	/**
  	 * Return a list of all public methods available on this command.
@@ -100,4 +109,33 @@ abstract class Garp_Cli_Command {
 		}
 		return $out;
 	}
+
+	/**
+ 	 * Make sure the method is not inadvertently called with the 
+ 	 * wrong arguments. This might indicate the user made a mistake
+ 	 * in calling it.
+ 	 * @param String $methodName
+ 	 * @param Array $args
+ 	 * @return Boolean
+ 	 */
+	protected function _validateArguments($methodName, $args) {
+		if (!array_key_exists($methodName, $this->_allowedArguments) ||
+			$this->_allowedArguments[$methodName] === '*') {
+			return true;
+		}
+
+		$unknownArgs = array_diff(array_keys($args), $this->_allowedArguments[$methodName]);
+		if (!count($unknownArgs)) {
+			return true;
+		}
+		// Report the first erroneous argument
+		$errorStr = $unknownArgs[0];
+		// Show the value of the argument if the index is numeric
+		if (is_numeric($errorStr)) {
+			$errorStr = $args[$unknownArgs[0]];
+		}
+		Garp_Cli::errorOut('Unexpected argument ' . $errorStr);
+		return false;
+	}
+
 }
