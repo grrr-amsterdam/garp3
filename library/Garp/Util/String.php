@@ -125,6 +125,7 @@ class Garp_Util_String {
 	 * @return String
 	 */
 	static public function excerpt($content, $chars = 140, $respectWords = true) {
+		$content = str_replace(array("<br>", "<br />", "<br >", "<br/>"), "\n",$content);
 		$content = htmlspecialchars(
 			str_replace(
 				array(
