@@ -23,6 +23,5 @@ class Garp_FormTest extends Garp_Test_PHPUnit_TestCase {
 			'e-mail' => 'iosif@grrr.nl',
 			'pass-word' => '123456'
 		)));
-
 	}
 }
