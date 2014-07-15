@@ -97,6 +97,17 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 				'Small font Large font Colored font Bold font Italic font and more...');
 		$this->assertEquals(Garp_Util_String::excerpt("<div class=\"beautify\">x</div>"),"x");
 
+		$this->assertEquals(Garp_Util_String::excerpt("<p><strong>Uw uitdaging</strong><br>
+		Geen tijd over voor het beheren van uw werkplekken?</p>"), "Uw uitdaging\n
+		Geen tijd over voor het beheren van uw werkplekken?");
+
+		//test different <br> writing styles
+		$this->assertEquals(Garp_Util_String::excerpt("<p><strong>Testing</strong> the <br>break <br />with different formats</p>"), "Testing the \nbreak \nwith different formats");
+		$this->assertEquals(Garp_Util_String::excerpt("<p><strong>Testing</strong> the <br >break <br/>with different formats</p>"), "Testing the \nbreak \nwith different formats");
+
+		//test imput of a space if there is none
+		$this->assertEquals(Garp_Util_String::excerpt("<p><strong>insert</strong> a<br >space<br/>here</p>"), "insert a\nspace\nhere");
+
 		//this is not working
 		// $this->assertEquals(Garp_Util_String::excerpt("</div><div>x</div>"),"x");
 	}
