@@ -18,8 +18,8 @@ class Garp_Util_String {
 
 	/** Converts 'SnoopDoggyDog' to 'snoop-doggy-dog' */
 	static public function camelcasedToDashed($str) {
-		
-	    return preg_replace_callback('/([A-Z])/', function($str) { return "-".strtolower($str[1]); }, $str);
+		$str = lcfirst($str);
+	    return  preg_replace_callback('/([A-Z])/', function($str) { return "-".strtolower($str[1]); }, $str);
 	} 
 
 	static public function acronymsToLowercase($str) {
@@ -58,7 +58,10 @@ class Garp_Util_String {
 	/**
 	 * Converts 'doggy_dog_world_id' to 'doggyDogWorldId'
 	 */
-	static public function underscoredToCamelcased($str) {
+	static public function underscoredToCamelcased($str, $ucfirst = false) {
+		if ($ucfirst) {
+			$str = ucfirst($str);
+		}
 		$func = create_function('$c', 'return strtoupper($c[1]);');
 		return preg_replace_callback('/_([a-z])/', $func, $str);
 	} 
@@ -66,7 +69,10 @@ class Garp_Util_String {
 	/**
  	 * Converts 'doggy-dog-world-id' to 'doggyDogWorldId'
  	 */
-	static public function dashedToCamelcased($str) {
+	static public function dashedToCamelcased($str,  $ucfirst = false) {
+		if ($ucfirst) {
+			$str = ucfirst($str);
+		}
 		$func = create_function('$c', 'return strtoupper($c[1]);');
 		return preg_replace_callback('/\-([a-z])/', $func, $str);
 	}
