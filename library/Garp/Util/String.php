@@ -19,7 +19,7 @@ class Garp_Util_String {
 	/** Converts 'SnoopDoggyDog' to 'snoop-doggy-dog' */
 	static public function camelcasedToDashed($str) {
 		$str = lcfirst($str);
-	    return  preg_replace_callback('/([A-Z])/', function($str) { return "-".strtolower($str[1]); }, $str);
+	    return preg_replace_callback('/([A-Z])/', function($str) { return "-".strtolower($str[1]); }, $str);
 	} 
 
 	static public function acronymsToLowercase($str) {
@@ -81,10 +81,16 @@ class Garp_Util_String {
 	 * Converts 'Snøøp Düggy Døg' to 'Snoop Doggy Dog'
 	 */
 	static public function utf8ToAscii($str) {
-		setlocale(LC_ALL, 'en_GB');
-		$str = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $str); 
+		$locale = setlocale(LC_CTYPE, 0);
+		$localeChanged = false;
+		if ($locale == 'C' || $locale == 'POSIX') {
+			$localeChanged = true;
+			setlocale(LC_ALL, 'nl_NL');
+		}
+		$str = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $str);
 		//if IGNORE is not kept, illegal characters could go into the output string
 		//This way some of the characters could be simply disregarded
+		if ($localeChanged) setlocale(LC_CTYPE, $locale);
 
 		//the output of iconv will generate some extra characters for those diacritics in utf8 which need to be deleted:  ë => "e
 		$array_ignore = array('"', "'", "`", "^", "~", "+");
