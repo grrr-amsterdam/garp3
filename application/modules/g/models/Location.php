@@ -12,29 +12,29 @@ class G_Model_Location extends Model_Base_Location {
 
 	/**
  	 * Create new Location record, or update existing one
- 	 * (lookup based on zipcode)
- 	 * @param String $zipcode
- 	 * @param Int $number
+ 	 * (lookup based on lat/long)
+ 	 * @param Array $data
  	 * @return Int Primary key
  	 */
-	public function insertOrUpdate($zipcode, $number) {
-		$zipcode = $this->_normalizeZip($zipcode);
+	public function insertOrUpdate(array $data) {
+		if (!isset($data['latitude']) || !isset($data['longitude'])) {
+			throw new Exception("Latitude and longitude are required " .
+				"fields");
+		}
+		if (isset($data['zip'])) {
+			$data['zip'] = $this->_normalizeZip($data['zip']);
+		}
 		$select = $this->select()
-			->where('zip = ?', $zipcode);
+			->where('latitude = ?', $data['latitude'])
+			->where('longitude = ?', $data['longitude']);
 		$row = $this->fetchRow($select);
-		/**
- 		 * Create new records for unknown zips
- 		 * or when the zip is known, but row is
- 		 * used for a different number
- 		 */
-		if (!$row || $row->number != $number) {
+		if (!$row) {
 			$row = $this->createRow();
 		}
 		if (!$row->isConnected()) {
 			$row->setTable($this);
 		}
-		$row->zip = $zipcode;
-		$row->number = $number;
+		$row->setFromArray($data);
 		$row->save();
 		return $row->id;
 	}
