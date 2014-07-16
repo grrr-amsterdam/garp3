@@ -11,41 +11,12 @@
 class G_Model_Location extends Model_Base_Location {
 
 	/**
- 	 * Create new Location record, or update existing one
- 	 * (lookup based on lat/long)
- 	 * @param Array $data
- 	 * @return Int Primary key
- 	 */
-	public function insertOrUpdate(array $data) {
-		if (!isset($data['latitude']) || !isset($data['longitude'])) {
-			throw new Exception("Latitude and longitude are required " .
-				"fields");
-		}
-		if (isset($data['zip'])) {
-			$data['zip'] = $this->_normalizeZip($data['zip']);
-		}
-		$select = $this->select()
-			->where('latitude = ?', $data['latitude'])
-			->where('longitude = ?', $data['longitude']);
-		$row = $this->fetchRow($select);
-		if (!$row) {
-			$row = $this->createRow();
-		}
-		if (!$row->isConnected()) {
-			$row->setTable($this);
-		}
-		$row->setFromArray($data);
-		$row->save();
-		return $row->id;
-	}
-
-	/**
  	 * Fetches the location record from the database if it exists.
  	 * If not, a call is made to the Google Maps API,
  	 * and the result is stored in the database.
  	 */
 	public function fetchRowByZip($zip) {
-		$zip = $this->_normalizeZip($zip);
+		$zip = $this->normalizeZip($zip);
 		$row = $this->_fetchRowByZipFromDatabase($zip);
 
 		if ($row) {
@@ -67,7 +38,7 @@ class G_Model_Location extends Model_Base_Location {
 	/**
  	 * Normalize the input so that it matches the stored format.
  	 */
-	protected function _normalizeZip($zip) {
+	public function normalizeZip($zip) {
 		if (strlen($zip) === 6) {
 			$zip = substr($zip, 0, 4) . ' ' . strtoupper(substr($zip, 4, 2));
 		}
