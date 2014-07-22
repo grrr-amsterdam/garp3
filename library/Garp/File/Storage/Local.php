@@ -25,6 +25,13 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 		$this->_gzip = $config->gzip;
 	}
 
+	public function setDocRoot($docRoot) {
+		$this->_docRoot = $docRoot;
+	}
+
+	public function getDocRoot() {
+		return $this->_docRoot;
+	}
 
 	public function setPath($path) {
 		$this->_path = $path;
