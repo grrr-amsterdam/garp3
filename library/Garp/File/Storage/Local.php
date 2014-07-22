@@ -13,15 +13,16 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 	
 	protected $_ssl;
 	
+	protected $_gzip;
+
 	const PERMISSIONS = 0774;
-
-
 
 	public function __construct(Zend_Config $config, $path) {
 		$this->_docRoot = APPLICATION_PATH."/../public";
 		$this->_path = $path;
 		$this->_domain = $config->domain;
 		$this->_ssl = $config->ssl ? true : false;
+		$this->_gzip = $config->gzip;
 	}
 
 
@@ -106,6 +107,10 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 			while ($this->exists($filename)) {
 				$filename = Garp_File::getCumulativeFilename($filename);
 			}
+		}
+
+		if ($this->_gzip) {
+			$data = gzencode($data);
 		}
 
 		if (file_put_contents($this->_getFilePath($filename), $data) !== false) {
