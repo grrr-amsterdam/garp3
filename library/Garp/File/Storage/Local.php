@@ -13,8 +13,6 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 	
 	protected $_ssl;
 	
-	protected $_gzip;
-
 	const PERMISSIONS = 0774;
 
 	public function __construct(Zend_Config $config, $path) {
@@ -22,7 +20,6 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 		$this->_path = $path;
 		$this->_domain = $config->domain;
 		$this->_ssl = $config->ssl ? true : false;
-		$this->_gzip = $config->gzip;
 	}
 
 	public function setDocRoot($docRoot) {
@@ -55,10 +52,8 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 	/** Fetches the file data. */
 	public function fetch($filename) {
 		$data = file_get_contents($this->_getFilePath($filename));
-		if ($this->_gzip) {
-			$probablyGzipped = bin2hex(substr($data, 0, 2)) == '1f8b';
-			$data = $probablyGzipped ? gzdecode($data) : $data;
-		}
+		$probablyGzipped = bin2hex(substr($data, 0, 2)) == '1f8b';
+		$data = $probablyGzipped ? gzdecode($data) : $data;
 		return $data;
 	}
 
@@ -121,10 +116,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 			}
 		}
 
-		if ($this->_gzip) {
-			$data = gzencode($data);
-		}
-
+		$data = gzencode($data);
 		if (file_put_contents($this->_getFilePath($filename), $data) !== false) {
 			chmod($this->_getFilePath($filename), self::PERMISSIONS);
 			return $filename;
