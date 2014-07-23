@@ -54,7 +54,12 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 
 	/** Fetches the file data. */
 	public function fetch($filename) {
-		return file_get_contents($this->_getFilePath($filename));
+		$data = file_get_contents($this->_getFilePath($filename));
+		if ($this->_gzip) {
+			$probablyGzipped = bin2hex(substr($data, 0, 2)) == '1f8b';
+			$data = $probablyGzipped ? gzdecode($data) : $data;
+		}
+		return $data;
 	}
 
 	/** Lists all valid files in the upload directory. */
