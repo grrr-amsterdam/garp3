@@ -1,7 +1,8 @@
 <?php
 /**
- * @author David Spreekmeester | Grrr.nl
  * This class tests Garp_File.
+ * @author David Spreekmeester | Grrr.nl
+ * @group File
  */
 class Garp_FileTest extends PHPUnit_Framework_TestCase {
 	protected $_bogusFilenames = array(
