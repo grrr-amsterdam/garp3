@@ -49,6 +49,13 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function setUp() {
+		$this->_helper->injectConfigValues(array(
+			'cdn' => array(
+				'gzip' => true,
+				's3' => array(
+				)
+			)
+		));
 		$this->_storage = new Garp_File_Storage_S3(Zend_Registry::get('config')->cdn, '/');
 	}
 
