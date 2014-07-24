@@ -231,11 +231,14 @@ class G_ContentController extends Garp_Controller_Action {
 			throw new Zend_Controller_Action_Exception('Geen bestandsnaam opgegeven.', 404);
 		}
 
-		$fileHandler = new Garp_File($downloadType, $uploadOrStatic);
-
-		// Process the file
-		$url = $fileHandler->getUrl($file);
-		$this->_downloadFile($url);
+		try {
+			$fileHandler = new Garp_File($downloadType, $uploadOrStatic);
+			$url = $fileHandler->getUrl($file);
+			$this->_downloadFile($url);
+		} catch (Garp_File_Exception_InvalidType $e) {
+			// Just throw a 404, since the error is basically just a wrong URL.
+			throw new Zend_Controller_Action_Exception($e->getMessage(), 404);
+		}
 	}
 
 	/**
