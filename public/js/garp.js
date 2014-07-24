@@ -405,7 +405,14 @@ Garp.changeModel = function(doPushState, model, page, id){
 	tb.extraMenu.menu.printButton.show();
 	
 	document.title = __(Garp.dataTypes[model].text) + ' | ' + (typeof APP_TITLE != 'undefined' ? APP_TITLE : '');
-	Garp.setFavicon(Garp.dataTypes[model].iconCls);
+	try {
+		Garp.setFavicon(Garp.dataTypes[model].iconCls);
+	} catch (e) {
+		// Firefox throws SecurityError when reading x-domain CSS stylerules.
+		if (e.name !== 'SecurityError') {
+			throw e;
+		}
+	}
 	
 };
 
