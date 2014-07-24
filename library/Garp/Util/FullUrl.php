@@ -74,13 +74,12 @@ class Garp_Util_FullUrl {
 			return $router->assemble($route[0], $route[1]);
 		} 
 		if (!$this->_omitBaseUrl) {
-			$application = Zend_Registry::get('application');
-			$bootstrap = $application->getBootstrap();
-			$viewObj = $bootstrap->getResource('view');
-			return $viewObj->baseUrl($route);
+			$myZendViewHelperBaseUrl = new Zend_View_Helper_BaseUrl();
+			$myZendViewHelperBaseUrl->setBaseUrl($route);
+			return $myZendViewHelperBaseUrl->getBaseUrl();
 		}
 		return $route;
-	}		
+	}
 
 	protected function _getHttpHost() {
 		// Check what the developer has configured.
