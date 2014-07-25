@@ -74,9 +74,10 @@ class Garp_Util_FullUrl {
 			return $router->assemble($route[0], $route[1]);
 		} 
 		if (!$this->_omitBaseUrl) {
-			$myZendViewHelperBaseUrl = new Zend_View_Helper_BaseUrl();
-			$myZendViewHelperBaseUrl->setBaseUrl($route);
-			return $myZendViewHelperBaseUrl->getBaseUrl();
+			$baseUrlHelper = new Zend_View_Helper_BaseUrl();
+			//$baseUrlHelper->setBaseUrl($route);
+			//return $baseUrlHelper->getBaseUrl();
+			return $baseUrlHelper->baseUrl($route);
 		}
 		return $route;
 	}
