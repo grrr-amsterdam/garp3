@@ -41,14 +41,18 @@ class Garp_Util_FullUrlTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals('http://loc.filmhuisdenhaag.nl/agenda/event/my_slug',
 			(string) new Garp_util_FullUrl(
 				array(array('slug' => 'my_slug'), 
-				'event_view')));
+					'event_view')
+				));
 
 		$this->assertEquals('http://loc.filmhuisdenhaag.nl/themas/my_slug/my_filter',
 			(string) new Garp_util_FullUrl(
-				array(
-					array(
+				array(array(
 						'slug' => 'my_slug',
-						'primaryFilter' => 'my_filter'), 
-					'theme_view')));
+						'primaryFilter' => 'my_filter'
+					), 
+					'theme_view'
+				)
+			)
+		);
 	}
 } 
