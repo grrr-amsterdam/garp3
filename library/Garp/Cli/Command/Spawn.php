@@ -67,7 +67,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 	 * @param Array $args
 	 */
 	public function setArgs($args) {
-		$this->_validateArguments($args);
+		$this->_validateArgs($args);
 		$this->_args = $args;
 	}
 	
@@ -244,7 +244,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		return $helpWasAsked;
 	}
 	
-	protected function _validateArguments(array $args) {
+	protected function _validateArgs(array $args) {
 		if (!$this->_isFirstArgumentGiven($args)) {
 			return;
 		}

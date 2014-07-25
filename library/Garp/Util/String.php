@@ -22,11 +22,23 @@ class Garp_Util_String {
 	    return preg_replace_callback('/([A-Z])/', function($str) { return "-".strtolower($str[1]); }, $str);
 	} 
 
+	static public function acronymsToLowercase($str) {
+		$callback = function($matches) {
+			for( $i = 1; $i < strlen($matches[1])-1; $i++ ){
+				$matches[1][$i] = strtolower($matches[1][$i]);
+			};
+			return $matches[1];
+		};
+		return preg_replace_callback('/([A-Z]{2,})/', $callback, $str);
+	}
+
 	/** Converts a string like 'Snoop Döggy Døg!' or 'Snoop, doggy-dog' to URL- & cross filesystem-safe string 'snoop-doggy-dog' */
 	static public function toDashed($str, $convertToAscii = true) {
 		if ($convertToAscii) {
 			$str = self::utf8ToAscii($str);
 		}
+
+		$str = self::acronymsToLowercase($str);
 
 		$str = preg_replace_callback('/([A-Z])/', function($str) {return "-".strtolower($str[1]);}, $str);
 		$str = preg_replace('/[^a-z0-9]/', '-', $str);
@@ -46,7 +58,10 @@ class Garp_Util_String {
 	/**
 	 * Converts 'doggy_dog_world_id' to 'doggyDogWorldId'
 	 */
-	static public function underscoredToCamelcased($str) {
+	static public function underscoredToCamelcased($str, $ucfirst = false) {
+		if ($ucfirst) {
+			$str = ucfirst($str);
+		}
 		$func = create_function('$c', 'return strtoupper($c[1]);');
 		return preg_replace_callback('/_([a-z])/', $func, $str);
 	} 
@@ -54,7 +69,10 @@ class Garp_Util_String {
 	/**
  	 * Converts 'doggy-dog-world-id' to 'doggyDogWorldId'
  	 */
-	static public function dashedToCamelcased($str) {
+	static public function dashedToCamelcased($str,  $ucfirst = false) {
+		if ($ucfirst) {
+			$str = ucfirst($str);
+		}
 		$func = create_function('$c', 'return strtoupper($c[1]);');
 		return preg_replace_callback('/\-([a-z])/', $func, $str);
 	}
@@ -63,14 +81,22 @@ class Garp_Util_String {
 	 * Converts 'Snøøp Düggy Døg' to 'Snoop Doggy Dog'
 	 */
 	static public function utf8ToAscii($str) {
-		$a = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýýþÿŔŕ?';
-	    $b = 'AAAAAAACEEEEIIIIDNOOOOOOUUUUYBSaaaaaaaceeeeiiiidnoooooouuuuyybyRr?';
+		$locale = setlocale(LC_CTYPE, 0);
+		$localeChanged = false;
+		if ($locale == 'C' || $locale == 'POSIX') {
+			$localeChanged = true;
+			setlocale(LC_ALL, 'nl_NL');
+		}
+		$str = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $str);
+		//if IGNORE is not kept, illegal characters could go into the output string
+		//This way some of the characters could be simply disregarded
+		if ($localeChanged) setlocale(LC_CTYPE, $locale);
 
-		$origEncoding = mb_internal_encoding();
-		mb_internal_encoding("UTF-8");
-	    $str = strtr($str, utf8_decode($a), $b);
-		mb_internal_encoding($origEncoding);
-	    return utf8_encode($str);
+		//the output of iconv will generate some extra characters for those diacritics in utf8 which need to be deleted:  ë => "e
+		$array_ignore = array('"', "'", "`", "^", "~", "+");
+		$str = str_replace($array_ignore, '', $str);
+
+		return trim($str, "\n\t -");
 	}
 
 	/** Returns true if the $haystack string ends in $needle */
@@ -105,6 +131,7 @@ class Garp_Util_String {
 	 * @return String
 	 */
 	static public function excerpt($content, $chars = 140, $respectWords = true) {
+		$content = str_replace(array("<br>", "<br />", "<br >", "<br/>"), "\n",$content);
 		$content = htmlspecialchars(
 			str_replace(
 				array(
