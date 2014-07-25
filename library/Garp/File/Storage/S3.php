@@ -174,6 +174,10 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			$mime  = $finfo->buffer($data);
 		}
 		$meta[Zend_Service_Amazon_S3::S3_CONTENT_TYPE_HEADER] = $mime;
+		if ($this->_config['gzip']) {
+			$meta['Content-Encoding'] = 'gzip';
+			$data = gzencode($data);
+		}
 
 		if ($this->_api->putObject(
 			$path,
@@ -237,6 +241,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			$this->_config['secret'] = $config->s3->secret;
 			$this->_config['bucket'] = $config->s3->bucket;
 			$this->_config['domain'] = !empty($config->domain) ? $config->domain : null;
+			$this->_config['gzip']   = $config->gzip;
 		}
 	}
 	
