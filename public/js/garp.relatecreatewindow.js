@@ -72,6 +72,13 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			bodyCssClass: 'garp-formpanel',
 			border: false
 		};
+
+		// Collapse fieldsets, to save some room (window is tiny as it is)
+		for (var j = 0; j < items.items[0].items.length; ++j) {
+			if ('collapsed' in items.items[0].items[j]) {
+				items.items[0].items[j].collapsed = true;
+			}
+		}
 		
 		// Now hide disabled items, they have no function when adding a new item. It may otherwise confuse users:
 		// Also: if the field is not in the columnModel, it has no place here in this window

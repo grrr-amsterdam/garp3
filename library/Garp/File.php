@@ -127,11 +127,9 @@ class Garp_File {
 
 
 	public function validateUploadType($uploadType) {
-		if (
-			!is_null($uploadType) &&
-			!in_array($uploadType, $this->_allowedTypes)
-		) {
-			throw new Exception("'{$uploadType}' is not a valid upload type. Try: '".implode("' or '", $this->_allowedTypes)."'.");
+		if (!is_null($uploadType) && !in_array($uploadType, $this->_allowedTypes)) {
+			throw new Garp_File_Exception_InvalidType("'{$uploadType}' is not a valid " . 
+				"upload type. Try: '".implode("' or '", $this->_allowedTypes)."'.");
 		}
 	}
 
