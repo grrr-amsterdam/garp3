@@ -193,7 +193,13 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		$args['Action'] = 'SendEmail';
 		$args->obligate('Destination')->obligate('Message')->obligate('Subject')->obligate('Source');
 		$args = (array)$args;
-		
+
+		// Allow global overriding of the To property to funnel emails only to a safe address
+		if (isset(Zend_Registry::get('config')->amazon->ses->forceToAddress)) {
+			$args['Destination'] = array('To' => 
+				Zend_Registry::get('config')->amazon->ses->forceToAddress);
+		}
+
 		if (is_array($args['Message'])) {
 			if (!array_key_exists('Html', $args['Message']) &&
 				!array_key_exists('Text', $args['Message'])) {
