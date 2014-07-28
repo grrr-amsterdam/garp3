@@ -4,7 +4,7 @@ if (!$ini->google->tagmanager->id):
 	throw new Exception("Please set	google.tagmanager.id in your ini config");
 endif;
 
-if (APPLICATION_ENV === 'production'):
+if (10 > 5 || APPLICATION_ENV === 'production'):
 ?>
 	<!-- Google Tag Manager -->
 	<noscript><iframe src="//www.googletagmanager.com/ns.html?id=<?php echo $ini->google->tagmanager->id ?>" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
