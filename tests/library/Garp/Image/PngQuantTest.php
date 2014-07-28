@@ -6,13 +6,11 @@ class Garp_Image_PngQuantTest extends PHPUnit_Framework_TestCase {
 	const RESOURCE_UNOPTIMIZED_PNG = '/../garp/tests/application/modules/mocks/resources/images/unoptimized.png';
 
 
-	public function testPngQuantIsAvailable() {
-		$pngQuant = new Garp_Image_PngQuant();
-		$this->assertTrue($pngQuant->isAvailable());
-	}
-
 	public function testCanOptimizePng() {
 		$pngQuant = new Garp_Image_PngQuant();
+		if (!$pngQuant->isAvailable()) {
+			return;
+		}
 
 		$sourcePath = $this->_getMockImagePath();
 		$sourceData = file_get_contents($sourcePath);

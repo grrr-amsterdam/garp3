@@ -45,6 +45,8 @@ Ext.ns('Garp.dataTypes');
 				var vars = rec.data.variables.split(',');
 				vars = '<ul><li>%' + vars.join('%</li><li>%') + '%</li></ul>';
 				formPanel.variables_box.update(vars);
+			} else {
+				formPanel.variables_box.update('-');
 			}
 		});
 		
