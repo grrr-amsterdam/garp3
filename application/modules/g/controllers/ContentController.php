@@ -1,7 +1,7 @@
 <?php
 /**
  * G_ContentController
- * This controller handles content managing actions. The usual crud; 
+ * This controller handles content managing actions. The usual crud;
  * fetch, create, update, delete
  * @author Harmen Janssen, David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -15,6 +15,27 @@ class G_ContentController extends Garp_Controller_Action {
  	 * Key indicating any file type is allowed
  	 */
 	const UPLOAD_TYPE_ALL = 'all';
+
+	/**
+ 	 * Called before all actions
+ 	 */
+	public function init() {
+		$config = Zend_Registry::get('config');
+		if (!$config->cms || !$config->cms->ipfilter || !count($config->cms->ipfilter->toArray())) {
+			return true;
+		}
+		$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;
+		if ($ip === '127.0.0.1') {
+			// i mean come on
+			return true;
+		}
+		if (!in_array($ip, $config->cms->ipfilter->toArray())) {
+			$authVars = Garp_Auth::getInstance()->getConfigValues();
+			$this->_helper->flashMessenger(__($authVars['noPermissionMsg']));
+			$this->_helper->redirector->gotoRoute(array(), $authVars['login']['route']);
+			return false;
+		}
+	}
 
 	/**
 	 * Test page
@@ -57,13 +78,23 @@ class G_ContentController extends Garp_Controller_Action {
 	}
 
 	/**
+	 * Image browser (trimmed down version of Garp CMS)
+	 * @return Void
+	 */
+	public function imagebrowserAction() {
+		$this->adminAction();
+		$this->view->isImageBrowser = true;
+		$this->renderScript('content/admin.phtml');
+	}
+
+	/**
 	 * JSON-RPC entrance.
 	 * @return Void
 	 */
 	public function apiAction() {
 		Zend_Registry::set('CMS', true);
 		/**
-		 * Prepare the server. Zend_Json_Server cannot work with batched requests natively, 
+		 * Prepare the server. Zend_Json_Server cannot work with batched requests natively,
 		 * so that's taken care of customly here. Therefore, autoEmitResponse is set to false
 		 * so the server doesn't print the response directly.
 		 */
@@ -77,7 +108,7 @@ class G_ContentController extends Garp_Controller_Action {
 			$responses = array();
 			$requests = Zend_Json::decode($post, Zend_Json::TYPE_ARRAY);
 			/**
- 			 * Check if this was a batch request. In that case the array is a plain array of 
+ 			 * Check if this was a batch request. In that case the array is a plain array of
  			 * arrays. If not, there will be a 'jsonrpc' key in the root of the array.
  			 */
 			$batch = !array_key_exists('jsonrpc', $requests);
@@ -160,7 +191,7 @@ class G_ContentController extends Garp_Controller_Action {
 				$model = new $modelClass();
 				$_response = array();
 				foreach ($response as $key => $value) {
-					// @todo Add method that allows the other columns of $model 
+					// @todo Add method that allows the other columns of $model
 					// to be set via POST.
 					$data = array('filename' => $value);
 					if ($uploadType === Garp_File::TYPE_DOCUMENTS) {
@@ -200,11 +231,14 @@ class G_ContentController extends Garp_Controller_Action {
 			throw new Zend_Controller_Action_Exception('Geen bestandsnaam opgegeven.', 404);
 		}
 
-		$fileHandler = new Garp_File($downloadType, $uploadOrStatic);
-
-		// Process the file
-		$url = $fileHandler->getUrl($file);
-		$this->_downloadFile($url);
+		try {
+			$fileHandler = new Garp_File($downloadType, $uploadOrStatic);
+			$url = $fileHandler->getUrl($file);
+			$this->_downloadFile($url);
+		} catch (Garp_File_Exception_InvalidType $e) {
+			// Just throw a 404, since the error is basically just a wrong URL.
+			throw new Zend_Controller_Action_Exception($e->getMessage(), 404);
+		}
 	}
 
 	/**
@@ -230,10 +264,10 @@ class G_ContentController extends Garp_Controller_Action {
 		if ($zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE) !== TRUE) {
 			throw new Exception("Cannot open <$zipPath>\n");
 		}
-		
+
 		//	@todo: als cdn niet lokaal is, moet je waarschijnlijk met zip::addFromString werken.
 		$filenames = explode(',', $params['files']);
-		
+
 		$image = new Garp_Image_File('upload');
 		$document = new Garp_File(null, 'upload');
 		$ini = Zend_Registry::get('config');
@@ -245,7 +279,7 @@ class G_ContentController extends Garp_Controller_Action {
 			$extension = $filenameParts[count($filenameParts) - 1];
 
 			$fileIsImage = in_array($extension, $allowedImageExtensions);
-			
+
 			$file = $fileIsImage ? $image : $document;
 
 			$url = $file->getUrl($filename);
@@ -275,14 +309,14 @@ class G_ContentController extends Garp_Controller_Action {
 
 		$download = Zend_Controller_Action_HelperBroker::getStaticHelper('download');
 		$download->force($bytes, basename($path), $this->_response);
-		
+
 		Zend_Controller_Front::getInstance()->setParam('noViewRenderer', true);
 		$this->_helper->viewRenderer->setNoRender();
 	}
 
 	/**
 	 * Import content from various formats.
-	 * This action has two states; 
+	 * This action has two states;
 	 * - first a datafile is uploaded. The user is presented with a mapping interface
 	 *   where they have to map columns in the datafile to columns in the database.
 	 * - then this URL is called again with the selected mapping, and the columns are
@@ -293,7 +327,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$memLim = ini_get('memory_limit');
 		ini_set('memory_limit', '2G');
 		set_time_limit(0); // No time limit
-		
+
 		Zend_Registry::set('CMS', true);
 		$params = new Garp_Util_Configuration($this->getRequest()->getParams());
 		$params->obligate('datafile')
@@ -305,7 +339,7 @@ class G_ContentController extends Garp_Controller_Action {
 		$success = false;
 		if (isset($params['mapping'])) {
 			$mapping	= Zend_Json::decode($params['mapping']);
-			
+
 			$className	= Garp_Content_Api::modelAliasToClass($params['model']);
 			$model		= new $className();
 			$response = array();
@@ -350,14 +384,14 @@ class G_ContentController extends Garp_Controller_Action {
 			   ->obligate('selection')
 			   ->setDefault('fields', Zend_Db_Select::SQL_WILDCARD)
 		;
-		
+
 		// fetch exporter
 		$exporter = Garp_Content_Export_Factory::getExporter($params['exporttype']);
 		$bytes = $exporter->getOutput($params);
 		$filename = $exporter->getFilename($params);
-		
+
 		$download = Zend_Controller_Action_HelperBroker::getStaticHelper('download');
-		$download->force($bytes, $filename, $this->_response);		
+		$download->force($bytes, $filename, $this->_response);
 		$this->_helper->viewRenderer->setNoRender();
 	}
 
@@ -393,10 +427,10 @@ class G_ContentController extends Garp_Controller_Action {
 		 * @todo: refactor naar nieuwe Spawn opbouw.
 		 */
 		$this->view->models = Garp_Spawn_Model_Set::getInstance();
-		 
+
 		$request = $this->getRequest();
 		$params = $request->getParams();
-		
+
 		if (array_key_exists('text', $params)) {
 			$this->view->textMode = true;
 			$this->_helper->layout->setLayout('blank');
@@ -414,7 +448,7 @@ class G_ContentController extends Garp_Controller_Action {
 		/**
 		 * Sanity check, if the right properties are not found in the object,
 		 * pass the original along to Zend_Json_Server and let it fail.
-		 */ 
+		 */
 		if (!is_array($request) || !array_key_exists('method', $request) || !array_key_exists('params', $request)) {
 			return $request;
 		}

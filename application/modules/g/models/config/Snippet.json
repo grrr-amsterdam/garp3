@@ -14,7 +14,8 @@
 		},
 		"html": {
 			"type": "html",
-			"required": false
+			"required": false,
+			"wysiwyg": true
 		},
 		"text": {
 			"required": false
@@ -41,7 +42,6 @@
 			"editable": false
 		},
 		"variables": {
-			"editable": false,
 			"required": false
 		}
 	},

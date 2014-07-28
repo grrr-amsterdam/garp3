@@ -10,6 +10,11 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Cache extends Garp_Cli_Command {
+	protected $_allowedArguments = array(
+		'clear' => '*',
+		'info'  => array()
+	);
+
 	/**
  	 * Clear all the cache
  	 * @param Array $args Tags.
