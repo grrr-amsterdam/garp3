@@ -31,7 +31,7 @@ button::-moz-focus-inner { border: none; }
 
 /* GARP MAIN TOOLBAR */
 div.x-toolbar.garp-main-toolbar{ background: transparent; text-transform: lowercase; border-radius: 5px 5px 0 0;}
-div.x-toolbar span.xtb-sep { background-image: url('../../js/garp/ext-3.4.0/resources/images/default/grid/grid-split.gif') !important; }
+div.x-toolbar span.xtb-sep { background-image: url('../../js/garp/ext-3.4.1/resources/images/default/grid/grid-split.gif') !important; }
 div.x-toolbar.garp-main-toolbar .x-btn-text-icon { padding: 2px; color: #fff; text-shadow: 0px 1px 0px #000; }
 div.x-toolbar.garp-main-toolbar button,  div.x-toolbar.garp-main-toolbar div.xtb-text { color: #444; text-shadow: 0px 1px 0px #ccc; padding-bottom: 3px; }
 div.x-toolbar.garp-main-toolbar .x-btn-over button{ color: #000; text-shadow: none; }
@@ -57,7 +57,7 @@ div.x-grid3-row { border: 1px #fff solid !important; }
 .x-grid3-row-selected .garp-image-renderct img, .x-grid3-row-over .garp-image-renderct img { opacity: 1; }
 .gridPanelCt .x-panel-noborder .x-panel-tbar-noborder .x-toolbar { border-bottom: none; }
 .gridPanelCt .hidden { display: none; }
-.gridPanelCt .remoteDisplayFieldSpinner { background:url(../../js/garp/ext-3.4.0/resources/images/default/grid/loading.gif) no-repeat 4px center;  height: 16px; }
+.gridPanelCt .remoteDisplayFieldSpinner { background:url(../../js/garp/ext-3.4.1/resources/images/default/grid/loading.gif) no-repeat 4px center;  height: 16px; }
 
 button.x-tbar-page-prev { background-image: url(../../media/images/garp/icons2/controller-previous.png) !important; }
 button.x-tbar-page-next { background-image: url(../../media/images/garp/icons2/controller-next.png) !important; }
@@ -82,7 +82,7 @@ button.x-tbar-page-next { background-image: url(../../media/images/garp/icons2/c
 .x-grid-panel .x-form-field.x-form-focus{ -moz-box-shadow: none; -webkit-box-shadow: none; box-shadow: none; }
 .garp-formpanel .x-form-item-label { text-transform: lowercase; }
 .x-form-element { margin-bottom: 15px; }
-.x-form-element .loading{ background:url(../../js/garp/ext-3.4.0/resources/images/default/grid/loading.gif) no-repeat 4px center;  color: transparent !important; }
+.x-form-element .loading{ background:url(../../js/garp/ext-3.4.1/resources/images/default/grid/loading.gif) no-repeat 4px center;  color: transparent !important; }
 .x-btn-text .garp-image-renderct img { margin-left: 10px; }
 .x-form-item-label.required-field:after{ content: ""; float: right; width: 16px; height: 16px; background: url(../../media/images/garp/icons/bullet_star.png); }
 .x-form-item-label.required-field:after { float: none; position: absolute; right: 0; top: .25em; }
@@ -92,12 +92,12 @@ button.x-tbar-page-next { background-image: url(../../media/images/garp/icons2/c
 .garp-countbox { text-align: right; }
 .garp-countbox.negative { color: #d11; }
 .x-form-field-wrap .x-form-field.relation-field { border-right: none; }
-.x-form-field-wrap .x-form-trigger.relation-open-button { background: url("../../media/images/garp/icons2/fullscreen-enter.png"), url("../../js/garp/ext-3.4.0/resources/images/default/form/text-bg.gif"); background-repeat: no-repeat, repeat-x;  background-position: 0 2px, 0 0; border-top: 1px #B5B8C8 solid; border-bottom: 1px #B5B8C8 solid; height: 20px; padding-right: 5px; }
+.x-form-field-wrap .x-form-trigger.relation-open-button { background: url("../../media/images/garp/icons2/fullscreen-enter.png"), url("../../js/garp/ext-3.4.1/resources/images/default/form/text-bg.gif"); background-repeat: no-repeat, repeat-x;  background-position: 0 2px, 0 0; border-top: 1px #B5B8C8 solid; border-bottom: 1px #B5B8C8 solid; height: 20px; padding-right: 5px; }
 .x-form-field-wrap .x-form-trigger.relation-open-button:hover { background-position: 0 3px, 0 0; }
 .x-form-field-wrap .x-form-trigger.relation-open-button.no-relation { background-image: none; border-right:1px #B5B8C8 solid; padding-right:0; margin-left:0; }
 
 /* ERROR WINDOW */
-.garp-error-dialog {background: url(../../js/garp/ext-3.4.0/resources/images/default/window/icon-error.gif) no-repeat 10px 50%; padding-left: 55px; font-size: 1.1em; }
+.garp-error-dialog {background: url(../../js/garp/ext-3.4.1/resources/images/default/window/icon-error.gif) no-repeat 10px 50%; padding-left: 55px; font-size: 1.1em; }
 
 /* RTE */
 .garp-richtexteditor-statusbar{ font-size: 11px; padding: 3px; border-top: 1px #D0D0D0 solid; border-bottom: 0; color: #777; }
@@ -294,7 +294,7 @@ body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em
 .wysiwyg-ct { overflow: hidden;}
 .wysiwyg-ct ol li{ list-style: decimal inside ; }
 .wysiwyg-ct ul li{ list-style: disc inside; }
-.wysiwyg-ct .x-panel-body {  /*background: url(../../js/garp/ext-3.4.0/resources/images/default/form/text-bg.gif) repeat-x;*/ }
+.wysiwyg-ct .x-panel-body {  /*background: url(../../js/garp/ext-3.4.1/resources/images/default/form/text-bg.gif) repeat-x;*/ }
 
 			.grid-12-12 { width: 100%; }
 			.grid-11-12 { width: 91.666666%; }

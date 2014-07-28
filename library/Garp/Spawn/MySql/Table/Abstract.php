@@ -28,7 +28,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 
 
 	/**
-	 * @param	String								$createStatement
+	 * @param	String						$createStatement
 	 * @param	Garp_Spawn_Model_Abstract 	$model
 	 */
 	public function __construct($createStatement, Garp_Spawn_Model_Abstract $model) {
@@ -178,7 +178,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 		) throw new Exception("I need at least a CREATE TABLE statement with a declaration of table columns.");
 
 		$this->name = $this->_getTableNameFromCreateStatement($createStatementLine);
-		$this->keys = new Garp_Spawn_MySql_Keys($createStatementLines, $this->name, $model);
+		$this->keys = new Garp_Spawn_MySql_Key_Set($createStatementLines, $this->name, $model);
 	}
 
 	protected function _getTableNameFromCreateStatement($line) {

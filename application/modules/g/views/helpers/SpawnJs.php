@@ -14,7 +14,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	 * Central interface for this helper.
 	 * like so (in the view):
 	 * $this->spawnJs()->getFieldType(...)
-	 * 
+	 *
 	 * @return G_View_Helper_SpawnJs $this
 	 */
 	public function spawnJs() {
@@ -41,6 +41,14 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 			case 'email':
 				return 'textfield';
 			case 'html':
+				// Enable CKEditor?
+				if (!is_null($field->wysiwyg) && $field->wysiwyg) {
+					// Enable image and video embeds?
+					if ($field->wysiwyg === 'rich') {
+						return 'richwysiwygeditor';
+					}
+					return 'wysiwygeditor';
+				}
 				return 'richtexteditor';
 			case 'checkbox':
 				return 'checkbox';
@@ -59,8 +67,8 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 				throw new Exception("The '{$field->type}' field type can't be translated to an ExtJS field type as of yet.");
 		}
 	}
-	
-	
+
+
 	public function getFieldValidationType(Garp_Spawn_Field $field) {
 		switch ($field->type) {
 			case 'email':
@@ -71,8 +79,8 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 			break;
 		}
 	}
-	
-	
+
+
 	public function getFieldPlugin(Garp_Spawn_Field $field) {
 		switch ($field->type) {
 			case 'url':
@@ -85,7 +93,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 		if (Zend_Registry::isRegistered('Zend_Acl')) {
 			$acl = Zend_Registry::get('Zend_Acl');
 
-			$modelResourceName = 
+			$modelResourceName =
 				($model->module === 'garp' ? 'G_' : null)
 				.'Model_'
 				.$model->id
@@ -106,8 +114,8 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 			}
 		}
 	}
-	
-	
+
+
 	public function quoteIfNecessary($fieldType, $value) {
 		$decorator = null;
 
@@ -144,13 +152,13 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 
 		return $out;
 	}
-	
-	
+
+
 	public function isImageField(Garp_Spawn_Field $field, Garp_Spawn_Model_Base $model) {
 		$rels = $model->relations->getRelations('column', $field->name);
 		if (count($rels)) {
 			$rel = current($rels);
-			return $rel->model === 'Image';		
+			return $rel->model === 'Image';
 		}
 
 		return false;
@@ -175,32 +183,32 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 	public function isListField($fieldName, Garp_Spawn_Model_Base $model) {
 		return in_array($fieldName, $model->fields->listFieldNames);
 	}
-	
-	
+
+
 	public function modelHasFirstAndLastName(Garp_Spawn_Model_Base $model) {
-		return 
+		return
 			$this->isListField('first_name', $model) &&
 			$this->isListField('last_name_prefix', $model) &&
 			$this->isListField('last_name', $model)
 		;
 	}
-	
-	
+
+
 	public function getImagePreviewId($columnName) {
 		return 'ImagePreview_'.$columnName;
 	}
-	
-	
+
+
 	public function getImageFieldId($columnName) {
 		return Garp_Spawn_Util::underscored2camelcased($columnName);
 	}
-	
+
 
 	public function getExcludedFormFields() {
 		return $this->_excludedFormFields;
 	}
-	
-	
+
+
 	public function getDefaultValue(Garp_Spawn_Field $field) {
 		return !empty($field->default) ?
 			$this->quoteIfNecessary($field->type, $field->default) :
