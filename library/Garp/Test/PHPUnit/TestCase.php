@@ -10,7 +10,7 @@
  * @subpackage   Test
  * @lastmodified $LastChangedDate: 2012-08-29 23:32:18 +0200 (Wed, 29 Aug 2012) $
  */
-class Garp_Test_PHPUnit_TestCase extends PHPUnit_Framework_TestCase {
+abstract class Garp_Test_PHPUnit_TestCase extends PHPUnit_Framework_TestCase {
 	/** @var Zend_Db_Adapter_Abstract */
 	protected $_db;
 
