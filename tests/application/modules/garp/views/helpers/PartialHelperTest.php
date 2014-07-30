@@ -36,6 +36,17 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals($view->username, 'Michael');
 	}
 
+	public function testShouldWorkWithNullModel() {
+		$garpPartial = $this->_getPartialHelper();
+		$outputGarp = $garpPartial->partial('partials/excerpt.phtml', 'mocks' );
+
+		$zendPartial = new Zend_View_Helper_Partial();
+		$zendPartial->setView(Zend_Registry::get('application')->getBootstrap()->getResource('View'));
+		$outputZend = $zendPartial->partial('partials/excerpt.phtml', 'mocks');
+
+		$this->assertEquals($outputGarp, $outputZend);
+	}
+
 	function __construct(){
 		require_once 'garp/application/modules/mocks/resources/PartialTestMockDataGenerator.php';
 		$generator = new PartialTestMockDataGenerator();
