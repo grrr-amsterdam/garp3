@@ -6,7 +6,7 @@
 * @group Helpers
 */
 
-class generateBigArray {
+class PartialTestMockDataGenerator {
 
 	public function smallArray() {
 		return 
@@ -19,11 +19,11 @@ class generateBigArray {
 			);
 	}
 
-	public function worpdpressDatabaseDump() {
+	public function worpdpressDatabaseArray() {
 		return array(
-		'partials/excerpt.phtml',
-		'mocks',
-array(
+		'name' => 'partials/excerpt.phtml',
+		'module' => 'mocks',
+		'hugeMF' =>array(
   array('option_id' => '1','option_name' => 'siteurl','option_value' => 'http://www.vighiosif.ro','autoload' => 'yes'),
   array('option_id' => '2','option_name' => 'blogname','option_value' => 'Vigh Iosif - Fotograf Cluj Napoca','autoload' => 'yes'),
   array('option_id' => '3','option_name' => 'blogdescription','option_value' => 'Fotografie nuntă, portret, corporate, produs | Saya Studio','autoload' => 'yes'),
