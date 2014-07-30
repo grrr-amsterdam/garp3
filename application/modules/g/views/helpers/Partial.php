@@ -13,16 +13,18 @@ class G_View_Helper_Partial extends Zend_View_Helper_Partial {
 
 		$storageArray = array();
 		$toDeleteArray = array();
-        foreach ($model as $key => $value){
-        	//check if the key already exists in the view
-        	if (array_key_exists($key, $view)){ 
-	        	//if it does, it is saved in storageArray because it will be overwritten
-        		$storageArray[$key] = $this->view->{$key};
-        	} else {
-        		//if it does not exist it means that it will be created later and must be stored for deletion
-        		array_push($toDeleteArray, $key);
-        	}
-        }
+		if ($model != null){
+	        foreach ($model as $key => $value){
+	        	//check if the key already exists in the view
+	        	if (array_key_exists($key, $view)){ 
+		        	//if it does, it is saved in storageArray because it will be overwritten
+	        		$storageArray[$key] = $this->view->{$key};
+	        	} else {
+	        		//if it does not exist it means that it will be created later and must be stored for deletion
+	        		array_push($toDeleteArray, $key);
+	        	}
+	        }
+    	}
 
         if (isset($this->partialCounter)) {
             $view->partialCounter = $this->partialCounter;
