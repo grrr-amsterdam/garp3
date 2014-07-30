@@ -21,9 +21,9 @@ class PartialTestMockDataGenerator {
 
 	public function worpdpressDatabaseArray() {
 		return array(
-		'name' => 'partials/excerpt.phtml',
-		'module' => 'mocks',
-		'hugeMF' =>array(
+		'partials/excerpt.phtml',
+		'mocks',
+		array( 'hugeMF' => array(
   array('option_id' => '1','option_name' => 'siteurl','option_value' => 'http://www.vighiosif.ro','autoload' => 'yes'),
   array('option_id' => '2','option_name' => 'blogname','option_value' => 'Vigh Iosif - Fotograf Cluj Napoca','autoload' => 'yes'),
   array('option_id' => '3','option_name' => 'blogdescription','option_value' => 'Fotografie nuntă, portret, corporate, produs | Saya Studio','autoload' => 'yes'),
@@ -4028,7 +4028,7 @@ class PartialTestMockDataGenerator {
   array('meta_id' => '5178','post_id' => '2441','meta_key' => '_wp_attachment_metadata','meta_value' => 'a:5:{s:5:"width";i:900;s:6:"height";i:599;s:4:"file";s:20:"2013/07/DSC_3306.jpg";s:5:"sizes";a:2:{s:9:"thumbnail";a:4:{s:4:"file";s:20:"DSC_3306-150x150.jpg";s:5:"width";i:150;s:6:"height";i:150;s:9:"mime-type";s:10:"image/jpeg";}s:6:"medium";a:4:{s:4:"file";s:20:"DSC_3306-300x199.jpg";s:5:"width";i:300;s:6:"height";i:199;s:9:"mime-type";s:10:"image/jpeg";}}s:10:"image_meta";a:10:{s:8:"aperture";i:0;s:6:"credit";s:10:"Vigh Iosif";s:6:"camera";s:0:"";s:7:"caption";s:0:"";s:17:"created_timestamp";i:0;s:9:"copyright";s:16:"www.vighiosif.ro";s:12:"focal_length";i:0;s:3:"iso";i:0;s:13:"shutter_speed";i:0;s:5:"title";s:0:"";}}'),
   array('meta_id' => '5185','post_id' => '752','meta_key' => 'masonry_settings','meta_value' => 'a:1:{s:4:"size";s:2:"11";}'),
   array('meta_id' => '5186','post_id' => '752','meta_key' => '_jd_tweet_this','meta_value' => 'yes')
-));
+)));
 
 	}
 }
