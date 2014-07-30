@@ -15,7 +15,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 	 * @return Boolean success
 	 */
 	public function generateScaled($args) {
-		$overwrite = array_key_exists('overwrite', $args);
+		$overwrite = array_key_exists('overwrite', $args) || array_key_exists('force', $args);
 		if (
 			array_key_exists('template', $args) &&
 			!empty($args['template'])
