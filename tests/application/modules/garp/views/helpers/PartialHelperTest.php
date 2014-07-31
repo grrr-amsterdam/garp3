@@ -47,10 +47,10 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals($outputGarp, $outputZend);
 	}
 
-	function __construct(){
+	protected function setUp(){
 		require_once 'garp/application/modules/mocks/resources/PartialTestMockDataGenerator.php';
 		$generator = new PartialTestMockDataGenerator();
-		$this->_staticArgs = $generator->worpdpressDatabaseArray();
+		$this->_staticArgs = $generator->wordpressDatabaseArray();
 	}
 
 	protected $_staticArgs;
@@ -98,7 +98,7 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 		return call_user_func_array(array($garpPartial, 'partial'), $this->_staticArgs);
 	}
 
-	protected function _createOneZendView(){
+	protected function _createOneZendView() {
 		$zendPartial = new Zend_View_Helper_Partial();
 		$zendPartial->setView(Zend_Registry::get('application')->getBootstrap()->getResource('View'));
 		return call_user_func_array(array($zendPartial, 'partial'), $this->_staticArgs);
@@ -128,9 +128,8 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 		return Zend_Registry::get('application')->getBootstrap()->getResource('View');
 	}
 
-	public function tearDown() {
-		unset($this->_getView()->username);
-		unset($this->_getView()->password);
+	protected function tearDown() {
+		$this->_getView()->clearVars();
 	}
 
 }
