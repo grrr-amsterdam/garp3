@@ -1,30 +1,24 @@
 <?php
 class G_View_Helper_Partial extends Zend_View_Helper_Partial {
 
-// protected $_objectKey;
-
 	public function partial($name = null, $module = null, $model = null) {
 
 		if (0 == func_num_args()) {
             return $this;
         }
-
         $view = $this->view;
-
+		
+		if (is_null($model)) {
+			$model = array();
+		}
 		$storageArray = array();
-		$toDeleteArray = array();
-		if ($model != null){
-	        foreach ($model as $key => $value){
-	        	//check if the key already exists in the view
-	        	if (array_key_exists($key, $view)){ 
-		        	//if it does, it is saved in storageArray because it will be overwritten
-	        		$storageArray[$key] = $this->view->{$key};
-	        	} else {
-	        		//if it does not exist it means that it will be created later and must be stored for deletion
-	        		array_push($toDeleteArray, $key);
-	        	}
-	        }
-    	}
+        foreach ($model as $key => $value) {
+        	//check if the key already exists in the view
+        	if (array_key_exists($key, $view)) { 
+	        	//if it does, it is saved in storageArray because it will be overwritten
+        		$storageArray[$key] = $this->view->{$key};
+        	}
+        }
 
         if (isset($this->partialCounter)) {
             $view->partialCounter = $this->partialCounter;
@@ -66,13 +60,10 @@ class G_View_Helper_Partial extends Zend_View_Helper_Partial {
 
         $output = $view->render($name);
 
-        foreach ($toDeleteArray as $key){
+        foreach ($model as $key => $value) {
         	unset($this->view->{$key});
-        }
-        foreach ($storageArray as $key => $value){
-        	//every value from the stored array is overwritten into the view
-        	$this->view->{$key} = $storageArray[$key];
-        }
+		}
+        $this->view->assign($storageArray);
 
         return $output;
 	}

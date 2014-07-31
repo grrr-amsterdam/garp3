@@ -19,7 +19,7 @@ class PartialTestMockDataGenerator {
 			);
 	}
 
-	public function worpdpressDatabaseArray() {
+	public function wordpressDatabaseArray() {
 		return array(
 		'partials/excerpt.phtml',
 		'mocks',
