@@ -17,8 +17,11 @@ class G_Model_Location extends Model_Base_Location {
  	 */
 	public function fetchRowByZip($zip) {
 		$zip = $this->normalizeZip($zip);
-		$row = $this->_fetchRowByZipFromDatabase($zip);
+		return $this->_fetchRowByZipFromDatabase($zip);
 
+		/*
+ 		 * Google is unreliable, let's not do this
+ 		 *
 		if ($row) {
 			return $row;
 		}
@@ -33,6 +36,7 @@ class G_Model_Location extends Model_Base_Location {
 		$row = $this->_fetchRowByZipFromDatabase($zip);
 
 		return $row;
+		 */
 	}
 
 	/**
