@@ -1,8 +1,4 @@
 <?php
-if (!$this->config()->google->tagmanager->id):
-	throw new Exception("Please set	google.tagmanager.id in your ini config");
-endif;
-
 if ($this->config()->google->tagmanager->enabled):
 ?>
 	<!-- Google Tag Manager -->
