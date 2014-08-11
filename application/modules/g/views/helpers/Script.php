@@ -97,7 +97,7 @@ class G_View_Helper_Script extends Zend_View_Helper_HTMLElement {
 		$string = '';
 		foreach (static::$_scripts as $script) {
 			$method = '_render' . ucfirst($script['type']);
-			$this->{$method}($script['value'], $script['attrs']);
+			$string .= $this->{$method}($script['value'], $script['attrs']);
 		}
 		return $string;
 	}
