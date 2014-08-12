@@ -5,6 +5,7 @@
 class G_ContentControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 
 	public function setUp() {
+		parent::setUp();
 		Garp_Auth::getInstance()->destroy();
 	}
 
