@@ -28,7 +28,6 @@ Garp.FilterMenu = function(){
 			this.tb.filterBtn.menu.all.setChecked(true);
 			this.tb.filterStatus.hide();
 			this.tb.filterStatus.update('');
-			
 		};
 		
 		/**
