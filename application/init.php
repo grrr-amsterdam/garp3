@@ -34,6 +34,7 @@ if (
 
 	set_include_path(
 		realpath(APPLICATION_PATH.'/../library')
+		. PATH_SEPARATOR . realpath(GARP_APPLICATION_PATH.'/../library')
 		. PATH_SEPARATOR . '.'
 	);
 
@@ -44,6 +45,7 @@ if (
 	set_include_path(
 		'.'
 		. PATH_SEPARATOR . BASE_PATH . '/library'
+		. PATH_SEPARATOR . realpath(GARP_APPLICATION_PATH.'/../library')
 		. PATH_SEPARATOR . get_include_path()
 	);
 
@@ -60,7 +62,7 @@ if (!defined('GARP_VERSION')) {
 }
 
 
-require 'Garp/Loader.php';
+require GARP_APPLICATION_PATH . '/../library/Garp/Loader.php';
 
 /**
  * Set up class loading.
@@ -70,6 +72,10 @@ $classLoader = Garp_Loader::getInstance(array(
 		array(
 			'namespace' => '*',
 			'path' => realpath(APPLICATION_PATH.'/../library')
+		),
+		array(
+			'namespace' => 'Garp',
+			'path' => realpath(GARP_APPLICATION_PATH.'/../library')
 		),
 		array(
 			'namespace' => 'Model',
