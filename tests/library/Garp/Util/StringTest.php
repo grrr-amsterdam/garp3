@@ -156,6 +156,18 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 
 	}
 
+	public function testUrlProtocol() {
+		$this->assertEquals('//google.com', Garp_Util_String::ensureUrlProtocol('google.com'));
+		$this->assertEquals('http://google.com', 
+			Garp_Util_String::ensureUrlProtocol('http://google.com'));
+		$this->assertEquals('https://google.com', 
+			Garp_Util_String::ensureUrlProtocol('https://google.com'));
+		$this->assertEquals('ftp://google.com',
+			Garp_Util_String::ensureUrlProtocol('ftp://google.com'));
+		$this->assertEquals('//google.com?a=abc&oh=123',
+			Garp_Util_String::ensureUrlProtocol('google.com?a=abc&oh=123'));
+		$this->assertEquals('//google.com', Garp_Util_String::ensureUrlProtocol('//google.com'));
+	}
 
 	public function testFuzzyMatcher() {
 		// test match
