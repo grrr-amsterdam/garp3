@@ -313,6 +313,6 @@ class Garp_Util_String {
 	}
 
 	static public function ensureUrlProtocol($url) {
-		return strpos($url, '//') === false ? 'http://' . $url : $url;
+		return strpos($url, '//') === false ? '//' . $url : $url;
 	}
 }
