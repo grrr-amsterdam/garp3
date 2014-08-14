@@ -17,13 +17,8 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract {
  	 */
 	public function flatten($column) {
 		$out = array();
-		if (is_array($column)) {
-			// Convert so it can be used by array_intersect_key
-			$column = array_fill_keys($column, null);
-		}
 		foreach ($this as $row) {
-			$flat = is_array($column) ? array_intersect_key($row->toArray(), $column) : $row->{$column};
-			$out[] = $flat;
+			$out[] = $row->flatten($column);
 		}
 		return $out;
 	}
