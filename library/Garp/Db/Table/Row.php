@@ -16,14 +16,21 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 	 */
 	protected $_related = array();
 	
-	
 	/**
  	 * Virtual properties. Used with setVirtual() when you wish to transport arbitrary values
  	 * thru Row objects.
  	 * @var Array
  	 */
 	protected $_virtual = array();
-	
+
+	public function flatten($column) {
+		if (is_array($column)) {
+			// Convert so it can be used by array_intersect_key
+			$column = array_fill_keys($column, null);
+		}
+		return is_array($column) ? 
+			array_intersect_key($this->toArray(), $column) : $this->{$column};
+	}
 	
 	/**
 	 * Overwritten to also store $this->_related. This property was not returned, of course,
@@ -36,7 +43,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		$props[] = '_virtual';
 		return $props;
 	}
-	
 	
 	/**
      * ATTENTION:
@@ -195,7 +201,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $rowset;
 	}
 
-
 	/**
      * ATTENTION
      * This method is copied from Zend_Db_Table_Row_Abstract.
@@ -274,7 +279,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
         return $parentTable->fetchRow($select);
     }
 	
-		
 	/**
 	 * Return the value of the primary key(s) for this row.
 	 * Extended to not return arrays when primary key is just one column.
@@ -305,7 +309,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $this;
 	}
 	
-	
 	/**
 	 * Get a related rowset.
 	 * @param String $binding The alias for the related rowset
@@ -318,7 +321,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $this->_related[$binding];
 	}
 	
-	
 	/**
  	 * Set arbitrary virtual value that is not a table column.
  	 * @param String $key
@@ -330,7 +332,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $this;
 	}
 	
-	
 	/**
  	 * Return all virtual values
  	 * @return Array
@@ -339,8 +340,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $this->_virtual;
 	}
 	
-	
-    /**
+	/**
      * Retrieve row field value
      * Modified to also return related rowsets.
      * @param  string $columnName The user-specified column name.
@@ -362,7 +362,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $result;
 	}
 	
-
 	/**
      * Set row field value
      *
@@ -408,7 +407,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $this;
 	}
 
-
 	/**
  	 * Test existence of row field
  	 * @param String $columnName The column key.
@@ -425,7 +423,6 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		return $result;
 	}
 
-	
 	/**
      * Returns the column/value data as an array.
      * Modified to include related and virtual rowsets

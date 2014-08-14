@@ -311,4 +311,8 @@ class Garp_Util_String {
 		}
 		return true;
 	}
+
+	static public function ensureUrlProtocol($url) {
+		return strpos($url, '//') === false ? '//' . $url : $url;
+	}
 }

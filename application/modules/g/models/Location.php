@@ -16,9 +16,12 @@ class G_Model_Location extends Model_Base_Location {
  	 * and the result is stored in the database.
  	 */
 	public function fetchRowByZip($zip) {
-		$zip = $this->_normalizeZip($zip);
-		$row = $this->_fetchRowByZipFromDatabase($zip);
+		$zip = $this->normalizeZip($zip);
+		return $this->_fetchRowByZipFromDatabase($zip);
 
+		/*
+ 		 * Google is unreliable, let's not do this
+ 		 *
 		if ($row) {
 			return $row;
 		}
@@ -33,12 +36,13 @@ class G_Model_Location extends Model_Base_Location {
 		$row = $this->_fetchRowByZipFromDatabase($zip);
 
 		return $row;
+		 */
 	}
 
 	/**
  	 * Normalize the input so that it matches the stored format.
  	 */
-	protected function _normalizeZip($zip) {
+	public function normalizeZip($zip) {
 		if (strlen($zip) === 6) {
 			$zip = substr($zip, 0, 4) . ' ' . strtoupper(substr($zip, 4, 2));
 		}
