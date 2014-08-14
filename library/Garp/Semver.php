@@ -1,7 +1,7 @@
 <?php
 /**
  * Garp_Semver
- * Wrapper around semver. Right now read-only
+ * Wrapper around semver. For now it's read-only, and cannot yet compare versions.
  * @see https://github.com/flazz/semver
  *
  * @author       Harmen Janssen | grrr.nl

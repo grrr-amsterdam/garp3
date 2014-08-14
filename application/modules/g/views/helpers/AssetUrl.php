@@ -10,6 +10,8 @@
  * @lastmodified $Date: $
  */
 class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
+	protected $_useSemver = false;
+
 	/**
 	 * Create a versioned URL to a file
 	 * @param String $file The file path
@@ -17,6 +19,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	 */
 	public function assetUrl($file = null) {
 		$ini = Zend_Registry::get('config');
+		$this->_useSemver = isset($ini->cdn->useVersionedPaths) && $ini->cdn->useVersionedPaths;
 
 		// For backwards compatibility: deprecated param assetType
 		if ($ini->cdn->assetType) {
@@ -63,26 +66,26 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 
 	protected function _getLocalUrl($file) {
 		$baseUrl = $this->getBaseUrl();
-		$baseUrl = '/'.ltrim($baseUrl, '/\\');
+		$baseUrl = '/' . ltrim($baseUrl, '/\\');
 
 		$front = Zend_Controller_Front::getInstance();
 		$requestParams = $front->getRequest()->getParams();
 
 		// for assets, chop the locale part of the URL.
-		if (array_key_exists('locale', $requestParams) && $requestParams['locale'] && preg_match('~^/('.$requestParams['locale'].')~', $baseUrl)) {
+		if (array_key_exists('locale', $requestParams) && $requestParams['locale'] && 
+			preg_match('~^/('.$requestParams['locale'].')~', $baseUrl)) {
 			$baseUrl = preg_replace('~^/('.$requestParams['locale'].')~', '/', $baseUrl);
 		}
 
 		// Remove trailing slashes
 		if (null !== $file) {
-			$file = '/'.ltrim($file, '/\\');
+			$file = '/' . ltrim($file, '/\\');
 		}
 
-		$version = defined('APP_VERSION') ? APP_VERSION : null;
-		if (!$version) {
-			require_once GARP_APPLICATION_PATH.'/modules/g/views/helpers/Exception.php';
-			throw new G_View_Helper_Exception('APP_VERSION is not set.');
-		}
-		return rtrim($baseUrl, '/').'/'.$version.$file;
+		$version = '';
+		if ($this->_useSemver) {
+			$version = (string)new Garp_Semver;
+		} 
+		return rtrim($baseUrl, '/') . '/' . $version . $file;
 	}
 }
