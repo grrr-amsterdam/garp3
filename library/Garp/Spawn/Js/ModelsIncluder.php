@@ -44,7 +44,7 @@ class Garp_Spawn_Js_ModelsIncluder {
 
 
 	protected function _appendToIncludes($modelId, $path, &$output) {
-		$newEntry = '<script src="<?php echo $this->baseUrl(\''.$path.$modelId.'.js\') ?>"></script>';
+		$newEntry = '<script crossorigin="anonymous" src="<?php echo $this->assetUrl(\''.$path.$modelId.'.js\') ?>"></script>' . "\n";
 		$output .= $newEntry;
 	}
 
