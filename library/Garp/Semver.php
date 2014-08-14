@@ -1,0 +1,34 @@
+<?php
+/**
+ * Garp_Semver
+ * Wrapper around semver. Right now read-only
+ * @see https://github.com/flazz/semver
+ *
+ * @author       Harmen Janssen | grrr.nl
+ * @version      0.1.0
+ * @package      Garp
+ */
+class Garp_Semver {
+	protected $_path;
+
+	public function __construct($path = null) {
+		$this->_path = $path ?: $this->_getDefaultSemverLocation();
+	}
+
+	public function getVersion() {
+		$conf = new Zend_Config_Yaml($this->_path);
+		$special = '';
+		if ($conf->special && $conf->special !== "'") {
+			$special = '-' . $conf->special;
+		}
+		return "v{$conf->major}.{$conf->minor}.{$conf->patch}{$special}";
+	}
+
+	public function __toString() {
+		return $this->getVersion();
+	}
+
+	protected function _getDefaultSemverLocation() {
+		return APPLICATION_PATH . '/../.semver';
+	}
+}
