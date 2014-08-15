@@ -1,6 +1,6 @@
 <?php
 require_once APPLICATION_PATH . '/../library/Zend/Config/Ini.php';
-require_once APPLICATION_PATH . '/../library/Garp/Config/Ini.php';
+require_once GARP_APPLICATION_PATH . '/../library/Garp/Config/Ini.php';
 
 /**
  * @author David Spreekmeester | grrr.nl
