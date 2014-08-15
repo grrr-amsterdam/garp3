@@ -33,13 +33,13 @@ abstract class Garp_Spawn_Js_Model_Abstract {
 	
 	
 	protected function _beautify($str) {
-		require_once(APPLICATION_PATH.'/../library/Garp/3rdParty/JsBeautifier/jsbeautifier.php');
+		require_once(GARP_APPLICATION_PATH . '/../library/Garp/3rdParty/JsBeautifier/jsbeautifier.php');
 		return js_beautify($str);
 	}
 	
 	
 	protected function _minify($str) {
-		require_once(APPLICATION_PATH . "/../library/Garp/3rdParty/minify/lib/JSMin.php");
+		require_once(GARP_APPLICATION_PATH . "/../library/Garp/3rdParty/minify/lib/JSMin.php");
 		return JSMin::minify($str);
 	}
 }
