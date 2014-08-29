@@ -45,7 +45,7 @@
 		return <?php echo $printFieldGetter('name') ?> || __('New');
 	<?php else: ?>
 		var out = [<?php echo $printListFieldGetters() ?>].join(" ").replace("  ", " "); 
-		if (out === ' ') {
+		if (!out || out === ' ') {
 			out = __("New");
 		}
 		return  out;
