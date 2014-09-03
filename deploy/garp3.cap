@@ -15,12 +15,6 @@ namespace :deploy do
 	end
 
 	task :setup do 
-		p current_path
-		p release_path
-		p releases_path
-		p release_timestamp
-		p fetch(:application)
-		exit
 		invoke :add_public_ssh_keys
 		invoke :find_webroot
 		invoke :mark_git_server_safe
