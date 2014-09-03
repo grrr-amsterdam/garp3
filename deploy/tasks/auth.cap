@@ -31,9 +31,9 @@ desc "Set permissions on essential deploy directories"
 task :set_shared_dirs_permissions do
 	on roles(:web) do
     	execute "chmod -R g+w #{deploy_to}/shared/backup/db"
-    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/documents"
-    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/uploads/images"
-    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/logs"
-    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/tags"
+    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/public/uploads/documents"
+    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/public/uploads/images"
+    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/application/data/logs"
+    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/application/data/cache/tags"
 	end
 end
