@@ -22,7 +22,8 @@ end
 desc "Fix casing"
 task :set_blackhole_path_symlink_fix do
 	on roles(:web) do
-		execute "ln -nfs BlackHole.php #{current_path}/library/Zend/Cache/Backend/Blackhole.php || echo 0"
+		path = "#{releases_path}/#{release_timestamp}"
+		execute "ln -nfs BlackHole.php #{path}/library/Zend/Cache/Backend/Blackhole.php"
 	end
 end
 
