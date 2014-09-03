@@ -22,7 +22,7 @@ end
 desc "Fix casing"
 task :set_blackhole_path_symlink_fix do
 	on roles(:web) do
-		execute "ln -nfs BlackHole.php #{current_path}/library/Zend/Cache/Backend/Blackhole.php"
+		execute "ln -nfs BlackHole.php #{current_path}/library/Zend/Cache/Backend/Blackhole.php || echo 0"
 	end
 end
 
@@ -39,5 +39,5 @@ task :create_deploy_dirs do
 end
 
 def print_create_dir_if_nonexistent dir
-	"[ ! -d '#{dir}' ] && mkdir -p #{dir} || echo '0'";
+	"[ ! -d '#{dir}' ] && mkdir -p #{dir} || echo 0";
 end
