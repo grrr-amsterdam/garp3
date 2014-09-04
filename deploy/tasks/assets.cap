@@ -6,9 +6,8 @@ task :check_grunt_status do
 			env = fetch(:stage)
 			branch = fetch(:branch)
 
-			info "WARNING! Switching to Git branch [#{branch}]"
+			warn "WARNING! Switching to Git branch [#{branch}]"
 			execute "git checkout #{branch}"
-
 
 			#execute "grunt #{env}"
 		end
