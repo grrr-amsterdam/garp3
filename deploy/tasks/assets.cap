@@ -31,5 +31,5 @@ task :check_grunt_status do
 end
 
 def is_git_status_clean cap
-	cap.capture("git status --porcelain 2>/dev/null | grep -c '^.[M\?]'").strip == '0'
+	cap.capture('[ "`git status --porcelain | grep -c \'^.[M?]\'`" -eq "0" ] || echo 0').strip != '0'
 end
