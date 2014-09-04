@@ -5,6 +5,12 @@ task :check_grunt_status do
 		if has_grunt
 			env = fetch(:stage)
 			branch = fetch(:branch)
+			
+			if !is_git_status_clean self
+				error "Your Git status is not clean.\nPlease commit "\
+					"everything before deploying this Grunt-enabled project."
+				exit
+			end
 
 			warn "WARNING! Switching to Git branch [#{branch}]"
 			execute "git checkout #{branch}"
@@ -12,17 +18,18 @@ task :check_grunt_status do
 			#
 			#execute "grunt #{env}"
 			
+			if !is_git_status_clean self
+				error "Your compiled assets are not up-to-date.\n"/
+					"Please commit the Grunt output and try deploying again."
+				exit
+			end
+
 		end
 	end
 
 	exit
+end
 
-	#on roles(:web) do
-		#info capture '[ -e "Capfile" ] && echo 1 || echo 0'
-
-
-		##if capture('[ -e "$HOME/bin/push_code_update" ] && echo 1 || echo 0').strip == '1'
-			##info capture '/bin/sh "$HOME/bin/push_code_update"'
-		##end
-	#end
+def is_git_status_clean cap
+	cap.capture("git status --porcelain | grep -c '^.[M\?]'").strip == '0'
 end
