@@ -9,6 +9,7 @@ task :check_grunt_status do
 			warn "WARNING! Switching to Git branch [#{branch}]"
 			execute "git checkout #{branch}"
 
+			#
 			#execute "grunt #{env}"
 			
 		end
