@@ -10,6 +10,7 @@ task :check_grunt_status do
 			execute "git checkout #{branch}"
 
 			#execute "grunt #{env}"
+			
 		end
 	end
 
