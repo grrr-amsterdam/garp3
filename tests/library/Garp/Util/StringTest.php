@@ -18,6 +18,7 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function testToDashed() {
+		$this->assertEquals(Garp_Util_String::toDashed('Oriënteren'), 'orienteren');
 
 		//word starts with uppercase letters
 		$this->assertEquals(Garp_Util_String::toDashed('Snoop Doggy Dog!'), 'snoop-doggy-dog');
