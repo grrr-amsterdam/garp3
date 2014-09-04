@@ -1,0 +1,27 @@
+desc "Check if a grunt build is necessary"
+task :check_grunt_status do 
+	run_locally do
+		has_grunt = capture('[ -e "Gruntfile" ] && echo 1 || echo 0').strip == '1'
+		if has_grunt
+			env = fetch(:stage)
+			branch = fetch(:branch)
+
+			info "WARNING! Switching to Git branch [#{branch}]"
+			execute "git checkout #{branch}"
+
+
+			#execute "grunt #{env}"
+		end
+	end
+
+	exit
+
+	#on roles(:web) do
+		#info capture '[ -e "Capfile" ] && echo 1 || echo 0'
+
+
+		##if capture('[ -e "$HOME/bin/push_code_update" ] && echo 1 || echo 0').strip == '1'
+			##info capture '/bin/sh "$HOME/bin/push_code_update"'
+		##end
+	#end
+end
