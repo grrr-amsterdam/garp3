@@ -14,6 +14,10 @@ namespace :deploy do
 		invoke :set_webroot_permissions
 	end
 
+	task :published do
+		invoke :update_cluster_servers
+	end
+
 	task :setup do 
 		invoke :add_public_ssh_keys
 		invoke :find_webroot
