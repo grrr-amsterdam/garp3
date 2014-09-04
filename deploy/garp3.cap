@@ -1,4 +1,8 @@
 namespace :deploy do
+	task :started do
+		invoke :check_grunt_status
+	end
+
 	task :updated do
 		# Disk tasks
 		invoke :create_system_cache_dirs
