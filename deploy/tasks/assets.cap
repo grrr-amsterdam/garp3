@@ -1,7 +1,7 @@
 desc "Check if a grunt build is necessary"
 task :check_grunt_status do 
 	run_locally do
-		has_grunt = capture('[ -e "Gruntfile" ] && echo 1 || echo 0').strip == '1'
+		has_grunt = capture('[ -e "Gruntfile.js" ] && echo 1 || echo 0').strip == '1'
 		if has_grunt
 			env = fetch(:stage)
 			start_branch = get_current_git_branch self
@@ -16,8 +16,7 @@ task :check_grunt_status do
 			warn "WARNING! Switching to Git branch [#{deploy_branch}]"
 			switch_git_branch self, deploy_branch
 
-			#
-			#execute "grunt #{env}"
+			execute "grunt #{env}"
 			
 			if !is_git_status_clean self
 				error "Your compiled assets are not up-to-date.\n"/
@@ -28,8 +27,6 @@ task :check_grunt_status do
 			switch_git_branch self, start_branch
 		end
 	end
-
-	exit
 end
 
 def is_git_status_clean cap
