@@ -26,7 +26,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		'html' => 'text/html',
 		'jpg' => 'image/jpeg',
 		'png' => 'image/png',
-		'gif' => 'image/gif'
+		'gif' => 'image/gif',
+		'svg' => 'image/svg+xml'
 	);
 
 	/** @const Int TIMEOUT Number of seconds after which to timeout the S3 action. Should support uploading large (20mb) files. */
