@@ -1,7 +1,7 @@
 desc "Set webroot directory permissions"
 task :set_webroot_permissions do
 	on roles(:web) do
-		execute "chmod -R g+w #{releases_path}"
+		execute "chmod -R g+w #{release_path}"
 	end
 end
 
