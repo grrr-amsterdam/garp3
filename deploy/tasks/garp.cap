@@ -2,7 +2,7 @@ desc "Spawn models"
 task :spawn do
 	on roles(:web) do
 		path = "#{releases_path}/#{release_timestamp}"
-		execute "php #{path}/garp/scripts/garp.php Spawn --non-interactive --e=#{fetch(:stage)}"
+		execute "php #{path}/garp/scripts/garp.php Spawn -b --e=#{fetch(:stage)}"
 	end
 end
     
