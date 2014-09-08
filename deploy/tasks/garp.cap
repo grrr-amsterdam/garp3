@@ -1,7 +1,7 @@
 desc "Spawn models"
 task :spawn do
 	on roles(:web) do
-		execute "php #{release_path}/garp/scripts/garp.php Spawn --e=#{fetch(:stage)}"
+		execute "php #{release_path}/garp/scripts/garp.php Spawn -b --e=#{fetch(:stage)}"
 	end
 end
     
