@@ -39,6 +39,20 @@ task :create_deploy_dirs do
     end
 end
 
+desc "Validate the Capistrano app name"
+task :validate_app_name do
+	on roles(:web) do
+		app_name = fetch(:application)
+		if app_name.include? " "
+			error "Your Capistrano application name should not "\
+				"contain any spaces.\nThis is the :application "\
+				"parameter, now set to '#{app_name}'.\n"\
+				"Please change it in application/configs/deploy.rb."
+			exit
+		end
+	end
+end
+
 def print_create_dir_if_nonexistent dir
 	"[ ! -d '#{dir}' ] && mkdir -p #{dir} || echo 0";
 end
