@@ -1,0 +1,42 @@
+desc "Check if a grunt build is necessary"
+task :check_grunt_status do 
+	run_locally do
+		has_grunt = capture('[ -e "Gruntfile.js" ] && echo 1 || echo 0').strip == '1'
+		if has_grunt
+			env = fetch(:stage)
+			start_branch = get_current_git_branch self
+			deploy_branch = fetch(:branch)
+
+			if !is_git_status_clean self
+				error "Your Git status is not clean.\nPlease commit "\
+					"everything before deploying this Grunt-enabled project."
+				exit
+			end
+
+			warn "WARNING! Switching to Git branch [#{deploy_branch}]"
+			switch_git_branch self, deploy_branch
+
+			execute "grunt #{env}"
+			
+			if !is_git_status_clean self
+				error "Your compiled assets are not up-to-date.\n"/
+					"Please commit the Grunt output and try deploying again."
+				exit
+			end
+
+			switch_git_branch self, start_branch
+		end
+	end
+end
+
+def is_git_status_clean cap
+	cap.capture('[ "`git status --porcelain | grep -c \'^.[M?]\'`" -eq "0" ] || echo 0').strip != '0'
+end
+
+def get_current_git_branch cap
+	cap.capture('git rev-parse --abbrev-ref HEAD')
+end
+
+def switch_git_branch cap, branch
+	cap.execute "git checkout #{branch}"
+end
