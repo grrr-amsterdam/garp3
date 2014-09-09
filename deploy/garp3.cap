@@ -1,4 +1,8 @@
 namespace :deploy do
+	task :started do
+		invoke :check_grunt_status
+	end
+
 	task :updated do
 		# Disk tasks
 		invoke :create_system_cache_dirs
@@ -19,6 +23,7 @@ namespace :deploy do
 	end
 
 	task :setup do 
+		invoke :validate_app_name
 		invoke :add_public_ssh_keys
 		invoke :find_webroot
 		invoke :mark_git_server_safe
