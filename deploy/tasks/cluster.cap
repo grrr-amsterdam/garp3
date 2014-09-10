@@ -2,7 +2,7 @@ desc "Update the other servers in this cluster, if applicable"
 task :update_cluster_servers do 
 	on roles(:web) do
 		if capture('[ -e "$HOME/bin/push_code_update" ] && echo 1 || echo 0').strip == '1'
-			info capture '/bin/sh "$HOME/bin/push_code_update noninteractive"'
+			info capture '/bin/sh $HOME/bin/push_code_update noninteractive'
 		end
 	end
 end
