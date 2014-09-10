@@ -66,7 +66,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		$config->set('AutoFormat.RemoveSpansWithoutAttributes', true);
 		$config->set('AutoFormat.RemoveEmpty.RemoveNbsp', true);
 		$config->set('Output.TidyFormat', true);
-		$config->set('Attr.AllowedClasses', array('figure'));
+		$config->set('Attr.AllowedClasses', array('figure', 'left', 'right'));
 		$config->set('CSS.AllowedProperties', array('font-weight', 'font-style', 'float', 'vertical-align', 'width', 'height'));
 		$config->set('CSS.MaxImgLength', null);
     	$config->set('Cache.SerializerPath', APPLICATION_PATH.'/data/cache');
