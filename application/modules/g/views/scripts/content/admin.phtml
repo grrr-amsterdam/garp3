@@ -20,26 +20,27 @@
 <div id="fb-root"></div>
 
 <script>
-	BASE = '<?php echo $this->baseUrl('/') ?>';
-	ASSET_URL = '<?php echo $this->assetUrl('/') ?>';
-	IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
-	DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
-	ASSET_VERSION = '<?php echo APP_VERSION ?>';
-	GARP_VERSION = '<?php echo GARP_VERSION ?>';
-	<?php if (isset($this->config()->video->template->w)): ?>
-	VIDEO_WIDTH = <?php echo $this->config()->video->template->w ?>;
-	<?php endif; ?>
-	<?php if (isset($this->config()->video->template->h)): ?>
-	VIDEO_HEIGHT = <?php echo $this->config()->video->template->h ?>;
-	<?php endif; ?>
-	APP_TITLE = "<?php echo $this->escape($this->title) ?>";
-	<?php if (isset($this->config()->auth->adapters->facebook)): ?>
-	FB_APP_ID = "<?php echo $this->config()->auth->adapters->facebook->appId ?>";
-	<?php endif; ?>
-	DEBUG = window.location.hash.indexOf('debug') > -1;
-	LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getLocales()); ?>'];
-	DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
-	CURRENT_LANGUAGE = '<?php echo Garp_I18n::getCurrentLocale(); ?>';
+BASE = '<?php echo $this->baseUrl('/') ?>';
+ASSET_URL = '<?php echo $this->assetUrl('/') ?>';
+IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
+DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
+ASSET_VERSION = '<?php echo APP_VERSION ?>';
+GARP_VERSION = '<?php echo GARP_VERSION ?>';
+<?php if (isset($this->config()->video->template->w)): ?>
+VIDEO_WIDTH = <?php echo $this->config()->video->template->w ?>;
+<?php endif; ?>
+<?php if (isset($this->config()->video->template->h)): ?>
+VIDEO_HEIGHT = <?php echo $this->config()->video->template->h ?>;
+<?php endif; ?>
+APP_TITLE = "<?php echo $this->escape($this->title) ?>";
+<?php if (isset($this->config()->auth->adapters->facebook)): ?>
+FB_APP_ID = "<?php echo $this->config()->auth->adapters->facebook->appId ?>";
+<?php endif; ?>
+DEBUG = window.location.hash.indexOf('debug') > -1;
+LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getLocales()); ?>'];
+DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
+CURRENT_LANGUAGE = '<?php echo Garp_I18n::getCurrentLocale(); ?>';
+CKEDITOR_BASEPATH = ASSET_URL + "js/garp/ckeditor/"; 
 </script>
 
 <?php
