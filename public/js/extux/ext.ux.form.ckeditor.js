@@ -11,7 +11,7 @@ Ext.form.CKEditor = function(config) {
     config.CKEditor = {
         // Allow only these tags (=true for all of them)
         allowedContent: true,
-
+		customConfig: '',
         format_tags: 'p;h2;h3',
 
         // Available buttons
