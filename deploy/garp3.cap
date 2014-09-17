@@ -1,5 +1,6 @@
 namespace :deploy do
 	task :started do
+		invoke :verify_production_deploy
 		invoke :check_grunt_status
 	end
 
