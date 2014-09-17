@@ -41,7 +41,7 @@ class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
 		
 		$params['primary'] = !$this->_primaryKeyFieldIsPresent();
 
-		$this['inputs']['id'] = $params;
+		$this['inputs'] = array('id' => $params) + $this['inputs'];
 	}
 	
 	
