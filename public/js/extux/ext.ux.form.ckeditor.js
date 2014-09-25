@@ -72,7 +72,6 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
             	that.waitingForSetData = false;
         	});
         	this.setValue(this.orgValue);
-        	console.log('yay ckeditor');
         };
 		if (typeof CKEDITOR === 'undefined') {
 			Ext.Loader.load([ASSET_URL + 'js/garp/ckeditor/ckeditor.js'], ckLoaded, this);
