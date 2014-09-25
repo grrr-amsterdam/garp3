@@ -91,6 +91,7 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
 	// Get char count, stripped of HTML tags
 	getCharCount: function() {
 		if (this.editor && this.editor.document) {
+            console.log(this.editor.document.getBody().getText());
 			return this.editor.document.getBody().getText().length;
 		}
 		return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
