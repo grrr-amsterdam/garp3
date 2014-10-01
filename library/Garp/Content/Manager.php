@@ -79,19 +79,10 @@ class Garp_Content_Manager {
 			$select = $this->_model->select();
 			$select->setIntegrityCheck(false);
 
-			// FROM
+			// FILTER WHERES AND JOINS
 			// ============================================================
-			$fields = $options['fields'];
-			// If filterForeignKeys is true, filter out the foreign keys 
-			if ($options['filterForeignKeys']) {
-				$fields = $this->_filterForeignKeyColumns($fields, $referenceMap);
-			}
-			$select->from($tableName, $fields);
-
-			// WHERE
-			// ============================================================
+			$related = array();
 			if ($options['query'] && !empty($options['query'])) {
-				$related = array();
 				/**
 				 * Check for other model names in the conditions. These are indicated by a dot (".") in the name.
 				 * If available, add these models as joins to the Select object.
@@ -103,14 +94,36 @@ class Garp_Content_Manager {
 						unset($options['query'][$column]);
 					}
 				}
+			}
 
+			// FROM
+			// ============================================================
+			$fields = $options['fields'];
+			// If filterForeignKeys is true, filter out the foreign keys 
+			if ($options['filterForeignKeys']) {
+				$fields = $this->_filterForeignKeyColumns($fields, $referenceMap);
+			}
+			// When using a join filter (used for the relationpanel), it's more performant to 
+			// specify only a model's list fields, otherwise the query can get pretty heavy for 
+			// tables with 100.000+ records.
+			if (count($related)) {
+				$primary = array_values($this->_model->info(Zend_Db_Table_Abstract::PRIMARY));
+				$fields = array_merge($this->_model->getListFields(), $primary);
+			}
+			$select->from($tableName, $fields);
+
+			// JOIN
+			// ============================================================
+			if (count($related)) {
 				$this->_addJoinClause($select, $related, $options['rule'], $options['bindingModel']);
+			}
 
-				// Add WHERE clause if there still remains something after 
-				// filtering.
-				if ($options['query']) {
-					$select->where($this->_createWhereClause($options['query']));
-				}
+			// WHERE
+			// Add WHERE clause if there still remains something after 
+			// filtering.
+			// ============================================================
+			if ($options['query']) {
+				$select->where($this->_createWhereClause($options['query']));
 			}
 
 			// GROUP
@@ -146,7 +159,7 @@ class Garp_Content_Manager {
 			$isCountQuery = count($fields) == 1 && !empty($fields[0]) && strtolower($fields[0]) == 'count(*)';
 			if (!$isCountQuery) {
 				$select->limit($options['limit'], $options['start']);
-			}			
+			}
 			$results = $this->_model->fetchAll($select)->toArray();
 		} else {
 			$results = $this->_model->fetchAll();
