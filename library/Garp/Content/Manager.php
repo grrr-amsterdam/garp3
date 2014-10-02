@@ -60,8 +60,8 @@ class Garp_Content_Manager {
 				->setDefault('sort', array())
 				->setDefault('start', null)
 				->setDefault('limit', null)
+				->setDefault('fields', null)
 				->setDefault('query', false)
-				->setDefault('fields', Zend_Db_Table_Select::SQL_WILDCARD)
 				->setDefault('group', array())
 				->setDefault('rule', null)
 				->setDefault('bindingModel', null)
@@ -98,17 +98,20 @@ class Garp_Content_Manager {
 
 			// FROM
 			// ============================================================
-			$fields = $options['fields'];
+			if ($options['fields']) {
+				$fields = $options['fields'];
+			} elseif (count($related)) {
+				// When using a join filter (used for the relationpanel), it's more performant to 
+				// specify only a model's list fields, otherwise the query can get pretty heavy for 
+				// tables with 100.000+ records.
+				$primary = array_values($this->_model->info(Zend_Db_Table_Abstract::PRIMARY));
+				$fields = array_merge($this->_model->getListFields(), $primary);
+			} else {
+				$fields = Zend_Db_Table_Select::SQL_WILDCARD;
+			}
 			// If filterForeignKeys is true, filter out the foreign keys 
 			if ($options['filterForeignKeys']) {
 				$fields = $this->_filterForeignKeyColumns($fields, $referenceMap);
-			}
-			// When using a join filter (used for the relationpanel), it's more performant to 
-			// specify only a model's list fields, otherwise the query can get pretty heavy for 
-			// tables with 100.000+ records.
-			if (count($related)) {
-				$primary = array_values($this->_model->info(Zend_Db_Table_Abstract::PRIMARY));
-				$fields = array_merge($this->_model->getListFields(), $primary);
 			}
 			$select->from($tableName, $fields);
 
