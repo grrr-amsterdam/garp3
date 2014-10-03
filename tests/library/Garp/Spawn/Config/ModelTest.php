@@ -17,7 +17,7 @@
 // 		$modelConfig = $this->_loadBogusModelConfig('Bogus');
 
 // 		$this->assertArrayHasKey('order', (array)$modelConfig);
-// 		$this->assertInternalType('string', $modelConfig['order']);
+// 		$this->assertInternalType(is_string($modelConfig['order']));
 // 		$this->assertGreaterThan(0, strlen($modelConfig['order']));
 // 	}
 	
