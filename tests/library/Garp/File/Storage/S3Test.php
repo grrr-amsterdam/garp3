@@ -60,6 +60,8 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function tearDown() {
-		$this->_storage->remove($this->_gzipTestFile);
+		if ($this->_storage) {
+			$this->_storage->remove($this->_gzipTestFile);
+		}
 	}
 }
