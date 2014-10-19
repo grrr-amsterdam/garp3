@@ -79,6 +79,10 @@ class Garp_Util_String {
 
 	/**
 	 * Converts 'Snøøp Düggy Døg' to 'Snoop Doggy Dog'
+	 * This method uses modified parts of code from WordPress.
+	 * (replace_accents):
+	 * https://core.trac.wordpress.org/browser/tags/4.0/src/wp-includes/formatting.php#L0
+	 * 
 	 */
 	static public function utf8ToAscii($string) {
 		if ( !preg_match('/[\x80-\xff]/', $string) )
@@ -259,10 +263,13 @@ class Garp_Util_String {
 			chr(199).chr(153) => 'U', chr(199).chr(154) => 'u',
 			// grave accent
 			chr(199).chr(155) => 'U', chr(199).chr(156) => 'u',
+			// always replace ringel-S, even outside German locale
+			// (this is an addition to the WordPress code)
+			chr(195).chr(159) => 'ss',
 			);
 
 			// Used for locale-specific rules
-			$locale = get_locale();
+			$locale = Zend_Registry::get('config')->app->locale;
 
 			if ( 'de_DE' == $locale ) {
 				$chars[ chr(195).chr(132) ] = 'Ae';
@@ -303,7 +310,10 @@ class Garp_Util_String {
 			$string = str_replace($double_chars['in'], $double_chars['out'], $string);
 		}
 
-		return $string;
+		$array_ignore = array('"', "'", "`", "^", "~", "+");
+		$string = str_replace($array_ignore, '', $string);
+
+		return trim($string, "\n\t -");
 
 		//$locale = setlocale(LC_CTYPE, 0);
 		//$localeChanged = false;
