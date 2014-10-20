@@ -1,6 +1,10 @@
 <?php
 /**
  * @group Controllers
+ *
+ * @todo Lots of assumptions: the presence of a user model, local db auth storage.
+ * Garp routes must be used (or at least a route called 'auth_submit').
+ *
  */
 class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	protected $_mockUser = array(
@@ -13,8 +17,6 @@ class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	protected $_auth;
 
 	public function testProcessShouldLoginUser() {
-		// @todo This won't work for projects where garp_routes are not used.
-		// How to detect?
 		$url = Zend_Controller_Front::getInstance()->getRouter()->assemble(array(
 		), 'auth_submit');
 
