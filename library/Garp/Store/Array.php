@@ -115,4 +115,8 @@ class Garp_Store_Array implements Garp_Store_Interface {
 		}
 		return $this;
 	}
+
+	public function toArray() {
+		return $this->_data[$this->_namespace];
+	}
 }
