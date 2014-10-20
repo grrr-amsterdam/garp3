@@ -157,58 +157,58 @@ class G_AuthController extends Garp_Controller_Action {
 		 * The implementing adapter should decide which to use,
 		 * using the current request to fetch params.
 		 */
-		if ($userData = $adapter->authenticate($this->getRequest())) {
-			if ($userData instanceof Garp_Db_Table_Row) {
-				$userData = $userData->toArray();
-			}
-			
-			// Save user data in a store.
-			Garp_Auth::getInstance()->store($userData, $method);
-
-			// Store User role in a cookie, so that we can use it with Javascript.
-			if (!Garp_Auth::getInstance()->getStore() instanceof Garp_Store_Cookie) {
-				$this->_storeRoleInCookie();
-			}
-
-			// Determine targetUrl. This is the URL the user was trying to access before logging in, or a default URL.
-			$router = Zend_Controller_Front::getInstance()->getRouter();
-			if (!empty($authVars['login']['successRoute'])) {
-				$targetUrl = $router->assemble(array(), $authVars['login']['successRoute']);
-			} elseif (!empty($authVars['login']['successUrl'])) {
-				$targetUrl = $authVars['login']['successUrl'];
-			} else {
-				$targetUrl = '/';
-			}
-			$store = Garp_Auth::getInstance()->getStore();
-			if ($store->targetUrl) {
-				$targetUrl = $store->targetUrl;
-				unset($store->targetUrl);
-			}
-
-			// After login hook.
-			$this->_afterLogin($userData, $targetUrl);
-
-			// Set a Flash message welcoming the user.
-			$flashMessenger = $this->_helper->getHelper('FlashMessenger');
-			$fullName = new Garp_Util_FullName($userData);
-			$successMsg = __($authVars['login']['successMessage']);
-			if (strpos($successMsg, '%s') !== false) {
-				$successMsg = sprintf($successMsg, $fullName);
-			} elseif (strpos('%USERNAME%', $successMsg) !== false) {
-				$successMsg = Garp_Util_String::interpolate($successMsg, array(
-					'USERNAME' => $fullName
-				));
-			}
-			$flashMessenger->addMessage($successMsg);
-			$this->_redirect($targetUrl);
-			exit;
-		} else {
+		if (!$userData = $adapter->authenticate($this->getRequest())) {
 			// Show the login page again.
 			$request = clone $this->getRequest();
 			$request->setActionName('login')
 				->setParam('errors', $adapter->getErrors());
 			$this->_helper->actionStack($request);
+			return;
 		}
+
+		if ($userData instanceof Garp_Db_Table_Row) {
+			$userData = $userData->toArray();
+		}
+		
+		// Save user data in a store.
+		Garp_Auth::getInstance()->store($userData, $method);
+
+		// Store User role in a cookie, so that we can use it with Javascript.
+		if (!Garp_Auth::getInstance()->getStore() instanceof Garp_Store_Cookie) {
+			$this->_storeRoleInCookie();
+		}
+
+		// Determine targetUrl. This is the URL the user was trying to access before logging in, or a default URL.
+		$router = Zend_Controller_Front::getInstance()->getRouter();
+		if (!empty($authVars['login']['successRoute'])) {
+			$targetUrl = $router->assemble(array(), $authVars['login']['successRoute']);
+		} elseif (!empty($authVars['login']['successUrl'])) {
+			$targetUrl = $authVars['login']['successUrl'];
+		} else {
+			$targetUrl = '/';
+		}
+		$store = Garp_Auth::getInstance()->getStore();
+		if ($store->targetUrl) {
+			$targetUrl = $store->targetUrl;
+			unset($store->targetUrl);
+		}
+
+		// After login hook.
+		$this->_afterLogin($userData, $targetUrl);
+
+		// Set a Flash message welcoming the user.
+		$flashMessenger = $this->_helper->getHelper('FlashMessenger');
+		$fullName = new Garp_Util_FullName($userData);
+		$successMsg = __($authVars['login']['successMessage']);
+		if (strpos($successMsg, '%s') !== false) {
+			$successMsg = sprintf($successMsg, $fullName);
+		} elseif (strpos('%USERNAME%', $successMsg) !== false) {
+			$successMsg = Garp_Util_String::interpolate($successMsg, array(
+				'USERNAME' => $fullName
+			));
+		}
+		$flashMessenger->addMessage($successMsg);
+		$this->_redirect($targetUrl);
 	}
 
 	/**
