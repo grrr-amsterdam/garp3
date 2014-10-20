@@ -74,9 +74,9 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 		// 	'AaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaCcCcCcCcCcDdDdDEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeGgGgGgGgHhHhIiIiIiIiIiIiIiIiIiIiIiJjKkLlLlLlLlLlNnNnNnNnOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoPpPpRrRrRrSsSsSsSsTtTtTtUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuWwWwWwWwYyYyYyYyYyYyYyZzZzZz');
 		
 		//testing the json output
-		$this->assertTrue( (bool) json_encode(Garp_Util_String::utf8ToAscii('Snoop Döggy Døg')) );
-		$this->assertTrue( (bool) json_encode(Garp_Util_String::utf8ToAscii('Snøøp Düggy Døg')) );
-		$this->assertTrue( (bool) json_encode(Garp_Util_String::utf8ToAscii('Žluťoučký kůň')) );
+		$this->assertTrue((bool) json_encode(Garp_Util_String::utf8ToAscii('Snoop Döggy Døg')));
+		$this->assertTrue((bool) json_encode(Garp_Util_String::utf8ToAscii('Snøøp Düggy Døg')));
+		$this->assertTrue((bool) json_encode(Garp_Util_String::utf8ToAscii('Žluťoučký kůň')));
 
 		$arrayToTest = array(	'something' =>  'Weiß, Göbel, Göthe, Götz',
 								'weirdChar' => chr(163),
@@ -89,10 +89,11 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 		}
 		$json = json_encode($arrayAscii); 
 		$reverted = json_decode($json);
-		$this->assertFalse( is_null($reverted->something) );
-		$this->assertFalse( is_null($reverted->weirdChar) );
-		$this->assertFalse( is_null($reverted->diacritics) );
-		$this->assertFalse( is_null($reverted->czech) );
+
+		$this->assertFalse(is_null($reverted->something));
+		$this->assertTrue(is_null($reverted->weirdChar));
+		$this->assertFalse(is_null($reverted->diacritics));
+		$this->assertFalse(is_null($reverted->czech));
 	}
 
 	public function testEndsIn() {
