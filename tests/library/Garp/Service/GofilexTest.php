@@ -19,12 +19,12 @@ class Garp_Service_GofilexTest extends PHPUnit_Framework_TestCase {
 
 	public function testShouldReceiveArrayOfMovies() {
 		$movies = $this->_service->getMovies();
-		$this->assertInternalType('array', $movies);
+		$this->assertTrue(is_array($movies));
 	}
 
 
 	public function testShouldReceiveArrayOfTheaters() {
 		$theaters = $this->_service->getTheaters();
-		$this->assertInternalType('array', $theaters);
+		$this->assertTrue(is_array($theaters));
 	}
 }
