@@ -36,10 +36,17 @@ def guess_webroot cap
 			domain_subdir = "html/#{server.hostname}/public" 
 			if check_dir_existence cap, pwd, domain_subdir
 				show_deploy_to_guess cap, pwd, domain_subdir
+			else
+				error "Couldn't find webroot dir."
+				error "Probably you're using a different "\
+					"ssh host than the app domain."
+				error "Tried: #{domain_subdir}."
 			end
 		end
 	elsif check_dir_existence cap, pwd, 'httpdocs'
 		show_deploy_to_guess cap, pwd, 'httpdocs'
+	else
+		error "Couldn't find the webroot dir..."
 	end
 end
 

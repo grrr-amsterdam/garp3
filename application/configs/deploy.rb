@@ -1,4 +1,4 @@
-set :log_level, :info
+#set :log_level, :info
 set :linked_dirs, %w{
 	public/uploads/documents 
 	public/uploads/images 
