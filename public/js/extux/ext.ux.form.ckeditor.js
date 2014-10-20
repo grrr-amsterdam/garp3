@@ -89,10 +89,11 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
 
 	// Get char count, stripped of HTML tags
 	getCharCount: function() {
-		if (this.editor && this.editor.$ && this.editor.document && this.editor.document.getBody()) {
+		try {
 			return this.editor.document.getBody().getText().length;
+		} catch(e) {
+			return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
 		}
-		return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
 	},
 
     setValue: function(value) {
