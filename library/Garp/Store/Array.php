@@ -43,7 +43,7 @@ class Garp_Store_Array implements Garp_Store_Interface {
  	 */
 	public function get($key) {
 		return array_key_exists($key, $this->_data[$this->_namespace]) ?
-			$this->_data[$this->_namespace] :
+			$this->_data[$this->_namespace][$key] :
 			null
 		;
 	}
@@ -56,7 +56,7 @@ class Garp_Store_Array implements Garp_Store_Interface {
  	 * @return $this
  	 */
 	public function set($key, $value) {
-		$this->_data[$this->_namespace][$key] = $key;
+		$this->_data[$this->_namespace][$key] = $value;
 		return $this;
 	}		
 
