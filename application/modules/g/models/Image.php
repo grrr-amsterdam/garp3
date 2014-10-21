@@ -27,4 +27,11 @@ class G_Model_Image extends Model_Base_Image {
 		}
 		return $row->filename;
 	}
+
+	public function insertFromUrl($imageUrl, $filename) {
+		// @todo file_get_contents to optimistic?
+		$bytes = file_get_contents($imageUrl);
+		Zend_Controller_Action_HelperBroker::getStaticHelper('upload')
+			->uploadRaw(Garp_File::TYPE_IMAGES, $filename, $bytes);
+	}
 }
