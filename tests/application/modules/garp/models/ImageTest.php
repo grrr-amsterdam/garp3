@@ -45,7 +45,10 @@ class G_Model_ImageTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function tearDown() {
 		$this->_getImageModel()->delete('id > 0');
+<<<<<<< HEAD
 		unlink(GARP_APPLICATION_PATH . '/../tests/tmp/' . $this->_mockFilename);
+=======
+>>>>>>> 2e52f14f3b9620fcd8dc0b620bd3dde469dc4c3f
 	}
 
 }
