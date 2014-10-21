@@ -1,0 +1,25 @@
+{
+	"visible": false,
+
+	"inputs": {
+		"linkedin_uid": {
+			"maxLength": 50,
+			"required": true,
+			"type": "text"
+		},
+		"ip_address": {
+			"maxLength": 15
+		},
+		"last_login": {
+			"type": "datetime"
+		}
+	},
+
+	"listFields": ["id", "linkedin_uid", "ip_address"],
+
+	"relations": {
+		"User": {
+			"type": "belongsTo"
+		}
+	}
+}
