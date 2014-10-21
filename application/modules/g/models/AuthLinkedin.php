@@ -33,4 +33,5 @@ class G_Model_AuthLinkedin extends G_Model_Auth {
 		$this->updateLoginStats($userId);
 		return $userData;
 	}
+
 }
