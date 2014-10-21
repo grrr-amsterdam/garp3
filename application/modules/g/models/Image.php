@@ -44,10 +44,10 @@ class G_Model_Image extends Model_Base_Image {
 				$filename .= '.' . (new Garp_File_Extension($mime) ?: 'jpg');
 			}
 		}
-		Zend_Controller_Action_HelperBroker::getStaticHelper('upload')
+		$response = Zend_Controller_Action_HelperBroker::getStaticHelper('upload')
 			->uploadRaw(Garp_File::TYPE_IMAGES, $filename, $bytes);
 		return $this->insert(array(
-			'filename' => $filename
+			'filename' => $response[$filename]
 		));
 	}
 
