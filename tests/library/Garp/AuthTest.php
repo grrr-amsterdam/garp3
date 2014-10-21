@@ -25,6 +25,10 @@ class Garp_AuthTest extends Garp_Test_PHPUnit_TestCase {
 		$this->_auth->destroy();
 	}
 
+	public function tearDown() {
+		$this->_auth->destroy();
+	}
+
 	public function testIsNotLoggedIn() {
 		$this->assertEquals(false, $this->_auth->isLoggedIn());
 	}

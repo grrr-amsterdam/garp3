@@ -27,4 +27,35 @@ class G_Model_Image extends Model_Base_Image {
 		}
 		return $row->filename;
 	}
+
+	public function insertFromUrl($imageUrl, $filename = null) {
+		// @todo file_get_contents to optimistic?
+		$bytes = file_get_contents($imageUrl);
+		if (is_null($filename)) {
+			$filename = basename($imageUrl);
+			if (strpos($filename, '.') === false) {
+				$mime = $this->_getImageMime($bytes);
+				if ($mime === 'application/x-gzip') {
+					$bytes = gzdecode($bytes);
+					$mime = $this->_getImageMime($bytes);
+				}
+				
+				// Figure out mimetype, or default to jpg
+				$filename .= '.' . (new Garp_File_Extension($mime) ?: 'jpg');
+			}
+		}
+		Zend_Controller_Action_HelperBroker::getStaticHelper('upload')
+			->uploadRaw(Garp_File::TYPE_IMAGES, $filename, $bytes);
+		return $this->insert(array(
+			'filename' => $filename
+		));
+	}
+
+	protected function _getImageMime($bytes) {
+		$finfo = new finfo(FILEINFO_MIME);
+		$mime = $finfo->buffer($bytes);
+		$mime = explode(';', $mime);
+		$mime = $mime[0];
+		return $mime;
+	}		
 }
