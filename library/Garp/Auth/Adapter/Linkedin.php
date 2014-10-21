@@ -69,6 +69,7 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 			'first_name' => $linkedInData['firstName'],
 			'last_name'  => $linkedInData['lastName'],
 			'email'      => $linkedInData['emailAddress'],
+			'imageUrl'   => $linkedInData['pictureUrl'],
 			'role'       => 'user'
 		);
 	}
