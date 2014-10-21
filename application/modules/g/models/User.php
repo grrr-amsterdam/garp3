@@ -44,6 +44,12 @@ class G_Model_User extends Model_Base_User {
 	public function beforeInsert(array &$args) {
 		$data = &$args[1];
 
+		if (array_key_exists('imageUrl', $data)) {
+			// Allow passing in of image URLs. These are downloaded and added as image_id
+			$data['image_id'] = $this->_grabRemoteImage($data['imageUrl']);
+			unset($data['imageUrl']);
+		}
+
 		// Prevent admins from saving a user's role greater than their own.
 		if (!empty($data[self::ROLE_COLUMN]) && !$this->_isRoleAllowed($data[self::ROLE_COLUMN])) {
 			throw new Garp_Model_Exception('You are not allowed to assign a role greater than your own.');
@@ -338,9 +344,9 @@ class G_Model_User extends Model_Base_User {
 		return !in_array($role, $children);
 	}
 
-	protected function _grabRemoteImage($imageUrl) {
+	protected function _grabRemoteImage($imageUrl, $filename = null) {
 		$image = new Model_Image();
-		$imageId = $image->insertFromUrl($imageUrl);
+		$imageId = $image->insertFromUrl($imageUrl, $filename);
 		return $imageId;
 	}
 }
