@@ -324,6 +324,7 @@ $translationTable = array(
 	'register error' => 'Er is iets misgegaan bij het registreren. Probeer het later nog eens',
 	'login page title' => 'Inloggen',
 	'login page description' => 'Log hier in om toegang te krijgen tot persoonlijke pagina\'s.',
+	'login error' => 'Er is iets misgegaan bij het inloggen. Probeer het later nog eens',
 	'the passwords do not match' => 'De wachtwoorden komen niet overeen',
 	'this email address already exists' => 'Dit e-mailadres is al in gebruik',
 	'forgot password page title' => 'Wachtwoord vergeten',

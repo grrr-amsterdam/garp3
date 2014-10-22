@@ -20,6 +20,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 	 */
 	public function authenticate(Zend_Controller_Request_Abstract $request) {
 		$facebook = $this->_getFacebookClient();
+		$authVars = $this->_getAuthVars();
 		
 		/**
 		 * Send the user to Facebook to login and give us access.
@@ -31,7 +32,10 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		 */
 		if ($request->isPost()) {
 			$redirector = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
-			$redirector->gotoUrl($facebook->getLoginUrl());
+			$scope = isset($authVars->scope) ? $authVars->scope : null;
+			$redirector->gotoUrl($facebook->getLoginUrl(array(
+				'scope' => $scope
+			)));
 			exit;
 		}
 		
@@ -40,7 +44,6 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 			$userData = $facebook->login();
 			$userData = $this->_getUserData($userData);
 
-			$authVars = $this->_getAuthVars();
 			// Automatically fetch friends if so configured.
 			if (!empty($authVars->friends->collect) && $authVars->friends->collect) {
 				$bindingModel = 'Model_UserUser'; // A Sensible Default™
@@ -57,7 +60,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 			$this->_addError($e->getMessage());
 			return false;
 		} catch (Exception $e) {
-			$this->_addError('Er is een onbekende fout opgetreden. Probeer het later opnieuw.');
+			$this->_addError(__('login error'));
 			return false;
 		}
 	}
