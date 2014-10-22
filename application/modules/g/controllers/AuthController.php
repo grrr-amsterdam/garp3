@@ -236,6 +236,9 @@ class G_AuthController extends Garp_Controller_Action {
 
 		$flashMessenger = $this->_helper->getHelper('FlashMessenger');
 		$flashMessenger->addMessage(__($authVars['logout']['successMessage']));
+
+		$cacheBuster = 'action=logout';
+		$target .= (strpos($target, '?') === false ? '?' : '&') . $cacheBuster;
 		$this->_redirect($target);
 	}
 
