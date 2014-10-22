@@ -76,7 +76,10 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 
 	protected function _getLinkedInInstance() {
 		$authVars = $this->_getAuthVars();
-		$callbackUrl = $authVars->callbackBaseUrl . '/g/auth/login/process/linkedin';
+		$callbackUrl = new Garp_Util_FullUrl(array(array('method' => 'linkedin'), 'auth_submit'));
+		//if ($authVars->callbackBaseUrl) {
+			//$callbackUrl = $authVars->callbackBaseUrl . '/g/auth/login/process/linkedin';
+		//}
 		// Sanity checks
 		if (!$authVars->consumerKey || !$authVars->consumerSecret) {
 			throw new Garp_Auth_Exception(
@@ -86,7 +89,7 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
  		   	$this->_linkedIn = new LinkedIn(array(
 				'api_key' => $authVars->consumerKey, 
 				'api_secret' => $authVars->consumerSecret, 
-				'callback_url' => $callbackUrl
+				'callback_url' => (string)$callbackUrl
 			));
 		}
 		return $this->_linkedIn;
