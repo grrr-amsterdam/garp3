@@ -72,15 +72,8 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 	 * @return Void
 	 */
 	protected function _getUserData(Zend_Service_Twitter $twitterService, $twitterUserId) {
-		$userData = $twitterService->users->show($twitterUserId);
-		$name = $userData->name;
-		$name = explode(' ', $name, 2);
-		// @todo Hard-coded columns might not fit the current user model...
-		$userDataFromTwitter = array(
-			'first_name' => $name[0],
-			'last_name' => !empty($name[1]) ? $name[1] : '',
-			'imageUrl' => $userData->profile_image_url
-		);
+		$twitterUserData = $twitterService->users->show($twitterUserId);
+		$userColumns = $this->_mapProperties((array)$twitterUserData->toValue());
 
 		$userModel = new Model_User();
 		$userConditions = $userModel->select()->from(
@@ -93,7 +86,7 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 				  ->where('twitter_uid = ?', $twitterUserId)
 		);
 		if (!$userData || !$userData->Model_User) {
-			$userData = $model->createNew($twitterUserId, $userDataFromTwitter);
+			$userData = $model->createNew($twitterUserId, $userColumns);
 		} else {
 			$model->updateLoginStats($userData->user_id);
 			$userData = $userData->Model_User;
