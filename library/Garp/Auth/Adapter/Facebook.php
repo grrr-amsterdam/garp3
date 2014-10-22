@@ -41,7 +41,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		
 		// Session based API call.
 		try {
-			$userData = $facebook->login();
+			$userData = $facebook->login(!!$authVars->grabUserImage);
 			$userData = $this->_getUserData($userData);
 
 			// Automatically fetch friends if so configured.
@@ -60,6 +60,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 			$this->_addError($e->getMessage());
 			return false;
 		} catch (Exception $e) {
+			throw $e;
 			$this->_addError(__('login error'));
 			return false;
 		}
