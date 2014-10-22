@@ -9,6 +9,7 @@ $translationTable = array(
 	'register error' => 'Something went wrong while registering. Try again later.',
 	'login page title' => 'Login',
 	'login page description' => 'Login to gain access to your personal pages.',
+	'login error' => 'Something went wrong while logging in. Try again later.',
 	'the passwords do not match' => 'The passwords do not match',
 	'this email address already exists' => 'This email address already exists',
 	'forgot password page title' => 'Forgot password',

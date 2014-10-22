@@ -44,8 +44,8 @@ class Garp_Social_Facebook {
  	 * Get URL to login page
  	 * @return String
  	 */
-	public function getLoginUrl() {
-		return $this->_client->getLoginUrl();
+	public function getLoginUrl($params=array()) {
+		return $this->_client->getLoginUrl($params);
 	}
 
 
