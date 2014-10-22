@@ -29,10 +29,10 @@ class G_Model_Image extends Model_Base_Image {
 	}
 
 	public function insertFromUrl($imageUrl, $filename = null) {
-		// @todo file_get_contents to optimistic?
+		// @todo file_get_contents too optimistic?
 		$bytes = file_get_contents($imageUrl);
 		if (is_null($filename)) {
-			$filename = $this->_createFilenameFromUrl($imageUrl);
+			$filename = $this->_createFilenameFromUrl($imageUrl, $bytes);
 		}
 		$response = Zend_Controller_Action_HelperBroker::getStaticHelper('upload')
 			->uploadRaw(Garp_File::TYPE_IMAGES, $filename, $bytes);
@@ -49,7 +49,7 @@ class G_Model_Image extends Model_Base_Image {
 		return $mime;
 	}		
 
-	protected function _createFilenameFromUrl($imageUrl) {
+	protected function _createFilenameFromUrl($imageUrl, $bytes) {
 		$filename = basename($imageUrl);
 		// Strip possible query parameters
 		if (strpos($filename, '?') !== false &&
