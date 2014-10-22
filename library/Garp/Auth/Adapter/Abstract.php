@@ -68,7 +68,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 	 */
 	protected function _mapProperties(array $props) {
 		$authVars = $this->_getAuthVars();
-		if ($authVars->mapping && !empty($authVars->mapping)) {			
+		if ($authVars->mapping && !empty($authVars->mapping)) {
 			$cols = array();
 			foreach ($authVars->mapping as $mappedProp => $col) {
 				if ($col) {

@@ -10,7 +10,7 @@ use LinkedIn\LinkedIn;
  * @package      Garp_Auth_Adapter
  */
 class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
-	const LINKED_IN_PROFILE_QUERY = '/people/~:(first_name,last_name,id,email-address,picture-url)';
+	const LINKED_IN_PROFILE_QUERY = '/people/~:(first_name,last_name,id,email-address,picture-url,formatted-name)';
 
 	/**
  	* @var LinkedIn
@@ -25,26 +25,31 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 			return false;
 		}
 
-		// User returns from LinkedIn and has authorized the app
-		if ($request->getParam('code')) {
-			$accessToken = $this->_getLinkedInInstance()->getAccessToken($request->getParam('code'));
-			return $this->_getUserData($accessToken);
-		}
+		try {
+			// User returns from LinkedIn and has authorized the app
+			if ($request->getParam('code')) {
+				$accessToken = $this->_getLinkedInInstance()->getAccessToken($request->getParam('code'));
+				return $this->_getUserData($accessToken);
+			}
 
-		// User has not interacted yet, and needs to authorize the app
-		$authorizeUrl = $this->_getLinkedInInstance()->getLoginUrl(array(
-			LinkedIn::SCOPE_BASIC_PROFILE, 
-			LinkedIn::SCOPE_EMAIL_ADDRESS
-		));
-		Zend_Controller_Action_HelperBroker::getStaticHelper('redirector')
-			->gotoUrl($authorizeUrl);
-		return false;
+			// User has not interacted yet, and needs to authorize the app
+			$authorizeUrl = $this->_getLinkedInInstance()->getLoginUrl(array(
+				LinkedIn::SCOPE_BASIC_PROFILE, 
+				LinkedIn::SCOPE_EMAIL_ADDRESS
+			));
+			Zend_Controller_Action_HelperBroker::getStaticHelper('redirector')
+				->gotoUrl($authorizeUrl);
+			return false;
+		} catch (Exception $e) {
+			throw $e;
+			$this->_addError(__('login error'));
+			return false;
+		}
 	}
 
 	protected function _getUserData($accessToken) {
 		$profileData = $this->_getLinkedInInstance()->get(self::LINKED_IN_PROFILE_QUERY);
-		$newUserData = $this->_linkedinDataToUserRecord($profileData);
-
+		$newUserData = $this->_mapProperties($profileData);
 		$userModel = new Model_User();
 		$userConditions = $userModel->select()
 			->from($userModel->getName(), $this->_getSessionColumns());
@@ -62,16 +67,6 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 			$userData = $userData->Model_User;
 		}
 		return $userData;
-	}
-
-	protected function _linkedinDataToUserRecord(array $linkedInData) {
-		return array(
-			'first_name' => $linkedInData['firstName'],
-			'last_name'  => $linkedInData['lastName'],
-			'email'      => $linkedInData['emailAddress'],
-			'imageUrl'   => $linkedInData['pictureUrl'],
-			'role'       => 'user'
-		);
 	}
 
 	protected function _getLinkedInInstance() {
