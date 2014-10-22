@@ -59,7 +59,6 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 			$this->_addError('App was not authorized. Please try again.');
 			return false;
 		} catch (Exception $e) {
-			throw $e;
 			// Provide generic error message
 			$this->_addError(__('login error'));
 		}
