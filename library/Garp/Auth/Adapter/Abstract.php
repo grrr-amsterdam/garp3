@@ -87,13 +87,7 @@ abstract class Garp_Auth_Adapter_Abstract {
  	 * @return Array|String (can also be Zend_Db_Select::SQL_WILDCARD)
  	 */
 	protected function _getSessionColumns() {
-		$ini = Zend_Registry::get('config');
-		$sessionColumns = Zend_Db_Select::SQL_WILDCARD;
-		if (!empty($ini->auth->login->sessionColumns)) {
- 		   	$sessionColumns = $ini->auth->login->sessionColumns;
- 		   	$sessionColumns = explode(',', $sessionColumns);
-		}
-		return $sessionColumns;
+		return Garp_Auth::getInstance()->getSessionColumns();
 	}
 		
 	/**
