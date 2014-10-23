@@ -311,4 +311,17 @@ class Garp_Auth {
 		}
 		return $children;	
 	}
+
+	/**
+ 	 * Return which columns should be stored in the user session
+ 	 */
+	public function getSessionColumns() {
+		$ini = Zend_Registry::get('config');
+		$sessionColumns = Zend_Db_Select::SQL_WILDCARD;
+		if (!empty($ini->auth->login->sessionColumns)) {
+ 		   	$sessionColumns = $ini->auth->login->sessionColumns;
+ 		   	$sessionColumns = explode(',', $sessionColumns);
+		}
+		return $sessionColumns;
+	}
 }
