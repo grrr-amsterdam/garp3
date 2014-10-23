@@ -37,6 +37,16 @@ class G_Model_User extends Model_Base_User {
 	protected $_validateEmail;
 
 	/**
+ 	 * Grab only session columns by userid
+ 	 */
+	public function fetchUserForSession($userId) {
+		$select = $this->select()
+			->from($this->getName(), Garp_Auth::getInstance()->getSessionColumns())
+			->where('id = ?', $userId);
+		return $this->fetchRow($select);
+	}
+
+	/**
  	 * BeforeInsert callback
  	 * @param Array $args
  	 * @return Void
