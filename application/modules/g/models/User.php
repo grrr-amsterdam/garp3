@@ -98,9 +98,13 @@ class G_Model_User extends Model_Base_User {
 	public function beforeUpdate(array &$args) {
 		$data = &$args[1];
 		$where = $args[2];
+		$auth = Garp_Auth::getInstance();
+		$authVars = $auth->getConfigValues();
 
-		// Check if the email address is about to be changed
-		if (array_key_exists('email', $data)) {
+		// Check if the email address is about to be changed, and wether we should respond to it
+		if ((!empty($authVars['validateEmail']['enabled']) && 
+			$authVars['validateEmail']['enabled']) &&
+			array_key_exists('email', $data)) {
 			// Collect the current email addresses to see if they are to be changed
 			// @todo For now we assume that email is a unique value. This means that 
 			// we use fetchRow instead of fetchAll. 
