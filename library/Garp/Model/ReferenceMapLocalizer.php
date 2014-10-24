@@ -49,6 +49,7 @@ class Garp_Model_ReferenceMapLocalizer {
 				$ref[Zend_Db_Table_Abstract::REF_COLUMNS]
 			);
 		}
+		return $this;
 	}
 
 	/**
