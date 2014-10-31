@@ -679,10 +679,9 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		baseParams.bidirectional = this.bidirectional;
 		this.relateeStore.setBaseParam(baseParams);
 		this.searchbar.setBaseParams();
-		
 		if(!this.hidden && this.rendered) {
 			this.relateePanel.getSelectionModel().clearSelections(true);
-			if (this.metaPanel) {
+			if (this.metaDataPanel) {
 				this.metaDataPanel.hide();
 				this.metaDataPanel.ownerCt.doLayout();
 			}
