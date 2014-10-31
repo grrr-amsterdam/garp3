@@ -103,7 +103,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 
 	/**
 	 * Returns the user's current activity limits.
-	 * @return Array Describing various statistics about your usage. The keys correspond to 
+	 * @return Array Describing various statistics about your usage. The keys correspond to
 	 * 				 nodes in Amazon's response
 	 */
 	public function getSendQuota() {
@@ -159,7 +159,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		$out = array();
 		foreach ($members as $member) {
 			$out[] = $member->nodeValue;
-		}		
+		}
 		return $out;
 	}
 
@@ -183,8 +183,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 	 * 	['Source']			[required]	String			The sender's email address
 	 * 	['ReplyToAddresses'][optional]	Array|String	The reply-to email address(es) for the message
 	 * 	['ReturnPath']		[optional]	String			The email address to which bounce notifications are to be forwarded.
-	 * 													If the message cannot be delivered to the recipient, then an 
-	 * 													error message will be returned from the recipient's ISP; this message 
+	 * 													If the message cannot be delivered to the recipient, then an
+	 * 													error message will be returned from the recipient's ISP; this message
 	 * 													will then be forwarded to the email address specified by the ReturnPath parameter.
 	 * @return String
 	 */
@@ -196,7 +196,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 
 		// Allow global overriding of the To property to funnel emails only to a safe address
 		if (isset(Zend_Registry::get('config')->amazon->ses->forceToAddress)) {
-			$args['Destination'] = array('To' => 
+			$args['Destination'] = array('To' =>
 				Zend_Registry::get('config')->amazon->ses->forceToAddress);
 		}
 
@@ -254,7 +254,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 			$args['Message.Subject.Data'] = $args['Subject'];
 		}
 		unset($args['Subject']);
-		
+
 		if (is_array($args['Destination'])) {
 			if (empty($args['Destination']['To'])) {
 				throw new Garp_Service_Amazon_Exception('To is a required key for Destination');
@@ -282,12 +282,12 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 			unset($args['ReplyToAddresses']);
 		}
 
-		$response = $this->_makeRequest((array)$args);		
+		$response = $this->_makeRequest((array)$args);
 		return true;
 	}
 
 	/**
-	 * Sends an email message, with header and content specified by the client. The SendRawEmail action is useful for sending multipart MIME emails. 
+	 * Sends an email message, with header and content specified by the client. The SendRawEmail action is useful for sending multipart MIME emails.
 	 * The raw text of the message must comply with Internet email standards; otherwise, the message cannot be sent.
 	 * @param Array|Garp_Util_Configuration $args Might contain;
 	 *  ['RawMessage']		[required]	String	The raw email message (headers and body)
@@ -300,7 +300,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		$args['Action'] = 'SendRawEmail';
 		$args->obligate('RawMessage');
 		$args = (array)$args;
-		
+
 		// normalize so-called "String List" parameters
 		if (!empty($args['Destinations'])) {
 			$destinations = $this->_arrayToStringList((array)$args['Destinations'], 'Destinations');
@@ -309,13 +309,13 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		}
 		$args['RawMessage.Data'] = $args['RawMessage'];
 		unset($args['RawMessage']);
-		
+
 		$response = $this->_makeRequest((array)$args);
 		return true;
 	}
 
 	/**
-	 * Verifies an email address. 
+	 * Verifies an email address.
 	 * This action causes a confirmation email message to be sent to the specified address.
 	 * @param String $email The email address to be verified.
 	 * @return String
@@ -341,7 +341,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 							'AWSAccessKeyId='.$this->_accessKey.
 							', Algorithm=Hmac'.strtoupper(self::SIGNATURE_HASH_METHOD).
 							', Signature='.$sig;
-		
+
 		$client = $this->getHttpClient()->resetParameters();
 		$endpoint = sprintf(self::ENDPOINT, $this->_region);
 		$client->setUri($endpoint);
@@ -349,19 +349,19 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 			'Date' => $date,
 			'X-Amzn-Authorization' => $amznAuthHeader
 		));
-		
+
 		// required parameters for each request
 		$args['Signature'] = $sig;
 		$args['SignatureMethod'] = 'Hmac'.self::SIGNATURE_HASH_METHOD;
 		$args['SignatureVersion'] = 2;
 		$args['Version'] = self::API_VERSION;
-		
+
 		$client->setParameterPost($args);
 		$response = $client->request(Zend_Http_Client::POST);
 
 		if ($response->getStatus() !== 200) {
 			$this->throwException($response->getBody());
-		}		
+		}
 		return $response->getBody();
 	}
 
@@ -375,7 +375,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 	}
 
 	/**
-	 * Create AWS String List from array (which is also an array, but with 
+	 * Create AWS String List from array (which is also an array, but with
 	 * specific Amazonesque keys)
 	 * @param Array $array
 	 * @param String $namespace The base namespace that groups all entries
@@ -414,7 +414,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 		try {
 			dump($filename, $logMessage);
 		} catch (Exception $e) {
-			// that's no priority for now, we want 
+			// that's no priority for now, we want
 			// the SES exception more than we want this exception.
 		}
 
