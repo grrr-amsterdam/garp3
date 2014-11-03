@@ -2,8 +2,9 @@
 	"visible": false,
 
 	"inputs": {
-		"twitter_uid": {
-			"maxLength": 20,
+		"linkedin_uid": {
+			"maxLength": 50,
+			"required": true,
 			"type": "text"
 		},
 		"ip_address": {
@@ -14,7 +15,7 @@
 		}
 	},
 
-	"listFields": ["id", "twitter_uid", "ip_address"],
+	"listFields": ["id", "linkedin_uid", "ip_address"],
 
 	"relations": {
 		"User": {
