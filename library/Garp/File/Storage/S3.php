@@ -15,7 +15,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 
 	/** @var Zend_Service_Amazon_S3 $_api */
 	protected $_api;
-	
+
 	protected $_apiInitialized = false;
 
 	protected $_bucketExists = false;
@@ -41,7 +41,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	 */
 	public function __construct(Zend_Config $config, $path = '/', $keepalive = false) {
 		$this->_setConfigParams($config);
-		
+
 		if ($path) {
 			$this->_config['path'] = $path;
 		}
@@ -72,7 +72,12 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	public function fetch($filename) {
 		// return fopen($this->getUrl($filename), 'r');
 		$this->_initApi();
-		return $this->_api->getObject($this->_config['bucket'].$this->_getUri($filename));
+		$obj = $this->_api->getObject($this->_config['bucket'].$this->_getUri($filename));
+		if ($this->_config['gzip']) {
+			$unpacked = @gzdecode($obj);
+			$obj = false !== $unpacked ? $unpacked : $obj;
+		}
+		return $obj;
 	}
 
 
@@ -98,8 +103,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			return $info['type'];
 		} else throw new Exception("Could not retrieve mime type of {$filename}.");
 	}
-	
-	
+
+
 	public function getSize($filename) {
 		$this->_initApi();
 		$info = $this->_api->getInfo($this->_config['bucket'].$this->_getUri($filename));
@@ -169,7 +174,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			} else {
 				$finfo = new finfo(FILEINFO_MIME);
 				$mime  = $finfo->buffer($data);
-			}				
+			}
 		} else {
 			$finfo = new finfo(FILEINFO_MIME);
 			$mime  = $finfo->buffer($data);
@@ -205,8 +210,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		//	david, 2012-01-30
 		$this->_verifyPath();
 		$p = $this->_config['path'];
-		
-		return 
+
+		return
 			$p
 			.($p[strlen($p)-1] === '/' ? null : '/')
 			.$filename
@@ -232,8 +237,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			}
 		}
 	}
-	
-	
+
+
 	protected function _setConfigParams(Zend_Config $config) {
 		if (!$this->_config) {
 			$this->_validateConfig($config);
@@ -245,8 +250,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			$this->_config['gzip']   = $config->gzip;
 		}
 	}
-	
-	
+
+
 	protected function _initApi() {
 		if (!$this->_apiInitialized) {
 			@ini_set('max_execution_time', self::TIMEOUT);
@@ -257,17 +262,17 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 					$this->_config['secret']
 				);
 			}
-		
+
 			$this->_api->getHttpClient()->setConfig(array(
-				'timeout' => self::TIMEOUT, 
+				'timeout' => self::TIMEOUT,
 				'keepalive' => $this->_config['keepalive']
 			));
-			
+
 			$this->_apiInitialized = true;
 		}
 	}
-	
-	
+
+
 	protected function _verifyPath() {
 		if (!$this->_config['path']) {
 			throw new Exception("There is not path configured, please do this with setPath().");
