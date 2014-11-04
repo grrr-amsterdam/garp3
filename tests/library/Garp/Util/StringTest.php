@@ -5,49 +5,49 @@
 class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testCamelcasedToUnderscored(){
-		$this->assertEquals(Garp_Util_String::camelcasedToUnderscored('SnoopDoggyDog'), 'snoop_doggy_dog');
+		$this->assertEquals('snoop_doggy_dog', Garp_Util_String::camelcasedToUnderscored('SnoopDoggyDog'));
 	}
 
 	public function testCamelcasedToDashed(){
-		$this->assertEquals(Garp_Util_String::camelcasedToDashed('SnoopDoggyDog'), 'snoop-doggy-dog');
+		$this->assertEquals('snoop-doggy-dog', Garp_Util_String::camelcasedToDashed('SnoopDoggyDog'));
 	}
 
 	public function testAcronymsToLowercase() {
-		$this->assertEquals(Garp_Util_String::acronymsToLowercase('SSLBreak and HTMLRequest'), 'SslBreak and HtmlRequest');
-		$this->assertEquals(Garp_Util_String::acronymsToLowercase('DHCPRouter'), 'DhcpRouter');
+		$this->assertEquals('SslBreak and HtmlRequest', Garp_Util_String::acronymsToLowercase('SSLBreak and HTMLRequest'));
+		$this->assertEquals('DhcpRouter', Garp_Util_String::acronymsToLowercase('DHCPRouter'));
 	}
 
 	public function testToDashed() {
-		$this->assertEquals(Garp_Util_String::toDashed('Oriënteren'), 'orienteren');
+		$this->assertEquals('orienteren', Garp_Util_String::toDashed('Oriënteren'));
 
 		//word starts with uppercase letters
-		$this->assertEquals(Garp_Util_String::toDashed('Snoop Doggy Dog!'), 'snoop-doggy-dog');
-		$this->assertEquals(Garp_Util_String::toDashed('Žluťoučký kůň'), 'zlutoucky-kun');
+		$this->assertEquals('snoop-doggy-dog', Garp_Util_String::toDashed('Snoop Doggy Dog!'));
+		$this->assertEquals('zlutoucky-kun', Garp_Util_String::toDashed('Žluťoučký kůň'));
 
 		//word starts with lowercase letters
-		$this->assertEquals(Garp_Util_String::toDashed('snoop doggy dog!'), 'snoop-doggy-dog');
+		$this->assertEquals('snoop-doggy-dog', Garp_Util_String::toDashed('snoop doggy dog!'));
 
 		//punctuation characters
-		$this->assertEquals(Garp_Util_String::toDashed('Snoop! [the: (doggy, \dog.'), 'snoop-the-doggy-dog');
+		$this->assertEquals('snoop-the-doggy-dog', Garp_Util_String::toDashed('Snoop! [the: (doggy, \dog.'));
 		
 		//word contains special caracters
-		$this->assertEquals(Garp_Util_String::toDashed('Snoop Döggy Døg!'), 'snoop-doggy-dog');
+		$this->assertEquals('snoop-doggy-dog', Garp_Util_String::toDashed('Snoop Döggy Døg!'));
 
 		//word contains special caracters and they are disregarded
-		$this->assertEquals(Garp_Util_String::toDashed('Snoop Döggy Døg!', false), 'snoop-d-ggy-d-g');
+		$this->assertEquals('snoop-d-ggy-d-g', Garp_Util_String::toDashed('Snoop Döggy Døg!', false));
 		
 		//word contains with decimals
-		$this->assertEquals(Garp_Util_String::toDashed('th1s 1s m0r3'), 'th1s-1s-m0r3');
+		$this->assertEquals('th1s-1s-m0r3', Garp_Util_String::toDashed('th1s 1s m0r3'));
 		
 		//handling acronyms
-		$this->assertEquals(Garp_Util_String::toDashed('SSLBreak'), 'ssl-break');
-		$this->assertEquals(Garp_Util_String::toDashed('HTTPRequest'), 'http-request');
-		$this->assertEquals(Garp_Util_String::toDashed('aDHCPRouterHandlesHTTPRequests'), 'a-dhcp-router-handles-http-requests');
+		$this->assertEquals('ssl-break', Garp_Util_String::toDashed('SSLBreak'));
+		$this->assertEquals('http-request', Garp_Util_String::toDashed('HTTPRequest'));
+		$this->assertEquals('a-dhcp-router-handles-http-requests', Garp_Util_String::toDashed('aDHCPRouterHandlesHTTPRequests'));
 	}
 	
 	public function testUnderscoredToReadable() {
-		$this->assertEquals(Garp_Util_String::underscoredToReadable('this_is_underscored'), 		'This is underscored');
-		$this->assertEquals(Garp_Util_String::underscoredToReadable('this_is_underscored', false), 	'this is underscored');
+		$this->assertEquals('This is underscored', Garp_Util_String::underscoredToReadable('this_is_underscored'));
+		$this->assertEquals('this is underscored', Garp_Util_String::underscoredToReadable('this_is_underscored', false));
 	}
 
 	public function testUnderscoredToCamelcased() {
@@ -61,12 +61,12 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function testUtf8ToAscii() {
-		$this->assertEquals(Garp_Util_String::utf8ToAscii('Snoop Döggy Døg'), 'Snoop Doggy Dog');
-		$this->assertEquals(Garp_Util_String::utf8ToAscii('Snøøp Düggy Døg'), 'Snoop Duggy Dog');
-		$this->assertEquals(Garp_Util_String::utf8ToAscii('Žluťoučký kůň'), 'Zlutoucky kun');
-		$this->assertEquals(Garp_Util_String::utf8ToAscii('Weiß, Göbel, Göthe, Götz'), 'Weiss, Gobel, Gothe, Gotz');
-		$this->assertEquals(Garp_Util_String::utf8ToAscii('Abū Ja\'far al-Khāzin'), 'Abu Jafar al-Khazin'); //the apostrophy is escaped
-		$this->assertEquals(Garp_Util_String::utf8ToAscii('În fiecare zi Dumnezeu ne sarută pe gură'), 'In fiecare zi Dumnezeu ne saruta pe gura');
+		$this->assertEquals('Snoop Doggy Dog', Garp_Util_String::utf8ToAscii('Snoop Döggy Døg'));
+		$this->assertEquals('Snoop Duggy Dog', Garp_Util_String::utf8ToAscii('Snøøp Düggy Døg'));
+		$this->assertEquals('Zlutoucky kun', Garp_Util_String::utf8ToAscii('Žluťoučký kůň'));
+		$this->assertEquals('Weiss, Gobel, Gothe, Gotz', Garp_Util_String::utf8ToAscii('Weiß, Göbel, Göthe, Götz'));
+		$this->assertEquals('Abu Jafar al-Khazin', Garp_Util_String::utf8ToAscii('Abū Ja\'far al-Khāzin')); //the apostrophy is escaped
+		$this->assertEquals('In fiecare zi Dumnezeu ne saruta pe gura', Garp_Util_String::utf8ToAscii('În fiecare zi Dumnezeu ne sarută pe gură'));
 
 		//This will not work because some of the characters are ignored by the iconv method
 		// $this->assertEquals(Garp_Util_String::utf8ToAscii(
@@ -74,9 +74,9 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 		// 	'AaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaCcCcCcCcCcDdDdDEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeGgGgGgGgHhHhIiIiIiIiIiIiIiIiIiIiIiJjKkLlLlLlLlLlNnNnNnNnOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoPpPpRrRrRrSsSsSsSsTtTtTtUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuWwWwWwWwYyYyYyYyYyYyYyZzZzZz');
 		
 		//testing the json output
-		$this->assertTrue( (bool) json_encode(Garp_Util_String::utf8ToAscii('Snoop Döggy Døg')) );
-		$this->assertTrue( (bool) json_encode(Garp_Util_String::utf8ToAscii('Snøøp Düggy Døg')) );
-		$this->assertTrue( (bool) json_encode(Garp_Util_String::utf8ToAscii('Žluťoučký kůň')) );
+		$this->assertTrue((bool) json_encode(Garp_Util_String::utf8ToAscii('Snoop Döggy Døg')));
+		$this->assertTrue((bool) json_encode(Garp_Util_String::utf8ToAscii('Snøøp Düggy Døg')));
+		$this->assertTrue((bool) json_encode(Garp_Util_String::utf8ToAscii('Žluťoučký kůň')));
 
 		$arrayToTest = array(	'something' =>  'Weiß, Göbel, Göthe, Götz',
 								'weirdChar' => chr(163),
@@ -89,10 +89,11 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 		}
 		$json = json_encode($arrayAscii); 
 		$reverted = json_decode($json);
-		$this->assertFalse( is_null($reverted->something) );
-		$this->assertFalse( is_null($reverted->weirdChar) );
-		$this->assertFalse( is_null($reverted->diacritics) );
-		$this->assertFalse( is_null($reverted->czech) );
+
+		$this->assertFalse(is_null($reverted->something));
+		$this->assertTrue(is_null($reverted->weirdChar));
+		$this->assertFalse(is_null($reverted->diacritics));
+		$this->assertFalse(is_null($reverted->czech));
 	}
 
 	public function testEndsIn() {
@@ -102,8 +103,8 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 	
 	public function testHumanList() {
 		$array = array('apples', 'pears', 'carrots');
-		$this->assertEquals(Garp_Util_String::humanList($array), 'apples, pears and carrots');
-		$this->assertEquals(Garp_Util_String::humanList($array,'|', '>>'), '|apples|, |pears| >> |carrots|');
+		$this->assertEquals('apples, pears and carrots', Garp_Util_String::humanList($array));
+		$this->assertEquals('|apples|, |pears| >> |carrots|', Garp_Util_String::humanList($array,'|', '>>'));
 	}
 
 	
