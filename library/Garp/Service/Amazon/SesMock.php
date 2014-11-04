@@ -14,4 +14,8 @@ class Garp_Service_Amazon_SesMock extends Garp_Service_Amazon_Ses {
 		return static::$_requests;
 	}
 
+	public static function clearRequests() {
+		static::$_requests = array();
+	}
+
 }
