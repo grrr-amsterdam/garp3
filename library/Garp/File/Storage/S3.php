@@ -75,7 +75,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		$obj = $this->_api->getObject($this->_config['bucket'].$this->_getUri($filename));
 		if ($this->_config['gzip']) {
 			$unpacked = @gzdecode($obj);
-			$obj = false !== $unpacked ? $unpacked : $obj;
+			$obj = null !== $unpacked ? $unpacked : $obj;
 		}
 		return $obj;
 	}
