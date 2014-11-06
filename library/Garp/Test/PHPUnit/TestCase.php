@@ -14,6 +14,12 @@ abstract class Garp_Test_PHPUnit_TestCase extends PHPUnit_Framework_TestCase {
 	/** @var Garp_Test_PHPUnit_Helper */
 	protected $_helper;
 
+	/**
+ 	 * Fixtures
+ 	 * @var Array
+ 	 */
+	protected $_mockData = array();
+
 	public function __construct() {
 		$this->_helper = new Garp_Test_PHPUnit_Helper();
 		parent::__construct();

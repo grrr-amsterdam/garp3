@@ -12,29 +12,14 @@
  * @group        Auth
  */
 class Garp_AuthTest extends Garp_Test_PHPUnit_TestCase {
-	/**
- 	 * @var Garp_Auth
- 	 */
-	protected $_auth;
-
-	public function setUp() {
-		parent::setUp();
-		$this->_auth = Garp_Auth::getInstance();
-		$this->_auth->setStore(new Garp_Store_Array('Garp_Auth'));
-		// empty store by default
-		$this->_auth->destroy();
-	}
-
-	public function tearDown() {
-		$this->_auth->destroy();
-	}
 
 	public function testIsNotLoggedIn() {
-		$this->assertEquals(false, $this->_auth->isLoggedIn());
+		$this->assertEquals(false, Garp_Auth::getInstance()->isLoggedIn());
 	}
 
 	public function testIsLoggedIn() {
-		$this->_auth->store(array('id' => 1, 'email' => 'harmen@grrr.nl'));
-		$this->assertEquals(true, $this->_auth->isLoggedIn());
+		$this->_helper->login(array('id' => 1, 'email' => 'harmen@grrr.nl'));
+		$this->assertEquals(true, Garp_Auth::getInstance()->isLoggedIn());
 	}
+
 }
