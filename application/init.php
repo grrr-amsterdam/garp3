@@ -225,6 +225,9 @@ function __($str) {
  * @return Object
  */
 function instance($obj) {
+	if (is_string($obj)) {
+		$obj = new $obj;
+	}
 	return $obj;
 }
 
