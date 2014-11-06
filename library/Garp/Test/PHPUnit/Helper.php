@@ -11,10 +11,14 @@ class Garp_Test_PHPUnit_Helper {
 	/**
  	 * setUp and tearDown are called by Garp_Test_PHPUnit_TestCase and
  	 * Garp_Test_PHPUnit_ControllerTestCase.
+ 	 * First they reset the global state as much as possible.
  	 */
-	public function setUp(array $mockData) {
-		Garp_Auth::getInstance()->setStore(new Garp_Store_Array('Garp_Auth'));
+	public function setUp(array &$mockData) {
+		Garp_Auth::getInstance()
+			->setStore(new Garp_Store_Array('Garp_Auth'))
+			->destroy();
 		Garp_Cache_Manager::purge();
+		Garp_Model_Db_BindingManager::destroyAllBindings();
 
 		$this->_insertMockData($mockData);
 	}
@@ -23,18 +27,17 @@ class Garp_Test_PHPUnit_Helper {
 		$this->_truncate($mockData);
 	}
 
-	protected function _insertMockData(array $mockData) {
-		foreach ($mockData as $datatype => $mockData) {
-			$i18n = isset($mockData['i18n']) && $mockData['i18n'];
-			unset($mockData['i18n']);
-			foreach ($mockData as $i => $data) {
+	protected function _insertMockData(array &$mockData) {
+		foreach ($mockData as $datatype => $data) {
+			$i18n = isset($data['i18n']) && $data['i18n'];
+			unset($data['i18n']);
+			foreach ($data as $i => $data) {
 				$readModel = instance('Model_' . $datatype);
 				if ($i18n) {
 					$readModel = instance(new Garp_I18n_ModelFactory)->getModel($readModel);
 				}
-				$primaryKey = instance('Model_' . $datatype)->insert($data);
-				$this->_mockData[$datatype][$i] = call_user_func_array(array($readModel, 'find'),
-					(array)$primaryKey)->toArray();
+				$primary = instance('Model_' . $datatype)->insert($data);
+				$mockData[$datatype][$i] = $this->_fetchFreshData($readModel, $primary)->toArray();
 			}
 		}
 	}
@@ -45,6 +48,17 @@ class Garp_Test_PHPUnit_Helper {
 			$model->getAdapter()->query('SET foreign_key_checks=0;');
 			$model->getAdapter()->query('TRUNCATE TABLE ' . $model->getName());
 		}
+	}
+
+	protected function _fetchFreshData($model, $primaryKey) {
+		if (!is_array($primaryKey)) {
+			return $model->find($primaryKey)->current();
+		}
+		$select = $model->select();
+		foreach ($primaryKey as $column => $value) {
+			$select->where("{$column} = ?", $value);
+		}
+		return $model->fetchRow($select);
 	}
 
 	/**

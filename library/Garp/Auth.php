@@ -176,6 +176,7 @@ class Garp_Auth {
 		$this->_store->userData = $data;
 		$this->_store->method = $method;
  	 	$this->_store->token = $token;
+		return $this;
 	}
 
 	/**

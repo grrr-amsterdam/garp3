@@ -16,22 +16,19 @@ class Garp_Model_Db_BindingManager {
 	 * @var Int
 	 */
 	const MAX_BINDING_RECURSION = 3;
-	
-	
+
 	/**
 	 * Stored bindings
 	 * @var Array
 	 */
 	protected static $_bindings = array();
-	
-	
+
 	/**
 	 * Stored recursion levels.
 	 * @var Array
 	 */
 	protected static $_recursion = array();
-	
-	
+
 	/**
 	 * Store a binding between models.
 	 * @param String $subjectModel
@@ -39,11 +36,10 @@ class Garp_Model_Db_BindingManager {
 	 * @param Garp_Util_Configuration $options
 	 * @return Void
 	 */
-	public static function storeBinding($subjectModel, $alias, Garp_Util_Configuration $options = null) {		
+	public static function storeBinding($subjectModel, $alias, Garp_Util_Configuration $options = null) {
 		static::$_bindings[$subjectModel][$alias] = self::_setRelationDefaultOptions($alias, $options);
 	}
-	
-	
+
 	/**
 	 * Remove a binding between models.
 	 * @param String $subjectModel
@@ -58,12 +54,20 @@ class Garp_Model_Db_BindingManager {
 		}
 		self::resetRecursion($subjectModel);
 	}
-	
-	
+
+	/**
+ 	 * Destroy all bindings of all models
+ 	 * @return Void
+ 	 */
+	public static function destroyAllBindings() {
+		static::$_bindings = array();
+		static::$_recursion = array();
+	}
+
 	/**
 	 * Get all bindings to a certain model
 	 * @param String $subjectModel
-	 * @return Array 
+	 * @return Array
 	 */
 	public static function getBindings($subjectModel = null) {
 		if (is_null($subjectModel)) {
@@ -71,12 +75,11 @@ class Garp_Model_Db_BindingManager {
 		}
 		return !empty(static::$_bindings[$subjectModel]) ? static::$_bindings[$subjectModel] : array();
 	}
-	
-	
+
 	/**
 	 * Register a fetch. The goal of this is to keep track of recursion.
 	 * For instance; when Model_Post fetches Model_Comment, recursion = 1.
-	 * Then Model_Comment fetches Model_Post again. 
+	 * Then Model_Comment fetches Model_Post again.
 	 * This triggers another fetch from Model_Post -> Model_Comment. Recursion is now 2.
 	 * And so on and so forth until eternity. Or until self::MAX_BINDING_RECURSION is reached.
 	 * Recursion is recorded as a string, namely "$subjectModel.$alias".
@@ -92,8 +95,7 @@ class Garp_Model_Db_BindingManager {
 			static::$_recursion[$key] += 1;
 		}
 	}
-	
-	
+
 	/**
 	 * Return recursion level for two models
 	 * @param String $subjectModel
@@ -104,11 +106,10 @@ class Garp_Model_Db_BindingManager {
 		$key = self::getStoreKey($subjectModel, $alias);
 		return !array_key_exists($key, static::$_recursion) ? 0 : static::$_recursion[$key];
 	}
-	
-	
+
 	/**
 	 * Reset recursion level for a binding to 0.
-	 * If $alias is not given, all recursion associated with 
+	 * If $alias is not given, all recursion associated with
 	 * $subjectModel will be reset.
 	 * @param String $subjectModel
 	 * @param String $alias
@@ -118,24 +119,23 @@ class Garp_Model_Db_BindingManager {
 		if ($alias) {
 			$key = self::getStoreKey($subjectModel, $alias);
 			unset(static::$_recursion[$key]);
-		} else {
-			$_store = array();
-			foreach (static::$_recursion as $key => $value) {
-				$keyBits = explode('.', $key);
-				// Strip off the integer from the end in the case of homophyllic relationships.
-				array_walk($keyBits, function(&$kb) {
-					$kb = preg_replace('/\d$/', '', $kb);
-				});
-
-				if (!in_array($subjectModel, $keyBits)) {
-					$_store[$key] = $value;
-				}
-			}
-			static::$_recursion = $_store;
+			return;
 		}
+		$_store = array();
+		foreach (static::$_recursion as $key => $value) {
+			$keyBits = explode('.', $key);
+			// Strip off the integer from the end in the case of homophyllic relationships.
+			array_walk($keyBits, function(&$kb) {
+				$kb = preg_replace('/\d$/', '', $kb);
+			});
+
+			if (!in_array($subjectModel, $keyBits)) {
+				$_store[$key] = $value;
+			}
+		}
+		static::$_recursion = $_store;
 	}
-	
-	
+
 	/**
 	 * Check if a subject model is still allowed to query the bound model.
 	 * This is determined by the recursion level stored in self::$_recursion.
@@ -146,8 +146,7 @@ class Garp_Model_Db_BindingManager {
 	public static function isAllowedFetch($subjectModel, $alias) {
 		return self::getRecursion($subjectModel, $alias) < self::MAX_BINDING_RECURSION;
 	}
-	
-	
+
 	/**
 	 * Make sure relation options (passed to self::bindModel()) contain
 	 * certain default values.
@@ -165,8 +164,7 @@ class Garp_Model_Db_BindingManager {
 				;
 		return $options;
 	}
-	
-	
+
 	/**
 	 * Create a key by which a binding gets stored.
 	 * @param String $subjectModel
@@ -183,7 +181,6 @@ class Garp_Model_Db_BindingManager {
 		$key = implode('.', $models);
 		return $key;
 	}
-
 
 	/**
  	 * Generate a binding tree of sorts.
