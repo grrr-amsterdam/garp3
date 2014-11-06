@@ -89,7 +89,7 @@ class Garp_Util_String {
 			return $string;
 		}
 
-		if (self::seemsUtf8($string) || 10 > 3) {
+		if (self::seemsUtf8($string)) {
 			$chars = array(
 			// Decompositions for Latin-1 Supplement
 			chr(194).chr(170) => 'a', chr(194).chr(186) => 'o',
