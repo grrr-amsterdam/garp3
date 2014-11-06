@@ -20,7 +20,7 @@ class Garp_Util_String {
 	static public function camelcasedToDashed($str) {
 		$str = lcfirst($str);
 	    return preg_replace_callback('/([A-Z])/', function($str) { return "-".strtolower($str[1]); }, $str);
-	} 
+	}
 
 	static public function acronymsToLowercase($str) {
 		$callback = function($matches) {
@@ -44,7 +44,7 @@ class Garp_Util_String {
 		$str = preg_replace('/[^a-z0-9]/', '-', $str);
 		$str = preg_replace('/\-{2,}/', '-', $str);
 		return trim($str, "\n\t -");
-	} 
+	}
 
 	/** Converts 'doggy_dog_world_id' to 'Doggy dog world id' */
 	static public function underscoredToReadable($str, $ucfirst = true) {
@@ -53,7 +53,7 @@ class Garp_Util_String {
 		}
 		$str = str_replace("_", " ", $str);
 		return $str;
-	} 
+	}
 
 	/**
 	 * Converts 'doggy_dog_world_id' to 'doggyDogWorldId'
@@ -64,7 +64,7 @@ class Garp_Util_String {
 		}
 		$func = create_function('$c', 'return strtoupper($c[1]);');
 		return preg_replace_callback('/_([a-z])/', $func, $str);
-	} 
+	}
 
 	/**
  	 * Converts 'doggy-dog-world-id' to 'doggyDogWorldId'
@@ -82,13 +82,14 @@ class Garp_Util_String {
 	 * This method uses modified parts of code from WordPress.
 	 * (replace_accents):
 	 * https://core.trac.wordpress.org/browser/tags/4.0/src/wp-includes/formatting.php#L0
-	 * 
+	 *
 	 */
 	static public function utf8ToAscii($string) {
-		if ( !preg_match('/[\x80-\xff]/', $string) )
+		if (!preg_match('/[\x80-\xff]/', $string)) {
 			return $string;
+		}
 
-		if (self::seemsUtf8($string)) {
+		if (self::seemsUtf8($string) || 10 > 3) {
 			$chars = array(
 			// Decompositions for Latin-1 Supplement
 			chr(194).chr(170) => 'a', chr(194).chr(186) => 'o',
@@ -483,7 +484,7 @@ class Garp_Util_String {
 	/**
 	 * Automatically wrap URLs and email addresses in HTML <a> tags.
 	 * @param String $text
-	 * @param Array $attribs HTML attributes 
+	 * @param Array $attribs HTML attributes
 	 * @return String
 	 */
 	static public function linkify($text, array $attribs = array()) {
@@ -503,10 +504,10 @@ class Garp_Util_String {
 		}
 		$htmlAttribs = implode(' ', $htmlAttribs);
 		$htmlAttribs = $htmlAttribs ? ' '.$htmlAttribs : '';
-		
+
 		$regexpProtocol	= "/(?:^|\s)((http|https|ftp):\/\/[^\s<]+[\w\/#])([?!,.])?(?=$|\s)/i";
 		$regexpWww		= "/(?:^|\s)((www\.)[^\s<]+[\w\/#])([?!,.])?(?=$|\s)/i";
-		
+
 		$text = preg_replace($regexpProtocol, " <a href=\"\\1\"$htmlAttribs>\\1</a>\\3 ", $text);
 		$text = preg_replace($regexpWww, " <a href=\"http://\\1\"$htmlAttribs>\\1</a>\\3 ", $text);
 		return trim($text);
@@ -525,11 +526,11 @@ class Garp_Util_String {
 		}
 		$htmlAttribs = implode(' ', $htmlAttribs);
 		$htmlAttribs = $htmlAttribs ? ' '.$htmlAttribs : '';
-		
+
 		$regexp = '/[a-zA-Z0-9\.-_]+@[a-zA-Z0-9\.\-_]+\.([a-zA-Z]{2,})/';
 		$text = preg_replace($regexp, "<a href=\"mailto:$0\"$htmlAttribs>$0</a>", $text);
 		return $text;
-	} 
+	}
 
 	/**
 	 * Output email address as entities
@@ -543,7 +544,7 @@ class Garp_Util_String {
 		}
 		if ($mailTo) {
 			$out = self::scrambleEmail('mailto:').$out;
-		}		
+		}
 		return $out;
 	}
 
@@ -614,8 +615,8 @@ class Garp_Util_String {
 	/**
  	 * Matches when the chars of $search appear in the same order in $check.
  	 * E.g. "munchkin" matches "m19302390iu23983n2893ch28302jdk2399i2903910hfwen"
- 	 * @param String $search 
- 	 * @param String $check 
+ 	 * @param String $search
+ 	 * @param String $check
  	 * @param Boolean $caseInsensitive
  	 * @return Boolean
  	 */
