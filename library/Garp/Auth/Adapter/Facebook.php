@@ -11,8 +11,8 @@
  */
 class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 	protected $_configKey = 'facebook';
-	
-	
+
+
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
@@ -21,10 +21,10 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 	public function authenticate(Zend_Controller_Request_Abstract $request) {
 		$facebook = $this->_getFacebookClient();
 		$authVars = $this->_getAuthVars();
-		
+
 		/**
 		 * Send the user to Facebook to login and give us access.
-		 * This happens when the form on the login page gets posted. 
+		 * This happens when the form on the login page gets posted.
 		 * Then this request will be made one more time; when the user comes back from Facebook.
 		 * At that point he might has given us access, which is
 		 * checked in the try {...} catch(){...} block below.
@@ -38,7 +38,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 			)));
 			exit;
 		}
-		
+
 		// Session based API call.
 		try {
 			$userData = $facebook->login(!!$authVars->grabUserImage);
@@ -60,13 +60,17 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 			$this->_addError($e->getMessage());
 			return false;
 		} catch (Exception $e) {
-			throw $e;
+			if (strpos($e->getMessage(), 'Duplicate entry') !== false &&
+				strpos($e->getMessage(), 'email_unique') !== false) {
+				$this->_addError(__('this email address already exists'));
+				return false;
+			}
 			$this->_addError(__('login error'));
 			return false;
 		}
 	}
-	
-	
+
+
 	/**
 	 * Store the user's profile data in the database, if it doesn't exist yet.
 	 * @param Array $facebookData The profile data received from Facebook
@@ -104,8 +108,8 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		}
 		return $userData;
 	}
-	
-	
+
+
 	/**
 	 * Load Facebook's own client
 	 * @return Facebook
