@@ -75,9 +75,9 @@ abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_Co
 		)));
 	    $this->dispatch($url);
 
-	    $this->assertController($params['controller']);
-		$this->assertAction($params['action']);
-	    $this->assertModule($params['module']);
+	    $this->assertController($controller);
+		$this->assertAction($action);
+	    $this->assertModule($module);
 	}
 
 	public function getDatabaseAdapter() {
