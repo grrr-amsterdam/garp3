@@ -60,8 +60,12 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals(Garp_Util_String::dashedToCamelcased('this-is-dashed', true), 	'ThisIsDashed');
 	}
 
-	public function testShouldConvertToPoundSign() {
-		$this->assertEquals('£', Garp_Util_String::utf8ToAscii(chr(163)));
+	public function testJa() {
+		$this->assertEquals('L', strtr(chr(163), chr(163), 'L'));
+		$this->assertEquals('Hallo David', strtr('Welkom Harmen', array(
+			'Harmen' => 'David',
+			'Welkom' => 'Hallo'
+		)));
 	}
 
 	public function testUtf8ToAscii() {
@@ -72,10 +76,7 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals('Abu Jafar al-Khazin', Garp_Util_String::utf8ToAscii('Abū Ja\'far al-Khāzin')); //the apostrophy is escaped
 		$this->assertEquals('In fiecare zi Dumnezeu ne saruta pe gura', Garp_Util_String::utf8ToAscii('În fiecare zi Dumnezeu ne sarută pe gură'));
 
-		//This will not work because some of the characters are ignored by the iconv method
-		// $this->assertEquals(Garp_Util_String::utf8ToAscii(
-		// 	'ÁáÀàÂâǍǎĂăÃãẢảẠạÄäÅåĀāĄąẤấẦầẪẫẨẩẬậẮắẰằẴẵẲẳẶặǺǻĆćĈĉČčĊċÇçĎďĐđÐÉéÈèÊêĚěĔĕẼẽẺẻĖėËëĒēĘęẾếỀềỄễỂểẸẹỆệĞğĜĝĠġĢģĤĥĦħÍíÌìĬĭÎîǏǐÏïĨĩĮįĪīỈỉỊịĴĵĶķĹĺĽľĻļŁłĿŀŃńŇňÑñŅņÓóÒòŎŏÔôỐốỒồỖỗỔổǑǒÖöŐőÕõØøǾǿŌōỎỏƠơỚớỜờỠỡỞởỢợỌọỘộṔṕṖṗŔŕŘřŖŗŚśŜŝŠšŞşŤťŢţŦŧÚúÙùŬŭÛûǓǔŮůÜüǗǘǛǜǙǚǕǖŰűŨũŲųŪūỦủƯưỨứỪừỮữỬửỰựỤụẂẃẀẁŴŵẄẅÝýỲỳŶŷŸÿỸỹỶỷỴỵŹźŽžŻż'),
-		// 	'AaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaCcCcCcCcCcDdDdDEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeEeGgGgGgGgHhHhIiIiIiIiIiIiIiIiIiIiIiJjKkLlLlLlLlLlNnNnNnNnOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoPpPpRrRrRrSsSsSsSsTtTtTtUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuUuWwWwWwWwYyYyYyYyYyYyYyZzZzZz');
+		$this->assertEquals('oe', Garp_Util_String::utf8ToAscii(chr(156)));
 
 		//testing the json output
 		$this->assertTrue((bool) json_encode(Garp_Util_String::utf8ToAscii('Snoop Döggy Døg')));
@@ -84,7 +85,7 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
 
 		$arrayToTest = array(
 			'something' =>  'Weiß, Göbel, Göthe, Götz',
-			'weirdChar' => chr(163),
+			'weirdChar' => 'ॐ✡❀✿☃',
 			'diacritics' => 'ÁáÀàÂâǍǎĂăÃãẢảẠạÄäÅåĀāĄąẤấẦầẪẫẨẩẬậẮắẰằẴẵẲẳẶặǺǻĆćĈĉČčĊċÇçĎďĐđÐÉéÈèÊêĚěĔĕẼẽẺẻĖėËëĒēĘęẾếỀềỄễỂểẸẹỆệĞğĜĝĠġĢģĤĥĦħÍíÌìĬĭÎîǏǐÏïĨĩĮįĪīỈỉỊịĴĵĶķĹĺĽľĻļŁłĿŀŃńŇňÑñŅņÓóÒòŎŏÔôỐốỒồỖỗỔổǑǒÖöŐőÕõØøǾǿŌōỎỏƠơỚớỜờỠỡỞởỢợỌọỘộṔṕṖṗŔŕŘřŖŗŚśŜŝŠšŞşŤťŢţŦŧÚúÙùŬŭÛûǓǔŮůÜüǗǘǛǜǙǚǕǖŰűŨũŲųŪūỦủƯưỨứỪừỮữỬửỰựỤụẂẃẀẁŴŵẄẅÝýỲỳŶŷŸÿỸỹỶỷỴỵŹźŽžŻż',
 			'czech' => 'Žluťoučký kůň'
 		);
