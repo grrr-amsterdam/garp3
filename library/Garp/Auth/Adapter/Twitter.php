@@ -2,7 +2,7 @@
 /**
  * Garp_Auth_Adapter_Twitter
  * Authenticate using Twitter. Uses Zend_OAuth
- * 
+ *
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -17,7 +17,7 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 	 */
 	protected $_configKey = 'twitter';
 
-	
+
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
@@ -44,28 +44,33 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 				$cookie->writeCookie();
 				$consumer->redirect();
 				return true;
-			} 
+			}
 			$cookie = new Garp_Store_Cookie('Twitter_request_token');
 			if ($request->getParam('oauth_token') && isset($cookie->token)) {
 				$accesstoken = $consumer->getAccessToken($_GET, unserialize($cookie->token));
 				// Discard request token
 				$cookie->destroy();
 				return $this->_getUserData(
-					$this->_getTwitterService($accesstoken, $authVars->consumerKey, $authVars->consumerSecret), 
+					$this->_getTwitterService($accesstoken, $authVars->consumerKey, $authVars->consumerSecret),
 					$accesstoken->getParam('user_id')
 				);
-			} 
+			}
 
 			$this->_addError('App was not authorized. Please try again.');
 			return false;
 		} catch (Exception $e) {
+			if (strpos($e->getMessage(), 'Duplicate entry') !== false &&
+				strpos($e->getMessage(), 'email_unique') !== false) {
+				$this->_addError(__('this email address already exists'));
+				return false;
+			}
 			// Provide generic error message
 			$this->_addError(__('login error'));
 		}
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * Store the user's profile data in the database, if it doesn't exist yet.
 	 * @param Zend_Oauth_Token_Access $accesstoken

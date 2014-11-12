@@ -1,7 +1,7 @@
 <?php
 /**
  * Garp_Cli_Command
- * Blueprint for command line commands (usually triggered 
+ * Blueprint for command line commands (usually triggered
  * from /garp/scripts/garp.php).
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -88,7 +88,7 @@ abstract class Garp_Cli_Command {
 	 * [1] => replace
 	 * [2] => monkeys
 	 * [3] => hippos
-	 * 
+	 *
 	 * When this abstract class passes along the call to a specific command, in this case
 	 * Garp_Cli_Command_Db::replace(), it's better to start the array at index 0 being "monkeys".
 	 *
@@ -111,7 +111,7 @@ abstract class Garp_Cli_Command {
 	}
 
 	/**
- 	 * Make sure the method is not inadvertently called with the 
+ 	 * Make sure the method is not inadvertently called with the
  	 * wrong arguments. This might indicate the user made a mistake
  	 * in calling it.
  	 * @param String $methodName
@@ -129,7 +129,7 @@ abstract class Garp_Cli_Command {
 			return true;
 		}
 		// Report the first erroneous argument
-		$errorStr = $unknownArgs[0];
+		$errorStr = current($unknownArgs);
 		// Show the value of the argument if the index is numeric
 		if (is_numeric($errorStr)) {
 			$errorStr = $args[$unknownArgs[0]];
