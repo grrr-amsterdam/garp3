@@ -10,7 +10,7 @@
  */
 class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 	/**
- 	 * Queue of chapters. These are queued beforeSave, 
+ 	 * Queue of chapters. These are queued beforeSave,
  	 * and popped from the queue afterSave.
  	 * @var Array
  	 */
@@ -47,20 +47,48 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 		));
 
 		$chapterModel = new Model_Chapter();
+		$contentNodeModel = new Model_ContentNode();
 		$chapterModel->bindModel('content', array(
-			'modelClass' => 'Model_ContentNode'
+			'modelClass' => $contentNodeModel
 		));
 
-		$contentNodeModel = new Model_ContentNode();
 		foreach ($this->_config['contentTypes'] as $chapterType) {
-			$contentNodeModel->bindModel($chapterType);
+			$chapterAlias = $this->_extractChapterAlias($chapterType);
+			$options = $this->_extractBindOptions($chapterType, $contentNodeModel);
+			$contentNodeModel->bindModel($chapterAlias, $options);
 		}
-	}	
+	}
 
+	protected function _extractChapterAlias($chapterType) {
+		if (is_string($chapterType)) {
+			return $chapterType;
+		}
+		if (!isset($chapterType['model'])) {
+			throw new Exception('Required key "model" not found');
+		}
+		return $chapterType['model'];
+	}
+
+	protected function _extractBindOptions($chapterType, $model) {
+		if (is_string($chapterType)) {
+			return array();
+		}
+		$out = array();
+		if (isset($chapterType['i18n']) && $chapterType['i18n']) {
+			if (!isset($chapterType['model'])) {
+				throw new Exception('Required key "model" not found');
+			}
+			$out['modelClass'] = instance(new Garp_I18n_ModelFactory())->getModel($chapterType['model']);
+			// Make sure the localised relation exists in the referenceMap
+			$localiser = new Garp_Model_ReferenceMapLocalizer($model);
+			$localiser->populate('Model_' . $chapterType['model']);
+		}
+		return $out;
+	}
 
 	/**
  	 * An article is nothing without its Chapters. Before every fetch
- 	 * we make sure the chapters are fetched right along, at least in 
+ 	 * we make sure the chapters are fetched right along, at least in
  	 * the CMS.
  	 * @param Array $args Event listener parameters
  	 * @return Void
@@ -244,7 +272,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 
 			/**
  			 * Insert a new chapter.
- 			 * The chapter will take care of storing and relating the 
+ 			 * The chapter will take care of storing and relating the
  			 * content nodes.
  			 */
 			$chapterModel = new Model_Chapter();
@@ -252,7 +280,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 				'type'    => $chapterData['type'],
 				'content' => $chapterData['content'],
 			));
-			
+
 			Garp_Content_Relation_Manager::relate(array(
 				'modelA' => $model,
 				'modelB' => 'Model_Chapter',
