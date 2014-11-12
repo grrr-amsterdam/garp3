@@ -298,6 +298,9 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 			if (!isset($chapterType['model'])) {
 				throw new Exception('Required key "model" not found');
 			}
+			if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
+				return array('modelClass' => 'Model_' . $chapterType['model']);
+			}
 			$out['modelClass'] = instance(new Garp_I18n_ModelFactory())->getModel($chapterType['model']);
 			// Make sure the localised relation exists in the referenceMap
 			$localiser = new Garp_Model_ReferenceMapLocalizer($model);
