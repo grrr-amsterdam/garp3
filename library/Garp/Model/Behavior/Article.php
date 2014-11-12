@@ -42,10 +42,6 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
  	 * @return Void
  	 */
 	public function bindWithChapters(Garp_Model_Db &$model) {
-		$model->bindModel('chapters', array(
-			'modelClass' => 'Model_Chapter'
-		));
-
 		$chapterModel = new Model_Chapter();
 		$contentNodeModel = new Model_ContentNode();
 		$chapterModel->bindModel('content', array(
@@ -53,37 +49,14 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 		));
 
 		foreach ($this->_config['contentTypes'] as $chapterType) {
-			$chapterAlias = $this->_extractChapterAlias($chapterType);
-			$options = $this->_extractBindOptions($chapterType, $contentNodeModel);
+			$chapterAlias = $this->_extractContentTypeAlias($chapterType);
+			$options = $this->_extractContentTypeBindOptions($chapterType, $contentNodeModel);
 			$contentNodeModel->bindModel($chapterAlias, $options);
 		}
-	}
 
-	protected function _extractChapterAlias($chapterType) {
-		if (is_string($chapterType)) {
-			return $chapterType;
-		}
-		if (!isset($chapterType['model'])) {
-			throw new Exception('Required key "model" not found');
-		}
-		return $chapterType['model'];
-	}
-
-	protected function _extractBindOptions($chapterType, $model) {
-		if (is_string($chapterType)) {
-			return array();
-		}
-		$out = array();
-		if (isset($chapterType['i18n']) && $chapterType['i18n']) {
-			if (!isset($chapterType['model'])) {
-				throw new Exception('Required key "model" not found');
-			}
-			$out['modelClass'] = instance(new Garp_I18n_ModelFactory())->getModel($chapterType['model']);
-			// Make sure the localised relation exists in the referenceMap
-			$localiser = new Garp_Model_ReferenceMapLocalizer($model);
-			$localiser->populate('Model_' . $chapterType['model']);
-		}
-		return $out;
+		$model->bindModel('chapters', array(
+			'modelClass' => $chapterModel
+		));
 	}
 
 	/**
@@ -234,6 +207,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 		$contentTypes = $this->_config['contentTypes'];
 		$contentNode = array();
 		foreach ($contentTypes as $contentType) {
+			$contentType = $this->_extractContentTypeAlias($contentType);
 			if ($contentNodeRow[$contentType]) {
 				$modelName = explode('_', $contentType);
 				$modelName = array_pop($modelName);
@@ -304,4 +278,32 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 		;
 		return $chapterData;
 	}
+
+	protected function _extractContentTypeAlias($chapterType) {
+		if (is_string($chapterType)) {
+			return $chapterType;
+		}
+		if (!isset($chapterType['model'])) {
+			throw new Exception('Required key "model" not found');
+		}
+		return $chapterType['model'];
+	}
+
+	protected function _extractContentTypeBindOptions($chapterType, $model) {
+		if (is_string($chapterType)) {
+			return array('modelClass' => 'Model_' . $chapterType);
+		}
+		$out = array();
+		if (isset($chapterType['i18n']) && $chapterType['i18n']) {
+			if (!isset($chapterType['model'])) {
+				throw new Exception('Required key "model" not found');
+			}
+			$out['modelClass'] = instance(new Garp_I18n_ModelFactory())->getModel($chapterType['model']);
+			// Make sure the localised relation exists in the referenceMap
+			$localiser = new Garp_Model_ReferenceMapLocalizer($model);
+			$localiser->populate('Model_' . $chapterType['model']);
+		}
+		return $out;
+	}
+
 }
