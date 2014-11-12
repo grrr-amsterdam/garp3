@@ -26,7 +26,7 @@ class G_AuthController extends Garp_Controller_Action {
 	public function registerAction() {
 		$this->view->title = __('register page title');
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
-		
+
 		if ($this->getRequest()->isPost()) {
 			$errors = array();
 			$postData = $this->getRequest()->getPost();
@@ -90,7 +90,7 @@ class G_AuthController extends Garp_Controller_Action {
 					} else {
 						throw $e;
 					}
-				// Validation errors should be safe to show to the user (note: translation 
+				// Validation errors should be safe to show to the user (note: translation
 				// must be done in the validator itself)
 				} catch (Garp_Model_Validator_Exception $e) {
 					$errors[] = $e->getMessage();
@@ -113,14 +113,14 @@ class G_AuthController extends Garp_Controller_Action {
 	 * Show a login page.
 	 * Note that $this->processAction does the actual logging in.
 	 * This separation is useful because some 3rd parties send back
-	 * GET variables instead of POST. This way we don't need to 
+	 * GET variables instead of POST. This way we don't need to
 	 * worry about that here.
 	 * @return Void
 	 */
 	public function loginAction() {
 		$this->view->title = __('login page title');
 		$this->view->description = __('login page description');
-		
+
 		// allow callers to set a targetUrl via the request
 		if ($this->getRequest()->getParam('targetUrl')) {
 			$targetUrl = $this->getRequest()->getParam('targetUrl');
@@ -138,7 +138,7 @@ class G_AuthController extends Garp_Controller_Action {
 	}
 
 	/**
-	 * Process the login request. @see G_AuthController::loginAction as to 
+	 * Process the login request. @see G_AuthController::loginAction as to
 	 * why this is separate.
 	 * @return Void
 	 */
@@ -157,58 +157,58 @@ class G_AuthController extends Garp_Controller_Action {
 		 * The implementing adapter should decide which to use,
 		 * using the current request to fetch params.
 		 */
-		if ($userData = $adapter->authenticate($this->getRequest())) {
-			if ($userData instanceof Garp_Db_Table_Row) {
-				$userData = $userData->toArray();
-			}
-			
-			// Save user data in a store.
-			Garp_Auth::getInstance()->store($userData, $method);
-
-			// Store User role in a cookie, so that we can use it with Javascript.
-			if (!Garp_Auth::getInstance()->getStore() instanceof Garp_Store_Cookie) {
-				$this->_storeRoleInCookie();
-			}
-
-			// Determine targetUrl. This is the URL the user was trying to access before logging in, or a default URL.
-			$router = Zend_Controller_Front::getInstance()->getRouter();
-			if (!empty($authVars['login']['successRoute'])) {
-				$targetUrl = $router->assemble(array(), $authVars['login']['successRoute']);
-			} elseif (!empty($authVars['login']['successUrl'])) {
-				$targetUrl = $authVars['login']['successUrl'];
-			} else {
-				$targetUrl = '/';
-			}
-			$store = Garp_Auth::getInstance()->getStore();
-			if ($store->targetUrl) {
-				$targetUrl = $store->targetUrl;
-				unset($store->targetUrl);
-			}
-
-			// After login hook.
-			$this->_afterLogin($userData, $targetUrl);
-
-			// Set a Flash message welcoming the user.
-			$flashMessenger = $this->_helper->getHelper('FlashMessenger');
-			$fullName = new Garp_Util_FullName($userData);
-			$successMsg = __($authVars['login']['successMessage']);
-			if (strpos($successMsg, '%s') !== false) {
-				$successMsg = sprintf($successMsg, $fullName);
-			} elseif (strpos('%USERNAME%', $successMsg) !== false) {
-				$successMsg = Garp_Util_String::interpolate($successMsg, array(
-					'USERNAME' => $fullName
-				));
-			}
-			$flashMessenger->addMessage($successMsg);
-			$this->_redirect($targetUrl);
-			exit;
-		} else {
+		if (!$userData = $adapter->authenticate($this->getRequest())) {
 			// Show the login page again.
 			$request = clone $this->getRequest();
 			$request->setActionName('login')
 				->setParam('errors', $adapter->getErrors());
 			$this->_helper->actionStack($request);
+			return;
 		}
+
+		if ($userData instanceof Garp_Db_Table_Row) {
+			$userData = $userData->toArray();
+		}
+
+		// Save user data in a store.
+		Garp_Auth::getInstance()->store($userData, $method);
+
+		// Store User role in a cookie, so that we can use it with Javascript.
+		if (!Garp_Auth::getInstance()->getStore() instanceof Garp_Store_Cookie) {
+			$this->_storeRoleInCookie();
+		}
+
+		// Determine targetUrl. This is the URL the user was trying to access before logging in, or a default URL.
+		$router = Zend_Controller_Front::getInstance()->getRouter();
+		if (!empty($authVars['login']['successRoute'])) {
+			$targetUrl = $router->assemble(array(), $authVars['login']['successRoute']);
+		} elseif (!empty($authVars['login']['successUrl'])) {
+			$targetUrl = $authVars['login']['successUrl'];
+		} else {
+			$targetUrl = '/';
+		}
+		$store = Garp_Auth::getInstance()->getStore();
+		if ($store->targetUrl) {
+			$targetUrl = $store->targetUrl;
+			unset($store->targetUrl);
+		}
+
+		// After login hook.
+		$this->_afterLogin($userData, $targetUrl);
+
+		// Set a Flash message welcoming the user.
+		$flashMessenger = $this->_helper->getHelper('FlashMessenger');
+		$fullName = new Garp_Util_FullName($userData);
+		$successMsg = __($authVars['login']['successMessage']);
+		if (strpos($successMsg, '%s') !== false) {
+			$successMsg = sprintf($successMsg, $fullName);
+		} elseif (strpos('%USERNAME%', $successMsg) !== false) {
+			$successMsg = Garp_Util_String::interpolate($successMsg, array(
+				'USERNAME' => $fullName
+			));
+		}
+		$flashMessenger->addMessage($successMsg);
+		$this->_redirect($targetUrl);
 	}
 
 	/**
@@ -236,6 +236,9 @@ class G_AuthController extends Garp_Controller_Action {
 
 		$flashMessenger = $this->_helper->getHelper('FlashMessenger');
 		$flashMessenger->addMessage(__($authVars['logout']['successMessage']));
+
+		$cacheBuster = 'action=logout';
+		$target .= (strpos($target, '?') === false ? '?' : '&') . $cacheBuster;
 		$this->_redirect($target);
 	}
 
@@ -248,7 +251,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$auth = Garp_Auth::getInstance();
 		$authVars = $auth->getConfigValues();
 		$request = $this->getRequest();
-		
+
 		if ($request->getParam('success') == '1') {
 			$this->view->successMessage = __($authVars['forgotpassword']['success_message']);
 		}
@@ -261,7 +264,7 @@ class G_AuthController extends Garp_Controller_Action {
 			}
 
 			// Find user by email address
-			$this->view->email = $email = $request->getPost('email'); 
+			$this->view->email = $email = $request->getPost('email');
 			$userModel = new Model_User();
 			$user = $userModel->fetchRow(
 				$userModel->select()->where('email = ?', $email)
@@ -293,7 +296,7 @@ class G_AuthController extends Garp_Controller_Action {
 					if (!empty($authVars['forgotpassword']['email_partial'])) {
 						$this->view->user = $user;
 						$this->view->activationUrl = $activationUrl;
-						// Add "default" module as a script path so the partial can 
+						// Add "default" module as a script path so the partial can
 						// be found.
 						$this->view->addScriptPath(APPLICATION_PATH.'/modules/default/views/scripts/');
 						$emailMessage = $this->view->render($authVars['forgotpassword']['email_partial']);
@@ -311,7 +314,7 @@ class G_AuthController extends Garp_Controller_Action {
 							'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
 						));
 					}
-				
+
 					// Send mail to the user
 					// @todo Make this more transparent. Use a Strategy design pattern for instance.
 					$emailMethod = 'ses';
@@ -356,7 +359,7 @@ class G_AuthController extends Garp_Controller_Action {
 				}
 			}
 		}
-		
+
 		// Show view
 		$this->_helper->layout->setLayout('default');
 		$this->_renderView($authVars['forgotpassword']);
@@ -375,7 +378,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$expirationColumn = $authVars['forgotpassword']['activation_code_expiration_date_column'];
 
 		$userModel = new Model_User();
-		$activationCodeClause = 
+		$activationCodeClause =
 			'MD5(CONCAT('.
 				$userModel->getAdapter()->quoteIdentifier($authVars['forgotpassword']['activation_token_column']).','.
 				'MD5(email),'.
@@ -419,7 +422,7 @@ class G_AuthController extends Garp_Controller_Action {
 	}
 
 	/**
-	 * Validate email address. In scenarios where users receive an email validation email, 
+	 * Validate email address. In scenarios where users receive an email validation email,
 	 * this action is used to validate the address.
 	 */
 	public function validateemailAction() {
@@ -438,7 +441,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$userModel = new Model_User();
 		// always collect fresh data for this one
 		$userModel->setCacheQueries(false);
-		$activationCodeClause = 
+		$activationCodeClause =
 			'MD5(CONCAT('.
 				$userModel->getAdapter()->quoteIdentifier($authVars['validateEmail']['token_column']).','.
 				'MD5(email),'.
@@ -523,7 +526,7 @@ class G_AuthController extends Garp_Controller_Action {
 
 	/**
 	 * Before register hook
-	 * @param Array $postData 
+	 * @param Array $postData
 	 * @return Void
 	 */
 	protected function _beforeRegister(array &$postData) {

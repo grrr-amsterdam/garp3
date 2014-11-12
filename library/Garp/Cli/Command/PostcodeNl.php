@@ -12,7 +12,7 @@
 class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 	const ERROR_NO_FILE_PROVIDED =
 		"No path provided to the 6PP CSV file from postcode.nl";
-	const SOURCE_LABEL = 
+	const SOURCE_LABEL =
 		'Postcode.nl';
 
 	protected $_args;
@@ -34,8 +34,8 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 		}
 
 		$mem = new Garp_Util_Memory();
-		$mem->useHighMemory();	
-		
+		$mem->useHighMemory();
+
 		$this->_args = $args;
 		$command = $args[0];
 		$this->{'_' . $command}();
@@ -52,7 +52,7 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 
 		$zipSet = new Garp_Service_PostcodeNl_Zipcode_Set($content);
 
-		$linesCountLabel = $this->_formatBigNumber(count($zipSet)); 
+		$linesCountLabel = $this->_formatBigNumber(count($zipSet));
 		Garp_Cli::lineOut("Parsing {$linesCountLabel} lines.");
 
 		$question = "Do you want this data to overwrite\n"
@@ -75,7 +75,7 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 	}
 
 	protected function _formatBigNumber($number) {
-		return number_format($number, 0, ',', '.'); 
+		return number_format($number, 0, ',', '.');
 	}
 
 	protected function _storeZip(Garp_Service_PostcodeNl_Zipcode &$zip, $key, $overwrite) {

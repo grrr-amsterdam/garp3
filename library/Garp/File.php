@@ -12,13 +12,13 @@ class Garp_File {
 	 */
     const TYPE_IMAGES = 'image';
 	const TYPE_DOCUMENTS = 'document';
-	
+
 	const SEPERATOR = '-';
 
 	protected $_storageTypes = array('local', 's3');
-	
+
 	protected $_requiredConfigParams = array('type', 'domain', 'path', 'extensions');
-	
+
 	protected $_requiredConfigPaths = array('upload', 'static');
 
 	protected $_allowedTypes = array('image', 'document');
@@ -29,7 +29,7 @@ class Garp_File {
 	protected $_storage;
 
 	protected $_uploadOrStatic = 'upload';
-	
+
 	protected $_path;
 
 	/**
@@ -61,7 +61,7 @@ class Garp_File {
 		$this->_path = $this->_getPath($ini, $uploadType);
 		$this->_initStorage($ini);
 	}
-	
+
 
 	/** Make public methods of the Garp_File_Storage object available. */
 	public function __call($method, $args) {
@@ -128,7 +128,7 @@ class Garp_File {
 
 	public function validateUploadType($uploadType) {
 		if (!is_null($uploadType) && !in_array($uploadType, $this->_allowedTypes)) {
-			throw new Garp_File_Exception_InvalidType("'{$uploadType}' is not a valid " . 
+			throw new Garp_File_Exception_InvalidType("'{$uploadType}' is not a valid " .
 				"upload type. Try: '".implode("' or '", $this->_allowedTypes)."'.");
 		}
 	}
@@ -139,7 +139,7 @@ class Garp_File {
 	 * @return Array List of uploadable extensions
 	 */
 	public function getAllowedExtensions() {
-		$ini = $this->_getIni();		
+		$ini = $this->_getIni();
 		$extensions = explode(',', $ini->cdn->extensions);
 
 		$imageFile = new Garp_Image_File($this->_uploadOrStatic);
@@ -282,8 +282,8 @@ class Garp_File {
 			}
 		} else throw new Exception("The filename was empty.");
 	}
-	
-	
+
+
 	protected function _getIni() {
 		if (!self::$_config) {
 			self::$_config = Zend_Registry::get('config');
@@ -291,8 +291,8 @@ class Garp_File {
 		}
 		return self::$_config;
 	}
-	
-	
+
+
 	/**
 	 * @param Array $list Numeric Array of String elements,
 	 * @param String $decorator Element decorator, f.i. a quote.
