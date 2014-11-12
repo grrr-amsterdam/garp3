@@ -34,14 +34,18 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 
 			// User has not interacted yet, and needs to authorize the app
 			$authorizeUrl = $this->_getLinkedInInstance()->getLoginUrl(array(
-				LinkedIn::SCOPE_BASIC_PROFILE, 
+				LinkedIn::SCOPE_BASIC_PROFILE,
 				LinkedIn::SCOPE_EMAIL_ADDRESS
 			));
 			Zend_Controller_Action_HelperBroker::getStaticHelper('redirector')
 				->gotoUrl($authorizeUrl);
 			return false;
 		} catch (Exception $e) {
-			throw $e;
+			if (strpos($e->getMessage(), 'Duplicate entry') !== false &&
+				strpos($e->getMessage(), 'email_unique') !== false) {
+				$this->_addError(__('this email address already exists'));
+				return false;
+			}
 			$this->_addError(__('login error'));
 			return false;
 		}
@@ -82,8 +86,8 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 		}
 		if (!$this->_linkedIn) {
  		   	$this->_linkedIn = new LinkedIn(array(
-				'api_key' => $authVars->consumerKey, 
-				'api_secret' => $authVars->consumerSecret, 
+				'api_key' => $authVars->consumerKey,
+				'api_secret' => $authVars->consumerSecret,
 				'callback_url' => (string)$callbackUrl
 			));
 		}
