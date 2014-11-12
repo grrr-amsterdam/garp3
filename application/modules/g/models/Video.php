@@ -9,7 +9,7 @@
  * @lastmodified $Date: $
  */
 class G_Model_Video extends Model_Base_Video {
-	public function insert(array $data) {	
+	public function insert(array $data) {
 		try {
 			return parent::insert($data);
 		} catch (Exception $e) {
@@ -22,9 +22,12 @@ class G_Model_Video extends Model_Base_Video {
 			}
 
 			$videoUrl = trim($data['url']);
+			$this->unregisterObserver('Translatable');
 
 			if ($this->_isVimeoUrl($videoUrl)) {
-				$select = $this->select()->where('url LIKE ?', "%{$videoUrl}%");
+				$queryUrl = parse_url($videoUrl);
+				$queryUrl = $queryUrl['host'] . $queryUrl['path'];
+				$select = $this->select()->where('url LIKE ?', "%{$queryUrl}%");
 			} elseif ($this->_isYouTuBeUrl($videoUrl) || $this->_isYouTubeComUrl($videoUrl)) {
 				$ytVideoId = $this->_getYouTubeIdFromURL($videoUrl);
 				$select = $this->select()->where('identifier = ?', $ytVideoId);
@@ -37,7 +40,6 @@ class G_Model_Video extends Model_Base_Video {
 				}
 			}
 		}
-
 		return null;
 	}
 

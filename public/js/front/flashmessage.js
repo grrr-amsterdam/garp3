@@ -42,7 +42,7 @@ Garp.FlashMessage = function(msg, timeout) {
 	if (typeof msg.push !== 'function') {
 		msg = [msg];
 	}
-	
+
 	var removeNode = function() {
 		if (!fm) {
 			return;
@@ -52,7 +52,7 @@ Garp.FlashMessage = function(msg, timeout) {
 		doc.className = doc.className.replace(FM_INACTIVE_CLASS, '');
 	};
 
-	// Add event listeners that remove the node from the DOM 
+	// Add event listeners that remove the node from the DOM
 	// after a transition or animation ends.
 	var setRemoveHandler = function(transition) {
 		var events = transition ? Garp.transitionEndEvents : Garp.animationEndEvents;
@@ -60,7 +60,7 @@ Garp.FlashMessage = function(msg, timeout) {
 			fm.addEventListener(events[i], removeNode, false);
 		}
 	};
-	
+
 	var hide = function() {
 		clearInterval(timer);
 		if (!fm) {
