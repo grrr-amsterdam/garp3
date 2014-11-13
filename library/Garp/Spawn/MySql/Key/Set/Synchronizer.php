@@ -6,7 +6,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 		'Unknown key type.';
 	const QUESTION_MAKE_COLUMN_UNIQUE =
 		"Make %s.%s unique?";
-	
+
 	/** @var Array $droppedForeignKeyNamesDuringColumnSync When a relation column's nullable property is changed
 	* 														during column syncing, the accompanying foreign key needs
 	* 														to be dropped from there. Since MySql doesn't support
@@ -17,12 +17,12 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 
 	protected $_types = array('foreign', 'unique', 'index');
 
-	/**	
+	/**
 	 * @var Garp_Spawn_MySql_Key_Set
  	 */
 	protected $_source;
 
-	/**	
+	/**
 	 * @var Garp_Spawn_MySql_Key_Set
  	 */
 	protected $_target;
@@ -34,11 +34,12 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 
 
 
-	
-	public function __construct(Garp_Spawn_MySql_Key_Set $source, Garp_Spawn_MySql_Key_Set $target, Garp_Cli_Ui_Protocol $feedback) {
+
+	public function __construct(Garp_Spawn_MySql_Key_Set $source, Garp_Spawn_MySql_Key_Set $target, Garp_Cli_Ui_Protocol $feedback, $model) {
 		$this->setSource($source);
 		$this->setTarget($target);
 		$this->setFeedback($feedback);
+		$this->_model = $model;
 	}
 
 
@@ -50,8 +51,8 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 			$this->_addKeysPerType($type);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Modify keys in the live database, if the configuration differs.
 	 */
@@ -60,17 +61,17 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 			$this->_modifyKeysPerType($type);
 		}
 	}
-	
+
 
 	/**
 	 * Remove existing keys in the live database, if these are removed in the configuration.
-	 */	
+	 */
 	public function removeKeys() {
 		foreach ($this->_types as $type) {
 			$this->_removeKeysPerType($type);
 		}
 	}
-	
+
 	public function setSource(Garp_Spawn_MySql_Key_Set $configKeys) {
 		$this->_source = $configKeys;
 	}
@@ -94,7 +95,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 	public function getFeedback() {
 		return $this->_feedback;
 	}
-	
+
 	protected function _addUniqueKeys(array $keysToAdd) {
 		$progress 	= $this->getFeedback();
 		$tableName 	= $this->getSource()->getTableName();
@@ -177,14 +178,14 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 
 		return $inSync;
 	}
-	
+
 
 	protected function _modifyKeysPerType($keyType) {
 		$progress 	= $this->getFeedback();
 		$inSync 	= true;
 		$tableName	= $this->getSource()->getTableName();
 		$liveKeys	= $this->getTarget();
-		
+
 		if ($keysToModify = $this->_getKeysToModify($keyType, $liveKeys)) {
 			switch ($keyType) {
 				case 'foreign':
@@ -212,7 +213,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 
 		return $inSync;
 	}
-	
+
 	protected function _removeUniqueKeys(array $keysToRemove) {
 		$progress 	= $this->getFeedback();
 		$tableName	= $this->getSource()->getTableName();
@@ -227,7 +228,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 					continue;
 				}
 			}
-			
+
 			if (!Garp_Spawn_MySql_UniqueKey::delete($tableName, $key)) {
 				throw new Exception("Could not set column '{$key->column}' to non-unique.");
 			}
@@ -260,7 +261,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 	protected function _removeKeysPerType($keyType) {
 		$inSync 	= true;
 		$liveKeys	= $this->getTarget();
-		
+
 		if ($keysToRemove = $this->_getKeysToRemove($keyType, $liveKeys)) {
 			switch ($keyType) {
 				case 'unique':
@@ -286,25 +287,25 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 			}
 		}
 
-		return $inSync;	
+		return $inSync;
 	}
-	
+
 	protected function _setPrimaryKey() {
 		$tableName = $this->getSource()->getTableName();
 		$liveKeys = $this->getTarget();
 
-		$livePkPresent = 
+		$livePkPresent =
 			property_exists($liveKeys, 'primaryKey') &&
 			$liveKeys->primaryKey &&
 			property_exists($liveKeys->primaryKey, 'columns')
 		;
-		
+
 		sort($this->primaryKey->columns);
 
 		if ($livePkPresent) {
 			sort($liveKeys->primaryKey->columns);
 		}
-		
+
 		if (
 			!$livePkPresent ||
 			$this->primaryKey->columns != $liveKeys->primaryKey->columns
@@ -354,8 +355,8 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 
 		return $keysToAdd;
 	}
-	
-	
+
+
 	protected function _getKeysToModify($keyType) {
 		$keyTypeVarName = $keyType === 'index' ?
 			'indices' :
@@ -392,8 +393,8 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 
 		return $keysToModify;
 	}
-	
-	
+
+
 	protected function _getKeysToRemove($keyType) {
 		$keyTypeVarName = $keyType === 'index' ?
 			'indices' :
@@ -431,7 +432,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 			}
 		}
 
-		return $keysToRemove;		
+		return $keysToRemove;
 	}
 
 
@@ -441,11 +442,11 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
-	
+
+
 	protected function _addIndexForForeignKey(Garp_Spawn_MySql_ForeignKey $key) {
 		$indexKeySql 	= Garp_Spawn_MySql_IndexKey::renderSqlDefinition($key->localColumn);
 		$indexKey 		= new Garp_Spawn_MySql_IndexKey($indexKeySql);
