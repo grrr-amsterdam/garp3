@@ -50,7 +50,7 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 		$keysInSync 	= true;
 
 		$configuredKeys = $this->_getConfiguredKeys();
-		$keySyncer		= new Garp_Spawn_MySql_Key_Set_Synchronizer($configuredKeys, $target->keys, $this->getFeedback(), $this->getModel());
+		$keySyncer		= new Garp_Spawn_MySql_Key_Set_Synchronizer($configuredKeys, $target->keys, $this->getFeedback());
 
 		if (!$keySyncer->removeKeys()) {
 			$keysInSync = false;

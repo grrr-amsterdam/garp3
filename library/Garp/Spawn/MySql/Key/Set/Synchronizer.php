@@ -32,14 +32,16 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
  	 */
 	protected $_feedback;
 
+	/** @var Garp_Spawn_Model_Abstract $_model */
+	protected $_model;
 
 
 
-	public function __construct(Garp_Spawn_MySql_Key_Set $source, Garp_Spawn_MySql_Key_Set $target, Garp_Cli_Ui_Protocol $feedback, $model) {
+	public function __construct(Garp_Spawn_MySql_Key_Set $source, Garp_Spawn_MySql_Key_Set $target, Garp_Cli_Ui_Protocol $feedback) {
 		$this->setSource($source);
 		$this->setTarget($target);
 		$this->setFeedback($feedback);
-		$this->_model = $model;
+		$this->_model = $source->getModel();
 	}
 
 
