@@ -58,8 +58,7 @@ div.x-grid3-row { border: 1px #fff solid !important; }
 .gridPanelCt .x-panel-noborder .x-panel-tbar-noborder .x-toolbar { border-bottom: none; }
 .gridPanelCt .hidden { display: none; }
 .gridPanelCt .remoteDisplayFieldSpinner { background:url(../../js/garp/ext-3.4.1/resources/images/default/grid/loading.gif) no-repeat 4px center;  height: 16px; }
-.x-props-grid .required-property { background: url(../../media/images/garp/icons/bullet_star.png) no-repeat -3px 0; }
-.x-props-grid .x-grid3-td-name.required-property .x-grid3-cell-inner { background: none !important; }
+.x-grid3-td-name.required-property .x-grid3-cell-inner::after { content: url(../../media/images/garp/icons/bullet_star.png); position: absolute; }
 
 button.x-tbar-page-prev { background-image: url(../../media/images/garp/icons2/controller-previous.png) !important; }
 button.x-tbar-page-next { background-image: url(../../media/images/garp/icons2/controller-next.png) !important; }
