@@ -701,15 +701,14 @@ Ext.override(Ext.grid.PropertyColumnModel, {
 	},
 
 	requiredPropertyRenderer : function(v, m, r) {
-		var needle = '*';
-		if (v.indexOf(needle) > -1) {
-			v = v.replace(needle, '');
+		var ce = this.grid.customEditors;
+		if(ce[r.id] && ce[r.id].field && ce[r.id].field.allowBlank === false){
 			m.css = 'required-property';
 		}
 		return v;
 	},
 
 	getRenderer : function(col) {
-		return (col === 0 ? this.requiredPropertyRenderer : (this.renderCellDelegate || this.renderPropDelegate));
+		return (col === 0 ? this.requiredPropertyRenderer.createDelegate(this) : (this.renderCellDelegate || this.renderPropDelegate));
 	}
 }); 
