@@ -27,12 +27,17 @@ class Garp_Cli_Command_Slugs extends Garp_Cli_Command {
 		$overwrite = !empty($args[1]) ? $args[1] : false;
 
 		$model = new $modelName();
+		if ($model->isMultilingual()) {
+			$model = instance(new Garp_I18n_ModelFactory())->getModel($model);
+		}
 		// No reason to cache queries. Use live data.
 		$model->setCacheQueries(false);
 
 		// Fetch Sluggable thru the model as to use the right slug-configuration
 		$sluggable = $model->getObserver('Sluggable');
 		if (is_null($sluggable)) {
+			// Try on a derived model
+			$translatable = $model->getObserver('Translatable');
 			Garp_Cli::errorOut('This model is not sluggable.');
 			return false;
 		}
