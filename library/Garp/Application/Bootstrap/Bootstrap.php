@@ -45,30 +45,40 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
  	 */
 	protected function _initConfig() {
 		$this->bootstrap('db');
+		$this->bootstrap('locale');
 		$loader = Garp_Loader::getInstance();
-		if ($loader->isLoadable('Model_Info')) {
-			try {
-				$infoModel 		= new Model_Info();
-				$dynamicConfig 	= $infoModel->fetchAsConfig(null, APPLICATION_ENV);
-				$staticConfig 	= Zend_Registry::get('config');
+		if (!$loader->isLoadable('Model_Info')) {
+			return;
+		}
+		try {
+			$staticConfig = Zend_Registry::get('config');
+			$infoModel = $this->_getInfoModel();
+			$dynamicConfig = $infoModel->fetchAsConfig(null, APPLICATION_ENV);
 
-				// Very sneakily bypass 'readOnly'
-				if ($staticConfig->readOnly()) {
-					$staticConfig = new Zend_Config($staticConfig->toArray(), APPLICATION_ENV, true);
-				}
-				$staticConfig->merge($dynamicConfig);
-				$staticConfig->setReadOnly();
+			// Very sneakily bypass 'readOnly'
+			if ($staticConfig->readOnly()) {
+				$staticConfig = new Zend_Config($staticConfig->toArray(), APPLICATION_ENV, true);
+			}
+			$staticConfig->merge($dynamicConfig);
+			$staticConfig->setReadOnly();
 
-				Zend_Registry::set('config', $staticConfig);
-			} catch(Exception $e) {
-				$msg = $e->getMessage();
-				if (
-					strpos($msg, 'Unknown database') === false &&
-					strpos($msg, "doesn't exist") === false
-				) {
-					throw $e;
-				}
+			Zend_Registry::set('config', $staticConfig);
+		} catch(Exception $e) {
+			$msg = $e->getMessage();
+			if (
+				strpos($msg, 'Unknown database') === false &&
+				strpos($msg, "doesn't exist") === false
+			) {
+				throw $e;
 			}
 		}
+	}
+
+	protected function _getInfoModel() {
+		$infoModel = new Model_Info();
+		if ($infoModel->isMultilingual()) {
+			$infoModel = instance(new Garp_I18n_ModelFactory())->getModel('Info');
+		}
+		return $infoModel;
 	}
 }
