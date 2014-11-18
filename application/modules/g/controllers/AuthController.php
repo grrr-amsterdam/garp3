@@ -170,6 +170,7 @@ class G_AuthController extends Garp_Controller_Action {
 				->setParam('errors', $adapter->getErrors())
 				->setParam('postData', $this->getRequest()->getPost());
 			$this->_helper->actionStack($request);
+			$this->_setViewSettings('login');
 			return;
 		}
 
@@ -215,6 +216,7 @@ class G_AuthController extends Garp_Controller_Action {
 			));
 		}
 		$flashMessenger->addMessage($successMsg);
+		$this->_helper->viewRenderer->setNoRender(true);
 		$this->_redirect($targetUrl);
 	}
 
@@ -483,6 +485,9 @@ class G_AuthController extends Garp_Controller_Action {
 	 */
 	protected function _setViewSettings($action) {
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
+		if (!isset($authVars[$action])) {
+			return;
+		}
 		$authVars = $authVars[$action];
 		$moduleDirectory = $this->getFrontController()
 			->getModuleDirectory($authVars['module']);
