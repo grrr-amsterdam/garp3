@@ -45,6 +45,13 @@ class Garp_Spawn_MySql_Key_Set {
 	}
 	
 	/**
+	 * @return Garp_Spawn_Model_Abstract $_model
+	 */
+	public function getModel() {
+		return $this->_model;
+	}
+
+	/**
 	 * @return String
 	 */
 	public function getTableName() {
