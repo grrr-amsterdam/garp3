@@ -10,6 +10,11 @@
  * @lastmodified $Date: $
  */
 class G_AuthController extends Garp_Controller_Action {
+	public function init() {
+		$action = $this->getRequest()->getActionName();
+		$this->_setViewSettings($action);
+	}
+
 	/**
 	 * Index page, just redirects to $this->loginAction().
 	 * It's only here because it might be handy to have a landing page someday.
@@ -27,86 +32,87 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->view->title = __('register page title');
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
 
-		if ($this->getRequest()->isPost()) {
-			$errors = array();
-			$postData = $this->getRequest()->getPost();
-			$this->view->postData = $postData;
+		if (!$this->getRequest()->isPost()) {
+			return;
+		}
+		$errors = array();
+		$postData = $this->getRequest()->getPost();
+		$this->view->postData = $postData;
 
-			// Apply some mild validation
-			$password = $this->getRequest()->getPost('password');
-			if (!$password) {
-				$errors[] = sprintf(__('%s is a required field'), __('Password'));
-			}
-
-			$checkRepeatPassword = !empty($authVars['register']['repeatPassword']) && $authVars['register']['repeatPassword'];
-			if ($checkRepeatPassword) {
-				$repeatPasswordField = $this->getRequest()->getPost($authVars['register']['repeatPasswordField']);
-				unset($postData[$authVars['register']['repeatPasswordField']]);
-				if ($password != $repeatPasswordField) {
-					$errors[] = __('the passwords do not match');
-				}
-			}
-
-			if (!$errors) {
-				// Save the new user
-				$userModel = new Model_User();
-				try {
-					// Before register hook
-					$this->_beforeRegister($postData);
-
-					$insertId = $userModel->insert($postData);
-					$this->_helper->flashMessenger(__($authVars['register']['successMessage']));
-
-					// Store new user directly thru Garp_Auth so that they're logged in immediately
-					$newUser = $userModel->find($insertId)->current();
-
-					$auth = Garp_Auth::getInstance();
-					$auth->store($newUser->toArray(), 'db');
-
-					// After register hook
-					$this->_afterRegister();
-
-					// Determine targetUrl. This is the URL the user was trying to access before registering, or a default URL.
-					$router = Zend_Controller_Front::getInstance()->getRouter();
-					if (!empty($authVars['register']['successRoute'])) {
-						$targetUrl = $router->assemble(array(), $authVars['register']['successRoute']);
-					} elseif (!empty($authVars['register']['successUrl'])) {
-						$targetUrl = $authVars['register']['successUrl'];
-					} else {
-						$targetUrl = '/';
-					}
-					$store = Garp_Auth::getInstance()->getStore();
-					if ($store->targetUrl) {
-						$targetUrl = $store->targetUrl;
-						unset($store->targetUrl);
-					}
-
-					$this->_redirect($targetUrl);
-				// Check for duplication errors in order to show
-				// a helpful error to the user.
-				} catch (Zend_Db_Statement_Exception $e) {
-					if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'email_unique') !== false) {
-						$errors[] = __('this email address already exists');
-					} else {
-						throw $e;
-					}
-				// Validation errors should be safe to show to the user (note: translation
-				// must be done in the validator itself)
-				} catch (Garp_Model_Validator_Exception $e) {
-					$errors[] = $e->getMessage();
-
-				// Unknown error? Yikes... Show to developers, but show a
-				// generic error to the general public.
-				} catch (Exception $e) {
-					$error = APPLICATION_ENV === 'development' ? $e->getMessage() : __('register error');
-					$errors[] = $error;
-				}
-			}
-			$this->view->errors = $errors;
+		// Apply some mild validation
+		$password = $this->getRequest()->getPost('password');
+		if (!$password) {
+			$errors[] = sprintf(__('%s is a required field'), __('Password'));
 		}
 
-		// Show view
-		$this->_renderView($authVars['register']);
+		$checkRepeatPassword = !empty($authVars['register']['repeatPassword']) && $authVars['register']['repeatPassword'];
+		if ($checkRepeatPassword) {
+			$repeatPasswordField = $this->getRequest()->getPost($authVars['register']['repeatPasswordField']);
+			unset($postData[$authVars['register']['repeatPasswordField']]);
+			if ($password != $repeatPasswordField) {
+				$errors[] = __('the passwords do not match');
+			}
+		}
+
+		if (count($errors)) {
+			$this->view->errors = $errors;
+			return;
+		}
+
+		// Save the new user
+		$userModel = new Model_User();
+		try {
+			// Before register hook
+			$this->_beforeRegister($postData);
+
+			$insertId = $userModel->insert($postData);
+			$this->_helper->flashMessenger(__($authVars['register']['successMessage']));
+
+			// Store new user directly thru Garp_Auth so that they're logged in immediately
+			$newUser = $userModel->find($insertId)->current();
+
+			$auth = Garp_Auth::getInstance();
+			$auth->store($newUser->toArray(), 'db');
+
+			// After register hook
+			$this->_afterRegister();
+
+			// Determine targetUrl. This is the URL the user was trying to access before registering, or a default URL.
+			$router = Zend_Controller_Front::getInstance()->getRouter();
+			if (!empty($authVars['register']['successRoute'])) {
+				$targetUrl = $router->assemble(array(), $authVars['register']['successRoute']);
+			} elseif (!empty($authVars['register']['successUrl'])) {
+				$targetUrl = $authVars['register']['successUrl'];
+			} else {
+				$targetUrl = '/';
+			}
+			$store = Garp_Auth::getInstance()->getStore();
+			if ($store->targetUrl) {
+				$targetUrl = $store->targetUrl;
+				unset($store->targetUrl);
+			}
+
+			$this->_redirect($targetUrl);
+		// Check for duplication errors in order to show
+		// a helpful error to the user.
+		} catch (Zend_Db_Statement_Exception $e) {
+			if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'email_unique') !== false) {
+				$errors[] = __('this email address already exists');
+			} else {
+				throw $e;
+			}
+		// Validation errors should be safe to show to the user (note: translation
+		// must be done in the validator itself)
+		} catch (Garp_Model_Validator_Exception $e) {
+			$errors[] = $e->getMessage();
+
+		// Unknown error? Yikes... Show to developers, but show a
+		// generic error to the general public.
+		} catch (Exception $e) {
+			$error = APPLICATION_ENV === 'development' ? $e->getMessage() : __('register error');
+			$errors[] = $error;
+		}
+		$this->view->errors = $errors;
 	}
 
 	/**
@@ -128,16 +134,13 @@ class G_AuthController extends Garp_Controller_Action {
 		}
 
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
-		// self::processAction might have populated 'errors' and/or 'formValues'
+		// self::processAction might have populated 'errors' and/or 'postData'
 		if ($this->getRequest()->getParam('errors')) {
 			$this->view->errors = $this->getRequest()->getParam('errors');
 		}
-		if ($this->getRequest()->getParam('formValues')) {
-			$this->view->formValues = $this->getRequest()->getParam('formValues');
+		if ($this->getRequest()->getParam('postData')) {
+			$this->view->postData = $this->getRequest()->getParam('postData');
 		}
-
-		// Show view
-		$this->_renderView($authVars['login']);
 	}
 
 	/**
@@ -165,7 +168,7 @@ class G_AuthController extends Garp_Controller_Action {
 			$request = clone $this->getRequest();
 			$request->setActionName('login')
 				->setParam('errors', $adapter->getErrors())
-				->setParam('formValues', $this->getRequest()->getPost());
+				->setParam('postData', $this->getRequest()->getPost());
 			$this->_helper->actionStack($request);
 			return;
 		}
@@ -363,10 +366,6 @@ class G_AuthController extends Garp_Controller_Action {
 				}
 			}
 		}
-
-		// Show view
-		$this->_helper->layout->setLayout('default');
-		$this->_renderView($authVars['forgotpassword']);
 	}
 
 	/**
@@ -420,9 +419,6 @@ class G_AuthController extends Garp_Controller_Action {
 				}
 			}
 		}
-
-		// Show view
-		$this->_renderView($authVars['resetpassword']);
 	}
 
 	/**
@@ -478,9 +474,6 @@ class G_AuthController extends Garp_Controller_Action {
 				}
 			}
 		}
-
-		// Show view
-		$this->_renderView($authVars['validateEmail']);
 	}
 
 	/**
@@ -488,18 +481,17 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @param Array $authVars Configuration for a specific auth section.
 	 * @return Void
 	 */
-	protected function _renderView($authVars) {
+	protected function _setViewSettings($action) {
+		$authVars = Garp_Auth::getInstance()->getConfigValues();
+		$authVars = $authVars[$action];
 		$moduleDirectory = $this->getFrontController()
 			->getModuleDirectory($authVars['module']);
-		$viewPath = $moduleDirectory.'/views/scripts/auth/';
+		$viewPath = $moduleDirectory.'/views/scripts/';
 
 		$this->view->addScriptPath($viewPath);
 		$view = $authVars['view'];
-		if (strpos($view, '.phtml') === false) {
-			$view .= '.phtml';
-		}
-		$this->renderScript($view);
-		$layout = $authVars['layout'];
+		$this->_helper->viewRenderer($view);
+		$layout = isset($authVars['layout']) ? $authVars['layout'] : 'default';
 		if ($this->_helper->layout->isEnabled()) {
 			$this->_helper->layout->setLayoutPath($moduleDirectory.'/views/layouts');
 			$this->_helper->layout->setLayout($layout);
