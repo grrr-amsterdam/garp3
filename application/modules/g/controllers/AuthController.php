@@ -128,9 +128,12 @@ class G_AuthController extends Garp_Controller_Action {
 		}
 
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
-		// self::processAction might have populated 'errors'
+		// self::processAction might have populated 'errors' and/or 'formValues'
 		if ($this->getRequest()->getParam('errors')) {
 			$this->view->errors = $this->getRequest()->getParam('errors');
+		}
+		if ($this->getRequest()->getParam('formValues')) {
+			$this->view->formValues = $this->getRequest()->getParam('formValues');
 		}
 
 		// Show view
@@ -161,7 +164,8 @@ class G_AuthController extends Garp_Controller_Action {
 			// Show the login page again.
 			$request = clone $this->getRequest();
 			$request->setActionName('login')
-				->setParam('errors', $adapter->getErrors());
+				->setParam('errors', $adapter->getErrors())
+				->setParam('formValues', $this->getRequest()->getPost());
 			$this->_helper->actionStack($request);
 			return;
 		}
