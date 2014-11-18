@@ -604,6 +604,7 @@ Ext.override(Ext.PagingToolbar, {
 /**
  * Overrides for propertygrid & column: no sorting by default, and support for 'required' property marking:
  */
+
 Ext.override(Ext.grid.PropertyGrid, {
 	initComponent : function() {
 		this.customRenderers = this.customRenderers || {};
@@ -613,31 +614,7 @@ Ext.override(Ext.grid.PropertyGrid, {
 		this.propStore = store;
 		var cm = new Ext.grid.PropertyColumnModel(this, store);
 		//store.store.sort('name', 'ASC');
-		this.addEvents(
-		/**
-		 * @event beforepropertychange
-		 * Fires before a property value changes.  Handlers can return false to cancel
-		 * the property change
-		 * (this will internally call {@link Ext.data.Record#reject} on the property's
-		 * record).
-		 * @param {Object} source The source data object for the grid (corresponds to the
-		 * same object passed in
-		 * as the {@link #source} config property).
-		 * @param {String} recordId The record's id in the data store
-		 * @param {Mixed} value The current edited property value
-		 * @param {Mixed} oldValue The original property value prior to editing
-		 */'beforepropertychange',
-		/**
-		 * @event propertychange
-		 * Fires after a property value has changed.
-		 * @param {Object} source The source data object for the grid (corresponds to the
-		 * same object passed in
-		 * as the {@link #source} config property).
-		 * @param {String} recordId The record's id in the data store
-		 * @param {Mixed} value The current edited property value
-		 * @param {Mixed} oldValue The original property value prior to editing
-		 */
-		'propertychange');
+		this.addEvents('propertychange');
 		this.cm = cm;
 		this.ds = store.store;
 		Ext.grid.PropertyGrid.superclass.initComponent.call(this);
@@ -650,6 +627,7 @@ Ext.override(Ext.grid.PropertyGrid, {
 		}, this);
 	}
 });
+
 Ext.override(Ext.grid.PropertyColumnModel, {
 	constructor : function(grid, store) {
 
@@ -705,7 +683,7 @@ Ext.override(Ext.grid.PropertyColumnModel, {
 		if(ce[r.id] && ce[r.id].field && ce[r.id].field.allowBlank === false){
 			m.css = 'required-property';
 		}
-		return v;
+		return this.renderProp(v);
 	},
 
 	getRenderer : function(col) {
