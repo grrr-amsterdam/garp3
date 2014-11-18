@@ -599,3 +599,117 @@ Ext.override(Ext.PagingToolbar, {
         this.cursor = 0;
         this.bindStore(this.store, true);
     }});
+
+
+/**
+ * Overrides for propertygrid & column: no sorting by default, and support for 'required' property marking:
+ */
+Ext.override(Ext.grid.PropertyGrid, {
+	initComponent : function() {
+		this.customRenderers = this.customRenderers || {};
+		this.customEditors = this.customEditors || {};
+		this.lastEditRow = null;
+		var store = new Ext.grid.PropertyStore(this);
+		this.propStore = store;
+		var cm = new Ext.grid.PropertyColumnModel(this, store);
+		//store.store.sort('name', 'ASC');
+		this.addEvents(
+		/**
+		 * @event beforepropertychange
+		 * Fires before a property value changes.  Handlers can return false to cancel
+		 * the property change
+		 * (this will internally call {@link Ext.data.Record#reject} on the property's
+		 * record).
+		 * @param {Object} source The source data object for the grid (corresponds to the
+		 * same object passed in
+		 * as the {@link #source} config property).
+		 * @param {String} recordId The record's id in the data store
+		 * @param {Mixed} value The current edited property value
+		 * @param {Mixed} oldValue The original property value prior to editing
+		 */'beforepropertychange',
+		/**
+		 * @event propertychange
+		 * Fires after a property value has changed.
+		 * @param {Object} source The source data object for the grid (corresponds to the
+		 * same object passed in
+		 * as the {@link #source} config property).
+		 * @param {String} recordId The record's id in the data store
+		 * @param {Mixed} value The current edited property value
+		 * @param {Mixed} oldValue The original property value prior to editing
+		 */
+		'propertychange');
+		this.cm = cm;
+		this.ds = store.store;
+		Ext.grid.PropertyGrid.superclass.initComponent.call(this);
+
+		this.mon(this.selModel, 'beforecellselect', function(sm, rowIndex, colIndex) {
+			if (colIndex === 0) {
+				this.startEditing.defer(200, this, [rowIndex, 1]);
+				return false;
+			}
+		}, this);
+	}
+});
+Ext.override(Ext.grid.PropertyColumnModel, {
+	constructor : function(grid, store) {
+
+		var g = Ext.grid, f = Ext.form;
+
+		this.grid = grid;
+		g.PropertyColumnModel.superclass.constructor.call(this, [{
+			header : this.nameText,
+			width : 50,
+			sortable : false,
+			dataIndex : 'name',
+			id : 'name',
+			menuDisabled : true
+		}, {
+			header : this.valueText,
+			width : 50,
+			resizable : false,
+			dataIndex : 'value',
+			id : 'value',
+			menuDisabled : true
+		}]);
+		this.store = store;
+
+		var bfield = new f.Field({
+			autoCreate : {
+				tag : 'select',
+				children : [{
+					tag : 'option',
+					value : 'true',
+					html : this.trueText
+				}, {
+					tag : 'option',
+					value : 'false',
+					html : this.falseText
+				}]
+			},
+			getValue : function() {
+				return this.el.dom.value == 'true';
+			}
+		});
+		this.editors = {
+			'date' : new g.GridEditor(new f.DateField({selectOnFocus : true})),
+			'string' : new g.GridEditor(new f.TextField({selectOnFocus : true})),
+			'number' : new g.GridEditor(new f.NumberField({selectOnFocus : true,style : 'text-align:left;'})),
+			'boolean' : new g.GridEditor(bfield, {autoSize : 'both'})
+		};
+		this.renderCellDelegate = this.renderCell.createDelegate(this);
+		this.renderPropDelegate = this.renderProp.createDelegate(this);
+	},
+
+	requiredPropertyRenderer : function(v, m, r) {
+		var needle = '*';
+		if (v.indexOf(needle) > -1) {
+			v = v.replace(needle, '');
+			m.css = 'required-property';
+		}
+		return v;
+	},
+
+	getRenderer : function(col) {
+		return (col === 0 ? this.requiredPropertyRenderer : (this.renderCellDelegate || this.renderPropDelegate));
+	}
+}); 
