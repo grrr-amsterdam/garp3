@@ -489,14 +489,15 @@ class G_AuthController extends Garp_Controller_Action {
 			return;
 		}
 		$authVars = $authVars[$action];
+		$module = isset($authVars['module']) ? $authVars['module'] : 'default';
 		$moduleDirectory = $this->getFrontController()
-			->getModuleDirectory($authVars['module']);
+			->getModuleDirectory($module);
 		$viewPath = $moduleDirectory.'/views/scripts/';
 
 		$this->view->addScriptPath($viewPath);
 		$view = $authVars['view'];
 		$this->_helper->viewRenderer($view);
-		$layout = isset($authVars['layout']) ? $authVars['layout'] : 'default';
+		$layout = isset($authVars['layout']) ? $authVars['layout'] : 'layout';
 		if ($this->_helper->layout->isEnabled()) {
 			$this->_helper->layout->setLayoutPath($moduleDirectory.'/views/layouts');
 			$this->_helper->layout->setLayout($layout);
