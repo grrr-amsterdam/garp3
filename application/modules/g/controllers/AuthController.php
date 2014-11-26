@@ -249,6 +249,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$cacheBuster = 'action=logout';
 		$target .= (strpos($target, '?') === false ? '?' : '&') . $cacheBuster;
 		$this->_redirect($target);
+		$this->_helper->viewRenderer->setNoRender(true);
 	}
 
 	/**
@@ -495,7 +496,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$viewPath = $moduleDirectory.'/views/scripts/';
 
 		$this->view->addScriptPath($viewPath);
-		$view = $authVars['view'];
+		$view = isset($authVars['view']) ? $authVars['view'] : $action;
 		$this->_helper->viewRenderer($view);
 		$layout = isset($authVars['layout']) ? $authVars['layout'] : 'layout';
 		if ($this->_helper->layout->isEnabled()) {
