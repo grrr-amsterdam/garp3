@@ -8,7 +8,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	rule2: null,
 	unrelateExisting: true,
 	localId: null,
-	
+
 	border: false,
 	bodyBorder: false,
 	autoHeight: true,
@@ -17,15 +17,26 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 	getEmptyRecord: function(){
 		return new this.relationStore.recordType();
 	},
-	
+
 	setupStore: function(){
 		var fields = Garp.dataTypes[this.model].getStoreFieldsFromColumnModel();
+		/**
+		 * For regular relationPanels we only fetch listFields. For this thingie we need 'em all,
+		 * so grab 'em here to pass into the query.
+		 */
+		var fieldsForQuery = (function() {
+			var out = [];
+			for (var i = 0; i < fields.length; ++i) {
+				out.push(fields[i].name);
+			}
+			return out;
+		})();
 
 		this.writer = new Ext.data.JsonWriter({
 			paramsAsHash: false,
 			encode: false
 		});
-		
+
 		this.relationStore = new Ext.data.DirectStore({
 			fields: fields,
 			autoLoad: false,
@@ -40,6 +51,10 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			baseParams: {
 				start: 0,
 				limit: Garp.pageSize,
+				fields: (function() {
+					console.log(fieldsForQuery);
+					return fieldsForQuery;
+				})(),
 				query: ''
 			},
 			api: {
@@ -71,7 +86,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			}
 		});
 	},
-	
+
 	addAddBtn: function(){
 		this.add({
 			xtype: 'button',
@@ -86,7 +101,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		});
 		this.doLayout();
 	},
-	
+
 	addInlineForms: function(){
 		this.relationStore.each(function(rec){
 			this.add({
@@ -96,9 +111,9 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 				inlineRelator: this
 			});
 		}, this);
-		this.doLayout();		
+		this.doLayout();
 	},
-	
+
 	addForm: function(prevForm){
 		var idx = 0;
 		if (prevForm) {
@@ -111,10 +126,10 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		} else {
 			idx = this.relationStore.getCount();
 		}
-		
+
 		var newRec = this.getEmptyRecord();
 		this.relationStore.insert(idx, newRec);
-		
+
 		this.insert(idx, {
 			xtype: 'inlineform',
 			rec: newRec,
@@ -129,7 +144,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			}
 		});
 	},
-	
+
 	/**
 	 * Relates the owning form ID with our records
 	 */
@@ -156,7 +171,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		if (this.rule2) {
 			data.rule2 = this.rule2;
 		}
-		
+
 		var scope = this;
 		Garp[Garp.currentModel].relate(data, function(res){
 			if (res) {
@@ -167,9 +182,9 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 				scope.relationStore.reload();
 			}
 		});
-		
+
 	},
-	
+
 	saveAll: function(){
 		this.relationStore.on({
 			save: {
@@ -179,36 +194,36 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 		});
 		this.relationStore.save();
 	},
-	
+
 	removeForm: function(form){
 		this.relationStore.remove(form.rec);
 		this.remove(form);
 		this.doLayout();
 		this.relate();
 	},
-	
+
 	initComponent: function(ct){
 		Garp.InlineRelator.superclass.initComponent.call(this, ct);
 
 		this.ownerForm = this.ownerCt.ownerCt;
 		this.setupStore();
-		
+
 		this.ownerForm.on('loaddata', function(rec,fp){
-			
+
 			this.localId = rec.get('id');
-			
+
 			// first remove all "previous" items:
 			this.items.each(function(item){
 				this.remove(item);
 			}, this);
 			this.relationStore.removeAll(true);
-			
+
 			var q = {};
 			q[Garp.currentModel + '.id'] = this.localId;
 			this.relationStore.setBaseParam('query', q);
 			this.relationStore.reload();
 		}, this);
-		
+
 		Garp.eventManager.on('save-all', function(){
 			this.items.each(function(){
 				if (this.updateRecord) {
@@ -217,9 +232,9 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			});
 			this.saveAll();
 		}, this);
-		
+
 	}
-	
+
 });
 Ext.reg('inlinerelator',Garp.InlineRelator);
 
@@ -230,26 +245,26 @@ Garp.InlineForm = Ext.extend(Ext.Panel, {
 
 	rec: null,
 	inlineRelator: '',
-	
+
 	border: false,
 	bodyBorder: false,
 	hideBorders: true,
 	style:'padding-bottom: 2px;',
-	
+
 	border: false,
 	bodyBorder: false,
 	layout:'hbox',
 	hideLabel: true,
 	xtype:'inlineform',
-	
+
 	/**
 	 * Converts standard formConfig fieldset to a panel with fields
 	 * @param {Object} items
 	 */
 	morphFields: function(items){
-		
+
 		var copy = items.items.slice(0);
-		
+
 		copy.push({
 				iconCls: 'icon-new',
 				xtype: 'button',
@@ -271,12 +286,12 @@ Garp.InlineForm = Ext.extend(Ext.Panel, {
 				},
 				scope: this
 			});
-		
+
 		Ext.each(copy, function(item){
 			if (!item.hasOwnProperty('flex')) {
 				item.flex = 1;
 			}
-			// Uitgecomment door Harmen @ 4 maart 2014, omdat 
+			// Uitgecomment door Harmen @ 4 maart 2014, omdat
 			// we textarea's nodig hadden voor Filmhuis Den Haag!
 			//if (item.xtype == 'textarea') {
 				//item.xtype = 'textfield';
@@ -293,7 +308,7 @@ Garp.InlineForm = Ext.extend(Ext.Panel, {
 			}
 		});
 	},
-	
+
 	updateRecord: function(){
 		this.items.each(function(i){
 			if (i.name && i.getValue()) {
@@ -319,7 +334,7 @@ Ext.reg('inlineform', Garp.InlineForm);
 Garp.InlineRelatorLabels = Ext.extend(Ext.Panel, {
 
 	model: null,
-	
+
 	layout: 'hbox',
 	border: false,
 	hideLabel: true,
@@ -328,7 +343,7 @@ Garp.InlineRelatorLabels = Ext.extend(Ext.Panel, {
 		flex: 1,
 		xtype: 'label'
 	},
-	
+
 	initComponent: function(ct){
 		var fields = Garp.dataTypes[this.model].formConfig[0].items[0].items.slice(0);
 		var labels = [];
@@ -347,6 +362,6 @@ Garp.InlineRelatorLabels = Ext.extend(Ext.Panel, {
 		this.items = labels;
 		Garp.InlineRelatorLabels.superclass.initComponent.call(this, ct);
 	}
-	
+
 });
 Ext.reg('inlinerelatorlabels', Garp.InlineRelatorLabels);
