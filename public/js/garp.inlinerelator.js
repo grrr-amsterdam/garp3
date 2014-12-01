@@ -51,10 +51,7 @@ Garp.InlineRelator = Ext.extend(Ext.Panel, {
 			baseParams: {
 				start: 0,
 				limit: Garp.pageSize,
-				fields: (function() {
-					console.log(fieldsForQuery);
-					return fieldsForQuery;
-				})(),
+				fields: fieldsForQuery,
 				query: ''
 			},
 			api: {
