@@ -17,28 +17,28 @@
 // 		$modelConfig = $this->_loadBogusModelConfig('Bogus');
 
 // 		$this->assertArrayHasKey('order', (array)$modelConfig);
-// 		$this->assertInternalType('string', $modelConfig['order']);
+// 		$this->assertTrue(is_string($modelConfig['order']));
 // 		$this->assertGreaterThan(0, strlen($modelConfig['order']));
 // 	}
-	
+
 // 	public function testLoadingAModelConfigFileShouldReturnConfigurationTree() {
 // 		$modelConfig = $this->_loadBogusModelConfig('Bogus');
-	
+
 // 		$this->assertGreaterThan(0, count($modelConfig));
 // 	}
-	
-	
+
+
 // 	public function testLoadingAModelConfigFileShouldReturnName() {
 // 		$modelName = 'Bogus';
 // 		$modelConfig = $this->_loadBogusModelConfig($modelName);
-	
+
 // 		$this->assertEquals($modelName, $modelConfig['id']);
 // 	}
-	
-	
+
+
 // 	public function testLoadingAModelConfigFileShouldReturnLabel() {
 // 		$modelConfig = $this->_loadBogusModelConfig('Bogus');
-	
+
 // 		$this->assertGreaterThan(0, strlen($modelConfig['label']));
 // 	}
 

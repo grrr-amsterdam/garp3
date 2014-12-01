@@ -1,20 +1,33 @@
 <?php
+/**
+ * @author Iosif Vigh
+ */
 class G_View_Helper_Partial extends Zend_View_Helper_Partial {
 
 	public function partial($name = null, $module = null, $model = null) {
+	/**
+ 	 * WARNING!
+ 	 * This helper is deprecated, since somehow variables in the layout were overwritten by
+ 	 * variables of the same name passed to this partial.
+ 	 * This makes this overwrite unexpected and unreliable. I am therefore deprecating it until
+ 	 * further research is done. The implementation and accompanying unit test might be interesting
+ 	 * documentation still.
+ 	 * - Harmen / 18 Nov 2014
+ 	 */
+		return parent::partial($name, $module, $model);
 
 		if (0 == func_num_args()) {
             return $this;
         }
         $view = $this->view;
-		
+
 		if (is_null($model)) {
 			$model = array();
 		}
 		$storageArray = array();
         foreach ($model as $key => $value) {
         	//check if the key already exists in the view
-        	if (array_key_exists($key, $view)) { 
+        	if (array_key_exists($key, $view)) {
 	        	//if it does, it is saved in storageArray because it will be overwritten
         		$storageArray[$key] = $this->view->{$key};
         	}

@@ -17,7 +17,7 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testShouldNotLeaveGlobalVariables() {
 		$view = $this->_getView();
-		
+
 		$garpPartial = $this->_getPartialHelper();
 		$outputGarp = $garpPartial->partial('partials/excerpt.phtml', 'mocks', array(
 			'username' => 'Johnny'
@@ -47,7 +47,8 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals($outputGarp, $outputZend);
 	}
 
-	protected function setUp(){
+	public function setUp(){
+		parent::setUp();
 		require_once 'garp/application/modules/mocks/resources/PartialTestMockDataGenerator.php';
 		$generator = new PartialTestMockDataGenerator();
 		$this->_staticArgs = $generator->wordpressDatabaseArray();
@@ -60,11 +61,11 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 	 * Benchmarks the performance of the garpPartial compared to the zendPartial
      * uses the methods _createALotOfGarpViews() and _createAlotOfZendViews()
      * uses a for loop to generate garp views and zend views alternatively
-     * 
+     *
      * the output on the screen is the time needed to generate the zend views - the time neded to generate the garp views => a positive number means that the garp tweak is better.
      */
 	protected function benchmark() {
- 
+
 		//for some reason the order here matters,
 		// so usually when zend views are generated first, the first batch seems to have a better performance than the garp views
 		// if the order is switched, the garp views take less time allways
@@ -73,7 +74,7 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 			$zendTimeTotal = $this->_createALotOfZendViews();
 			$garpTimeTotal = $this->_createALotOfGarpViews();
 			$deltaPerformance = $zendTimeTotal - $garpTimeTotal;
-			
+
 			$garpIsFaster = $deltaPerformance > 0;
             $outputColor = $garpIsFaster ? Garp_Cli::GREEN : Garp_Cli::RED;
             $msg = $garpIsFaster ? '                Garp is faster!' : 'Zend is faster';
@@ -84,7 +85,7 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 			$garpTimeTotal = $this->_createALotOfGarpViews();
 			$zendTimeTotal = $this->_createALotOfZendViews();
 			$deltaPerformance = $zendTimeTotal - $garpTimeTotal;
-			
+
 			 $garpIsFaster = $deltaPerformance > 0;
             $outputColor = $garpIsFaster ? Garp_Cli::GREEN : Garp_Cli::RED;
             $msg = $garpIsFaster ? '                Garp is faster!' : 'Zend is faster';
@@ -128,7 +129,8 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 		return Zend_Registry::get('application')->getBootstrap()->getResource('View');
 	}
 
-	protected function tearDown() {
+	public function tearDown() {
+		parent::tearDown();
 		$this->_getView()->clearVars();
 	}
 

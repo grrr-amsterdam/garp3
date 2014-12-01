@@ -15,25 +15,21 @@ class Garp_Auth {
  	 */
 	const ROLE_COLUMN = 'role';
 
-
 	/**
  	 * Role when nobody is logged in
  	 */
 	const DEFAULT_VISITOR_ROLE = 'visitor';
-
 
 	/**
  	 * Default role when a user is logged in
  	 */
 	const DEFAULT_USER_ROLE = 'user';
 
-
 	/**
 	 * Singleton instance
 	 * @var Garp_Auth
 	 */
 	private static $_instance = null;
-	
 
 	/**
  	 * Storage
@@ -41,7 +37,6 @@ class Garp_Auth {
  	 */
 	protected $_store;
 
-	
 	/**
 	 * Some config defaults
 	 * @var Array
@@ -55,8 +50,7 @@ class Garp_Auth {
 		'logoutSuccessMessage'	=> 'You are now logged out',
 		'salt'                  => 'you should really fill this in application.ini'
 	);
-	
-	
+
 	/**
 	 * Private constructor. Here be Singletons.
 	 * @param Garp_Store_Interface $store Session or cookie, for instance
@@ -65,8 +59,7 @@ class Garp_Auth {
 	private function __construct(Garp_Store_Interface $store = null) {
 		$this->setStore($store ?: Garp_Store_Factory::getStore('Garp_Auth'));
 	}
-	
-	
+
 	/**
 	 * Get Garp_Auth instance
 	 * @param Garp_Store_Interface $store Session or cookie, for instance
@@ -79,7 +72,6 @@ class Garp_Auth {
 		return Garp_Auth::$_instance;
 	}
 
-
 	/**
  	 * Return the currently used storage object
  	 * @return Garp_Store_Interface
@@ -87,7 +79,6 @@ class Garp_Auth {
 	public function getStore() {
 		return $this->_store;
 	}
-
 
 	/**
  	 * Set storage object
@@ -97,8 +88,7 @@ class Garp_Auth {
 		$this->_store = $store;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Check if a user is logged in
 	 * @return Boolean
@@ -117,8 +107,7 @@ class Garp_Auth {
 		}
 		return $isLoggedIn;
 	}
-	
-	
+
 	/**
 	 * Get data from logged in user
 	 * @return Array
@@ -126,8 +115,16 @@ class Garp_Auth {
 	public function getUserData() {
 		return $this->_store->userData;
 	}
-	
-	
+
+	/**
+ 	 * Convenience method for grabbing id of the currently logged in user
+ 	 * @return Int
+ 	 */
+	public function getUserId() {
+		$data = $this->getUserData();
+		return !empty($data['id']) ? $data['id'] : null;
+	}
+
 	/**
 	 * Create a unique token for the currently logged in user.
 	 * @param String $input Serialized user data
@@ -156,8 +153,7 @@ class Garp_Auth {
 
 		return $token;
 	}
-	
-	
+
 	/**
 	 * Validate the current token
 	 * @return Boolean
@@ -168,8 +164,7 @@ class Garp_Auth {
 		$checkToken = $this->createToken(serialize($userData));
 		return $checkToken === $currToken;
 	}
-	
-	
+
 	/**
 	 * Store user data in session
 	 * @param Mixed $data The user data
@@ -181,9 +176,9 @@ class Garp_Auth {
 		$this->_store->userData = $data;
 		$this->_store->method = $method;
  	 	$this->_store->token = $token;
+		return $this;
 	}
-	
-	
+
 	/**
 	 * Destroy session, effectively logging out the user
 	 * @return Void
@@ -191,8 +186,7 @@ class Garp_Auth {
 	public function destroy() {
 		$this->_store->destroy();
 	}
-	
-	
+
 	/**
 	 * Retrieve auth-related config values from application.ini
 	 * @return Array
@@ -206,7 +200,6 @@ class Garp_Auth {
 		}
 		return $values;
 	}
-
 
 	/**
  	 * Check if the current user (ARO) has access to a certain controller action or Model CRUD method (ACO).
@@ -227,7 +220,6 @@ class Garp_Auth {
 		return true;
 	}
 
-
 	/**
  	 * Get the role associated with the current session.
  	 * Note that an anonymous session, where nobody is logged in also has a role associated with it.
@@ -244,8 +236,7 @@ class Garp_Auth {
 		}
 		return $role;
 	}
-	
-	
+
 	/**
 	 * Return all available roles from the ACL tree.
 	 * @param Boolean $verbose Wether to include a role's parents
@@ -268,7 +259,6 @@ class Garp_Auth {
 		}
 		return array();
 	}
-	
 
 	/**
  	 * Return the parents of a given role
@@ -291,7 +281,6 @@ class Garp_Auth {
 		return $parents;
 	}
 
-
 	/**
  	 * Return the children of a given role
  	 * @param String $role
@@ -309,6 +298,19 @@ class Garp_Auth {
 				}
 			}
 		}
-		return $children;	
+		return $children;
+	}
+
+	/**
+ 	 * Return which columns should be stored in the user session
+ 	 */
+	public function getSessionColumns() {
+		$ini = Zend_Registry::get('config');
+		$sessionColumns = Zend_Db_Select::SQL_WILDCARD;
+		if (!empty($ini->auth->login->sessionColumns)) {
+ 		   	$sessionColumns = $ini->auth->login->sessionColumns;
+ 		   	$sessionColumns = explode(',', $sessionColumns);
+		}
+		return $sessionColumns;
 	}
 }
