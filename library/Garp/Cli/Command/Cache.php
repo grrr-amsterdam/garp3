@@ -1,7 +1,7 @@
 <?php
 /**
  * Garp_Cli_Command_Cache
- * 
+ *
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -30,9 +30,7 @@ class Garp_Cli_Command_Cache extends Garp_Cli_Command {
 			$cacheDir = $cache->getBackend()->getOption('public_dir');
 		}
 
-		Garp_Cache_Manager::purgeStaticCache($args, $cacheDir);
-		Garp_Cache_Manager::purgeMemcachedCache($args);
-		Garp_Cache_Manager::purgePluginLoaderCache();
+		Garp_Cache_Manager::purge($args, true, $cacheDir);
 		Garp_Cli::lineOut('All cache purged.');
 		return true;
 	}
