@@ -72,7 +72,6 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
             	that.waitingForSetData = false;
         	});
         	this.setValue(this.orgValue);
-        	console.log('yay ckeditor');
         };
 		if (typeof CKEDITOR === 'undefined') {
 			Ext.Loader.load([ASSET_URL + 'js/garp/ckeditor/ckeditor.js'], ckLoaded, this);
@@ -90,10 +89,11 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
 
 	// Get char count, stripped of HTML tags
 	getCharCount: function() {
-		if (this.editor && this.editor.document) {
+		try {
 			return this.editor.document.getBody().getText().length;
+		} catch(e) {
+			return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
 		}
-		return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
 	},
 
     setValue: function(value) {

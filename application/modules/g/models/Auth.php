@@ -40,7 +40,9 @@ abstract class G_Model_Auth extends Garp_Model_Db {
 	 * @return Int The number of rows updated.
 	 */
 	public function updateLoginStats($userId, $columns = array()) {
-		$columns['ip_address'] = $_SERVER['REMOTE_ADDR'];
+		if (isset($_SERVER['REMOTE_ADDR'])) {
+			$columns['ip_address'] = $_SERVER['REMOTE_ADDR'];
+		}
 		$columns['last_login'] = new Zend_Db_Expr('NOW()');
 		return $this->update(
 			$columns,

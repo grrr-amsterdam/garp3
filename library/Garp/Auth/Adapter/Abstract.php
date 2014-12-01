@@ -18,13 +18,11 @@ abstract class Garp_Auth_Adapter_Abstract {
 	 */
 	protected $_configKey = '';
 	
-	
 	/**
 	 * Collection of errors
 	 * @var Array
 	 */
 	protected $_errors = array();
-	
 	
 	/**
 	 * Authenticate a user.
@@ -32,7 +30,6 @@ abstract class Garp_Auth_Adapter_Abstract {
 	 * @return Array|Boolean User data, or FALSE
 	 */
 	abstract public function authenticate(Zend_Controller_Request_Abstract $request);
-
 
 	/**
 	 * Fetch user data. We never store all the user data in the session, just 
@@ -49,7 +46,6 @@ abstract class Garp_Auth_Adapter_Abstract {
 		return $userData->current();
 	}
 
-	
 	/**
 	 * Get auth values related to this adapter
 	 * @return Zend_Config
@@ -65,7 +61,6 @@ abstract class Garp_Auth_Adapter_Abstract {
 		return null;
 	}
 	
-	
 	/**
 	 * Map properties coming from the 3rd party to columns used in our database
 	 * @param Array $props
@@ -73,7 +68,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 	 */
 	protected function _mapProperties(array $props) {
 		$authVars = $this->_getAuthVars();
-		if ($authVars->mapping && !empty($authVars->mapping)) {			
+		if ($authVars->mapping && !empty($authVars->mapping)) {
 			$cols = array();
 			foreach ($authVars->mapping as $mappedProp => $col) {
 				if ($col) {
@@ -86,8 +81,15 @@ abstract class Garp_Auth_Adapter_Abstract {
 								' a mapping of columns in application.ini.');
 		}
 	}
+
+	/**
+ 	 * Return array of columns that are stored in the session cookie
+ 	 * @return Array|String (can also be Zend_Db_Select::SQL_WILDCARD)
+ 	 */
+	protected function _getSessionColumns() {
+		return Garp_Auth::getInstance()->getSessionColumns();
+	}
 		
-	
 	/**
 	 * Return all errors
 	 * @return Array
@@ -96,7 +98,6 @@ abstract class Garp_Auth_Adapter_Abstract {
 		return $this->_errors;
 	}
 	
-	
 	/**
 	 * Return most recent error
 	 * @return String
@@ -104,7 +105,6 @@ abstract class Garp_Auth_Adapter_Abstract {
 	public function getError() {
 		return end($this->_errors);
 	}
-	
 	
 	/**
 	 * Add an error to the stack.
@@ -115,7 +115,6 @@ abstract class Garp_Auth_Adapter_Abstract {
 		$this->_errors[] = $error;
 		return $this;
 	}
-	
 	
 	/**
 	 * Clear all errors

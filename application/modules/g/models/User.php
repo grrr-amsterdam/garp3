@@ -15,13 +15,11 @@ class G_Model_User extends Model_Base_User {
  	 */
 	const ROLE_COLUMN = 'role';
 
-
 	/**
  	 * Password column
  	 * @var String
  	 */
 	const PASSWORD_COLUMN = 'password';
-
 
 	/**
  	 * A password might be passed, but that belongs in G_Model_AuthLocal.
@@ -31,7 +29,6 @@ class G_Model_User extends Model_Base_User {
  	 */
 	protected $_password;
 
-
 	/**
  	 * Wether to validate email address afterUpdate. beforeUpdate there is a check
  	 * to see if the email address actually changes.
@@ -39,6 +36,15 @@ class G_Model_User extends Model_Base_User {
  	 */
 	protected $_validateEmail;
 
+	/**
+ 	 * Grab only session columns by userid
+ 	 */
+	public function fetchUserForSession($userId) {
+		$select = $this->select()
+			->from($this->getName(), Garp_Auth::getInstance()->getSessionColumns())
+			->where('id = ?', $userId);
+		return $this->fetchRow($select);
+	}
 
 	/**
  	 * BeforeInsert callback
@@ -47,6 +53,12 @@ class G_Model_User extends Model_Base_User {
  	 */
 	public function beforeInsert(array &$args) {
 		$data = &$args[1];
+
+		if (array_key_exists('imageUrl', $data)) {
+			// Allow passing in of image URLs. These are downloaded and added as image_id
+			$data['image_id'] = $this->_grabRemoteImage($data['imageUrl']);
+			unset($data['imageUrl']);
+		}
 
 		// Prevent admins from saving a user's role greater than their own.
 		if (!empty($data[self::ROLE_COLUMN]) && !$this->_isRoleAllowed($data[self::ROLE_COLUMN])) {
@@ -61,7 +73,6 @@ class G_Model_User extends Model_Base_User {
 		// Remove the password key from the data to prevent an error
 		unset($data[self::PASSWORD_COLUMN]);
 	}
-
 
 	/**
  	 * AfterInsert callback
@@ -88,7 +99,6 @@ class G_Model_User extends Model_Base_User {
 			$authLocalModel->insert($newAuthLocalData);
 		}
 	}
-
 	
 	/**
  	 * BeforeUpdate callback
@@ -98,9 +108,13 @@ class G_Model_User extends Model_Base_User {
 	public function beforeUpdate(array &$args) {
 		$data = &$args[1];
 		$where = $args[2];
+		$auth = Garp_Auth::getInstance();
+		$authVars = $auth->getConfigValues();
 
-		// Check if the email address is about to be changed
-		if (array_key_exists('email', $data)) {
+		// Check if the email address is about to be changed, and wether we should respond to it
+		if ((!empty($authVars['validateEmail']['enabled']) && 
+			$authVars['validateEmail']['enabled']) &&
+			array_key_exists('email', $data)) {
 			// Collect the current email addresses to see if they are to be changed
 			// @todo For now we assume that email is a unique value. This means that 
 			// we use fetchRow instead of fetchAll. 
@@ -111,6 +125,12 @@ class G_Model_User extends Model_Base_User {
 			if ($user && $user->email != $data['email']) {
 				$this->_validateEmail = true;
 			}
+		}
+
+		if (array_key_exists('imageUrl', $data)) {
+			// Allow passing in of image URLs. These are downloaded and added as image_id
+			$data['image_id'] = $this->_grabRemoteImage($data['imageUrl']);
+			unset($data['imageUrl']);
 		}
 
 		// A password might be passed in, and needs to be passed to G_Model_AuthLocal
@@ -164,7 +184,6 @@ class G_Model_User extends Model_Base_User {
 		}
 	}
 
-
 	/**
  	 * AfterUpdate callback
  	 * @param Array $args
@@ -177,7 +196,6 @@ class G_Model_User extends Model_Base_User {
 			$this->_onEmailChange($data['email'], 'update');
 		}
 	}
-
 
 	/**
  	 * BeforeDelete callback
@@ -194,7 +212,6 @@ class G_Model_User extends Model_Base_User {
 			}
 		}
 	}
-
 
 	/**
  	 * Respond to change in email address
@@ -219,7 +236,6 @@ class G_Model_User extends Model_Base_User {
 			}
 		}
 	}
-
 
 	/**
  	 * Start the email validation procedure
@@ -248,7 +264,6 @@ class G_Model_User extends Model_Base_User {
 		return false;
 	}
 
-
 	/**
  	 * Generate unique email validation code for a user
  	 * @param Garp_Db_Table_Row $user
@@ -267,7 +282,6 @@ class G_Model_User extends Model_Base_User {
 		$validationCode = md5($validationCode);
 		return $validationCode;
 	}
-
 
 	/**
  	 * Send validation email to the user
@@ -313,7 +327,6 @@ class G_Model_User extends Model_Base_User {
 		return $response;
 	}
 
-
 	/**
  	 * Prevent admins from saving a user's role greater than their own. 
  	 * Note: will return TRUE if no user is logged in. This is because
@@ -343,5 +356,11 @@ class G_Model_User extends Model_Base_User {
 		// or less than Admin? These semantics must be written customly.
 		$children = Garp_Auth::getInstance()->getRoleChildren($currentAdminRole);
 		return !in_array($role, $children);
+	}
+
+	protected function _grabRemoteImage($imageUrl, $filename = null) {
+		$image = new Model_Image();
+		$imageId = $image->insertFromUrl($imageUrl, $filename);
+		return $imageId;
 	}
 }
