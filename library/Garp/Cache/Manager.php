@@ -35,13 +35,11 @@ class Garp_Cache_Manager {
 	 * Purge all cache system wide
 	 * @param Array|Garp_Model_Db $tags
 	 * @param Boolean $createClusterJob Whether this purge should create a job to clear the other nodes in this server cluster, if applicable.
+	 * @param String $cacheDir Directory which stores static HTML cache files.
 	 * @return Void
 	 */
-	public static function purge($tags = array(), $createClusterJob = true) {
-		if ($tags instanceof Garp_Model_Db) {
-			$tags = self::getTagsFromModel($tags);
-		}
-		self::purgeStaticCache($tags);
+	public static function purge($tags = array(), $createClusterJob = true, $cacheDir = false) {
+		self::purgeStaticCache($tags, $cacheDir);
 		self::purgeMemcachedCache($tags);
 		self::purgePluginLoaderCache();
 
@@ -63,7 +61,7 @@ class Garp_Cache_Manager {
 
 		if (empty($modelNames)) {
 			if (Zend_Registry::isRegistered('CacheFrontend')) {
-				$cacheFront = Zend_Registry::get('CacheFrontend'); 
+				$cacheFront = Zend_Registry::get('CacheFrontend');
 				$cacheFront->clean(Zend_Cache::CLEANING_MODE_ALL);
 			}
 		} else {
@@ -97,7 +95,7 @@ class Garp_Cache_Manager {
 		if ($modelNames instanceof Garp_Model_Db) {
 			$modelNames = self::getTagsFromModel($modelNames);
 		}
-	
+
 		$cacheDir = $cacheDir ?: self::_getStaticCacheDir();
 		if (!$cacheDir) {
 			return;
@@ -109,7 +107,7 @@ class Garp_Cache_Manager {
 		if (empty($modelNames)) {
 			$allPath = $cacheDir.'*';
 			return self::_deleteStaticCacheFile($allPath);
-		} 
+		}
 		// Fetch model names from configuration
 		if (!$tagList = self::_getTagList()) {
 			return;
@@ -214,7 +212,7 @@ class Garp_Cache_Manager {
 	public static function info() {
 		Garp_Cli::lineOut('# Server cache backend');
 		if (Zend_Registry::isRegistered('CacheFrontend')) {
-			$cacheFront = Zend_Registry::get('CacheFrontend'); 
+			$cacheFront = Zend_Registry::get('CacheFrontend');
 			$cacheBack = $cacheFront->getBackend();
 			Garp_Cli::lineOut('Backend type: ' . get_class($cacheBack));
 		} else {
@@ -234,7 +232,7 @@ class Garp_Cache_Manager {
 
 	/**
  	 * Fetch the cache directory for static caching
- 	 * @return String 
+ 	 * @return String
  	 */
 	protected static function _getStaticCacheDir() {
 		$front = Zend_Controller_Front::getInstance();
@@ -245,7 +243,7 @@ class Garp_Cache_Manager {
 		$cache = $cacheManager->getCache(Zend_Cache_Manager::PAGECACHE);
 		$cacheDir = $cache->getBackend()->getOption('public_dir');
 		return $cacheDir;
-	}		
+	}
 
 	/**
  	 * Fetch mapping of available tags to file paths
@@ -262,7 +260,7 @@ class Garp_Cache_Manager {
 		if (!empty($ini->tags)) {
 			return $ini->tags;
 		}
-		
+
 		return null;
 	}
 }
