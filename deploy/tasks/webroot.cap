@@ -1,0 +1,64 @@
+desc "Create .htaccess file to reroute webroot"
+task :create_webroot_reroute_htaccess do
+	on roles(:web) do
+		execute "printf '<IfModule mod_rewrite.c>\\n\\tRewriteEngine on\\n\\tRewriteRule ^(.*)$ current/public/$1 [L]\\n</IfModule>' > #{deploy_to}/.htaccess"
+	end
+end
+
+desc "Verify and / or find webroot path"
+task :find_webroot do 
+	on roles(:web) do
+		default_webroot = "/var/www/#{fetch(:application)}"
+		deploy_to_is_unknown = deploy_to.empty? || deploy_to == default_webroot
+
+		if deploy_to_is_unknown
+			guess_webroot self
+			exit
+		end
+
+		writable = capture("[ -w '#{deploy_to}' ] && echo 1 || echo 0").strip == '1'
+		info "Checking if #{deploy_to} is writable: #{writable}"
+		if !writable
+			error "The deploy_to path is not writable."
+			exit
+		end
+	end
+end
+
+def guess_webroot cap
+	pwd = cap.capture("pwd").strip
+	if check_dir_existence cap, pwd, 'web'
+		show_deploy_to_guess cap, pwd, 'web'
+	elsif check_dir_existence cap, pwd, 'public'
+		show_deploy_to_guess cap, pwd, 'public'
+	elsif check_dir_existence cap, pwd, 'html'
+		on roles(:web), in: :parallel do |server|
+			domain_subdir = "html/#{server.hostname}/public" 
+			if check_dir_existence cap, pwd, domain_subdir
+				show_deploy_to_guess cap, pwd, domain_subdir
+			else
+				error "Couldn't find webroot dir."
+				error "Probably you're using a different "\
+					"ssh host than the app domain."
+				error "Tried: #{domain_subdir}."
+			end
+		end
+	elsif check_dir_existence cap, pwd, 'httpdocs'
+		show_deploy_to_guess cap, pwd, 'httpdocs'
+	else
+		error "Couldn't find the webroot dir..."
+	end
+end
+
+def check_dir_existence cap, pwd, dir
+	cap.capture("[ -d #{pwd}/#{dir} ] && echo 1 || echo 0").strip == '1'
+end
+
+def show_deploy_to_guess cap, pwd, dir
+	deploy_to_guess = "#{pwd}/#{dir}"
+	error "Missing deploy_to path. Please configure this."
+	info "It's now set to:"
+	info deploy_to
+	info "I'm guessing it to be:"
+	info deploy_to_guess
+end

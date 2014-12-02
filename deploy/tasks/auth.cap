@@ -1,0 +1,39 @@
+desc "Set webroot directory permissions"
+task :set_webroot_permissions do
+	on roles(:web) do
+		execute "chmod -R g+w #{release_path}"
+	end
+end
+
+desc "Add public SSH keys"
+task :add_public_ssh_keys do
+	on roles(:web) do
+		ssh_local_path = "../golem/application/configs/authorized_keys"
+		tmp_path = "#{fetch(:tmp_dir)}/authorized_keys"
+		destination_path = "~/.ssh/authorized_keys"
+
+    	execute "if [ ! -d '~/.ssh' ]; then mkdir -p ~/.ssh; fi"
+    	execute "chmod 700 ~/.ssh"
+        upload! StringIO.new(File.read(ssh_local_path)), tmp_path
+		execute "mv #{tmp_path} #{destination_path}"
+    	execute "chmod 700 #{destination_path}"
+	end
+end
+
+desc "Mark Git server as safe"
+task :mark_git_server_safe do
+	on roles(:web) do
+		execute "touch ~/.ssh/known_hosts && ssh-keyscan -t rsa,dsa code.grrr.nl 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && cat ~/.ssh/tmp_hosts > ~/.ssh/known_hosts && rm ~/.ssh/tmp_hosts"
+	end
+end
+
+desc "Set permissions on essential deploy directories"
+task :set_shared_dirs_permissions do
+	on roles(:web) do
+    	execute "chmod -R g+w #{deploy_to}/shared/backup/db"
+    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/public/uploads/documents"
+    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/public/uploads/images"
+    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/application/data/logs"
+    	execute "chmod -R g+w,o+rx #{deploy_to}/shared/application/data/cache/tags"
+	end
+end

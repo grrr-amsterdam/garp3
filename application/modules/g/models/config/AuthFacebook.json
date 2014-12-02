@@ -1,0 +1,27 @@
+{
+	"visible": false,
+	
+	"inputs":  {
+		"facebook_uid": {
+			"maxLength": 100,
+			"type": "text"
+		},
+		"ip_address": {
+			"maxLength": 15
+		},
+		"last_login": {
+			"type": "datetime"
+		},
+		"access_token": {
+			"maxLength": 255
+		}
+	},
+
+	"listFields": ["id", "facebook_uid", "ip_address"],
+
+	"relations": {
+		"User": {
+			"type": "belongsTo"
+		}
+	}
+}

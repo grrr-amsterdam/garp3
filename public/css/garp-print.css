@@ -1,0 +1,99 @@
+.print-grid {
+	visibility: visible;
+}
+.print-form {
+	visibility: visible;	
+}
+
+/* Form print: */
+.print-form .garp-formpanel{
+	overflow: visible !important;
+	height: auto !important;
+	width: auto !important;
+	position: fixed;
+	top: 1cm;
+	left: 0;
+}
+.print-form .x-form-field {
+	border: none !important; 
+}
+.print-form .x-tab-strip-inner {
+	display: none;
+}
+.print-form .x-tab-strip-active .x-tab-strip-inner {
+	display: block;
+	position: fixed;
+	top: 0cm;
+	left: 0;
+}
+.print-form textarea {
+	visibility: visible;
+	display: block;
+	height: 10cm !important;
+	width: 10cm!important;
+}
+
+/* Grid overflow: */
+.print-grid .x-grid3-viewport {
+	overflow: visible;
+	height: auto;
+	width: auto;
+}
+.print-grid .x-grid3-scroller {
+	overflow: visible;
+	height: auto;
+	width: auto;
+}
+.print-grid .x-grid3 {
+	overflow: visible;
+	height: auto;
+	width: auto;
+}
+.print-grid div.x-panel.print-gridPanelCt.x-border-panel{
+	position: static;
+	height: 200px;
+}
+
+/* No Border, except header */
+div.x-panel.x-border-panel{
+	border-width: 0;
+}
+div.x-panel, div.x-panel-body{
+	border-width: 0;
+}
+div.x-panel.x-grid-3-scroller{
+	height: auto;
+	overflow: visible;
+	position: static;
+}
+td.x-grid3-hd.x-grid3-cell{
+	border: 0;
+	border-bottom: 1px #EEE solid;
+	font-weight: bold;
+}
+
+
+/* Header border bottom */
+.print-grid div.x-grid3-header {
+	border: 0;
+}
+
+
+/* No Menu Toolbar: */
+div.x-panel.toolbarCt.x-border-panel {
+	display: none;
+}
+
+/* No Grid Toolbars: */
+div.x-panel-bbar.x-panel-bbar-noborder {
+	display: none;
+}
+div.x-panel-tbar.x-panel-tbar-noheader.x-panel-tbar-noborder{
+	display: none;
+}
+
+/* No Form Panel: */
+.print-grid div.x-panel.formPanelCt.x-border-panel {
+	display: none;
+}
+

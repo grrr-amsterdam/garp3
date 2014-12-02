@@ -1,0 +1,27 @@
+{
+	"visible": false,
+	
+	"inputs":  {
+		"vimeo_id": {
+			"maxLength": 255
+		},
+		"ip_address": {
+			"maxLength": 15
+		},
+		"last_login": {
+			"type": "datetime"
+		},
+		"access_token": {
+		},
+		"access_token_secret": {
+		}
+	},
+
+	"listFields": ["id", "vimeo_id", "ip_address"],
+
+	"relations": {
+		"User": {
+			"type": "belongsTo"
+		}
+	}
+}

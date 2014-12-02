@@ -1,0 +1,33 @@
+<?php
+
+$locale = Garp_I18n::getCurrentLocale();
+$locale = $locale ?: Garp_I18n::getDefaultLocale();
+
+$country = $locale === 'en'
+	?'US'
+	:strtoupper($locale)
+;
+$languageString = strtolower($locale) . '_' . strtoupper($country);
+
+?>
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '<?php echo $this->appId ?>', // App ID
+      channelUrl : '<?php echo $this->channelUrl ?>',
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
+    });
+  };
+
+  // Load the SDK Asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/<?php echo $languageString ?>/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
+</script>

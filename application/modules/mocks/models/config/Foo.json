@@ -1,0 +1,28 @@
+{
+	"inputs": {
+		"name": {
+			"maxLength": 100
+		},
+		"description": {
+			"type": "html",
+			"required": false
+		}
+	},
+
+	"behaviors": {
+		"Sluggable": {
+			"baseField": ["name"]
+		}
+	},
+	
+	"relations": {
+		"MyBigBogus": {
+			"model": "Bogus"
+		},
+
+		"MyMotherBogus": {
+			"model": "Bogus",
+			"type": "belongsTo"
+		}
+	}
+}

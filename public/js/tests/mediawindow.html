@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Garp MediaWindow - Test Environment</title>
+		<script type="text/javascript" src="../ext-3.1.1/adapter/ext/ext-base-debug.js"></script>
+		<script type="text/javascript" src="../ext-3.1.1/ext-all-debug.js"></script>
+		<script src="/garp/ext/api" type="text/javascript" charset="utf-8"></script>
+		<link rel="shortcut icon" type="image/x-icon" href="/images/garp/icons/favicon.png">
+		<link rel="stylesheet" href="../ext-3.1.1/resources/css/ext-all.css" type="text/css">
+		<link rel="stylesheet" href="../ext-3.1.1/resources/css/xtheme-gray.css" type="text/css">
+		<link rel="stylesheet" href="/css/garp/icons.css" type="text/css">
+		<link rel="stylesheet" href="/css/garp/garp.css" type="text/css">
+	</head>
+	<body>
+		<!-- Required fields for history management -->
+		<form id="history-form" class="x-hidden" action="">
+    		<input type="hidden" id="x-history-field">
+    		<iframe id="x-history-frame"></iframe>
+		</form>
+		<!-- Ext Overrides include -->
+		<script type="text/javascript" src="../overrides.js"></script>
+		<!-- Garp config include -->
+		<script type="text/javascript" src="../garp.config.js"></script>
+		<!-- Garp Models include -->
+		<!-- Ext extensions include -->
+		<script type="text/javascript" src="../extux/ext.ux.form.searchfield.js"></script>
+		<script type="text/javascript" src="../extux/ext.ux.form.browsebutton.js"></script>
+		<script type="text/javascript" src="../extux/ext.ux.form.browsesplitbutton.js"></script>
+		<script type="text/javascript" src="../extux/ext.ux.fileuploader.js"></script>
+		<script type="text/javascript" src="../extux/ext.ux.uploadpanel.js"></script>
+		<script type="text/javascript" src="../extux/ext.ux.mediawindow.js"></script>
+		<!-- Garp components -->
+		<script>
+			Ext.QuickTips.init();
+
+			var win = new Ext.ux.MediaWindow({});
+			win.on('select',function(selected){
+				console.dir(selected);
+			});
+			win.show();
+			
+			WIN = win; // DEBUG
+			
+		</script>
+	</body>
+</html>

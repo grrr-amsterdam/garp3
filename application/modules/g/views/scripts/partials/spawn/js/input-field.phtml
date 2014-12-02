@@ -1,0 +1,140 @@
+<?php
+
+$field	= $this->field;
+$xType 	= $this->spawnJs()->getFieldType($field);
+$vType 	= $this->spawnJs()->getFieldValidationType($field);
+$plugin = $this->spawnJs()->getFieldPlugin($field);
+
+$props = array();
+
+$getNameProperty = function($field, $language) {
+	$name = $field->isMultilingual() ?
+		'_' . $field->name . '_' . $language :
+		$field->name
+	;
+	return "name: '{$name}'";
+};
+
+$props[] = $getNameProperty($field, $this->language);
+$props[] = "fieldLabel: __('{$field->label}')";
+$props[] = "disabled: ".($field->editable ? 'false' : 'true');
+$props[] = "hidden: ".($field->visible ? 'false' : 'true');
+
+switch ($field->type) {
+	case 'enum':
+		$props[] = "editable: false";
+		$props[] = "mode: 'local'";
+		if (key($field->options) === 0) {
+			$options = $field->options;
+			if (!$field->required) {
+				array_unshift($options, null);
+			}
+			$props[] = "store: ['".implode($options, "', '")."']";
+		} else {
+			$labeledEnumOptions = array();
+			if (!$field->required) {
+				$labeledEnumOptions[] = "[null, __('(empty)')]";
+			}
+			foreach ($field->options as $value => $label) {
+				$labeledEnumOptions[] = "['{$value}', __('{$label}')]";
+			}
+			$options = $labeledEnumOptions;
+			$props[] = "store: [".implode($options, ", ")."]";
+		}
+	break;
+	case 'html':
+		if ($field->rich) {
+			array_push($props,
+				'enableSourceEdit: false',
+				'enableEmbed: false',
+				'enableDefinitionList: false'
+			);
+		} else {
+			array_push($props,
+				'enableMedia: false',      
+				'enableHeading: false',
+				'enableSourceEdit: false',
+				'enableEmbed: false',
+				'enableAlignments: false',
+				'enableColors: false',
+				'enableFont: false',
+				'enableFontSize: false',
+				'enableUnderline: false',
+				'enableBlockQuote: false',
+				'enableDefinitionList: false',
+				'height: 200'
+			);
+		}
+	break;
+	case 'numeric':
+		if (!$field->float) {
+			$props[] = 'allowDecimals: false';
+		}
+	break;
+	case 'document':
+		$props[] = 'emptyText: __(\'Drag file here, or click browse button\')';
+		$props[] = 'uploadURL: BASE + \'g/content/upload/type/document\'';
+		$props[] = 'ref: \'../../../../filename\'';
+		
+		$ini = Zend_Registry::get('config');
+		$extensionString = $ini->cdn->extensions;
+		$extensions = explode(',', $extensionString);
+		$allowedExtensions = array_filter($extensions, function($element) {
+			$excludedExtensions = array('jpg', 'jpeg', 'gif', 'png');
+			return !in_array($element, $excludedExtensions);
+		});
+		$allowedExtensionString = "'" . implode('\',\'', $allowedExtensions) . "'";
+		$props[] = 	"supportedExtensions: [{$allowedExtensionString}]";
+	break;
+	case 'imagefile':
+		$props[] = 'emptyText: __(\'Drag file here, or click browse button\')';
+		$props[] = 'uploadURL: BASE + \'g/content/upload/type/image\'';
+		$props[] = 'ref: \'../../../../filename\'';
+		
+		$ini = Zend_Registry::get('config');
+		$extensionString = $ini->cdn->extensions;
+		$extensions = explode(',', $extensionString);
+		$allowedExtensions = array_filter($extensions, function($element) {
+			$imageExtensions = array('jpg', 'jpeg', 'gif', 'png');
+			return in_array($element, $imageExtensions);
+		});
+		$allowedExtensionString = "'" . implode('\',\'', $allowedExtensions) . "'";
+		$props[] = 	"supportedExtensions: [{$allowedExtensionString}]";
+	break;
+}
+
+if ($field->maxLength && $field->type !== 'enum') {
+	$props[] = "maxLength: {$field->maxLength}";
+}
+
+$required = isset($this->required) ? $this->required : $field->required;
+$props[] = "allowBlank: ".($required ? 'false' : 'true');
+
+$props[] = "xtype: '{$xType}'";
+if ($vType)
+	$props[] = "vtype: '{$vType}'";
+if ($plugin)
+	$props[] = "plugins: [{$plugin}]";
+?>
+				<?php echo implode(",\n\t\t\t\t", $props); ?>
+				<?php if ($field->info): ?>
+			}, {
+			<?php
+				echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
+					'text' => "__('" . addslashes($field->info) . "')",
+					'fieldName' => $field->name
+				));
+			endif; ?>
+				<?php if ($field->type === 'document' || $field->type === 'imagefile'): ?>
+			}, {
+			<?php
+				$allowedExtensionsExceptLast = array_slice($allowedExtensions, 0, -1);
+				$allowedLastExtension = current(array_slice($allowedExtensions, -1));
+				$file = new Garp_File();
+				$uploadLimitInMbs = round($file->getUploadMaxFilesize());
+
+				echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
+					'text' => "__('Only {1} and {2} files with a maximum of {3} MB are allowed', '" . implode(', ', $allowedExtensionsExceptLast) . "', '" . $allowedLastExtension . "', '" . $uploadLimitInMbs . "')",
+					'fieldName' => $field->name
+				));
+			endif; ?>

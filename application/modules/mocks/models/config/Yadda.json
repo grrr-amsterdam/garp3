@@ -1,0 +1,20 @@
+{
+	"inputs": {
+		"name": {
+			"maxLength": 100
+		},
+		"awesomeness": {
+			"type": "numeric",
+			"required": false
+		},
+		"status": {
+			"type": "enum",
+			"options": ["total douche", "mediocre office guy", "The Fonz"],
+			"required": false
+		}
+	},
+
+	"behaviors": {
+		"Sluggable": {}
+	}
+}

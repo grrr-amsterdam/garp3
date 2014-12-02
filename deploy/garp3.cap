@@ -1,0 +1,40 @@
+namespace :deploy do
+	task :started do
+		invoke :verify_production_deploy
+		#invoke :check_grunt_status
+	end
+
+	task :updated do
+		# Disk tasks
+		invoke :create_system_cache_dirs
+		invoke :create_static_cache_dir
+		invoke :set_blackhole_path_symlink_fix
+
+		# Garp tasks
+		invoke :spawn 
+		invoke :garp_update_version 
+		invoke :garp_env_setup
+
+		# Auth tasks
+		invoke :set_webroot_permissions
+	end
+
+	task :published do
+		invoke :update_cluster_servers
+	end
+
+	task :setup do 
+		invoke :validate_app_name
+		invoke :add_public_ssh_keys
+		invoke :find_webroot
+		invoke :mark_git_server_safe
+		invoke :create_deploy_dirs
+		invoke :set_shared_dirs_permissions
+		invoke :create_webroot_reroute_htaccess
+		invoke :install_crontab
+	end
+end
+
+task :check do
+	invoke :check_ssh_forwarding
+end

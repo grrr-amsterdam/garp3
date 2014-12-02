@@ -1,0 +1,8 @@
+This package is updated by Harmen Janssen on August 8, 2012.
+Most file_exists() and related calls are commented out.
+
+These calls were problematic because our import files resolve to URLs, and
+file_exists doesn't work with URLs.
+
+So even though there was no problem reading the file, checking wether it could
+be read resulted in an exception.

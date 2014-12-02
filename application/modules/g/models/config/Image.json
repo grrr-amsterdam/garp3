@@ -1,0 +1,19 @@
+{
+	"quickAddable": true,
+
+	"listFields": ["filename"],
+	
+	"module": "garp",
+
+	"inputs": {
+		"filename": {
+			"type": "imagefile",
+			"maxLength": 255
+		},
+		"caption": {
+			"type": "text",
+			"maxLength": 255,
+			"required": false
+		}
+	}
+}

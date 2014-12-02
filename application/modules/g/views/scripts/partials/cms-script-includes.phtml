@@ -1,0 +1,79 @@
+<?php if ($this->locale): ?>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/ext-3.4.1/src/locale/ext-lang-'.$this->locale.'.js') ?>"></script>
+<?php // Crossorigin attribute on /g/ext/getlocale ends up in a weird error. Let's not do that ?>
+<script src="<?php echo $this->baseUrl('/g/ext/getlocale/') ?>"></script>
+<?php
+endif;
+
+if (isset($this->config()->cms->minifiedAssets) && $this->config()->cms->minifiedAssets):
+	$jsPath = 'cms.js';
+	// Alas, we need this for backward-compatibility
+	if (!$this->config()->cms->useVersionedJavascript):
+		$jsPath = $this->config()->assets->js->root . '/' . $jsPath;
+	endif;
+	echo $this->script()->src($jsPath, true, array('crossorigin' => 'anonymous'));
+else:
+?>
+
+<!-- Ext Overrides include -->
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/overrides.js') ?>"></script>
+
+<!-- Garp config include -->
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.config.js') ?>"></script>
+
+<!-- General utility functions -->
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.renderers.js') ?>"></script>
+
+<!-- Ext extensions include -->
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.searchbar.js') ?>"></script>
+
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.datetime.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.mapwindow.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.mapfield.js') ?>"></script>
+
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.rendereddisplayfield.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.fileuploadfield.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.uploadcombo.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.uploadfield.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.pagingsearchbar.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.searchfield.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.richtexteditor.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.form.ckeditor.js') ?>"></script>
+<!-- Garp components -->
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.i18n.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.wysiwygct.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.wysiwygabstract.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.filtermenu.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.tweetwindow.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.imageeditor.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.imagepickerwindow.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.modelpickerwindow.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.relatecreatewindow.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.inlinerelator.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.youtubeuploadwindow.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.relationfield.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.relationpanel.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.superboxselect.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.metapanel.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.modelmenu.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.welcomepanel.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.gridpanel.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.formpanel.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.toolbar.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.infopanel.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.viewport.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.exportwindow.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.importwindow.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.passwordfieldset.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.datetimepicker.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.menu.datetimemenu.js') ?>"></script>
+
+<!-- Garp Models include -->
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.datatype.js') ?>"></script>
+
+<!-- Main Garp JS include -->
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/overrides.postinit.js') ?>"></script>
+<script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/garp.js') ?>"></script>
+
+<?php
+endif;

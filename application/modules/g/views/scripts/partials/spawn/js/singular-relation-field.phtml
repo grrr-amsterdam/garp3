@@ -1,0 +1,72 @@
+<?php
+	if (!$this->relationName):
+		throw new Exception('This partial requires a String as $relationName parameter.');
+	endif;
+	if (!$this->relation instanceof Garp_Spawn_Relation):
+		throw new Exception('This partial requires a Garp_Spawn_Relation instance as $relation parameter.');
+	endif;
+	if (!$this->modelSet instanceof Garp_Spawn_Model_Set):
+		throw new Exception('This partial requires a Garp_Spawn_Model_Set instance as $modelSet parameter.');
+	endif;
+	if ($this->relation->model === 'Image'):
+		throw new Exception('This partial is intended for related models which are not images; please use image-field.phtml for that.');
+	endif;
+	
+	$lcRelationLabel = strtolower($this->relation->label);
+	
+	if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect): 
+		// simple drop down select
+	
+?>
+				name: '<?php echo $this->relation->column ?>',
+				xtype: 'relationfield',
+				triggerFn: false,
+				fieldLabel: __('<?php 
+					if ($this->relation->label === $this->relation->model):
+						foreach ($this->modelSet as $model):
+							if ($model->id === $this->relation->model):
+								echo $model->label;
+								break;
+							endif;
+						endforeach;
+					else:
+						echo $this->relation->label;
+					endif;
+				?>'),
+				allowBlank: <?php echo $this->relation->type === 'belongsTo' ? 'false' : 'true' ?>,
+				<?php if (!$this->relation->editable): ?>
+				disabled: true,
+				<?php endif; ?>
+				model: '<?php echo $this->relation->model ?>'
+<?php 
+	
+	else: 
+		// select with popup relation chooser:
+	
+?>
+				name: '<?php echo $this->relation->column ?>',
+				xtype: 'bindedfield',
+				bindedField: '<?php echo strtolower($this->relationName) ?>'
+			}, {
+				name: '<?php echo strtolower($this->relationName) ?>',
+				xtype: 'joinedrelationfield',
+				bindedField: '<?php echo $this->relation->column ?>',
+				fieldLabel: __('<?php 
+					if ($this->relation->label === $this->relation->model):
+						foreach ($this->modelSet as $model):
+							if ($model->id === $this->relation->model):
+								echo $model->label;
+								break;
+							endif;
+						endforeach;
+					else:
+						echo $this->relation->label;
+					endif;
+				?>'),
+				allowBlank: <?php echo $this->relation->type === 'belongsTo' ? 'false' : 'true' ?>,
+				<?php if (!$this->relation->editable): ?>
+				disabled: true,
+				<?php endif; ?>
+				model: '<?php echo $this->relation->model ?>'
+<?php 	
+		endif; 

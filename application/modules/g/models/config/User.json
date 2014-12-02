@@ -1,0 +1,55 @@
+{
+	"label": "Person",
+
+	"module": "garp",
+
+	"inputs": {
+		"first_name": {
+			"maxLength": 100,
+			"required": false
+		},
+		"last_name_prefix": {
+			"maxLength": 20,
+			"required": false
+		},
+		"last_name": {
+			"maxLength": 124,
+			"required": false
+		},
+		"email": {
+			"required": true,
+			"unique": true
+		},
+		"role": {
+			"type": "enum",
+			"options": ["user", "admin", "developer"],
+			"default": "user"
+		},
+		"password_reset_code_expiration_date": {
+			"required": false,
+			"visible": false
+		},
+		"password_reset_token": {
+			"required": false,
+			"visible": false
+		},
+		"email_validation_token": {
+			"required": false,
+			"visible": false
+		},
+		"email_valid": {
+			"type": "checkbox",
+			"default": 0,
+			"editable": false
+		}
+	},
+
+	"relations": {
+	},
+
+	"behaviors": {
+		"Sluggable": {
+			"baseField": ["first_name", "last_name_prefix", "last_name"]
+		}
+	}
+}
