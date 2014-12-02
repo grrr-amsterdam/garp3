@@ -8,10 +8,15 @@ CKEDITOR.plugins.add('garpvideos', {
                 var win = new Garp.ModelPickerWindow({
                     model: "Video"
                 });
+                var getCleanVideoUrl = function(url) {
+					url += url.indexOf('?') === -1 ? '?' : '&';
+					url += ['showinfo=0'].join('&');
+					return url;
+                };
                 win.on('select', function(data) {
                     // Insert element
                     var html = Garp.videoTpl.apply({
-                        player: data.selected.get('player'),
+                        player: getCleanVideoUrl(data.selected.get('player')),
                         width: VIDEO_WIDTH,
                         height: VIDEO_HEIGHT
                     });
