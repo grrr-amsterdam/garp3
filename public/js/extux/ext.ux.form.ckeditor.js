@@ -43,7 +43,7 @@ Ext.form.CKEditor = function(config) {
         var richButtons = ["Garpimage"];
 
         // Only load the video picker when a VIDEO_WIDTH template is defined
-        if (VIDEO_WIDTH) {
+        if (typeof VIDEO_WIDTH !== 'undefined') {
             extraPlugins += ",garpvideos";
             richButtons.push("Garpvideo");
         }
