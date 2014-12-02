@@ -245,7 +245,7 @@ Garp.imageTpl = new Ext.XTemplate(['<tpl if="caption">', '<tpl if="align">', '<f
 /**
  * Video Template for embeding videos
  */
-Garp.videoTpl = new Ext.XTemplate('<iframe width="{width}" height="{height}" src="{player}" frameborder="0"></iframe>');
+Garp.videoTpl = new Ext.XTemplate('<figure class="video-embed"><iframe width="{width}" height="{height}" src="{player}" frameborder="0"></iframe></figure>');
 
 /**
  * Ext.Panel setTitle override for TabPanels (ellipsis added)
