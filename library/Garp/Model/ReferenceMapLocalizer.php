@@ -26,16 +26,16 @@ class Garp_Model_ReferenceMapLocalizer {
 	/**
  	 * Populate the subject model's referenceMap with
  	 * localized versions of the given model.
- 	 * @param String|Garp_Model_Db $relatedModel 
+ 	 * @param String|Garp_Model_Db $relatedModel
  	 * @return Void
  	 */
-	public function populate($relatedModel) {
-		// Sanity check: does the model have a reference to the 
+	public function populate($relatedModel, $ruleKey = null) {
+		// Sanity check: does the model have a reference to the
 		// given model in the first place?
 		// This will throw an exception if not.
 		$relatedModel = $relatedModel instanceof Garp_Model_Db ? get_class($relatedModel) : $relatedModel;
 		$relatedModel = (substr($relatedModel, 0, 6) !== 'Model_' ? 'Model_' : '') . $relatedModel;
-		$ref = $this->_model->getReference($relatedModel);
+		$ref = $this->_model->getReference($relatedModel, $ruleKey);
 		$locales = Garp_I18n::getLocales();
 		foreach ($locales as $locale) {
 			$factory = new Garp_I18n_ModelFactory($locale);
