@@ -66,7 +66,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		$config->set('AutoFormat.RemoveSpansWithoutAttributes', true);
 		$config->set('AutoFormat.RemoveEmpty.RemoveNbsp', true);
 		$config->set('Output.TidyFormat', true);
-		$config->set('Attr.AllowedClasses', array('figure', 'left', 'right'));
+		$config->set('Attr.AllowedClasses', array('figure', 'left', 'right', 'video-embed'));
 		$config->set('CSS.AllowedProperties', array('font-weight', 'font-style', 'float', 'vertical-align', 'width', 'height'));
 		$config->set('CSS.MaxImgLength', null);
     	$config->set('Cache.SerializerPath', APPLICATION_PATH.'/data/cache');
@@ -82,7 +82,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		// add proprietary elements
 		if ($def = $config->maybeGetRawHTMLDefinition()) {
 			$def->addAttribute('a', 'target', 'Enum#_blank,_self');
-			
+
 			$iframe = $def->addElement(
 				'iframe',	// name
 				'Inline',	// content set
@@ -115,7 +115,9 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 				'Inline',
 				'Flow',
 				'Common',
-				array()
+				array(
+					'class*' => 'Text'
+				)
 			);
 			$figcaption = $def->addElement(
 				'figcaption',
