@@ -39,6 +39,10 @@ class Garp_Cache_Manager {
 	 * @return Void
 	 */
 	public static function purge($tags = array(), $createClusterJob = true, $cacheDir = false) {
+		if ($tags instanceof Garp_Model_Db) {
+            $tags = self::getTagsFromModel($tags);
+        }
+
 		self::purgeStaticCache($tags, $cacheDir);
 		self::purgeMemcachedCache($tags);
 		self::purgePluginLoaderCache();
