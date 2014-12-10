@@ -25,7 +25,10 @@ class Garp_Service_Slack {
  	 * @param $text		Text to post in the Slack message
  	 * @param $params	Extra, optional Slack parameters that
  	 *					override the Incoming Webhook settings.
- 	 *					f.i. 'username', 'icon_emoji', 'channel'
+ 	 *					f.i.:
+ 	 *					'username' => 'me',
+ 	 *					'icon_emoji' => ':ghost:',
+ 	 *					'channel' => '#my-channel'
  	 */
 	public function postMessage($text, $params = array()) {
 		$params['text'] = $text;

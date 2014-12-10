@@ -3,7 +3,6 @@
  * G_ErrorController
  * Handles display and logging of errors
  * @author Harmen Janssen, David Spreekmeester | grrr.nl
- * @version 1
  * @package Garp
  * @subpackage Controllers
  */
@@ -43,10 +42,10 @@ class G_ErrorController extends Garp_Controller_Action {
 
 		$this->view->exception = $errors->exception;
 		$this->view->request   = $errors->request;
+		$displayErrorsConfig = ini_get('display_errors');
+		$this->view->displayErrors = $displayErrorsConfig;
 
-		if (ini_get('display_errors')) {
-			$this->view->displayErrors = true;
-
+		if ($displayErrorsConfig) {
 			if ($errors->exception instanceof Zend_Db_Exception) {
 				$profiler = Zend_Db_Table::getDefaultAdapter()->getProfiler();
 				if ($profiler && $profiler->getLastQueryProfile()) {
@@ -54,50 +53,68 @@ class G_ErrorController extends Garp_Controller_Action {
 				}
 			}
 		} else {
-			$this->view->displayErrors = false;
-
 			// Oh dear, this is the production environment. This is serious.
 			// Better log the error and mail a crash report to a nerd somewhere.
 			if ($this->getResponse()->getHttpResponseCode() != 500) {
 				return;
 			}
-			$errorMessage = "Exception: {$errors->exception->getMessage()}\n\n";
-			$errorMessage .= "Stacktrace: {$errors->exception->getTraceAsString()}\n\n";
-			$errorMessage .= "Request URL: {$errors->request->getRequestUri()}\n\n";
-			// Referer
-			if (!empty($_SERVER['HTTP_REFERER'])) {
-				$errorMessage .= "Referer: {$_SERVER['HTTP_REFERER']}\n\n";
-			} else {
-				$errorMessage .= "Referer: n/a\n\n";
-			}
-			// IP Addr
-			if (!empty($_SERVER['REMOTE_ADDR'])) {
-				$errorMessage .= "IP address: {$_SERVER['REMOTE_ADDR']}\n\n";
-			} else {
-				$errorMessage .= "IP address: n/a\n\n";
-			}
-			// User agent
-			if (!empty($_SERVER['HTTP_USER_AGENT'])) {
-				$errorMessage .= "User agent: {$_SERVER['HTTP_USER_AGENT']}\n\n";
-			} else {
-				$errorMessage .= "User agent: n/a\n\n";
-			}
-			// Request params
-			$errorMessage .= 'Request parameters: '.print_r($errors->request->getParams(), true)."\n\n";
-			// User data
-			$errorMessage .= 'User data: ';
 
-			$auth = Garp_Auth::getInstance();
-			if ($auth->isLoggedIn()) {
-				$errorMessage .= print_r($auth->getUserData(), true);
-			} else {
-				$errorMessage .= 'n/a';
-			}
-			$errorMessage .= "\n\n";
+			$errorMessage = $this->_composeErrorMessage($errors);
 
 			$this->_logError($errorMessage);
-			$this->_mailAdmin($errorMessage);
+
+			$slack = new Garp_Service_Slack();
+			$slack->isEnabled()
+				? $slack->postMessage(
+					$errorMessage,
+					array(
+						'channel' => '#garp-errors',
+						'icon_emoji' => ':squirrel:',
+						'username' => 'Golem'
+					)
+				)
+				: $this->_mailAdmin($errorMessage)
+			;
 		}
+	}
+
+
+	protected function _composeErrorMessage($errors) {
+		$errorMessage = "Exception: {$errors->exception->getMessage()}\n\n";
+		$errorMessage .= "Stacktrace: {$errors->exception->getTraceAsString()}\n\n";
+		$errorMessage .= "Request URL: {$errors->request->getRequestUri()}\n\n";
+		// Referer
+		if (!empty($_SERVER['HTTP_REFERER'])) {
+			$errorMessage .= "Referer: {$_SERVER['HTTP_REFERER']}\n\n";
+		} else {
+			$errorMessage .= "Referer: n/a\n\n";
+		}
+		// IP Addr
+		if (!empty($_SERVER['REMOTE_ADDR'])) {
+			$errorMessage .= "IP address: {$_SERVER['REMOTE_ADDR']}\n\n";
+		} else {
+			$errorMessage .= "IP address: n/a\n\n";
+		}
+		// User agent
+		if (!empty($_SERVER['HTTP_USER_AGENT'])) {
+			$errorMessage .= "User agent: {$_SERVER['HTTP_USER_AGENT']}\n\n";
+		} else {
+			$errorMessage .= "User agent: n/a\n\n";
+		}
+		// Request params
+		$errorMessage .= 'Request parameters: '.print_r($errors->request->getParams(), true)."\n\n";
+		// User data
+		$errorMessage .= 'User data: ';
+
+		$auth = Garp_Auth::getInstance();
+		if ($auth->isLoggedIn()) {
+			$errorMessage .= print_r($auth->getUserData(), true);
+		} else {
+			$errorMessage .= 'n/a';
+		}
+		$errorMessage .= "\n\n";
+
+		return $errorMessage;
 	}
 
 	/**
