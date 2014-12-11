@@ -7,6 +7,10 @@
  * @subpackage Controllers
  */
 class G_ErrorController extends Garp_Controller_Action {
+	const ERROR_REPORT_MAIL_ADDRESS_FALLBACK = 'garp@grrr.nl';
+	const SLACK_CHANNEL = '#garp-errors';
+	const SLACK_USERNAME = 'Golem';
+
 	public function indexAction() {
 		$this->_forward('error');
 	}
@@ -59,28 +63,117 @@ class G_ErrorController extends Garp_Controller_Action {
 				return;
 			}
 
-			$errorMessage = $this->_composeErrorMessage($errors);
-
+			$errorMessage = $this->_composeFullErrorMessage($errors);
 			$this->_logError($errorMessage);
 
-			$slack = new Garp_Service_Slack();
-			$slack->isEnabled()
-				? $slack->postMessage(
-					$errorMessage,
-					array(
-						'channel' => '#garp-errors',
-						'icon_emoji' => ':squirrel:',
-						'username' => 'Golem'
-					)
-				)
-				: $this->_mailAdmin($errorMessage)
-			;
+			if (!$this->_logToSlack($errors)) {
+				$this->_mailAdmin($errorMessage);
+			}
 		}
 	}
 
+	protected function _logToSlack(ArrayObject $errors) {
+		$slack = new Garp_Service_Slack();
 
-	protected function _composeErrorMessage($errors) {
-		$errorMessage = "Exception: {$errors->exception->getMessage()}\n\n";
+		if (!$slack->isEnabled()) {
+			return false;
+		}
+
+		$shortErrorMessage = $this->_composeShortErrorMessage($errors);
+
+		$params = array(
+			'channel' => self::SLACK_CHANNEL,
+			'icon_emoji' => ':squirrel:',
+			'username' => self::SLACK_USERNAME
+		);
+
+		//	Add first occurrence and StackTrace as attachments
+		$trace = $this->_filterBasePath(
+			str_replace('->', '::', $errors->exception->getTraceAsString())
+		);
+		$params['attachments'] = array(
+			array(
+				'title' => $this->_getExceptionClass($errors),
+				'text' => $slack->wrapCodeMarkup(
+					$errors->exception->getMessage()
+					. "\n"
+					. $this->_filterBasePath($errors->exception->getFile())
+					. ': '
+					. $errors->exception->getLine()
+				),
+				'color' => '#bb5555',
+				'mrkdwn_in' => array('text'),
+				'short' => true
+			),
+			array(
+				'title' => 'StackTrace',
+				'text' => $slack->wrapCodeMarkup($trace),
+				'color' => '#6666ee',
+				'mrkdwn_in' => array('text'),
+				'short' => true
+			)
+		);
+
+		$slack->postMessage($shortErrorMessage, $params);
+
+		return true;
+	}
+
+	/**
+ 	 *	Rewrites full paths to relative paths (in StackTrace)
+ 	 */
+	protected function _filterBasePath($stringWithFullPaths) {
+		return str_replace(BASE_PATH, '', $stringWithFullPaths);
+	}
+
+	protected function _startsWithVowel($string) {
+		$vowels = array('a', 'e', 'i', 'o', 'u');
+		return in_array(strtolower($string[0]), $vowels);
+	}
+
+	protected function _getExceptionClass(ArrayObject $errors) {
+		return get_class($errors->exception);
+	}
+
+	protected function _composeShortErrorMessage(ArrayObject $errors) {
+		$appName = $this->_getApplicationName();
+
+		$exceptionType = $this->_getExceptionClass($errors);
+		$article = $this->_startsWithVowel($exceptionType) ? 'an' : 'a';
+		$message = "Found {$article} `{$exceptionType}` in project `"
+			. $appName . "` :neutral_face:\n";
+
+		// Add user information
+		$auth = Garp_Auth::getInstance();
+		if ($auth->isLoggedIn()) {
+			$userData = $auth->getUserData();
+			$message .= 'Caused by '
+				. $userData['role'] . ' '
+				. $userData['name']
+				. ' (' . $userData['email'] . ").\n"
+			;
+		}
+
+		// Add environment and IP
+		$message .= 'On `' . APPLICATION_ENV . '`';
+		if (!empty($_SERVER['REMOTE_ADDR'])) {
+			$message .= " ({$_SERVER['SERVER_NAME']}, "
+					. "{$_SERVER['REMOTE_ADDR']})";
+		}
+		$message .= "\n";
+
+		// Add url
+		$fullUrl = new Garp_Util_FullUrl();
+		$message .= "Url: <{$fullUrl}|{$errors->request->getRequestUri()}>";
+
+
+		return $message;
+	}
+
+
+	protected function _composeFullErrorMessage(ArrayObject $errors) {
+		$errorMessage = "Application: {$this->_getApplicationName()}\n\n";
+		$errorMessage .= "Exception: {$errors->exception->getMessage()}\n\n";
 		$errorMessage .= "Stacktrace: {$errors->exception->getTraceAsString()}\n\n";
 		$errorMessage .= "Request URL: {$errors->request->getRequestUri()}\n\n";
 		// Referer
@@ -117,6 +210,14 @@ class G_ErrorController extends Garp_Controller_Action {
 		return $errorMessage;
 	}
 
+
+	protected function _getApplicationName() {
+		$deployConfig = new Garp_Deploy_Config();
+		$appName = $deployConfig->getParam('production', 'application');
+
+		return $appName;
+	}
+
 	/**
  	 * Log that pesky error
  	 * @param String $message
@@ -143,14 +244,14 @@ class G_ErrorController extends Garp_Controller_Action {
 		$ini = Zend_Registry::get('config');
 		$to = (isset($ini->app) && isset($ini->app->errorReportEmailAddress) && $ini->app->errorReportEmailAddress) ?
 			$ini->app->errorReportEmailAddress :
-			'garp@grrr.nl'
+			self::ERROR_REPORT_MAIL_ADDRESS_FALLBACK
 		;
 
 		mail(
 			$to,
 			$subjectPrefix.'An application error occurred',
 			$message,
-			'From: garp@grrr.nl'
+			'From: ' . self::ERROR_REPORT_MAIL_ADDRESS_FALLBACK
 		);
 	}
 }
