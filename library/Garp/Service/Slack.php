@@ -61,6 +61,13 @@ class Garp_Service_Slack {
 		return str_replace("\t", '', self::CONFIG_INSTRUCTION);
 	}
 
+	/**
+ 	 * Wraps code in pre-formatting markup tags.
+ 	 */
+	public function wrapCodeMarkup($string) {
+		return "```\n" . $string . "\n```";
+	}
+
 	protected function _constructParameters(array $params) {
 		return array(
 			'payload' => json_encode($params)
