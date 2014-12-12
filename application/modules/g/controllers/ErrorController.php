@@ -25,10 +25,10 @@ class G_ErrorController extends Garp_Controller_Action {
 		}
 		if (!$this->view) {
             $bootstrap = Zend_Registry::get('application')->getBootstrap();
-            $this->view = $bootstrap->getResource('View');  
+            $this->view = $bootstrap->getResource('View');
 		}
 
-		switch ($errors->type) { 
+		switch ($errors->type) {
 			case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_CONTROLLER:
 			case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_ACTION:
 				// 404 error -- controller or action not found
@@ -37,7 +37,7 @@ class G_ErrorController extends Garp_Controller_Action {
 				$this->view->message = 'Page not found';
 			break;
 			default:
-				// application error 
+				// application error
 				$this->getResponse()->setHttpResponseCode(500);
 				$this->view->httpCode = 500;
 				$this->view->message = 'Application error';
