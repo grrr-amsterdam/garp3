@@ -7,19 +7,19 @@
 class Garp_Service_Slack_ConfigTest extends PHPUnit_Framework_TestCase {
 
 	/**
-	 * @var Garp_Service_Elasticsearch_Configuration $_config
+	 * @var Garp_Service_Slack_Config $_config
 	 */
 	protected $_config;
 	
 	/**
-	 * @return Garp_Service_Elasticsearch_Configuration
+	 * @return Garp_Service_Slack_Config
 	 */
 	public function getConfig() {
 		return $this->_config;
 	}
 	
 	/**
-	 * @param Garp_Service_Elasticsearch_Configuration _config
+	 * @param Garp_Service_Slack_Config _config
 	 */
 	public function setConfig($config) {
 		$this->_config = $config;
@@ -28,43 +28,22 @@ class Garp_Service_Slack_ConfigTest extends PHPUnit_Framework_TestCase {
 
 
 	public function setUp() {
-		// only test ElasticSearch in a project that uses ElasticSearch
-		//if (!isset(Zend_Registry::get('config')->elasticsearch)) {
-			//return;
-		//}
-		$mockConfig = new StdClass();
-		$mockConfig->token = 'GLKJKJHF234/234AKDJH/k234kjh324afa';
-		$mockConfig->channel = '#mychannel';
-		$mockConfig->emoji = ':my_emoji:';
-		$mockConfig->username = 'myname';
+		$mockConfig = array(
+			'token' => 'GLKJKJHF234/234AKDJH/k234kjh324afa',
+			'channel' => '#mychannel',
+			'icon_emoji' => ':my_emoji:',
+			'username' => 'myname'
+		);
 
 		$this->setConfig(new Garp_Service_Slack_Config($mockConfig));
 	}
 
 
-	public function testShouldHaveChannel() {
-		//// only test ElasticSearch in a project that uses ElasticSearch
-		//if (!isset(Zend_Registry::get('config')->elasticsearch)) {
-			//return;
-		//}
-		
+	public function testShouldHaveToken() {
 		$config 	= $this->getConfig();
-		$channel 	= $config->getChannel();
+		$token		= $config->getToken();
 
-		$this->assertTrue(true, 'Bogus test');
-		//$this->assertTrue(!empty($channel), 'Does Slack config have a channel?');
+		$this->assertTrue(!empty($token), 'Does Slack config have a token?');
 	}
-
-	//public function testShouldHaveIndex() {
-		//// only test ElasticSearch in a project that uses ElasticSearch
-		//if (!isset(Zend_Registry::get('config')->elasticsearch)) {
-			//return;
-		//}
-		//$config = $this->getConfig();
-		//$index 	= $config->getIndex();
-
-		//$this->assertTrue(!empty($index), 'Does configuration.index have a value?');
-	//}
-
 
 }
