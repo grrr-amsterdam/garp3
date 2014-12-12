@@ -62,16 +62,6 @@ class Garp_Service_Slack {
 		return "```\n" . $string . "\n```";
 	}
 
-	/**
-	 *	@return Array
- 	 */
-	protected function _loadAppWideConfig() {
-		$ini = Zend_Registry::get('config');
-		$config = $ini->slack->webhook;
-		
-		return (array)$config;
-	}
-
 	protected function _constructParameters(array $params) {
 		return array(
 			'payload' => json_encode($params)
