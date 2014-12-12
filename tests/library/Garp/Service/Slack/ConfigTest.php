@@ -43,7 +43,31 @@ class Garp_Service_Slack_ConfigTest extends PHPUnit_Framework_TestCase {
 		$config 	= $this->getConfig();
 		$token		= $config->getToken();
 
-		$this->assertTrue(!empty($token), 'Does Slack config have a token?');
+		$this->assertTrue(
+			!empty($token),
+			'Does Slack config have a token?'
+		);
 	}
 
+	public function testShouldHaveTokenInParamsList() {
+		$params 	= $this->getConfig()->getParams();
+		$token		= $params['token'];
+
+		$this->assertTrue(
+			!empty($token),
+			'Does Slack config have a token in the list of params?'
+		);
+	}
+
+	public function testOverridingParamShouldHaveEffectInParamsList() {
+		$overrides	= array('token' => 'mylittlepony');
+		$params 	= $this->getConfig()->getParams($overrides);
+		$token		= $params['token'];
+
+		$this->assertEquals(
+			'mylittlepony',
+			$token,
+			'Does Slack config have the correct overriding token?'
+		);
+	}
 }
