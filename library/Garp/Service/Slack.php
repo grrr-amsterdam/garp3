@@ -10,55 +10,49 @@
  */
 class Garp_Service_Slack {
 	const API_URL = 'https://hooks.slack.com/services/%s';
-	const ERROR_TOKEN_UNAVAILABLE = 
-		"The webhook token for Slack was not configured properly.";
-	const CONFIG_INSTRUCTION = 
-		"Please set slack.webhook.token to the string that is used 
-		in the Slack webhook integration. It consists of three 
-		strings, separated by slashes, i.e.: 
-		F0E33IA/B921F21/raiu3221hjkD21g.
-		You can find it on your Slack integrations page.";
 
+	/**
+ 	 * @var Garp_Service_Slack_Config $_config
+ 	 */
+	protected $_config;
+
+
+	public function __construct(Garp_Service_Slack_Config $config = null) {
+		if (!$config) {
+			$config = new Garp_Service_Slack_Config();
+		}
+
+		$this->_config = $config;
+	}
+
+	/**
+ 	 *  @return Garp_Service_Slack_Config
+ 	 */
+	public function getConfig() {
+		return $this->_config;
+	}
 
 	/**
  	 * Post a message in a Slack channel.
  	 * @param $text		Text to post in the Slack message
  	 * @param $params	Extra, optional Slack parameters that
- 	 *					override the Incoming Webhook settings.
+ 	 *					override the app-wide settings in app.ini,
+ 	 *					that in turn override Slack's Incoming 
+ 	 *					Webhook settings.
  	 *					f.i.:
  	 *					'username' => 'me',
  	 *					'icon_emoji' => ':ghost:',
  	 *					'channel' => '#my-channel'
  	 */
 	public function postMessage($text, $params = array()) {
+		$config = $this->getConfig();
 		$params['text'] = $text;
+		$params = $config->getParams($params);
 
 		return $this->_fsock_post(
 			$this->_constructWebhookUrl(),
 			$this->_constructParameters($params)
 		);
-	}
-
-	/**
- 	 * Tests if Slack is enabled for this project.
- 	 * @return Boolean
- 	 */
-	public function isEnabled() {
-		try {
-			$token = $this->_fetchToken();
-		} catch (Exception $e) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
- 	 * Returns a string that describes how to
- 	 * enable Slack for this project.
- 	 */
-	public function getConfigInstruction() {
-		return str_replace("\t", '', self::CONFIG_INSTRUCTION);
 	}
 
 	/**
@@ -68,6 +62,16 @@ class Garp_Service_Slack {
 		return "```\n" . $string . "\n```";
 	}
 
+	/**
+	 *	@return Array
+ 	 */
+	protected function _loadAppWideConfig() {
+		$ini = Zend_Registry::get('config');
+		$config = $ini->slack->webhook;
+		
+		return (array)$config;
+	}
+
 	protected function _constructParameters(array $params) {
 		return array(
 			'payload' => json_encode($params)
@@ -75,27 +79,10 @@ class Garp_Service_Slack {
 	}
 
 	protected function _constructWebhookUrl() {
-		$token = $this->_fetchToken();
+		$token = $this->getConfig()->getToken();
 		$url = sprintf(self::API_URL, $token);
 
 		return $url;
-	}
-
-	protected function _fetchToken() {
-		$ini = Zend_Registry::get('config');
-		if (
-			!isset($ini->slack) ||
-			!isset($ini->slack->webhook) ||
-			!isset($ini->slack->webhook->token) ||
-			empty($ini->slack->webhook->token)
-		) {
-			$error = self::ERROR_TOKEN_UNAVAILABLE
-				. "\n" . self::CONFIG_INSTRUCTION;
-			throw new Exception($error);
-		}
-		$token = $ini->slack->webhook->token;
-
-		return $token;
 	}
 
 	protected function _fsock_post($url, $data) {

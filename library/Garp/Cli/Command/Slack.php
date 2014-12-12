@@ -14,23 +14,6 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
 
 
 	/**
-	 * Test if Slack is enabled for this project
-	 * @return Void
-	 */
-	public function test() {
-		$slack = new Garp_Service_Slack();
-		$works = $slack->isEnabled();
-
-		if (!$works) {
-			Garp_Cli::errorOut("Slack is not set up for this project.");
-			Garp_Cli::lineOut($slack->getConfigInstruction());
-			exit(1);
-		}
-
-		Garp_Cli::lineOut("√ Slack seems to be enabled.", Garp_Cli::GREEN);
-	}
-
-	/**
 	 * Post a message in a Slack channel
 	 * @return Void
 	 */
@@ -49,9 +32,6 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
  	 */
 	public function help() {
 		Garp_Cli::lineOut('Usage:');
-		Garp_Cli::lineOut('Check if Slack is enabled:');
-		Garp_Cli::lineOut('  g slack test', Garp_Cli::BLUE);
-		Garp_Cli::lineOut('');
 		Garp_Cli::lineOut('Send Slack message:');
 		Garp_Cli::lineOut('  g slack send "Hello world"', Garp_Cli::BLUE);
 		Garp_Cli::lineOut('');
