@@ -115,7 +115,6 @@ class Garp_Service_Slack {
 		fwrite($fp, "\r\n");
 		fwrite($fp, $content);
 
-		header('Content-type: text/plain');
 		$output = '';
 		while (!feof($fp)) {
     		$output .= fgets($fp, 1024);
