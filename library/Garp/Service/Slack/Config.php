@@ -80,19 +80,19 @@ class Garp_Service_Slack_Config {
 		return $this->_username;
 	}
 
-	protected function _loadAppWideConfig() {
-		$ini = Zend_Registry::get('config');
-		$params = $ini->slack;
-
-		return $params->toArray();
-	}
-
 	/**
  	 * Returns a string that describes how to
  	 * enable Slack for this project.
  	 */
 	public function getConfigInstruction() {
 		return str_replace("\t", '', self::CONFIG_INSTRUCTION);
+	}
+
+	protected function _loadAppWideConfig() {
+		$ini = Zend_Registry::get('config');
+		$params = $ini->slack;
+
+		return $params->toArray();
 	}
 
 	protected function _validateConfig(array $config) {
