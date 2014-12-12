@@ -8,8 +8,6 @@
  */
 class G_ErrorController extends Garp_Controller_Action {
 	const ERROR_REPORT_MAIL_ADDRESS_FALLBACK = 'garp@grrr.nl';
-	const SLACK_CHANNEL = '#garp-errors';
-	const SLACK_USERNAME = 'Golem';
 
 	public function indexAction() {
 		$this->_forward('error');
@@ -73,19 +71,13 @@ class G_ErrorController extends Garp_Controller_Action {
 	}
 
 	protected function _logToSlack(ArrayObject $errors) {
-		$slack = new Garp_Service_Slack();
-
-		if (!$slack->isEnabled()) {
+		try {
+			$slack = new Garp_Service_Slack();
+		} catch (Exception $e) {
 			return false;
 		}
 
 		$shortErrorMessage = $this->_composeShortErrorMessage($errors);
-
-		$params = array(
-			'channel' => self::SLACK_CHANNEL,
-			'icon_emoji' => ':squirrel:',
-			'username' => self::SLACK_USERNAME
-		);
 
 		//	Add first occurrence and StackTrace as attachments
 		$trace = $this->_filterBasePath(
@@ -242,14 +234,18 @@ class G_ErrorController extends Garp_Controller_Action {
 		}
 
 		$ini = Zend_Registry::get('config');
-		$to = (isset($ini->app) && isset($ini->app->errorReportEmailAddress) && $ini->app->errorReportEmailAddress) ?
-			$ini->app->errorReportEmailAddress :
-			self::ERROR_REPORT_MAIL_ADDRESS_FALLBACK
+		$to = (
+			isset($ini->app) &&
+			isset($ini->app->errorReportEmailAddress) &&
+			$ini->app->errorReportEmailAddress
+		)
+			? $ini->app->errorReportEmailAddress
+			: self::ERROR_REPORT_MAIL_ADDRESS_FALLBACK
 		;
 
 		mail(
 			$to,
-			$subjectPrefix.'An application error occurred',
+			$subjectPrefix . 'An application error occurred',
 			$message,
 			'From: ' . self::ERROR_REPORT_MAIL_ADDRESS_FALLBACK
 		);
