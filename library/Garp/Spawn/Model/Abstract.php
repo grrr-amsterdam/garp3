@@ -11,6 +11,7 @@ abstract class Garp_Spawn_Model_Abstract {
 	public $creatable;
 	public $deletable;
 	public $quickAddable;
+	public $comment;
 
 	/** @var Boolean $visible Whether this model shows up in the cms index. */
 	public $visible;
