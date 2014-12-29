@@ -46,6 +46,20 @@ class Garp_Deploy_Config {
 	}
 
 	/**
+	 * Returns a deploy parameter for a specific environment.
+	 *
+	 * @param String $env The environment to get parameters for
+	 *					(i.e. 'integration' or 'production').
+	 * @return String Name of deploy parameter:
+	 * 					f.i. 'application', 'server',
+	 * 					'deploy_to' or 'user'.
+	 */
+	public function getParam($env, $param) {
+		$params = $this->getParams($env);
+		return $params[$param];
+	}
+
+	/**
  	 * Parses the generic configuration.
  	 * @param String $content
  	 * @return Array

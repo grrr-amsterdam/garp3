@@ -144,9 +144,14 @@ class Garp_Auth {
  		 * all current cookies are made invalid and users have to generate a new cookie afresh by logging in.
  		 * This ensures the user cookies always contain all the columns.
  		 */
-		$userModel = new Model_User();
-		$columns = $userModel->info(Zend_Db_Table_Abstract::COLS);
-		$columns = implode('.', $columns);
+		$columns = '';
+		try {
+			$userModel = new Model_User();
+			$columns = $userModel->info(Zend_Db_Table_Abstract::COLS);
+			$columns = implode('.', $columns);
+		} catch (Zend_Db_Adapter_Exception $e) {
+			Garp_ErrorHandler::handlePrematureException($e);
+		}
 
 		$token .= $columns;
 		$token = md5($token);
