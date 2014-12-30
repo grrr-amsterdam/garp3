@@ -80,7 +80,7 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 
 	protected function _storeZip(Garp_Service_PostcodeNl_Zipcode &$zip, $key, $overwrite) {
 		$model = new Model_Location();
-		$select = $model->select()->where('zip = ?', $zip->zipcode);
+		$select = $model->select()->where('zip = ? AND number IS NULL', $zip->zipcode);
 		$existingRow = $model->fetchRow($select);
 
 
