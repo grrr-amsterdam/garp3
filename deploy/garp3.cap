@@ -12,7 +12,6 @@ namespace :deploy do
 
 		# Garp tasks
 		invoke :spawn
-		invoke :garp_update_version
 		invoke :garp_env_setup
 
 		# Auth tasks
