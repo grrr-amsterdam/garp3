@@ -16,7 +16,7 @@ class Garp_Content_Manager {
 	 */
 	protected $_model;
 
-	
+
 	/**
 	 * Class constructor
 	 * @param Garp_Model|String $model The model to execute methods on
@@ -31,8 +31,8 @@ class Garp_Content_Manager {
 			throw new Garp_Content_Exception('The selected model must be a Garp_Model.');
 		}
 	}
-	
-	
+
+
 	/**
 	 * Return the model
 	 * @return Garp_Model
@@ -41,7 +41,7 @@ class Garp_Content_Manager {
 		return $this->_model;
 	}
 
-	
+
 	/**
 	 * Fetch results from a model
 	 * @param Array $options Various fetching options (e.g. limit, sorting, etc.)
@@ -101,15 +101,15 @@ class Garp_Content_Manager {
 			if ($options['fields']) {
 				$fields = $options['fields'];
 			} elseif (count($related)) {
-				// When using a join filter (used for the relationpanel), it's more performant to 
-				// specify only a model's list fields, otherwise the query can get pretty heavy for 
+				// When using a join filter (used for the relationpanel), it's more performant to
+				// specify only a model's list fields, otherwise the query can get pretty heavy for
 				// tables with 100.000+ records.
 				$primary = array_values($this->_model->info(Zend_Db_Table_Abstract::PRIMARY));
 				$fields = array_merge($this->_model->getListFields(), $primary);
 			} else {
 				$fields = Zend_Db_Table_Select::SQL_WILDCARD;
 			}
-			// If filterForeignKeys is true, filter out the foreign keys 
+			// If filterForeignKeys is true, filter out the foreign keys
 			if ($options['filterForeignKeys']) {
 				$fields = $this->_filterForeignKeyColumns($fields, $referenceMap);
 			}
@@ -122,7 +122,7 @@ class Garp_Content_Manager {
 			}
 
 			// WHERE
-			// Add WHERE clause if there still remains something after 
+			// Add WHERE clause if there still remains something after
 			// filtering.
 			// ============================================================
 			if ($options['query']) {
@@ -135,9 +135,9 @@ class Garp_Content_Manager {
 
 			// ORDER
 			// ============================================================
-			// Prefix native columns with the table name (e.g. "id" becomes 
+			// Prefix native columns with the table name (e.g. "id" becomes
 			// "Thing.id")
-			// Note that we create a mock table object based on the joint view 
+			// Note that we create a mock table object based on the joint view
 			// to collect column info.
 			// This should be more accurate than reading that info from the table.
 			$mockTable = new Zend_Db_Table(array(
@@ -200,8 +200,8 @@ class Garp_Content_Manager {
 				 * filtered using a HABTM relationship, extra
 				 * meta field are returned from the binding table.
 				 * This results in an SQL error; when using COUNT()
-				 * and returning results from multiple tables a 
-				 * GROUP BY clause is mandatory. This must be fixed in 
+				 * and returning results from multiple tables a
+				 * GROUP BY clause is mandatory. This must be fixed in
 				 * the future.
 				 */
 				return 1000;
@@ -222,8 +222,8 @@ class Garp_Content_Manager {
 		$pk = $this->_model->insert($data);
 		return $pk;
 	}
-	
-	
+
+
 	/**
 	 * Update existing record
 	 * @param Array $data The record's new data
@@ -266,8 +266,8 @@ class Garp_Content_Manager {
 		}
 		return $this->_model->update($data, $where);
 	}
-	
-	
+
+
 	/**
 	 * Delete (a) record(s)
 	 * @param Array $where WHERE clause, specifying which records to delete
@@ -299,8 +299,8 @@ class Garp_Content_Manager {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Relate entities to each other, optionally removing previous existing relations.
 	 * @param Array $options
@@ -360,8 +360,8 @@ class Garp_Content_Manager {
 		}
 		return $success == $attempts;
 	}
-	
-	
+
+
 	public function unrelate() {
 		throw new Exception('This method is not yet implemented.');
 		//	TODO
@@ -395,7 +395,7 @@ class Garp_Content_Manager {
 		} else {
 			$tableName = $this->_model->getName();
 		}
-		
+
 		foreach ($query as $column => $value) {
 			if (strtoupper($column) === 'OR' && is_array($value)) {
 				$where[] = $this->_createWhereClause($value, 'OR');
@@ -408,8 +408,8 @@ class Garp_Content_Manager {
 				} else {
 					$where[] = $column.' IS NULL';
 				}
-			} elseif (is_scalar($value)) {				
-				// Use $refColumn to see if this column is native to the current 
+			} elseif (is_scalar($value)) {
+				// Use $refColumn to see if this column is native to the current
 				// model.
 				$refColumn = null;
 				if (!preg_match('/(>=?|<=?|like|<>)/i', $column, $matches)) {
@@ -502,22 +502,22 @@ class Garp_Content_Manager {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Add a hasMany/hasOne filter to a Zend_Db_Select object.
 	 * Example query:
 	 * SELECT * FROM users
 	 * INNER JOIN comments ON comments.user_id = users.id
 	 * WHERE comments.id = 5
-	 * 
+	 *
 	 * @param Array $options Collection of options containing;
 	 * ['select'] 		Zend_Db_Select	The select object
 	 * ['filterModel']	Garp_Model_Db 	The filtering model
 	 * ['filterColumn']	String			The column used as the query filter
 	 * ['filterValue']	Mixed			The value used as the query filter
 	 * ['reference']	Array			The relation as in the reference map of the model
-	 * ['negation']		Boolean			Wether the query should include or exclude 
+	 * ['negation']		Boolean			Wether the query should include or exclude
 	 * 									matches found by $filterValue
 	 * @return Void
 	 */
@@ -525,20 +525,20 @@ class Garp_Content_Manager {
 		// keys of $options available in the local space as variables
 		extract($options);
 		$select->distinct();
-		
+
 		$filterModelName = $filterModel->getName();
 		$thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
 		// in the case of homophile relationships...
 		if ($filterModelName == $thisTableName) {
 			$filterModelName = $filterModelName.'_2';
 		}
-		
+
 		foreach ($reference['refColumns'] as $i => $column) {
 			if ($column === $filterColumn) {
 				$joinColumn = $thisTableName.'.'.$column;
 				/**
 				 * Map the index of the found column to the foreign key column.
-				 * Note that these columns are paired by index, 
+				 * Note that these columns are paired by index,
 				 * so the order in the reference map must be the same.
 				 */
 				$foreignKeyColumn = $filterModelName.'.'.$reference['columns'][$i];
@@ -550,15 +550,15 @@ class Garp_Content_Manager {
 											 get_class($filterModel).' cannot be determined from the '.
 											 'reference map.');
 		}
-		
+
 		$bindingCondition = $foreignKeyColumn.' = '.$joinColumn;
 		$bindingCondition .= $filterModel->getAdapter()->quoteInto(' AND '.$filterModelName.'.'.$filterColumn.' = ?', $filterValue);
-		
+
 		$select->joinLeft(
 			array($filterModelName => $filterModelName),
 			$bindingCondition,
 			array()
-		);		
+		);
 		/**
 		 * Cause MySQL developers are fucking cunts, ([NULL] != 35) === FALSE.
 		 * So in the case of a negation an extra WHERE clause is needed that
@@ -568,20 +568,20 @@ class Garp_Content_Manager {
 		$operator = $negation ? '!=' : '=';
 		$select->where("({$filterModelName}.$filterColumn $operator ?".$nullFix.")", $filterValue);
 	}
-	
-	
+
+
 	/**
 	 * Add a belongsto filter to a Zend_Db_Select object.
 	 * Example query:
 	 * SELECT * FROM comments
-	 * WHERE comments.user_id = 35 
-	 * 
+	 * WHERE comments.user_id = 35
+	 *
 	 * @param Array $options Collection of options containing;
 	 * ['select'] 		Zend_Db_Select	The select object
 	 * ['filterColumn']	String			The column used as the query filter
 	 * ['filterValue']	Mixed			The value used as the query filter
 	 * ['reference']	Array			The relation as in the reference map of the model
-	 * ['negation']		Boolean			Wether the query should include or exclude 
+	 * ['negation']		Boolean			Wether the query should include or exclude
 	 * 									matches found by $filterValue
 	 * @return Void
 	 */
@@ -593,7 +593,7 @@ class Garp_Content_Manager {
 			if ($column === $filterColumn) {
 				/**
 				 * Map the index of the found column to the foreign key column.
-				 * Note that these columns are paired by index, 
+				 * Note that these columns are paired by index,
 				 * so the order in the reference map must be the same.
 				 */
 				$filterColumn = $thisTableName.'.'.$reference['columns'][$i];
@@ -609,8 +609,8 @@ class Garp_Content_Manager {
 		$operator = $negation ? '!=' : '=';
 		$select->where("($filterColumn $operator ?$nullFix)", $filterValue);
 	}
-	
-	
+
+
 	/**
 	 * Add a hasAndBelongsToMany filter to a Zend_Db_Select object.
 	 * Example query:
@@ -619,13 +619,13 @@ class Garp_Content_Manager {
 	 * LEFT JOIN tags_users ON tags_users.tag_id = tags.id AND user_id = 35
 	 * INNER JOIN `users` ON users.id = tags_users.user_id
 	 * WHERE user_id 35 // in the case of negation, this'll be "WHERE user_id IS NULL"
-	 * 
+	 *
 	 * @param Array $options Collection of options containing;
 	 * ['select'] 		Zend_Db_Select	The select object
 	 * ['filterModel']	Garp_Model_Db 	The filtering model
 	 * ['filterColumn']	String			The column used as the query filter
 	 * ['filterValue']	Mixed			The value used as the query filter
-	 * ['negation']		Boolean			Wether the query should include or exclude 
+	 * ['negation']		Boolean			Wether the query should include or exclude
 	 * 									matches found by $filterValue
 	 * @return Void
 	 */
@@ -666,7 +666,7 @@ class Garp_Content_Manager {
 			$bindingCondition .= ' OR '.$bindingModelTable.'.'.$filterField.' = '.$thisTableName.'.'.$foreignKeyField;
 			$bindingCondition .= $bindingModel->getAdapter()->quoteInto(' AND '.$bindingModelTable.'.'.$bindingModelForeignKeyField.' = ?', $filterValue);
 		}
-		
+
 		// Add columns of bindingTable to the query (namespaced using dot)
 		$tmpBindingColumns = $bindingModel->info(Zend_Db_Table::COLS);
 		$bindingColumns = array();
@@ -701,7 +701,7 @@ class Garp_Content_Manager {
 		// Allow behaviors to modify the SELECT object
 		$bindingModel->notifyObservers('beforeFetch', array($bindingModel, $select));
 	}
-	
+
 
 	/**
  	 * Filter columns that are foreign keys.
@@ -720,7 +720,7 @@ class Garp_Content_Manager {
 		return array_diff($fields, $foreignKeys);
 	}
 
-	
+
 	/**
 	 * Checks if this is a homophile relation: an association between records of the same model.
 	 * @param Garp_Model_Db $filterModel
@@ -755,12 +755,12 @@ class Garp_Content_Manager {
 
 		return $homophileSecondRuleKey;
 	}
-	
-	
+
+
 	/**
 	 * Check to see if the current model supports the requested method
 	 * @param String $method The method
-	 * @return Boolean 
+	 * @return Boolean
 	 * @throws Garp_Content_Exception If the method is not supported
 	 */
 	protected function _checkAcl($method) {
