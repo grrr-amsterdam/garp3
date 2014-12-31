@@ -11,8 +11,7 @@ namespace :deploy do
 		invoke :set_blackhole_path_symlink_fix
 
 		# Garp tasks
-		invoke :spawn 
-		invoke :garp_update_version 
+		invoke :spawn
 		invoke :garp_env_setup
 
 		# Auth tasks
@@ -23,7 +22,7 @@ namespace :deploy do
 		invoke :update_cluster_servers
 	end
 
-	task :setup do 
+	task :setup do
 		invoke :validate_app_name
 		invoke :add_public_ssh_keys
 		invoke :find_webroot
