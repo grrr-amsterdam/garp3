@@ -2,7 +2,7 @@
  * Garp CMS
  * Garp.js
  * Main setup for Garp CMS
- *  
+ *
  * @namespace Garp
  * @copyright (c) 2010 Grrr.nl / eenengelswoord.nl
  * @author Peter
@@ -11,7 +11,7 @@
 window.onbeforeunload = function(){
 	if (Garp.checkForModified()) {
 		return __('Are you sure you want to navigate away from Garp?');
-	} 
+	}
 };
 
 /**
@@ -61,8 +61,8 @@ Garp.undirty = function(){
  * @function updateUI
  * @param {object} selectionModel
  * Gets called whenever a selection change occurs. Reflect the UI:
- * 
- * 0 items selected: hide  
+ *
+ * 0 items selected: hide
  * 1 item : show
  * 2 items: show & display mode Indicator
  */
@@ -83,7 +83,7 @@ Garp.updateUI =function(sm){
 	if(window.innerWidth <= Garp.SMALLSCREENWIDTH && count == 1){
 		Garp.viewport.gridPanelCt.collapse();
 	}
-	
+
 	if (Garp.updateUI.prevCount && Garp.updateUI.prevCount == count) {
 		return;
 	}
@@ -100,18 +100,18 @@ Garp.updateUI =function(sm){
 			Garp.viewport.infoPanel.updateCount(Garp.gridPanel.getStore().getTotalCount());
 			break;
 	}
-	
+
 	Garp.updateUI.prevCount = count;
 	return true;
 };
 
 /**
- * Simple singleton for managing state 
+ * Simple singleton for managing state
  */
 Garp.history = Ext.apply(Garp.history || {}, {
 
 	pastModel: null,
-	
+
 	pushState: function(state){
 		if (!state) {
 			state = this.getCurrentState();
@@ -125,7 +125,7 @@ Garp.history = Ext.apply(Garp.history || {}, {
 			Garp.history.pastModel = state.model;
 		}
 	},
-	
+
 	getCurrentState: function(){
 		if (Garp.gridPanel && Garp.gridPanel.store) {
 			var state = {};
@@ -142,7 +142,7 @@ Garp.history = Ext.apply(Garp.history || {}, {
 			return null;
 		}
 	},
-	
+
 	parseState: function(state){
 		if (!state) {
 			state = Ext.urlDecode(document.location.search.replace(/\?/, ''));
@@ -151,7 +151,7 @@ Garp.history = Ext.apply(Garp.history || {}, {
 			Garp.eventManager.fireEvent('modelchange', false, state.model || null, state.page || null, state.id || null);
 		}
 	},
-	
+
 	setupListeners: function(){
 		var scope = this;
 		window.addEventListener('popstate', function(e){
@@ -177,11 +177,11 @@ Garp.changeModel = function(doPushState, model, page, id){
 		return false;
 		//throw ("Unknown model specified.");
 	}
-	
+
 	if (Garp.checkForModified() > 1 || (Garp.checkForModified() == 1 && !Garp.gridPanel.getSelectionModel().getSelected().phantom)) {
 		var store = Garp.gridPanel.getStore();
 		var state = Garp.history.getCurrentState();
-		
+
 		Ext.Msg.show({
 			animEl: Garp.viewport.getEl(),
 			icon: Ext.MessageBox.QUESTION,
@@ -200,7 +200,7 @@ Garp.changeModel = function(doPushState, model, page, id){
 							}
 						});
 						store.save();
-						
+
 						break;
 					case 'no':
 						store.rejectChanges();
@@ -218,32 +218,32 @@ Garp.changeModel = function(doPushState, model, page, id){
 
 	Garp.eventManager.purgeListeners();
 	Garp.setupEventManager();
-	
+
 	Garp.currentModel = model;
-	
+
 	if (doPushState) {
 		Garp.history.pushState({
 			model: model
 		});
-	}		
-	
+	}
+
 	Garp.modelMenu.setIconClass(Garp.dataTypes[model].iconCls);
 	Garp.modelMenu.setText(__(Garp.dataTypes[model].text));
 	if (Garp.gridPanel) {
 		Garp.gridPanel.ownerCt.remove(Garp.gridPanel);
 	}
-	
+
 	if (Garp.formPanel && Garp.formPanel.ownerCt) {
 		Garp.viewport.formPanelCt.getLayout().setActiveItem(0);
 		Garp.viewport.formPanelCt.remove(Garp.formPanel);
 	}
-	
+
 	Garp.formPanel = new Garp.FormPanel({
 		previousValidFlag: true,
 		listeners: {
 			'cancel': function(){
 				// reselect item to revert formPanel contents:
-				var s = Garp.gridPanel.getSelectionModel().getSelected(); 
+				var s = Garp.gridPanel.getSelectionModel().getSelected();
 				Garp.gridPanel.getSelectionModel().clearSelections();
 				Garp.gridPanel.getSelectionModel().selectRecords([s]);
 			},
@@ -256,7 +256,7 @@ Garp.changeModel = function(doPushState, model, page, id){
 	});
 	Garp.viewport.formPanelCt.add(Garp.formPanel);
 	Garp.viewport.formPanelCt.doLayout();
-	
+
 	Garp.gridPanel = new Garp.GridPanel({
 		model: model,
 		listeners: {
@@ -293,13 +293,13 @@ Garp.changeModel = function(doPushState, model, page, id){
 			},
 			'after-save': function(){
 				//@TODO: fixme
-				//Can this try/catch be done in a better way? 
+				//Can this try/catch be done in a better way?
 				try {
 					if (window.opener && typeof window.opener.Garp != 'undefined') {
 						// window.opener is always true... but window.opener.Garp is not accessible if we didn't open the window ourselves
 						window.opener.Garp.eventManager.fireEvent('external-relation-save');
 					}
-				} 
+				}
 				catch (e) {
 				}
 			}
@@ -307,9 +307,9 @@ Garp.changeModel = function(doPushState, model, page, id){
 	});
 	Garp.viewport.gridPanelCt.add(Garp.gridPanel);
 	Garp.viewport.gridPanelCt.doLayout();
-	
+
 	//Garp.rebuildViewportItems();
-	
+
 	Garp.gridPanel.on({
 		'storeloaded': function(){
 			Garp.updateUI.prevCount = -1;
@@ -327,13 +327,13 @@ Garp.changeModel = function(doPushState, model, page, id){
 			buffer: 110
 		}
 	});
-	
+
 	Garp.gridPanel.relayEvents(Garp.eventManager, ['new', 'save-all', 'delete', 'clientvalidation']);
 	Garp.formPanel.relayEvents(Garp.eventManager, ['new', 'rowselect', 'after-save']);
-	
+
 	Garp.eventManager.relayEvents(Garp.gridPanel, ['beforerowselect', 'rowselect', 'storeloaded', 'after-save', 'selectionchange', 'open-new-window']);
 	Garp.eventManager.relayEvents(Garp.formPanel, ['clientvalidation', 'save-all', 'open-new-window', 'preview', 'delete']);
-	
+
 	Garp.infoPanel.clearInfo();
 
 	// And fetch them data:
@@ -346,7 +346,7 @@ Garp.changeModel = function(doPushState, model, page, id){
 				}
 			},
 			callback: function(){
-				// select the item to show the formpanel:  
+				// select the item to show the formpanel:
 				Garp.gridPanel.getSelectionModel().selectFirstRow();
 				Garp.gridPanel.getTopToolbar().searchById(id); // only visually set the UI as if searched, no real DB call.
 				Garp.formPanel.on({
@@ -367,7 +367,7 @@ Garp.changeModel = function(doPushState, model, page, id){
 			}
 		});
 	} else if(page){
-		
+
 		// @TODO: Find out if we can do this better. Two loads is a bit awkward!
 		Garp.gridPanel.getStore().on({
 			load: function(){
@@ -394,7 +394,7 @@ Garp.changeModel = function(doPushState, model, page, id){
 		//Garp.gridPanel.getStore().load();
 		Garp.gridPanel.loadStoreWithDefaults();
 	}
-	
+
 	// Disable toolbar items if neccesary:
 	var tb = Garp.toolbar;
 	tb.newButton.setVisible(!Garp.dataTypes[model].disableCreate);
@@ -403,7 +403,7 @@ Garp.changeModel = function(doPushState, model, page, id){
 	tb.extraMenu.menu.importButton.show();
 	tb.extraMenu.menu.exportButton.show();
 	tb.extraMenu.menu.printButton.show();
-	
+
 	document.title = __(Garp.dataTypes[model].text) + ' | ' + (typeof APP_TITLE != 'undefined' ? APP_TITLE : '');
 	try {
 		Garp.setFavicon(Garp.dataTypes[model].iconCls);
@@ -413,7 +413,7 @@ Garp.changeModel = function(doPushState, model, page, id){
 			throw e;
 		}
 	}
-	
+
 };
 
 
@@ -422,32 +422,18 @@ Garp.changeModel = function(doPushState, model, page, id){
  * @param {String} iconCls (optional, leave blank for Garp favicon)
  */
 Garp.setFavicon = function(iconCls){
-	var d = document;
-	var iconCss = Ext.get('icons').dom;
-	if (iconCss.sheet && iconCss.sheet.cssRules) {
-		var found = false;
-		Ext.each(iconCss.sheet.cssRules, function(){
-			if (this.selectorText == '.' + iconCls) {
-				found = this.style.backgroundImage.trim();
-				found = found.substr(4, found.length - 5); // remove url() shizzle
-				if (found.indexOf('http') === -1) {
-					found = d.location.protocol + '//' + d.location.host + BASE + found; // absolute path
-				}
-				return;
-			}
-		});
-		if (!found) {
-			found = Ext.get('favicon').dom.href;
-		}
-		var link = d.createElement('link'), old = d.getElementById('dynamic-favicon');
-		link.id = 'dynamic-favicon';
-		link.rel = 'shortcut icon';
-		link.href = found;
-		if (old) {
-			d.head.removeChild(old);
-		}
-		d.head.appendChild(link);
+	var doc = document,
+		menuItem = doc.querySelector('.' + iconCls);
+	if (!menuItem) {
+		return;
 	}
+
+	var iconUrl = window.getComputedStyle(menuItem, null).getPropertyValue('background-image');
+	// replace "url(" and all that
+	iconUrl = iconUrl.replace(/\burl\s*\(\s*["']?([^"'\r\n,]+)["']?\s*\)/gi, "$1");
+
+	var favicon = doc.getElementById('favicon');
+	favicon.setAttribute('href', iconUrl);
 };
 
 /**
@@ -459,7 +445,7 @@ Garp.syncValues = function(){
 };
 
 /**
- * (Re-) add the grid and the form to the viewport. 
+ * (Re-) add the grid and the form to the viewport.
  */
 Garp.rebuildViewportItems = function(){
 	if(Garp.infoPanel){
@@ -472,7 +458,7 @@ Garp.rebuildViewportItems = function(){
 		Garp.viewport.formPanelCt.remove(Garp.formPanel);
 	}
 	Garp.viewport.formPanelCt.add(Garp.formPanel);
-	Garp.formPanel.hide();	
+	Garp.formPanel.hide();
 	Garp.viewport.gridPanelCt.add(Garp.gridPanel);
 	Garp.viewport.gridPanelCt.doLayout();
 };
@@ -482,11 +468,11 @@ Garp.rebuildViewportItems = function(){
  */
 Garp.setupEventManager = function(){
 	Garp.eventManager = new Ext.util.Observable();
-	
+
 	Garp.eventManager.addEvents('modelchange', 'beforerowselect', 'rowselect', 'storeloaded', 'new', 'save-all', 'after-save', 'delete','logout','open-new-window','external-relation-save', 'after-init');
 	Garp.eventManager.on({
 		'new': function(){
-			Garp.updateUI.defer(20);	
+			Garp.updateUI.defer(20);
 		},
 		'modelchange': Garp.changeModel,
 		'open-new-window': function(){
@@ -516,17 +502,17 @@ Garp.setupEventManager = function(){
 		},
 		/**
  	 	 * Afterinit
- 	 	 * Sets up history & displays flashMessages if needed. Also hides the loader anim. 
+ 	 	 * Sets up history & displays flashMessages if needed. Also hides the loader anim.
  	 	 */
 		'after-init': function() {
 
 			Garp.history.setupListeners();
 			Garp.history.parseState();
 
-			var timeout = 610;		
+			var timeout = 610;
 			if (Garp.flashMessage()) {
 				timeout = 2000;
-			} 
+			}
 			setTimeout(function(){
 				Ext.get('app-loader').fadeOut();
 			}, timeout);
@@ -535,7 +521,7 @@ Garp.setupEventManager = function(){
 			Garp.afterInit();
 		}
 	});
-	
+
 	Garp.eventManager.relayEvents(Garp.toolbar, ['logout', 'delete', 'new', 'open-new-window']);
 };
 
@@ -562,7 +548,7 @@ Garp.setupGlobalKeys = function(){
 			Garp.eventManager.fireEvent('new');
 		}
 	}]);
-	Garp.keyMap.stopEvent = true; // prevents browser key handling. 
+	Garp.keyMap.stopEvent = true; // prevents browser key handling.
 };
 
 /**
@@ -578,14 +564,14 @@ Garp.flashMessage = function(){
 			if (msg) {
 				msg = msg.replace(/\+/g, ' ');
 				str += msg + '<br>';
-			} 
+			}
 		}
 		if(str){
-			var elm = Ext.get('app-loader'); 
+			var elm = Ext.get('app-loader');
 			elm.update(str);
 			elm.setWidth(300);
 			elm.setHeight((cookie.messages.length-1) * 20 + 30);
-			
+
 			var value = "; path=/";
 			var date = new Date();
 			date.setHours(date.getHours(-1));
