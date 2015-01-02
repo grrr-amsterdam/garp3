@@ -268,8 +268,8 @@ class G_ContentController extends Garp_Controller_Action {
 		//	@todo: als cdn niet lokaal is, moet je waarschijnlijk met zip::addFromString werken.
 		$filenames = explode(',', $params['files']);
 
-		$image = new Garp_Image_File('upload');
-		$document = new Garp_File(null, 'upload');
+		$image = new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);
+		$document = new Garp_File(null, Garp_File::FILE_VARIANT_UPLOAD);
 		$ini = Zend_Registry::get('config');
 		$cdnIsLocal = $ini->cdn->type === "local";
 

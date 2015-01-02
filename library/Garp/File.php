@@ -13,13 +13,16 @@ class Garp_File {
     const TYPE_IMAGES = 'image';
 	const TYPE_DOCUMENTS = 'document';
 
+	const FILE_VARIANT_UPLOAD = 'upload';
+	const FILE_VARIANT_STATIC = 'static';
+
 	const SEPERATOR = '-';
 
 	protected $_storageTypes = array('local', 's3');
 
 	protected $_requiredConfigParams = array('type', 'domain', 'path', 'extensions');
 
-	protected $_requiredConfigPaths = array('upload', 'static');
+	protected $_requiredConfigPaths = array(self::FILE_VARIANT_UPLOAD, self::FILE_VARIANT_STATIC);
 
 	protected $_allowedTypes = array('image', 'document');
 

@@ -21,11 +21,11 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
  	 * @var Garp_Image_Scaler
  	 */
 	protected $_scaler;
-	
+
 	const ERROR_SCALING_TEMPLATE_MISSING = 'You will need to provide a scaling template.';
 	const ERROR_ARGUMENT_IS_NOT_FILENAME = 'The provided argument is not a filename.';
-	
-	
+
+
 
 
 	/**
@@ -56,7 +56,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 			if ($template) {
 				return $this->_renderUpload($image, $template, $htmlAttribs, $partial);
 			} else throw new Exception(self::ERROR_SCALING_TEMPLATE_MISSING);
-		}		
+		}
 	}
 
 
@@ -75,16 +75,16 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 		}
 		return $this->getScaledUrl($image, $template);
 	}
-	
+
 	/**
  	 * Return the URL of a static image
  	 * @return String
  	 */
 	public function getStaticUrl($image) {
-		$file = new Garp_Image_File('static');
+		$file = new Garp_Image_File(Garp_File::FILE_VARIANT_STATIC);
 		return $file->getUrl($image);
-	}		
-	
+	}
+
 	/**
  	 * Return the URL of a scaled image
  	 * @param String $image
@@ -93,7 +93,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
  	 */
 	public function getScaledUrl($image, $template) {
 		return $this->_getImageScaler()->getScaledUrl($image, $template);
-	}		
+	}
 
 	/**
 	 * Returns the url to the source file of an upload.
@@ -109,7 +109,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 
 
 	protected function _isFilename($image) {
-		return 
+		return
 			is_string($image) &&
 			strpos($image, '.') !== false
 		;
@@ -117,7 +117,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 
 
 	protected function _renderStatic($filename, Array $htmlAttribs = array()) {
-		$file = new Garp_Image_File('static');
+		$file = new Garp_Image_File(Garp_File::FILE_VARIANT_STATIC);
 		$src = $file->getUrl($filename);
 
 		if (!array_key_exists('alt', $htmlAttribs)) {
@@ -130,7 +130,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 
 	/**
 	 * Returns an HTML image tag, with the correct path to the image provided.
-	 * @param Mixed $image						Id of the image record, or a Garp_Db_Table_Row image record. 
+	 * @param Mixed $image						Id of the image record, or a Garp_Db_Table_Row image record.
 	 * 											This can also be an instance of an Image model. If so, the image will
 	 * 											be rendered inside a partial that includes its caption and other metadata.
 	 * @param Array $template					Template name.
@@ -151,7 +151,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 				$imageModel = new G_Model_Image();
 				$filename = $imageModel->fetchFilenameById($imageIdOrRecord);
 			}
-			$file = new Garp_Image_File('upload');
+			$file = new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);
 			$src = $file->getUrl($filename);
 		}
 
@@ -161,7 +161,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 
 		$htmlAttribs['src'] = $src;
 		$imgTag = '<img'.$this->_htmlAttribs($htmlAttribs).'>';
-		
+
 		if ($imageIdOrRecord instanceof Garp_Db_Table_Row) {
 			if ($partial) {
 				$module  = 'default';
