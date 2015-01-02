@@ -338,10 +338,10 @@ class G_ContentController extends Garp_Controller_Action {
 		$importer = Garp_Content_Import_Factory::getImporter($params['datafile']);
 		$success = false;
 		if (isset($params['mapping'])) {
-			$mapping	= Zend_Json::decode($params['mapping']);
+			$mapping = Zend_Json::decode($params['mapping']);
 
-			$className	= Garp_Content_Api::modelAliasToClass($params['model']);
-			$model		= new $className();
+			$className = Garp_Content_Api::modelAliasToClass($params['model']);
+			$model = new $className();
 			$response = array();
 			try {
 				$success	= !!$importer->save($model, $mapping, array(
