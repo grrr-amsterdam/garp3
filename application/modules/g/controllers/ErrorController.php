@@ -14,6 +14,8 @@ class G_ErrorController extends Garp_Controller_Action {
 	}
 
 	public function errorAction() {
+		Zend_Registry::set('CMS', false);
+
 		$errors = $this->_getParam('error_handler');
 		if ($this->getRequest()->isXmlHttpRequest()) {
 			$this->_helper->layout->disableLayout();
