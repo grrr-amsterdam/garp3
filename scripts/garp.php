@@ -21,17 +21,17 @@ if (!defined('APPLICATION_ENV')) {
 	if (getenv('APPLICATION_ENV')) {
 		define('APPLICATION_ENV', getenv('APPLICATION_ENV'));
 	} else {
-		require_once(dirname(__FILE__)."/../../library/Garp/Cli.php");
+		require_once(dirname(__FILE__) . "/../../garp/library/Garp/Cli.php");
 		Garp_Cli::errorOut("APPLICATION_ENV is not set. Please set it as a shell variable or pass it along as an argument, like so: --e=development");
 		exit;
-	} 
+	}
 }
 
 require_once(dirname(__FILE__)."/../application/init.php");
 
 // Create application, bootstrap, and run
 $application = new Garp_Application(
-	APPLICATION_ENV, 
+	APPLICATION_ENV,
 	APPLICATION_PATH.'/configs/application.ini'
 );
 $application->bootstrap();
@@ -41,7 +41,7 @@ Zend_Registry::set('application', $application);
 /**
  * Report errors, since we're in CLI.
  * Note that log_errors = 1, which outputs to STDERR. display_errors however outputs to STDOUT. In a CLI
- * environment this results in a double error. display_errors is therefore set to 0 so that STDERR is 
+ * environment this results in a double error. display_errors is therefore set to 0 so that STDERR is
  * the only stream showing errors.
  * @see http://stackoverflow.com/questions/9001911/why-are-php-errors-printed-twice
  */
