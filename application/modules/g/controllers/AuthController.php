@@ -65,7 +65,9 @@ class G_AuthController extends Garp_Controller_Action {
 			// Before register hook
 			$this->_beforeRegister($postData);
 
-			$insertId = $userModel->insert($postData);
+			// Extract columns that are not part of the user model
+			$userData = $userModel->filterColumns($postData);
+			$insertId = $userModel->insert($userData);
 			$this->_helper->flashMessenger(__($authVars['register']['successMessage']));
 
 			// Store new user directly thru Garp_Auth so that they're logged in immediately
