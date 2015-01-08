@@ -1,15 +1,19 @@
 {
+	"module": "garp",
+
 	"visible": false,
-	
+
 	"inputs":  {
 		"vimeo_id": {
 			"maxLength": 255
 		},
 		"ip_address": {
-			"maxLength": 15
+			"maxLength": 15,
+			"required": false
 		},
 		"last_login": {
-			"type": "datetime"
+			"type": "datetime",
+			"required": false
 		},
 		"access_token": {
 		},

@@ -1,4 +1,6 @@
 {
+	"module": "garp",
+
 	"visible": false,
 
 	"inputs": {
@@ -8,10 +10,12 @@
 			"type": "text"
 		},
 		"ip_address": {
-			"maxLength": 15
+			"maxLength": 15,
+			"required": false,
 		},
 		"last_login": {
-			"type": "datetime"
+			"type": "datetime",
+			"required": false
 		}
 	},
 
