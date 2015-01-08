@@ -4,13 +4,6 @@ task :spawn do
 		execute "php #{release_path}/garp/scripts/garp.php Spawn -b --e=#{fetch(:stage)}"
 	end
 end
-    
-desc "Update the application and Garp version numbers"
-task :garp_update_version do
-	on roles(:web) do
-		execute "php #{release_path}/garp/scripts/garp.php Version update --e=#{fetch(:stage)}"
-	end
-end
 
 desc "Perform administrative tasks after deploy"
 task :garp_env_setup do

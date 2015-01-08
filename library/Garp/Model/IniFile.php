@@ -15,22 +15,19 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 	 * @var String
 	 */
 	protected $_file;
-	
-	
+
 	/**
 	 * Which namespace to use
 	 * @var String
 	 */
 	protected $_namespace;
-	
-	
+
 	/**
 	 * The ini backend
 	 * @var Zend_Config_Ini
 	 */
 	protected $_ini;
-	
-	
+
 	/**
 	 * Class constructor
 	 * @param String $file The path to the ini file
@@ -44,8 +41,7 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 			$this->init($file, $namespace);
 		}
 	}
-	
-	
+
 	/**
 	 * Initialize the ini file.
 	 * @param String $file The path to the ini file
@@ -53,7 +49,7 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 	 * @return Void
 	 */
 	public function init($file, $namespace = null) {
-		$ini = Garp_Cache_Ini::factory($file);
+		$ini = Garp_Config_Ini::getCached($file);
 		if ($namespace) {
 			$namespaces = explode('.', $namespace);
 			do {
@@ -63,8 +59,7 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 		}
 		$this->_ini = $ini;
 	}
-	
-	
+
 	/**
 	 * Fetch all entries
 	 * @return Array
@@ -72,8 +67,7 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 	public function fetchAll() {
 		return $this->_ini->toArray();
 	}
-	
-	
+
 	/**
 	 * Count all entries
 	 * @return Int
@@ -81,13 +75,12 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 	public function count() {
 		return count($this->_ini->toArray());
 	}
-	
-	
+
 	/**
 	 * Observable methods
 	 * ----------------------------------------------------------------------
 	 */
-	
+
 	/**
 	 * Register observer. The observer will then listen to events broadcasted
 	 * from this class.
@@ -100,10 +93,9 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 		$this->_observers[$name] = $observer;
 		return $this;
 	}
-	
-	
+
 	/**
-	 * Unregister observer. The observer will no longer listen to 
+	 * Unregister observer. The observer will no longer listen to
 	 * events broadcasted from this class.
 	 * @param Garp_Util_Observer|String $name The observer or its name
 	 * @return Garp_Util_Observable $this
@@ -115,8 +107,7 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 		unset($this->_observers[$name]);
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Broadcast an event. Observers may implement their reaction however
 	 * they please. The Observable does not expect a return action.
@@ -128,7 +119,7 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 	 */
 	public function notifyObservers($event, array $args = array()) {
 		$first = $middle = $last = array();
-		
+
 		// Distribute observers to the different arrays
 		foreach ($this->_observers as $observer) {
 			// Core helpers may define when they are executed; first or last.
@@ -143,7 +134,7 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 				$middle[] = $observer;
 			}
 		}
-		
+
 		// Do the actual execution
 		foreach (array($first, $middle, $last) as $observerCollection) {
 			foreach ($observerCollection as $observer) {
@@ -152,16 +143,15 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 		}
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Observer methods
 	 * ----------------------------------------------------------------------
 	 */
-	
+
 	/**
-	 * Receive events. This method looks for a method named after 
-	 * the event (e.g. when the event is "beforeFetch", the method 
+	 * Receive events. This method looks for a method named after
+	 * the event (e.g. when the event is "beforeFetch", the method
 	 * executed will be "beforeFetch"). Subclasses may implement
 	 * this to act upon the event however they wish.
 	 * @param String $event The name of the event
@@ -173,8 +163,7 @@ class Garp_Model_IniFile implements Garp_Model, Garp_Util_Observer, Garp_Util_Ob
 			$this->{$event}($params);
 		}
 	}
-	
-	
+
 	/**
 	 * Return table name
 	 * @return String

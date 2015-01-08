@@ -99,7 +99,7 @@ button.x-tbar-page-next { background-image: url(../../media/images/garp/icons2/c
 .x-form-field-wrap .x-form-trigger.relation-open-button.no-relation { background-image: none; border-right:1px #B5B8C8 solid; padding-right:0; margin-left:0; }
 
 /* ERROR WINDOW */
-.garp-error-dialog {background: url(../../js/garp/ext-3.4.1/resources/images/default/window/icon-error.gif) no-repeat 10px 50%; padding-left: 55px; font-size: 1.1em; }
+.garp-error-dialog {background: url(../../js/garp/ext-3.4.1/resources/images/default/window/icon-error.gif) no-repeat 10px 50%; padding-left: 55px; font-size: 1.1em; padding-top: 6px;  }
 
 /* RTE */
 .garp-richtexteditor-statusbar{ font-size: 11px; padding: 3px; border-top: 1px #D0D0D0 solid; border-bottom: 0; color: #777; }

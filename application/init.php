@@ -52,16 +52,6 @@ if (
 	$isCli = true;
 }
 
-@include_once(APPLICATION_PATH.'/configs/version.php');
-if (!defined('APP_VERSION')) {
-	define('APP_VERSION', 1);
-}
-@include_once(APPLICATION_PATH.'/../garp/application/configs/version.php');
-if (!defined('GARP_VERSION')) {
-	define('GARP_VERSION', 1);
-}
-
-
 require GARP_APPLICATION_PATH . '/../library/Garp/Loader.php';
 
 /**

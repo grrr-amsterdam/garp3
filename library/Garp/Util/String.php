@@ -456,6 +456,7 @@ class Garp_Util_String {
 	 * @return String
 	 */
 	static public function excerpt($content, $chars = 140, $respectWords = true) {
+		mb_internal_encoding('UTF-8');
 		$content = str_replace(array("<br>", "<br />", "<br >", "<br/>"), "\n",$content);
 		$content = htmlspecialchars(
 			str_replace(
@@ -466,18 +467,24 @@ class Garp_Util_String {
 				'. ',
 				strip_tags(
 					preg_replace('~</([a-z]+)><~i', '</$1> · <', $content)
-					/*str_replace('</p><', '</p> · <', $content)*/
 				)
 			)
 		);
-		if (strlen($content) > $chars) {
-			if ($respectWords) {
-				$pos = strrpos(substr($content, 0, $chars), ' ');
-			} else $pos = $chars;
-			$content = substr($content, 0, $pos);
-			$content = preg_replace('/\W$/', '', $content);
-			$content .= '&hellip;';
+
+		if (mb_strlen($content) <= $chars) {
+			return $content;
 		}
+
+		if ($respectWords) {
+			$pos = mb_strrpos(mb_substr($content, 0, $chars + 1), ' ');
+		} else {
+			$pos = $chars;
+		}
+
+		$content = mb_substr($content, 0, $pos);
+		$content = preg_replace('/\W+$/', '', $content);
+		$content .= '&hellip;';
+
 		return $content;
 	}
 

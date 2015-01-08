@@ -51,7 +51,7 @@ switch ($field->type) {
 			);
 		} else {
 			array_push($props,
-				'enableMedia: false',      
+				'enableMedia: false',
 				'enableHeading: false',
 				'enableSourceEdit: false',
 				'enableEmbed: false',
@@ -75,7 +75,7 @@ switch ($field->type) {
 		$props[] = 'emptyText: __(\'Drag file here, or click browse button\')';
 		$props[] = 'uploadURL: BASE + \'g/content/upload/type/document\'';
 		$props[] = 'ref: \'../../../../filename\'';
-		
+
 		$ini = Zend_Registry::get('config');
 		$extensionString = $ini->cdn->extensions;
 		$extensions = explode(',', $extensionString);
@@ -90,7 +90,7 @@ switch ($field->type) {
 		$props[] = 'emptyText: __(\'Drag file here, or click browse button\')';
 		$props[] = 'uploadURL: BASE + \'g/content/upload/type/image\'';
 		$props[] = 'ref: \'../../../../filename\'';
-		
+
 		$ini = Zend_Registry::get('config');
 		$extensionString = $ini->cdn->extensions;
 		$extensions = explode(',', $extensionString);
@@ -133,8 +133,13 @@ if ($plugin)
 				$file = new Garp_File();
 				$uploadLimitInMbs = round($file->getUploadMaxFilesize());
 
+				$caption = 'Only {2} files with a maximum of {3} MB are allowed';
+				if (count($allowedExtensions) > 1):
+					$caption = 'Only {1} and {2} files with a maximum of {3} MB are allowed';
+				endif;
+
 				echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
-					'text' => "__('Only {1} and {2} files with a maximum of {3} MB are allowed', '" . implode(', ', $allowedExtensionsExceptLast) . "', '" . $allowedLastExtension . "', '" . $uploadLimitInMbs . "')",
+					'text' => "__('{$caption}', '" . implode(', ', $allowedExtensionsExceptLast) . "', '" . $allowedLastExtension . "', '" . $uploadLimitInMbs . "')",
 					'fieldName' => $field->name
 				));
 			endif; ?>

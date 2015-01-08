@@ -25,8 +25,8 @@ class Garp_Model_Behavior_QRCodeable extends Garp_Model_Behavior_Abstract {
 	protected function _setup($config) {
 		$this->_fields = $config;
 	}
-	
-	
+
+
 	/**
 	 * After fetch callback
 	 * @param Array $args
@@ -37,7 +37,7 @@ class Garp_Model_Behavior_QRCodeable extends Garp_Model_Behavior_Abstract {
 		$results = $args[1];
 		$table = $model->getName();
 		$chartService = new Garp_Service_Google_Chart();
-		$ini = Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/routes.ini');
+		$ini = Garp_Config_Ini::getCached(APPLICATION_PATH.'/configs/routes.ini');
 		$routes = $ini->routes->toArray();
 		$view = Zend_Controller_Front::getInstance()->getParam('bootstrap')->getResource('view');
 
@@ -58,7 +58,7 @@ class Garp_Model_Behavior_QRCodeable extends Garp_Model_Behavior_Abstract {
 
 		// provide uniform interface, so we can always loop
 		if (!$results instanceof Garp_Db_Table_Rowset) {
-			$results = array($results);	
+			$results = array($results);
 		}
 
 		foreach ($results as $row) {

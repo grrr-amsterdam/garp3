@@ -5,7 +5,7 @@
 Ext.ns('Garp');
 
 Garp.MetaPanel = Ext.extend(Ext.Container, {
-	
+
 	/**
 	 * @cfg disable publishable editor
 	 */
@@ -20,11 +20,11 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 	 * @cfg disable author id editor
 	 */
 	disableAuthorIdEdit: false,
-	
+
 	/**
 	 * @TODO: add more disable cfg's when needed
 	 */
-	
+
 	region: 'east',
 	width: 190,
 	maxWidth: 190,
@@ -33,7 +33,7 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 	cls: 'garp-metapanel',
 	ref: 'metaPanel',
 	monitorValid: false,
-	
+
 	/**
 	 * Record to data, and fetch remote stuff
 	 * @param {Object} rec
@@ -45,10 +45,10 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 		Ext.get('author-name').update(rec.get('author'));
 		Ext.get('modifier-name').update(rec.get('modifier'));
 	},
-	
+
 	/**
 	 * Simple items, but they need Column Model based renderers
-	 * @param {String} item or {Object} with property tpl for direct tpl access 
+	 * @param {String} item or {Object} with property tpl for direct tpl access
 	 */
 	buildTplItem: function(item){
 		if (Ext.isObject(item)) {
@@ -56,23 +56,23 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 		} else {
 			var out = '';
 			out += '<h3>' + __(item) + '</h3>';
-			out += '<p>{' + item + '}</p>'; // implement CM based renderer here 
+			out += '<p>{' + item + '}</p>'; // implement CM based renderer here
 			return out;
 		}
 	},
-	
+
 	/**
 	 *  Setup template
 	 */
 	buildTpl: function(){
 		var items = Garp.dataTypes[Garp.currentModel].metaPanelItems;
 		var tpl = [];
-		
+
 		Ext.each(items, function(item){
 			switch(item){
 				case 'created':
-					tpl.push('<h3>', __('Created'), '</h3>', 
-					'<span id="author-image"></span>', '<a id="author-name"></a>', 
+					tpl.push('<h3>', __('Created'), '</h3>',
+					'<span id="author-image"></span>', '<a id="author-name"></a>',
 					'<a id="created-date">{[Garp.renderers.metaPanelDateRenderer(values.created)]}</a>');
 				break;
 				case 'modified':
@@ -81,40 +81,40 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 					 '<p id="modified-date">{[Garp.renderers.metaPanelDateRenderer(values.modified)]}</p>');
 				break;
 				case 'published':
-					tpl.push('<h3>', __('Published'), '</h3>', 
+					tpl.push('<h3>', __('Published'), '</h3>',
 						'<tpl if="typeof online_status !== &quot;undefined&quot;  && online_status === &quot;1&quot;">',
-							(this.disablePublishedEdit 
-								? '<span class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</span>' 
+							(this.disablePublishedEdit
+								? '<span class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</span>'
 								: [
 									'<a class="published-date">{[Garp.renderers.metaPanelDateRenderer(values.published)]}</a>',
-									'<tpl if="values.published">', 
-										' <a class="remove-published-date" title="', __('Delete'), '"> </a>', 
+									'<tpl if="values.published">',
+										' <a class="remove-published-date" title="', __('Delete'), '"> </a>',
 									'</tpl>'
 								  ].join('')
 							),
-							 
+
 						'</tpl>',
-						'<div id="online-status">', __('Draft'), ': ', 
-						'<tpl if="typeof online_status !== &quot;undefined&quot; && online_status == &quot;1&quot;">', 
+						'<div id="online-status">', __('Draft'), ': ',
+						'<tpl if="typeof online_status !== &quot;undefined&quot; && online_status == &quot;1&quot;">',
 							'<input type="checkbox">',
-						'</tpl>', 
+						'</tpl>',
 						'<tpl if="typeof online_status !== &quot;undefined&quot;  && (!online_status || online_status === &quot;0&quot;) ">',
-							'<input type="checkbox" checked>', 
+							'<input type="checkbox" checked>',
 						'</tpl></div>');
 				break;
 				default:
 					tpl.push(this.buildTplItem(item));
 				break;
-			}			
+			}
 		}, this);
-		
-		tpl.push('<div class="copyright">', 'Garp &copy {[Garp.renderers.yearRenderer(new Date())]} by ', '<a href="http://grrr.nl/" target="_blank">', 'Grrr', '</a><br>version 3.5.{[GARP_VERSION]}', '</div>');
-		
+
+		tpl.push('<div class="copyright">', 'Garp &copy {[Garp.renderers.yearRenderer(new Date())]} by ', '<a href="http://grrr.nl/" target="_blank">', 'Grrr', '</a><br>version 3.5', '</div>');
+
 		this.tpl = new Ext.XTemplate(tpl, {
 			compiled: true
 		});
 	},
-	
+
 
 	/**
 	 * Saves the new value on the server
@@ -168,7 +168,7 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			this.setVal('published', null);
 		}, this);
 	},
-	
+
 	/**
 	 * Creates editors for use later on
 	 */
@@ -194,9 +194,9 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			updateEl: false,
 			ignoreNoChange: true
 		};
-		
+
 		this.authorIdEditor = new Ext.Editor(Ext.apply({}, {
-			disabled: this.disableAuthorIdEdit, 
+			disabled: this.disableAuthorIdEdit,
 			field: {
 				xtype: 'relationfield',
 				model: 'User',
@@ -239,7 +239,7 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 	/**
 	 * Init!
 	 * @param {Object} parent container
-	 */	
+	 */
 	initComponent: function(ct){
 		this.buildTpl();
 		this.buildEditors();
@@ -251,5 +251,5 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			}
 		});
 	}
-	
+
 });

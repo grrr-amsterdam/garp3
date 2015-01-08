@@ -13,19 +13,25 @@ class Garp_File {
     const TYPE_IMAGES = 'image';
 	const TYPE_DOCUMENTS = 'document';
 
+	const FILE_VARIANT_UPLOAD = 'upload';
+	const FILE_VARIANT_STATIC = 'static';
+
 	const SEPERATOR = '-';
 
 	protected $_storageTypes = array('local', 's3');
 
 	protected $_requiredConfigParams = array('type', 'domain', 'path', 'extensions');
 
-	protected $_requiredConfigPaths = array('upload', 'static');
+	protected $_requiredConfigPaths = array(self::FILE_VARIANT_UPLOAD, self::FILE_VARIANT_STATIC);
 
 	protected $_allowedTypes = array('image', 'document');
 
 	protected $_defaultUploadType = 'document';
 
-	/** @var Garp_File_Storage_Protocol $_storage An Garp_File_Storage_Protocol compliant object, such as Garp_File_Storage_S3. */
+	/**
+ 	 * @var Garp_File_Storage_Protocol A Garp_File_Storage_Protocol compliant object,
+ 	 *                                 such as Garp_File_Storage_S3.
+ 	 */
 	protected $_storage;
 
 	protected $_uploadOrStatic = 'upload';
@@ -44,7 +50,6 @@ class Garp_File {
  	 */
 	static protected $_config;
 
-
 	/**
 	* @param String $uploadType Options: 'documents' or 'images'. Documents are all files besides images.
 	* @param Boolean $uploadOrStatic Options: 'upload' or 'static'. Whether this upload is a user upload, stored in the uploads directory, or a static file used in the site.
@@ -62,48 +67,50 @@ class Garp_File {
 		$this->_initStorage($ini);
 	}
 
-
 	/** Make public methods of the Garp_File_Storage object available. */
 	public function __call($method, $args) {
-		if (method_exists($this->_storage, $method)) {
-			if ($method == 'store') {
-				$filename = $args[0];
-				if (
-					!array_key_exists(3, $args) ||
-					$args[3]
-				) {
-					//	$this->_storage->store()'s $formatFilename argument is true
-					$this->_restrictExtension($filename);
-				}
+		if (!method_exists($this->_storage, $method)) {
+			throw new BadMethodCallException('Call to undefined method ' .
+				get_class($this) . '::' . $method);
+		}
+		if ($method == 'store') {
+			$filename = $args[0];
+			// Check for filename that's only an extension (".jpg")
+			if ($filename[0] === '.' && strrpos($filename, '.') === 0) {
+				// Arbitrarily cast filename to current time
+				$args[0] = time() . $filename;
 			}
 
-			return call_user_func_array(array($this->_storage, $method), $args);
+			if (!array_key_exists(3, $args) || $args[3]) {
+				$this->_restrictExtension($filename);
+			}
 		}
-	}
 
+		return call_user_func_array(array($this->_storage, $method), $args);
+	}
 
 	public static function formatFilename($filename) {
-		if (strpos($filename, '/') === false) {
-			$filename = strtolower($filename);
-			$plainFilename = preg_replace(
-				array(
-					'/[_ ]/',
-					'/[^\da-zA-Z\.'.self::SEPERATOR.']/'
-				),
-				array(
-					self::SEPERATOR,
-					''
-				),
-				$filename
-			);
-			$plainFilename = trim($plainFilename, self::SEPERATOR);
-			return !empty($plainFilename) ?
-				$plainFilename :
-				'untitled'
+		if (strpos($filename, '/') !== false) {
+			throw new Exception(__FUNCTION__.'() is not for paths, please stick to filenames.');
+		}
+		$filename = strtolower($filename);
+		$plainFilename = preg_replace(
+			array(
+				'/[_ ]/',
+				'/[^\da-zA-Z\.'.self::SEPERATOR.']/'
+			),
+			array(
+				self::SEPERATOR,
+				''
+			),
+			$filename
+		);
+		$plainFilename = trim($plainFilename, self::SEPERATOR);
+		return !empty($plainFilename) ?
+			$plainFilename :
+			'untitled'
 			;
-		} else throw new Exception(__FUNCTION__.'() is not for paths, please stick to filenames.');
 	}
-
 
 	/** Returns a filename with the next follow-up-number. F.i.: cookie.jpg -> cookie-2.jpg, cookie-15.jpg -> cookie-16.jpg */
 	public static function getCumulativeFilename($filename) {
@@ -125,14 +132,12 @@ class Garp_File {
 		return $base.'.'.$ext;
 	}
 
-
 	public function validateUploadType($uploadType) {
 		if (!is_null($uploadType) && !in_array($uploadType, $this->_allowedTypes)) {
 			throw new Garp_File_Exception_InvalidType("'{$uploadType}' is not a valid " .
 				"upload type. Try: '".implode("' or '", $this->_allowedTypes)."'.");
 		}
 	}
-
 
 	/**
 	 * @param Boolean $returnNonImageExtensions Whether to return only non-image extensions, or all uploadable extensions.
@@ -151,7 +156,6 @@ class Garp_File {
 
 		return $extensions;
 	}
-
 
 	/**
 	 * @return Float Maximum upload filesize in megabytes.
@@ -192,7 +196,6 @@ class Garp_File {
 		} else throw new Exception("Could not retrieve the maximum filesize for uploads.");
 	}
 
-
 	protected function _getExtension($filename) {
 		$filenameParts = explode('.', $filename);
 		if (count($filenameParts) >1) {
@@ -200,14 +203,12 @@ class Garp_File {
 		} else throw new Exception("The provided filename does not have an extension. Please use the appropriate 3-character extension (such as .jpg, .png) after your filename.");
 	}
 
-
 	protected function _getPath($ini, $uploadType) {
 		return !$uploadType ?
 			$ini->cdn->path->{$this->_uploadOrStatic}->{$this->_defaultUploadType} :
 			$ini->cdn->path->{$this->_uploadOrStatic}->{$uploadType}
 		;
 	}
-
 
 	protected function _validateConfig($ini) {
 		if (isset($ini->cdn)) {
@@ -242,16 +243,10 @@ class Garp_File {
 		} else throw new Exception("The 'cdn' variable is not set in application.ini.");
 	}
 
-
 	protected function _validateUploadOrStatic($uploadOrStatic) {
-		if (
-			$uploadOrStatic !== 'upload' &&
-			$uploadOrStatic !== 'static' &&
-			!is_null($uploadOrStatic)
-		)
+		if ($uploadOrStatic !== 'upload' && $uploadOrStatic !== 'static' && !is_null($uploadOrStatic))
 			throw new Exception("The 'uploadOrStatic' variable should be either 'upload' or 'static' (dOh!) - so not '{$uploadOrStatic}'");
 	}
-
 
 	protected function _initStorage($ini) {
 		if (!empty(self::$_cachedStorage[$ini->cdn->type][$this->_path]) &&
@@ -262,7 +257,7 @@ class Garp_File {
 				case 's3':
 					$this->_storage = new Garp_File_Storage_S3($ini->cdn, $this->_path);
 				break;
-			case 'local':
+				case 'local':
 					$this->_storage = new Garp_File_Storage_Local($ini->cdn, $this->_path);
 				break;
 				default:
@@ -272,17 +267,17 @@ class Garp_File {
 		}
 	}
 
-
 	protected function _restrictExtension($filename) {
-		if ($filename) {
-			$extension = $this->_getExtension($filename);
-			$allowedExtensions = $this->getAllowedExtensions();
-			if (!in_array(strtolower($extension), $allowedExtensions)) {
-				throw new Exception("The file type you're trying to upload is not allowed. Try: ".$this->_humanList($allowedExtensions, null, 'or'));
-			}
-		} else throw new Exception("The filename was empty.");
+		if (!$filename) {
+			throw new Exception('The filename was empty.');
+		}
+		$extension = $this->_getExtension($filename);
+		$allowedExtensions = $this->getAllowedExtensions();
+		if (!in_array(strtolower($extension), $allowedExtensions)) {
+			throw new Exception('The file type you\'re trying to upload is not allowed. Try: ' .
+				$this->_humanList($allowedExtensions, null, 'or'));
+		}
 	}
-
 
 	protected function _getIni() {
 		if (!self::$_config) {
@@ -291,7 +286,6 @@ class Garp_File {
 		}
 		return self::$_config;
 	}
-
 
 	/**
 	 * @param Array $list Numeric Array of String elements,

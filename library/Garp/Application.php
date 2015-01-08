@@ -24,7 +24,7 @@ class Garp_Application extends Zend_Application {
                      ? pathinfo(basename($file, ".$suffix"), PATHINFO_EXTENSION)
                      : $suffix;
 		if ($suffix == 'ini') {
-			$config = Garp_Cache_Ini::factory($file)->toArray();
+			$config = Garp_Config_Ini::getCached($file)->toArray();
 		} else {
 			$config = parent::_loadConfig($file);
 		}

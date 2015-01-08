@@ -6,7 +6,7 @@ Ext.Direct.addProvider(Garp.API);
 Garp.errorHandler = {
 	msg: null,
 	win: null,
-	
+
 	handler: function(msg, s){
 		if (!msg) {
 			msg = __('No readable error message specified');
@@ -19,9 +19,9 @@ Garp.errorHandler = {
 			this.msg = msg;
 		}
 		if (!this.win) {
-			
+
 			this.win = new Ext.Window({
-				title: __('Error'),
+				title: '',
 				data: {
 					msg: __('No error')
 				},
@@ -53,7 +53,8 @@ Garp.errorHandler = {
 						this.win.update({
 							msg: this.msg
 						});
-						this.win.center();
+						this.win.hide();
+						//this.win.center();
 					},
 					scope: this
 				}]
@@ -65,8 +66,8 @@ Garp.errorHandler = {
 		this.win.update({
 			msg: this.msg
 		});
-		this.win.center();
-		
+		//this.win.center();
+
 	}
 };
 window.onerror = Garp.errorHandler.handler.createDelegate(Garp.errorHandler);
@@ -74,9 +75,9 @@ window.onerror = Garp.errorHandler.handler.createDelegate(Garp.errorHandler);
 Ext.Direct.on({
 	'exception': {
 		fn: function(e, p){
-			
+
 			var transaction = '', action = '', method = '', message = '', tid = '';
-			
+
 			if (Ext.isObject(e)) {
 				if (e.error) {
 					message = e.error.message;
@@ -89,12 +90,12 @@ Ext.Direct.on({
 				}
 				tid = e.tid;
 				transaction = tid ? e.getTransaction() : null;
-				
+
 				if (Ext.isObject(transaction)) {
 					action = transaction.action;
 					method = transaction.method;
 				}
-				
+
 				// now undirty & remove loadmasks again:
 				// temporary!
 				Garp.undirty();
@@ -107,17 +108,17 @@ Ext.Direct.on({
 						Garp.formPanel.fireEvent('dirty');
 					}
 				}
-				
-				
+
+
 			}
-			
-			throw (
+
+			Garp.errorHandler.handler(
 				'<b>' + (method ? __('Error trying to ') + __(method) : '' ) + ' ' + (Garp.dataTypes[action] ? '<i>'+__(Garp.dataTypes[action].text)+'</i>' : action) + '</b><br><br>' +
-				__('Server response: ') + message || __('Nothing. Nada.') + '<br>' +
-				(tid ? (__('Transaction id: ') + tid) : '') 
+				message || __('Nothing. Nada.') + '<br>' +
+				(tid ? (__('Transaction id: ') + tid) : '')
 			);
-			
-			
+
+
 		}
 	}
 });
@@ -293,10 +294,10 @@ Ext.apply(Ext.form.ComboBox.prototype, {
 });
 
 
-/** 
+/**
  * Override Ext.grid.GridView doRender, so that it passes a reference to the Grid view to a column Renderer
- * 
- * 
+ *
+ *
  * @param {Object} columns
  * @param {Object} records
  * @param {Object} store
@@ -310,7 +311,7 @@ Ext.override(Ext.grid.GridView, {
 		rowBuffer = [], colBuffer = [], rowParams = {
 			tstyle: tstyle
 		}, meta = {}, len = records.length, alt, column, record, i, j, rowIndex;
-		
+
 		//build up each row's HTML
 		for (j = 0; j < len; j++) {
 			record = records[j];
@@ -318,13 +319,13 @@ Ext.override(Ext.grid.GridView, {
 				continue;
 			}
 			colBuffer = [];
-			
+
 			rowIndex = j + startRow;
-			
+
 			//build up each column's HTML
 			for (i = 0; i < colCount; i++) {
 				column = columns[i];
-				
+
 				meta.id = column.id;
 				meta.css = i === 0 ? 'x-grid3-cell-first ' : (i == last ? 'x-grid3-cell-last ' : '');
 				meta.attr = meta.cellAttr = '';
@@ -333,36 +334,36 @@ Ext.override(Ext.grid.GridView, {
 				if (Ext.isEmpty(meta.value)) {
 					meta.value = '&#160;';
 				}
-				
+
 				if (this.markDirty && record.dirty && typeof record.modified[column.name] != 'undefined') {
 					meta.css += ' x-grid3-dirty-cell';
 				}
-				
+
 				colBuffer[colBuffer.length] = cellTemplate.apply(meta);
 			}
-			
+
 			alt = [];
 			//set up row striping and row dirtiness CSS classes
 			if (stripe && ((rowIndex + 1) % 2 === 0)) {
 				alt[0] = 'x-grid3-row-alt';
 			}
-			
+
 			if (record.dirty) {
 				alt[1] = ' x-grid3-dirty-row';
 			}
-			
+
 			rowParams.cols = colCount;
-			
+
 			if (this.getRowClass) {
 				alt[2] = this.getRowClass(record, rowIndex, rowParams, store);
 			}
-			
+
 			rowParams.alt = alt.join(' ');
 			rowParams.cells = colBuffer.join('');
-			
+
 			rowBuffer[rowBuffer.length] = rowTemplate.apply(rowParams);
 		}
-		
+
 		return rowBuffer.join('');
 	}
 });
@@ -372,16 +373,16 @@ Ext.apply(Ext.form.TextField.prototype, {
 	maxLengthText: __('You have {2} character(s) too many. The maximum length is {0}.'),
 	getErrors: function(value){
 		var errors = Ext.form.TextField.superclass.getErrors.apply(this, arguments);
-		
+
 		value = Ext.isDefined(value) ? value : this.processValue(this.getRawValue());
-		
+
 		if (Ext.isFunction(this.validator)) {
 			var msg = this.validator(value);
 			if (msg !== true) {
 				errors.push(msg);
 			}
 		}
-		
+
 		if (value.length < 1 || value === this.emptyText) {
 			if (this.allowBlank) {
 				//if value is blank and allowBlank is true, there cannot be any additional errors
@@ -390,32 +391,32 @@ Ext.apply(Ext.form.TextField.prototype, {
 				errors.push(this.blankText);
 			}
 		}
-		
+
 		if (!this.allowBlank && (value.length < 1 || value === this.emptyText)) { // if it's blank
 			errors.push(this.blankText);
 		}
-		
+
 		if (value.length < this.minLength) {
 			errors.push(String.format(this.minLengthText, this.minLength, value.length, this.minLength - value.length)); // PP added too few
 		}
-		
+
 		if (value.length > this.maxLength) {
 			errors.push(String.format(this.maxLengthText, this.maxLength, value.length, value.length - this.maxLength)); // PP added too many
 		}
-		
+
 		if (this.vtype) {
 			var vt = Ext.form.VTypes;
 			if (!vt[this.vtype](value, this)) {
 				errors.push(this.vtypeText || vt[this.vtype + 'Text']);
 			}
 		}
-		
+
 		if (this.regex && !this.regex.test(value)) {
 			errors.push(this.regexText);
 		}
-		
+
 		return errors;
-		
+
 	}
 });
 
@@ -432,7 +433,7 @@ Ext.apply(Ext.menu.Menu.prototype, {
 Ext.menu.Menu.prototype.createScrollers = Ext.menu.Menu.prototype.createScrollers.createSequence(function(){
 	var scope = this;
 	var task = null;
-	 
+
 	function startScroll(elm){
 		if(task){
 			stopScroll();
@@ -441,22 +442,22 @@ Ext.menu.Menu.prototype.createScrollers = Ext.menu.Menu.prototype.createScroller
 			scope.onScroll(null, elm);
 		}, 100);
 	}
-	
+
 	function stopScroll(){
 		clearInterval(task);
 		task = null;
 	}
-	
+
 	Ext.EventManager.addListener(this.el, 'mousewheel', this.onScrollWheel, this);
 	this.on('destroy', function(){
 		Ext.EventManager.removeListener(this.el, 'mousewheel', this.onScrollWheel, this);
 	});
-	
+
 	this.scroller.top.on('mouseenter', startScroll.createDelegate(this, [this.scroller.top]));
 	this.scroller.top.on('mouseleave', stopScroll);
 	this.scroller.bottom.on('mouseenter', startScroll.createDelegate(this, [this.scroller.bottom]));
 	this.scroller.bottom.on('mouseleave', stopScroll);
-	
+
 });
 
 /** Fixes some el == null issues at D 'n D **/

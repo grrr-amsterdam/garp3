@@ -1,12 +1,13 @@
 <?php
 /**
  * nl_NL translation file.
- * Provides common system messages, strings used in the CMS, as well as translations for ALL form 
+ * Provides common system messages, strings used in the CMS, as well as translations for ALL form
  * validation errors.
  */
 $translationTable = array(
 	"Please leave the following field blank" => "Laat het volgende veld alstublieft leeg",
 	'Only %1$s and %2$s files with a maximum of %3$s MB are allowed' => 'Alleen %1$s en %2$s bestanden van maximaal %3$s MB zijn toegestaan',
+	'Only %2$s files with a maximum of %3$s MB are allowed' => 'Alleen %2$s bestanden van maximaal %3$s MB zijn toegestaan',
 	'Insufficient data received' => 'Niet alle velden zijn ingevuld',
 	'The email address is not found' => 'Het e-mailadres is niet gevonden',
 	'The password is invalid' => 'Het wachtwoord is onjuist',
@@ -42,7 +43,7 @@ $translationTable = array(
 	'Next' => 'Volgende',
 	'Select All' => 'Alles selecteren',
 	'Welcome' => 'Welkom',
-	'Full Screen' => 'Volledig scherm',	
+	'Full Screen' => 'Volledig scherm',
 	'Log out' => 'Uitloggen',
 	'Error' => 'Fout',
 	'Relate selected item(s)' => 'Relateer geselecteerde item(s)',
@@ -56,7 +57,7 @@ $translationTable = array(
 	'Open in new window' => 'Open in nieuw venster',
 	'Preview this item' => 'Bekijk voorbeeld',
 	'To preview, save this item first' => 'Sla dit item eerst op om een voorbeeld te kunnen zien',
-	
+
 	'Monday' => 'Maandag',
 	'Tuesday' => 'Dinsdag',
 	'Wednesday' => 'Woensdag',
@@ -64,21 +65,21 @@ $translationTable = array(
 	'Friday' => 'Vrijdag',
 	'Saturday' => 'Zaterdag',
 	'Sunday' => 'Zondag',
-	
+
 	'Click here to view all items again' => 'Klik hier om opnieuw alle items weer te geven',
 	'Relating&hellip;' => 'Bezig met relateren&hellip;',
-	
+
 	'Server response: ' => 'Reactie van server: ',
 	'Transaction id: ' => 'Transactie id: ',
 	'No connection' => 'Geen verbinding',
 	'You\'ve been logged out' => 'U bent niet (meer) ingelogd',
 	'Login again' => 'Opnieuw inloggen',
-	
+
 	'fetch' => 'ophalen',
 	'create' => 'aanmaken',
 	'destroy' => 'verwijderen',
 	'update' => 'aanpassen',
-	
+
 	'<b>Add Blockquote</b><br>Convert selected text into a blockquote.' => '<b>Citaat invoegen</b><br>Maak van de geselecteerde tekst een citaat.',
 	'<b>Add Heading</b><br>Convert selected text into a heading.' => '<b>Kopje invoegen</b><br>Maak van de geselecteerde tekst een kopje.',
 	'<b>Add Link</b><br>Convert selected text into a hyperlink.' => '<b>Link invoegen</b><br>Maak van de geselecteerde tekst een hyperlink.',
@@ -87,12 +88,12 @@ $translationTable = array(
 	'Add link' => 'Link toevoegen',
 	'Title' => 'Titel',
 	'<b>Image</b><br>Insert image.' => '<b>Afbeelding</b><br>Afbeelding invoegen.',
-	
+
 	'Step' => 'Stap',
 	'of' => 'van',
 	'Specify an image or add new one' => 'Geef een afbeelding op, of voeg een nieuwe toe',
 	'Specify a crop template, set aligning and/or add a caption' => 'Kies een formaat, stel uitlijning in en/of voeg een bijschrift toe',
-	
+
 	'Crop' => 'Crop',
 	'Alignment' => 'Uitlijning',
 	'No alignment' => 'Niet uitlijnen',
@@ -103,24 +104,24 @@ $translationTable = array(
 	'Paste as plain text' => 'Plakken zonder opmaak',
 	'Not a valid Url' => 'Geen geldige Url',
 	'Internet Explorer mode: Not all options are available' => 'Internet Explorer modus: Niet alle opties zijn beschikbaar',
-	
+
 	'Ok' => 'Ok',
 	'Cancel' => 'Annuleren',
 	'Close' => 'Sluiten',
 	'Ready' => 'Gereed',
 	'Browse&hellip;' => 'Bladeren&hellip;',
 	'Error uploading file' => 'Fout tijdens uploaden van bestand',
-	
+
 	'Image Cropper' => 'Afbeelding bijsnijden',
 	'Crop template' => 'Vaste verhouding',
 	'Crop manually' => 'Eigen verhouding',
 	'Preview' => 'Voorbeeld',
 	'Drag the selection, or drag the corners to resize the selection.' => 'Sleep de selectie, of sleep de hoeken om de grootte aan te passen.',
-	
+
 	'no' => 'nee',
 	'yes' => 'ja',
 	'(empty)' => '(leeg)',
-	
+
 	'Is archived' => 'Is gearchiveerd',
 	'Start date' => 'Begindatum',
 	'Start time' => 'Begintijd',
@@ -131,16 +132,16 @@ $translationTable = array(
 	'Yesterday at' => 'Gisteren om',
 	'Published' => 'Gepubliceerd',
 	'No date specified' => 'Geen datum opgegeven',
-	
+
 	'You have {2} character(s) too few. The minimal length is {0}.' => 'Je hebt {2} karakter(s) te weinig. De minimum lengte is {0}.',
 	'You have {2} character(s) too many. The maximum length is {0}.' => 'Je hebt {2} karakter(s) te veel. De maximum lengte is {0}.',
-	'"{0}" is not a valid date. Valid formats are a.o. "19 2 2013" and "19-02-2013"' => '"{0}" is geen geldige datum. Geldige datumformaten zijn o.a. "19 2 2013" en "19-02-2013"',	
+	'"{0}" is not a valid date. Valid formats are a.o. "19 2 2013" and "19-02-2013"' => '"{0}" is geen geldige datum. Geldige datumformaten zijn o.a. "19 2 2013" en "19-02-2013"',
 
 	'Description' => 'Beschrijving',
 	'Created' => 'Aangemaakt',
 	'Modified' => 'Bewerkt',
 	'Modified by' => 'Bewerkt door',
-	
+
 	'Map' => 'Kaart',
 	'Location' => 'Locatie',
 	'Add Location' => 'Locatie aangeven',
@@ -153,22 +154,23 @@ $translationTable = array(
 	'City' => 'Stad',
 	'Country' => 'Land',
 	'Telephone' => 'Telefoon',
-	
+
 	'Image' => 'Afbeelding',
 	'New Image' => 'Nieuwe afbeelding',
 	'Add image' => 'Afbeelding toevoegen',
-	
+
 	'Add chapter' => 'Hoofdstuk toevoegen',
 
 	'Only {1} and {2} files with a maximum of {3} MB are allowed' => 'Alleen {1} en {2} bestanden van maximaal {3} MB zijn toegestaan',
-	
+	'Only {2} files with a maximum of {3} MB are allowed' => 'Alleen {2} bestanden van maximaal {3} MB zijn toegestaan',
+
 	'Only jpg, png and gif files with a maximum of 20 MB are accepted' => 'Alleen jpg, png, en gif bestanden van maximaal 20 MB zijn toegestaan',
 	'Only zip files with a maximum of 20 MB are accepted' => 'Alleen zip bestanden van maximaal 20 MB zijn toegestaan',
 	'Only pdf files with a maximum of 20 MB are accepted' => 'Alleen pdf bestanden van maximaal 20 MB zijn toegestaan',
 	'Drag file here, or click browse button' => 'Sleep een bestand hierin, of klik op \'bladeren\'',
 	'Please provide a name by which to recognize this file' => 'Geef een naam op aan de hand waarvan dit bestand te herkennen valt',
 	'Caption' => 'onderschrift',
-	
+
 	'Person' => 'Persoon',
 	'Snippet' => 'Snippet',
 	'New Snippet' => 'Nieuw snippet',
@@ -200,16 +202,16 @@ $translationTable = array(
 	'Modifier' => 'Bewerker',
 	'Order' => 'Volgorde',
 	'New Video' => 'Nieuwe Video',
-		
+
 	'Clear selection' => 'Selectie opheffen',
 	'Search in:' => 'Zoeken in:',
 	'All' => 'Alles',
 	'Drafts' => 'Drafts',
 	'My items' => 'Mijn items',
-	
+
 	'Sort index' => 'Volgnummer',
 	'Visible in list' => 'Zichtbaar in lijst',
-	
+
 	'Filename' => 'Bestandsnaam',
 	'No Image' => 'Geen afbeelding',
 	'No Image uploaded' => 'Geen afbeelding aanwezig',
@@ -217,10 +219,10 @@ $translationTable = array(
 	'Drag image here, or click browse button' => 'Afbeelding hier slepen, of klik op browse',
 	'Extension not supported' => 'Bestandstype niet toegestaan',
 	'Supported extensions are:' => 'Geldige bestandstypes zijn:',
-	
+
 	'Select file' => 'Geef bestand op',
 	'View original file' => 'Toon originele afbeelding',
-	
+
 	'Specify selection to export (1/3)' => 'Geef selectie op om te exporteren (1/3)',
 	'Currently selected item(s)' => 'Huidige item(s)',
 	'Current page' => 'Huidige pagina',
@@ -351,4 +353,5 @@ $translationTable = array(
 	'auth register successmessage' => 'Welkom! Je registratie is voltooid',
 	'not logged in flash message' => 'Om deze pagina te bekijken moet je ingelogd zijn',
 	'no permission flash message' => 'Je hebt niet de juiste rechten om deze pagina te bekijken',
+	'%s is already in use, please provide a unique value.' => '%s is al gebruikt. Vul een unieke waarde in.',
 );

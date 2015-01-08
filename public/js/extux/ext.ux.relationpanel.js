@@ -1,58 +1,58 @@
 Ext.ns('Ext.ux');
 /**
  * RelationPanel extends on Ext.Panel
- * 
+ *
  * @author: Peter Schilleman, Engelswoord for Grrr.nl
- *  
+ *
  */
 Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	layout: 'border',
 	bodyBorder: false,
 	border: true,
 	forceLayout:true,
-	
+
 	monitorValid: false,
-	
+
 	/**
 	 * @cfg: If set, we merely create a view tab; the only interactions possible are to open existing relations or quickCreate a new relation
 	 */
 	minimalUI: false,
-	
+
 	/**
-	 * @cfg: Whether we want one long list (false) or paginate (true) the related items 
+	 * @cfg: Whether we want one long list (false) or paginate (true) the related items
 	 */
 	paginated: false,
-	
+
 	/**
 	 * @cfg: whether or not we allow users to create a new instance
 	 */
 	quickCreatable: false,
-	
+
 	/**
 	 * @cfg: fieldReference to give to the quickCreate window
 	 */
 	quickCreateReference: null,
-	
+
 	/**
-	 * @cfg: get to hold the Id of the selected row 
+	 * @cfg: get to hold the Id of the selected row
 	 */
 	localId : null,
-	
+
 	/**
 	 * @cfg: Whether or not to unrelate existing items on the server first
 	 */
 	unrelateExisting: true,
-	
+
 	/**
 	 * @cfg: model: specifies the relatable model for this panel
 	 */
 	model: null,
-	
+
 	/**
 	 * @cfg: whether or not we can sort on the client
 	 */
 	weighable: false,
-	
+
 	/**
 	 * @cfg: rules: defines rules for "self" relations (modelA - modelA relations)
 	 */
@@ -68,52 +68,52 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	 * @cfg: wether to save homophyllic relationships bidirectionally
 	 */
 	bidirectional: true,
-	
+
 	foreignKey: 'id',
-	
+
 	/**
-	 * @cfg: override columnModel 
+	 * @cfg: override columnModel
 	 */
 	columns: null,
-	
+
 	/**
 	 * @cfg: title: specifies the title
 	 */
 	title: '',
-	
+
 	/**
 	 * @cfg: quickCreateReference: used for the "New Something" button label
 	 */
 	quickCreateBtnLabel: '',
-	
+
 	/**
 	 * @cfg: iconCls: specifies the icon
 	 */
 	//iconCls: null,
-	
+
 	/**
 	 * @cfg: maxItems
 	 */
 	maxItems: null,
-	
+
 	/**
 	 * @cfg: metaDataEditors: editors to use in metaDataPanel
 	 */
 	metaDataEditors: null,
 	metaDataRenderers: null,
 	metaDataValidator: function(){return true;},
-	
+
 	/**
 	 * For fine-grained control over the metaDataPanel, models
-	 * can configure a full configuration object. 
+	 * can configure a full configuration object.
 	 * @see http://docs.sencha.com/extjs/3.4.0/#!/api/Ext.grid.PropertyGrid for
 	 * available options.
 	 */
 	metaDataConfig: {},
-	
+
 	dirty: function(){
 		this.fireEvent('dirty');
-		
+
 		if (this.metaDataPanel) {
 			var valid = this.metaDataValidator(this.metaDataPanel.getSource(), this.relateePanel.store.data);
 		}
@@ -127,7 +127,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			}
 		}, this);
 	},
-	
+
 	undirty: function(){
 		this.fireEvent('undirty');
 		this.getTopToolbar().saveBtn.disable();
@@ -138,8 +138,8 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			}
 		}, this);
 	},
-	
-	
+
+
 	/**
 	 * @function getRowIndex
 	 * gives the rowIndex of the D'n D drop on grid operation
@@ -150,7 +150,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	getRowIndex: function(elm, e){
 		return elm.getView().findRowIndex(Ext.lib.Event.getTarget(e));
 	},
-	
+
 	/**
 	 * @function highlight
 	 * Highlights or unhiglihts the row for dnd operations
@@ -165,14 +165,14 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			this.highlightEl.addClass('garp-dnd-over');
 		}
 	},
-	
+
 	/**
 	 * @function setupDD
 	 * sets up the D'n D targets
 	 */
 	setupDD: function(){
 		var scope = this;
-		
+
 		new Ext.dd.DropTarget(this.relatePanel.getView().el, {
 			ddGroup: 'dd',
 			copy: true,
@@ -202,7 +202,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		});
 		/* @FIXME:
 		 * Used to work better, but didn't allow for moving outside of "items already there"
-		 *  
+		 *
 		new Ext.dd.DropTarget(this.relateePanel.getView().mainBody, {
 			ddGroup: 'dd',
 			copy: true,
@@ -211,20 +211,20 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			},
 			notifyOver: function(ddSource, e, data){
 				scope.highlight(scope.relateePanel.getView().getRow(scope.getRowIndex(scope.relateePanel, e)), this.highlight);
-				
+
 				if (scope.maxItems && scope.relateeStore.getCount() >= scope.maxItems) {
 					return Ext.dd.DropZone.prototype.dropNotAllowed;
 				} else {
 					return Ext.dd.DropZone.prototype.dropAllowed;
 				}
-				
+
 			},
 			notifyDrop: function(ddSource, e, data){
 				scope.highlight(false);
 				var records = ddSource.dragData.selections;
 				var index = scope.getRowIndex(scope.relateePanel, e);
 				scope.moveRecords(ddSource.grid, scope.relateePanel, records, index);
-				
+
 				return !(scope.maxItems && scope.relateeStore.getCount() >= scope.maxItems)
 			}
 		});
@@ -248,7 +248,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				} else {
 					return Ext.dd.DropZone.prototype.dropAllowed;
 				}
-				
+
 			},
 			notifyDrop: function(ddSource, e, data){
 				if (!scope.weighable && ddSource.dragData.grid.itemId == 'relateePanel') {
@@ -258,12 +258,12 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				var records = ddSource.dragData.selections;
 				var index = scope.getRowIndex(scope.relateePanel, e);
 				scope.moveRecords(ddSource.grid, scope.relateePanel, records, index);
-				
+
 				return !(scope.maxItems && scope.relateeStore.getCount() >= scope.maxItems);
 			}
 		});
 	},
-	
+
 	/**
 	 * @function moveRecords
 	 * moves Records from grid one to the other
@@ -290,11 +290,11 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		if (this.maxItems && (this.relateeStore.getCount() + records.length) > this.maxItems && source == this.relatePanel) {
 			return;
 		}
-		
+
 		// @TODO: Possibly check for duplicate items (decide later):
 		// if(!Ext.isDefined(target.store.getById(source.store.find('id'))))
 		Ext.each(records, function(rec, i){
-			
+
 			var nr = new source.store.recordType(rec.data);
 			if (Ext.isNumber(index)) {
 				target.store.insert(index, nr);
@@ -304,23 +304,23 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			}
 			source.store.remove(rec);
 		});
-		
+
 		Ext.each([source, target], function(grid){
 			grid.getSelectionModel().clearSelections();
 			grid.getView().refresh();
 		});
-		
+
 		this.dirty();
 		if(!this.weighable){
 			target.store.remoteSort = false;
 			target.store.sort(Garp.dataTypes[this.model].sortInfo.field, Garp.dataTypes[this.model].sortInfo.direction);
 			target.store.remoteSort = true;
 		}
-		
+
 		var rec = records[0];
 		var idx = target.store.find('id', rec.data.id);
 		target.getSelectionModel().selectRow(idx || 0);
-		
+
 	},
 
 	/**
@@ -355,7 +355,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					limit: Garp.pageSize
 				};
 				if(this.rule){
-					out.rule = this.rule; 
+					out.rule = this.rule;
 				}
 				if(this.rule2){
 					out.rule2 = this.rule2;
@@ -364,7 +364,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					out.bindingModel = this.bindingModel;
 				}
 				out.bidirectional = this.bidirectional;
-				return out; 
+				return out;
 			}).call(this),
 			api: {
 				create: Ext.emptyFn,
@@ -374,7 +374,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			}
 		};
 	},
-	
+
 	/**
 	 * @function getGridCfg
 	 * @param hideHeader
@@ -430,7 +430,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			}
 		};
 	},
-	
+
 	/**
 	 * @function getButtonPanel
 	 * @return defaultButtonPanelObj
@@ -470,11 +470,11 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			}]
 		};
 	},
-	
+
 	/**
 	 * @function saveRelations
 	 * @param options {Object}
-	 * 
+	 *
 	 * Use options.force = true to disable dirty check and save anyway
 	 */
 	saveRelations: function(options){
@@ -484,7 +484,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		if(typeof options == 'undefined'){
 			options = {};
 		}
-		
+
 		if (!this.relateeStore) {
 			return;
 		}
@@ -494,12 +494,12 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				return;
 			}
 		}
-		
+
 		this.loadMask = new Ext.LoadMask(this.getEl(), {
 			msg: __('Relating&hellip;')
 		});
 		this.loadMask.show();
-		
+
 		var data = {
 			model: this.model,
 			unrelateExisting: this.unrelateExisting,
@@ -526,14 +526,14 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			data.bindingModel = this.bindingModel;
 		}
 		data.bidirectional = this.bidirectional;
-		
+
 		Garp[Garp.currentModel].relate(data, function(res) {
 			this.loadMask.hide();
 			if(res){
-				
+
 				if (this.model == Garp.currentModel) {
 					// on homophile relations, refetch parent to get the right ID first:
-					var gpStore = Garp.gridPanel.getStore(); 
+					var gpStore = Garp.gridPanel.getStore();
 					this.relateStore.rejectChanges();
 					this.relateeStore.rejectChanges();
 					gpStore.on({
@@ -558,7 +558,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			}
 		}, this);
 	},
-	
+
 	/**
 	 * @function checkDirty
 	 */
@@ -566,7 +566,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		if(typeof continueAction != 'function') {
 			continueAction = Ext.emptyFn;
 		}
-		
+
 		if (this.relateStore.getModifiedRecords().length == 0 && this.relateeStore.getModifiedRecords().length == 0) {
 			return true;
 		}
@@ -590,7 +590,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 								continueAction();
 							}
 						}
-						
+
 						this.relateeStore.on({
 							'load': {
 								fn: async,
@@ -618,15 +618,15 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		});
 		return false;
 	},
-	
+
 	/**
 	 * @function _selectionChange
-	 * 
+	 *
 	 * binds a new query (model:[id]) to relate/relatee store
 	 */
 	_selectionChange: function(sm){
 		this.setDisabled(sm.getCount() !== 1);
-		
+
 		if (sm.getCount() !== 1) {
 			if (this.ownerCt && this.ownerCt.setActiveTab) {
 				this.ownerCt.setActiveTab(0);
@@ -644,9 +644,9 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		} else {
 			this.localId = id;
 		}
-		
+
 		/// TODO: REFACTOR DUPLICATES BELOW!
-		
+
 		var q;
 		q = {};
 		if (typeof this.filterColumn === 'undefined') {
@@ -665,9 +665,9 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			baseParams.bindingModel = this.bindingModel;
 		}
 		baseParams.bidirectional = this.bidirectional;
-		
+
 		this.relateStore.setBaseParam(baseParams);
-		
+
 		q = {};
 		if (typeof this.filterColumn === 'undefined') {
 			q[Garp.currentModel + '.id'] = id;
@@ -697,7 +697,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			this.relateeStore.reload();
 		}
 	},
-	
+
 	/**
 	 * @function _onActivate
 	 */
@@ -718,10 +718,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			this.relatePanel.doLayout();
 		}
 	},
-	
+
 	/**
 	 * @function updateOnNewWindow
-	 *  
+	 *
 	 */
 	updateOpenNewWindow: function(){
 		function xor(a,b){
@@ -733,7 +733,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			this.getTopToolbar().buttonopennewwindow.hide();
 		}
 	},
-	
+
 	/**
 	 * @function initComponent
 	 */
@@ -750,7 +750,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				this.quickCreateBtnLabel = this.title;
 			}
 			this.bodyCssClass = 'garp-relatepanel-buttons';
-			
+
 			this.relateStore = new Ext.data.DirectStore(Ext.apply({}, {
 				listeners: {
 					load: {
@@ -769,7 +769,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					destroy: Ext.emptyFn
 				}
 			}, this.getStoreCfg()));
-			
+
 			function checkCount(store){
 				if (this.maxItems !== null) {
 					if (store.getCount() == this.maxItems) {
@@ -785,7 +785,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					}
 				}]);
 			}
-			
+
 			this.relateeStore = new Ext.data.DirectStore(Ext.apply({}, {
 				baseParams: {
 					limit: this.paginated ? Garp.pageSize : RELATEESTORE_LIMIT
@@ -804,7 +804,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					scope: this
 				}
 			}, this.getStoreCfg()));
-			
+
 			this.relatePanel = new Ext.grid.GridPanel(Ext.apply({}, {
 				itemId: 'relatePanel',
 				store: this.relateStore,
@@ -825,7 +825,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					scope: this
 				}
 			}, this.getGridCfg(false)));
-			
+
 			var relateePanelCfg = Ext.apply({}, {
 				itemId: 'relateePanel',
 				title: __('Related'),
@@ -857,7 +857,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				});
 			}
 			this.relateePanel = new Ext.grid.GridPanel(relateePanelCfg);
-			
+
 			if (this.minimalUI) {
 				this.items = [{
 					xtype: 'container',
@@ -868,7 +868,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					items: this.relateePanel
 				}];
 			} else {
-				
+
 				var scope = this;
 				function validateMetaPanel(){
 					if (scope.rendered && scope.isVisible()) {
@@ -881,7 +881,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 						}
 					}
 				}
-				
+
 				var metaDataPanelConfig = {
 					split: true,
 					__relationPanel: this,
@@ -903,9 +903,9 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				Ext.apply(metaDataPanelConfig, this.metaDataConfig);
 				this.metaDataPanel = new Ext.grid.PropertyGrid(metaDataPanelConfig);
 				this.metaDataPanel.store.on('load', validateMetaPanel, this);
-				
-				
-				
+
+
+
 				this.items = [{
 					xtype: 'container',
 					layout: 'border',
@@ -925,7 +925,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					items: [this.relateePanel, this.metaDataPanel]
 				}];
 			}
-			
+
 			this.tbar = new Ext.Toolbar({
 				style: 'border:0; padding: 15px 15px 0 15px;',
 				border: false,
@@ -967,7 +967,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 							cfg = Ext.apply(cfg, this.quickCreateConfig);
 						}
 						var win = new Garp.RelateCreateWindow(cfg);
-						
+
 						win.show();
 						win.on('aftersave', function(rcwin, rec){
 							this.relateeStore.add(rec);
@@ -984,7 +984,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					hidden: true,
 					ref: 'buttonopennewwindow',
 					text: __('Open in new window'),
-					
+
 					handler: function(){
 						var selected;
 						if (this.relatePanel.getSelectionModel().getCount() > 0) {
@@ -1001,7 +1001,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 						if (selected) {
 							var id = selected.get('id');
 							var url = BASE + 'admin?model=' + this.model + '&id=' + id;
-							
+
 							var win = window.open(url);
 						}
 					},
@@ -1032,18 +1032,18 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					}
 				}]
 			});
-			
+
 			/**
 		 	 *  Event handling:
 		 	 */
-			//this.on('afterlayout', this._onActivate, this); // was bugy, caused weired layout issues sometimes, changed event order... 
+			//this.on('afterlayout', this._onActivate, this); // was bugy, caused weired layout issues sometimes, changed event order...
 			this.on('activate', this._onActivate, this); // @TODO: refactor method names to cope with new event names
 			this.on('hide', function(){
 				this._onActivate.isLoaded = false;
 			}, this);
-			
+
 			this.on('deactivate', this.checkDirty, this);
-			
+
 			this.relatePanel.getSelectionModel().on({
 				'selectionchange': {
 					scope: this,
@@ -1051,13 +1051,13 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					fn: this.updateOpenNewWindow
 				}
 			});
-			
+
 			this.relateePanel.getSelectionModel().on({
 				'selectionchange': {
 					scope: this,
 					buffer: 25,
 					fn: function(sm){
-					
+
 						this.updateOpenNewWindow();
 						if (!this.metaDataPanel) {
 							return;
@@ -1070,7 +1070,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 						if (!sm || sm.getCount() != 1 || !hasSource) {
 							this.metaDataPanel.hide();
 							this.metaDataPanel.ownerCt.doLayout();
-							
+
 						} else if (sm && sm.getCount() == 1 && this.relateeStore && this.relateeStore.fields.containsKey('relationMetadata')) {
 							this.metaDataPanel.show();
 							this.metaDataPanel.ownerCt.doLayout();
@@ -1105,7 +1105,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					}
 				}
 			});
-			
+
 			if (this.metaDataPanel) {
 				this.metaDataPanel.on('propertychange', function(source, recId, val, oldVal){
 					if (val != oldVal) {
@@ -1125,7 +1125,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					}
 				}, this);
 			}
-			
+
 			if (Garp.eventManager) { // Test environment doesn't include Garp.eventManager
 				Garp.eventManager.on({
 					'after-save': {
@@ -1160,7 +1160,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 		}
 		Ext.ux.RelationPanel.superclass.initComponent.call(this);
 	},
-	
+
 	/**
 	 * @function onDestroy
 	 */
@@ -1171,7 +1171,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 			Garp.eventManager.un('selectionchange', this._selectionChange, this);
 			Garp.eventManager.un('after-save', this._selectionChange, this);
 		}
-		Ext.ux.RelationPanel.superclass.onDestroy.call(this);	
+		Ext.ux.RelationPanel.superclass.onDestroy.call(this);
 		this._onActivate.isLoaded = false;
 	}
 });

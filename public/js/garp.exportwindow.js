@@ -15,18 +15,18 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 		cls: 'garp-formpanel' // new style doesn't need frame, old style doesn't need this class
 		//frame: true
 	},
-	
+
 	proceedExport: function(){
 		var selection;
 		var sel = this.get('page-0').getForm().getValues();
 		var ids = [];
-		
+
 		if (typeof Garp.gridPanel.getSelectionModel().getSelected() != 'undefined') {
 			Ext.each(Garp.gridPanel.getSelectionModel().getSelections(), function(item){
 				ids.push(item.id);
 			});
 		}
-		
+
 		var exportType = this.get('page-2').getForm().getFieldValues().exporttype;
 		var filter = Ext.util.JSON.encode(Garp.gridPanel.store.baseParams.query);
 		var sortInfo = Garp.gridPanel.getStore().sortInfo;
@@ -49,7 +49,7 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 				}
 			}
 		}
-		
+
 		var parameters = {};
 		switch (sel.selection) {
 			case 'currentItem':
@@ -87,6 +87,8 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 				parameters = {
 					selection: 'all',
 					filter: '{"' +  Garp.currentModel + '.id":' + ids[0] + '}',
+					rule: Garp.formPanel.items.get(0).getLayout().activeItem.rule,
+					rule2: Garp.formPanel.items.get(0).getLayout().activeItem.rule2,
 					exportType: exportType
 				};
 				break;
@@ -101,14 +103,14 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 				};
 				break;
 		}
-		
+
 		var url;
 		if (sel.selection == 'relation') {
 			url = Ext.urlEncode(parameters, BASE + 'g/content/export/model/' + form0.findField('model').getValue() + '?exporttype=' + exportType);
 		} else {
 			url = Ext.urlEncode(parameters, BASE + 'g/content/export/model/' + Garp.currentModel + '?exporttype=' + exportType);
 		}
-		
+
 		if(sel.selection == 'currentItem'){
 			url += '&id=[' + ids.join(',') + ']';
 		}
@@ -116,18 +118,18 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 			url += '&filter=' + encodeURIComponent(filter);
 			url += '&fields=' + encodeURIComponent(fields);
 		}
-		
+
 		this.close();
 		window.location = url;
-		
+
 	},
-	
+
 	navHandler: function(dir){
 		var page = this.getLayout().activeItem.id;
 		page = parseInt(page.substr(5, page.length), 10);
 		this._prevPage = page;
 		page += dir;
-		var selectionForm = this.get('page-0').getForm(); 
+		var selectionForm = this.get('page-0').getForm();
 		if (page <= 0) {
 			page = 0;
 			this.prevBtn.disable();
@@ -144,7 +146,7 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 		}
 		this.getLayout().setActiveItem('page-' + page);
 	},
-	
+
 	getCheckboxesFromModel: function(){
 		var checkboxes = [], cm = Garp.gridPanel.getColumnModel().columns;
 		Ext.each(cm, function(field){
@@ -159,9 +161,9 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 		});
 		return checkboxes;
 	},
-	
+
 	initComponent: function(){
-		
+
 		var selectionDefaults = {
 			scope: this,
 			allowBlank: true,
@@ -203,10 +205,10 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 					inputValue: 'currentPage'
 				}, /*{
 					fieldLabel: __('All pages'),
-					
+
 					hidden: true,
 					hideFieldLabel: true,
-					
+
 					xtype: 'radio',
 					name: 'selection',
 					inputValue: 'all'
@@ -267,7 +269,7 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 							});
 							return out;
 						})()
-					}] 
+					}]
 				}]
 			}]
 		}, {
@@ -275,7 +277,7 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 			xtype: 'form',
 			autoScroll: true,
 			listeners:{
-				// skip this page, if at previous one 'relation' was chosen: 
+				// skip this page, if at previous one 'relation' was chosen:
 				'show': function(){
 					var ct = this.ownerCt;
 					if(ct._prevPage === 0 && ct.get('page-0').getForm().getValues().selection == 'relation'){
@@ -332,10 +334,10 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 					mode: 'local',
 					value: 'txt',
 					store: [['txt','Text'],['csv','CSV'],['excel','Excel']]
-				}]				
+				}]
 			}]
 		}];
-		
+
 		this.buttonAlign = 'left';
 		this.buttons = [{
 			text: __('Previous'),
@@ -349,7 +351,7 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 			ref: '../nextBtn',
 			handler: this.navHandler.createDelegate(this, [1])
 		}];
-		
+
 		Garp.ExportWindow.superclass.initComponent.call(this);
 		this.on('show', this.navHandler.createDelegate(this, [-1]));
 	}

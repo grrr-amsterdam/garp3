@@ -18,20 +18,27 @@ class Garp_I18n_Translate_Adapter_Snippet extends Zend_Translate_Adapter {
 	 * @return array
 	 */
 	protected function _loadTranslationData($data, $locale, array $options = array()) {
-		$i18nModelFactory = new Garp_I18n_ModelFactory($locale);
-		$snippetModel = $i18nModelFactory->getModel('Snippet');
+		$data = array();
+		try {
+			$i18nModelFactory = new Garp_I18n_ModelFactory($locale);
+			$snippetModel = $i18nModelFactory->getModel('Snippet');
 
-		$out = array();
-		$data = $snippetModel->fetchAll(
-			$snippetModel->select()
-			->from($snippetModel->getName(), array(
-				'identifier', 
-				'text' => new Zend_Db_Expr('IF(text IS NULL, identifier, text)'),
-			))
-			->where('has_text = ?', 1)
-			->order('identifier ASC')
-		);
-		$out[$locale] = $this->_reformatData($data);
+			$out = array();
+			$data = $snippetModel->fetchAll(
+				$snippetModel->select()
+				->from($snippetModel->getName(), array(
+					'identifier',
+					'text' => new Zend_Db_Expr('IF(text IS NULL, identifier, text)'),
+				))
+				->where('has_text = ?', 1)
+				->order('identifier ASC')
+			);
+			$data = $this->_reformatData($data);
+		} catch (Zend_Db_Adapter_Exception $e) {
+			Garp_ErrorHandler::handlePrematureException($e);
+		}
+
+		$out[$locale] = $data;
 		return $out;
 	}
 

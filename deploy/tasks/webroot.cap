@@ -27,7 +27,9 @@ end
 
 def guess_webroot cap
 	pwd = cap.capture("pwd").strip
-	if check_dir_existence cap, pwd, 'web'
+	if check_dir_existence cap, pwd, 'current/public'
+		show_deploy_to_guess cap, pwd, 'current/public'
+	elsif check_dir_existence cap, pwd, 'web'
 		show_deploy_to_guess cap, pwd, 'web'
 	elsif check_dir_existence cap, pwd, 'public'
 		show_deploy_to_guess cap, pwd, 'public'

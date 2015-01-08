@@ -93,7 +93,7 @@ class Garp_Image_Scaler {
 		if (strlen($sourceData) == 0) {
 			throw new Exception("This is an empty file!");
 		}
-		
+
 		if (!($source = imagecreatefromstring($sourceData))) {
 			$finfo = new finfo(FILEINFO_MIME);
 			$mime = $finfo->buffer($sourceData);
@@ -113,10 +113,10 @@ class Garp_Image_Scaler {
 			$canvas = $this->_createCanvasImage($imageType);
 
 			$this->_projectSourceOnCanvas($source, $canvas);
-	
+
 			// Enable progressive jpegs
-			imageinterlace($canvas, true); 
-			
+			imageinterlace($canvas, true);
+
 			$outputImage = $this->_renderToImageData($canvas);
 			imagedestroy($canvas);
 		}
@@ -130,17 +130,17 @@ class Garp_Image_Scaler {
 
 		return $output;
 	}
-	
+
 	protected function _isSourceEqualToTarget(array $scaleParams) {
-		return 
+		return
 			$this->params['w'] == $this->params['sourceWidth'] &&
 			$this->params['h'] == $this->params['sourceHeight'] &&
 			!$this->_isFilterDefined($scaleParams)
 		;
 	}
-	
+
 	protected function _isFilterDefined(array $scaleParams) {
-		return 
+		return
 			array_key_exists('filter', $scaleParams) &&
 			$scaleParams['filter']
 		;
@@ -165,8 +165,8 @@ class Garp_Image_Scaler {
 	public function getTemplateNames() {
 		return array_keys(self::$_config->template->toArray());
 	}
-	
-	
+
+
 	/**
 	* Generate versions of an image file that are scaled according to the configured scaling templates.
 	* @param String $filename The filename of the image to be scaled
@@ -207,7 +207,7 @@ class Garp_Image_Scaler {
 
 	/**
 	 * Scales an image according to an image template, and stores it.
-	 * 
+	 *
 	 * @param String $filename Filename of the source image
 	 * @param Int $id Id of the database record corresponding to this image file
 	 * @param String $template Name of the template, if left empty, scaled versions for all templates will be generated.
@@ -219,7 +219,7 @@ class Garp_Image_Scaler {
 			$templates = $this->getTemplateNames()
 		;
 
-		$file 		= new Garp_Image_File('upload');
+		$file 		= new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);
 		$sourceData = $file->fetch($filename);
 		$imageType 	= $file->getImageType($filename);
 
@@ -228,9 +228,9 @@ class Garp_Image_Scaler {
 			$this->_scaleAndStoreForTemplate($sourceData, $imageType, $id, $template, $overwrite);
 		}
 	}
-	
+
 	protected function _scaleAndStoreForTemplate($sourceData, $imageType, $id, $template, $overwrite) {
-		$file 			= new Garp_Image_File('upload');
+		$file 			= new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);
 		$scaleParams 	= $this->getTemplateParameters($template);
 		// clone this scaler, since scaling parameters are stored as class properties
 		$clonedScaler	= clone($this);
@@ -325,8 +325,8 @@ class Garp_Image_Scaler {
 			}
 		}
 	}
-	
-	
+
+
 	private function _createCanvasImage($imageType) {
 		switch ($imageType) {
 			case IMAGETYPE_GIF:
@@ -343,8 +343,8 @@ class Garp_Image_Scaler {
 		$this->_paintCanvas($canvas);
 		return $canvas;
 	}
-	
-	
+
+
 	/**
 	 * Fills the canvas with the provided background color.
 	 * @param Resource $image
@@ -388,8 +388,8 @@ class Garp_Image_Scaler {
 			imagesavealpha($image, true);
 		}
 	}
-	
-	
+
+
 	protected function _paintCanvasOpaque(&$image) {
 		$red	= '00';
 		$green	= '00';
@@ -484,7 +484,7 @@ class Garp_Image_Scaler {
 				} else {
 					$y = ($this->params['h'] - $projectionHeight) / 2;
 				}
-		} 
+		}
 
 		return array($x, $y);
 	}

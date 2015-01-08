@@ -11,9 +11,14 @@ endif;
 
 // Image
 if ($this->snippet->has_image && $this->snippet->Image):
+	echo '<figure>';
 	// Allow scalingTemplate as well as scaling_template... to preserve backward compatibility... >.< ugh
 	$scalingTpl = property_exists($this, 'scaling_template') ? $this->scaling_template : (property_exists($this, 'scalingTemplate') ? $this->scalingTemplate : null);
 	echo $this->image()->render($this->snippet->Image->id, $scalingTpl);
+	if (isset($this->snippet->Image->caption) && $this->snippet->Image->caption):
+		echo '<figcaption>' . $this->escape($this->snippet->Image->caption) . '</figcaption>';
+	endif;
+	echo '</figure>';
 endif;
 
 // Text / Html
@@ -24,7 +29,7 @@ if ($this->snippet->has_text):
 		$theContent = $this->string()->linkify($theContent);
 	endif;
 	if ($this->textWrapperTag):
-		$theContent = '<' . $this->textWrapperTag . '>' . 
+		$theContent = '<' . $this->textWrapperTag . '>' .
 			$theContent . '</' . $this->textWrapperTag . '>';
 	endif;
 elseif ($this->snippet->has_html):
@@ -32,7 +37,7 @@ elseif ($this->snippet->has_html):
 	if ($this->bodyClass):
 		$bodyClass .= ' '.$this->bodyClass;
 	endif;
-	$theContent = '<div class="' . $bodyClass.'">' . 
+	$theContent = '<div class="' . $bodyClass.'">' .
 		$this->snippet->html . '</div>';
 endif;
 echo $theContent;

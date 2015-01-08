@@ -339,9 +339,9 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 	public function loadIntoExisting($pFilename, PHPExcel $objPHPExcel)
 	{
 		// Check if file exists
-		if (!file_exists($pFilename)) {
-			throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
-		}
+		//if (!file_exists($pFilename)) {
+			//throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+		//}
 
 		$timezoneObj = new DateTimeZone('Europe/London');
 		$GMT = new DateTimeZone('UTC');

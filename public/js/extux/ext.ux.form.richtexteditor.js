@@ -50,7 +50,7 @@ if (Ext.isIE) {
             return String(this.getValue()) !== String(this.originalValue);
         },
         getDocMarkup: function(){
-            return '<html><head><link rel="stylesheet" href="' + BASE + 'v' + ASSET_VERSION + '/css/garp/garp-richtexteditor.css" type="text/css"></head><body style="padding:0 !important;"></body></html>';
+            return '<html><head><link rel="stylesheet" href="' + BASE + '/css/garp/garp-richtexteditor.css" type="text/css"></head><body style="padding:0 !important;"></body></html>';
         },
 
         onRender: function(ct, position){
@@ -1102,7 +1102,7 @@ if (Ext.isIE) {
          * Note: IE8-Standards has unwanted scroller behavior, so the default meta tag forces IE7 compatibility
          */
         getDocMarkup: function(){
-            return '<html><head><link rel="stylesheet" href="' + BASE + 'v' + ASSET_VERSION + '/css/garp/garp-richtexteditor.css" type="text/css"></head><body></body></html>';
+            return '<html><head><link rel="stylesheet" href="' + BASE + '/css/garp/garp-richtexteditor.css" type="text/css"></head><body></body></html>';
         },
 
         // private

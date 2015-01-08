@@ -12,7 +12,7 @@
  */
 class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAbstract {
 	/**
-	 * Key to store Zend_Acl under 
+	 * Key to store Zend_Acl under
 	 * @var String
 	 */
 	const DEFAULT_REGISTRY_KEY = 'Zend_Acl';
@@ -43,8 +43,8 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
 		}
 		return $this->_acl;
 	}
-	
-	
+
+
 	/**
 	 * Overwrite cause we want to store the options elsewhere
 	 * @return Array
@@ -55,7 +55,7 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
 			$options['enabled'] = true;
 		}
 		if ($options['enabled']) {
-			$config	= Garp_Cache_Ini::factory(APPLICATION_PATH.'/configs/acl.ini', APPLICATION_ENV);
+			$config	= Garp_Config_Ini::getCached(APPLICATION_PATH.'/configs/acl.ini');
 			$aclOptions = $config->acl->toArray();
 			$options = array_merge($options, $aclOptions);
 		}
@@ -131,7 +131,7 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
 	    }
 	}
 
-	
+
 	private function _addRoleById(array $roles, $roleId) {
 		foreach ($roles as $roleName => $properties) {
 			// If the properties aren't set as an array, then we will consider
