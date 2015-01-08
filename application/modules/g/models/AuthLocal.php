@@ -9,19 +9,14 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthLocal extends G_Model_Auth {
+class G_Model_AuthLocal extends Model_Base_AuthLocal {
 	protected $_name = 'authlocal';
-	
-	
-	protected $_referenceMap = array(
-		'User' => array(
-			'columns' => 'user_id',
-			'refTableClass' => 'Model_User',
-			'refColumns' => 'id'
-		)
-	);
-	
-	
+
+	public function init() {
+		parent::init();
+		$this->registerObserver(new Garp_Model_Behavior_Authenticatable(array($this)));
+	}
+
 	/**
 	 * Try to log a user in.
 	 * @param String $identity
@@ -46,24 +41,24 @@ class G_Model_AuthLocal extends G_Model_Auth {
 		  ->order($this->_name.'.id')
 		;
 		$result = $this->fetchRow($select);
-		
+
 		// update stats if we found a match
-		if ($result) {
-			$foundCredential = $result->{$authVars['credentialColumn']};
-			$testCredential = $authVars['hashMethod']($credential.$authVars['salt']);
-			
-			if ($foundCredential == $testCredential) {
-				$this->updateLoginStats($result->id);
-				unset($result->{$authVars['credentialColumn']});
-				return $result;
-			}
+		if (!$result) {
+			throw new Garp_Auth_Adapter_Db_UserNotFoundException();
+			return null;
+		}
+		$foundCredential = $result->{$authVars['credentialColumn']};
+		$testCredential = $authVars['hashMethod']($credential.$authVars['salt']);
+
+		if ($foundCredential != $testCredential) {
 			throw new Garp_Auth_Adapter_Db_InvalidPasswordException();
 		}
-		throw new Garp_Auth_Adapter_Db_UserNotFoundException();
-		return null;
+		$this->getObserver('Authenticatable')->updateLoginStats($result->id);
+		unset($result->{$authVars['credentialColumn']});
+		return $result;
 	}
-	
-	
+
+
 	/**
 	 * BeforeInsert callback, hashes the password.
 	 * @param Array $args
@@ -73,8 +68,8 @@ class G_Model_AuthLocal extends G_Model_Auth {
 		$data = &$args[1];
 		$data = $this->_hashPassword($data);
 	}
-	
-	
+
+
 	/**
 	 * BeforeUpdate callback, hashes the password.
 	 * @param Array $args
@@ -84,8 +79,8 @@ class G_Model_AuthLocal extends G_Model_Auth {
 		$data = &$args[1];
 		$data = $this->_hashPassword($data);
 	}
-	
-	
+
+
 	/**
 	 * Hash an incoming password
 	 * @param Array $data The new userdata

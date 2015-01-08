@@ -11,7 +11,7 @@
  */
 class G_Model_Image extends Model_Base_Image {
 	protected $_name = 'image';
-	
+
 	public function init() {
 		$this->registerObserver(new Garp_Model_Behavior_Timestampable())
 		 	 ->registerObserver(new Garp_Model_Behavior_ImageScalable())
@@ -36,6 +36,10 @@ class G_Model_Image extends Model_Base_Image {
 		}
 		$response = Zend_Controller_Action_HelperBroker::getStaticHelper('upload')
 			->uploadRaw(Garp_File::TYPE_IMAGES, $filename, $bytes);
+		if (!array_key_exists($filename, $response) || !$response[$filename]) {
+			return null;
+		}
+
 		return $this->insert(array(
 			'filename' => $response[$filename]
 		));
@@ -47,7 +51,7 @@ class G_Model_Image extends Model_Base_Image {
 		$mime = explode(';', $mime);
 		$mime = $mime[0];
 		return $mime;
-	}		
+	}
 
 	protected function _createFilenameFromUrl($imageUrl, $bytes) {
 		$filename = basename($imageUrl);

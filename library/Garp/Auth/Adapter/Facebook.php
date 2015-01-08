@@ -65,6 +65,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 				$this->_addError(__('this email address already exists'));
 				return false;
 			}
+			throw $e;
 			$this->_addError(__('login error'));
 			return false;
 		}
@@ -87,7 +88,10 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		$userModel = new Model_User();
 		$userConditions = $userModel->select()->from($userModel->getName(), $sessionColumns);
 		$model = new G_Model_AuthFacebook();
-		$model->bindModel('Model_User', array('conditions' => $userConditions));
+		$model->bindModel('Model_User', array(
+			'conditions' => $userConditions,
+			'rule' => 'User'
+		));
 		$userData = $model->fetchRow(
 			$model->select()
 				  ->where('facebook_uid = ?', $uid)
@@ -101,7 +105,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 				$this->_mapProperties($facebookData)
 			);
 		} else {
-			$model->updateLoginStats($userData->user_id, array(
+			$model->getObserver('Authenticatable')->updateLoginStats($userData->user_id, array(
 				'access_token' => $facebookData['access_token'],
 			));
 			$userData = $userData->Model_User;

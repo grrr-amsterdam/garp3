@@ -9,10 +9,14 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthFacebook extends G_Model_Auth {
+class G_Model_AuthFacebook extends Model_Base_AuthFacebook {
 	protected $_name = 'authfacebook';
-	
-	
+
+	public function init() {
+		parent::init();
+		$this->registerObserver(new Garp_Model_Behavior_Authenticatable(array($this)));
+	}
+
 	/**
 	 * Store a new user. This creates a new auth_facebook record, but also
 	 * a new user record.
@@ -24,11 +28,11 @@ class G_Model_AuthFacebook extends G_Model_Auth {
 		// first save the new user
 		$userModel	= new Model_User();
 		$userId		= $userModel->insert($userData);
-		$userData	= $userModel->find($userId)->current();		
+		$userData	= $userModel->find($userId)->current();
 		$authData['user_id'] = $userId;
 		$this->insert($authData);
-		
-		$this->updateLoginStats($userId);
+
+		$this->getObserver('Authenticatable')->updateLoginStats($userId);
 		return $userData;
 	}
 }

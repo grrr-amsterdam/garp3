@@ -2,7 +2,7 @@
 /**
  * Garp_Auth_Adapter_OpenId
  * Authenticate using OpenID. Uses Zend_Auth_Adapter_OpenId
- * 
+ *
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -16,15 +16,15 @@ class Garp_Auth_Adapter_OpenId extends Garp_Auth_Adapter_Abstract {
 	 * @var String
 	 */
 	protected $_configKey = 'openid';
-	
-	
+
+
 	/**
 	 * The Sreg specification to use with the OpenID call
 	 * @var Zend_OpenId_Extension_Sreg
 	 */
 	protected $_sreg = null;
-	
-	
+
+
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
@@ -49,8 +49,8 @@ class Garp_Auth_Adapter_OpenId extends Garp_Auth_Adapter_Abstract {
 		$this->_addError('Insufficient data received');
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * Get the currently registered Sreg module
 	 * @return Zend_OpenId_Extension_Sreg
@@ -58,8 +58,8 @@ class Garp_Auth_Adapter_OpenId extends Garp_Auth_Adapter_Abstract {
 	public function getSreg() {
 		return $this->_sreg;
 	}
-	
-	
+
+
 	/**
 	 * Register an Sreg extension with the OpenID call
 	 * @param Zend_OpenId_Extension_Sreg $sreg
@@ -69,8 +69,8 @@ class Garp_Auth_Adapter_OpenId extends Garp_Auth_Adapter_Abstract {
 		$this->_sreg = $sreg;
 		return $this;
 	}
-	
-	
+
+
 	/**
 	 * Store the user's profile data in the database, if it doesn't exist yet.
 	 * @param String $id The openid
@@ -96,7 +96,7 @@ class Garp_Auth_Adapter_OpenId extends Garp_Auth_Adapter_Abstract {
 		if (!$userData || !$userData->Model_User) {
 			$userData = $model->createNew($id, $this->_mapProperties($props));
 		} else {
-			$model->updateLoginStats($userData->user_id);
+			$model->getObserver('Authenticatable')->updateLoginStats($userData->user_id);
 			$userData = $userData->Model_User;
 		}
 		return $userData->getPrimaryKey();

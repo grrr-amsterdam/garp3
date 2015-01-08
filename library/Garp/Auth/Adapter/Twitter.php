@@ -65,7 +65,8 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 				return false;
 			}
 			// Provide generic error message
-			$this->_addError(__('login error'));
+			$this->_addError(APPLICATION_ENV === 'development' ? $e->getMessage() :
+				__('login error'));
 		}
 		return false;
 	}
@@ -85,7 +86,10 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 			$userModel->getName(), $this->_getSessionColumns());
 
 		$model = new G_Model_AuthTwitter();
-		$model->bindModel('Model_User', array('conditions' => $userConditions));
+		$model->bindModel('Model_User', array(
+			'conditions' => $userConditions,
+			'rule' => 'User'
+		));
 		$userData = $model->fetchRow(
 			$model->select()
 				  ->where('twitter_uid = ?', $twitterUserId)
@@ -93,7 +97,7 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 		if (!$userData || !$userData->Model_User) {
 			$userData = $model->createNew($twitterUserId, $userColumns);
 		} else {
-			$model->updateLoginStats($userData->user_id);
+			$model->getObserver('Authenticatable')->updateLoginStats($userData->user_id);
 			$userData = $userData->Model_User;
 		}
 		return $userData;

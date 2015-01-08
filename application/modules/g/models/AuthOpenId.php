@@ -9,10 +9,14 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthOpenId extends G_Model_Auth {
+class G_Model_AuthOpenId extends Model_Base_AuthOpenId {
 	protected $_name = 'authopenid';
-	
-	
+
+	public function init() {
+		parent::init();
+		$this->registerObserver(new Garp_Model_Behavior_Authenticatable(array($this)));
+	}
+
 	/**
 	 * Store a new user. This creates a new auth_openid record, but also
 	 * a new users record.
@@ -20,17 +24,17 @@ class G_Model_AuthOpenId extends G_Model_Auth {
 	 * @param Array $props Properties fetched thru Sreg
 	 * @return Garp_Db_Table_Row The new user data
 	 */
-	public function createNew($openid, array $props) {		
+	public function createNew($openid, array $props) {
 		// first save the new user
 		$userModel = new Model_User();
 		$userId = $userModel->insert($props);
-		$userData = $userModel->find($userId)->current();		
+		$userData = $userModel->find($userId)->current();
 		$this->insert(array(
 			'openid'	=> $openid,
 			'user_id'	=> $userId
 		));
-		
-		$this->updateLoginStats($userId);
+
+		$this->getObserver('Authenticatable')->updateLoginStats($userId);
 		return $userData;
 	}
 }

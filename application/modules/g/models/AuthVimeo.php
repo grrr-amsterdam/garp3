@@ -9,10 +9,14 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthVimeo extends G_Model_Auth {
+class G_Model_AuthVimeo extends Model_Base_Vimeo {
 	protected $_name = 'authvimeo';
-	
-	
+
+	public function init() {
+		parent::init();
+		$this->registerObserver(new Garp_Model_Behavior_Authenticatable(array($this)));
+	}
+
 	/**
 	 * Store a new user. This creates a new AuthVimeo record, but also
 	 * a new user record.
@@ -25,15 +29,15 @@ class G_Model_AuthVimeo extends G_Model_Auth {
 		// first save the new user
 		$userModel	= new Model_User();
 		$userId		= $userModel->insert($props);
-		$userData	= $userModel->find($userId)->current();		
+		$userData	= $userModel->find($userId)->current();
 		$this->insert(array(
 			'vimeo_id'            => $vimeoId,
 			'access_token'        => $accessToken->getToken(),
 			'access_token_secret' => $accessToken->getTokenSecret(),
 			'user_id'             => $userId
 		));
-		
-		$this->updateLoginStats($userId);
+
+		$this->getObserver('Authenticatable')->updateLoginStats($userId);
 		return $userData;
 	}
 }

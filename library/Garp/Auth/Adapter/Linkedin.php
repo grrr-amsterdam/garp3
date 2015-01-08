@@ -59,7 +59,10 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 			->from($userModel->getName(), $this->_getSessionColumns());
 
 		$model = new G_Model_AuthLinkedin();
-		$model->bindModel('Model_User', array('conditions' => $userConditions));
+		$model->bindModel('Model_User', array(
+			'conditions' => $userConditions,
+			'rule' => 'User'
+		));
 		$userData = $model->fetchRow(
 			$model->select()
 				  ->where('linkedin_uid = ?', $profileData['id'])
@@ -67,7 +70,7 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 		if (!$userData || !$userData->Model_User) {
 			$userData = $model->createNew($profileData['id'], $newUserData);
 		} else {
-			$model->updateLoginStats($userData->user_id);
+			$model->getObserver('Authenticatable')->updateLoginStats($userData->user_id);
 			$userData = $userData->Model_User;
 		}
 		return $userData;

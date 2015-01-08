@@ -9,9 +9,14 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthLinkedin extends G_Model_Auth {
-	protected $_name = 'authlinkedin'; 
-	
+class G_Model_AuthLinkedin extends Model_Base_AuthLinkedin {
+	protected $_name = 'authlinkedin';
+
+	public function init() {
+		parent::init();
+		$this->registerObserver(new Garp_Model_Behavior_Authenticatable(array($this)));
+	}
+
 	/**
 	 * Store a new user. This creates a new auth_linkedin record, but also
 	 * a new user record.
@@ -29,8 +34,8 @@ class G_Model_AuthLinkedin extends G_Model_Auth {
 			'linkedin_uid' => $linkedinId,
 			'user_id' => $userId
 		));
-		
-		$this->updateLoginStats($userId);
+
+		$this->getObserver('Authenticatable')->updateLoginStats($userId);
 		return $userData;
 	}
 

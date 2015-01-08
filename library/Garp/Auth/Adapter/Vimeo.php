@@ -2,7 +2,7 @@
 /**
  * Garp_Auth_Adapter_Vimeo
  * Authenticate using Vimeo. Uses Zend_OAuth
- * 
+ *
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -17,7 +17,7 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 	 */
 	protected $_configKey = 'vimeo';
 
-	
+
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
@@ -62,8 +62,8 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 		}
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * Store the user's profile data in the database, if it doesn't exist yet.
 	 * @param Zend_Oauth_Token_Access $accessToken
@@ -105,7 +105,7 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 				$this->_mapProperties($userDataFromVimeo)
 			);
 		} else {
-			$model->updateLoginStats($userData->user_id);
+			$model->getObserver('Authenticatable')->updateLoginStats($userData->user_id);
 			$userData = $userData->Model_User;
 		}
 		return $userData;
