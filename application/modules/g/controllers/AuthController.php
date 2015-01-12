@@ -166,13 +166,7 @@ class G_AuthController extends Garp_Controller_Action {
 		 * using the current request to fetch params.
 		 */
 		if (!$userData = $adapter->authenticate($this->getRequest())) {
-			// Show the login page again.
-			$request = clone $this->getRequest();
-			$request->setActionName('login')
-				->setParam('errors', $adapter->getErrors())
-				->setParam('postData', $this->getRequest()->getPost());
-			$this->_helper->actionStack($request);
-			$this->_setViewSettings('login');
+			$this->_respondToFaultyProcess($adapter);
 			return;
 		}
 
@@ -252,6 +246,10 @@ class G_AuthController extends Garp_Controller_Action {
 		$target .= (strpos($target, '?') === false ? '?' : '&') . $cacheBuster;
 		$this->_redirect($target);
 		$this->_helper->viewRenderer->setNoRender(true);
+	}
+
+	public function tokenrequestedAction() {
+		$this->view->title = __('login token requested page title');
 	}
 
 	/**
@@ -622,6 +620,25 @@ class G_AuthController extends Garp_Controller_Action {
 			return $registerHelper;
 		}
 		return null;
+	}
+
+	/**
+ 	 * Auth adapters may return false if no user is logged in yet.
+ 	 * We then have a couple of options on how to respond. Showing the login page again
+ 	 * with errors would be the default, but some adapters require a redirect to an external site.
+ 	 */
+	protected function _respondToFaultyProcess(Garp_Auth_Adapter_Abstract $authAdapter) {
+		if ($redirectUrl = $authAdapter->getRedirect()) {
+			$this->_helper->redirector->gotoUrl($redirectUrl);
+			return;
+		}
+		// Show the login page again.
+		$request = clone $this->getRequest();
+		$request->setActionName('login')
+			->setParam('errors', $authAdapter->getErrors())
+			->setParam('postData', $this->getRequest()->getPost());
+		$this->_helper->actionStack($request);
+		$this->_setViewSettings('login');
 	}
 
 	/**

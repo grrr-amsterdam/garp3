@@ -3,7 +3,7 @@
  * Garp_Auth_Adapter_Abstract
  * Blueprint for Auth adapters. Subclasses may implement
  * an authentication method of their choice.
- * 
+ *
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -17,13 +17,19 @@ abstract class Garp_Auth_Adapter_Abstract {
 	 * @var String
 	 */
 	protected $_configKey = '';
-	
+
 	/**
 	 * Collection of errors
 	 * @var Array
 	 */
 	protected $_errors = array();
-	
+
+	/**
+ 	 * Redirect elsewhere after authenticate()
+ 	 * @var String
+ 	 */
+	protected $_redirect = null;
+
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
@@ -32,10 +38,10 @@ abstract class Garp_Auth_Adapter_Abstract {
 	abstract public function authenticate(Zend_Controller_Request_Abstract $request);
 
 	/**
-	 * Fetch user data. We never store all the user data in the session, just 
+	 * Fetch user data. We never store all the user data in the session, just
 	 * to be safe, and also to ensure that user data is not stale (because the
 	 * session won't be magically updated when the user record changes).
-	 * An adapter decides what user data to return in self::authenticate() and 
+	 * An adapter decides what user data to return in self::authenticate() and
 	 * using that data it needs to be able to find the actual user data here.
 	 * @param Mixed $sessionData
 	 * @return Array User data
@@ -44,6 +50,19 @@ abstract class Garp_Auth_Adapter_Abstract {
 		$userModel = new Model_User();
 		$userData  = call_user_func_array(array($userModel, 'find'), (array)$sessionData);
 		return $userData->current();
+	}
+
+	/**
+ 	 * Include a directive for AuthController saying it should redirect elsewhere.
+ 	 * This is useful for various auth methods that require authorization on an external domain.
+ 	 * @param String $url
+ 	 */
+	public function setRedirect($url) {
+		$this->_redirect = $url;
+	}
+
+	public function getRedirect() {
+		return $this->_redirect;
 	}
 
 	/**
@@ -60,7 +79,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Map properties coming from the 3rd party to columns used in our database
 	 * @param Array $props
@@ -89,7 +108,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 	protected function _getSessionColumns() {
 		return Garp_Auth::getInstance()->getSessionColumns();
 	}
-		
+
 	/**
 	 * Return all errors
 	 * @return Array
@@ -97,7 +116,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 	public function getErrors() {
 		return $this->_errors;
 	}
-	
+
 	/**
 	 * Return most recent error
 	 * @return String
@@ -105,7 +124,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 	public function getError() {
 		return end($this->_errors);
 	}
-	
+
 	/**
 	 * Add an error to the stack.
 	 * @param String $error
@@ -115,7 +134,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 		$this->_errors[] = $error;
 		return $this;
 	}
-	
+
 	/**
 	 * Clear all errors
 	 * @return $this
