@@ -9,7 +9,6 @@
 * 	string MEMCACHE_HOST, default '127.0.0.1'
 *
 */
-
 if (!defined('BASE_PATH')) {
 	define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
 }
