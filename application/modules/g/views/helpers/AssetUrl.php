@@ -17,7 +17,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	 * @param String $file The file path
 	 * @return String
 	 */
-	public function assetUrl($file = null) {
+	public function assetUrl($file = null, $forced_extension = false) {
 		if (is_null($file)) {
 			return $this;
 		}
@@ -36,7 +36,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 			return $this->_getUrl($file, $ini->cdn->assetType, $ini->cdn->domain);
 		}
 
-		$extension = $this->_getExtension($file);
+		$extension = $forced_extension ? $forced_extension : $this->_getExtension($file);
 		if (!empty($ini->cdn->{$extension}->location)) {
 			return $this->_getUrl($file, $ini->cdn->{$extension}->location, $ini->cdn->domain);
 		}
@@ -65,14 +65,14 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 			break;
 			default:
 				throw new Exception("Unknown CDN specified.");
-		}		
+		}
 	}
 
 
 	protected function _getS3Url($file, $domain) {
 		return 'http://' . $domain . $file;
 	}
-	
+
 
 	protected function _getLocalUrl($file) {
 		$baseUrl = $this->getBaseUrl();
@@ -85,7 +85,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		}
 
 		// for assets, chop the locale part of the URL.
-		if (array_key_exists('locale', $requestParams) && $requestParams['locale'] && 
+		if (array_key_exists('locale', $requestParams) && $requestParams['locale'] &&
 			preg_match('~^/('.$requestParams['locale'].')~', $baseUrl)) {
 			$baseUrl = preg_replace('~^/('.$requestParams['locale'].')~', '/', $baseUrl);
 		}
