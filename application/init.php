@@ -173,19 +173,7 @@ function dump($file, $message, $priority = Zend_Log::INFO) {
 		$file .= '.log';
 	}
 
-	$target = APPLICATION_PATH.'/data/logs/';
-	if (Zend_Registry::isRegistered('config') &&
-		!empty(Zend_Registry::get('config')->logging->directory)) {
-		$target = Zend_Registry::get('config')->logging->directory;
-	}
-	if (!is_dir($target)) {
-		@mkdir($target);
-	}
-
-	$target = $target . DIRECTORY_SEPARATOR . $file;
-	$stream = fopen($target, 'a');
-	$writer = new Zend_Log_Writer_Stream($stream);
-	$logger = new Zend_Log($writer);
+	$logger = Garp_Log::factory($file);
 	$message = is_array($message) ? print_r($message, true) : $message;
 	$logger->log($message, $priority);
 }
