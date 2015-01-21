@@ -528,15 +528,18 @@ Garp.setupEventManager = function(){
 /**
  * Setup Global Keyboard shortcuts:
  */
+Garp.ctrlEnter = function () {
+	if (Garp.formPanel.formcontent.getTopToolbar().saveButton.disabled) {
+		return;
+	}
+	Garp.eventManager.fireEvent('save-all');
+ };
 Garp.setupGlobalKeys = function(){
 	Garp.keyMap = new Ext.KeyMap(Ext.getBody(), [{
 		key: Ext.EventObject.ENTER,
 		ctrl: true,
 		handler: function(e){
-			if (Garp.formPanel.formcontent.getTopToolbar().saveButton.disabled) {
-				return;
-			}
-			Garp.eventManager.fireEvent('save-all');
+			Garp.ctrlEnter();
 		}
 	},{
 		key: 'N',

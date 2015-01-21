@@ -34,7 +34,7 @@ Ext.form.CKEditor = function(config) {
     config.CKEditor.height = "400px";
 	config.CKEditor.maxLength = config.maxLength || 0;
 
-	var extraPlugins = 'charcount';
+	var extraPlugins = 'charcount,garpctrlenter';
 
     // Load the garp content plugins for richwyswig editor types
     if (config.rich) {
