@@ -1,7 +1,7 @@
 <?php
 /**
  * en_Us translation file.
- * English is considered the source language for all system messages, so this 
+ * English is considered the source language for all system messages, so this
  * file is only here for consistency.
  */
 $translationTable = array(
@@ -24,7 +24,7 @@ $translationTable = array(
 	'%s is a required field' => '%s is a required field',
 	'password' => 'password',
 	'activate email page title' => 'Activate email',
-	'activate email error' => 'An unknown error occurred. Your email address is not activated. Please try again later.', 
+	'activate email error' => 'An unknown error occurred. Your email address is not activated. Please try again later.',
 	'garp welcome header' => 'Garp',
 	'garp welcome tagline' => 'Manage the content on this website.',
 	'invalid email activation code' => "Invalid email activation code",
@@ -33,4 +33,8 @@ $translationTable = array(
 	'auth register successmessage' => 'Welcome! Your registration is complete',
 	'not logged in flash message' => 'To view this page you have to be logged in',
 	'no permission flash message' => 'You do not have permission to view this page',
+	'passwordless token not found' => 'The given token was not found.',
+	'passwordless token expired' => 'The token is expired. Please submit your email address again and we will send you a new login link',
+	'passwordless token claimed' => 'The token is already used to login. Please submit your email address again and we will send you a new login link',
+	'login token requested page title' => 'A login link was sent to your inbox',
 );

@@ -354,4 +354,8 @@ $translationTable = array(
 	'not logged in flash message' => 'Om deze pagina te bekijken moet je ingelogd zijn',
 	'no permission flash message' => 'Je hebt niet de juiste rechten om deze pagina te bekijken',
 	'%s is already in use, please provide a unique value.' => '%s is al gebruikt. Vul een unieke waarde in.',
+	'passwordless token not found' => 'Het opgegeven token is niet gevonden.',
+	'passwordless token expired' => 'Het opgegeven token is verlopen. Vul je e-mailadres opnieuw in om een nieuwe login link te ontvangen.',
+	'passwordless token claimed' => 'Het opgegeven token is al gebruikt om in te loggen. Vul je e-mailadres opnieuw in om een nieuwe login link te ontvangen.',
+	'login token requested page title' => 'Je login link is onderweg',
 );
