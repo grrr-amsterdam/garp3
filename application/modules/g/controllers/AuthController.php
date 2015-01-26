@@ -386,11 +386,9 @@ class G_AuthController extends Garp_Controller_Action {
 	 */
 	public function resetpasswordAction() {
 		$this->view->title = __('reset password page title');
-		$auth = Garp_Auth::getInstance();
-		$authVars = $auth->getConfigValues();
-		$request = $this->getRequest();
-		$activationCode = $request->getParam('c');
-		$activationEmail = $request->getParam('e');
+		$authVars = Garp_Auth::getInstance()->getConfigValues();
+		$activationCode = $this->getRequest()->getParam('c');
+		$activationEmail = $this->getRequest()->getParam('e');
 		$expirationColumn = $authVars['forgotpassword']['activation_code_expiration_date_column'];
 
 		$userModel = new Model_User();
@@ -412,26 +410,40 @@ class G_AuthController extends Garp_Controller_Action {
 		$user = $userModel->fetchRow($select);
 		if (!$user) {
 			$this->view->error = __('reset password user not found');
-		} elseif (strtotime($user->{$expirationColumn}) < time()) {
+			return;
+		}
+		if (strtotime($user->{$expirationColumn}) < time()) {
 			$this->view->error = __('reset password link expired');
-		} else {
-			if ($request->isPost()) {
-				$password = $request->getPost('password');
-				if (!$password) {
-					$this->view->formError = sprintf(__('%s is a required field'), ucfirst(__('password')));
-				} else {
-					// Update the user's password and send him along to the login page
-					$updateClause = $userModel->getAdapter()->quoteInto('id = ?', $user->id);
-					$userModel->update(array(
-						'password' => $password,
-						$authVars['forgotpassword']['activation_token_column'] => null,
-						$authVars['forgotpassword']['activation_code_expiration_date_column'] => null
-					), $updateClause);
-					$this->_helper->flashMessenger(__($authVars['resetpassword']['success_message']));
-					$this->_redirect('/g/auth/login');
-				}
+			return;
+		}
+		if (!$this->getRequest()->isPost()) {
+			return;
+		}
+		$password = $this->getRequest()->getPost('password');
+		if (!$password) {
+			$this->view->formError = sprintf(__('%s is a required field'), ucfirst(__('password')));
+			return;
+		}
+
+		if (!empty($authVars['forgotpassword']['repeatPassword']) &&
+			!empty($authVars['forgotpassword']['repeatPasswordField'])) {
+			$repeatPasswordField =
+				$this->getRequest()->getPost($authVars['forgotpassword']['repeatPasswordField']);
+			if ($password != $repeatPasswordField) {
+				$this->view->formError = __('the passwords do not match');
+				return;
 			}
 		}
+
+		// Update the user's password and send him along to the login page
+		$updateClause = $userModel->getAdapter()->quoteInto('id = ?', $user->id);
+		$userModel->update(array(
+			'password' => $password,
+			$authVars['forgotpassword']['activation_token_column'] => null,
+			$authVars['forgotpassword']['activation_code_expiration_date_column'] => null
+		), $updateClause);
+		$this->_helper->flashMessenger(__($authVars['resetpassword']['success_message']));
+		$this->_redirect('/g/auth/login');
 	}
 
 	/**
