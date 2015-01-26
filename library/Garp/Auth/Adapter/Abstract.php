@@ -87,6 +87,14 @@ abstract class Garp_Auth_Adapter_Abstract {
 	 */
 	protected function _mapProperties(array $props) {
 		$authVars = $this->_getAuthVars();
+		if ($authVars->mapperClass) {
+			$mapper = new $authVars->mapperClass();
+			if (!$mapper instanceof Garp_Auth_Adapter_Mapper_Abstract) {
+				throw new Garp_Auth_Adapter_Exception('Invalid property mapper specified: ' .
+					$authVars->mapperClass);
+			}
+			return $mapper->map($props);
+		}
 		if ($authVars->mapping && !empty($authVars->mapping)) {
 			$cols = array();
 			foreach ($authVars->mapping as $mappedProp => $col) {
