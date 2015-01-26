@@ -1,11 +1,4 @@
 <?php
-echo '<?xml version="1.0" encoding="UTF-8"?>';
 header('Content-Type: text/xml; charset=UTF-8');
-header('Content-Disposition: attachment');
+header('Content-Disposition: attachment'); /* download, instead of open */
 echo $this->layout()->content;
-
-/*
-header('Content-Type: text/xml; charset=UTF-8');
-header('Content-Disposition: attachment');
-echo $this->layout()->content;
-*/
