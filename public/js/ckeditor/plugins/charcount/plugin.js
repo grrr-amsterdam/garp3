@@ -16,18 +16,18 @@ CKEDITOR.plugins.add('charcount',{
 				labelCounter = editor.lang.labelCharcount ? editor.lang.labelCharcount : 'Character counter';
 			else
 				labelCounter = editor.lang.labelWordcount ? editor.lang.labelWordcount : 'Word counter';
-			
+
 			// Attach the key event to this editor
 			addEventOnkey(editor);
-			
+
 			// And ensure the button is registered
 			editor.ui.addButton('CharCount',{
-				label: labelCounter, 
+				label: labelCounter,
 				command:'charcount'
 			});
-		} 
+		}
 
-		
+
 	}
 });
 
@@ -37,7 +37,7 @@ CKEDITOR.plugins.add('charcount',{
  */
 function addEventOnkey(editor) {
 	var initilised = false;
-	
+
 	editor.on('contentDom', function() {
 		// Perform an initial calculation when the contentDom has just been built
 		calculate(editor);
@@ -53,13 +53,13 @@ function addEventOnkey(editor) {
 		editable.attachListener(editor.document, 'keyup', function() {
 			calculate(editor);
 		});
-		
+
 		// This will only work if the paste as plain text plugin is available
 		if (!initilised)
 			editor.on('paste', function() {
 				calculate(editor);
 			});
-		
+
 	/*
 	 * So that we don't have to hack around any of the main CKE javascript
 	 * files, we need to directly modify the button that's added so that it is
@@ -78,7 +78,7 @@ function addEventOnkey(editor) {
 		}
 	}
 	});
-  
+
 }
 
 /**
@@ -87,13 +87,13 @@ function addEventOnkey(editor) {
  */
 function calculate(editor) {
 	var buttonLabel = document.getElementById('cke_' + editor.name).getElementsByClassName('cke_button__charcount_label')[0],
-		plainText = editor.document.getBody().getText();
+		plainText = editor.document.getBody().getText().replace(/^\s+|\s+$/g, '');
 
 	if (editor.config.maxLength != null) {
 		// Character count
 		if (editor.config.maxLength == 0)
 			buttonLabel.innerHTML = plainText.length;
-		else 
+		else
 			buttonLabel.innerHTML = editor.config.maxLength - plainText.length
 	} else {
 		// Word count
@@ -112,14 +112,14 @@ function calculate(editor) {
 function wordCount(text) {
 	var r = 0,
 		item = text.trim();
-	
+
 	if (item === '') return 0;
-	
+
 	/*
 	 * This should remove any html tags if they exist
 	 */
 	item = item.replace(/(<([^>]+)>)/ig, '');
-	
+
 	/*
 	 * If using a dot to separate words, prevent it, unless it is within a
 	 * number

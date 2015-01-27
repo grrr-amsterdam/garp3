@@ -81,19 +81,33 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
     },
 
 	isValid: function(value) {
+        console.count("is valud");
+        if (!this.allowBlank && !this.getCharCount()) {
+            this.editor.element.addClass('invalid');
+            this.markInvalid(this.blankText);
+            return false;
+        }
+
 		if (this.maxLength && this.getCharCount() >= this.maxLength) {
+            this.editor.element.addClass('invalid');
+            this.markInvalid(this.maxLengthText);
 			return false;
 		}
+
+        this.clearInvalid();
         return true;
 	},
 
 	// Get char count, stripped of HTML tags
 	getCharCount: function() {
+        var contentString = "";
 		try {
-			return this.editor.document.getBody().getText().length;
+            contentString = this.editor.document.getBody().getText();
 		} catch(e) {
-			return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
+            contentString = this.getValue().replace(/(<([^>]+)>)/ig,"");
 		}
+        // Trim newlines and count
+        return contentString.replace(/^\s+|\s+$/g, '').length;
 	},
 
     setValue: function(value) {
