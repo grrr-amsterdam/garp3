@@ -45,7 +45,8 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 	 * Advances the progress bar by 1 step, if no argument is provided.
 	 * Otherwise, the progress bar is set to the provided value.
 	 * 
-	 * @param Int $newValue The new value. Leave empty to advance 1 step. This will be compared to $this->_totalValue.
+	 * @param Int $newValue The new value. Leave empty to advance 1 step.
+	 * This will be compared to $this->_totalValue.
 	 */
 	public function advance($newValue = null) {
 		parent::advance($newValue);
@@ -57,7 +58,8 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 	/**
 	 * Output the progressbar to the screen.
 	 * @param String $message			Optional message displayed next to the progress bar.
-	 * @param String $itemsLeftMessage	Indicate optional remaining value position with %d.
+	 * @param String $itemsLeftMessage	Indicate optional remaining value position with '%s'.
+	 *									If you want to use this param, provide $message as well.
 	 */
 	public function display($message = null, $itemsLeftMessage = null) {
 		$this->_verifyTotalValue();
@@ -67,7 +69,9 @@ class Garp_Cli_Ui_ProgressBar extends Garp_Cli_Ui {
 		if ($message) {
 			echo self::SPACING;
 			$itemsLeft = $this->_totalValue - $this->_currentValue;
-			$output = $message . ', ' . sprintf($itemsLeftMessage, $itemsLeft);
+			$itemsLeft = number_format($itemsLeft, 0, ',', '.');
+			
+	 		$output = $message . ', ' . sprintf($itemsLeftMessage, $itemsLeft);
 			echo substr($output, 0, $this->_getMaximumMessageLength());
 		}
 	}

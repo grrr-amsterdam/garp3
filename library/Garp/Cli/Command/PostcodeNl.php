@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Garp_Cli_Command_PostcodeNl
@@ -22,6 +21,15 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
  	 */
 	protected $_storedZips = 0;
 
+	/**
+ 	 * @var Garp_Cli_Ui_ProgressBar $_progress Feedback device to display progress
+ 	 */
+	protected $_progress;
+
+	/**
+ 	 * @var int $_totalZips Total amount of zip codes to be imported. Set when known.
+ 	 */
+	protected $_totalZips = 0;
 
 	/**
 	 * Central start method
@@ -52,7 +60,8 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 
 		$zipSet = new Garp_Service_PostcodeNl_Zipcode_Set($content);
 
-		$linesCountLabel = $this->_formatBigNumber(count($zipSet));
+		$this->_totalZips = count($zipSet);
+		$linesCountLabel = $this->_formatBigNumber($this->_totalZips);
 		Garp_Cli::lineOut("Parsing {$linesCountLabel} lines.");
 
 		$question = "Do you want this data to overwrite\n"
@@ -63,7 +72,7 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 		$this->_storeZipSet($zipSet, $overwrite);
 
 		$stored = $this->_formatBigNumber($this->_storedZips);
-		Garp_Cli::lineOut("Stored {$stored} zipcodes.");
+		Garp_Cli::lineOut("\nStored {$stored} zipcodes.");
 	}
 
 	/**
@@ -71,6 +80,10 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
  	 * @param Boolean $overwrite Whether to overwrite existing location entries matching these zipcodes.
  	 */
 	protected function _storeZipSet(Garp_Service_PostcodeNl_Zipcode_Set &$zipSet, $overwrite) {
+		$this->_progress = Garp_Cli_Ui_ProgressBar::getInstance();
+		$this->_progress->init($this->_totalZips);
+		$this->_progress->display("initializing import");
+
 		array_walk($zipSet, array($this, '_storeZip'), $overwrite);
 	}
 
@@ -91,6 +104,9 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 		if (!$existingRow || $overwrite) {
 			$this->_insertZip($zip, $model);
 		}
+
+		$this->_progress->advance();
+		$this->_progress->display('Importing zip codes', '%s left');
 	}
 
 	protected function _insertZip(Garp_Service_PostcodeNl_Zipcode &$zip, Garp_Model_Db &$model) {
