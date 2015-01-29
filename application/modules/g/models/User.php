@@ -54,11 +54,11 @@ class G_Model_User extends Model_Base_User {
 	public function beforeInsert(array &$args) {
 		$data = &$args[1];
 
-		if (array_key_exists('imageUrl', $data)) {
+		if (array_key_exists('imageUrl', $data) && !is_null($data['imageUrl'])) {
 			// Allow passing in of image URLs. These are downloaded and added as image_id
 			$data['image_id'] = $this->_grabRemoteImage($data['imageUrl']);
-			unset($data['imageUrl']);
 		}
+		unset($data['imageUrl']);
 
 		// Prevent admins from saving a user's role greater than their own.
 		if (!empty($data[self::ROLE_COLUMN]) && !$this->_isRoleAllowed($data[self::ROLE_COLUMN])) {
@@ -99,7 +99,7 @@ class G_Model_User extends Model_Base_User {
 			$authLocalModel->insert($newAuthLocalData);
 		}
 	}
-	
+
 	/**
  	 * BeforeUpdate callback
  	 * @param Array $args
@@ -112,12 +112,12 @@ class G_Model_User extends Model_Base_User {
 		$authVars = $auth->getConfigValues();
 
 		// Check if the email address is about to be changed, and wether we should respond to it
-		if ((!empty($authVars['validateEmail']['enabled']) && 
+		if ((!empty($authVars['validateEmail']['enabled']) &&
 			$authVars['validateEmail']['enabled']) &&
 			array_key_exists('email', $data)) {
 			// Collect the current email addresses to see if they are to be changed
-			// @todo For now we assume that email is a unique value. This means that 
-			// we use fetchRow instead of fetchAll. 
+			// @todo For now we assume that email is a unique value. This means that
+			// we use fetchRow instead of fetchAll.
 			// If this ever changes, fix this code.
 			$user = $this->fetchRow(
 				$this->select()->from($this->getName(), array('email'))->where($where)
@@ -248,11 +248,11 @@ class G_Model_User extends Model_Base_User {
 		$authVars = $auth->getConfigValues();
 		$validationTokenColumn = $authVars['validateEmail']['token_column'];
 		$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
-		
+
 		// Generate the validation code
 		$validationToken = uniqid();
 		$validationCode = $this->generateEmailValidationCode($user, $validationToken);
-		
+
 		// Store the token in the user record
 		$user->{$validationTokenColumn} = $validationToken;
 		// Invalidate the user's email
@@ -293,7 +293,7 @@ class G_Model_User extends Model_Base_User {
 	public function sendEmailValidationEmail(Garp_Db_Table_Row $user, $code, $updateOrInsert = 'insert') {
 		$auth = Garp_Auth::getInstance();
 		$authVars = $auth->getConfigValues();
-		
+
 		// Render the email message
 		$activationUrl = '/g/auth/validateemail/c/'.$code.'/e/'.md5($user->email).'/';
 
@@ -311,7 +311,7 @@ class G_Model_User extends Model_Base_User {
 			$snippetId .= ' email';
 			$emailMessage = __($snippetId);
 			$emailMessage = Garp_Util_String::interpolate($emailMessage, array(
-				'USERNAME' => (string)new Garp_Util_FullName($user), 
+				'USERNAME' => (string)new Garp_Util_FullName($user),
 				'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
 			));
 		}
@@ -328,7 +328,7 @@ class G_Model_User extends Model_Base_User {
 	}
 
 	/**
- 	 * Prevent admins from saving a user's role greater than their own. 
+ 	 * Prevent admins from saving a user's role greater than their own.
  	 * Note: will return TRUE if no user is logged in. This is because
  	 * we sometimes have to manipulate roles from apis and cli commands
  	 * where no physical user session is present.
@@ -347,12 +347,12 @@ class G_Model_User extends Model_Base_User {
 			return true;
 		}
 
-		// Check if the role that is about to be manipulated is a child of the 
-		// current role. If so, that role is considered greater than the current 
+		// Check if the role that is about to be manipulated is a child of the
+		// current role. If so, that role is considered greater than the current
 		// role.
 		// Note that this logic does not check ACL branches that can be considered
 		// siblings, or nephews.
-		// For instance Visitor > User > Admin vs Visitor > Teacher. Is teacher greater 
+		// For instance Visitor > User > Admin vs Visitor > Teacher. Is teacher greater
 		// or less than Admin? These semantics must be written customly.
 		$children = Garp_Auth::getInstance()->getRoleChildren($currentAdminRole);
 		return !in_array($role, $children);
