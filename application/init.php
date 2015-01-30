@@ -85,6 +85,11 @@ $classLoader = Garp_Loader::getInstance(array(
 ));
 $classLoader->register();
 
+if (!$isCli && Garp_Application::isUnderConstruction()) {
+	require(GARP_APPLICATION_PATH . '/modules/g/views/scripts/under-construction.phtml');
+	exit;
+}
+
 /**
  * Save wether we are in a cli context
  */
