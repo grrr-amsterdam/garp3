@@ -1,3 +1,23 @@
+desc "Enable Under Construction status"
+task :enable_under_construction do
+	on roles(:web) do
+    	if this_host_last_release
+    		# Previous release exists, update it to under construction
+			#execute "#{releases_path}/#{this_host_last_release}/garp/scripts/garp.php Env setUnderConstruction --e=#{fetch(:stage)}"
+  		end
+	end
+end
+
+desc "Disable Under Construction status"
+task :disable_under_construction do
+	on roles(:web) do
+		if this_host_last_release
+			# Previous release exists, remove under construction flag
+			#execute "#{releases_path}/#{this_host_last_release}/garp/scripts/garp.php Env setUnderConstruction false --e=#{fetch(:stage)}"
+		end
+	end
+end
+
 desc "Spawn models"
 task :spawn do
 	on roles(:web) do
