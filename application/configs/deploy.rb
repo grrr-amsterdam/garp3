@@ -9,7 +9,7 @@ set :keep_releases, 3
 
 # Grab last release directory, if any
 releases = capture("ls #{File.join(fetch(:deploy_to), 'releases')}")
-set :this_host_last_release = releases.split("\n").sort.last
+set :this_host_last_release, releases.split("\n").sort.last
 
 load "application/configs/deploy.rb"
 
