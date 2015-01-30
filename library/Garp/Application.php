@@ -9,6 +9,8 @@
  * @lastmodified $Date: $
  */
 class Garp_Application extends Zend_Application {
+	const UNDERCONSTRUCTION_LOCKFILE = 'underconstruction.lock';
+
 	/**
 	 * Load configuration file of options.
 	 *
@@ -34,5 +36,20 @@ class Garp_Application extends Zend_Application {
 	public function bootstrap($resource = null) {
 		Zend_Registry::set('config', new Zend_Config($this->getOptions()));
 		return parent::bootstrap();
+	}
+
+	public static function isUnderConstruction() {
+		return @include(APPLICATION_PATH . '/../' . self::UNDERCONSTRUCTION_LOCKFILE);
+	}
+
+	public static function getUnderConstructionLockFilePath() {
+		return APPLICATION_PATH . '/../' . self::UNDERCONSTRUCTION_LOCKFILE;
+	}
+
+	public static function setUnderConstruction($enabled) {
+		$lockFilePath = static::getUnderConstructionLockFilePath();
+		return $enabled ?
+			touch($lockFilePath) :
+			!file_exists($lockFilePath) || unlink($lockFilePath);
 	}
 }
