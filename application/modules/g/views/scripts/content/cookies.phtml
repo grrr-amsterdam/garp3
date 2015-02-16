@@ -1,20 +1,44 @@
-<article class="content--small cookie-info / mt mb--double">
-	<h1 class="gamma / mb--half">Cookies</h1>
-	<p>Deze site maakt gebruik van zogenaamde cookies. <br/>De volgende cookies kunt u hier mogelijk aantreffen:</p>
-	<dl class="cookie-identification clearfix">
-		<dt>Garp_Auth</dt>
-		<dd>Wordt gebruikt voor het inlogproces. Niet voor tracking of andere doeleinden.</dd>
-		<dt>Garp_Accept_Cookies</dt>
-		<dd>Cookie dat aangeeft dat cookies geaccepteerd worden door de bezoeker.</dd>
-		<dt>__utma</dt>
-		<dt>__utmb</dt>
-		<dt>__utmc</dt>
-		<dt>__utmz</dt>
-		<dd>Tracking cookies van Google Analytics™</dd>
-		<dt>fbsr_<var>3928399283248</var></dt>
-		<dd>Facebook cookie</dd>
-		<dt>AWSELB</dt>
-		<dd>Amazon Web Services cookie. Amazon Web Services worden gebruikt voor de hosting van bijvoorbeeld afbeeldingen.</dd>
-	</dl>
-	<footer>Kijk voor meer informatie over cookies op: <a href="http://nl.wikipedia.org/wiki/Cookies">Wikipedia</a></footer>
+<article>
+	<header class="page-header">
+		<?php $img = $this->snippet()->getField('cookies pagina', 'Image'); ?>
+		<div class="spread-background js-spread">
+			<div class="spread-background__image" data-imageid="<?php echo $img->id ?>"></div>
+			<noscript>
+				<?php echo $this->image()->render($img->id, 'header_large', array(
+					'class' => 'spread-background'
+				)); ?>
+			</noscript>
+		</div>
+
+		<div class="page-header__content">
+			<div class="page-header__inner-content">
+				<?php $title = $this->snippet()->getField('cookies pagina', 'name'); ?>
+				<h1 class="<?php if (strlen($title) > 30) echo 'is-long '; if (strlen($title) > 45) echo 'is-extra-long '; ?>"><strong><?php echo $title ?></strong></h1>
+			</div>
+		</div>
+	</header>
+
+	<div class="main content content--normal content--with-sidebar">
+		<section class="content__main">
+			<div class="content--narrow">
+				<p>Deze site maakt gebruik van zogenaamde cookies. <br/>De volgende cookies kunt u hier mogelijk aantreffen:</p>
+				<dl class="cookie-identification clearfix">
+					<dt>Garp_Auth</dt>
+					<dd>Wordt gebruikt voor het inlogproces. Niet voor tracking of andere doeleinden.</dd>
+					<dt>Garp_Accept_Cookies</dt>
+					<dd>Cookie dat aangeeft dat cookies geaccepteerd worden door de bezoeker.</dd>
+					<dt>__utma</dt>
+					<dt>__utmb</dt>
+					<dt>__utmc</dt>
+					<dt>__utmz</dt>
+					<dd>Tracking cookies van Google Analytics™</dd>
+					<dt>fbsr_<var>3928399283248</var></dt>
+					<dd>Facebook cookie</dd>
+					<dt>AWSELB</dt>
+					<dd>Amazon Web Services cookie. Amazon Web Services worden gebruikt voor de hosting van bijvoorbeeld afbeeldingen.</dd>
+				</dl>
+				<p>Kijk voor meer informatie over cookies op: <a href="http://nl.wikipedia.org/wiki/Cookies" target="_blank">Wikipedia</a></p>
+			</div>
+		</section>
+	</div>
 </article>
