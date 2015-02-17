@@ -10,7 +10,7 @@ use LinkedIn\LinkedIn;
  * @package      Garp_Auth_Adapter
  */
 class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
-	const LINKED_IN_PROFILE_QUERY = '/people/~:(first_name,last_name,id,email-address,picture-url,formatted-name)';
+	const LINKED_IN_PROFILE_QUERY = '/people/~:(first_name,last_name,id,email-address,picture-url,formatted-name,positions:(company,is-current))';
 
 	/**
  	* @var LinkedIn
@@ -46,7 +46,8 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 				$this->_addError(__('this email address already exists'));
 				return false;
 			}
-			$this->_addError(__('login error'));
+			$this->_addError(APPLICATION_ENV === 'development' ? $e->getMessage() :
+ 			   	__('login error'));
 			return false;
 		}
 	}
@@ -68,7 +69,10 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 				  ->where('linkedin_uid = ?', $profileData['id'])
 		);
 		if (!$userData || !$userData->Model_User) {
-			$userData = $model->createNew($profileData['id'], $newUserData);
+			$userData = $model->createNew($profileData['id'], $newUserData)->toArray();
+			// Make sure only the session columns remain
+			$userData = array_intersect_key($userData, array_fill_keys($this->_getSessionColumns(),
+				null));
 		} else {
 			$model->getObserver('Authenticatable')->updateLoginStats($userData->user_id);
 			$userData = $userData->Model_User;

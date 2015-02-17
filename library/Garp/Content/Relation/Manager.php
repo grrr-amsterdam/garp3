@@ -28,7 +28,7 @@ class Garp_Content_Relation_Manager {
 
 		try {
 			/**
- 		 	 * If this succeeds, it's a regular relationship where the foreign key 
+ 		 	 * If this succeeds, it's a regular relationship where the foreign key
  		 	 * resides inside modelA. Continue as usual.
  		 	 */
 			$reference = $modelA->getReference(get_class($modelB), $options['rule']);
@@ -56,7 +56,7 @@ class Garp_Content_Relation_Manager {
 					throw $e;
 				}
 				/**
- 			 	 * Goody, we're dealing with a hasAndBelongsToMany relationship here. 
+ 			 	 * Goody, we're dealing with a hasAndBelongsToMany relationship here.
  			 	 * Try to construct the intersection model and save the relation
  			 	 * that way.
  			 	 */
@@ -91,12 +91,12 @@ class Garp_Content_Relation_Manager {
 
 		/**
  		 * Warning: assumptions are made!
- 		 * - at this point, we assume the bindingModel has no relationships 
+ 		 * - at this point, we assume the bindingModel has no relationships
  		 *   to models other than modelA and modelB (so we don't need a rule or anything
  		 *   to find the right reference in the referenceMap)
  		 * - also, we assume the references can be found from the bindingModel. There will be
  		 *   no trying nor catching, if the reference is not here, we just crash the heck out of it.
- 		 */ 
+ 		 */
 		$referenceA = $bindingModel->getReference(get_class($modelA), $ruleA);
 		$referenceB = $bindingModel->getReference(get_class($modelB), $ruleB);
 
@@ -113,7 +113,7 @@ class Garp_Content_Relation_Manager {
 			self::_addForeignKeysToRow($bidirectionalRow, $referenceB, $keyA);
 			$success = $success && $bidirectionalRow->save();
 		}
-		
+
 		return $success;
 	}
 
@@ -149,7 +149,7 @@ class Garp_Content_Relation_Manager {
 		// Important to collect fresh data
 		$options['modelA']->setCacheQueries(false);
 		$options['modelB']->setCacheQueries(false);
-		
+
 		$options['keyA'] = (array)$options['keyA'];
 		$options['keyB'] = (array)$options['keyB'];
 
@@ -180,7 +180,7 @@ class Garp_Content_Relation_Manager {
 
 		try {
 			/**
- 		 	 * If this succeeds, it's a regular relationship where the foreign key 
+ 		 	 * If this succeeds, it's a regular relationship where the foreign key
  		 	 * resides inside modelA. Continue as usual.
  		 	 */
 			$reference = $modelA->getReference(get_class($modelB), $options['rule']);
@@ -208,7 +208,7 @@ class Garp_Content_Relation_Manager {
 					throw $e;
 				}
 				/**
- 			 	 * Goody, we're dealing with a hasAndBelongsToMany relationship here. 
+ 			 	 * Goody, we're dealing with a hasAndBelongsToMany relationship here.
  			 	 * Try to construct the intersection model and save the relation
  			 	 * that way.
  			 	 */
@@ -218,7 +218,7 @@ class Garp_Content_Relation_Manager {
 
 		/**
  		 * Figure out which model is leading. This depends on which of the two keys is provided.
- 		 * This kind of flips the query around. For instance, when keyA is given, the query is 
+ 		 * This kind of flips the query around. For instance, when keyA is given, the query is
  		 * something like this:
  		 * UPDATE modelA SET foreignkey = NULL WHERE primarykey = keyA
  		 * When keyB is given however, the query goes something like this:
@@ -266,12 +266,12 @@ class Garp_Content_Relation_Manager {
 
 		/**
  		 * Warning: assumptions are made!
- 		 * - at this point, we assume the bindingModel has no relationships 
+ 		 * - at this point, we assume the bindingModel has no relationships
  		 *   to models other than modelA and modelB (so we don't need a rule or anything
  		 *   to find the right reference in the referenceMap)
  		 * - also, we assume the references can be found from the bindingModel. There will be
  		 *   no trying nor catching, if the reference is not here, we just crash the heck out of it.
- 		 */ 
+ 		 */
 		$referenceA = $bindingModel->getReference(get_class($modelA), $ruleA);
 		$referenceB = $bindingModel->getReference(get_class($modelB), $ruleB);
 
@@ -307,7 +307,7 @@ class Garp_Content_Relation_Manager {
 
 			$where .= ' OR ('.implode(' AND ', $homoWhere).')';
 		}
-		
+
 		return $bindingModel->delete($where);
 	}
 
@@ -368,6 +368,8 @@ class Garp_Content_Relation_Manager {
  	 * @return Void Edits the row by reference
  	 */
 	protected static function _addForeignKeysToRow(Zend_Db_Table_Row_Abstract &$row, array $reference, array $values) {
+		// Normalize array keys
+		$values = array_values($values);
 		foreach ($reference['columns'] as $i => $column) {
 			if (!isset($values[$i])) {
 				throw new Exception("Unable to fill $column because there is no value provided for it.");
@@ -378,7 +380,7 @@ class Garp_Content_Relation_Manager {
 
 
 	/**
- 	 * Unfortunately, almost all the Zend exceptions coming from Zend_Db_Table_Abstract are of type 
+ 	 * Unfortunately, almost all the Zend exceptions coming from Zend_Db_Table_Abstract are of type
  	 * Zend_Db_Table_Exception, so we cannot check wether a query fails or wether there is no binding possible.
  	 * This method checks wether the exception describes an invalid reference.
  	 * @param Exception $e
