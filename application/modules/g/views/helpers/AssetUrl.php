@@ -15,7 +15,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	/**
 	 * Create a versioned URL to a file
 	 * @param String $file The file path
-	 * @param String $forced_extension Force to use an extension, even when extension doesn't match
+	 * @param String $forced_extension Force to use an extension, even when extension doesn't match or is missing (eg. '/' in 'ASSET_URL' when using a cdn, but 'js' is 'local')
 	 * @param String $use_semver Skip appending of Garp_Semver
 	 * @return String
 	 */
