@@ -16,10 +16,9 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	 * Create a versioned URL to a file
 	 * @param String $file The file path
 	 * @param String $forced_extension Force to use an extension, even when extension doesn't match or is missing (eg. '/' in 'ASSET_URL' when using a cdn, but 'js' is 'local')
-	 * @param String $use_semver Skip appending of Garp_Semver
 	 * @return String
 	 */
-	public function assetUrl($file = null, $forced_extension = false, $use_semver = true) {
+	public function assetUrl($file = null, $forced_extension = false) {
 		if (is_null($file)) {
 			return $this;
 		}
@@ -29,13 +28,13 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		// AssetUrl will:
 		// - prepend assets.<extension>.root to the file
 		// - add the current semver to the path
-		if ($use_semver && strpos($file, '/') === false) {
+		if (strpos($file, '/') === false) {
 			$file = $this->getVersionedBuildPath($file);
 
 		// Else we will use the old (but actually more "modern") approach.
 		// AssetUrl will:
 		// - append semver as query string (main.js?v0.0.1)
-		} else if ($use_semver && !empty($file) && substr($file, -1) !== '/') {
+		} else if (!empty($file) && substr($file, -1) !== '/') {
 			$file = $this->getVersionedQuery($file);
 		}
 
