@@ -56,8 +56,10 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 			return;
 		}
 
-		// strip appended semver
-		$file = substr($file, 0, strpos($file, '?v'));
+		// Strip appended query string
+		if (false !== strpos($file, '?')) {
+			$file = substr($file, 0, strpos($file, '?'));
+		}
 
 		$fileParts = explode('.', $file);
 		$lastPart = $fileParts[sizeof($fileParts) - 1];
