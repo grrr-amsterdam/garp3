@@ -81,18 +81,29 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
     },
 
 	isValid: function(value) {
-        console.count("is valud");
-        if (!this.allowBlank && !this.getCharCount()) {
+        var charCount = this.getCharCount();
+
+        if (!this.allowBlank && !charCount) {
+            if (this.wasBlank) {
+                return false;
+            }
+            this.wasBlank = true;
             this.editor.element.addClass('invalid');
             this.markInvalid(this.blankText);
             return false;
         }
+        this.wasBlank = false;
 
-		if (this.maxLength && this.getCharCount() >= this.maxLength) {
+		if (this.maxLength && charCount >= this.maxLength) {
+            if (this.wasTooLong) {
+                return false;
+            }
+            this.wasTooLong = true;
             this.editor.element.addClass('invalid');
             this.markInvalid(this.maxLengthText);
 			return false;
 		}
+        this.wasTooLong = false;
 
         this.clearInvalid();
         return true;
