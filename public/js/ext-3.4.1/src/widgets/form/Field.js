@@ -403,7 +403,6 @@ var form = new Ext.form.FormPanel({
      * @return {Boolean} True if the value is valid, else false
      */
     isValid : function(preventMark){
-        console.count('isva');
         if(this.disabled){
             return true;
         }
