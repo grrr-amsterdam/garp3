@@ -259,7 +259,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		if (!array_key_exists('app_id', $ogData)) {
 			if ($ini->auth->adapters->facebook->appId) {
 				$ogData['app_id'] = $ini->auth->adapters->facebook->appId;
-			} else throw new Exception("The auth.adapters.facebook.appId configuration parameter is missing.");
+			}
 		}
 
 		// Set some defaults

@@ -16,7 +16,11 @@ class Garp_Semver {
 	}
 
 	public function getVersion() {
-		$conf = new Zend_Config_Yaml($this->_path);
+		try {
+			$conf = new Zend_Config_Yaml($this->_path);
+		} catch (Zend_Config_Exception $e) {
+			return 'v0.0.0';
+		}
 		$special = '';
 		if ($conf->special && $conf->special !== "'") {
 			$special = '-' . $conf->special;
