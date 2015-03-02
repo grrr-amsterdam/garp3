@@ -34,7 +34,7 @@ Ext.form.CKEditor = function(config) {
     config.CKEditor.height = "400px";
 	config.CKEditor.maxLength = config.maxLength || 0;
 
-	var extraPlugins = 'charcount';
+	var extraPlugins = 'charcount,garpctrlenter';
 
     // Load the garp content plugins for richwyswig editor types
     if (config.rich) {
@@ -81,19 +81,44 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
     },
 
 	isValid: function(value) {
-		if (this.maxLength && this.getCharCount() >= this.maxLength) {
+        var charCount = this.getCharCount();
+
+        if (!this.allowBlank && !charCount) {
+            if (this.wasBlank) {
+                return false;
+            }
+            this.wasBlank = true;
+            this.editor.element.addClass('invalid');
+            this.markInvalid(this.blankText);
+            return false;
+        }
+        this.wasBlank = false;
+
+		if (this.maxLength && charCount >= this.maxLength) {
+            if (this.wasTooLong) {
+                return false;
+            }
+            this.wasTooLong = true;
+            this.editor.element.addClass('invalid');
+            this.markInvalid(this.maxLengthText);
 			return false;
 		}
+        this.wasTooLong = false;
+
+        this.clearInvalid();
         return true;
 	},
 
 	// Get char count, stripped of HTML tags
 	getCharCount: function() {
+        var contentString = "";
 		try {
-			return this.editor.document.getBody().getText().length;
+            contentString = this.editor.document.getBody().getText();
 		} catch(e) {
-			return this.getValue().replace(/(<([^>]+)>)/ig,"").length;
+            contentString = this.getValue().replace(/(<([^>]+)>)/ig,"");
 		}
+        // Trim newlines and count
+        return contentString.replace(/^\s+|\s+$/g, '').length;
 	},
 
     setValue: function(value) {

@@ -1,7 +1,7 @@
 <?php if ($this->locale): ?>
 <script crossorigin="anonymous" src="<?php echo $this->assetUrl('/js/garp/ext-3.4.1/src/locale/ext-lang-'.$this->locale.'.js') ?>"></script>
 <?php // Crossorigin attribute on /g/ext/getlocale ends up in a weird error. Let's not do that ?>
-<script src="<?php echo $this->baseUrl('/g/ext/getlocale/?v=' . new Garp_Semver()) ?>"></script>
+<script src="<?php echo $this->baseUrl('/g/ext/getlocale/?' . new Garp_Semver) ?>"></script>
 <?php
 endif;
 
