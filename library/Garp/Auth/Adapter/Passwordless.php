@@ -243,6 +243,9 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 
 	protected function _getSnippet($identifier) {
 		$snippetModel = new Model_Snippet();
+		if ($snippetModel->isMultilingual()) {
+			$snippetModel = instance(new Garp_I18n_ModelFactory)->getModel('Snippet');
+		}
 		return $snippetModel->fetchByIdentifier($identifier)->text;
 	}
 
