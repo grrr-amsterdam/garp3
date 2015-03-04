@@ -14,6 +14,8 @@ class Garp_File_ExtensionTest extends Garp_Test_PHPUnit_TestCase {
 		// Use finfo for a real-live example
 		$finfo = new finfo(FILEINFO_MIME);
 		$mime = $finfo->file(__FILE__);
+var_dump($mime);
+exit;
 		$mime = explode(';', $mime);
 		$mime = $mime[0];
 
