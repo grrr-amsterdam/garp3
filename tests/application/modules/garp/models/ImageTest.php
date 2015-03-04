@@ -12,7 +12,7 @@ class G_Model_ImageTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testShouldCreateImageFromUrl() {
 		$this->_getImageModel()->insertFromUrl($this->_mockImageUrl, $this->_mockFilename);
-		$this->assertTrue(file_exists(APPLICATION_PATH . '/../public/../garp/tests/tmp/' . 
+		$this->assertTrue(file_exists(APPLICATION_PATH . '/../garp/tests/tmp/' . 
 			$this->_mockFilename));
 	}
 
@@ -26,7 +26,7 @@ class G_Model_ImageTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testShouldStripQueryParamsFromFilename() {
 		$imgId = $this->_getImageModel()->insertFromUrl($this->_mockImageUrlWithQueryParams);
-		$this->assertTrue(file_exists(APPLICATION_PATH . '/../public/../garp/tests/tmp/' . 
+		$this->assertTrue(file_exists(APPLICATION_PATH . '/../garp/tests/tmp/' . 
 			$this->_mockFilenameWithQueryParams));
 	}
 
