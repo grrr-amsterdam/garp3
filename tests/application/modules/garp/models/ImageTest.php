@@ -6,7 +6,7 @@ class G_Model_ImageTest extends Garp_Test_PHPUnit_TestCase {
 
 	protected $_mockImageUrl = 'http://static.melkweg.nl/uploads/images/krs-one-web.jpg';
 	protected $_mockFilename = 'krs-one.jpg';
-	protected $_mockImageUrlWithQueryParams = 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/c24.24.297.297/s50x50/1013240_10201006260230884_1892541638_n.jpg?oh=93403634cddefe853629b06d2955bf7f&oe=54EAA1FD&__gda__=1425078319_70f87af9e7fd98a199b563e9c0944911';
+	protected $_mockImageUrlWithQueryParams = 'https://www.google.com/images/logo.png?seg32=seg2&oh=93403634cddefe853629b06d2955bf7f&oe=54EAA1FD&__gda__=1425078319_70f87af9e7fd98a199b563e9c0944911';
 	protected $_mockFilenameWithQueryParams = '1013240-10201006260230884-1892541638-n.jpg';
 	protected $_imageModel;
 
