@@ -4,15 +4,17 @@
  */
 class G_Model_ImageTest extends Garp_Test_PHPUnit_TestCase {
 
-	protected $_mockImageUrl = 'http://static.melkweg.nl/uploads/images/krs-one-web.jpg';
-	protected $_mockFilename = 'krs-one.jpg';
+	protected $_mockImageUrl = 'https://www.google.com/images/logo.png';
+	protected $_mockFilename = 'logo-mock.jpg';
 	protected $_mockImageUrlWithQueryParams = 'https://www.google.com/images/logo.png?seg32=seg2&oh=93403634cddefe853629b06d2955bf7f&oe=54EAA1FD&__gda__=1425078319_70f87af9e7fd98a199b563e9c0944911';
-	protected $_mockFilenameWithQueryParams = '1013240-10201006260230884-1892541638-n.jpg';
+	// The following mock string does not have query params on purpose, see test.
+	// Also, it corresponds with the basename of $_mockImageUrlWithQueryParams
+	protected $_mockFilenameWithQueryParams = 'logo.png';
 	protected $_imageModel;
 
 	public function testShouldCreateImageFromUrl() {
 		$this->_getImageModel()->insertFromUrl($this->_mockImageUrl, $this->_mockFilename);
-		$this->assertTrue(file_exists(APPLICATION_PATH . '/../garp/tests/tmp/' . 
+		$this->assertTrue(file_exists(GARP_APPLICATION_PATH . '/../tests/tmp/' . 
 			$this->_mockFilename));
 	}
 
@@ -26,7 +28,7 @@ class G_Model_ImageTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testShouldStripQueryParamsFromFilename() {
 		$imgId = $this->_getImageModel()->insertFromUrl($this->_mockImageUrlWithQueryParams);
-		$this->assertTrue(file_exists(APPLICATION_PATH . '/../garp/tests/tmp/' . 
+		$this->assertTrue(file_exists(GARP_APPLICATION_PATH . '/../tests/tmp/' . 
 			$this->_mockFilenameWithQueryParams));
 	}
 
