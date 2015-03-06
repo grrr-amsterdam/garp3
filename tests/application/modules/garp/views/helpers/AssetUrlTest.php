@@ -15,7 +15,10 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 				'css' => array('location' => 'local'),
 			),
 		));
-		$this->assertEquals('/css/base.css', $this->_getHelper()->assetUrl('/css/base.css'));
+		$this->assertEquals(
+			'/css/base.css?' . new Garp_Semver,
+			$this->_getHelper()->assetUrl('/css/base.css')
+		);
 	}
 
 	public function testShouldRenderS3AssetUrl() {
@@ -28,9 +31,15 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 				),
 			),
 		));
+		$removeSemver = $this->_createTmpSemver();
 		$this->assertEquals(
-			'http://static.loc.melkweg.nl.s3-website-us-east-1.amazonaws.com/css/base.css',
+			'http://static.loc.melkweg.nl.s3-website-us-east-1.amazonaws.com/css/base.css?'
+			. new Garp_Semver,
 			$this->_getHelper()->assetUrl('/css/base.css'));
+
+		if ($removeSemver) {
+			$this->_removeTmpSemver();
+		}
 	}
 
 	public function testShouldRenderLocalVersionedAssetUrl() {
@@ -45,21 +54,12 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 				)
 			)
 		));
-		$shouldRemoveSemver = false;
-		if (!file_exists(APPLICATION_PATH . '/../.semver')) {
-			$shouldRemoveSemver = true;
-			file_put_contents(APPLICATION_PATH . '/../.semver',
-				"---
-				:major: 0
-				:minor: 9
-				:patch: 10
-				:special: ''");
-		}
+		$removeSemver = $this->_createTmpSemver();
 		$this->assertEquals($this->_getHelper()->assetUrl('main.css'),
 			'/css/build/prod/' . new Garp_Semver . '/main.css');
 
-		if ($shouldRemoveSemver) {
-			unlink(APPLICATION_PATH . '/../.semver');
+		if ($removeSemver) {
+			$this->_removeTmpSemver();
 		}
 	}
 
@@ -74,24 +74,15 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 				'js' => array('root' => 'foo/bar/lorem/ipsum')
 			)
 		));
-		$shouldRemoveSemver = false;
-		if (!file_exists(APPLICATION_PATH . '/../.semver')) {
-			$shouldRemoveSemver = true;
-			file_put_contents(APPLICATION_PATH . '/../.semver',
-				"---
-				:major: 0
-				:minor: 9
-				:patch: 10
-				:special: ''");
-		}
+		$removeSemver = $this->_createTmpSemver();
 
 		$this->assertEquals(
 			$this->_getHelper()->assetUrl()->getVersionedBuildPath('main.js'),
 			'foo/bar/lorem/ipsum/' . new Garp_Semver . '/main.js'
 		);
 
-		if ($shouldRemoveSemver) {
-			unlink(APPLICATION_PATH . '/../.semver');
+		if ($removeSemver) {
+			$this->_removeTmpSemver();
 		}
 	}
 
@@ -108,21 +99,12 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 				)
 			)
 		));
-		$shouldRemoveSemver = false;
-		if (!file_exists(APPLICATION_PATH . '/../.semver')) {
-			$shouldRemoveSemver = true;
-			file_put_contents(APPLICATION_PATH . '/../.semver',
-				"---
-				:major: 34
-				:minor: 129
-				:patch: 10
-				:special: ''");
-		}
+		$removeSemver = $this->_createTmpSemver();
 		$this->assertEquals($this->_getHelper()->assetUrl('main.css'),
 			'http://static.sesamestreet.co.uk/css/build/prod/' . new Garp_Semver . '/main.css');
 
-		if ($shouldRemoveSemver) {
-			unlink(APPLICATION_PATH . '/../.semver');
+		if ($removeSemver) {
+			$this->_removeTmpSemver();
 		}
 	}
 
@@ -131,6 +113,31 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 			'cdn' => array('type' => 'local')
 		));
 		$this->assertEquals('/foo.pdf', $this->_getHelper()->assetUrl('foo.pdf'));
+	}
+
+	protected function _getSemverPath() {
+		return APPLICATION_PATH . '/../.semver';
+	}
+
+	protected function _doesSemverExist() {
+		return file_exists($this->_getSemverPath());
+	}
+
+	protected function _createTmpSemver() {
+		if (!$this->_doesSemverExist()) {
+			return file_put_contents($this->_getSemverPath(),
+				"---
+				:major: 34
+				:minor: 9
+				:patch: 10
+				:special: ''");
+		}
+	}
+
+	protected function _removeTmpSemver() {
+		if ($this->_doesSemverExist()) {
+			unlink($this->_getSemverPath());
+		}
 	}
 
 	protected function _getHelper() {

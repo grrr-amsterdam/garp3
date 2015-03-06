@@ -7,10 +7,10 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
 	protected $_gzipTestFile = '19209ujr203r20rk409rk2093ir204r92r90.txt';
 
 	public function testShouldGzipOutput() {
-		///////////////
-		// Can't test without S3 credentials
-		return;
-		///////////////
+		if (!$this->_isS3Configured()) {
+			$this->assertTrue(true, "S3 is not configured");
+			return;
+		}
 
 
 		$testContent =  'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
@@ -27,11 +27,10 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function testGetList() {
-		///////////////
-		// This test is disabled by default because of performance.
-		return;
-		///////////////
-
+		if (!$this->_isS3Configured()) {
+			$this->assertTrue(true, "S3 is not configured");
+			return;
+		}
 
 		if (!($cdnConfig = $this->_findFirstS3Config())) {
 			return;
@@ -62,12 +61,19 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
 				)
 			)
 		));
-		$this->_storage = new Garp_File_Storage_S3(Zend_Registry::get('config')->cdn, '/');
+
+		if ($this->_isS3Configured()) {
+			$this->_storage = new Garp_File_Storage_S3(Zend_Registry::get('config')->cdn, '/');
+		}
 	}
 
 	public function tearDown() {
 		if ($this->_storage) {
 			$this->_storage->remove($this->_gzipTestFile);
 		}
+	}
+
+	protected function _isS3Configured() {
+		return isset(Zend_Registry::get('config')->cdn->s3->apikey);
 	}
 }
