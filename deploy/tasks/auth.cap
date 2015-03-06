@@ -8,7 +8,7 @@ end
 desc "Add public SSH keys"
 task :add_public_ssh_keys do
 	on roles(:web) do
-		ssh_local_path = "../golem/application/configs/authorized_keys"
+		ssh_local_path = "~/.ssh/garp_authorized_keys"
 		tmp_path = "#{fetch(:tmp_dir)}/authorized_keys"
 		destination_path = "~/.ssh/authorized_keys"
 
