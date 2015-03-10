@@ -82,6 +82,9 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
 
 	isValid: function(value) {
         var charCount = this.getCharCount();
+		if (!this.editor) {
+			return true;
+		}
 
         if (!this.allowBlank && !charCount) {
             if (this.wasBlank) {

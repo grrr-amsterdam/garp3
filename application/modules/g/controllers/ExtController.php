@@ -1,7 +1,7 @@
 <?php
 /**
  * G_ExtController
- * This controller handles Ext.Direct requests and sends 'em off to either the appropriate 
+ * This controller handles Ext.Direct requests and sends 'em off to either the appropriate
  * models or the ContentController, which acts as a wrapper around crud functionality.
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -73,7 +73,7 @@ class G_ExtController extends G_ContentController {
 			$requests = Zend_Json::decode($post, Zend_Json::TYPE_ARRAY);
 			$modifiedRequests = array();
 			/**
- 			 * Check if this was a batch request. In that case the array is a plain array of 
+ 			 * Check if this was a batch request. In that case the array is a plain array of
  			 * arrays. If not, there will be a 'jsonrpc' key in the root of the array.
  			 */
 			$batch = !array_key_exists('jsonrpc', $requests);
@@ -114,7 +114,7 @@ class G_ExtController extends G_ContentController {
 			$response = Zend_Json::decode($this->view->response, Zend_Json::TYPE_ARRAY);
 			$modifiedResponse = array();
 			/**
- 			 * Check if this was a batch request. In that case the array is a plain array of 
+ 			 * Check if this was a batch request. In that case the array is a plain array of
  			 * arrays. If not, there will be a 'jsonrpc' key in the root of the array.
  			 */
 			$batch = !array_key_exists('jsonrpc', $response);
@@ -159,7 +159,7 @@ class G_ExtController extends G_ContentController {
 	/**
 	 * Fetch total amount of records condoning to a set of conditions
 	 * @param String $modelName The entity name
-	 * @param Array $conditions 
+	 * @param Array $conditions
 	 * @return Int
 	 */
 	protected function _fetchTotal($modelName, $conditions) {
@@ -194,7 +194,7 @@ class G_ExtController extends G_ContentController {
 	 * these methods modify either the request or the response (post or pre dispatch)
 	 * ------------------------------------------------------------------------------
 	 */
-	
+
 	/**
 	 * Modify results after fetch
 	 * @param Array $response The original response
@@ -206,7 +206,7 @@ class G_ExtController extends G_ContentController {
 			$rows = $response['result'];
 			$methodParts = explode('.', $request['method']);
 			$modelClass  = Garp_Content_Api::modelAliasToClass(array_shift($methodParts));
-			
+
 			$params = $request['params'];
 			$params = !empty($params) ? $params[0] : array();
 			$response['result'] = array(
@@ -230,12 +230,12 @@ class G_ExtController extends G_ContentController {
 			$modelClass  = Garp_Content_Api::modelAliasToClass(array_shift($methodParts));
 			$model = new $modelClass();
 			// combine primary keys to query params
-			$primaryKey = array_values((array)$model->info(Zend_Db_Table::PRIMARY));			
+			$primaryKey = array_values((array)$model->info(Zend_Db_Table::PRIMARY));
 			$primaryKeyValues = array_values((array)$response['result']);
 			$query = array();
 			foreach ($primaryKey as $i => $key) {
 				$query[$key] = $primaryKeyValues[$i];
-			}		
+			}
 			// find the newly inserted rows
 			$man = new Garp_Content_Manager(get_class($model));
 			$rows = $man->fetch(array('query' => $query));
@@ -253,11 +253,11 @@ class G_ExtController extends G_ContentController {
 	 * @return String
 	 */
 	protected function _modifyAfterUpdate($response, $request) {
-		if ($this->_methodFailed($response)) {	
+		if ($this->_methodFailed($response)) {
 			return $response;
 		}
 		$methodParts = explode('.', $request['method']);
-		$modelClass  = Garp_Content_Api::modelAliasToClass(array_shift($methodParts)); 
+		$modelClass  = Garp_Content_Api::modelAliasToClass(array_shift($methodParts));
 		$man = new Garp_Content_Manager($modelClass);
 		$rows = $man->fetch(array(
 			'query' => array('id' => $request['params'][0]['rows']['id'])
@@ -286,7 +286,7 @@ class G_ExtController extends G_ContentController {
 	/**
 	 * Modify results before create
 	 * @param Array $request
-	 * @return Array 
+	 * @return Array
 	 */
 	protected function _modifyBeforeCreate($request) {
 		$request['params'] = array($request['params'][0]['rows']);
@@ -296,7 +296,7 @@ class G_ExtController extends G_ContentController {
 	/**
 	 * Modify results before update
 	 * @param Array $request
-	 * @return Array 
+	 * @return Array
 	 */
 	protected function _modifyBeforeUpdate($request) {
 		$request['params'] = array($request['params'][0]['rows']);
@@ -306,10 +306,10 @@ class G_ExtController extends G_ContentController {
 	/**
 	 * Modify results before create
 	 * @param Array $request
-	 * @return Array 
+	 * @return Array
 	 */
 	protected function _modifyBeforeDestroy($request) {
 		$request['params'] = array(array('id' => $request['params'][0]['rows']));
 		return $request;
-	} 
+	}
 }
