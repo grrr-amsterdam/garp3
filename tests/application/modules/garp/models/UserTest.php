@@ -101,6 +101,13 @@ class G_Model_UserTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function setUp() {
 		parent::setUp();
+		// Grmbl. Setting this to false is necessary because Zend_Config_Ini::merge is too smart,
+		// and will end up with a merged array of mock data and real data from auth.ini.
+		$this->_helper->injectConfigValues(array(
+			'auth' => array(
+				'users' => false
+			)
+		));
 		$this->_helper->injectConfigValues(array(
 			'auth' => array(
 				'users' => $this->_userData
