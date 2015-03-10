@@ -1050,7 +1050,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					fn: this.updateOpenNewWindow
 				}
 			});
-//TEMP = this;
+
 			this.relateePanel.getSelectionModel().on({
 				'selectionchange': {
 					scope: this,
