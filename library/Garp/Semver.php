@@ -22,7 +22,7 @@ class Garp_Semver {
 			return 'v0.0.0';
 		}
 		$special = '';
-		if ($conf->special && $conf->special !== "'") {
+		if ($conf->special && $conf->special !== "''") {
 			$special = '-' . $conf->special;
 		}
 		return "v{$conf->major}.{$conf->minor}.{$conf->patch}{$special}";
