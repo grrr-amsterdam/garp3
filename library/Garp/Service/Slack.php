@@ -37,7 +37,7 @@ class Garp_Service_Slack {
  	 * @param $text		Text to post in the Slack message
  	 * @param $params	Extra, optional Slack parameters that
  	 *					override the app-wide settings in app.ini,
- 	 *					that in turn override Slack's Incoming 
+ 	 *					that in turn override Slack's Incoming
  	 *					Webhook settings.
  	 *					f.i.:
  	 *					'username' => 'me',
@@ -82,6 +82,9 @@ class Garp_Service_Slack {
 		$port = $isHttps ? 443 : 80;
 
 		$fp = fsockopen(($isHttps ? 'ssl://' : '') . $host, $port);
+		if (false === $fp) {
+			return false;
+		}
 		$content = http_build_query($data);
 
 		fwrite($fp, "POST {$parsedUrl['path']} HTTP/1.1\r\n");
