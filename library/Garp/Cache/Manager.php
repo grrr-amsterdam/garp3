@@ -177,9 +177,13 @@ class Garp_Cache_Manager {
 	}
 
 	public static function createScheduledJob($timestamp, array $tags = array()) {
+		$cmd = 'Cache clear';
+		if (count($tags)) {
+			$cmd .= ' ' . implode(' ', $tags);
+		}
 		$scheduledJobModel = new Model_ScheduledJob();
 		return $scheduledJobModel->insert(array(
-			'command' => 'Cache clear',
+			'command' => $cmd,
 			'at' => date('Y-m-d H:i:s', $timestamp),
 		));
 	}
