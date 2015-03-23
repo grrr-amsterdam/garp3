@@ -10,8 +10,8 @@ class G_Model_ScheduledJob extends Model_Base_ScheduledJob {
 	public function fetchDue($serverId, $lastCheckIn) {
 		return $this->fetchAll(
 			$this->select()
-				->where('at > ?', $lastCheckIn)
-				->where('at < NOW()')
+				->where('`at` >= ?', $lastCheckIn)
+				->where('`at` <= ?', date('Y-m-d H:i:s'))
 		);
 	}
 
