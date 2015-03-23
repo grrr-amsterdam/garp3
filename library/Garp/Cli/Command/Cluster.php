@@ -71,7 +71,7 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 	protected function _runRecurringJobs($serverId, $lastCheckIn) {
 		$recurringJobModel = new Model_ClusterRecurringJob();
 		$jobs = $recurringJobModel->fetchDue($serverId, $lastCheckIn);
-		$this->_executeJobs($jobs);
+		$this->_executeJobs($jobs, $serverId);
 
 		if (!count($jobs)) {
 			Garp_Cli::lineOut('No recurring jobs to run.');
@@ -85,21 +85,21 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 		}
 		$scheduledJobModel = new Model_ScheduledJob();
 		$jobs = $scheduledJobModel->fetchDue($serverId, $lastCheckIn);
-		$this->_executeJobs($jobs);
+		$this->_executeJobs($jobs, $serverId);
 
 		if (!count($jobs)) {
 			Garp_Cli::lineOut('No scheduled jobs to run.');
 		}
 	}
 
-	protected function _executeJobs(Garp_Db_Table_Rowset $jobs) {
-		$loader = Garp_Loader::getInstance(array('paths' => array()));
+	protected function _executeJobs(Garp_Db_Table_Rowset $jobs, $serverId) {
 		foreach ($jobs as $job) {
-			$this->_executeJob($job);
+			$this->_executeJob($job, $serverId);
 		}
 	}
 
-	protected function _executeJob(Garp_Db_Table_Row $job) {
+	protected function _executeJob(Garp_Db_Table_Row $job, $serverId) {
+		$loader = Garp_Loader::getInstance(array('paths' => array()));
 		$commandParts = explode(' ', $job->command);
 
 		$class = $commandParts[0];
