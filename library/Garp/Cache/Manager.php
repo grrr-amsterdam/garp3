@@ -39,6 +39,11 @@ class Garp_Cache_Manager {
 	 * @return Void
 	 */
 	public static function purge($tags = array(), $createClusterJob = true, $cacheDir = false) {
+		if (!Zend_Registry::get('CacheFrontend')->getOption('caching')) {
+			// caching is disabled
+			return;
+		}
+
 		if ($tags instanceof Garp_Model_Db) {
             $tags = self::getTagsFromModel($tags);
         }
