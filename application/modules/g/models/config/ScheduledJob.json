@@ -1,0 +1,27 @@
+{
+	"inputs": {
+		"command": {},
+
+		"at": {
+			"type": "datetime"
+		},
+
+		"last_accepted_at": {
+			"type": "datetime",
+			"required": false
+		}
+	},
+
+	"relations": {
+		"Accepter": {
+			"model": "ClusterServer",
+			"type": "hasOne"
+		}
+	},
+
+	"listFields": ["command", "at"],
+
+	"visible": false,
+
+	"module": "garp"
+}

@@ -169,6 +169,23 @@ class Garp_Cache_Manager {
  	 *              not yet found a way to determine if the atrun daemon actually is active.
  	 */
 	public static function scheduleClear($timestamp, array $tags = array()) {
+		// Use ScheduledJob model if available, otherwise fall back to `at`
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return static::createAtCommand($timestamp, $tags);
+		}
+		return static::createScheduledJob($timestamp, $tags);
+	}
+
+	public static function createScheduledJob($timestamp, array $tags = array()) {
+		$scheduledJobModel = new Model_ScheduledJob();
+		return $scheduledJobModel->insert(array(
+			'command' => 'Cache clear',
+			'at' => date('Y-m-d H:i:s', $timestamp),
+		));
+	}
+
+	/** Ye olde scheduleClear() */
+	public static function createAtCommand($timestamp, array $tags = array()) {
 		$time = date('H:i d.m.y', $timestamp);
 
 		// Sanity check: are php and at available? ('which' returns an empty string in case of failure)

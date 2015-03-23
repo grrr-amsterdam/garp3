@@ -22,6 +22,18 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals(false, $cacheFrontend->load($testKey));
 	}
 
+	public function testCreationOfScheduledJob() {
+		// Act only when ScheduledJob model exists
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return;
+		}
+
+		Garp_Cache_Manager::scheduleClear(strtotime('19 August 2015 14:13:21'), array());
+		$scheduledJobModel = new Model_ScheduledJob();
+		$jobs = $scheduledJobModel->fetchAll();
+		$this->assertEquals(1, count($jobs));
+	}
+
 	/* Disabled by David, 12 june 2014 - it keeps failing, even with Memcached client connected to Memcache.
 	public function testPurgeByModel() {
 		$dbAdapter = $this->getDatabaseAdapter();
@@ -89,8 +101,8 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 		Garp_Cache_Manager::purge();
 		$dbAdapter = $this->getDatabaseAdapter();
 		$dbAdapter->query('SET foreign_key_checks = 0;');
-		$dbAdapter->query('DROP TABLE `_tests_cache_manager_Thing`;'); 
-		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBar`;'); 
+		$dbAdapter->query('DROP TABLE `_tests_cache_manager_Thing`;');
+		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBar`;');
 		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBarThing`;');
 		$dbAdapter->query('SET foreign_key_checks = 1;');
 	}
