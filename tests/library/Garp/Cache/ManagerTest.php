@@ -52,6 +52,24 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals('Cache clear aap noot mies', $jobs[0]['command']);
 	}
 
+	public function testScheduledJobShouldCreateChecksum() {
+		// Act only when ScheduledJob model exists
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return;
+		}
+
+		$tags = array('aap', 'noot', 'mies');
+		$timestamp = strtotime('19 March 2015 14:13:21');
+		Garp_Cache_Manager::scheduleClear($timestamp, $tags);
+		$scheduledJobModel = new Model_ScheduledJob();
+		$jobs = $scheduledJobModel->fetchAll();
+		$this->assertEquals(1, count($jobs));
+
+		$knownChecksum = md5(date('Y-m-d H:i:s', $timestamp) . ': Cache clear aap noot mies');
+
+		$this->assertEquals($knownChecksum, $jobs[0]['checksum']);
+	}
+
 	/* Disabled by David, 12 june 2014 - it keeps failing, even with Memcached client connected to Memcache.
 	public function testPurgeByModel() {
 		$dbAdapter = $this->getDatabaseAdapter();
