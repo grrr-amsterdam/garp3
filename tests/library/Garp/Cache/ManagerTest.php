@@ -70,6 +70,21 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals($knownChecksum, $jobs[0]['checksum']);
 	}
 
+	public function testChecksumShouldPreventDuplicatesWithoutException() {
+		// Act only when ScheduledJob model exists
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return;
+		}
+
+		$timestamp = strtotime('1 June 2015 12:00:00');
+		Garp_Cache_Manager::scheduleClear($timestamp, array());
+		Garp_Cache_Manager::scheduleClear($timestamp, array());
+
+		$scheduledJobModel = new Model_ScheduledJob();
+		$this->assertEquals(1, count($scheduledJobModel->fetchAll()));
+
+	}
+
 	/* Disabled by David, 12 june 2014 - it keeps failing, even with Memcached client connected to Memcache.
 	public function testPurgeByModel() {
 		$dbAdapter = $this->getDatabaseAdapter();

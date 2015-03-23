@@ -15,6 +15,22 @@ class G_Model_ScheduledJob extends Model_Base_ScheduledJob {
 		);
 	}
 
+	// Overwrite insert in order to ignore duplicates: they're harmless
+	public function insert(array $data) {
+		try {
+			$pkData = parent::insert($data);
+		} catch (Zend_Db_Statement_Exception $e) {
+			if (strpos($e->getMessage(), 'Duplicate entry') === false ||
+				strpos($e->getMessage(), 'checksum_unique') === false) {
+				throw $e;
+			}
+			// @todo Return original primary key?
+			// This would require a second round-trip to the database...
+			return null;
+		}
+		return $pkData;
+	}
+
 	public function beforeInsert(&$args) {
 		$data  = &$args[1];
 		$this->_addChecksum($data);
