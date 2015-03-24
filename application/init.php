@@ -22,6 +22,7 @@ if (file_exists($appSpecificInit)) {
 
 defined('READ_FROM_CACHE') || define('READ_FROM_CACHE', true);
 defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', '127.0.0.1');
+defined('MEMCACHE_PORT') || define('MEMCACHE_PORT', '11211');
 
 $isCli = false;
 if (
@@ -131,7 +132,7 @@ $backendOptions = array(
 	'servers' => array(
 		array(
 			'host' => MEMCACHE_HOST,
-			'port' => '11211'
+			'port' => MEMCACHE_PORT
 		)
 	),
 );
