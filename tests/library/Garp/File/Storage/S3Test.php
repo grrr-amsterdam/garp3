@@ -75,9 +75,10 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
 
 	protected function _isS3Configured() {
 		$config = Zend_Registry::get('config');
-		return 
+		return
+			$config->cdn->type === 's3' &&
 			isset($config->cdn->s3->apikey) &&
 			$config->cdn->s3->apikey
-		;	
+		;
 	}
 }

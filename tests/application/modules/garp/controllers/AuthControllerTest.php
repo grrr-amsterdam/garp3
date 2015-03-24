@@ -32,6 +32,16 @@ class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 
 	public function setUp() {
 		parent::setUp();
+		$this->_helper->injectConfigValues(array(
+			'resources' => array(
+				'router' => array(
+					'locale' => array(
+						'enabled' => false
+					)
+				)
+			)
+		));
+
 		$this->_auth = Garp_Auth::getInstance();
 		$this->_auth->setStore(new Garp_Store_Array('Garp_Auth'));
 		$this->_auth->destroy();
@@ -43,7 +53,7 @@ class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 			$this->_mockUser['name'] = $this->_mockUser['first_name'];
 			unset($this->_mockUser['first_name']);
 		}
-		
+
 		$userModel->delete('id > 0');
 		$userModel->insert($this->_mockUser);
 	}
