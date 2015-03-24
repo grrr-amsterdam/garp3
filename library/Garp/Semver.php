@@ -22,7 +22,7 @@ class Garp_Semver {
 			return 'v0.0.0';
 		}
 		$special = '';
-		if ($conf->special && $conf->special !== "''") {
+		if (!$this->_specialIsEmpty($conf)) {
 			$special = '-' . $conf->special;
 		}
 		return "v{$conf->major}.{$conf->minor}.{$conf->patch}{$special}";
@@ -34,5 +34,9 @@ class Garp_Semver {
 
 	protected function _getDefaultSemverLocation() {
 		return APPLICATION_PATH . '/../.semver';
+	}
+
+	protected function _specialIsEmpty(Zend_Config_Yaml $conf) {
+		return !$conf->special || $conf->special === "''" || $conf->special === "'";
 	}
 }
