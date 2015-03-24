@@ -6,7 +6,7 @@ task :install_crontab do
 		garp_env		= fetch(:stage)
 		mute			= ">/dev/null 2>&1"
 
-  		tab_frequent 	= "*/5 * * * * #{php_exec} #{garp_exec} cron frequently --e=#{garp_env} #{mute}"
+  		tab_frequent 	= "*/1 * * * * #{php_exec} #{garp_exec} cron frequently --e=#{garp_env} #{mute}"
   		tab_hourly 		= "0 * * * * #{php_exec} #{garp_exec} cron hourly --e=#{garp_env} #{mute}"
   		tab_daily 		= "0 4 * * * #{php_exec} #{garp_exec} cron daily --e=#{garp_env} #{mute}"
   		

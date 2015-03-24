@@ -172,6 +172,7 @@ $translationTable = array(
 	'Caption' => 'onderschrift',
 
 	'Person' => 'Persoon',
+	'Auth passwordless' => 'E-mail login',
 	'Snippet' => 'Snippet',
 	'New Snippet' => 'Nieuw snippet',
 	'Small pieces of text, images or other media used on the website.' => 'Tekstfragmenten, afbeeldingen en andere media op de website.',

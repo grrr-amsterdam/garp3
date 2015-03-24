@@ -153,7 +153,7 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 
 	// @todo HTML email version
 	protected function _sendTokenEmail($email, $userId, $token) {
-		$mail = new Zend_Mail();
+		$mail = new Zend_Mail('utf-8');
 		$mail->setSubject($this->_getEmailSubject());
 		$mail->setBodyText($this->_getEmailBody($userId, $token));
 		$mail->setFrom($this->_getEmailFromAddress());
@@ -243,6 +243,9 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 
 	protected function _getSnippet($identifier) {
 		$snippetModel = new Model_Snippet();
+		if ($snippetModel->isMultilingual()) {
+			$snippetModel = instance(new Garp_I18n_ModelFactory)->getModel('Snippet');
+		}
 		return $snippetModel->fetchByIdentifier($identifier)->text;
 	}
 

@@ -19,7 +19,7 @@
 		}
 		</script>
 		<script type="text/javascript" src="<?php echo $this->assetUrl('/js/garp/extux/ext.ux.zendframeworkprovider.js') ?>"></script>
-		<script type="text/javascript" src="<?php echo $this->baseUrl('/g/ext/smd') ?>"></script>
+		<script type="text/javascript" src="<?php echo $this->baseUrl('/g/ext/smd') . '?' . new Garp_Semver ?>"></script>
 	</head>
 	<body>
 		<?php echo $this->layout()->content ?>

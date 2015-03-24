@@ -245,6 +245,9 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function tearDown() {
+		if (!$this->_testsEnabled) {
+			return;
+		}
 		parent::tearDown();
 
 		if (file_exists(GARP_APPLICATION_PATH . '/../tests/tmp/' . self::TEST_EMAIL . '.tmp')) {

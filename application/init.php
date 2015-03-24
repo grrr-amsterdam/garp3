@@ -22,6 +22,7 @@ if (file_exists($appSpecificInit)) {
 
 defined('READ_FROM_CACHE') || define('READ_FROM_CACHE', true);
 defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', '127.0.0.1');
+defined('MEMCACHE_PORT') || define('MEMCACHE_PORT', '11211');
 
 $isCli = false;
 if (
@@ -111,11 +112,13 @@ if ($memcacheAvailable) {
 	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST);
 }
 if (!$memcacheAvailable) {
-	$backendName = 'BlackHole';
+	$backendName       = 'BlackHole';
 	$cacheStoreEnabled = false;
+	$useWriteControl   = false;
 } else {
-	$backendName = 'Memcached';
+	$backendName       = 'Memcached';
 	$cacheStoreEnabled = true;
+	$useWriteControl   = true;
 }
 
 $frontendOptions = array(
@@ -125,6 +128,7 @@ $frontendOptions = array(
 	'cache_id_prefix' => $filePrefix,
 	// slightly slower, but necessary when caching arrays or objects (like query results)
 	'automatic_serialization' => true,
+	'write_control' => $useWriteControl,
 );
 $backendOptions = array(
 	'cache_dir' => APPLICATION_PATH.'/data/cache',
@@ -133,7 +137,7 @@ $backendOptions = array(
 	'servers' => array(
 		array(
 			'host' => MEMCACHE_HOST,
-			'port' => '11211'
+			'port' => MEMCACHE_PORT
 		)
 	),
 );

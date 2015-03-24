@@ -39,6 +39,11 @@ class Garp_Cache_Manager {
 	 * @return Void
 	 */
 	public static function purge($tags = array(), $createClusterJob = true, $cacheDir = false) {
+		if (!Zend_Registry::get('CacheFrontend')->getOption('caching')) {
+			// caching is disabled
+			return;
+		}
+
 		if ($tags instanceof Garp_Model_Db) {
             $tags = self::getTagsFromModel($tags);
         }
@@ -164,6 +169,27 @@ class Garp_Cache_Manager {
  	 *              not yet found a way to determine if the atrun daemon actually is active.
  	 */
 	public static function scheduleClear($timestamp, array $tags = array()) {
+		// Use ScheduledJob model if available, otherwise fall back to `at`
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return static::createAtCommand($timestamp, $tags);
+		}
+		return static::createScheduledJob($timestamp, $tags);
+	}
+
+	public static function createScheduledJob($timestamp, array $tags = array()) {
+		$cmd = 'Cache clear';
+		if (count($tags)) {
+			$cmd .= ' ' . implode(' ', $tags);
+		}
+		$scheduledJobModel = new Model_ScheduledJob();
+		return $scheduledJobModel->insert(array(
+			'command' => $cmd,
+			'at' => date('Y-m-d H:i:s', $timestamp),
+		));
+	}
+
+	/** Ye olde scheduleClear() */
+	public static function createAtCommand($timestamp, array $tags = array()) {
 		$time = date('H:i d.m.y', $timestamp);
 
 		// Sanity check: are php and at available? ('which' returns an empty string in case of failure)
@@ -174,7 +200,8 @@ class Garp_Cache_Manager {
 		// Add timestamp to the filename so we can safely delete the file later
 		$tags = implode(' ', $tags);
 		$file = APPLICATION_PATH.'/data/at_cmd_'.time().md5($tags);
-		$garpScriptFile = realpath(APPLICATION_PATH.'/../garp/scripts/garp.php');
+
+		$garpScriptFile = self::_getGarpCliScriptPath();
 		$cmd  = 'php '.$garpScriptFile.' Cache clear --APPLICATION_ENV='.APPLICATION_ENV.' '.$tags.';';
 
 		// Create temp file
@@ -266,5 +293,15 @@ class Garp_Cache_Manager {
 		}
 
 		return null;
+	}
+
+	protected static function _getGarpCliScriptPath() {
+		if (strpos(APPLICATION_PATH, 'releases') === false) {
+			return realpath(APPLICATION_PATH . '/../garp/scripts/garp.php');
+		}
+		// When `releases` is in the path, assume Capistrano setup and point to the `current`
+		// symlink. The different release folders are purged over time, so not reliable to use when
+		// scheduling a future operation.
+		return realpath(APPLICATION_PATH . '/../../..') . '/current/garp/scripts/garp.php';
 	}
 }

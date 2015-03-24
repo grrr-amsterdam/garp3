@@ -98,6 +98,9 @@ button.x-tbar-page-next { background-image: url(../../media/images/garp/icons2/c
 .x-form-field-wrap .x-form-trigger.relation-open-button:hover { background-position: 0 3px, 0 0; }
 .x-form-field-wrap .x-form-trigger.relation-open-button.no-relation { background-image: none; border-right:1px #B5B8C8 solid; padding-right:0; margin-left:0; }
 
+/* INVALID CKEDITOR */
+.x-form-invalid + .cke_chrome {border: 1px solid #ff7870;}
+
 /* ERROR WINDOW */
 .garp-error-dialog {background: url(../../js/garp/ext-3.4.1/resources/images/default/window/icon-error.gif) no-repeat 10px 50%; padding-left: 55px; font-size: 1.1em; padding-top: 6px;  }
 
