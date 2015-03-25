@@ -51,6 +51,12 @@ class Garp_Test_PHPUnit_Helper {
 	}
 
 	protected function _fetchFreshData($model, $primaryKey) {
+		// Make sure data is fresh, Draftable would block offline items, but that's not really what
+		// we want here.
+		// Since the observer is restored tests can still test for Draftable particulars.
+		if ($draftableBehavior = $model->getObserver('Draftable')) {
+			$model->unregisterObserver('Draftable');
+		}
 		if (!is_array($primaryKey)) {
 			return $model->find($primaryKey)->current();
 		}
@@ -58,7 +64,11 @@ class Garp_Test_PHPUnit_Helper {
 		foreach ($primaryKey as $column => $value) {
 			$select->where("{$column} = ?", $value);
 		}
-		return $model->fetchRow($select);
+		$row = $model->fetchRow($select);
+		if ($draftableBehavior) {
+			$model->registerObserver($draftableBehavior);
+		}
+		return $row;
 	}
 
 	/**
