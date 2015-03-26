@@ -11,23 +11,23 @@
  */
 class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 	/**
-	 * Return some sample data so an admin can provide 
+	 * Return some sample data so an admin can provide
 	 * mapping of columns by example.
 	 * @return Array
 	 */
-	public function getSampleData() {		
+	public function getSampleData() {
 		$excelReader = $this->_getReader();
 		$worksheet = $excelReader->getActiveSheet();
 		$maxRows = 3;
 		$out = array();
-		
+
 		foreach ($worksheet->getRowIterator() as $i => $row) {
 			// workaround cause those PHPExcel assholes start their arrays at index 1
 			$n = $i-1;
 			if ($n >= $maxRows) {
 				break;
 			}
-			
+
 			$cellData = array();
 			$cellIterator = $row->getCellIterator();
 			$cellIterator->setIterateOnlyExistingCells(false);
@@ -38,8 +38,8 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 		}
 		return $out;
 	}
-	
-	
+
+
 	/**
 	 * Insert data from importfile into database
 	 * @param Garp_Model $model The imported data is for this model
@@ -58,7 +58,7 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 			if ($n < $options['firstRow']) {
 				continue;
 			}
-			
+
 			$cellData = array();
 			$cellIterator = $row->getCellIterator();
 			$cellIterator->setIterateOnlyExistingCells(false);
@@ -83,8 +83,8 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 		}
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Insert a new row
 	 * @param Garp_Model $model
@@ -105,39 +105,7 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 		unset($data['']);
 		return $model->insert($data);
 	}
-	
-	
-	/**
-	 * Rollback all inserts when the import throws an error halfway
-	 * @param Garp_Model $model
-	 * @param Array $primaryKeys Collection of primary keys
-	 * @return Void
-	 */
-	public function rollback(Garp_Model $model, array $primaryKeys) {
-		if (empty($primaryKeys)) {
-			return;
-		}
-		$primaryCols = (array)$model->info(Zend_Db_Table::PRIMARY);
-		$where = array();
-		foreach ($primaryKeys as $pk) {
-			$recordWhere = array();
-			foreach ((array)$pk as $i => $key) {
-				$recordWhere[] = $model->getAdapter()->quoteIdentifier(current($primaryCols)).' = '.
-								 $model->getAdapter()->quote($key);
-			}
-			$recordWhere = implode(' AND ', $recordWhere);
-			$recordWhere = '('.$recordWhere.')';
-			$where[] = $recordWhere;
-			reset($primaryCols);
-		}
-		$where = implode(' OR ', $where);
-		if (empty($where)) {
-			return;
-		}
-		$model->delete($where);
-	}
-	
-	
+
 	/**
 	 * Return an Excel reader
 	 * @return PHPExcel
@@ -155,7 +123,7 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 		// we are only interested in cell values (not formatting etc.), so set readDataOnly to true
 		// $reader->setReadDataOnly(true);
 		$phpexcel = $reader->load($this->_importFile);
-		
+
 		return $phpexcel;
 	}
 }
