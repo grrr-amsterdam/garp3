@@ -20,12 +20,17 @@ class Garp_I18n {
 		}
 		return Zend_Registry::get('Zend_Locale')->getLanguage();
 	}
-	
+
 	/**
 	 * Return the default locale (as defined in application.ini)
 	 * @return String
 	 */
 	public static function getDefaultLocale() {
+		// Try configured default first
+		if (isset(Zend_Registry::get('config')->resources->locale->default)) {
+			return Zend_Registry::get('config')->resources->locale->default;
+		}
+		// See if Zend_Locale might know the default
 		if (!Zend_Registry::isRegistered('Zend_Locale')) {
 			throw new Garp_I18n_Exception('Zend_Locale is not registered in Zend_Registry.');
 		}
@@ -37,7 +42,7 @@ class Garp_I18n {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Return a list of all possible locales
 	 * @return Array
@@ -56,7 +61,7 @@ class Garp_I18n {
 		$localizedRoutes = array();
 		$defaultLocale = self::getDefaultLocale();
 		$requiredLocalesRegex = '^('.join('|', $locales).')$';
-		
+
 		foreach ($routes as $key => $value) {
 			// First let's add the default locale to this routes defaults.
 			$defaults = isset($value['defaults'])
