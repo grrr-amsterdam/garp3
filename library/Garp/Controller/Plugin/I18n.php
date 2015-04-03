@@ -27,7 +27,6 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		// 2. TLD in host header
 		// 3. Locale params specified in request
 		$locale = $registry->get('Zend_Locale');
-
 		// Check host header TLD.
 		$tld = preg_replace('/^.*\./', '', $request->getHeader('Host'));
 
@@ -39,22 +38,16 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		} elseif (isset($params['locale'])) {
 			// There is a locale specified in the request params.
 			$locale->setLocale($params['locale']);
-		} elseif ($locale->getDefault()) {
-			// Why is it necessary to set the current language to the default language?
-			// @todo Investigate
-			$defaults = array_keys($locale->getDefault());
-			$locale->setLocale(current($defaults));
 		}
-
 		// Now that our locale is set, let's check which language has been selected
 		// and try to load a translation file for it.
 		$language = $locale->getLanguage();
 		$translate = $this->_getTranslate($locale);
 		Zend_Registry::set('Zend_Translate', $translate);
 		Zend_Form::setDefaultTranslator($translate);
-		
+
 		$path = '/' . ltrim($request->getPathInfo(), '/\\');
-		
+
 		// If the language is in the path, then we will want to set the baseUrl
 		// to the specified language.
 		$langIsInUrl = preg_match('/^\/' . $language . '\/?/', $path);
@@ -64,7 +57,7 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 			$uiDefaultLanguage = $config->resources->locale->uiDefault;
 			$uiDefaultLangIsInUrl = preg_match('/^\/' . $uiDefaultLanguage . '\/?/', $path);
 		}
-		
+
 		if ($langIsInUrl || $uiDefaultLangIsInUrl) {
 			if ($uiDefaultLangIsInUrl) {
 				$frontController->setBaseUrl($frontController->getBaseUrl() . '/' . $uiDefaultLanguage);
@@ -97,9 +90,9 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 			'locale' => $locale,
 			'disableNotices' => true,
 			'scan' => Zend_Translate::LOCALE_FILENAME,
-			// Argh: the 'content' key is necessary in order to load the actual data, 
+			// Argh: the 'content' key is necessary in order to load the actual data,
 			// even when using an adapter that ignores it.
-			'content' => '!' 
+			'content' => '!'
 		);
 
 		// Figure out which adapter to use
@@ -120,9 +113,9 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 			if (Zend_Registry::isRegistered('CacheFrontend')) {
 				$adapterParams['cache'] = Zend_Registry::get('CacheFrontend');
 			}
-			
+
 		}
-		
+
 		$translate = new Zend_Translate($adapterParams);
 		return $translate;
 	}
