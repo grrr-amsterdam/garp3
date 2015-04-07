@@ -107,7 +107,14 @@ if ($vType)
 	$props[] = "vtype: '{$vType}'";
 if ($plugin)
 	$props[] = "plugins: [{$plugin}]";
+
+if ($field->type === 'document' || $field->type === 'imagefile'):
+	echo $this->partial('partials/spawn/js/upload-overwrite-checkbox.phtml', 'g', array(
+		'fieldName' => $field->getNameKey($this->language)
+	));
 ?>
+			}, {
+<?php endif; ?>
 				<?php echo implode(",\n\t\t\t\t", $props); ?>
 				<?php if ($field->info): ?>
 			}, {
@@ -118,12 +125,6 @@ if ($plugin)
 				));
 			endif; ?>
 				<?php if ($field->type === 'document' || $field->type === 'imagefile'): ?>
-			}, {
-			<?php
-				echo $this->partial('partials/spawn/js/upload-overwrite-checkbox.phtml', 'g', array(
-					'fieldName' => $field->getNameKey($this->language)
-				));
-			?>
 			}, {
 			<?php
 				$allowedExtensionsExceptLast = array_slice($allowedExtensions, 0, -1);
