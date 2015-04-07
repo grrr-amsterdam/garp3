@@ -9,6 +9,7 @@
  * @package      Garp_Cli_Command
  */
 class Garp_Cli_Command_Env extends Garp_Cli_Command {
+
 	public function setup(array $args = array()) {
 		// Perform app-specific tasks
 		$this->_init();
@@ -16,6 +17,15 @@ class Garp_Cli_Command_Env extends Garp_Cli_Command {
 		// This one's free: inserting required snippets
 		$snippetCmd = new Garp_Cli_Command_Snippet();
 		$snippetCmd->create(array('from', 'file'));
+	}
+
+	/**
+ 	 * Toggle wether the app is under construction
+ 	 * @param Array $args Accept "false", "0", 0, and false as disablers.
+ 	 */
+	public function setUnderConstruction(array $args = array()) {
+		$enabled = empty($args) ? true : !in_array(current($args), array(0, false, 'false', '0'));
+		return Garp_Application::setUnderConstruction($enabled);
 	}
 
 	protected function _init() {

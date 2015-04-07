@@ -3,7 +3,7 @@
  * Garp_Application_Resource_Router
  * Creates internationalized versions of known routes.
  *
- * Example: when you have defined "/blog/:slug" and you have configured 
+ * Example: when you have defined "/blog/:slug" and you have configured
  * "en" and "nl" as available locales, this resource will silently add aliases
  * for this route:
  *
@@ -27,7 +27,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 	 * @var String
 	 */
 	public $_explicitType = 'router';
- 
+
 	/**
 	 * @var Zend_Locale
 	 */
@@ -75,7 +75,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 		if (!isset($options['routesFile'])) {
 			throw new Exception(self::ERROR_NO_ROUTE_DEFINED);
 		}
-		
+
 		$routes = $options['routesFile'];
 
 		if (is_string($routes)) {
@@ -105,7 +105,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 
 		return $genericRoutes;
 	}
-	
+
 	protected function _loadRoutesConfig($path) {
 		return new Garp_Config_Ini($path, APPLICATION_ENV);
 	}

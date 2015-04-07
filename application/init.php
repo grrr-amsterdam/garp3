@@ -86,6 +86,11 @@ $classLoader = Garp_Loader::getInstance(array(
 ));
 $classLoader->register();
 
+if (!$isCli && Garp_Application::isUnderConstruction()) {
+	require(GARP_APPLICATION_PATH . '/modules/g/views/scripts/under-construction.phtml');
+	exit;
+}
+
 /**
  * Save wether we are in a cli context
  */
@@ -107,11 +112,13 @@ if ($memcacheAvailable) {
 	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST);
 }
 if (!$memcacheAvailable) {
-	$backendName = 'BlackHole';
+	$backendName       = 'BlackHole';
 	$cacheStoreEnabled = false;
+	$useWriteControl   = false;
 } else {
-	$backendName = 'Memcached';
+	$backendName       = 'Memcached';
 	$cacheStoreEnabled = true;
+	$useWriteControl   = true;
 }
 
 $frontendOptions = array(
@@ -121,6 +128,7 @@ $frontendOptions = array(
 	'cache_id_prefix' => $filePrefix,
 	// slightly slower, but necessary when caching arrays or objects (like query results)
 	'automatic_serialization' => true,
+	'write_control' => $useWriteControl,
 );
 $backendOptions = array(
 	'cache_dir' => APPLICATION_PATH.'/data/cache',

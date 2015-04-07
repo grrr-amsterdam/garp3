@@ -1,7 +1,19 @@
 namespace :deploy do
+
+	task :failed do
+		invoke :disable_under_construction
+	end
+
 	task :started do
+		on roles(:web) do
+			# Grab last release directory, if any
+			releases = capture("ls #{File.join(fetch(:deploy_to), 'releases')}")
+			set :this_host_last_release, releases.split("\n").sort.last
+		end
+
 		invoke :verify_production_deploy
 		#invoke :check_grunt_status
+		invoke :enable_under_construction
 	end
 
 	task :updated do
@@ -31,6 +43,10 @@ namespace :deploy do
 		invoke :set_shared_dirs_permissions
 		invoke :create_webroot_reroute_htaccess
 		invoke :install_crontab
+	end
+
+	task :finished do
+		invoke :disable_under_construction
 	end
 end
 
