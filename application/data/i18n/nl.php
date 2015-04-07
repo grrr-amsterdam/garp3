@@ -12,6 +12,7 @@ $translationTable = array(
 	'The email address is not found' => 'Het e-mailadres is niet gevonden',
 	'The password is invalid' => 'Het wachtwoord is onjuist',
 	'Invalid filetype' => 'Ongeldig bestandsformaat',
+	'Overwrite existing file?' => 'Bestaand bestand overschrijven?',
 	/**
  	 * CMS strings
  	 * ==================================================================================================================================
