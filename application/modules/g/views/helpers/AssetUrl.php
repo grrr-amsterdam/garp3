@@ -15,9 +15,10 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	/**
 	 * Create a versioned URL to a file
 	 * @param String $file The file path
+	 * @param String $forced_extension Force to use an extension, even when extension doesn't match or is missing (eg. '/' in 'ASSET_URL' when using a cdn, but 'js' is 'local')
 	 * @return String
 	 */
-	public function assetUrl($file = null) {
+	public function assetUrl($file = null, $forced_extension = false) {
 		if (is_null($file)) {
 			return $this;
 		}
@@ -29,6 +30,12 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		// - add the current semver to the path
 		if (strpos($file, '/') === false) {
 			$file = $this->getVersionedBuildPath($file);
+
+		// Else we will use the old (but actually more "modern") approach.
+		// AssetUrl will:
+		// - append semver as query string (main.js?v0.0.1)
+		} else if (!empty($file) && substr($file, -1) !== '/') {
+			$file = $this->getVersionedQuery($file);
 		}
 
 		// For backwards compatibility: deprecated param assetType
@@ -36,7 +43,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 			return $this->_getUrl($file, $ini->cdn->assetType, $ini->cdn->domain);
 		}
 
-		$extension = $this->_getExtension($file);
+		$extension = $forced_extension ? $forced_extension : $this->_getExtension($file);
 		if (!empty($ini->cdn->{$extension}->location)) {
 			return $this->_getUrl($file, $ini->cdn->{$extension}->location, $ini->cdn->domain);
 		}
@@ -47,6 +54,11 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	protected function _getExtension($file) {
 		if (!$file) {
 			return;
+		}
+
+		// Strip appended query string
+		if (false !== strpos($file, '?')) {
+			$file = substr($file, 0, strpos($file, '?'));
 		}
 
 		$fileParts = explode('.', $file);
@@ -65,14 +77,14 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 			break;
 			default:
 				throw new Exception("Unknown CDN specified.");
-		}		
+		}
 	}
 
 
 	protected function _getS3Url($file, $domain) {
 		return 'http://' . $domain . $file;
 	}
-	
+
 
 	protected function _getLocalUrl($file) {
 		$baseUrl = $this->getBaseUrl();
@@ -85,7 +97,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		}
 
 		// for assets, chop the locale part of the URL.
-		if (array_key_exists('locale', $requestParams) && $requestParams['locale'] && 
+		if (array_key_exists('locale', $requestParams) && $requestParams['locale'] &&
 			preg_match('~^/('.$requestParams['locale'].')~', $baseUrl)) {
 			$baseUrl = preg_replace('~^/('.$requestParams['locale'].')~', '/', $baseUrl);
 		}
@@ -96,6 +108,10 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		}
 
 		return rtrim($baseUrl, '/') . '/' . $file;
+	}
+
+	public function getVersionedQuery($file) {
+		return $file . '?' . new Garp_Semver();
 	}
 
 	public function getVersionedBuildPath($file) {

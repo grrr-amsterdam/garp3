@@ -3,6 +3,7 @@
  * @group File
  */
 class Garp_File_ExtensionTest extends Garp_Test_PHPUnit_TestCase {
+	protected $_mockPngFile = '/../public/css/images/favicon.png';
 
 	public function testShouldGetTheExtensionCorrectly() {
 		$ext = new Garp_File_Extension('image/jpeg');
@@ -13,12 +14,13 @@ class Garp_File_ExtensionTest extends Garp_Test_PHPUnit_TestCase {
 	public function testShouldGetTheExtensionForLiveObject() {
 		// Use finfo for a real-live example
 		$finfo = new finfo(FILEINFO_MIME);
-		$mime = $finfo->file(__FILE__);
+		$mime = $finfo->file(GARP_APPLICATION_PATH . $this->_mockPngFile);
+
 		$mime = explode(';', $mime);
 		$mime = $mime[0];
 
 		$ext = new Garp_File_Extension($mime);
-		$this->assertEquals('php', $ext->getValue());
+		$this->assertEquals('png', $ext->getValue());
 	}
 
 	public function testShouldReturnNullForUnknownExtension() {

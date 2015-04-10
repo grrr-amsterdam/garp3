@@ -5,7 +5,7 @@
  *
  * @description Defines both Garp.gridpanel & its corresponding Garp.gridpanelstore.
  * Also decorates the directstore to allow for querying (searching)
- * 
+ *
  */
 
 
@@ -16,7 +16,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	 * @cfg {string} model: current Model for this panel
 	 */
 	model: null,
-	
+
 	/**
 	 * @function newItem
 	 * Creates one new item in the store. Displays it on the grid and selects it
@@ -30,19 +30,19 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		this.store.insert(0, rec);
 		this.getSelectionModel().selectFirstRow();
 	},
-	
+
 	/**
 	 * @function deleteItems
 	 * Delete one (or more) item(s) from the store and calls save to sync it with the server
 	 * Not applicable if this panel is disabled (various reasons) or the current model doesn't support it.
 	 */
 	deleteItems: function(){
-		
+
 		var count = this.getSelectionModel().getCount();
 		if (count <= 0) {
 			return;
 		}
-		
+
 		// phantom records will get deleted right away. Always. No questioning ;)
 		var rec = this.getSelectionModel().getSelected();
 		if(rec.phantom){
@@ -51,12 +51,12 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			this.fireEvent('afterdelete');
 			return;
 		}
-		
+
 		// not allowed?
 		if (this.disabled || Garp.dataTypes[Garp.currentModel].disableDelete) {
 			return;
 		}
-		
+
 		Ext.Msg.confirm(__('Garp'), count == 1 ? __('Are you sure you want to delete the selected item?') : __('Are you sure you want to delete the selected items?'), function(btn){
 			var sm = this.getSelectionModel();
 			if (btn == 'yes') {
@@ -70,26 +70,26 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			sm.selectRow(sm.last); // focus gridpanel again.
 		}, this);
 	},
-	
+
 	/**
 	 * @function saveAll
 	 */
 	saveAll: function(){
 		this.fireEvent('beforesave');
-		
+
 		var scrollTop = this.getView().scroller.getScroll().top;
-				
+
 		// Let's not show a loadMask if there's no modified records, a save operation would appear to never end,
 		// because the listener to hide te loadMask will never be called:
 		if (this.getStore().getModifiedRecords().length > 0) {
 			this.loadMask.show();
 		}
-		
+
 		var currentModified = this.getStore().getModifiedRecords();
 		if(currentModified.length){
-			currentModified = currentModified[0]; 
+			currentModified = currentModified[0];
 		}
-		
+
 		// Reload the store after saving, to get an accurate and fresh new view on the data
 		this.getStore().on({
 			'save': {
@@ -102,7 +102,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 								scope: this,
 								single: true,
 								fn: function(){
-									
+
 									if (currentModified && currentModified.get && !store.getById(currentModified.get('id'))) {
 										this.getStore().on({
 											load: {
@@ -146,7 +146,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		// Let the store decide whether or not to actually save:
 		this.getStore().save();
 	},
-	
+
 	/**
 	 * @function loadStoreWithDefaults
 	 * Conveniently load the store with potential filter defaults.
@@ -158,7 +158,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			this.getStore().load();
 		}
 	},
-	
+
 	/**
 	 * @function selectAll
 	 * Selects all items on the grid -if not disabled-, or clears all selection(s).
@@ -169,13 +169,13 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		}
 		var sm = this.getSelectionModel();
 		var store = this.getStore();
-		if (sm.getCount() === store.getCount()) { // if all are already selected 
+		if (sm.getCount() === store.getCount()) { // if all are already selected
 			sm.clearSelections(); // ... clear the selection
 		} else {
 			sm.selectAll(); // ... otherwise, selectAll
 		}
 	},
-	
+
 	/**
 	 * @function focus
 	 * focuses the panel so cursor keys are enabled
@@ -185,7 +185,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		if (!sm.hasSelection()) {
 			sm.selectFirstRow();
 		}
-		
+
 		// now focus the actual row in the grid's view:
 		var row = 0;
 		var sel = sm.getSelections();
@@ -193,9 +193,9 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			row = this.getStore().indexOf(sel[0]);
 		}
 		this.getView().focusRow(row);
-		
+
 	},
-	
+
 	/**
 	 * @function setupEvents
 	 * Now initialize listeners:
@@ -205,12 +205,12 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		 * Listen to Keyboard events
 		 */
 		var pagingToolbar = this.getBottomToolbar();
-		
+
 		function checkTarget(evt){
 			// We might possibly have focus in a textbox in this gridpanel; we don't want the KeyMap to interfere
 			return (!evt.getTarget('input') && !evt.getTarget('textarea') && !evt.getTarget('iframe'));
 		}
-		
+
 		var keyMap = new Ext.KeyMap(this.getEl(), [{
 			key: 'a',
 			ctrl: true,
@@ -229,7 +229,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 					if (Garp.dataTypes[Garp.currentModel].disableDelete || Garp.toolbar.deleteButton.disabled) {
 						return;
 					}
-					
+
 					this.fireEvent('delete');
 					o.stopEvent();
 				}
@@ -249,7 +249,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			},
 			scope: this
 		}]);
-		
+
 		var keyNav = new Ext.KeyNav(this.getEl(), {
 			'enter': this.fireEvent.createDelegate(this, ['defocus']),
 			'pageUp': function(e){
@@ -272,7 +272,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			},
 			scope: this
 		});
-		
+
 		/**
 		 * Various events:
 		 */
@@ -290,20 +290,20 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			}
 		});
 	},
-	
+
 	/**
 	 * init
 	 */
 	initComponent: function(){
 		this.addEvents('beforesave', 'rowselect', 'beforerowselect', 'storeloaded', 'rowdblclick', 'selectionchange');
-		
+
 		var fields = Garp.dataTypes[this.model].getStoreFieldsFromColumnModel();
-		
+
 		this.writer = new Ext.data.JsonWriter({
 			paramsAsHash: false,
 			encode: false
 		});
-		
+
 		var scope = this;
 		function confirmLoad(store, options){
 			// check to see if the store has any dirty records. If so, do not continue, but give the user the option to discard / save.
@@ -348,9 +348,9 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 				return false;
 			}
 		}
-		
+
 		this.filterMenu = new Garp.FilterMenu();
-		
+
 		this.store = new Ext.data.DirectStore({
 			autoLoad: false,
 			autoSave: false,
@@ -385,9 +385,9 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			},
 			writer: this.writer
 		});
-		
+
 		scope = this;
-		
+
 		// Set defaults:
 		Ext.applyIf(this, {
 			cm: new Ext.grid.ColumnModel({
@@ -396,7 +396,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 				},
 				columns: Garp.dataTypes[this.model].columnModel,
 				listeners: {
-					// Defer, because renderers notified will not notice about the new state of columns on beforehand 
+					// Defer, because renderers notified will not notice about the new state of columns on beforehand
 					'hiddenchange': function(){
 						setTimeout(function(){
 							scope.getView().refresh();
@@ -433,20 +433,20 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 						scope: this,
 						fn: function(){
 							this.getBottomToolbar().plugins[0].resetUI();
-						}	
+						}
 					}
 				}
 			})
 		});
-		
+
 		this.relayEvents(this.sm, ['beforerowselect', 'rowselect', 'selectionchange', 'rowdblclick']);
 		Garp.GridPanel.superclass.initComponent.call(this);
 		this.on('render', function(){
 			this.setupEvents();
 		}, this);
-		
+
 		this.on('headerclick', function(grid, ci, e){
-			
+
 			// virtual columns might not be able to sort. Find out:
 			if(grid.getColumnModel().columns[ci].virtual){
 				var virtualSortField;
@@ -454,7 +454,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 				if (grid.getColumnModel().columns[ci].sortable) {
 					virtualSortField = grid.getColumnModel().columns[ci].dataIndex;
 				} else {
-					// Others might point to others to sort on their behalf 
+					// Others might point to others to sort on their behalf
 					virtualSortField = grid.getColumnModel().columns[ci].virtualSortField;
 				}
 				if (virtualSortField) {
@@ -474,13 +474,13 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 						}
 					});
 					grid.getStore().sort(virtualSortField);
-				} 
+				}
 				return false;
 			}
 		});
-		
+
 	},
-	
+
 	setupContextMenus: function(){
 		var scope = this;
 		var refreshOption = {
@@ -497,7 +497,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 				scope.newItem();
 			}
 		};
-		
+
 		var cellContextMenu = new Ext.menu.Menu({
 			items: [{
 				iconCls: 'icon-open',
@@ -523,23 +523,25 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		var viewContextMenu = new Ext.menu.Menu({
 			items: [newItemOption, '-', refreshOption]
 		});
-		
+
 		this.on('contextmenu', function(e){
 			e.stopEvent();
 			cellContextMenu.hide();
 			viewContextMenu.showAt(e.getXY());
 		});
-		
+
 		this._previousContextedRow = null;
 		function removeContextMenuSelected(){
-			if (this._previousContextedRow !== null) {
-				Ext.get(this.getView().getRow(this._previousContextedRow)).removeClass(this.getView().contextRowCls);
+			if (this._previousContextedRow !== null &&
+			   Ext.get(this.getView().getRow(this._previousContextedRow))) {
+				Ext.get(this.getView().getRow(this._previousContextedRow)).removeClass(
+					this.getView().contextRowCls);
 			}
 		}
-		
+
 		this.getView().el.on('click', removeContextMenuSelected.createDelegate(this));
 		this.getView().el.on('contextmenu', removeContextMenuSelected.createDelegate(this));
-		
+
 		this.on('cellcontextmenu', function(grid, ri, ci, e){
 			e.stopEvent();
 			var gv = grid.getView();
@@ -550,7 +552,7 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			cellContextMenu.showAt(e.getXY());
 		});
 	},
-	
+
 	afterRender: function(){
 		this.getBottomToolbar().on('defocus', this.focus.createDelegate(this));
 		Garp.GridPanel.superclass.afterRender.call(this);

@@ -22,6 +22,69 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals(false, $cacheFrontend->load($testKey));
 	}
 
+	public function testCreationOfScheduledJob() {
+		// Act only when ScheduledJob model exists
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return;
+		}
+
+		Garp_Cache_Manager::scheduleClear(strtotime('19 March 2015 14:13:21'), array());
+		$scheduledJobModel = new Model_ScheduledJob();
+		$jobs = $scheduledJobModel->fetchAll();
+		$this->assertEquals(1, count($jobs));
+
+		$this->assertEquals('Cache clear', $jobs[0]['command']);
+		$this->assertEquals('2015-03-19 14:13:21', $jobs[0]['at']);
+	}
+
+	public function testCreationOfScheduledJobWithTags() {
+		// Act only when ScheduledJob model exists
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return;
+		}
+
+		$tags = array('aap', 'noot', 'mies');
+		Garp_Cache_Manager::scheduleClear(strtotime('19 March 2015 14:13:21'), $tags);
+		$scheduledJobModel = new Model_ScheduledJob();
+		$jobs = $scheduledJobModel->fetchAll();
+		$this->assertEquals(1, count($jobs));
+
+		$this->assertEquals('Cache clear aap noot mies', $jobs[0]['command']);
+	}
+
+	public function testScheduledJobShouldCreateChecksum() {
+		// Act only when ScheduledJob model exists
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return;
+		}
+
+		$tags = array('aap', 'noot', 'mies');
+		$timestamp = strtotime('19 March 2015 14:13:21');
+		Garp_Cache_Manager::scheduleClear($timestamp, $tags);
+		$scheduledJobModel = new Model_ScheduledJob();
+		$jobs = $scheduledJobModel->fetchAll();
+		$this->assertEquals(1, count($jobs));
+
+		$knownChecksum = md5(date('Y-m-d H:i:s', $timestamp) . ': Cache clear aap noot mies');
+
+		$this->assertEquals($knownChecksum, $jobs[0]['checksum']);
+	}
+
+	public function testChecksumShouldPreventDuplicatesWithoutException() {
+		// Act only when ScheduledJob model exists
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return;
+		}
+
+		$timestamp = strtotime('1 June 2015 12:00:00');
+		Garp_Cache_Manager::scheduleClear($timestamp, array());
+		Garp_Cache_Manager::scheduleClear($timestamp, array());
+
+		$scheduledJobModel = new Model_ScheduledJob();
+		$this->assertEquals(1, count($scheduledJobModel->fetchAll()));
+
+	}
+
 	/* Disabled by David, 12 june 2014 - it keeps failing, even with Memcached client connected to Memcache.
 	public function testPurgeByModel() {
 		$dbAdapter = $this->getDatabaseAdapter();
@@ -89,9 +152,16 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 		Garp_Cache_Manager::purge();
 		$dbAdapter = $this->getDatabaseAdapter();
 		$dbAdapter->query('SET foreign_key_checks = 0;');
-		$dbAdapter->query('DROP TABLE `_tests_cache_manager_Thing`;'); 
-		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBar`;'); 
+		$dbAdapter->query('DROP TABLE `_tests_cache_manager_Thing`;');
+		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBar`;');
 		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBarThing`;');
 		$dbAdapter->query('SET foreign_key_checks = 1;');
+
+		// Act only when ScheduledJob model exists
+		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+			return;
+		}
+		$scheduledJobModel = new Model_ScheduledJob();
+		$scheduledJobModel->delete('id > 0');
 	}
 }

@@ -10,19 +10,19 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 	title: __('Import'),
 	iconCls: 'icon-import',
 	maximizable: true,
-	border: false,	
+	border: false,
 	defaults: {
 		border: true,
 		frame: false,
 		style: 'background-color: #fff;',
 		bodyStyle: 'background-color: #fff;padding-top: 10px; '
 	},
-	
+
 	navHandler: function(dir){
 		var page = this.getLayout().activeItem.id;
 		page = parseInt(page.substr(5, page.length), 10);
 		page += dir;
-		
+
 		var form = this.get('page-1').getForm();
 		if (page <= 0) {
 			page = 0;
@@ -31,13 +31,13 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 			this.nextBtn.setDisabled(!form.findField('datafile').getValue());
 			//form.findField('datafile').resumeEvents();
 		} else if (page == 1) {// not realy a UI page..
-			this.progress.reset(); 
+			this.progress.reset();
 			this.progress.wait({
 				text: __('Processing')
 			});
 			Ext.select('.x-progress-bar').setHeight(18);
 			this.prevBtn.disable();
-			this.nextBtn.disable(); 
+			this.nextBtn.disable();
 			form.submit();
 			//form.findField('datafile').suspendEvents();
 		} else if (page == 2){
@@ -52,16 +52,41 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 		}
 		this.getLayout().setActiveItem('page-' + page);
 	},
-	
+
 	showMappingUI: function(data){
+		if (Ext.isArray(data[0])) {
+			this.createMappingUIFromArray(data);
+		} else {
+			this.createMappingUIFromObject(data);
+		}
+	},
+
+	getValueForCombo: function(options, data, i) {
+		// Ignore by default
+		var val = options[options.length-1][0];
+		var keys = Object.keys(data[0]);
+
+		// Only map when key is literally available in sample data
+		// @todo Now only works when key is @ same index as in columnModel: almost never works
+		if (typeof options[i] !== 'undefined' && typeof keys[i] !== 'undefined' && options[i][0] === keys[i]) {
+			val = options[i][0];
+		}
+		return val;
+	},
+
+	/**
+	 * Based on createMappingUIFromArray(), see below.
+	 * Can be abstracted far better to avoid duplication.
+	 */
+	createMappingUIFromObject: function(data) {
 		var items = [];
 		var options = [];
 		Ext.each(Garp.dataTypes[Garp.currentModel].columnModel, function(c){
 			options.push([c.dataIndex, c.header]);
 		});
 		options.push(['',__('  (Ignore)')]);
-		
-		var columnCount = data[0].length;
+
+		var columnCount = Object.keys(data[0]).length;
 		var selectListener = function(field, value){
 			var elms = Ext.select('.'+field.name, null, this.el.body);
 			if(!value){
@@ -70,11 +95,12 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 				elms.removeClass('garp-import-hidden-col');
 			}
 		};
-		
+
 		for(var i=0; i < columnCount; i++){
 			var col = [];
+			var assocKey = Object.keys(data[0])[i];
 			col.push({
-				name: 'col-' + i,
+				name: assocKey,
 				xtype: 'combo',
 				allowBlank: false,
 				editable: false,
@@ -83,7 +109,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 				mode: 'local',
 				store: options,
 				submitValue: false,
-				value: i < columnCount ? options[i][0] : columnCount,
+				value: this.getValueForCombo(options, data, i),
 				width: 140,
 				listeners: {
 					'select': selectListener,
@@ -93,19 +119,19 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 			for(var rows = 0; rows< data.length; rows++){
 				col.push({
 					xtype: 'box',
-					html: (data[rows][i] || '' ) + '', // convert null to ''
+					html: (data[rows][assocKey] || '' ) + '', // convert null to ''
 					cls: 'row-' + rows + ' col-' + i,
 					style: 'background-color: #fff; margin: 5px 10px 5px 2px;'
 				});
-				
+
 			}
 			items.push({
 				items:col
 			});
 		}
-		
+
 		var width = (150 * columnCount);
-		
+
 		this.mappingColumns = new Ext.Panel({
 			layout: 'column',
 			columns: options.length,
@@ -115,7 +141,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 				width: 150
 			}
 		});
-		
+
 		this.get('page-2').add({
 			xtype: 'panel',
 			style: 'margin: 10px;',
@@ -124,7 +150,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 			autoScroll: true,
 			items: this.mappingColumns
 		});
-		
+
 		this.get('page-2').add({
 			xtype: 'fieldset',
 			//style: 'background-color: #fff;',
@@ -149,18 +175,134 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 				name: 'ignoreErrors'
 			}]
 		});
-		
+
 		this.getLayout().setActiveItem('page-2');
 		this.get('page-2').doLayout();
 		this.navHandler(0);
 		this.get('page-2').getForm().findField('ignore-first-row').setValue(true);
 	},
-	
+
+	createMappingUIFromArray: function(data) {
+		var items = [];
+		var options = [];
+		Ext.each(Garp.dataTypes[Garp.currentModel].columnModel, function(c){
+			options.push([c.dataIndex, c.header]);
+		});
+		options.push(['',__('  (Ignore)')]);
+
+		var columnCount = data[0].length;
+		var selectListener = function(field, value){
+			var elms = Ext.select('.'+field.name, null, this.el.body);
+			if(!value){
+				elms.addClass('garp-import-hidden-col');
+			} else {
+				elms.removeClass('garp-import-hidden-col');
+			}
+		};
+
+		for(var i=0; i < columnCount; i++){
+			var col = [];
+			col.push({
+				name: 'col-' + i,
+				xtype: 'combo',
+				allowBlank: false,
+				editable: false,
+				triggerAction: 'all',
+				typeAhead: false,
+				mode: 'local',
+				store: options,
+				submitValue: false,
+				value: typeof options[i] != 'undefined' ? options[i][0] : options[options.length-1][0],
+				width: 140,
+				listeners: {
+					'select': selectListener,
+					scope: this
+				}
+			});
+			for(var rows = 0; rows< data.length; rows++){
+				col.push({
+					xtype: 'box',
+					html: (data[rows][i] || '' ) + '', // convert null to ''
+					cls: 'row-' + rows + ' col-' + i,
+					style: 'background-color: #fff; margin: 5px 10px 5px 2px;'
+				});
+
+			}
+			items.push({
+				items:col
+			});
+		}
+
+		var width = (150 * columnCount);
+
+		this.mappingColumns = new Ext.Panel({
+			layout: 'column',
+			columns: options.length,
+			width: width + 10,
+			items: items,
+			defaults: {
+				width: 150
+			}
+		});
+
+		this.get('page-2').add({
+			xtype: 'panel',
+			style: 'margin: 10px;',
+			frame: true,
+			bodyStyle: 'padding:10px;',
+			autoScroll: true,
+			items: this.mappingColumns
+		});
+
+		this.get('page-2').add({
+			xtype: 'fieldset',
+			//style: 'background-color: #fff;',
+			items: [{
+				xtype: 'checkbox',
+				fieldLabel: __('Ignore first row'),
+				name: 'ignore-first-row',
+				checked: false,
+				submitValue: false,
+				handler: function(cb, checked){
+					var elms = Ext.select('.row-0', null, this.el.body);
+					if(checked){
+						elms.addClass('garp-import-hidden-row');
+					} else {
+						elms.removeClass('garp-import-hidden-row');
+					}
+				},
+				scope: this
+			},{
+				xtype: 'checkbox',
+				fieldLabel: __('Continue on error(s)'),
+				name: 'ignoreErrors'
+			}]
+		});
+
+		this.getLayout().setActiveItem('page-2');
+		this.get('page-2').doLayout();
+		this.navHandler(0);
+		this.get('page-2').getForm().findField('ignore-first-row').setValue(true);
+	},
+
 	proceedImport: function(){
-		var mapping = [];
+		var mapping;
 		var combos = this.get('page-2').findByType('combo');
 		Ext.each(combos, function(c){
-			mapping.push(c.getValue());
+			var name = c.getName();
+			if (name.indexOf('col-') != 0) {
+				if (!mapping) {
+					mapping = {};
+				}
+				// do it the associative way
+				mapping[name] = c.getValue();
+			} else {
+				if (!mapping) {
+					mapping = [];
+				}
+				// do it the array way
+				mapping.push(c.getValue());
+			}
 		});
 		var form = this.get('page-2').getForm();
 		Ext.apply(form.baseParams,{
@@ -172,7 +314,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 		this.lm.show();
 		form.submit();
 	},
-	
+
 	initComponent: function(){
 		this.progress = new Ext.ProgressBar({
 			animate: true
@@ -189,7 +331,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 				items: [{
 					xtype: 'uploadfield',
 					uploadURL: BASE+'g/content/upload/type/document',
-					supportedExtensions: ['xls', 'xlsx', 'xml'],
+					supportedExtensions: ['xls', 'xlsx', 'xml', 'json'],
 					allowBlank: false,
 					name: 'filename',
 					fieldLabel: __('Filename'),
@@ -202,7 +344,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 					}
 				},{
 					xtype: 'displayfield',
-					value: __('Excel filetypes are supported')
+					value: __('Excel and JSON filetypes are supported')
 				}]
 			}]
 		},{
@@ -217,7 +359,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 				'actioncomplete': function(form, action){
 					if (action.result && action.result.success) {
 						this.showMappingUI(action.result.data);
-					} 
+					}
 				},
 				'actionfailed': function(form, action){
 						var msg = __('Something went wrong. Please try again.');
@@ -226,7 +368,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 						}
 						Ext.Msg.alert(__('Error'), msg);
 						this.close();
-					
+
 				},
 				scope: this
 			},
@@ -276,7 +418,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 				items: []
 			}]
 		}];
-		
+
 		this.buttonAlign = 'left';
 		this.buttons = [{
 			text: __('Previous'),
@@ -292,7 +434,7 @@ Garp.ImportWindow = Ext.extend(Ext.Window, {
 			disabled: true,
 			handler: this.navHandler.createDelegate(this, [1])
 		}];
-		
+
 		//this.on('show', this.navHandler.createDelegate(this, [-1]));
 		Garp.ImportWindow.superclass.initComponent.call(this);
 	}

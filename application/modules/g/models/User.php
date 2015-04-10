@@ -72,6 +72,9 @@ class G_Model_User extends Model_Base_User {
 		}
 		// Remove the password key from the data to prevent an error
 		unset($data[self::PASSWORD_COLUMN]);
+
+		// Prefill user columns from pre-defined config
+		$data = $this->getPrefilledData($data);
 	}
 
 	/**
@@ -362,5 +365,24 @@ class G_Model_User extends Model_Base_User {
 		$image = new Model_Image();
 		$imageId = $image->insertFromUrl($imageUrl, $filename);
 		return $imageId;
+	}
+
+	public function getPrefilledData(array $data) {
+		if (!isset(Zend_Registry::get('config')->auth->users) ||
+			!array_key_exists('email', $data) ||
+			is_null($data['email'])) {
+			return $data;
+		}
+		$userData = Zend_Registry::get('config')->auth->users;
+		$prefilledRecordsForUser = array_filter($userData->toArray(), function($item) use ($data) {
+			return isset($item['email']) && $item['email'] == $data['email'];
+		});
+		if (!count($prefilledRecordsForUser)) {
+			return $data;
+		}
+
+		// Note the submitted data takes precedence
+		$prefilledData = call_user_func_array('array_merge', $prefilledRecordsForUser);
+		return array_merge($prefilledData, $data);
 	}
 }

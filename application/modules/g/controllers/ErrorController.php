@@ -207,7 +207,12 @@ class G_ErrorController extends Garp_Controller_Action {
 
 	protected function _getApplicationName() {
 		$deployConfig = new Garp_Deploy_Config();
-		$appName = $deployConfig->getParam('production', 'application');
+		try {
+			$appName = $deployConfig->getParam('production', 'application');
+		} catch (Exception $e) {
+			return isset(Zend_Registry::get('config')->app->name) ?
+				Zend_Registry::get('config')->app->name : 'anonymous application';
+		}
 
 		return $appName;
 	}

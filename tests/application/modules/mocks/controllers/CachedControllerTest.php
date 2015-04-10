@@ -13,16 +13,16 @@
  *
  */
 class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
-	protected $_cachePath; 
+	protected $_cachePath;
 
 	public function testRouteShouldBeCached() {
 		$this->dispatch('/mocks/staticcache/index/');
 		$this->assertController('staticcache');
 		$this->assertNotRedirect();
-	
+
 		// Flush the buffer manually: this triggers creation of cache files
 		ob_end_flush();
-	
+
 		$expectedPath = '/mocks/staticcache/index.html';
 		foreach ($this->response->getHeaders() as $i => $header) {
 			if ($header['name'] == 'Location') {
@@ -36,14 +36,16 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	public function testPurgeShouldClearCache() {
 		$this->dispatch('/mocks/staticcache/index/');
 		$this->assertController('staticcache');
-	
+
 		// Flush the buffer manually: this triggers creation of cache files
 		ob_end_flush();
-	
+
 		$this->assertTrue(file_exists($this->_cachePath.'/mocks/staticcache/index.html'));
-	
+
+		// Make sure cache is cleared
+		Zend_Registry::get('CacheFrontend')->setOption('caching', true);
 		Garp_Cache_Manager::purge();
-	
+
 		$this->assertFalse(file_exists($this->_cachePath.'/mocks/staticcache/index.html'));
 	}
 
@@ -67,7 +69,7 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 				)
 			)
 		));
-		
+
 		$this->_cachePath = GARP_APPLICATION_PATH.'/../tests/tmp';
 
 		// Store static HTML cache in handily accessible location
@@ -124,11 +126,11 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		parent::tearDown();
 		Garp_Cache_Manager::purgeMemcachedCache();
 		Garp_Cache_Manager::purgeStaticCache(array(), $this->_cachePath);
-		
+
 		$dbAdapter = $this->getDatabaseAdapter();
 		$dbAdapter->query('SET foreign_key_checks = 0;');
-		$dbAdapter->query('DROP TABLE `_tests_cache_manager_Thing`;'); 
-		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBar`;'); 
+		$dbAdapter->query('DROP TABLE `_tests_cache_manager_Thing`;');
+		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBar`;');
 		$dbAdapter->query('DROP TABLE `_tests_cache_manager_FooBarThing`;');
 		$dbAdapter->query('SET foreign_key_checks = 1;');
 	}

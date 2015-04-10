@@ -21,7 +21,7 @@
 
 <script>
 BASE = '<?php echo $this->baseUrl('/') ?>';
-ASSET_URL = '<?php echo $this->assetUrl('/') ?>';
+ASSET_URL = '<?php echo $this->assetUrl('/', 'js') ?>';
 IMAGES_CDN = '<?php echo $this->imagesCdn; ?>';
 DOCUMENTS_CDN = '<?php echo $this->documentsCdn; ?>';
 <?php if (isset($this->config()->video->template->w)): ?>

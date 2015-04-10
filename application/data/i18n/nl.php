@@ -12,6 +12,7 @@ $translationTable = array(
 	'The email address is not found' => 'Het e-mailadres is niet gevonden',
 	'The password is invalid' => 'Het wachtwoord is onjuist',
 	'Invalid filetype' => 'Ongeldig bestandsformaat',
+	'Overwrite existing file?' => 'Bestaand bestand overschrijven?',
 	/**
  	 * CMS strings
  	 * ==================================================================================================================================
@@ -172,6 +173,7 @@ $translationTable = array(
 	'Caption' => 'onderschrift',
 
 	'Person' => 'Persoon',
+	'Auth passwordless' => 'E-mail login',
 	'Snippet' => 'Snippet',
 	'New Snippet' => 'Nieuw snippet',
 	'Small pieces of text, images or other media used on the website.' => 'Tekstfragmenten, afbeeldingen en andere media op de website.',
@@ -243,7 +245,7 @@ $translationTable = array(
 	'Ignore first row' => 'Eerste regel overslaan',
 	'Continue on error(s)' => 'Fouten negeren',
 	'Specify file to import' => 'Geef bestand op om te importeren',
-	'Excel filetypes are supported' => 'Excel bestanden worden ondersteund',
+	'Excel and JSON filetypes are supported' => 'Excel en JSON bestanden worden ondersteund',
 	'Something went wrong. Please try again.' => 'Er ging iets mis. Probeer \'t later opnieuw.',
 	'Please wait' => 'Moment geduld',
 	'Fields' => 'Velden',

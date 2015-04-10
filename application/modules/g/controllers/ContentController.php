@@ -178,7 +178,8 @@ class G_ContentController extends Garp_Controller_Action {
 				$success = true;
 			} else {
 				try {
-					$response = $this->_helper->upload($uploadType);
+					$response = $this->_helper->upload($uploadType, null, false,
+						1 === (int)$this->getRequest()->getParam('overwrite'));
 					$success = true;
 				} catch (Exception $e) {
 					$response['messages'] = $e->getMessage();

@@ -1,0 +1,35 @@
+{
+	"inputs": {
+		"command": {
+		},
+
+		"at": {
+			"type": "datetime"
+		},
+
+		"checksum": {
+			"maxLength": 32,
+			"unique": true,
+			"info": "md5 hash containing `at` and `command`, used to ensure uniqueness"
+		},
+
+		"last_accepted_at": {
+			"type": "datetime",
+			"required": false
+		}
+	},
+
+	"relations": {
+		"Accepter": {
+			"model": "ClusterServer",
+			"type": "hasOne"
+		}
+	},
+
+	"listFields": ["command", "at"],
+
+	"visible": false,
+
+	"module": "garp"
+}
+

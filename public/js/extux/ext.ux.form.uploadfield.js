@@ -10,12 +10,12 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 	 * @cfg uploadURL
 	 */
 	uploadURL: BASE + 'g/content/upload',
-	
+
 	/**
 	 * @cfg supportedExtensions
 	 */
 	supportedExtensions: ['gif', 'jpg', 'jpeg', 'png'],
-	
+
 	/**
 	 * Override, because MySQL null values != ''
 	 */
@@ -26,7 +26,7 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 		}
 		return val;
 	},
-	
+
 	/**
 	 * Simple name based check
 	 * @param {Object} fileName
@@ -39,7 +39,7 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 		extension = extension[extension.length - 1];
 		var name = extension[0];
 		if (!name.length) {
-			return false; // also dont support files with an extension but no name 
+			return false; // also dont support files with an extension but no name
 		}
 		return this.supportedExtensions.indexOf(extension.toLowerCase()) > -1;
 	},
@@ -79,7 +79,7 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 		}
 		return false;
 	},
-	
+
 	/**
 	 * Button Handler
 	 */
@@ -104,43 +104,47 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 		}
 		return false;
 	},
-	
+
 	/**
 	 * Check extension and go!
 	 * @param {Object} fileInput field
 	 */
 	performUpload: function(fileInput){
 		var scope = this;
-		
+		var uploadUrl = scope.uploadURL;
+		var overwriteCbx = scope.form.findField(scope.name + '_overwrite_cbx');
+		if (overwriteCbx && overwriteCbx.checked) {
+			uploadUrl += '?overwrite=1';
+		}
+
 		if (Ext.isIE) {
-			
 			var lm = new Ext.LoadMask(Ext.getBody(),{
 				msg: __('Loading')
 			});
 			lm.show();
 			var dh = Ext.DomHelper;
 			var iframe = Ext.get(dh.insertHtml('beforeEnd', Ext.getBody().dom, '<iframe src="javscript:false;" name="uploadFrame" style="display:none;"></iframe>'));
-			var form = Ext.get(dh.insertHtml('beforeEnd', Ext.getBody().dom, '<form method="post" target="uploadFrame" action="' + this.uploadURL + '" enctype="multipart/form-data"></form>'));
+			var form = Ext.get(dh.insertHtml('beforeEnd', Ext.getBody().dom, '<form method="post" target="uploadFrame" action="' + uploadUrl + '" enctype="multipart/form-data"></form>'));
 			Ext.get(fileInput).appendTo(form);
 			iframe.on('load', function(){
-				
+
 				var result = Ext.decode(iframe.dom.contentDocument.body.innerHTML);
 				if(!result || !result.success){
 					//scope.setValue(scope.originalValue);
-					Ext.Msg.alert(__('Garp'), __('Error uploading file.'));	
+					Ext.Msg.alert(__('Garp'), __('Error uploading file.'));
 				} else {
 					scope.setValue(result.filename);
 					scope.fireEvent('change', scope, result.filename);
 				}
-				
+
 				form.remove();
 				iframe.remove();
 				lm.hide();
-				
-				
+
+
 			});
-			form.dom.submit();				
-			
+			form.dom.submit();
+
 		} else {
 			var file;
 			if (fileInput.dom && fileInput.dom.files) {
@@ -164,8 +168,8 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 					// round to nearest 1000
 					exampleA = Math.round((exampleA + 500) / 1000) * 1000;
 					var exampleB = Math.floor(scope.maxSurface / exampleA);
-					error(__('Error'), '<b>' + __('Resolution too high. ' + 
-							'Please make sure the image\'s surface area does not exceed ' + readableMaxSurface) + 
+					error(__('Error'), '<b>' + __('Resolution too high. ' +
+							'Please make sure the image\'s surface area does not exceed ' + readableMaxSurface) +
 							' pixels. <br>For instance: ' + exampleA + ' x ' + exampleB + ' pixels.</b>');
 
 				} else if (!scope.validateExtension(file.name)) {
@@ -174,14 +178,14 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 						'<b>' + __('Extension not supported') + '</b><br /><br />' +
 						__('Supported extensions are:') + '<br /> ' + scope.supportedExtensions.join(' ')
 					);
-					
+
 				} else {
 					var fd = new FormData();
 					var xhr = new XMLHttpRequest();
 					scope.uploadDialog = Ext.Msg.progress(__('Upload'), __('Initializing upload'));
-					
+
 					fd.append('filename', file);
-					
+
 					xhr.addEventListener('load', function(e){
 						var response = Ext.decode(xhr.responseText);
 						scope.uploadDialog.hide();
@@ -202,15 +206,15 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 							scope.uploadDialog.updateText(__('Uploading') + ' ' + (Math.ceil(e.loaded / e.total * 100)) + '%');
 						}
 					}, false);
-					
-					xhr.open('POST', scope.uploadURL);
+
+					xhr.open('POST', uploadUrl);
 					scope.uploadDialog.updateText(__('Uploading&hellip;'));
-					
+
 					// we'll use a timeout to be sure that the dialog is ready, small downloads otherwise result in an ugly flashy UX
 					setTimeout(function(){
 						xhr.send(fd);
 					}, 350);
-					
+
 				}
 			};
 
@@ -221,42 +225,42 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 			}
 		}
 	},
-	
+
 	/**
 	 * sets up Drag 'n Drop
 	 */
 	setupDnD: function(){
-	
+
 		var opts = {
 			normalized: false,
 			preventDefault: true,
 			stopPropagation: true
 		};
-		
+
 		this.wrap.on('dragenter', function(e){
-			// unfortunately, we can't grab file extension here, so we'll present it as allowed. On drop we'll check extensions 
+			// unfortunately, we can't grab file extension here, so we'll present it as allowed. On drop we'll check extensions
 			this.wrap.addClass('x-focus');
 		}, this, opts);
-		
+
 		this.wrap.on('dragexit', function(e){
 			this.wrap.removeClass('x-focus');
 		}, this, opts);
-		
+
 		this.wrap.on('dragover', function(e){
 		}, this, opts);
-		
+
 		this.wrap.on('drop', function(e){
 			this.handleFileDrop(e);
 		}, this, opts);
 	},
-	
+
 	onDestroy: function(){
 		if (this.uploadDialog) {
 			this.uploadDialog.hide();
 		}
 		Ext.ux.form.UploadField.superclass.onDestroy.call(this);
 	},
-	
+
 	initComponent: function(){
 		this.on('fileselected', this.handleFileSelect, this);
 		Ext.ux.form.UploadField.superclass.initComponent.call(this, arguments);

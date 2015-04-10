@@ -1,11 +1,11 @@
 #set :log_level, :info
 set :linked_dirs, %w{
-	public/uploads/documents 
-	public/uploads/images 
-	application/data/logs 
+	public/uploads/documents
+	public/uploads/images
+	application/data/logs
 	application/data/cache/tags
 }
-set :keep_releases, 3
+set :keep_releases, 2
 
 
 load "application/configs/deploy.rb"

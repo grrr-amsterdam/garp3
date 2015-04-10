@@ -1,0 +1,13 @@
+<?php
+/**
+ * Default Under Construction file.
+ * Tries to load an app-side under construction file first.
+ */
+if (@include(APPLICATION_PATH . '/modules/default/views/scripts/under-construction.phtml')) {
+	return;
+}
+?>
+<!doctype>
+<title>Under construction</title>
+<h1>This page is currently being updated.</h1>
+<p>Please sit tight while we work, and check again in a few minutes.</p>
