@@ -26,6 +26,12 @@ class Garp_Content_Relation_Manager {
 		$modelA  = $options['modelA'];
 		$modelB  = $options['modelB'];
 
+		/**
+ 		 * If bindingModel is set, we can safely skip all those difficult checks below.
+ 		 */
+		if (is_object($options['bindingModel'])) {
+			return self::_relateHasAndBelongsToMany($options);
+		}
 		try {
 			/**
  		 	 * If this succeeds, it's a regular relationship where the foreign key
@@ -178,6 +184,12 @@ class Garp_Content_Relation_Manager {
 		$modelA  = $options['modelA'];
 		$modelB  = $options['modelB'];
 
+		/**
+ 		 * If bindingModel is set, we can safely skip all those difficult checks below.
+ 		 */
+		if (is_object($options['bindingModel'])) {
+			return self::_unrelateHasAndBelongsToMany($options);
+		}
 		try {
 			/**
  		 	 * If this succeeds, it's a regular relationship where the foreign key
