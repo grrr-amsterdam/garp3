@@ -243,18 +243,9 @@ Garp.apply(Garp.FormHelper, {
 				changeYear: true
 			};
 			// Look for data-attributes to customize config
-			/*
-			var attrs = this.attributes;
-			console.dir(attrs);
-			for (var i in attrs) {
-				if (i.indexOf('data-datepicker-') !== 0) {
-					continue;
-				}
-				i = i.replace(/^data-datepicker-/, '');
-				datepickerConfig[i] = data[i];
-				console.log('setting datepicker config: ', i, data[i]);
+			if ($this.data('datepicker-default-date')) {
+				datepickerConfig.defaultDate = $this.data('datepicker-default-date');
 			}
-			*/
 			$this.datepicker(datepickerConfig);
 		});
 	},
