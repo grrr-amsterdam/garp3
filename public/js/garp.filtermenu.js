@@ -7,19 +7,19 @@
  *
  */
 Garp.FilterMenu = function(){
-	
+
 	this.init = function(tb){
-		
+
 		/**
 		 * Reference to the toolbar
 		 */
 		this.tb = tb;
-		
+
 		this.defaultFilter = {
 			text: __('All'),
 			ref: 'all'
 		};
-		
+
 		/**
 		 * Resets the button and the menu. (Provides only visual feedback: no filter applied)
 		 */
@@ -29,17 +29,25 @@ Garp.FilterMenu = function(){
 			this.tb.filterStatus.hide();
 			this.tb.filterStatus.update('');
 		};
-		
+
 		/**
 		 * Checks the model for possible fields to filter on. If it's not in the model, we can't put it as a filter option in the menu
 		 */
 		this.buildMenu = function(){
-			
+
 			var menuOptions = [];
-			if(Garp.dataTypes[Garp.currentModel].filterMenu){
+			if (Garp.dataTypes[Garp.currentModel].filterMenu) {
 				Ext.each(Garp.dataTypes[Garp.currentModel].filterMenu, function(i){
 					menuOptions.push(i);
 				});
+
+				// This fixes asynchronously added filters by providing a transparent interface for
+				// adding filters _after_ the filterMenu has been initialized
+				Garp.dataTypes[Garp.currentModel].filterMenu = {
+					push: function(item) {
+						Garp.gridPanel.filterMenu.filterBtn.menu.addItem(item);
+					}
+				};
 			}
 			var model = Garp.dataTypes[Garp.currentModel];
 			menuOptions.push(this.defaultFilter);
@@ -58,39 +66,39 @@ Garp.FilterMenu = function(){
 					ref: 'my'
 				});
 			}
-			
+
 			Ext.each(menuOptions, function(option){
 				if(typeof option.isDefault !== 'undefined' && option.isDefault){
 					this.defaultFilter = option;
 					return false;
 				}
 			}, this);
-			
+
 			return menuOptions;
 		};
-		
+
 		/**
 		 * Applies the selected filter and reflects the UI
 		 * @param {Object} menu item
 		 */
 		function applyFilter(item){
-			
+
 			var grid = tb.ownerCt;
 			var storeParams = grid.getStore().baseParams;
-			
+
 			if (!storeParams.query) {
 				storeParams.query = {};
 			}
-			
+
 			delete storeParams.query.online_status;
 			delete storeParams.query.author_id;
-			
+
 			if(typeof Garp.dataTypes[Garp.currentModel].clearFilters == 'function'){
 				Garp.dataTypes[Garp.currentModel].clearFilters();
 			} else if (item.ref == 'all'){
 				storeParams.query = {};
 			}
-			
+
 			switch (item.ref) {
 				case 'published':
 					Ext.apply(storeParams.query, {
@@ -113,19 +121,19 @@ Garp.FilterMenu = function(){
 			grid.getStore().reload();
 			return true;
 		}
-		
+
 		/**
-		 * Build the menu 
+		 * Build the menu
 		 */
 		this.filterMenu = this.buildMenu();
-		
+
 		this.filterStatus = tb.add({
 			ref: 'filterStatus',
 			text: this.defaultFilter.ref !== 'all' ? this.defaultFilter.text : '',
 			xtype: 'tbtext',
 			hidden: (this.defaultFilter.ref === 'all')
 		});
-		
+
 		/**
 		 * Create the button
 		 */
@@ -144,10 +152,10 @@ Garp.FilterMenu = function(){
 				items: this.filterMenu
 			}
 		});
-		
+
 		// Set default as checked:
 		this.filterBtn.menu.find('text', this.defaultFilter.text)[0].setChecked(true);
-		
+
 		// Reflect UI on menu changes:
 		this.filterBtn.menu.on('itemclick', function(item, evt){
 			if(item.ref === 'all'){
@@ -161,8 +169,8 @@ Garp.FilterMenu = function(){
 			this.filterStatus.show();
 			this.filterBtn.setIconClass('icon-filter-on');
 		}, this);
-		
-		// Make sure we don't end up with an "No items to display" AND a filter Status text: 
+
+		// Make sure we don't end up with an "No items to display" AND a filter Status text:
 		this.tb.on('change', function(tb){
 			if(tb.store.getCount() === 0){
 				this.filterStatus.hide();
