@@ -41,13 +41,16 @@ Garp.FilterMenu = function(){
 					menuOptions.push(i);
 				});
 
+				// Reverted. Changing filterMenu from an array to an object creates trouble
+				// elsewhere down the stream.
+				//
 				// This fixes asynchronously added filters by providing a transparent interface for
 				// adding filters _after_ the filterMenu has been initialized
-				Garp.dataTypes[Garp.currentModel].filterMenu = {
-					push: function(item) {
-						Garp.gridPanel.filterMenu.filterBtn.menu.addItem(item);
-					}
-				};
+				//Garp.dataTypes[Garp.currentModel].filterMenu = {
+					//push: function(item) {
+						//Garp.gridPanel.filterMenu.filterBtn.menu.addItem(item);
+					//}
+				//};
 			}
 			var model = Garp.dataTypes[Garp.currentModel];
 			menuOptions.push(this.defaultFilter);
