@@ -4,9 +4,9 @@
  * Provides functionality for starting background jobs on the server.
  * @author David Spreekmeester | grrr.nl
  * @package Garp
- * 
+ *
  * Usage example:
- * 
+ *
  * 	new Garp_Job_Background('Cluster run');
  *
  */
@@ -22,7 +22,7 @@ class Garp_Job_Background {
 			$_SERVER['_']
 		) ?
 			$_SERVER['_'] :
-			'/usr/bin/php'
+			trim(`which php`)
 		;
 
 		exec("{$phpPath} {$scriptPath} {$command} --e=" . APPLICATION_ENV . " &> /dev/null &");

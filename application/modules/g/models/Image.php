@@ -14,8 +14,14 @@ class G_Model_Image extends Model_Base_Image {
 
 	public function init() {
 		$this->registerObserver(new Garp_Model_Behavior_Timestampable())
-		 	 ->registerObserver(new Garp_Model_Behavior_ImageScalable())
-			 ->registerObserver(new Garp_Model_Validator_NotEmpty(array('filename')))
+		 	->registerObserver(new Garp_Model_Behavior_ImageScalable(array(
+				'synchronouslyScaledTemplates' => array(
+					// @todo Make configurable? Or sensible defaults?
+					// Local model can always override.
+					'cms_list', 'cms_preview'
+				)
+			)))
+			->registerObserver(new Garp_Model_Validator_NotEmpty(array('filename')))
 		 ;
 		parent::init();
 	}
