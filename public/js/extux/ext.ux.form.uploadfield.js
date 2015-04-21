@@ -115,6 +115,8 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 		var overwriteCbx = scope.form.findField(scope.name + '_overwrite_cbx');
 		if (overwriteCbx && overwriteCbx.checked) {
 			uploadUrl += '?overwrite=1';
+			// Uncheck box to remove dirty state
+			overwriteCbx.setValue(0);
 		}
 
 		if (Ext.isIE) {
