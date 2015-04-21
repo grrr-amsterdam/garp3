@@ -16,21 +16,21 @@ Garp.innerShiv = (function() {
 			r = document.createDocumentFragment();
 			/*@cc_on d.style.display = 'none';@*/
 		}
-		
+
 		var e = d.cloneNode(true);
 		/*@cc_on document.body.appendChild(e);@*/
 		e.innerHTML = h.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 		/*@cc_on document.body.removeChild(e);@*/
-		
+
 		if (u === false) {
 			return e.childNodes;
 		}
-		
+
 		var f = r.cloneNode(true), i = e.childNodes.length;
 		while (i--) {
 			f.appendChild(e.firstChild);
 		}
-		
+
 		return f;
 	};
 }());
@@ -42,8 +42,8 @@ Garp.innerShiv = (function() {
 //(function(j){function A(a){return a.replace(B,h).replace(C,function(a,d,b){for(var a=b.split(","),b=0,e=a.length;b<e;b++){var s=D(a[b].replace(E,h).replace(F,h))+o,l=[];a[b]=s.replace(G,function(a,b,c,d,e){if(b){if(l.length>0){var a=l,f,e=s.substring(0,e).replace(H,i);if(e==i||e.charAt(e.length-1)==o)e+="*";try{f=t(e)}catch(k){}if(f){e=0;for(c=f.length;e<c;e++){for(var d=f[e],h=d.className,j=0,m=a.length;j<m;j++){var g=a[j];if(!RegExp("(^|\\s)"+g.className+"(\\s|$)").test(d.className)&&g.b&&(g.b===!0||g.b(d)===!0))h=u(h,g.className,!0)}d.className=h}}l=[]}return b}else{if(b=c?I(c):!v||v.test(d)?{className:w(d),b:!0}:null)return l.push(b),"."+b.className;return a}})}return d+a.join(",")})}function I(a){var c=!0,d=w(a.slice(1)),b=a.substring(0,5)==":not(",e,f;b&&(a=a.slice(5,-1));var l=a.indexOf("(");l>-1&&(a=a.substring(0,l));if(a.charAt(0)==":")switch(a.slice(1)){case "root":c=function(a){return b?a!=p:a==p};break;case "target":if(m==8){c=function(a){function c(){var d=location.hash,e=d.slice(1);return b?d==i||a.id!=e:d!=i&&a.id==e}k(j,"hashchange",function(){g(a,d,c())});return c()};break}return!1;case "checked":c=function(a){J.test(a.type)&&k(a,"propertychange",function(){event.propertyName=="checked"&&g(a,d,a.checked!==b)});return a.checked!==b};break;case "disabled":b=!b;case "enabled":c=function(c){if(K.test(c.tagName))return k(c,"propertychange",function(){event.propertyName=="$disabled"&&g(c,d,c.a===b)}),q.push(c),c.a=c.disabled,c.disabled===b;return a==":enabled"?b:!b};break;case "focus":e="focus",f="blur";case "hover":e||(e="mouseenter",f="mouseleave");c=function(a){k(a,b?f:e,function(){g(a,d,!0)});k(a,b?e:f,function(){g(a,d,!1)});return b};break;default:if(!L.test(a))return!1}return{className:d,b:c}}function w(a){return M+"-"+(m==6&&N?O++:a.replace(P,function(a){return a.charCodeAt(0)}))}function D(a){return a.replace(x,h).replace(Q,o)}function g(a,c,d){var b=a.className,c=u(b,c,d);if(c!=b)a.className=c,a.parentNode.className+=i}function u(a,c,d){var b=RegExp("(^|\\s)"+c+"(\\s|$)"),e=b.test(a);return d?e?a:a+o+c:e?a.replace(b,h).replace(x,h):a}function k(a,c,d){a.attachEvent("on"+c,d)}function r(a,c){if(/^https?:\/\//i.test(a))return c.substring(0,c.indexOf("/",8))==a.substring(0,a.indexOf("/",8))?a:null;if(a.charAt(0)=="/")return c.substring(0,c.indexOf("/",8))+a;var d=c.split(/[?#]/)[0];a.charAt(0)!="?"&&d.charAt(d.length-1)!="/"&&(d=d.substring(0,d.lastIndexOf("/")+1));return d+a}function y(a){if(a)return n.open("GET",a,!1),n.send(),(n.status==200?n.responseText:i).replace(R,i).replace(S,function(c,d,b,e,f){return y(r(b||f,a))}).replace(T,function(c,d,b){d=d||i;return" url("+d+r(b,a)+d+") "});return i}function U(){var a,c;a=f.getElementsByTagName("BASE");for(var d=a.length>0?a[0].href:f.location.href,b=0;b<f.styleSheets.length;b++)if(c=f.styleSheets[b],c.href!=i&&(a=r(c.href,d)))c.cssText=A(y(a));q.length>0&&setInterval(function(){for(var a=0,c=q.length;a<c;a++){var b=q[a];if(b.disabled!==b.a)b.disabled?(b.disabled=!1,b.a=!0,b.disabled=!0):b.a=b.disabled}},250)}if(!/*@cc_on!@*/true){var f=document,p=f.documentElement,n=function(){if(j.XMLHttpRequest)return new XMLHttpRequest;try{return new ActiveXObject("Microsoft.XMLHTTP")}catch(a){return null}}(),m=/MSIE (\d+)/.exec(navigator.userAgent)[1];if(!(f.compatMode!="CSS1Compat"||m<6||m>8||!n)){var z={NW:"*.Dom.select",MooTools:"$$",DOMAssistant:"*.$",Prototype:"$$",YAHOO:"*.util.Selector.query",Sizzle:"*",jQuery:"*",dojo:"*.query"},t,q=[],O=0,N=!0,M="slvzr",R=/(\/\*[^*]*\*+([^\/][^*]*\*+)*\/)\s*/g,S=/@import\s*(?:(?:(?:url\(\s*(['"]?)(.*)\1)\s*\))|(?:(['"])(.*)\3))[^;]*;/g,T=/\burl\(\s*(["']?)(?!data:)([^"')]+)\1\s*\)/g,L=/^:(empty|(first|last|only|nth(-last)?)-(child|of-type))$/,B=/:(:first-(?:line|letter))/g,C=/(^|})\s*([^\{]*?[\[:][^{]+)/g,G=/([ +~>])|(:[a-z-]+(?:\(.*?\)+)?)|(\[.*?\])/g,H=/(:not\()?:(hover|enabled|disabled|focus|checked|target|active|visited|first-line|first-letter)\)?/g,P=/[^\w-]/g,K=/^(INPUT|SELECT|TEXTAREA|BUTTON)$/,J=/^(checkbox|radio)$/,v=m>6?/[\$\^*]=(['"])\1/:null,E=/([(\[+~])\s+/g,F=/\s+([)\]+~])/g,Q=/\s+/g,x=/^\s*((?:[\S\s]*\S)?)\s*$/,i="",o=" ",h="$1";(function(a,c){function d(){try{p.doScroll("left")}catch(a){setTimeout(d,50);return}b("poll")}function b(d){if(!(d.type=="readystatechange"&&f.readyState!="complete")&&((d.type=="load"?a:f).detachEvent("on"+d.type,b,!1),!e&&(e=!0)))c.call(a,d.type||d)}var e=!1,g=!0;if(f.readyState=="complete")c.call(a,i);else{if(f.createEventObject&&p.doScroll){try{g=!a.frameElement}catch(h){}g&&d()}k(f,"readystatechange",b);k(a,"load",b)}})(j,function(){for(var a in z){var c,d,b=j;if(j[a]){for(c=z[a].replace("*",a).split(".");(d=c.shift())&&(b=b[d]););if(typeof b=="function"){t=b;U();break}}}})}}})(this);
 
 (function(document){
-	
-	window.MBP = window.MBP || {}; 
+
+	window.MBP = window.MBP || {};
 	var a,b,c,d,e,f,g,h,i,j,k,l,m,n,o;
 	/*! A fix for the iOS orientationchange zoom bug. Script by @scottjehl, rebound by @wilto.MIT / GPLv2 License.*/
 	/*  JSLINT fix by Peter */
@@ -55,7 +55,7 @@ Garp.innerShiv = (function() {
 			d.setAttribute("content", f); h = !1;
 		}
 		function o(b){
-			l = b.accelerationIncludingGravity; i = Math.abs(l.x); j = Math.abs(l.y); k = Math.abs(l.z); 
+			l = b.accelerationIncludingGravity; i = Math.abs(l.x); j = Math.abs(l.y); k = Math.abs(l.z);
 			((!a.orientation || a.orientation === 180) && (i > 7 || (k > 6 && j < 8 || k < 8 && j > 6) && i > 5) ? h && n() : h || m());
 		}
 		var b = navigator.userAgent;
@@ -77,7 +77,7 @@ Garp.innerShiv = (function() {
 	// Autogrow
 	// http://googlecode.blogspot.com/2009/07/gmail-for-mobile-html5-series.html
 	MBP.autogrow = function (element, lh) {
- 	 
+
     	function handler(e){
         	var newHeight = this.scrollHeight,
             	currentHeight = this.clientHeight;
@@ -85,25 +85,25 @@ Garp.innerShiv = (function() {
             	this.style.height = newHeight + 3 * textLineHeight + "px";
         	}
     	}
- 	 
+
     	var setLineHeight = (lh) ? lh : 12,
         	textLineHeight = element.currentStyle ? element.currentStyle.lineHeight :
                          	 getComputedStyle(element, null).lineHeight;
- 	 
+
     	textLineHeight = (textLineHeight.indexOf("px") == -1) ? setLineHeight :
                      	 parseInt(textLineHeight, 10);
- 	 
+
     	element.style.overflow = "hidden";
 		if(element.addEventListener){
 			element.addEventListener('keyup', handler, false);
 		} else {
 			element.attachEvent('onkeyup', handler);
 		}
-	};	
+	};
 })(document);
 
 /**
- * Utility function. Binds receiverObj's properties to senderObj's properties 
+ * Utility function. Binds receiverObj's properties to senderObj's properties
  * @param {Object} receiverObj
  * @param {Object} senderObj
  * @return {Object} receiverObj
@@ -132,10 +132,10 @@ Garp.applyIf = function(receiverObj, senderObj){
 
 /**
  * Utility string function: use a simple tpl string to format multiple arguments
- * 
+ *
  * example:
  * var html = Garp.format('<a href="${1}">${2}</a>"', 'http://www.grrr.nl/', 'Grrr Homepage');
- * 
+ *
  * @param {String} tpl  template
  * @param {String} ...n input string(s)
  * @return {String}
@@ -158,7 +158,7 @@ Garp.format = function(tpl, o){
 /**
  * Utility function each
  * Calls fn for each ownProperty of obj. fn(property, iterator, obj)
- * 
+ *
  * @param {Object} obj to iterate
  * @param {Function} fn to call with each property of obj, the property name and the object from within 'scope'
  * @param {Object} [scope] to execute within
@@ -223,8 +223,8 @@ Garp.equalizeHeight = function(collection) {
  * @param {Array} array of objects
  * @param {String} key
  * @param {String} val [optional]
- * 
- * @return {Array | Object} 
+ *
+ * @return {Array | Object}
  */
 Garp.getBy = function(arr, key, val){
 	var out = [];
@@ -242,48 +242,48 @@ Garp.getBy = function(arr, key, val){
 /**
  * Garp Flash Messenger. Provides a method to show a 'popup' style message to the user.
  * Convenient for auto-fade out and such.
- * 
+ *
  * @param {Object} Config properties. See below for @cfg details:
- * 
- * @example usage: 
+ *
+ * @example usage:
  *	var fm = new Garp.FlashMessage({
  *		msg: "Your Message might go here, or you can use... ",
  *		parseCookie: true // ... this option to grab the message from the server
  *	});
- * 
+ *
  */
 Garp.FlashMessage = function(cfg){
 
 	// Apply defaults:
 	Garp.apply(this, {
-	
+
 		/**
 		 * @cfg: {String} Message to show
 		 */
 		msg: '',
-		
+
 		/**
 		 * @cfg: {Boolean} Whether or not too parse (and show) the Garp.FlashMessage cookie
 		 */
 		parseCookie: false,
-		
+
 		/**
 		 * @cfg: {String} Cookie name
 		 */
 		cookieName: 'FlashMessenger',
-		
+
 		/**
-		 * @cfg {Function} Callback, get's called with scope/this set to FlashMessage  
+		 * @cfg {Function} Callback, get's called with scope/this set to FlashMessage
 		 */
 		afterShow: function(){
 		},
-		
+
 		/**
 		 * @cfg {Function} Callback, get's called with scope/this set to FlashMessage
 		 */
 		afterClose: function(){
 		},
-		
+
 		/**
 		 * @cfg {jQuery element}: Provide the element to use
 		 */
@@ -291,17 +291,17 @@ Garp.FlashMessage = function(cfg){
 			var id = 'flashMessage';
 			return $('#' + id).length ? $('#' + id) : $('body').append('<div id="' + id + '"></div>').find('#' + id);
 		})(this),
-		
+
 		/**
 		 * @cfg {Boolean} Automatically hide?
 		 */
 		autoHide: true,
-		
+
 		/**
 		 * @cfg {Number} Delay for auto hide
 		 */
 		hideDelay: 6000,
-		
+
 		/**
 		 * @cfg {Function} Animation to use. Override to do someting else than just a simple fade:
 		 */
@@ -313,13 +313,13 @@ Garp.FlashMessage = function(cfg){
 			}
 		}
 	});
-	
+
 	// Override with given config:
 	Garp.apply(this, cfg);
-	
+
 	// Private functions:
 	Garp.apply(this, {
-	
+
 		/**
 		 * Shows (the hidden) flashMessage. Should generally not be needed.
 		 */
@@ -327,7 +327,7 @@ Garp.FlashMessage = function(cfg){
 			this.elm.show();
 			return this;
 		},
-		
+
 		/**
 		 * Hides the flashMessage element by using the possible animation
 		 */
@@ -339,7 +339,7 @@ Garp.FlashMessage = function(cfg){
 			}
 			return this;
 		},
-		
+
 		/**
 		 * Closes the flashMessage immediately
 		 */
@@ -352,7 +352,7 @@ Garp.FlashMessage = function(cfg){
 			}
 			return this;
 		},
-		
+
 		/**
 		 * Parses a cookie. Nom,nom,nom.
 		 * note; a global COOKIEDOMAIN constant can be set for this function.
@@ -373,7 +373,7 @@ Garp.FlashMessage = function(cfg){
 			}
 			return '';
 		},
-		
+
 		/**
 		 * Init
 		 */
@@ -398,7 +398,7 @@ Garp.FlashMessage = function(cfg){
 			return this;
 		}
 	});
-		
+
 	return this.init();
 };
 /**
@@ -424,7 +424,7 @@ Garp.getCookie = function(name) {
  * Give a Cookie
  * @param {Object} name
  * @param {Object} value
- * @param {Date} expiration date 
+ * @param {Date} expiration date
  * @param {String} domain
  */
 Garp.setCookie = function(name, value, date, domain){
@@ -469,7 +469,7 @@ $(function(){
 						var snippet = elm.nextSibling;
 						var url = BASE + 'g/content/admin/?model=Snippet&id=' + elm.nodeValue.replace(token, '');
 						//$(snippet).wrap('<div style="position:relative;">')
-						var link = $('<a href="' + url + '" title="edit" target="garp_cms"><img src="' + BASE + 'media/images/garp/icons/pencil.png" /></a>').insertBefore(snippet).css({
+						var link = $('<a href="' + url + '" title="edit" target="garp_cms"><img src="' + (BASE ? BASE : '/') + 'media/images/garp/icons/pencil.png" /></a>').insertBefore(snippet).css({
 							position: 'absolute',
 							zIndex: '999999',
 							padding: '4px',
@@ -548,7 +548,7 @@ Garp.constrain = function(i){
 	if (i > max) {
 		i = min;
 	}
-	return i;	
+	return i;
 };
 
 Garp.lazyLoader = {
@@ -557,7 +557,7 @@ Garp.lazyLoader = {
 	 * @param {Object} cfg
 	 * @cfg id {String} id of the element
 	 * @cfg before {Function} beforeFetch fn. Gets called with scope &amp; fetch arguments
-	 * @cfg after {Function} afterFetch fn. Gets called with scope, respone &amp; fetch arguments 
+	 * @cfg after {Function} afterFetch fn. Gets called with scope, respone &amp; fetch arguments
 	 */
 	reg: function(cfg){
 		if (cfg.id && !Garp.lazyLoader[cfg.id]) {
@@ -570,7 +570,7 @@ Garp.lazyLoader = {
 			throw "Can't register lazyLoader. No id property or duplicate entry.";
 		}
 	},
-	
+
 	/**
 	 * Deletes a lazyLoad callback
 	 * @param {Object} id
@@ -584,12 +584,12 @@ Garp.lazyLoader = {
 	 * Collect all lazy-load elements and fetch!
 	 */
 	init: function(){
-	
+
 		var $elm = $('.lazy-load');
 		if (!$elm.length) {
 			return;
 		}
-		
+
 		function fetch(e){
 			if (e && e.preventDefault) {
 				e.preventDefault();
@@ -605,7 +605,7 @@ Garp.lazyLoader = {
 			}
 			var before = $.noop;
 			var after = $.noop;
-			
+
 			if (Garp.lazyLoader[id]) {
 				if (Garp.lazyLoader[id].before) {
 					before = Garp.lazyLoader[id].before;
@@ -614,19 +614,19 @@ Garp.lazyLoader = {
 					after = Garp.lazyLoader[id].after;
 				}
 			}
-			
+
 			var fetchCB = Garp.createDelegate(fetch, this);
 			before(this, fetchCB);
-			
+
 			var url = $(this).attr('data-href') + con + attributes;
 			var scope = this;
 			var isJson = $(this).hasClass('json');
-			
+
 			var replace = false;
 			if ($(this).attr('data-replace-selector') && $($(this).attr('data-replace-selector')).length) {
 				replace = true;
 			}
-			
+
 			$.get(url, function(resp){
 				if (isJson) {
 					resp = resp.html;
@@ -639,7 +639,7 @@ Garp.lazyLoader = {
 				after.call(scope, scope, resp, fetchCB);
 			}, isJson ? 'json' : 'html');
 		}
-		
+
 		$elm.each(function(i, el){
 			Garp.scrollHandler.register($(el), function(){
 				fetch.call(el);
@@ -683,7 +683,7 @@ Garp.asyncLoad = function(url, type, cb, scope){
  * __ Utility function
  * @param {String} s
  * @return {String} s translated
- */ 
+ */
 function __(s){ return Garp.locale[s] || s; }
 
 // LOCALES:
@@ -1029,7 +1029,7 @@ Garp.locale = (typeof Garp.locale == 'undefined') ? {} : Garp.locale;
 				// Will be called both on animation end and after calling .stop()
 				animationEnd = function (currentCSS, exec) {
 					self.css(currentCSS);
-					
+
 					self.css(addPrefix({
 						"animation-duration" : "",
 						"animation-name" : "",
@@ -1118,7 +1118,7 @@ Garp.locale = (typeof Garp.locale == 'undefined') ? {} : Garp.locale;
  * __ Utility function
  * @param {String} s
  * @return {String} s translated
- */ 
+ */
 function __(s){ return Garp.locale[s] || s; }
 
 // LOCALES:
@@ -1156,7 +1156,7 @@ Garp.apply(Garp.locale, {
 	"'${1}' is not a valid URL" : "'${1}' is geen geldige URL",
 	"'${1}' is not a valid number for this field" : "'${1}' is geen geldig nummer",
 	"Value doesn't match": "Waarde komt niet overeen",
-	
+
 	//qq.FileUploader
 	"{file} has invalid extension. Only {extensions} are allowed.": "{file} heeft niet de juiste extensie. De volgende extensie(s) zijn toegestaan: {extensions}",
 	"{file} is too large, maximum file size is {sizeLimit}.": "{file} is te groot. Maximum grootte is {sizeLimit}",

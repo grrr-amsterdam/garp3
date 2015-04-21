@@ -32,11 +32,12 @@ class Garp_Test_PHPUnit_Helper {
 			$i18n = isset($data['i18n']) && $data['i18n'];
 			unset($data['i18n']);
 			foreach ($data as $i => $data) {
-				$readModel = instance('Model_' . $datatype);
+				$readModel = $saveModel = instance('Model_' . $datatype);
 				if ($i18n) {
 					$readModel = instance(new Garp_I18n_ModelFactory)->getModel($readModel);
 				}
-				$primary = instance('Model_' . $datatype)->insert($data);
+				$saveModel->unregisterObserver('ImageScalable');
+				$primary = $saveModel->insert($data);
 				$mockData[$datatype][$i] = $this->_fetchFreshData($readModel, $primary)->toArray();
 			}
 		}
