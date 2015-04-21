@@ -18,7 +18,7 @@ Ext.form.CKEditor = function(config) {
         toolbar: [
             ['Bold', 'Italic', '-', 'RemoveFormat'],
             ['Link', 'Unlink'],
-            ['NumberedList','BulletedList', 'Format'],
+            ['NumberedList', 'BulletedList', 'Blockquote', 'Format'],
             ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source', '-', 'CharCount']
         ],
 
