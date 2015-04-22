@@ -25,6 +25,9 @@ class Garp_Job_Background {
 			trim(`which php`)
 		;
 
+		if (empty($phpPath)) {
+			throw new Garp_Job_Background_Exception('php not available');
+		}
 		exec("{$phpPath} {$scriptPath} {$command} --e=" . APPLICATION_ENV . " &> /dev/null &");
 	}
 }

@@ -73,7 +73,7 @@ class Garp_Model_Behavior_ImageScalable extends Garp_Model_Behavior_Abstract {
 		}
 
 		foreach ($asyncTemplates as $template) {
-			$this->_scaleAsync($filename);
+			$this->_scaleAsync($filename, $id, $template);
 		}
 
 	}
@@ -84,10 +84,15 @@ class Garp_Model_Behavior_ImageScalable extends Garp_Model_Behavior_Abstract {
 		);
 	}
 
-	protected function _scaleAsync($filename) {
-		// Execute scaling in the background
-		new Garp_Job_Background(
-			'image generateScaled --filename=' . $filename
-		);
+	protected function _scaleAsync($filename, $id, $template) {
+		try {
+			// Execute scaling in the background
+			new Garp_Job_Background(
+				'image generateScaled --filename=' . $filename
+			);
+		} catch (Garp_Job_Background_Exception $e) {
+			// Recover by scaling sync
+			return $this->_scaleSync($filename, $id, $template);
+		}
 	}
 }
