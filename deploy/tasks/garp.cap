@@ -1,10 +1,12 @@
 desc "Enable Under Construction status"
 task :enable_under_construction do
 	on roles(:web) do
-    	if fetch(:this_host_last_release)
-    		# Previous release exists, update it to under construction
-			execute "php #{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php Env setUnderConstruction --e=#{fetch(:stage)}"
-  		end
+		if fetch(:this_host_last_release)
+			if File.exists? "#{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php"
+    			# Previous release exists, update it to under construction
+				execute "php #{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php Env setUnderConstruction --e=#{fetch(:stage)}"
+			end
+		end
 	end
 end
 
@@ -13,7 +15,9 @@ task :disable_under_construction do
 	on roles(:web) do
 		if fetch(:this_host_last_release)
 			# Previous release exists, remove under construction flag
-			execute "php #{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php Env setUnderConstruction false --e=#{fetch(:stage)}"
+			if File.exists? "#{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php"
+				execute "php #{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php Env setUnderConstruction false --e=#{fetch(:stage)}"
+			end
 		end
 	end
 end
