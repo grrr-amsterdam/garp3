@@ -21,7 +21,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 		'unique' => true,
 		'required' => false,
 		'multiline' => false,
-	);		
+	);
 
 
 
@@ -32,7 +32,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 
 		return $fields;
 	}
-	
+
 	public function getParams() {
 		$params 		= parent::getParams();
 		$defaultParams 	= $this->getDefaultParams();
@@ -45,27 +45,27 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 
 		return $params;
 	}
-	
+
 	/**
 	 * @return Array
 	 */
 	public function getDefaultParams() {
 		return $this->_defaultParams;
 	}
-	
+
 	/**
 	 * @return 	Bool 	Whether this behavior needs to be registered with an observer
 	 * 					called in the PHP model's init() method
 	 */
 	public function needsPhpModelObserver() {
 		$model = $this->getModel();
-		
-		return 
+
+		return
 			!$model->isMultilingual() ||
 			($model->isTranslated() && $this->_baseFieldIsMultilingual())
 		;
 	}
-	
+
 	/**
 	 * @return	Array	Configuration of the slug field
 	 */
@@ -79,6 +79,10 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 		$params = $this->getParams();
 		if (array_key_exists('editable', $params)) {
 			$slugFieldConfig['editable'] = $params['editable'];
+		}
+
+		if (array_key_exists('required', $params)) {
+			$slugFieldConfig['required'] = $params['required'];
 		}
 
 		return $slugFieldConfig;
@@ -95,7 +99,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -105,7 +109,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 	protected function _getModelBaseFields() {
 		$baseFields		= array();
 		$model 			= $this->getModel();
-		$baseFieldNames	= $this->_getBaseFieldNames();		
+		$baseFieldNames	= $this->_getBaseFieldNames();
 
 		foreach ($baseFieldNames as $name) {
 			if (!$model->fields->exists($name)) {
@@ -119,7 +123,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 
 	/**
 	 * @return 	Array 	One or more field names on which the slug is based
-	 */	
+	 */
 	protected function _getBaseFieldNames() {
 		$params 		= $this->getParams();
 		$baseFieldNames = (array)$params[self::BASE_FIELD_PARAM];
@@ -133,5 +137,5 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 		$params = $this->getParams();
 		return $params[self::SLUG_FIELD_PARAM];
 	}
-	
+
 }
