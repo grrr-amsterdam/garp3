@@ -9,6 +9,8 @@
  * @lastmodified $Date: $
  */
 class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
+	const EXCEPTION_VIDEO_NOT_FOUND = 'Could not retrieve YouTube data for %s';
+
 	/**
 	 * Field translation table. Keys are internal names, values are the indexes of the output array.
 	 * @var Array
@@ -36,7 +38,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 	);
 
 	/**
-	 * Setup fields. If certain fields are not provided, 
+	 * Setup fields. If certain fields are not provided,
 	 * the defaults in $this->_fields are used.
 	 * @param Array $config
 	 * @return Void
@@ -45,8 +47,8 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		if (!empty($config)) {
 			$this->_fields = $config + $this->_fields;
 		}
-	} 
-	
+	}
+
 	/**
 	 * Before insert callback. Manipulate the new data here. Set $data to FALSE to stop the insert.
 	 * @param Array $options The new data is in $args[1]
@@ -58,7 +60,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		}
 		$data = $output + $data;
 	}
-	
+
 	/**
 	 * Before update callback. Manipulate the new data here.
 	 * @param Array $data The new data is in $args[1]
@@ -70,7 +72,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		if (!$output = $this->_fillFields($data)) {
 			throw new Garp_Model_Behavior_Exception('Could not properly retrieve API data from YouTube.');
 		}
-		$data = $output + $data;		
+		$data = $output + $data;
 	}
 
 	/**
@@ -85,19 +87,17 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 			return;
 		}
 		$entry = $this->_fetchEntryByUrl($url);
-		$images = $entry->mediaGroup->getThumbnail();
+		$images = $entry->getSnippet()->getThumbnails();
 
 		$data = array(
-			'identifier'       => $entry->getVideoId(),
-			'name'             => !empty($input[$this->_fields['name']]) ? $input[$this->_fields['name']] : $entry->getVideoTitle(),
-			'description'      => !empty($input[$this->_fields['description']]) ? $input[$this->_fields['description']] : $entry->getVideoDescription(),
-			'flash_player_url' => str_replace('/v/', '/embed/', $this->_getFlashPlayerUrl($entry)),
-			'watch_url'        => $this->_getWatchUrl($entry),
-			'duration'         => $entry->getVideoDuration(),
-			'tags'             => implode(' ', $entry->getVideoTags()),
-			'author'           => current($entry->getAuthor())->name->text,
-			'image_url'        => $images[0]->url,
-			'thumbnail_url'    => $images[3]->url
+			'identifier'       => $entry->getId(),
+			'name'             => $this->_getVideoName($entry, $input),
+			'description'      => $this->_getVideoDescription($entry, $input),
+			'flash_player_url' => $this->_getFlashPlayerUrl($entry),
+			'watch_url'        => $url,
+			'duration'         => $entry->getContentDetails()->getDuration(),
+			'image_url'        => $images['high']['url'],
+			'thumbnail_url'    => $images['default']['url'],
 		);
 		$out = array();
 		foreach ($data as $ytKey => $value) {
@@ -121,52 +121,26 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		}
 		$array = Garp_Util_String::toArray($key, '.', $value);
 		$output += $array;
-	}	
+	}
 
-	/**
-	 * Retrieves the watch URL from the API, and strips off redundant parameters.
-	 * @param Zend_Gdata_YouTube_VideoEntry $entry The video entry, as retrieved from the YouTube API
-	 * @return String The watch URL
-	 */
-	protected function _getWatchUrl(Zend_Gdata_YouTube_VideoEntry $entry) {
-		$watchUrl = $entry->getVideoWatchPageUrl();
-		$appendedString = '&feature=youtube_gdata_player';
-		$pos = strpos($watchUrl, $appendedString);
-		if ($pos !== false) {
-			$watchUrl = substr($watchUrl, 0, $pos);
-		}
-		
-		return $watchUrl;
+	protected function _getFlashPlayerUrl(Google_Service_YouTube_Video $entry) {
+		return 'http://www.youtube.com/embed/' . $entry->getId();
 	}
-	
-	/**
-	 * Videos where embedding is disabled, do not return a Flash player url. Generate it anyway! :)
-	 */
-	protected function _getFlashPlayerUrl(Zend_Gdata_YouTube_VideoEntry $entry) {
-		if (!$this->isEmbeddable($entry)) {
-			return 'http://www.youtube.com/v/'.$entry->getVideoId().'?f=videos&app=youtube_gdata';
-		}
-		return $entry->getFlashPlayerUrl();
-	}
-	
+
 	protected function _fetchEntryByUrl($watchUrl) {
-		$yt = new Zend_Gdata_YouTube();
+		$yt = Garp_Google::getGoogleService('YouTube');
 		$youTubeId = $this->_getId($watchUrl);
-
-		try {
-			if ($entry = $yt->getVideoEntry($youTubeId)) {
-				return $entry;
-			}
-			throw new Garp_Model_Behavior_Exception('Could not retrieve YouTube data for ' . $watchUrl);
-		} catch(Exception $e) {
+		$entries = $yt->videos->listVideos('id,snippet,contentDetails', array(
+			'id' => $youTubeId
+		));
+		if (empty($entries['items'])) {
 			throw new Garp_Model_Behavior_Exception(
-				strpos($e->getMessage(), '403') !== false ?
-					'This video is not public' :
-					$e->getMessage()
-			);
+				sprintf(self::EXCEPTION_VIDEO_NOT_FOUND, $watchUrl));
 		}
+
+		return $entries['items'][0];
 	}
-	
+
 	/**
 	 * Retrieves the id value of a YouTube url.
 	 *
@@ -194,8 +168,18 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		}
 		return $videoId;
 	}
-	
-	protected function isEmbeddable(Zend_Gdata_YouTube_VideoEntry $entry) {
-		return (bool)!$entry->getNoEmbed();
+
+	protected function _getVideoName($entry, $input) {
+		if (!empty($input[$this->_fields['name']])) {
+ 		   	return $input[$this->_fields['name']];
+ 		}
+		return $entry->getSnippet()->getTitle();
+	}
+
+	protected function _getVideoDescription($entry, $input) {
+		if (!empty($input[$this->_fields['description']])) {
+			return $input[$this->_fields['description']];
+ 		}
+		return $entry->getSnippet()->getDescription();
 	}
 }
