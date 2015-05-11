@@ -77,7 +77,7 @@
 			}
 		});
 
-		this.addListener('loaddata', function(rec, formPanel){
+		this.addListener('loaddata', function(rec, formPanel) {
 
 			formPanel.changePassword.collapseAndHide();
 
@@ -89,23 +89,23 @@
 			var roleField = formPanel.getForm().findField('role');
 			if (roleField) {
 				var ownRole = Garp.localUser.role || 'User';
-				Ext.each(Garp.ACL[ownRole].children, function(disabledRole){
+				Ext.each(Garp.ACL[ownRole].children, function(disabledRole) {
 					var idx = roleField.store.find('field1', disabledRole);
 					roleField.store.removeAt(idx);
 					// roleField.store.remove(disabledRole);
 				});
 			}
 			var email = formPanel.getForm().findField('email');
-			if(email && email.allowBlank === false){
+			if (email && email.allowBlank === false) {
 				email._keepRequired = true;
-			} else if(email){
+			} else if (email) {
 				email._keepRequired = false;
 			}
 
 			// Cleanup honeypot fields
 			setTimeout(function() {
-				formPanel.getForm().remove(form.findField('__fake_login__'));
-				formPanel.getForm().remove(form.findField('__fake_password__'));
+				formPanel.getForm().remove(formPanel.getForm().findField('__fake_login__'));
+				formPanel.getForm().remove(formPanel.getForm().findField('__fake_password__'));
 			}, 1000);
 		});
 
