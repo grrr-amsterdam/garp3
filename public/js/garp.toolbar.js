@@ -2,7 +2,7 @@
  * @class Garp.Toolbar
  * @extends Ext.Toolbar
  * @author: Peter
- * 
+ *
  * @description Garp.Toolbar, main Garp toolbar, included in Garp.viewport
  */
 Garp.Toolbar = Ext.extend(Ext.Toolbar, {
@@ -15,7 +15,7 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 	 */
 	addColumnMenu: function(grid){
 	},
-	
+
 	/**
 	 * @function removeColumnMenu
 	 *
@@ -23,13 +23,13 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 	 */
 	removeColumnMenu: function(){
 	},
-	
-	
+
+
 	initComponent: function(){
 		Ext.apply(this, {
 			style: 'padding:0px 10px 0px 10px;border:0;',
 			cls: 'garp-main-toolbar cms-branding-small',
-			
+
 			items: [Garp.modelMenu, '-', {
 				xtype: 'tbspacer'
 			}, {
@@ -52,7 +52,7 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 				xtype: 'tbseparator',
 				ref: 'separator'
 			}, {
-				text: __('more'),
+				text: __('More'),
 				iconCls: 'icon-extra',
 				ref: 'extraMenu',
 				menu: new Ext.menu.Menu({
@@ -89,23 +89,23 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 							if (!Garp.currentModel) {
 								return;
 							}
-							
+
 							if (Garp.gridPanel.getSelectionModel().getCount() == 1) {
-							
+
 								Ext.select('body').addClass('print-form');
 								Garp.gridPanel.ownerCt.collapse();
 								Garp.viewport.doLayout();
 								setTimeout(function(){
 									window.print();
-									
+
 									Garp.gridPanel.ownerCt.expand();
 									Ext.select('body').removeClass('print-form');
 								}, 500);
-								
-								
+
+
 							} else {
 								Ext.select('body').addClass('print-grid');
-								
+
 								var pw = Garp.gridPanel.ownerCt.getWidth();
 								Garp.gridPanel.getSelectionModel().clearSelections();
 								if (Garp.formPanel.ownerCt.collapse) {
@@ -114,20 +114,20 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 								Garp.gridPanel.ownerCt.collapse();
 								Garp.gridPanel.ownerCt.setWidth(640);
 								Garp.gridPanel.ownerCt.expand();
-								
+
 								var el = Ext.select('.x-grid3-scroller').first();
 								var w = el.getStyle('width');
 								var h = el.getStyle('height');
-								
+
 								el.setStyle({
 									'overflow': 'visible',
 									'position': 'fixed',
 									'height': 'auto'
 								});
-								
+
 								setTimeout(function(){
 									window.print();
-									
+
 									el.first().setStyle({
 										'overflow': 'auto',
 										'overflow-x': 'hidden',
@@ -135,22 +135,22 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 										'width': w,
 										'height': h
 									});
-									
+
 									Garp.gridPanel.ownerCt.setWidth(pw);
 									if (Garp.formPanel.ownerCt.expand) {
 										Garp.formPanel.ownerCt.expand();
 									}
 									Garp.gridPanel.ownerCt.expand();
 									Garp.viewport.doLayout();
-									
+
 									Ext.select('body').removeClass('print-grid');
-									
+
 								}, 500);
 							}
-							
+
 						}
 					}, '-', {
-						hidden: !((document.fullScreenElement && document.fullScreenElement !== null) ||   
+						hidden: !((document.fullScreenElement && document.fullScreenElement !== null) ||
       								(!document.mozFullScreen && !document.webkitIsFullScreen)),
 						text: __('Full Screen'),
 						iconCls: 'icon-fullscreen',
@@ -166,7 +166,7 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 								if (de.mozRequestFullScreen) {
 									de.mozRequestFullScreen();
 								} else if (de.webkitRequestFullScreen){
-									de.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);  
+									de.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
 								}
 							}
 						}
@@ -182,7 +182,7 @@ Garp.Toolbar = Ext.extend(Ext.Toolbar, {
 				})
 			}]
 		});
-		
+
 		Garp.Toolbar.superclass.initComponent.call(this);
 	}
 });

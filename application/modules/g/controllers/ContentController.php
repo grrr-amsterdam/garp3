@@ -21,6 +21,7 @@ class G_ContentController extends Garp_Controller_Action {
  	 */
 	public function init() {
 		$config = Zend_Registry::get('config');
+		$this->_setCmsClosedMessage();
 		if (!$config->cms || !$config->cms->ipfilter || !count($config->cms->ipfilter->toArray())) {
 			return true;
 		}
@@ -178,7 +179,8 @@ class G_ContentController extends Garp_Controller_Action {
 				$success = true;
 			} else {
 				try {
-					$response = $this->_helper->upload($uploadType);
+					$response = $this->_helper->upload($uploadType, null, false,
+						1 === (int)$this->getRequest()->getParam('overwrite'));
 					$success = true;
 				} catch (Exception $e) {
 					$response['messages'] = $e->getMessage();
@@ -469,5 +471,28 @@ class G_ContentController extends Garp_Controller_Action {
 			return $this->getRequest()->getPost('request');
 		}
 		return $request = $this->getRequest()->getRawBody();
+	}
+
+	protected function _setCmsClosedMessage() {
+		$config = Zend_Registry::get('config');
+		if (!isset($config->cms->closed) || !$config->cms->closed) {
+			return;
+		}
+		$this->view->isClosed = true;
+		try {
+			$snippetModel = new Model_Snippet();
+			if ($snippetModel->isMultilingual()) {
+				$snippetModel = instance(new Garp_I18n_ModelFactory)->getModel('Snippet');
+			}
+			$snippet = $snippetModel->fetchByIdentifier('cms closed message');
+			$cmsClosedMessage = $snippet->html;
+			if (isset($cmsClosedMessage[Garp_I18n::getCurrentLocale()])) {
+				$cmsClosedMessage = $cmsClosedMessage[Garp_I18n::getCurrentLocale()];
+			}
+			$this->view->cmsClosedMessage = $cmsClosedMessage;
+		} catch (Exception $e) {
+			throw $e;
+			$this->view->cmsClosedMessage = '<p>The CMS is closed.</p>';
+		}
 	}
 }

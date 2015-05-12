@@ -5,7 +5,7 @@ set :linked_dirs, %w{
 	application/data/logs
 	application/data/cache/tags
 }
-set :keep_releases, 3
+set :keep_releases, 2
 
 
 load "application/configs/deploy.rb"

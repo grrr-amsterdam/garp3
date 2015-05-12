@@ -16,6 +16,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 	 */
 	protected $_fields;
 
+	protected $_defaultAllowedClasses = array('figure', 'left', 'right', 'video-embed');
 
 	/**
 	 * Make sure the config array is at least filled with some default values to work with.
@@ -25,7 +26,6 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 	protected function _setup($config) {
 		$this->_fields = $config;
 	}
-
 
 	/**
 	 * Filter unwanted HTML out of a string
@@ -47,7 +47,6 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		return $string;
 	}
 
-
 	/**
 	 * Create config.
 	 * @return HTMLPurifier_Config
@@ -66,7 +65,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		$config->set('AutoFormat.RemoveSpansWithoutAttributes', true);
 		$config->set('AutoFormat.RemoveEmpty.RemoveNbsp', true);
 		$config->set('Output.TidyFormat', true);
-		$config->set('Attr.AllowedClasses', array('figure', 'left', 'right', 'video-embed'));
+		$config->set('Attr.AllowedClasses', $this->_getAllowedClasses());
 		$config->set('CSS.AllowedProperties', array('font-weight', 'font-style', 'float', 'vertical-align', 'width', 'height'));
 		$config->set('CSS.MaxImgLength', null);
     	$config->set('Cache.SerializerPath', APPLICATION_PATH.'/data/cache');
@@ -130,7 +129,6 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		return $config;
 	}
 
-
 	/**
 	 * Before insert callback. Manipulate the new data here. Set $data to FALSE to stop the insert.
 	 * @param Array $options The new data is in $args[1]
@@ -145,7 +143,6 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 		}
 	}
 
-
 	/**
 	 * Before update callback. Manipulate the new data here.
 	 * @param Array $data The new data is in $args[1]
@@ -158,5 +155,13 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 				$data[$field] = $this->filter($data[$field]);
 			}
 		}
+	}
+
+	protected function _getAllowedClasses() {
+		$config = Zend_Registry::get('config');
+		if (isset($config->htmlFilterable->allowedClasses)) {
+			return $config->htmlFilterable->allowedClasses->toArray();
+		}
+		return $this->_defaultAllowedClasses;
 	}
 }

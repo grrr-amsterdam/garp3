@@ -2,7 +2,7 @@
 	"quickAddable": true,
 
 	"listFields": ["filename"],
-	
+
 	"module": "garp",
 
 	"inputs": {

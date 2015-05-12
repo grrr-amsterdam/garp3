@@ -17,7 +17,7 @@ class Garp_Content_Import_Factory {
 	 */
 	public static function getImporter($dataFile) {
 		$type = self::mapExtensionToType($dataFile);
-		
+
 		// normalize type
 		$className = 'Garp_Content_Import_'.ucfirst($type);
 		$obj = new $className($dataFile);
@@ -26,8 +26,7 @@ class Garp_Content_Import_Factory {
 		}
 		return $obj;
 	}
-	
-	
+
 	/**
 	 * Map a file extension to a type of importer
 	 * @param String $dataFile Filename of the datafile
@@ -40,6 +39,9 @@ class Garp_Content_Import_Factory {
 			case 'xls':
 			case 'xlsx':
 				return 'Excel';
+			break;
+			case 'json':
+				return 'Json';
 			break;
 			default:
 				throw new Garp_Content_Import_Exception("Could not find importer for type $ext");

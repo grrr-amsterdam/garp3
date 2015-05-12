@@ -27,11 +27,11 @@ class Garp_Spawn_MySql_Manager {
  	 * @var Boolean	$_interactive Whether the feedback mode is interactive (progress bar) or not (batch mode).
  	 */
 	protected $_interactive = true;
-	
+
 	/** @param Array $_models Array of Garp_Spawn_Model_Base objects */
 	protected $_modelSet;
 	protected $_adapter;
-	
+
 	protected $_priorityModel = 'User';
 
 	/**
@@ -45,8 +45,8 @@ class Garp_Spawn_MySql_Manager {
      */
     private function __construct(Garp_Cli_Ui_Protocol $feedback) {
 		$this->setFeedback($feedback);
-	}		
-	
+	}
+
     /**
      * Get Garp_Auth instance
      * @return Garp_Auth
@@ -55,7 +55,7 @@ class Garp_Spawn_MySql_Manager {
          if (!Garp_Spawn_MySql_Manager::$_instance) {
              Garp_Spawn_MySql_Manager::$_instance = new Garp_Spawn_MySql_Manager($feedback);
          }
-   
+
          return Garp_Spawn_MySql_Manager::$_instance;
     }
 
@@ -89,7 +89,7 @@ class Garp_Spawn_MySql_Manager {
 				$this->_createBaseModelTableAndAdvance($model);
 			}
 		}
-		
+
 		//	Stage 3: Create binding models________
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " many-to-many config reading");
@@ -110,7 +110,7 @@ class Garp_Spawn_MySql_Manager {
 			$this->_syncBaseModel($model);
 
 			$habtmRelations = $model->relations->getRelations('type', 'hasAndBelongsToMany');
-			
+
 			foreach ($habtmRelations as $relation) {
 				if (strcmp($model->id, $relation->model) <= 0) {
 					//	only sync binding tables from models A -> B, not from B -> A
@@ -120,12 +120,12 @@ class Garp_Spawn_MySql_Manager {
 
 			$progress->advance();
 		}
-		
+
 		foreach ($modelSet as $model) {
 			$this->_syncI18nModel($model);
 			$this->_cleanUpBaseModel($model);
 		}
-		
+
 		//	Stage 5: Create base model i18n views________
 		foreach ($modelSet as $model) {
 			$progress->display($model->id . " i18n view");
@@ -147,7 +147,7 @@ class Garp_Spawn_MySql_Manager {
 
 		$progress->display(self::MSG_FINALIZING);
 	}
-	
+
 	/**
 	 * When multilingual columns are spawned, either in a new table or an existing one,
 	 * content from the unilingual table should be moved to the multilingual leaf records.
@@ -156,7 +156,7 @@ class Garp_Spawn_MySql_Manager {
 	public function onI18nTableFork(Garp_Spawn_Model_Base $model) {
 		new Garp_Spawn_MySql_I18nForker($model);
 	}
-	
+
 	/**
  	 * @param Boolean $interactive Whether interactive feedback mode should be enabled.
  	 */
@@ -198,7 +198,7 @@ class Garp_Spawn_MySql_Manager {
 		$this->_createBaseModelTableIfNotExists($model);
 		$progress->advance();
 	}
-		
+
 	protected function _createBaseModelTableIfNotExists(Garp_Spawn_Model_Base $model) {
 		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " SQL render.");
@@ -206,7 +206,7 @@ class Garp_Spawn_MySql_Manager {
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($model);
 		$configTable 	= $tableFactory->produceConfigTable();
 		$this->_createTableIfNotExists($configTable);
-		
+
 		if ($model->isMultilingual()) {
 			$i18nModel = $model->getI18nModel();
 			$tableFactory->setModel($i18nModel);
@@ -221,7 +221,7 @@ class Garp_Spawn_MySql_Manager {
 	protected function _createJointView(Garp_Spawn_Model_Base $model) {
 		$view = new Garp_Spawn_MySql_View_Joint($model);
 		$view->create();
-	}	
+	}
 
 	protected function _createI18nViews(Garp_Spawn_Model_Base $model) {
 		$locales = Garp_I18n::getLocales();
@@ -229,8 +229,8 @@ class Garp_Spawn_MySql_Manager {
 			$view = new Garp_Spawn_MySql_View_I18n($model, $locale);
 			$view->create();
 		}
-	}	
-	
+	}
+
 	protected function _createBindingModelTableIfNotExists(Garp_Spawn_Relation $relation) {
 		$bindingModel 	= $relation->getBindingModel();
 
@@ -246,7 +246,7 @@ class Garp_Spawn_MySql_Manager {
 		$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer($model, $progress);
 		$baseSynchronizer->sync(false);
 	}
-	
+
 	protected function _cleanUpBaseModel(Garp_Spawn_Model_Base $model) {
 		$progress = $this->_getFeedbackInstance();
 		$progress->display($model->id . " table comparison");
@@ -276,7 +276,7 @@ class Garp_Spawn_MySql_Manager {
 		$progress = $this->_getFeedbackInstance();
 		$bindingModel = $relation->getBindingModel();
 		$progress->display($bindingModel->id . " table comparison");
-		
+
 		$synchronizer = new Garp_Spawn_MySql_Table_Synchronizer($bindingModel, $progress);
 		$synchronizer->sync();
 	}
@@ -288,7 +288,7 @@ class Garp_Spawn_MySql_Manager {
 			if (!$table->create()) {
 				$error = sprintf(self::ERROR_CANT_CREATE_TABLE, $table->name);
 				throw new Exception($error);
-			}			
+			}
 		}
 	}
 

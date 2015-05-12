@@ -10,7 +10,7 @@
 class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 	/**
 	 * Chain method.
-	 * @return G_View_Helper_String 
+	 * @return G_View_Helper_String
 	 */
 	public function i18n() {
 		return $this;
@@ -47,7 +47,8 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 			return null;
 		}
 		// Remove the baseURl because it contains the current language
-		$alternateRoute = str_replace($this->view->baseUrl(), '', $alternateRoute);
+		$alternateRoute =
+			$this->view->string()->strReplaceOnce($this->view->baseUrl(), '', $alternateRoute);
 
 		// Always use explicit localization
 		if ($alternateRoute == '/') {

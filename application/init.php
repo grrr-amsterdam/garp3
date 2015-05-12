@@ -217,6 +217,24 @@ function instance($obj) {
 	return $obj;
 }
 
+/**
+ * Flatten an array of arrays.
+ * The cornerstone of functional programming.
+ */
+function concatAll($array) {
+	$results = array();
+	foreach ($array as $item) {
+		// Merge arrays...
+		if (is_array($item)) {
+			$results = array_merge($results, $item);
+			continue;
+		}
+		// ...push anything else.
+		$results[] = $item;
+	}
+	return $results;
+}
+
 if (!function_exists('gzdecode')) {
 	/**
  	 * @see http://nl1.php.net/gzdecode#82930

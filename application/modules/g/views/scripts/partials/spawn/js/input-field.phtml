@@ -7,15 +7,7 @@ $plugin = $this->spawnJs()->getFieldPlugin($field);
 
 $props = array();
 
-$getNameProperty = function($field, $language) {
-	$name = $field->isMultilingual() ?
-		'_' . $field->name . '_' . $language :
-		$field->name
-	;
-	return "name: '{$name}'";
-};
-
-$props[] = $getNameProperty($field, $this->language);
+$props[] = "name: '{$field->getNameKey($this->language)}'";
 $props[] = "fieldLabel: __('{$field->label}')";
 $props[] = "disabled: ".($field->editable ? 'false' : 'true');
 $props[] = "hidden: ".($field->visible ? 'false' : 'true');
@@ -115,14 +107,21 @@ if ($vType)
 	$props[] = "vtype: '{$vType}'";
 if ($plugin)
 	$props[] = "plugins: [{$plugin}]";
+
+if ($field->type === 'document' || $field->type === 'imagefile'):
+	echo $this->partial('partials/spawn/js/upload-overwrite-checkbox.phtml', 'g', array(
+		'fieldName' => $field->getNameKey($this->language)
+	));
 ?>
+			}, {
+<?php endif; ?>
 				<?php echo implode(",\n\t\t\t\t", $props); ?>
 				<?php if ($field->info): ?>
 			}, {
 			<?php
 				echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
 					'text' => "__('" . addslashes($field->info) . "')",
-					'fieldName' => $field->name
+					'fieldName' => $field->getNameKey($this->language)
 				));
 			endif; ?>
 				<?php if ($field->type === 'document' || $field->type === 'imagefile'): ?>
@@ -140,6 +139,6 @@ if ($plugin)
 
 				echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
 					'text' => "__('{$caption}', '" . implode(', ', $allowedExtensionsExceptLast) . "', '" . $allowedLastExtension . "', '" . $uploadLimitInMbs . "')",
-					'fieldName' => $field->name
+					'fieldName' => $field->getNameKey($this->language)
 				));
 			endif; ?>

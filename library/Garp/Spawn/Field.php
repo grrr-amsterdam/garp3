@@ -178,4 +178,14 @@ class Garp_Spawn_Field {
 
 		$this->required = (bool)$this->required;
 	}
+
+	public function getNameKey($language) {
+		return $this->isMultilingual() ?
+			'_' . $this->name . '_' . $language :
+			$this->name
+		;
+	}
+
+	public function getNameProperty($name) {
+	}
 }

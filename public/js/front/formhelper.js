@@ -9,7 +9,7 @@
  *  - validation
  *  - file upload
  *  - submit button disable to prevent duplicate entries
- *  - possible ajaxify (form element needs class 'ajax') 
+ *  - possible ajaxify (form element needs class 'ajax')
  */
 Garp.FormHelper = Garp.FormHelper || {};
 Garp.apply(Garp.FormHelper, {
@@ -18,12 +18,12 @@ Garp.apply(Garp.FormHelper, {
 	 * @cfg {jQuery} The form(s) reference(s)
 	 */
 	form: $('.garp-form'),
-	
+
 	/**
 	 * @cfg {String} class to put on the @cfg form element(s) when ajax calls are being made.
 	 */
 	ajaxBusyCls: 'loading',
-	
+
 	/**
 	 * @cfg {Function} onAjaxComplete. Get's called on error, success or timeout. Passes: @param {Object} jqXhr @param {Object} status
 	 */
@@ -41,25 +41,25 @@ Garp.apply(Garp.FormHelper, {
 			console.log('Garp formHelper: server status ' + status);
 		}
 	},
-	
+
 	/**
 	 * @cfg {Function} onBeforeAjax Possible to prevent ajax submission here; just return false.
 	 */
 	onBeforeAjax: function(){
 		return true;
 	},
-	
+
 	/**
 	 * @cfg {Number} ajaxTimeout
 	 */
 	ajaxTimeout: 30000,
-	
+
 	/**
 	 * @cfg {String} response type of the server
 	 */
 	ajaxDataType: 'json',
-	
-	
+
+
 	// private
 	/**
 	 * Hijacks upload fields into nice AJAX things. Uses qq.FileUploader for this, but only includes it if necessary
@@ -69,7 +69,7 @@ Garp.apply(Garp.FormHelper, {
 	hijackUploadFields: function(cb, fh){
 		var fields = $('.hijack-upload', this.form);
 		var scope = this;
-		
+
 		if (fields.length) {
 			Garp.asyncLoad(BASE + 'js/fileuploader.js', 'js', function(){
 				fields.each(function(i){
@@ -79,7 +79,7 @@ Garp.apply(Garp.FormHelper, {
 					$target.attr('name', name + '-filefield');
 					var prepopulate = $target.data('prepopulate-filelist');
 					var uploadType = $target.data('type') || 'image', imgTemplate = $target.data('image-template') || 'cms_list', url = BASE + 'g/content/upload/insert/1/mode/raw/type/' + uploadType, urlNonRaw = BASE + 'g/content/upload/insert/1/type/' + uploadType;
-					
+
 					$target = $target.parent();
 					if (!$target[0]) {
 						return;
@@ -129,7 +129,7 @@ Garp.apply(Garp.FormHelper, {
 						onComplete: function(id, filename, responseJSON){
 							var element = this.element;
 							$(element).parent().removeClass('uploading').addClass('done-uploading');
-							
+
 							function checkCount(){
 								var maxItems = $(element).data('max-items');
 								var count = $('ul.qq-upload-list li', element).length;
@@ -140,26 +140,26 @@ Garp.apply(Garp.FormHelper, {
 								}
 							}
 							checkCount();
-							
+
 							var ref = filename;
-							
+
 							if (responseJSON && responseJSON.id) {
 								id = responseJSON.id;
 								filename = responseJSON.filename;
-								
+
 								$('a.remove', element).unbind().bind('click', function(){
 									var name = $(this).parent('li').find('span.qq-upload-file').text();
 									$('input[data-filename="' + name + '"]', element).remove();
 									$(this).parent('li').remove();
 									checkCount();
 								});
-								
+
 								$(element).append('<input type="hidden" value="' + id + '" name="' + name + '[]" data-filename="' + filename + '">');
-								
+
 								if(this.afterUpload){
 									this.afterUpload(responseJSON, $target, ref);
 								}
-								
+
 							} else {
 								$('a.remove:last', element).click();
 								Garp.FlashMessage({
@@ -168,7 +168,7 @@ Garp.apply(Garp.FormHelper, {
 							}
 						}
 					};
-					
+
 					var uploaderConfig = Garp.apply(cfg, fh.uploaderConfig);
 					var uploader = new qq.FileUploader(uploaderConfig);
 					$(uploader._element).data('max-items', maxItems);
@@ -178,7 +178,7 @@ Garp.apply(Garp.FormHelper, {
 					if (fh.uploaderConfig.afterInit) {
 						fh.uploaderConfig.afterInit(fh, $target);
 					}
-					
+
 					// Add existing files to the list
 					if (prepopulate) {
 						for (var j = 0; j < prepopulate.length; j++) {
@@ -193,6 +193,7 @@ Garp.apply(Garp.FormHelper, {
 								fake: true
 							};
 							uploader._addToList(id, filename);
+							uploader._onComplete(id, filename, { success: true });
 							uploaderConfig.onComplete.call({
 								element: $target[0]
 							}, args, args, args);
@@ -201,7 +202,7 @@ Garp.apply(Garp.FormHelper, {
 					if (fh.uploaderConfig.initComplete) {
 						fh.uploaderConfig.initComplete(fh, $target);
 					}
-					
+
 				});
 			}, this);
 		}
@@ -231,7 +232,7 @@ Garp.apply(Garp.FormHelper, {
 				dayNamesMin: dayNamesMin,
 				dayNamesShort: dayNamesMin,
 				firstDay: 1,
-				monthNames: [__('January'), __('February'), __('March'), __('April'), __('May'), __('June'), 
+				monthNames: [__('January'), __('February'), __('March'), __('April'), __('May'), __('June'),
 					__('July'), __('August'), __('September'), __('October'), __('November'), __('December')],
 				monthNamesShort: [__('Jan'), __('Feb'), __('Mar'), __('Apr'), __('May'), __('Jun'),
 					__('Jul'), __('Aug'), __('Sep'), __('Oct'), __('Nov'), __('Dec')],
@@ -242,18 +243,9 @@ Garp.apply(Garp.FormHelper, {
 				changeYear: true
 			};
 			// Look for data-attributes to customize config
-			/*
-			var attrs = this.attributes;
-			console.dir(attrs);
-			for (var i in attrs) {
-				if (i.indexOf('data-datepicker-') !== 0) {
-					continue;
-				}
-				i = i.replace(/^data-datepicker-/, '');
-				datepickerConfig[i] = data[i];
-				console.log('setting datepicker config: ', i, data[i]);
+			if ($this.data('datepicker-default-date')) {
+				datepickerConfig.defaultDate = $this.data('datepicker-default-date');
 			}
-			*/
 			$this.datepicker(datepickerConfig);
 		});
 	},
@@ -325,7 +317,7 @@ Garp.apply(Garp.FormHelper, {
     	}
     	return jqFormat;
 	},
-	
+
 	/**
 	 * Turns the form into an Ajaxable thing
 	 */
@@ -352,7 +344,7 @@ Garp.apply(Garp.FormHelper, {
 		});
 		return this;
 	},
-	
+
 	/**
 	 * Sets up duplicatable form elements
 	 */
@@ -366,13 +358,13 @@ Garp.apply(Garp.FormHelper, {
 
 	/**
 	 * Sets up validation
-	 */	
+	 */
 	setupValidation: function(){
-		
+
 		var disabler = function(){
 			this.disable(); // this == the submit button
 		};
-		
+
 		this.validator = new Garp.FormHelper.Validator({
 			form: this.form,
 			listeners: {
@@ -390,11 +382,11 @@ Garp.apply(Garp.FormHelper, {
 				}
 			}
 		}).bind();
-		
+
 	},
-	
+
 	/**
-	 * Placeholders aren't supported in older navigators 
+	 * Placeholders aren't supported in older navigators
 	 */
 	fixPlaceholdersIfNeeded: function(){
 		var i = document.createElement('input');
@@ -424,7 +416,7 @@ Garp.apply(Garp.FormHelper, {
 		}
 		return name;
 	},
-	
+
 	/**
 	 * Init a.k.a go!
 	 */
@@ -434,14 +426,14 @@ Garp.apply(Garp.FormHelper, {
 			// duplicatorConfig: {},  // not used at the moment.
 			// validationConfig: {} // not used at the moment.
 		});
-		
+
 		Garp.apply(this, cfg);
-		
+
 		this.setupDuplicators(this);
 		this.setupDatePickers(this);
 		this.hijackUploadFields(null, this);
 		this.setupValidation(this);
-		
+
 		if(this.form.hasClass('ajax')){
 			this.ajaxify();
 		}
@@ -460,17 +452,17 @@ Garp.apply(Garp.FormHelper, {
 Garp.FormHelper.Duplicator = function(field, fh, cfg){
 
 	Garp.apply(this, {
-	
+
 		/**
 		 * @cfg {String} Text for the add button
 		 */
 		addText: __('Add'),
-		
+
 		/**
 		 * @cfg {String} Text for the remove button
 		 */
 		removeText: __('Remove'),
-		
+
 		/**
 		 * @cfg {String} extra ButtonClass
 		 */
@@ -482,7 +474,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 		 * @cfg {Function} Callback function
 		 */
 		afterDuplicate: null,
-		
+
 		// private:
 		wrap: $(field).closest('div'),
 		field: $(field),
@@ -491,7 +483,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 		maxItems: $(field).data('max-items') || false,
 		newId: ($(field).attr('id') || 'garpfield-' + new Date().getTime()) + '-',
 		skipElements: '',
-		
+
 		/**
 		 * updateUI:
 		 * Shows or hide add button based on data-max-items property of field
@@ -505,13 +497,13 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 				}
 			}
 		},
-		
+
 		/**
 		 * Now do some duplication
 		 * @param jQuery dupl This can be a DOM node acting as the duplicate
 		 */
 		duplicateField: function(dupl){
-		
+
 			if (this.field.attr('type') == 'file') {
 				return;
 			}
@@ -522,7 +514,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 			dupl.addClass('duplicate');
 			var scope = this;
 			var numOfFields = this.numOfFields;
-			
+
 			// name="aap" -> name="aap[1]"
 			function changeName(name){
 				if (name[name.length - 1] == ']') {
@@ -530,8 +522,8 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 				}
 				return name;
 			}
-			
-			// converts add button into remove button: 
+
+			// converts add button into remove button:
 			function setupRemoveBtn(dupl){
 				var buttonClass = scope.buttonRemoveClass || scope.buttonClass;
 				var removeBtn = $('<input class="remove ' + buttonClass + '" type="button" value="' + scope.removeText + '">');
@@ -550,13 +542,13 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 					}
 				});
 			}
-			
+
 			if (this.field.is('fieldset')) {
 				this.field.attr('id', newId);
 			} else {
 				dupl.find('[id]').attr('id', newId);
 			}
-			
+
 			// file uploads:
 			if (this.field.hasClass('file-input-wrapper')) {
 				var name = $('input[type=text],input[type=hidden]', this.field).attr('name');
@@ -566,7 +558,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 				dupl.wrap('<div></div>');
 				newField = dupl;
 				this.fh.hijackUploadFields(setupRemoveBtn, this.fh);
-				
+
 			} else {
 				dupl.find('[for]').attr('for', newId);
 				if (isRuntimeDuplicate) {
@@ -591,19 +583,19 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 							}
 						}
 					});
-						
+
 				}
 				dupl.find('.invalid').removeClass('invalid');
 				newField = dupl.find('.duplicatable').val('');
-				
+
 				setupRemoveBtn(dupl);
-				
+
 				dupl.insertBefore(this.addButton);
 
 				if (this.fh.validator) {
 					this.fh.validator.init();
 				}
-				
+
 			}
 			this.numOfFields++;
 			this.updateUI();
@@ -632,7 +624,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 				newField.focus();
 			}
 		},
-		
+
 		/**
 		 * Create DOM & listeners
 		 */
@@ -648,7 +640,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 			});
 			return this;
 		},
-		
+
 		/**
 		 * Go !
 		 */
@@ -656,7 +648,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 			// check if we're not already initialized
 			if (this.field.attr('data-duplicator') == 'initialized') {
 				return; // nothing to do!
-			} 
+			}
 			this.field.attr('data-duplicator', 'initialized');
 
 			if (this.field.attr('data-button-class')) {
@@ -691,7 +683,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 						$(this).attr('name', name + '[' + scope.numOfFields + ']');
 					}
 				});
-				
+
 				// find duplicates added by the server
 				var classToLookFor = this.field.attr('class').split(' ')[0];
 				this.wrap = this.field.wrap('<div class="fieldset-wrap"></div>').parent();
@@ -729,43 +721,43 @@ Garp.FormHelper.Validator = function(cfg){
 		 * @cfg {jQuery} form, where to check for errors in:
 		 */
 		form: $('.garp-form'),
-		
+
 		/**
 		 * @cfg {Array} tags to check. Might choose a subset via selectors e.g. input[type="checkbox"]
 		 */
 		elms: ['input', 'select', 'textarea'],
-		
+
 		/**
 		 * @cfg {String}/{jQuery} msgTarget. "below" or jQuery selector where to put errors
 		 */
 		msgTarget: 'below',
-		
+
 		/**
 		 * @cfg {String} If 'name' attr not set, use this text:
 		 */
 		missingNameText: __('This field'),
-		
+
 		/**
 		 * @cfg {Bool} Whether or not to let the user know of validations error 'live'
 		 */
 		interactive: true
 	});
-	
-	// Custom config:	
+
+	// Custom config:
 	Garp.apply(this, cfg);
-	
+
 	// Validator extends Garp.Observable
 	Garp.apply(this, new Garp.Observable(this));
-	
+
 	// Internals:
 	Garp.apply(this, {
-	
+
 		// global flag
 		hasErrors: false,
-		
+
 		// Our collection of validation rules:
 		rules: {
-			
+
 		// Required field validation:
 			required: {
 				init: function(field){
@@ -796,7 +788,7 @@ Garp.FormHelper.Validator = function(cfg){
 				},
 				errorMsg: __("Value is required and can't be empty")
 			},
-			
+
 		// Simple email validation
 			email: {
 				fn: function(field){
@@ -807,7 +799,7 @@ Garp.FormHelper.Validator = function(cfg){
 				},
 				errorMsg: __("'${1}' is not a valid email address in the basic format local-part@hostname")
 			},
-			
+
 		// HTML5-pattern validation (RegExp)
 			pattern: {
 				RegExCache: {},
@@ -818,13 +810,13 @@ Garp.FormHelper.Validator = function(cfg){
 					var key = field.attr('pattern');
 					var cache = this.rules.pattern.RegExCache;
 					if(!cache[key]){ // compile regexes just once.
-						cache[key] = new RegExp('^' + field.attr('pattern') + '$'); 
+						cache[key] = new RegExp('^' + field.attr('pattern') + '$');
 					}
 					return cache[key].test(field.val());
 				},
 				errorMsg: __("'${1}' does not match against pattern '${2}'")
 			},
-		
+
 		// URL
 		url:{
 			mailtoOrUrlRe: /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
@@ -851,8 +843,8 @@ Garp.FormHelper.Validator = function(cfg){
 			},
 			errorMsg: __("'${1}' is not a valid URL")
 		},
-		
-		
+
+
 		// Dutch postalcode and filter
 			dutchPostalCode: {
 				init: function(field){
@@ -875,7 +867,7 @@ Garp.FormHelper.Validator = function(cfg){
 				},
 				errorMsg: __("'${1}' is not a valid Dutch postcode")
 			},
-			
+
 			identicalTo: {
 				init: function(field){
 					if (field.attr('data-identical-to')) {
@@ -895,13 +887,13 @@ Garp.FormHelper.Validator = function(cfg){
 					var theOtherName = Garp.FormHelper.formatName(field.attr('data-identical-to'));
 					var theOtherField = $('[name="' + theOtherName + '"]');
 					var oVal = theOtherField.val();
-					
+
 					return field.val() === oVal;
 				},
 				errorMsg: __("Value doesn't match")
 			}
 		},
-		
+
 		/**
 		 * Rules might want to init; filter methods might be bound to various field events, for example
 		 */
@@ -916,7 +908,7 @@ Garp.FormHelper.Validator = function(cfg){
 				}
 			}, this);
 		},
-		
+
 		/**
 		 * Gives our rules a convenient number
 		 */
@@ -926,7 +918,7 @@ Garp.FormHelper.Validator = function(cfg){
 				rule.id = c = c + 1;
 			});
 		},
-		
+
 		/**
 		 * Returns the target element for error messages. It might create one first
 		 * Possible to override and use a single msgTarget. Use @cfg msgTarget for this
@@ -946,7 +938,7 @@ Garp.FormHelper.Validator = function(cfg){
 			}
 			return t;
 		},
-		
+
 		/**
 		 * Some fields need to be grouped: (One error for all 'related' fields)
 		 * @param {DOM Element} field
@@ -962,7 +954,7 @@ Garp.FormHelper.Validator = function(cfg){
 			// ...but don't group duplicatable ones:
 			return $field.attr('id') + rule.id;
 		},
-		
+
 		/**
 		 * Add an error message to a field
 		 * @param {DOM Element} field
@@ -978,7 +970,7 @@ Garp.FormHelper.Validator = function(cfg){
 				t.first().append('<li data-error-id="' + uf + '">' + errorMsg.replace(/\[\]/, '') + '</li>');
 			}
 		},
-		
+
 		/**
 		 * Clears errors
 		 * @param {DOM Element} field
@@ -987,10 +979,10 @@ Garp.FormHelper.Validator = function(cfg){
 		clearError: function(field, rule){
 			$('li[data-error-id="' + this.getUniqueField(field, rule) + '"]', this.form).remove();
 		},
-		
+
 		// private
 		_blurredElement: null,
-		
+
 		/**
 		 * Live Validation events handlers:
 		 */
@@ -1007,7 +999,7 @@ Garp.FormHelper.Validator = function(cfg){
 				}
 			});
 		},
-		
+
 		/**
 		 * Util: Adds a rule. A rule needs a fn propery {Function} and an errorMsg {String}
 		 * @param {Object} ruleConfig
@@ -1017,7 +1009,7 @@ Garp.FormHelper.Validator = function(cfg){
 			this.setRuleIds();
 			return this;
 		},
-		
+
 		/**
 		 * Util: Set a different message for a rule
 		 * @param {Object} ruleName
@@ -1029,11 +1021,11 @@ Garp.FormHelper.Validator = function(cfg){
 			}
 			return this;
 		},
-		
+
 		/**
 		 * Validates a single field.
 		 * @param {jQuery selector string} field
-		 * @param {Validator Object} {optional} rule 
+		 * @param {Validator Object} {optional} rule
 		 * @return {Bool} valid or not
 		 */
 		validateField: function(field, ruleObj){
@@ -1061,7 +1053,7 @@ Garp.FormHelper.Validator = function(cfg){
 			this.fireEvent(valid ? 'fieldvalid' : 'fieldinvalid', field);
 			return valid;
 		},
-		
+
 		/**
 		 * Clear all error messages in bulk
 		 */
@@ -1070,7 +1062,7 @@ Garp.FormHelper.Validator = function(cfg){
 			this.hasErrors = false;
 			return this;
 		},
-		
+
 		/**
 		 * Validate the form!
 		 * @return {Bool} valid or not
@@ -1081,7 +1073,7 @@ Garp.FormHelper.Validator = function(cfg){
 			this.fireEvent(this.hasErrors ? 'forminvalid' : 'formvalid', this);
 			return !this.hasErrors;
 		},
-		
+
 		/**
 		 * Necessary for IE and placeholders:
 		 * values might otherwise be sent to the server. yuck!
@@ -1094,7 +1086,7 @@ Garp.FormHelper.Validator = function(cfg){
 				}
 			});
 		},
-		
+
 		/**
 		 * Necessary for IE and placeholders:
 		 * Re-add the placeholders we just removed.
@@ -1104,7 +1096,7 @@ Garp.FormHelper.Validator = function(cfg){
 				$(f).addPlaceholder();
 			});
 		},
-		
+
 		/**
 		 * Binds validateForm to submit or other event. Possible to bind this to a specific element
 		 * @param {jQuery} element, defaults to @cfg form
@@ -1128,14 +1120,14 @@ Garp.FormHelper.Validator = function(cfg){
 			});
 			return s;
 		},
-		
+
 		/**
 		 * INITIALISE!
 		 */
 		init: function(){
 			this.form.attr('novalidate', 'novalidate');
 			this.elements = $(this.elms.join(', '), this.form);
-			this.initRules();			
+			this.initRules();
 			this.setRuleIds();
 			if (this.interactive) {
 				this.bindInteractiveHandlers();
