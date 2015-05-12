@@ -1,6 +1,4 @@
-
 <?php
-
 /**
  * Amazon Simple Email Service (SES) connection object
  *
