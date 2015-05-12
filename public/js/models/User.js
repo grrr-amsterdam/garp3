@@ -3,6 +3,30 @@
 	if (!('User' in Garp.dataTypes)) {
 		return;
 	}
+
+	/**
+	 * Add some fields that trick Chrome into auto-filling them.
+	 * This prevents form fuckup on the _actual_ fields below.
+	 */
+	function addHoneypotFieldsForChromeAutofill(target) {
+		target.addField({
+			hidden: true,
+			disabled: false,
+			allowBlank: true,
+			name: '__fake_login__',
+			fieldLabel: 'fake login'
+		});
+
+		target.addField({
+			hidden: true,
+			disabled: false,
+			allowBlank: true,
+			inputType: 'password',
+			name: '__fake_password__',
+			fieldLabel: 'fake password'
+		});
+	}
+
 	Garp.dataTypes.User.on('init', function(){
 		['AuthLocal', 'AuthPasswordless', 'AuthFacebook', 'AuthTwitter', 'AuthLinkedin']
 			.map(function(rl) {
@@ -12,6 +36,8 @@
 		Ext.apply(this.getColumn('fullname'), {
 			virtualSortField: 'first_name'
 		});
+
+		addHoneypotFieldsForChromeAutofill(this);
 
 		this.addColumn({
 			dataIndex: 'password',
@@ -51,7 +77,7 @@
 			}
 		});
 
-		this.addListener('loaddata', function(rec, formPanel){
+		this.addListener('loaddata', function(rec, formPanel) {
 
 			formPanel.changePassword.collapseAndHide();
 
@@ -63,18 +89,24 @@
 			var roleField = formPanel.getForm().findField('role');
 			if (roleField) {
 				var ownRole = Garp.localUser.role || 'User';
-				Ext.each(Garp.ACL[ownRole].children, function(disabledRole){
+				Ext.each(Garp.ACL[ownRole].children, function(disabledRole) {
 					var idx = roleField.store.find('field1', disabledRole);
 					roleField.store.removeAt(idx);
 					// roleField.store.remove(disabledRole);
 				});
 			}
 			var email = formPanel.getForm().findField('email');
-			if(email && email.allowBlank === false){
+			if (email && email.allowBlank === false) {
 				email._keepRequired = true;
-			} else if(email){
+			} else if (email) {
 				email._keepRequired = false;
 			}
+
+			// Cleanup honeypot fields
+			setTimeout(function() {
+				formPanel.getForm().remove(formPanel.getForm().findField('__fake_login__'));
+				formPanel.getForm().remove(formPanel.getForm().findField('__fake_password__'));
+			}, 1000);
 		});
 
 	});

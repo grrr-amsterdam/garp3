@@ -8,9 +8,13 @@
  * @package      G_View_Helper
  */
 class G_View_Helper_Breadcrumbs extends Zend_View_Helper_Abstract {
-	public function breadcrumbs(array $links, $includeWrapper = false) {
 
-		$out = '<div class="breadcrumbs">'."\n".'<ol class="breadcrumbs__list mb-half">'."\n";
+	/**
+ 	 * @todo Make a proper thing out of this, with configurable output. (html, classes etc.)
+ 	 */
+	public function breadcrumbs(array $links) {
+
+		$out = '<div class="breadcrumbs">'."\n".'<ol>'."\n";
 		foreach ($links as $url => $label) {
 			$out .= "\t<li>{$this->view->htmlLink($url, $label)}</li>\n";
 		}
