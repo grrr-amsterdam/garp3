@@ -39,11 +39,6 @@ class Garp_Cache_Manager {
 	 * @return Void
 	 */
 	public static function purge($tags = array(), $createClusterJob = true, $cacheDir = false) {
-		if (!Zend_Registry::get('CacheFrontend')->getOption('caching')) {
-			// caching is disabled
-			return;
-		}
-
 		if ($tags instanceof Garp_Model_Db) {
             $tags = self::getTagsFromModel($tags);
         }
@@ -64,30 +59,36 @@ class Garp_Cache_Manager {
  	 * @return Void
  	 */
 	public static function purgeMemcachedCache($modelNames = array()) {
+		if (!Zend_Registry::isRegistered('CacheFrontend')) {
+			return;
+		}
+
+		if (!Zend_Registry::get('CacheFrontend')->getOption('caching')) {
+			// caching is disabled
+			return;
+		}
+
 		if ($modelNames instanceof Garp_Model_Db) {
 			$modelNames = self::getTagsFromModel($modelNames);
 		}
 
 		if (empty($modelNames)) {
-			if (Zend_Registry::isRegistered('CacheFrontend')) {
-				$cacheFront = Zend_Registry::get('CacheFrontend');
-				$cacheFront->clean(Zend_Cache::CLEANING_MODE_ALL);
-			}
-		} else {
-			foreach ($modelNames as $modelName) {
-				$model = new $modelName();
-				self::_incrementMemcacheVersion($model);
-				if ($model->getObserver('Translatable')) {
-					// Make sure cache is cleared for all languages.
-					$locales = Garp_I18n::getLocales();
-					foreach ($locales as $locale) {
-						try {
-							$modelFactory = new Garp_I18n_ModelFactory($locale);
-							$i18nModel = $modelFactory->getModel($model);
-							self::_incrementMemcacheVersion($i18nModel);
-						} catch (Garp_I18n_ModelFactory_Exception_ModelAlreadyLocalized $e) {
-							// all good in the hood  ｡^‿^｡
-						}
+			$cacheFront = Zend_Registry::get('CacheFrontend');
+			return $cacheFront->clean(Zend_Cache::CLEANING_MODE_ALL);
+		}
+		foreach ($modelNames as $modelName) {
+			$model = new $modelName();
+			self::_incrementMemcacheVersion($model);
+			if ($model->getObserver('Translatable')) {
+				// Make sure cache is cleared for all languages.
+				$locales = Garp_I18n::getLocales();
+				foreach ($locales as $locale) {
+					try {
+						$modelFactory = new Garp_I18n_ModelFactory($locale);
+						$i18nModel = $modelFactory->getModel($model);
+						self::_incrementMemcacheVersion($i18nModel);
+					} catch (Garp_I18n_ModelFactory_Exception_ModelAlreadyLocalized $e) {
+						// all good in the hood  ｡^‿^｡
 					}
 				}
 			}

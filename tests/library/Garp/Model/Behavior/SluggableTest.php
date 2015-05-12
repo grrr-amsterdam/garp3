@@ -82,10 +82,10 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 	/**
  	 * A known bug occurred in the past when a second-language row
  	 * would be updated after it already existed in the primary language.
- 	 * It would then not receive a new slug in the second language, if the 
- 	 * baseField would not be specified in the second language. 
- 	 * For instance: a record about Michael Jackson would receive the slug "michael-jackson" if 
- 	 * the name is Michael Jackson. The second language doesn't have to 
+ 	 * It would then not receive a new slug in the second language, if the
+ 	 * baseField would not be specified in the second language.
+ 	 * For instance: a record about Michael Jackson would receive the slug "michael-jackson" if
+ 	 * the name is Michael Jackson. The second language doesn't have to
  	 * update the name, but only the description. However, this would fail to
  	 * create the slug.
  	 * This test checks for that.
@@ -112,7 +112,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		);
 		// @note: since its the second rendition of the record, the slug will be incremented
 		$this->assertEquals('henk-jan-de-beuker-2', $row->slug);
-	}	
+	}
 
 	public function testShouldGenerateSlugWithDate() {
 		$model = $this->_getConfiguredModel(array(
@@ -128,7 +128,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$model->insert(array('name' => 'henk jan de beuker', 'd' => '2013-10-12'));
 		$row = $model->fetchRow();
 
-		$this->assertEquals('12-10-2013-henk-jan-de-beuker', $row->slug); 
+		$this->assertEquals('12-10-2013-henk-jan-de-beuker', $row->slug);
 	}
 
 	public function testShouldGenerateSlugWithFormattedDate() {
@@ -146,7 +146,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$model->insert(array('name' => 'henk jan de beuker', 'd' => '2013-10-12'));
 		$row = $model->fetchRow();
 
-		$this->assertEquals('2013-henk-jan-de-beuker', $row->slug); 
+		$this->assertEquals('2013-henk-jan-de-beuker', $row->slug);
 	}
 
 	public function testShouldIncrementSlugWithFormattedDate() {
@@ -188,6 +188,18 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		));
 		$row = $model->fetchRow($model->select()->order('id DESC'));
 		$this->assertEquals('terminator-2-2', $row->slug);
+	}
+
+	public function testShouldNotOverwriteGivenSlug() {
+		$model = $this->_getConfiguredModel(array(
+			'baseField' => array('name')
+		));
+		$model->insert(array(
+			'name' => 'John Coltrane',
+			'slug' => 'miles-davis'
+		));
+		$row = $model->fetchRow();
+		$this->assertEquals('miles-davis', $row->slug);
 	}
 
 	protected function _getConfiguredModel($config) {
@@ -248,7 +260,7 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		from (`_sluggable_test_2`
 		left join `_sluggable_test_2_i18n` `_sluggable_test_2_nl`
 		on(((`_sluggable_test_2_nl`.`_sluggable_test_2_id` = `_sluggable_test_2`.`id`) and (`_sluggable_test_2_nl`.`lang` = 'nl'))))");
-		
+
 		$dbAdapter->query('DROP VIEW IF EXISTS `_sluggable_test_2_en`;');
 		$dbAdapter->query("
 		CREATE VIEW `_sluggable_test_2_en` AS
@@ -258,11 +270,11 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		if(((`_sluggable_test_2_en`.`name` <> '') and (`_sluggable_test_2_en`.`name` is not null)),`_sluggable_test_2_en`.`name`,`_sluggable_test_2_nl`.`name`) AS `name`,
 		if(((`_sluggable_test_2_en`.`slug` <> '') and (`_sluggable_test_2_en`.`slug` is not null)),`_sluggable_test_2_en`.`slug`,`_sluggable_test_2_nl`.`slug`) AS `slug`,
 		if(((`_sluggable_test_2_en`.`tag` <> '') and (`_sluggable_test_2_en`.`tag` is not null)),`_sluggable_test_2_en`.`tag`,`_sluggable_test_2_nl`.`tag`) AS `tag`
-				
+
 		from
 		((`_sluggable_test_2`
 		left join `_sluggable_test_2_i18n` `_sluggable_test_2_en`
-		on(((`_sluggable_test_2_en`.`_sluggable_test_2_id` = `_sluggable_test_2`.`id`) and (`_sluggable_test_2_en`.`lang` = 'en')))) 
+		on(((`_sluggable_test_2_en`.`_sluggable_test_2_id` = `_sluggable_test_2`.`id`) and (`_sluggable_test_2_en`.`lang` = 'en'))))
 		left join `_sluggable_test_2_i18n` `_sluggable_test_2_nl`
 		on(((`_sluggable_test_2_nl`.`_sluggable_test_2_id` = `_sluggable_test_2`.`id`) and (`_sluggable_test_2_nl`.`lang` = 'nl'))))");
 	}

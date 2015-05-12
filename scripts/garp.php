@@ -29,6 +29,10 @@ if (!defined('APPLICATION_ENV')) {
 
 require_once(dirname(__FILE__)."/../application/init.php");
 
+if (file_exists(APPLICATION_PATH . '/../vendor/autoload.php')) {
+	require_once(APPLICATION_PATH . '/../vendor/autoload.php');
+}
+
 // Create application, bootstrap, and run
 $application = new Garp_Application(
 	APPLICATION_ENV,

@@ -21,7 +21,7 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 	const EXCEPTION_LENGTH_MISMATCH = '"baseField" and "slugField" need to have the same length when using multiple slugFields.';
 	const EXCEPTION_MISSING_CONFIG = '"%s" is a required config key';
     /**#@-*/
-		
+
 	/**
 	 * Configuration
 	 * @var Array
@@ -153,12 +153,15 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		$baseFields = $this->_config['baseField'];
 		$slugField  = $this->_config['slugField'][0];
 		$baseData = array();
+		if (!empty($targetData[$slugField])) {
+			return;
+		}
 		foreach ((array)$baseFields as $baseColumn) {
 			$baseData[] = $this->_getBaseString($baseColumn, $referenceData);
 		}
 		$baseData = implode(' ', $baseData);
 		$targetData[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField);
-	}		
+	}
 
 	/**
  	 * Add slug(s) from single source
@@ -173,10 +176,13 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		foreach ($baseFields as $i => $baseField) {
 			$baseData = $this->_getBaseString($baseField, $referenceData);
 			$slugField = $slugFields[$i];
+			if (!empty($targetData[$slugField])) {
+				continue;
+			}
 			$targetData[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField);
 		}
 	}
-	
+
 	/**
  	 * Construct base string on which the slug will be based.
  	 * @param Array $baseFields Basefield configuration (per field)
@@ -191,7 +197,7 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 
 	/**
  	 * Get base string from text column.
- 	 * @param Array $data 
+ 	 * @param Array $data
  	 * @param Array $baseField Base field config
  	 * @return String
  	 */
@@ -217,7 +223,7 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		}
 		return date($format, strtotime($data[$col]));
 	}
-	
+
 	/**
 	 * Generate a slug from a base string
 	 * @param String $base String to base the slug on.
@@ -260,11 +266,11 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		$slugField = $model->getAdapter()->quoteIdentifier($slugField);
 		$select->reset(Zend_Db_Select::WHERE)
 			->where($slugField . ' = ?', $slug);
-	}		
+	}
 
 	/**
 	 * Check if rows exist for a given select query
-	 * @param Zend_Db_Select $select 
+	 * @param Zend_Db_Select $select
 	 * @return Boolean
 	 */
 	protected function _rowsExist(Zend_Db_Select $select) {
