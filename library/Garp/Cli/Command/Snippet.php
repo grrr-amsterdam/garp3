@@ -100,9 +100,9 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
 			$snippetData = $data->toArray();
 			$snippetData['identifier'] = isset($snippetData['identifier']) ?
 				$snippetData['identifier'] : $identifier;
-			$existing = $this->_fetchExisting($identifier);
+			$existing = $this->_fetchExisting($snippetData['identifier']);
 			if (!$this->_overwrite && $existing) {
-				Garp_Cli::lineOut('Skipping "' . $identifier . '". Snippet already exists.');
+				Garp_Cli::lineOut('Skipping "' . $snippetData['identifier'] . '". Snippet already exists.');
 				continue;
 			}
 			$this->_insertOrUpdate($snippetData, $existing);
