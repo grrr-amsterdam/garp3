@@ -98,7 +98,8 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
 		foreach ($snippets as $identifier => $data) {
 			$identifier = $this->_normalizeIdentifier($identifier);
 			$snippetData = $data->toArray();
-			$snippetData['identifier'] = $identifier;
+			$snippetData['identifier'] = isset($snippetData['identifier']) ?
+				$snippetData['identifier'] : $identifier;
 			$existing = $this->_fetchExisting($identifier);
 			if (!$this->_overwrite && $existing) {
 				Garp_Cli::lineOut('Skipping "' . $identifier . '". Snippet already exists.');
