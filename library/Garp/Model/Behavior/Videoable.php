@@ -22,7 +22,7 @@ class Garp_Model_Behavior_Videoable extends Garp_Model_Behavior_Abstract {
 
 	/**
  	 * Setup the behavior - this configures the keys used to map service data to local database data.
- 	 * Make sure to add a "vimeo" and a "youtube" key for the respective services. 
+ 	 * Make sure to add a "vimeo" and a "youtube" key for the respective services.
  	 * @see Garp_Model_Behavior_Youtubeable and @see Garp_Model_Behavior_Vimeoable for the default mapping.
  	 * @param Array $config
  	 * @return Void
@@ -36,8 +36,8 @@ class Garp_Model_Behavior_Videoable extends Garp_Model_Behavior_Abstract {
 		}
 		$this->_config = $config;
 	}
-	
-	
+
+
 	/**
  	 * Before insert callback
  	 * @param Array $args
