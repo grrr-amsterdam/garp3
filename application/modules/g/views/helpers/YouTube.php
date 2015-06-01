@@ -44,7 +44,7 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 		unset($options['attribs']);
 
 		// create the YouTube URL
-		$youtubeUrl = $this->getPlayerUrl($youtube);
+		$youtubeUrl = $this->getPlayerUrl($youtube, $options);
 		$_attribs['src'] = $youtubeUrl;
 
 		$html = '<iframe'.$this->_htmlAttribs($_attribs).'></iframe>'; 
