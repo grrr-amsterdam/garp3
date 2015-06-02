@@ -19,17 +19,17 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 
 	/**
 	 * Central interface for this helper.
-	 * This one's always to chained to another helper method, 
-	 * like so: 
+	 * This one's always to chained to another helper method,
+	 * like so:
 	 * (in the view)
 	 * $this->social()->tweetUrl(...)
-	 * 
+	 *
 	 * @return G_View_Helper_Social $this
 	 */
 	public function social() {
-		return $this;		
+		return $this;
 	}
-	
+
 	/**
 	 * Generate a "Tweet this!" URL.
 	 * Note that the status is automatically cut off at 140 characters.
@@ -79,7 +79,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		$params['via'] && $attributes['data-via'] = $params['via'];
 		$params['related'] && $attributes['data-related'] = $params['related'];
 		$params['lang'] && $attributes['data-lang'] = $params['lang'];
-		
+
 		$html = $this->view->htmlLink(
 			'http://twitter.com/share',
 			'Tweet',
@@ -174,7 +174,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			   ->setDefault('font', 'lucida grande')
 			   ->setDefault('colorscheme', 'light')
 		;
-		
+
 		if ($useFacebookPageAsUrl) {
 			$this->_setFacebookPageUrlAsHref($params);
 		}
@@ -231,7 +231,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			   ->setDefault('width', 450)
 			   ->setDefault('colorscheme', 'light')
 		;
-		
+
 		if ($useFacebookPageAsUrl) {
 			$this->_setFacebookPageUrlAsHref($params);
 		}
@@ -249,7 +249,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		$html = '';
 		$metaTemplate = '<meta property="%s" content="%s">';
 		$ini = Zend_Registry::get('config');
-		
+
 		if (!array_key_exists('admins', $ogData)) {
 			if ($ini->auth->adapters->facebook->admins) {
 				$ogData['admins'] = $ini->auth->adapters->facebook->admins;
@@ -281,12 +281,16 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			if ($appName = $this->view->config()->app->name) {
 				$title[] = $appName;
 			}
-			
+
 			$ogData['title'] = implode(' | ', $title);
 		}
 
 		if (empty($ogData['image']) && !empty($this->view->config()->app->image)) {
-			$ogData['image'] = $this->view->fullUrl($this->view->config()->app->image);
+			if (basename($this->view->config()->app->image) === $this->view->config()->app->image) {
+				$ogData['image'] = $this->view->image()->getUrl($this->view->config()->app->image);
+			} else {
+				$ogData['image'] = $this->view->fullUrl($this->view->config()->app->image);
+			}
 		}
 		if (empty($ogData['description'])) {
 			if ($this->view->description) {
@@ -322,7 +326,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			$html .= 'data-counter="'.$this->view->escape($params['counter']).'" ';
 		}
 		$html .= '></script>';
-		
+
 		// Add the LinkedIn Javascript to the stack
 		// Must be rendered in the view using "$this->script()->render()"
 		$this->view->script()->src('http://platform.linkedin.com/in.js');
@@ -348,7 +352,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		if ($quesPos !== false) {
 			$url = substr($url, 0, $quesPos);
 		}
-		
+
 		return $url;
 	}
 
@@ -363,7 +367,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		}
 		return implode(' ', $attributesPairs);
 	}
-	
+
 	/**
  	 * Modify params by making the organization's Facebook page the href.
  	 * @param Garp_Util_Configuration $params
@@ -383,5 +387,5 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
  	 */
 	public function needsFacebookInit() {
 		return $this->_needsFacebookInit;
-	}	
+	}
 }
