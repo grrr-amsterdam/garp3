@@ -17,13 +17,13 @@ class Garp_Spawn_MySql_I18nForker {
 	/**
 	 * @var Garp_Spawn_MySql_Table_Abstract $_source
 	 */
-	protected $_source;	
-	
+	protected $_source;
+
 	/**
 	 * @var Garp_Spawn_MySql_Table_Abstract $_target
 	 */
 	protected $_target;
-	
+
 
 	public function __construct(Garp_Spawn_Model_Base $model) {
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($model);
@@ -33,66 +33,66 @@ class Garp_Spawn_MySql_I18nForker {
 		$this->setModel($model);
 		$this->setSource($source);
 		$this->setTarget($target);
-		
+
 		$this->_createTableIfNotExists();
-		
+
 		$sql = $this->_renderContentMigrationSql();
 		$this->_executeSql($sql);
 	}
-	
+
 	/**
 	 * @return Garp_Spawn_MySql_Table_Abstract
 	 */
 	public function getTarget() {
 		return $this->_target;
 	}
-	
+
 	/**
 	 * @param Garp_Spawn_MySql_Table_Abstract $target
 	 */
 	public function setTarget($target) {
 		$this->_target = $target;
 	}
-	
+
 	/**
 	 * @return Garp_Spawn_MySql_Table_Abstract
 	 */
 	public function getSource() {
 		return $this->_source;
 	}
-	
+
 	/**
 	 * @param Garp_Spawn_MySql_Table_Abstract $source
 	 */
 	public function setSource($source) {
 		$this->_source = $source;
 	}
-	
+
 	/**
 	 * @return Garp_Spawn_Model_Base
 	 */
 	public function getModel() {
 		return $this->_model;
 	}
-	
+
 	/**
 	 * @param Garp_Spawn_Model_Base $model
 	 */
 	public function setModel($model) {
 		$this->_model = $model;
 	}
-	
+
 	protected function _executeSql($sql) {
 		// Zend_Debug::dump($sql);
 		// exit;
 		$adapter = Zend_Db_Table::getDefaultAdapter();
 		return $adapter->query($sql);
 	}
-	
+
 	protected function _createTableIfNotExists() {
 		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($this->getModel()->getI18nModel());
 		$table 			= $tableFactory->produceConfigTable();
-		
+
 		if (
 			!Garp_Spawn_MySql_Table_Base::exists($table->name) &&
 			!$table->create()
@@ -100,9 +100,9 @@ class Garp_Spawn_MySql_I18nForker {
 			$error = sprintf(self::ERROR_CANT_CREATE_TABLE, $table->name);
 			throw new Exception($error);
 		}
-		
+
 	}
-	
+
 	protected function _renderContentMigrationSql() {
 		$target				= $this->getTarget();
 		// @fixme Validate this patch by Harmen. Maybe a more elegant solution is possible?
@@ -112,8 +112,8 @@ class Garp_Spawn_MySql_I18nForker {
 
 		$language			= $this->_getDefaultLanguage();
 		$fieldNamesString	= $this->_getMultilingualFieldNamesString();
-		
-		$statement = 
+
+		$statement =
 			"INSERT IGNORE INTO `{$i18nTableName}` ({$relationColumnName}, lang, {$fieldNamesString}) "
 			."SELECT id, '{$language}', {$fieldNamesString} "
 			."FROM `{$target->name}`"
@@ -121,29 +121,27 @@ class Garp_Spawn_MySql_I18nForker {
 
 		return $statement;
 	}
-	
+
 	protected function _getDefaultLanguage() {
 		$ini = Zend_Registry::get('config');
 		$defaultLanguage = $ini->resources->locale->default;
-		
+
 		if (!$defaultLanguage) {
 			throw new Exception("resources.locale.default should be set in application.ini");
 		}
-		
+
 		return $defaultLanguage;
 	}
-	
+
 	protected function _getMultilingualFieldNamesString() {
-		$model 				= $this->getModel();
-		$multilingualFields = $model->fields->getFields('multilingual', true);
-		$fieldNames			= array();
-		
-		foreach ($multilingualFields as $field) {
-			$fieldNames[] = $field->name;
-		}
-		
-		$fieldNamesString = implode(', ', $fieldNames);
-		return $fieldNamesString;
+		return implode(', ', array_merge(
+			array_map(function($field) {
+				return $field->name;
+			}, $this->getModel()->fields->getFields('multilingual', true)),
+ 			array_map(function($rel) {
+				return $rel->column;	;
+			}, $this->getModel()->relations->getRelations('multilingual', true))
+		));
 	}
-	
+
 }
