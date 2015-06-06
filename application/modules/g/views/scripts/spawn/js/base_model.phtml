@@ -13,6 +13,12 @@
 		array('type', 'inline'),
 		array(array('hasMany', 'hasAndBelongsToMany'), true)
 	);
+	$multilingualRelations = array_filter($model->relations->getRelations('multilingual', true), function($rel) {
+		return $rel->isSingular();
+	});
+	$multilingualImageRelations = array_filter($multilingualRelations, function($rel) {
+		return $rel->model == 'Image';
+	});
 
 	$dashedModelId = Garp_Spawn_Util::camelcased2dashed($model->id);
 	$rolesThatShouldntSeeThisModelInTheirMenu = $this->spawnJs()->getAclRolesThatAreNotAllowedModelPrivilege($model, 'menu');
@@ -36,7 +42,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 	<?php if (!$model->deletable): ?>
 	disableDelete: true,
 	<?php endif; ?>
-	
+
 	metaPanelItems: [
 		'created', 'modified'
 		<?php
@@ -46,7 +52,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 		?>
 	],
 
-	<?php 
+	<?php
 		echo $this->partial('partials/spawn/js/display-field.phtml', 'g', array('model' => $model));
 	?>,
 
@@ -80,10 +86,16 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 	$i = 0;
 	?>
 	defaultData: {
-	<?php 
+	<?php
+	$total = count($fields) + count($multilingualRelations);
 	foreach ($fields as $field): ?>
-		
-		'<?php echo $field->name ?>': <?php echo $this->spawnJs()->getDefaultValue($field); echo ($i < (count($fields) - 1) ? ',' : ''); ?>
+
+		'<?php echo $field->name ?>': <?php echo $this->spawnJs()->getDefaultValue($field); echo ($i < ($total - 1) ? ',' : ''); ?>
+		<?php
+		$i++;
+	endforeach;
+	foreach ($multilingualRelations as $rel): ?>
+		'<?php echo $rel->column ?>': <?php echo $this->spawnJs()->getDefaultValueForRelation($rel); echo ($i < ($total - 1) ? ',' : ''); ?>
 		<?php
 		$i++;
 	endforeach;
@@ -91,7 +103,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 	},
 
 	<?php
-		/* _____SortInfo */	
+		/* _____SortInfo */
 		$sortParams = $this->spawnJs()->getSortParams($model->order);
 	?>
 	sortInfo: {
@@ -126,12 +138,36 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 				$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', $nodeParams);
 			endif;
 		endforeach;
+		foreach ($multilingualImageRelations as $rel):
+			$lcFieldName = strtolower($rel->column);
+			$nodeParams = array(
+				'dataIndex' => $lcFieldName,
+				'renderer' => 'Garp.renderers.imageRelationColumnRendererDelegate("' . $this->i18n()->getDefaultLocale() . '")',
+				'width' => 84,
+				'fixed' => true,
+				'header' => ($rel->column === 'image_id' ? 'Image' : $rel->label),
+				'searchable' => false
+			);
+			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', $nodeParams);
+		endforeach;
+
+		foreach ($multilingualRelations as $rel):
+			foreach ($this->i18n()->getLocales() as $lang):
+				$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
+					'dataIndex' => strtolower($rel->name) . '_' . $lang,
+					'renderer' => 'Garp.renderers.i18nRenderer',
+					'sortable' => false,
+					'searchable' => false,
+					'hidden' => true
+				));
+			endforeach;
+		endforeach;
 
 		/* __textual columns */
 		foreach ($fields as $field):
 			$isSingularRelationField = $this->spawnJs()->isSingularRelationField($field, $model);
 			$lcFieldName = strtolower($field->name);
-			
+
 			if (!$this->spawnJs()->isImageField($field, $model)):
 				$nodeParams = array(
 					'dataIndex' => $lcFieldName,
@@ -236,7 +272,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 				'hidden' => true
 			));
 		endif;
-		
+
 		/* Article / Chapter behavior */
 		if ($model->behaviors->displaysBehavior('Article')):
 			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
@@ -245,7 +281,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 				'visible' => false
 			));
 		endif;
-		
+
 
 		if ($columnModelNodes):
 			echo implode("}, {", $columnModelNodes);
@@ -269,14 +305,11 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 			if (count($singularRelations)):
 				$singularImageRelations = array_filter($singularRelations, function ($n) {return $n->model === 'Image';});
 				foreach ($singularImageRelations as $imageRelation):
-					$imagePreviewId = $this->spawnJs()->getImagePreviewId($imageRelation->column);
-				?>
-				formPanel.<?php echo $imagePreviewId ?>.setText(Garp.renderers.imageRelationRenderer(rec.get('<?php echo $imageRelation->column ?>'), null, rec) || __('Add image'));
-				<?php
+					echo $this->spawnJs()->renderImagePreviewListener($imageRelation);
 				endforeach;
 			endif;
 
-			if ($model->behaviors->displaysBehavior('Locatable')): 
+			if ($model->behaviors->displaysBehavior('Locatable')):
 				echo $this->partial('partials/spawn/js/locatable.phtml', 'g');
 			endif; ?>
 			}
@@ -299,10 +332,9 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 
 		/* _____Image Fields */
 		foreach ($singularRelations as $rel):
-			if ($rel->model === 'Image'):
+			if ($rel->model === 'Image' && !$rel->multilingual):
 				$formFields[] = $this->partial('partials/spawn/js/image-field.phtml', 'g', array(
-					'relation' => $rel,
-					'modelSet' => $this->modelSet
+					'relation' => $rel
 				));
 			endif;
 		endforeach;
@@ -313,7 +345,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 				'model' => $model
 			));
 		}
-		
+
 		/* _____InputFields */
 		foreach ($editableFields as $field) {
 			if (in_array($field->name, $excludedFormFields)) {
@@ -321,12 +353,17 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 			}
 			$fieldParam = array('field' => $field);
 			if ($field->isMultilingual()) {
-				$formFields[] = $this->partial('partials/spawn/js/input-i18nsource.phtml', 'g', $fieldParam);
+				$formFields[] = $this->partial('partials/spawn/js/input-i18nsource.phtml', 'g', array(
+					'field' => $field->name
+				));
 			} else {
 				$formFields[] = $this->partial('partials/spawn/js/input-field.phtml', 'g', $fieldParam);
 			}
 		}
-		
+		foreach ($multilingualRelations as $rel) {
+			$formFields[] = $this->partial('partials/spawn/js/input-i18nsource.phtml', 'g', array('field' => $rel->column));
+		}
+
 		/* _____Chapter / Article Fields */
 		if ($model->behaviors->displaysBehavior('Article')) {
 			$formFields[] = $this->partial('partials/spawn/js/article-field.phtml', 'g');
@@ -338,7 +375,8 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 			if (
 				$rel->model !== 'Image' &&
 				$rel->column !== 'author_id' &&
-				$rel->column !== 'modifier_id'
+				$rel->column !== 'modifier_id' &&
+				!$rel->multilingual
 			) {
 				$formFields[] = $this->partial('partials/spawn/js/singular-relation-field.phtml', 'g', array(
 					'relationName' 	=> $relName,
@@ -358,7 +396,9 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 
 		if ($model->isMultilingual()) {
 			$formFields[] = $this->partial('partials/spawn/js/input-i18n-field-sets.phtml', 'g', array(
-				'fieldSet' => $editableFields
+				'fieldSet' => $editableFields,
+				'relations' => $multilingualRelations,
+				'modelSet' => $this->modelSet
 			));
 		};
 

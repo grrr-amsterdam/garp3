@@ -1,34 +1,37 @@
 /**
- * 
+ *
  * i18nSource: a form field to contain values for referenced language fields;
  * it acts as a conduit for other fields in the form (they are grouped in i18nFieldsets).
  * e.g. on 'setValue' all referenced fields are 'setValue'd with their respective language value:
- *  
- *  field.name.setValue(obj) -->> field._name_nl.setValue(str); 
+ *
+ *  field.name.setValue(obj) -->> field._name_nl.setValue(str);
  *                                field._name_en.setValue(str);
- *  
+ *
  */
 Garp.i18nSource = Ext.extend(Ext.form.Field, {
 
 	ref: '../',
 	style: 'display:none; height: 0; margin: 0; padding: 0;',
 	hideLabel: true,
-	
+
 	originalValue: null,
-	
+
 	initComponent: function(ct){
 		Garp.i18nSource.superclass.initComponent.call(this, ct);
 		Garp.i18nSource.superclass.hide.call(this);
 	},
-	
+
 	/**
 	 * Get referenced field
 	 * @param {String} lang
 	 */
 	getRefField: function(lang){
+		if (this.name == 'faq_id') {
+			window.refOwner = this.refOwner;
+		}
 		return this.refOwner.find('name', ('_' + this.name + '_' + lang))[0];
 	},
-	
+
 	setValue: function(v){
 		Ext.each(LANGUAGES, function(lang){
 			if (this.getRefField(lang)) {
@@ -37,11 +40,11 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 		}, this);
 		Garp.i18nSource.superclass.setValue.call(this, v);
 	},
-	
+
 	setRawValue: function(v){
 		return this.setValue(v);
 	},
-	
+
 	getValue: function(v){
 		var out = {};
 		Ext.each(LANGUAGES, function(lang){
@@ -52,7 +55,7 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 		}, this);
 		return out;
 	},
-	
+
 	getRawValue: function(v){
 		return this.getValue(v);
 	},
@@ -60,6 +63,7 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 	isDirty: function(v){
 		var out = false;
 		Ext.each(LANGUAGES, function(lang){
+			//console.log(this.getRefField(lang));
 			if (this.getRefField(lang) && this.getRefField(lang).isDirty()) {
 				out = true;
 				return false;
@@ -67,7 +71,7 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 		}, this);
 		return out;
 	},
-	
+
 	/**
 	 * Perform function on all referenced fields
 	 * @param {String} function to perform
@@ -85,7 +89,7 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 			return Garp.i18nSource.superclass[func].call(this, param);
 		}
 	},
-	
+
 	setVisible: function(state){
 		return this._setAll('setVisible', state, true);
 	},
@@ -103,8 +107,8 @@ Garp.i18nSource = Ext.extend(Ext.form.Field, {
 	},
 	disable: function(state){
 		return this._setAll('disable', state);
-	}	
-	
+	}
+
 });
 Ext.reg('i18nsource', Garp.i18nSource);
 

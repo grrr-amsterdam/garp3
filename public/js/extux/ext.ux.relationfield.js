@@ -1,7 +1,7 @@
 /**
  * Ext.ux
  * RelationField / JoinedRelationField / BindedField
- * 
+ *
  * @TODO: move out of extux into Garp
  */
 
@@ -34,7 +34,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 	/**
 	 * Gets called when the RelationPickerWindow is closed;
 	 * @param {Object} selected
-	 */	
+	 */
 	selectCallback: function(selected){
 		var v = this.getValue();
 		if (selected && selected.hasOwnProperty('selected')) {
@@ -46,7 +46,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 				this.disable();
 				// ...then reload to get the 'real' value from the server:
 				// the reason we reload, is that the displayfield might not get passed from the picker (it just might not be there)
-				
+
 				this.store.on({
 					load: function(){
 						this.setValue(selected.selected.get('id'));
@@ -62,15 +62,15 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 				});
 				this.store.load();
 			}
-			
+
 			this.originalValue = v;
 			this.win.destroy();
 			this.fireEvent('select', selected);
 			return;
-		} 
+		}
 		this.win.destroy();
 	},
-	
+
 	triggerFn: function(){
 		this.win = new Garp.ModelPickerWindow({
 			model: this.model,
@@ -81,7 +81,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 		this.win.on('close', this.selectCallback, this);
 		this.win.show();
 	},
-	
+
 	createRelationUrl: function(){
 		if (this.getValue()) {
 			return BASE + 'admin?' +
@@ -92,7 +92,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 		}
 		return false;
 	},
-	
+
 	onRelationOpenTriggerClick: function(){
 		if (this.tip) {
 			if (this.tip.isVisible()) {
@@ -107,7 +107,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 			}
 		}
 	},
-	
+
 	// override, to allow for null values (or "unrelate", so to say)
 	getValue: function(){
 		var value = Ext.ux.RelationField.superclass.getValue.call(this);
@@ -116,8 +116,11 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 		}
 		return value;
 	},
-	
+
 	setValue: function(v){
+		if (!this.el) {
+			return;
+		}
 		this.el.removeClass('x-form-invalid');
 		if (v) {
 			if (this.store.find('id', v) < 0) {
@@ -138,7 +141,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 							this.assertValue();
 							this.collapse();
 						} else {
-							// value not found! DB Integrity issue! 
+							// value not found! DB Integrity issue!
 							this.store.clearFilter();
 							this.el.addClass('x-form-invalid');
 						}
@@ -154,7 +157,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 		}
 		Ext.ux.RelationField.superclass.setValue.call(this, v);
 	},
-	
+
 	initComponent: function(){
 		this.store = new Ext.data.DirectStore({
 			autoLoad: false,
@@ -176,7 +179,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 				destroy: Ext.emptyFn
 			}
 		});
-		
+
 		this.store.on({
 			'load': {
 				single: true,
@@ -192,14 +195,14 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 				}
 			}
 		});
-		
+
 		if (this.triggerFn) {
 			this.onTriggerClick = this.triggerFn;
 		} else {
 			this.store.load();
 		}
-		
-		
+
+
 		Ext.ux.RelationField.superclass.initComponent.call(this);
 		this.triggerConfig = {
 			tag: 'span',
@@ -220,23 +223,23 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 		if (!Garp.dataTypes[this.model]) {
 			this.disable();
 		}
-		
+
 	},
-	
+
 	getTrigger : function(index){
         return this.triggers[index];
     },
-    
+
     afterRender: function(){
 		Ext.form.TwinTriggerField.superclass.afterRender.call(this);
 		var triggers = this.triggers, i = 0, len = triggers.length;
-		
+
 		for (; i < len; ++i) {
 			if (this['hideTrigger' + (i + 1)]) {
 				triggers[i].hide();
 			}
 		}
-		
+
 		if (Garp.dataTypes[this.model].previewItems && Garp.dataTypes[this.model].previewItems.length) {
 			this.tip = new Ext.ToolTip({
 				target: this.el,
@@ -274,7 +277,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
     initTrigger : function(){
         var ts = this.trigger.select('.x-form-trigger', true),
             triggerField = this;
-            
+
         ts.each(function(t, all, index){
             var triggerIndex = 'Trigger'+(index+1);
             t.hide = function(){
@@ -323,7 +326,7 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
         Ext.destroy(this.triggers);
         Ext.form.TwinTriggerField.superclass.onDestroy.call(this);
     },
-	
+
 	/**
      * The function that should handle the trigger's click event.  This method does nothing by default
      * until overridden by an implementing function. See {@link Ext.form.TriggerField#onTriggerClick}
@@ -345,14 +348,14 @@ Ext.ux.RelationField = Ext.extend(Ext.form.ComboBox,{
 
 
 /**
- * Joined RelationFields are pre-filled relations sent from the server. If we want to change it, 
+ * Joined RelationFields are pre-filled relations sent from the server. If we want to change it,
  * we need to update the bindedField referenced field. The server then joins again.
  * Untill then, we use the referenced model's displayFieldRederer
  */
 Ext.ux.JoinedRelationField = Ext.extend(Ext.ux.RelationField, {
-	
+
 	bindedField: null,
-	
+
 	selectCallback: function(selected){
 		var val, disp;
 		if(selected && typeof selected.selected !== 'undefined'){
@@ -368,17 +371,17 @@ Ext.ux.JoinedRelationField = Ext.extend(Ext.ux.RelationField, {
 			this.fireEvent('select', selected);
 		}
 	},
-	
+
 	// joinedRelation saves data in it's bindedField. The field itself must not get send!
 	isDirty: function(){
 		return false;
 	},
-	
+
 	// joinedRelation saves data in it's bindedField. The field itself must not get send!
 	getValue: function(){
 		return null;
 	},
-	
+
 	createRelationUrl: function(){
 		var id = this.form.findField(this.bindedField).getValue();
 		if (id) {
@@ -390,7 +393,7 @@ Ext.ux.JoinedRelationField = Ext.extend(Ext.ux.RelationField, {
 		}
 		return false;
 	},
-	
+
 	setValue: function(v){
 		Ext.ux.RelationField.superclass.setValue.call(this, v);
 		return this;
@@ -398,7 +401,7 @@ Ext.ux.JoinedRelationField = Ext.extend(Ext.ux.RelationField, {
 });
 
 /**
- * Glue component; this field holds the ID value for a joinedRelationField 
+ * Glue component; this field holds the ID value for a joinedRelationField
  */
 Ext.ux.BindedField = Ext.extend(Ext.form.TextField, {
 	bindedField: null,
@@ -407,7 +410,7 @@ Ext.ux.BindedField = Ext.extend(Ext.form.TextField, {
 		this.hideFieldLabel = true;
 		Ext.ux.BindedField.superclass.initComponent.call(this, v);
 	},
-	
+
 	// allow null values:
 	getValue: function(){
 		var val = Ext.ux.BindedField.superclass.getValue.call(this);
@@ -416,7 +419,7 @@ Ext.ux.BindedField = Ext.extend(Ext.form.TextField, {
 		}
 		return val;
 	}
-	
+
 });
 
 // xtypes

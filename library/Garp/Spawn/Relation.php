@@ -232,6 +232,9 @@ class Garp_Spawn_Relation {
 			$this->_validateParam($paramName, $paramValue, $name);
 		}
 
+		if (isset($params['mirrored']) && $params['mirrored']) {
+			unset($params['multilingual']);
+		}
 		$this->_validateMultilingual($params, $name);
 	}
 
@@ -347,7 +350,7 @@ class Garp_Spawn_Relation {
 			'relationType' => $this->type
 		);
 		if ($this->multilingual && $this->_localModel->isMultilingual()) {
-			$this->_localModel->getI18nModel()->fields->add('relation', $column, $fieldParams);
+			// The relation is added to the i18n model by Garp_Spawn_Config_Model_I18n
 			return;
 		}
 		$this->_localModel->fields->add('relation', $column, $fieldParams);
@@ -374,6 +377,13 @@ class Garp_Spawn_Relation {
 
 		$bindingModel = $this->getBindingModel();
 		$this->bindingModel = $bindingModel->id;
+	}
+
+	public function getNameKey($language) {
+		return $this->multilingual ?
+			'_' . $this->column . '_' . $language :
+			$this->column
+		;
 	}
 
 }
