@@ -154,11 +154,7 @@ class G_ErrorController extends Garp_Controller_Action {
 		$message .= "\n";
 
 		// Add url
-		$bootstrap = Zend_Registry::get('application')->getBootstrap();
-        $view = $bootstrap->getResource('View');
-		$url = $view->url();
-
-		$fullUrl = new Garp_Util_FullUrl($url);
+		$fullUrl = new Garp_Util_FullUrl($this->view->url());
 		$message .= "Url: <{$fullUrl}|{$errors->request->getRequestUri()}>";
 
 
