@@ -40,7 +40,6 @@ abstract class Garp_Spawn_Js_Model_Abstract {
 
 	protected function _minify($str) {
 		require_once(GARP_APPLICATION_PATH . "/../library/Garp/3rdParty/minify/lib/JSMin.php");
-		return $str;
 		return JSMin::minify($str);
 	}
 }
