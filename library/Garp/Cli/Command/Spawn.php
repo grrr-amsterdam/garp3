@@ -235,7 +235,14 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 		return $firstArgumentGiven;
 	}
 
+	/**
+ 	 * Detects whether the CLI user was asking for help.
+ 	 */
 	protected function _isHelpRequested($args) {
+		if (array_key_exists('help', $args)) {
+			return true;
+		}
+	
 		if (!$this->_isFirstArgumentGiven($args)) {
 			return false;
 		}
