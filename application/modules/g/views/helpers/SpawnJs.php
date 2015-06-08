@@ -193,16 +193,16 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 		;
 	}
 
-	public function renderImagePreviewListener($rel) {
+	public function renderImagePreviewListener(Garp_Spawn_Relation $rel) {
 		if (!$rel->multilingual) {
-			return $this->_renderImagePreviewListener(
+			return $this->renderImagePreviewListenerJs(
 				$this->getImagePreviewId($rel->column),
 				$rel->column);
 		}
 		$self = $this;
 		return implode("\n",
 			array_map(function($locale) use ($rel, $self) {
-				return $self->_renderImagePreviewListener(
+				return $self->renderImagePreviewListenerJs(
 					$self->getImagePreviewId($rel->column, $locale),
 					$rel->column,
 					$locale
@@ -210,7 +210,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 			}, Garp_I18n::getLocales()));
 	}
 
-	protected function _renderImagePreviewListener($previewId, $column, $locale = false) {
+	public function renderImagePreviewListenerJs($previewId, $column, $locale = false) {
 		$out = 'formPanel.' . $previewId;
 		$out .= '.setText(Garp.renderers.imageRelationRenderer(';
 		$out .= "rec.get('{$column}'), null, rec, '{$locale}') || ";
