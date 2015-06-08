@@ -103,7 +103,7 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 					$this->_getRecordLabelSqlForMultilingualRelation($relName, $rel));
 				continue;
 			}
-			$relNodes[] = $this->_getRecordLabelSqlForRelation($relName, $rel);
+			$relNodes[] = $this->getRecordLabelSqlForRelation($relName, $rel);
 		}
 
 		$select .= implode(",\n", $relNodes);
@@ -139,14 +139,14 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 	protected function _getRecordLabelSqlForMultilingualRelation($relName, $rel) {
 		$self = $this;
 		return array_map(function($lang) use ($self, $relName, $rel) {
-			return $self->_getRecordLabelSqlForRelation($relName, $rel, $lang);
+			return $self->getRecordLabelSqlForRelation($relName, $rel, $lang);
 		}, Garp_I18n::getLocales());
 	}
 
 	/**
 	 *
 	 */
-	protected function _getRecordLabelSqlForRelation($relationName, $relation, $locale = null) {
+	public function getRecordLabelSqlForRelation($relationName, $relation, $locale = null) {
 		$tableAlias = strtolower($relationName);
 		if ($locale) {
 			$tableAlias = "{$tableAlias}_$locale";
