@@ -20,8 +20,19 @@ end
 
 desc "Spawn models"
 task :spawn do
+	# Since there is often a shared database server for multiple web servers,
+	# we distinguish a primary server (with roles 'web' and 'app'),
+	# and secondary servers (with just role 'web').
+	# Only the primary server Spawns database changes, to prevent
+	# race conditions and multiple clients simultaneously trying to update
+	# the same tables and views.
+	on roles(:app) do
+		execute "php #{release_path}/garp/scripts/garp.php Spawn --only=db -b --e=#{fetch(:stage)}"
+	end
+
 	on roles(:web) do
-		execute "php #{release_path}/garp/scripts/garp.php Spawn -b --e=#{fetch(:stage)}"
+		execute "php #{release_path}/garp/scripts/garp.php Spawn --only=files -b --e=#{fetch(:stage)}"
+		execute "php #{release_path}/garp/scripts/garp.php cache clear --e=#{fetch(:stage)}"
 	end
 end
 
