@@ -49,12 +49,12 @@ $renderLanguageSet = function($language, $view) use ($fieldSet, $relations, $get
 
 	foreach ($relations as $rel) {
 		if ($rel->model === 'Image') {
-			$fieldSetOutputs[] = $this->partial('partials/spawn/js/image-field.phtml', 'g', array(
+			$fieldSetOutputs[] = $view->partial('partials/spawn/js/image-field.phtml', 'g', array(
 				'relation' => $rel,
 				'locale' => $language
 			));
 		} else {
-			$fieldSetOutputs[] = $this->partial('partials/spawn/js/singular-relation-field.phtml', 'g', array(
+			$fieldSetOutputs[] = $view->partial('partials/spawn/js/singular-relation-field.phtml', 'g', array(
 				'relationName' 	=> $rel->name,
 				'relation' 		=> $rel,
 				'simpleSelect' 	=> $rel->simpleSelect,
