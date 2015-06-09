@@ -109,7 +109,7 @@ $frontendName = 'Core';
 $memcacheAvailable = extension_loaded('memcache');
 if ($memcacheAvailable) {
 	$memcache = new Memcache;
-	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST);
+	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST, MEMCACHE_PORT);
 }
 if (!$memcacheAvailable) {
 	$backendName       = 'BlackHole';
