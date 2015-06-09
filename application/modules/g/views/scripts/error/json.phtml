@@ -1,0 +1,15 @@
+<?php
+// In a minimal scenario, just show success: false
+$out = array('success' => false);
+if ($this->displayErrors):
+	// Go big when displayErrors is on
+	$out['message'] = $this->exception->getMessage();
+	if ($this->lastQuery):
+		$out['lastQuery'] = $this->lastQuery;
+	endif;
+	$out['stackTrace'] = $this->exception->getTrace();
+	$out['requestParameters'] = $this->request->getParams();
+
+endif;
+
+echo json_encode($out);
