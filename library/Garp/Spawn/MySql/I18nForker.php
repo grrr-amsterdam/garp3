@@ -116,7 +116,7 @@ class Garp_Spawn_MySql_I18nForker {
 		}
 		$fieldNamesString = implode(',', $existingColumns);
 
-		if (!$target->hasRecords()) {
+		if (!$this->_tableHasRecords($i18nTableName)) {
 			$statement =
 				"INSERT IGNORE INTO `{$i18nTableName}` ({$relationColumnName}, lang, {$fieldNamesString}) "
 				."SELECT id, '{$language}', {$fieldNamesString} "
@@ -126,13 +126,18 @@ class Garp_Spawn_MySql_I18nForker {
 			$sqlSetStatements = implode(',', $this->_getSqlSetStatementsForUpdate(
 				$target->name, $i18nTableName, $existingColumns));
 			$statement = "UPDATE `{$i18nTableName}` " .
-				"INNER JOIN `{$i18nTableName}` ON `{$i18nTableName}`.`{$relationColumnName}` = " .
+				"INNER JOIN `{$target->name}` ON `{$i18nTableName}`.`{$relationColumnName}` = " .
 				"`{$target->name}`.`id` " .
 				"SET {$sqlSetStatements} WHERE " .
-				"`{$target->name}`.`id` = `{$i18nTableName}`.`id`";
+				"`{$i18nTableName}`.`{$relationColumnName}` = `{$target->name}`.`id` AND " .
+				"`lang` = '{$language}'";
 		}
 
 		return $statement;
+	}
+
+	protected function _tableHasRecords($tableName) {
+		return Zend_Db_Table::getDefaultAdapter()->query("SELECT COUNT(*) FROM {$tableName}");
 	}
 
 	protected function _getSqlSetStatementsForUpdate($fromTable, $toTable, $columns) {

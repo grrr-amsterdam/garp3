@@ -118,6 +118,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 	columnModel: [{
 	<?php
 		/* __images in column model */
+		$imageInColumnModel = false;
 		foreach ($fields as $field):
 			if ($this->spawnJs()->isImageField($field, $model)):
 				$lcFieldName = strtolower($field->name);
@@ -129,13 +130,11 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 					'header' => ($field->name === 'image_id' ? 'Image' : $field->label),
 					'searchable' => false
 				);
-				if (
-					!$this->spawnJs()->isListField($field->name, $model) &&
-					!$field->visible
-				):
+				if ((!$this->spawnJs()->isListField($field->name, $model) && !$field->visible) || $imageInColumnModel):
 					$nodeParams['hidden'] = true;
 				endif;
 				$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', $nodeParams);
+				$imageInColumnModel = true;
 			endif;
 		endforeach;
 		foreach ($multilingualImageRelations as $rel):
@@ -146,9 +145,11 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 				'width' => 84,
 				'fixed' => true,
 				'header' => ($rel->column === 'image_id' ? 'Image' : $rel->label),
-				'searchable' => false
+				'searchable' => false,
+				'hidden' => $imageInColumnModel
 			);
 			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', $nodeParams);
+			$imageInColumnModel = true;
 		endforeach;
 
 		foreach ($multilingualRelations as $rel):
