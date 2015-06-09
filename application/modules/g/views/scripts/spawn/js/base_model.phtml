@@ -146,7 +146,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 				'fixed' => true,
 				'header' => ($rel->column === 'image_id' ? 'Image' : $rel->label),
 				'searchable' => false,
-				'hidden' => $imageInColumnModel
+				'hidden' => !$this->spawnJs()->isListField($rel->column, $model) || $imageInColumnModel
 			);
 			$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', $nodeParams);
 			$imageInColumnModel = true;
