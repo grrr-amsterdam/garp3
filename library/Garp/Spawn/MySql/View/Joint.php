@@ -125,7 +125,7 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 			$modelId = $this->_model->id;
 			return implode("\n", array_map(function($lang) use ($relName, $rel, $modelId) {
 				$tableName = strtolower($modelId . '_' . $lang);
-				$otherTableName = $this->_getOtherTableName($rel->model);
+				$otherTableName = $self->_getOtherTableName($rel->model);
 				$localizedViewName = strtolower($relName) . '_' . $lang;
 				return "\nLEFT JOIN `{$otherTableName}` AS `{$localizedViewName}` ON " .
 					"`{$tableName}`.`{$rel->column}` = `{$localizedViewName}`.`id`";
