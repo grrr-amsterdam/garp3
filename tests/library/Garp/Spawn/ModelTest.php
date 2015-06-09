@@ -22,6 +22,15 @@ class Garp_Spawn_Model_BaseTest extends PHPUnit_Framework_TestCase {
 		$this->assertObjectHasAttribute('label', $model);
 		$this->assertGreaterThan(0, strlen($model->label));
 	}
+
+	public function testModelShouldHaveDefaultTruncatableBehavior() {
+		$model = $this->_constructMockModel();
+
+		$this->assertObjectHasAttribute('behaviors', $model);
+		$this->assertGreaterThan(0, sizeof($model->behaviors));
+		$behaviors = $model->behaviors->getBehaviors();
+		$this->assertArrayHasKey('Truncatable', $behaviors);
+	}
 	
 	protected function _constructMockModel() {
 		$modelConfig = new Garp_Spawn_Config_Model_Base(

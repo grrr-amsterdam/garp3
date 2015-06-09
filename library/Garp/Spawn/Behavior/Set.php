@@ -19,7 +19,8 @@ class Garp_Spawn_Behavior_Set {
 		'HtmlFilterable',
 		'NotEmpty',
 		'Email',
-		'Translatable'
+		'Translatable',
+		'Truncatable'
 	);
 	
 	protected $_validatorBehaviors = array(
