@@ -26,11 +26,12 @@ class Garp_Spawn_MySql_I18nForker {
 
 
 	public function __construct(Garp_Spawn_Model_Base $model) {
-		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($model);
-		$source 		= $tableFactory->produceConfigTable();
-		$target 		= $tableFactory->produceLiveTable();
+		$tableFactory = new Garp_Spawn_MySql_Table_Factory($model);
 
 		$this->setModel($model);
+		$source = $tableFactory->produceConfigTable();
+		$target = $tableFactory->produceLiveTable();
+
 		$this->setSource($source);
 		$this->setTarget($target);
 
@@ -83,15 +84,13 @@ class Garp_Spawn_MySql_I18nForker {
 	}
 
 	protected function _executeSql($sql) {
-		// Zend_Debug::dump($sql);
-		// exit;
 		$adapter = Zend_Db_Table::getDefaultAdapter();
 		return $adapter->query($sql);
 	}
 
 	protected function _createTableIfNotExists() {
-		$tableFactory 	= new Garp_Spawn_MySql_Table_Factory($this->getModel()->getI18nModel());
-		$table 			= $tableFactory->produceConfigTable();
+		$tableFactory = new Garp_Spawn_MySql_Table_Factory($this->getModel()->getI18nModel());
+		$table        = $tableFactory->produceConfigTable();
 
 		if (
 			!Garp_Spawn_MySql_Table_Base::exists($table->name) &&
@@ -105,21 +104,47 @@ class Garp_Spawn_MySql_I18nForker {
 
 	protected function _renderContentMigrationSql() {
 		$target				= $this->getTarget();
-		// @fixme Validate this patch by Harmen. Maybe a more elegant solution is possible?
 		$i18nTableName		= strtolower($target->name . Garp_Spawn_Config_Model_I18n::I18N_MODEL_ID_POSTFIX);
 		$model 				= $this->getModel();
 		$relationColumnName	= Garp_Spawn_Relation_Set::getRelationColumn($model->id);
 
-		$language			= $this->_getDefaultLanguage();
-		$fieldNamesString	= $this->_getMultilingualFieldNamesString();
+		$language         = $this->_getDefaultLanguage();
+		$fieldNames       = $this->_getMultilingualFieldNames();
+		$existingColumns = $this->getOverlappingColumnsFromBase($fieldNames);
+		if (!count($existingColumns)) {
+			return '';
+		}
+		$fieldNamesString = implode(',', $existingColumns);
 
-		$statement =
-			"INSERT IGNORE INTO `{$i18nTableName}` ({$relationColumnName}, lang, {$fieldNamesString}) "
-			."SELECT id, '{$language}', {$fieldNamesString} "
-			."FROM `{$target->name}`"
-		;
+		if (!$target->hasRecords()) {
+			$statement =
+				"INSERT IGNORE INTO `{$i18nTableName}` ({$relationColumnName}, lang, {$fieldNamesString}) "
+				."SELECT id, '{$language}', {$fieldNamesString} "
+				."FROM `{$target->name}`"
+			;
+		} else {
+			$sqlSetStatements = implode(',', $this->_getSqlSetStatementsForUpdate(
+				$target->name, $i18nTableName, $existingColumns));
+			$statement = "UPDATE `{$i18nTableName}` " .
+				"INNER JOIN `{$i18nTableName}` ON `{$i18nTableName}`.`{$relationColumnName}` = " .
+				"`{$target->name}`.`id` " .
+				"SET {$sqlSetStatements} WHERE " .
+				"`{$target->name}`.`id` = `{$i18nTableName}`.`id`";
+		}
 
 		return $statement;
+	}
+
+	protected function _getSqlSetStatementsForUpdate($fromTable, $toTable, $columns) {
+		return array_map(function($col) use ($fromTable, $toTable) {
+			return "`$toTable`.`$col` = `$fromTable`.`$col`";
+		}, $columns);
+	}
+
+	protected function getOverlappingColumnsFromBase($multilingualColumns) {
+		return array_values(array_intersect($multilingualColumns, array_map(function($col) {
+			return $col->name;
+		}, $this->getTarget()->getColumns())));
 	}
 
 	protected function _getDefaultLanguage() {
@@ -133,15 +158,15 @@ class Garp_Spawn_MySql_I18nForker {
 		return $defaultLanguage;
 	}
 
-	protected function _getMultilingualFieldNamesString() {
-		return implode(', ', array_merge(
+	protected function _getMultilingualFieldNames() {
+		return array_merge(
 			array_map(function($field) {
 				return $field->name;
 			}, $this->getModel()->fields->getFields('multilingual', true)),
  			array_map(function($rel) {
 				return $rel->column;	;
 			}, $this->getModel()->relations->getRelations('multilingual', true))
-		));
+		);
 	}
 
 }
