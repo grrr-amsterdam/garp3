@@ -56,13 +56,12 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 			$keysInSync = false;
 		}
 
-		$existingCols = $this->getExistingColumns();
 		$colsInSync = $this->_syncColumns($target);
 
 		$i18nTableFork = $this->_detectI18nTableFork();
 		if ($i18nTableFork) {
 			$dbManager = Garp_Spawn_MySql_Manager::getInstance();
-			$dbManager->onI18nTableFork($this->getModel(), $existingCols);
+			$dbManager->onI18nTableFork($this->getModel());
 		}
 
 		if ($removeRedundantColumns) {
@@ -77,18 +76,6 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 		}
 
 		return $colsInSync && $keysInSync;
-	}
-
-	public function getExistingColumns() {
-		$table = $this->getTarget();
-		if (!Garp_Spawn_MySql_Table_Base::exists($table->name)) {
-			return array();
-		}
-
-		$existingColumns = $table->getColumns();
-		return array_map(function($col) {
-			return $col->name;
-		}, $existingColumns);
 	}
 
 	/**
