@@ -128,6 +128,9 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 		$multilingualFields = $model->fields->getFields('multilingual', true);
 		$multilingualRels = $model->relations->getRelations('multilingual', true);
 		foreach ($multilingualRels as $relName => $rel) {
+			if ($rel->mirrored) {
+				continue;
+			}
 			$multilingualFields[] = new Garp_Spawn_Field('relation', $rel->column, array(
  				'type' => 'numeric',
 				'editable' => $rel->editable,
