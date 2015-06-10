@@ -20,7 +20,7 @@ class Garp_Spawn_Behavior_Set {
 		'NotEmpty',
 		'Email',
 		'Translatable',
-		//'Truncatable'
+		'Truncatable'
 	);
 
 	protected $_validatorBehaviors = array(
