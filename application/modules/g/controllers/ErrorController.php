@@ -154,7 +154,7 @@ class G_ErrorController extends Garp_Controller_Action {
 		$message .= "\n";
 
 		// Add url
-		$fullUrl = new Garp_Util_FullUrl();
+		$fullUrl = new Garp_Util_FullUrl($this->view->url());
 		$message .= "Url: <{$fullUrl}|{$errors->request->getRequestUri()}>";
 
 

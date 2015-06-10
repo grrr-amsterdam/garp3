@@ -7,34 +7,33 @@ class Garp_Spawn_Model_Base extends Garp_Spawn_Model_Abstract {
 	/**
 	 * @var Garp_Spawn_Model_I18n $_i18nModel
 	 */
-	protected $_i18nModel;	
-	
+	protected $_i18nModel;
+
 
 
 	public function __construct(Garp_Spawn_Config_Model_Abstract $config) {
-		parent::__construct($config);
-
-		if ($this->isMultilingual()) {
-			$i18nModelConfig 	= new Garp_Spawn_Config_Model_I18n($config);
-			$i18nModel 			= new Garp_Spawn_Model_I18n($i18nModelConfig);
+		if ($config->isMultilingual()) {
+			$i18nModelConfig = new Garp_Spawn_Config_Model_I18n($config);
+			$i18nModel       = new Garp_Spawn_Model_I18n($i18nModelConfig);
 			$this->setI18nModel($i18nModel);
 		}
+		parent::__construct($config);
 	}
-	
+
 	/**
 	 * @return Garp_Spawn_Model_I18n
 	 */
 	public function getI18nModel() {
 		return $this->_i18nModel;
 	}
-	
+
 	/**
 	 * @param Garp_Spawn_Model_I18n $i18nModel
 	 */
 	public function setI18nModel($i18nModel) {
 		$this->_i18nModel = $i18nModel;
 	}
-	
+
 	public function materializePhpModels(Garp_Spawn_Model_Abstract $model) {
 		parent::materializePhpModels($model);
 

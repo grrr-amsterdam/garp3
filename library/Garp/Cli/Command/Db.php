@@ -2,7 +2,7 @@
 /**
  * Garp_Cli_Command_Db
  * Contains various database related methods.
- *  
+ *
  * @author Harmen Janssen, David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -40,11 +40,13 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
 			return;
 		}
 		$db = new Zend_Db_Table($args[0]);
-		print_r($db->info());
+		Garp_Cli::lineOut(
+			Zend_Config_Writer_Yaml::encode($db->info())
+		);
 		Garp_Cli::lineOut('');
 	}
-	
-	
+
+
 	public function sync(array $args = array()) {
 		$sourceEnv = $args ? current($args) : null;
 		new Garp_Db_Synchronizer($sourceEnv);
@@ -52,7 +54,7 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
 
 
 	/**
-	 * Walks over every text column of every record of every table 
+	 * Walks over every text column of every record of every table
 	 * and replaces references to $subject with $replacement.
 	 * Especially useful since all images in Rich Text Editors are
 	 * referenced with absolute paths including the domain. This method

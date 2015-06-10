@@ -21,38 +21,38 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 	 */
 	public function __construct(Garp_Spawn_Model_Base $model, $locale) {
 		$this->setLocale($locale);
-		
+
 		return parent::__construct($model);
 	}
-	
+
 	/**
 	 * @return String
 	 */
 	public function getLocale() {
 		return $this->_locale;
 	}
-	
+
 	/**
 	 * @param String $locale
 	 */
 	public function setLocale($locale) {
 		$this->_locale = $locale;
 	}
-	
-	
+
+
 
 	public function getName() {
 		return $this->getTableName() . '_' . $this->getLocale();
 	}
-	
+
 	public static function deleteAll() {
 		$locales 	= Garp_I18n::getLocales();
-		
+
 		foreach ($locales as $locale) {
-			parent::deleteAllByPostfix('_' . $locale);		
+			parent::deleteAllByPostfix('_' . $locale);
 		}
 	}
-	
+
 	public function renderSql() {
 		$model 		= $this->getModel();
 
@@ -65,13 +65,13 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 
 		return $sql;
 	}
-	
-	protected function _renderSqlForLang() {		
+
+	protected function _renderSqlForLang() {
 		$model 				= $this->getModel();
 		$modelId 			= $this->getTableName();
 		$unilingualFields 	= $model->fields->getFields('multilingual', false);
-		$multilingualFields = $model->fields->getFields('multilingual', true);
-		
+		$multilingualFields = $this->_getMultilingualFieldsFromModel($model);
+
 		$locale 			= $this->getLocale();
 		$defaultLocale		= Garp_I18n::getDefaultLocale();
 		$table 				= $modelId;
@@ -93,7 +93,7 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 		foreach ($multilingualFields as $field) {
 			$multilingualFieldRefs[] = $locale === $defaultLocale ?
 				"`{$modelId}_{$locale}`.{$field->name} AS `{$field->name}`" :
-				"IF(`{$modelId}_{$locale}`.`{$field->name}` <> '' AND `{$modelId}_{$locale}`.`{$field->name}` IS NOT NULL, `{$modelId}_{$locale}`.`{$field->name}`, `{$modelId}_{$defaultLocale}`.`{$field->name}`) AS `{$field->name}`" 
+				"IF(`{$modelId}_{$locale}`.`{$field->name}` <> '' AND `{$modelId}_{$locale}`.`{$field->name}` IS NOT NULL, `{$modelId}_{$locale}`.`{$field->name}`, `{$modelId}_{$defaultLocale}`.`{$field->name}`) AS `{$field->name}`"
 			;
 		}
 		$sql .= implode(', ', $multilingualFieldRefs) . ' ';
@@ -105,13 +105,13 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 		if ($locale !== $defaultLocale) {
 			$sql .= $this->_renderJoinForLocale($defaultLocale);
 		}
-		return $sql;		
+		return $sql;
 	}
-	
+
 	protected function _getViewLocaleAlias($locale) {
 		$modelId . '_' . $locale;
 	}
-	
+
 	protected function _renderJoinForLocale($locale) {
 		$modelId			= $this->getModel()->id;
 		$tableName			= $this->getTableName();
@@ -123,4 +123,23 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 							. "`{$aliasForLocale}`.`{$parentColumn}` = `{$tableName}`.id AND `{$aliasForLocale}`.lang = '{$locale}' ";
 		return $sql;
 	}
+
+	protected function _getMultilingualFieldsFromModel($model) {
+		$multilingualFields = $model->fields->getFields('multilingual', true);
+		$multilingualRels = $model->relations->getRelations('multilingual', true);
+		foreach ($multilingualRels as $relName => $rel) {
+			if ($rel->mirrored) {
+				continue;
+			}
+			$multilingualFields[] = new Garp_Spawn_Field('relation', $rel->column, array(
+ 				'type' => 'numeric',
+				'editable' => $rel->editable,
+				'visible' => false,
+				'required' => $rel->required,
+				'relationType' => $rel->type
+			));
+		}
+		return $multilingualFields;
+	}
+
 }

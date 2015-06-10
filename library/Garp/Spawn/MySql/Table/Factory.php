@@ -10,8 +10,8 @@ class Garp_Spawn_MySql_Table_Factory {
 	 * @var Garp_Spawn_Model_Abstract $_model
 	 */
 	protected $_model;
-	
-	/**	
+
+	/**
 	 * @param	Garp_Spawn_Model_Abstract	$model
 	 */
 	public function __construct(Garp_Spawn_Model_Abstract $model) {
@@ -29,26 +29,26 @@ class Garp_Spawn_MySql_Table_Factory {
 
 	/**
 	 * Produces a Garp_Spawn_MySql_Table_Abstract instance, based on the live database.
-	 */	
+	 */
 	public function produceLiveTable() {
 		$model = $this->getModel();
 		$createStatement = $this->_renderCreateFromLive();
 		return $this->_produceTable($createStatement);
 	}
-	
+
 	/**
 	 * @return Garp_Spawn_Model_Abstract
 	 */
 	public function getModel() {
 		return $this->_model;
 	}
-	
+
 	/**
 	 * @param Garp_Spawn_Model_Abstract $model
 	 */
 	public function setModel($model) {
 		$this->_model = $model;
-		
+
 		return $this;
 	}
 
@@ -62,7 +62,6 @@ class Garp_Spawn_MySql_Table_Factory {
 		$model 		= $this->getModel();
 		$tableName 	= $this->_getTableName();
 		$fields 	= $this->_getUnilingualFields();
-		
 		return $this->_renderCreateAbstract(
 			$tableName,
 			$fields,
@@ -73,15 +72,15 @@ class Garp_Spawn_MySql_Table_Factory {
 
 	protected function _getUnilingualFields() {
 		$model = $this->getModel();
-		
+
 		$fields = $model->isMultilingual() ?
 			$fields = $model->fields->getFields('multilingual', false) :
 			$model->fields->getFields()
 		;
-		
+
 		return $fields;
 	}
-	
+
 	protected function _renderCreateFromLive() {
 		$model 		= $this->getModel();
 		$tableName 	= $this->_getTableName($model);
@@ -109,7 +108,7 @@ class Garp_Spawn_MySql_Table_Factory {
 	 */
 	protected function _getTableClass() {
 		$model = $this->getModel();
-		
+
 		switch (get_class($model)) {
 			case 'Garp_Spawn_Model_Binding':
 				return 'Garp_Spawn_MySql_Table_Binding';
@@ -163,8 +162,9 @@ class Garp_Spawn_MySql_Table_Factory {
 		}
 
 		foreach ($relations as $rel) {
-			if ($rel->type === 'hasOne' || $rel->type === 'belongsTo')
+			if (($rel->type === 'hasOne' || $rel->type === 'belongsTo') && !$rel->multilingual) {
 				$lines[] = Garp_Spawn_MySql_IndexKey::renderSqlDefinition($rel->column);
+			}
 		}
 
 		//	set indices that were configured in the Spawn model config
@@ -175,7 +175,7 @@ class Garp_Spawn_MySql_Table_Factory {
 		}
 
 		foreach ($relations as $relName => $rel) {
-			if ($rel->type === 'hasOne' || $rel->type === 'belongsTo') {
+			if (($rel->type === 'hasOne' || $rel->type === 'belongsTo') && !$rel->multilingual) {
 				$fkName = Garp_Spawn_MySql_ForeignKey::generateForeignKeyName($tableName, $relName);
 				$lines[] = Garp_Spawn_MySql_ForeignKey::renderSqlDefinition(
 					$fkName, $rel->column, $rel->model, $rel->type
@@ -189,5 +189,5 @@ class Garp_Spawn_MySql_Table_Factory {
 
 		return $out;
 	}
-	
+
 }
