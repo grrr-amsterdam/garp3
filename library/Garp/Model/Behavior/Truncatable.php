@@ -26,7 +26,7 @@ class Garp_Model_Behavior_Truncatable extends Garp_Model_Behavior_Abstract {
 			throw new Garp_Model_Behavior_Exception('No config given');
 		}
 		if (empty($config[self::CONFIG_KEY_COLUMNS])) {
-			throw new Garp_Model_Behavior_Exception('Missing required key ' . 
+			throw new Garp_Model_Behavior_Exception('Missing required key ' .
 				self::CONFIG_KEY_COLUMNS);
 		}
 
@@ -38,17 +38,17 @@ class Garp_Model_Behavior_Truncatable extends Garp_Model_Behavior_Abstract {
 		$data  = &$args[1];
 		$this->_beforeSave($data);
 	}
-	
+
 	public function beforeUpdate(&$args) {
 		$model = &$args[0];
 		$data  = &$args[1];
 		$where = &$args[2];
 		$this->_beforeSave($data);
 	}
-	
+
 	protected function _beforeSave(array &$data) {
 		foreach ($this->_config[self::CONFIG_KEY_COLUMNS] as $key => $maxLength) {
-			if (!isset($data[$key])) {
+			if (!isset($data[$key]) || !is_string($data[$key])) {
 				continue;
 			}
 			$data[$key] = substr($data[$key], 0, $maxLength);
