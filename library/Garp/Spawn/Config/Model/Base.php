@@ -8,8 +8,8 @@ class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
 		'Timestampable' => null,
 		'Authorable' => null
 	);
-	
-	
+
+
 	public function __construct(
 		$id,
 		Garp_Spawn_Config_Storage_Interface $storage,
@@ -19,11 +19,11 @@ class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
 
 		$this->_addIdField();
 		$this->_addDefaultBehaviors();
-		
+
 		$validator = new Garp_Spawn_Config_Validator_Model_Base();
 		$validator->validate($this);
 	}
-	
+
 
 	/**
 	 * Adds an 'id' field to the model structure.
@@ -38,13 +38,13 @@ class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
 			//	to enable the flexibility to modify primary keys.
 			'index' => true
 		);
-		
+
 		$params['primary'] = !$this->_primaryKeyFieldIsPresent();
 
 		$this['inputs'] = array('id' => $params) + $this['inputs'];
 	}
-	
-	
+
+
 	protected function _primaryKeyFieldIsPresent() {
 		foreach ($this['inputs'] as $inputName => $input) {
 			if (
@@ -58,12 +58,19 @@ class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
 
 		return false;
 	}
-	
-	
+
+
 	protected function _addDefaultBehaviors() {
 		$this['behaviors'] = $this['behaviors'] ?
 			array_merge($this['behaviors'], $this->_defaultBehaviors) :
 			$this->_defaultBehaviors
 		;
+	}
+
+	public function isMultilingual() {
+		return count(array_filter($this['inputs'], function($input) {
+			return array_key_exists('multilingual', $input) ?
+				$input['multilingual'] : false;
+		})) > 0;
 	}
 }

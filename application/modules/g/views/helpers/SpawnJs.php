@@ -193,14 +193,43 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 		;
 	}
 
-
-	public function getImagePreviewId($columnName) {
-		return 'ImagePreview_'.$columnName;
+	public function renderImagePreviewListener(Garp_Spawn_Relation $rel) {
+		if (!$rel->multilingual) {
+			return $this->renderImagePreviewListenerJs(
+				$this->getImagePreviewId($rel->column),
+				$rel->column);
+		}
+		$self = $this;
+		return implode("\n",
+			array_map(function($locale) use ($rel, $self) {
+				return $self->renderImagePreviewListenerJs(
+					$self->getImagePreviewId($rel->column, $locale),
+					$rel->column,
+					$locale
+				);
+			}, Garp_I18n::getLocales()));
 	}
 
+	public function renderImagePreviewListenerJs($previewId, $column, $locale = false) {
+		$out = 'formPanel.' . $previewId;
+		$out .= '.setText(Garp.renderers.imageRelationRenderer(';
+		$out .= "rec.get('{$column}'), null, rec, '{$locale}') || ";
+		$out .= "__('Add image'));";
+		return $out;
+	}
 
-	public function getImageFieldId($columnName) {
-		return Garp_Spawn_Util::underscored2camelcased($columnName);
+	public function getImagePreviewId($columnName, $locale = false) {
+		return 'ImagePreview_'.$columnName .
+			($locale ? '_' . $locale : '');
+	}
+
+	public function getImageRefDepth($multilingual) {
+		return $multilingual ? '../../../../' : '../../../';
+	}
+
+	public function getImageFieldId($columnName, $locale = false) {
+		return Garp_Spawn_Util::underscored2camelcased($columnName) .
+			($locale ? '_' . $locale : '');
 	}
 
 
@@ -226,5 +255,9 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 					)
 			)
 		;
+	}
+
+	public function getDefaultValueForRelation(Garp_Spawn_Relation $rel) {
+		return 'null';
 	}
 }

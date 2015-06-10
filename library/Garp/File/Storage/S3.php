@@ -74,8 +74,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		$this->_initApi();
 		$obj = $this->_api->getObject($this->_config['bucket'].$this->_getUri($filename));
 		if ($this->_config['gzip']) {
-			$unpacked = @gzdecode($obj);
-			$obj = null !== $unpacked && false !== $unpacked ? $unpacked : $obj;
+			$unzipper = new Garp_File_Unzipper($obj);
+			$obj = $unzipper->getUnpacked();
 		}
 		return $obj;
 	}
@@ -277,5 +277,9 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		if (!$this->_config['path']) {
 			throw new Exception("There is not path configured, please do this with setPath().");
 		}
+	}
+
+	protected function _unzipFile($obj) {
+
 	}
 }

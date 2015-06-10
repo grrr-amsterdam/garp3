@@ -15,15 +15,15 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 	 * @var String
 	 */
 	protected $_executionPosition = self::EXECUTE_FIRST;
-		
-	
+
+
 	/**
 	 * Configuration.
 	 * @return Void
 	 */
 	protected function _setup($config) {}
-	
-	
+
+
 	/**
 	 * AfterFetch callback, combines results with related records.
 	 * @param Array $args
@@ -34,8 +34,8 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 		$data  = $args[1];
 		$this->_combineResultsWithBindings($model, $data);
 	}
-	
-	
+
+
 	/**
 	 * Check if there are bindings to fetch related records and
 	 * start the related rowset fetching.
@@ -55,12 +55,12 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 				}
 				foreach ($bindings as $binding => $bindOptions) {
 					/**
-					 * We keep tabs on the outer call to fetch() by checking getRecursion. 
-					 * If it is 0, this is the first call in the chain. That way we can 
+					 * We keep tabs on the outer call to fetch() by checking getRecursion.
+					 * If it is 0, this is the first call in the chain. That way we can
 					 * clean up the recursion when we're done, since all subsequent fetch() calls
-					 * will happen within this one and the if ($cleanup) line ahead will only 
+					 * will happen within this one and the if ($cleanup) line ahead will only
 					 * fire on the first fetch(). Look at it like this:
-					 * 
+					 *
 					 * fetch()
 					 *   cleanup = 1
 					 * 	   fetch()
@@ -68,18 +68,18 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 					 *     fetch()
 					 *       fetch()
 					 *     fetch()
-					 *       fetch() 
+					 *       fetch()
 					 *   if (cleanup) resetRecursion()
-					 * 
+					 *
 					 */
 					$cleanup = false;
 					if (Garp_Model_Db_BindingManager::getRecursion(get_class($model), $binding) == 0) {
 						$cleanup = true;
 					}
-					
+
 					if (Garp_Model_Db_BindingManager::isAllowedFetch(get_class($model), $binding)) {
 						Garp_Model_Db_BindingManager::registerFetch(get_class($model), $binding);
-						
+
 						foreach ($data as $datum) {
 							// there's no relation possible if the primary key is not among the fetched columns
 							$prim = (array)$model->info(Zend_Db_Table::PRIMARY);
@@ -94,12 +94,12 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 							$datum->setRelated($binding, $relatedRowset);
 						}
 					}
-					
+
 					if ($cleanup) {
 						Garp_Model_Db_BindingManager::resetRecursion(get_class($model), $binding);
 					}
 				}
-				
+
 				// return the pointer to 0
 				if ($data instanceof Garp_Db_Table_Rowset) {
 					$data->rewind();
@@ -108,7 +108,7 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 		}
 	}
 
-	
+
 	/**
 	 * Find a related recordset.
 	 * @param Garp_Model $model The model that spawned this data
@@ -119,67 +119,66 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 	protected function _getRelatedRowset(Garp_Model $model, Garp_Db_Table_Row $row, Garp_Util_Configuration $options) {
 		/**
 		 * An optional passed SELECT object will be passed by reference after every query.
-		 * This results in an error when 'clone' is not used, because correlation names will be 
+		 * This results in an error when 'clone' is not used, because correlation names will be
 		 * used twice (since they were set during the first iteration). Using 'clone' makes sure
-		 * a brand new SELECT object is used every time that hasn't been soiled by a possible 
+		 * a brand new SELECT object is used every time that hasn't been soiled by a possible
 		 * previous query.
 		 */
 		$conditions = is_null($options['conditions']) ? null : clone $options['conditions'];
-		$modelClass = $options['modelClass'];
-		if (!$modelClass instanceof Zend_Db_Table_Abstract) {
-			$modelClass = new $modelClass();
+		$otherModel = $options['modelClass'];
+		if (!$otherModel instanceof Zend_Db_Table_Abstract) {
+			$otherModel = new $otherModel();
 		}
 		/**
- 		 * Do not cache related queries. The "outside" query should be the only 
+ 		 * Do not cache related queries. The "outside" query should be the only
  		 * query that's cached.
  		 */
-		$originalCacheQueriesFlag = $modelClass->getCacheQueries();
-		$modelClass->setCacheQueries(false);
-		$modelName = get_class($modelClass);
+		$originalCacheQueriesFlag = $otherModel->getCacheQueries();
+		$otherModel->setCacheQueries(false);
+		$modelName = get_class($otherModel);
 		$relatedRowset = null;
-		
+
 		// many to many
 		if (!empty($options['bindingModel'])) {
-			$relatedRowset = $row->findManyToManyRowset($modelClass, $options['bindingModel'], $options['rule2'], $options['rule'], $conditions);
+			$relatedRowset = $row->findManyToManyRowset($otherModel, $options['bindingModel'], $options['rule2'], $options['rule'], $conditions);
 		} else {
 			/**
 		 	 * 'mode' is used to clear ambiguity with homophilic relationships. For example,
-		 	 * a Model_Doc can have have child Docs and one parent Doc. The conditionals below can never tell 
+		 	 * a Model_Doc can have have child Docs and one parent Doc. The conditionals below can never tell
 		 	 * which method to call (findParentRow or findDependentRowset) from the referenceMap.
-		 	 * Therefore, we can help the decision-making by passing "mode". This can either be 
-		 	 * "parent" or "dependent", which will then force a call to findParentRow and findDependentRowset, 
+		 	 * Therefore, we can help the decision-making by passing "mode". This can either be
+		 	 * "parent" or "dependent", which will then force a call to findParentRow and findDependentRowset,
 		 	 * respectively.
 		 	 */
 			if (is_null($options['mode'])) {
 				// belongs to
 				try {
 					$model->getReference($modelName, $options['rule']);
-					$relatedRowset = $row->findParentRow($modelClass, $options['rule'], $conditions);
+					$relatedRowset = $row->findParentRow($otherModel, $options['rule'], $conditions);
 				} catch(Exception $e) {
 					if (!Garp_Content_Relation_Manager::isInvalidReferenceException($e)) {
 						throw $e;
 					}
 					try {
-						// one to many - one to one	
-						$otherModel = new $modelName();
+						// one to many - one to one
 						// The following line triggers an exception if no reference is available
 						$otherModel->getReference(get_class($model), $options['rule']);
-						$relatedRowset = $row->findDependentRowset($modelClass, $options['rule'], $conditions);
+						$relatedRowset = $row->findDependentRowset($otherModel, $options['rule'], $conditions);
 					} catch (Exception $e) {
 						if (!Garp_Content_Relation_Manager::isInvalidReferenceException($e)) {
 							throw $e;
 						}
 						$bindingModel = $model->getBindingModel($modelName);
-						$relatedRowset = $row->findManyToManyRowset($modelClass, $bindingModel, $options['rule2'], $options['rule'], $conditions);
+						$relatedRowset = $row->findManyToManyRowset($otherModel, $bindingModel, $options['rule2'], $options['rule'], $conditions);
 					}
 				}
 			} else {
 				switch ($options['mode']) {
 					case 'parent':
-						$relatedRowset = $row->findParentRow($modelClass, $options['rule'], $conditions);
+						$relatedRowset = $row->findParentRow($otherModel, $options['rule'], $conditions);
 					break;
 					case 'dependent':
-						$relatedRowset = $row->findDependentRowset($modelClass, $options['rule'], $conditions);
+						$relatedRowset = $row->findDependentRowset($otherModel, $options['rule'], $conditions);
 					break;
 					default:
 						throw new Garp_Model_Exception('Invalid value for "mode" given. Must be either "parent" or '.
@@ -189,9 +188,9 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
 			}
 		}
 		// Reset the cacheQueries value. It's a static property,
-		// so leaving it FALSE will affect all future fetch() calls to this 
+		// so leaving it FALSE will affect all future fetch() calls to this
 		// model. Not good.
-		$modelClass->setCacheQueries($originalCacheQueriesFlag);
+		$otherModel->setCacheQueries($originalCacheQueriesFlag);
 		return $relatedRowset;
 	}
 }

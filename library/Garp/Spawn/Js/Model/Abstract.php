@@ -14,15 +14,15 @@ abstract class Garp_Spawn_Js_Model_Abstract {
 		$this->_modelId = $modelId;
 		$this->_modelSet = $modelSet;
 	}
-	
-	
+
+
 	public function render() {
 		if (!Zend_Registry::isRegistered('application')) {
 			throw new Exception('Application is not registered.');
 		}
 
 		$bootstrap = Zend_Registry::get('application')->getBootstrap();
-		$view = $bootstrap->getResource('View');		
+		$view = $bootstrap->getResource('View');
 
 		$view->model = $this->_modelSet[$this->_modelId];
 		$view->modelSet = $this->_modelSet;
@@ -30,14 +30,14 @@ abstract class Garp_Spawn_Js_Model_Abstract {
 		$view->setScriptPath(GARP_APPLICATION_PATH.'/modules/g/views/scripts/spawn/js/');
 		return $view->render($this->_template);
 	}
-	
-	
+
+
 	protected function _beautify($str) {
 		require_once(GARP_APPLICATION_PATH . '/../library/Garp/3rdParty/JsBeautifier/jsbeautifier.php');
 		return js_beautify($str);
 	}
-	
-	
+
+
 	protected function _minify($str) {
 		require_once(GARP_APPLICATION_PATH . "/../library/Garp/3rdParty/minify/lib/JSMin.php");
 		return JSMin::minify($str);

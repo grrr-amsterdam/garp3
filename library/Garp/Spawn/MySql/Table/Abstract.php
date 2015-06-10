@@ -13,14 +13,14 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 
 	/** @var Garp_Spawn_MySql_Keys $keys */
 	public $keys;
-		
+
 	/**
 	 * @var String $_createStatement MySQL 'CREATE TABLE' query.
 	 */
 	protected $_createStatement;
-	
+
 	protected $_adapter;
-	
+
 	/**
 	 * @var Garp_Spawn_Model_Abstract $_model
 	 */
@@ -33,44 +33,44 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 	 */
 	public function __construct($createStatement, Garp_Spawn_Model_Abstract $model) {
 		$this->setModel($model);
-		
+
 		$this->_validateCreateStatement($createStatement);
 		$this->setCreateStatement($createStatement);
 
 		$this->_adapter = Zend_Db_Table::getDefaultAdapter();
-		
+
 		// set name, keys and columns
 		$this->_setPropsByCreateStatement($model);
 	}
-	
+
 	/**
 	 * @return Garp_Spawn_Model_Abstract
 	 */
 	public function getModel() {
 		return $this->_model;
 	}
-	
+
 	/**
 	 * @param Garp_Spawn_Model_Abstract $model
 	 */
 	public function setModel($model) {
 		$this->_model = $model;
 	}
-	
+
 	/**
 	 * @return String
 	 */
 	public function getCreateStatement() {
 		return $this->_createStatement;
 	}
-	
+
 	/**
 	 * @param String $createStatement
 	 */
 	public function setCreateStatement($createStatement) {
 		$this->_createStatement = $createStatement;
 	}
-	
+
 	static public function exists($tableName) {
 		$tableName 	= strtolower($tableName);
 		$adapter 	= Zend_Db_Table::getDefaultAdapter();
@@ -82,13 +82,13 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 			."AND table_name = '{$tableName}'"
 		)->fetch();
 	}
-		
+
 	public function create() {
 		$success = false;
 		$this->_query('SET FOREIGN_KEY_CHECKS = 0;');
 		$success = $this->_query($this->_createStatement);
 		$this->_query('SET FOREIGN_KEY_CHECKS = 1;');
-		
+
 		return $success;
 	}
 
@@ -101,7 +101,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 			$columnNameOrColumn->name :
 			$columnNameOrColumn
 		;
-			
+
 		if (!is_string($columnName)) {
 			throw new Exception('Please feed this method either the column name as a string, or a Garp_Spawn_MySql_Column instance.');
 		}
@@ -134,20 +134,20 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 			throw new Exception("Could not modify the properties of {$this->name}.{$newColumn->name}\n" . $alterQuery . "\n");
 		}
 	}
-	
+
 	public function deleteColumn(Garp_Spawn_MySql_Column $liveColumn) {
 		$alterQuery = "ALTER TABLE `{$this->name}` DROP COLUMN `{$liveColumn->name}`;";
 		$this->_query($alterQuery);
 	}
-	
+
 	public function enableFkChecks() {
 		$this->_query('SET FOREIGN_KEY_CHECKS = 1;');
 	}
-	
+
 	public function disableFkChecks() {
 		$this->_query('SET FOREIGN_KEY_CHECKS = 0;');
 	}
-	
+
 	protected function _getConfirmationMessage(array $diffProperties, Garp_Spawn_MySql_Column $newColumn) {
 		if (
 			count($diffProperties) === 1 &&
@@ -158,6 +158,14 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 			$readableDiffPropsList = Garp_Spawn_Util::humanList($diffProperties, "'");
 			return "Change ".$readableDiffPropsList." of {$this->name}.{$newColumn->name}? ";
 		}
+	}
+
+	public function getColumns() {
+		return $this->columns;
+	}
+
+	public function hasRecords() {
+		return $this->_query("SELECT COUNT(*) FROM {$this->name}");
 	}
 
 	protected function _setPropsByCreateStatement(Garp_Spawn_Model_Abstract $model) {
@@ -188,7 +196,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 			throw new Exception("There was no table name found in the MySQL CREATE statement.");
 		return $matches['name'];
 	}
-	
+
 	protected function _validateCreateStatement($createStatement) {
 		if (
 			!is_string($createStatement) ||
@@ -200,7 +208,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 		try {
 			$response = $this->_adapter->query($statement);
 		} catch (Exception $e) {
-			$msg = 
+			$msg =
 				$e->getMessage()
 				. "\n\n-- You were trying to execute this query: --\n\n"
 				. $statement

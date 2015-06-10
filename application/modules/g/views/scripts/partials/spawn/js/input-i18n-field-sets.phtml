@@ -3,6 +3,8 @@ $locales		= Garp_I18n::getLocales();
 $defaultLocale 	= Garp_I18n::getDefaultLocale();
 $fieldSet		= $this->fieldSet;
 $excludedFields	= $this->spawnJs()->getExcludedFormFields();
+$relations      = $this->relations;
+$modelSet       = $this->modelSet;
 
 /**
  * @return 	String 	The English label for the given language id
@@ -24,7 +26,7 @@ $isExcludedField = function(Garp_Spawn_Field $field) use ($excludedFields) {
 	return $isExcludedField;
 };
 
-$renderLanguageSet = function($language, $view) use ($fieldSet, $getLanguageLabel, $defaultLocale, $isExcludedField) {
+$renderLanguageSet = function($language, $view) use ($fieldSet, $relations, $getLanguageLabel, $defaultLocale, $isExcludedField, $modelSet) {
 	$languageLabel 		= $getLanguageLabel($language);
 	$fieldSetOutputs 	= array();
 	$isForDefaultLocale = $defaultLocale === $language;
@@ -41,21 +43,39 @@ $renderLanguageSet = function($language, $view) use ($fieldSet, $getLanguageLabe
 		if (!$isForDefaultLocale) {
 			$params['required'] = false;
 		}
-		
+
 		$fieldSetOutputs[] = $view->partial($path, 'g', $params);
 	}
 
+	foreach ($relations as $rel) {
+		if ($rel->model === 'Image') {
+			$fieldSetOutputs[] = $view->partial('partials/spawn/js/image-field.phtml', 'g', array(
+				'relation' => $rel,
+				'locale' => $language
+			));
+		} else {
+			$fieldSetOutputs[] = $view->partial('partials/spawn/js/singular-relation-field.phtml', 'g', array(
+				'relationName' 	=> $rel->name,
+				'relation' 		=> $rel,
+				'simpleSelect' 	=> $rel->simpleSelect,
+				'modelSet' 		=> $modelSet,
+				'locale'        => $language
+			));
+		}
+	}
+
 	$fieldSetString	= implode('}, {', $fieldSetOutputs);
-	
+
 	$languageSetProps = array(
+		"ref: '../../../{$language}_fieldset'",
 		"xtype: 'i18nfieldset'",
 		"title: __('{$languageLabel}')",
 		"collapsed: " . ($isForDefaultLocale ? 'false' : 'true'),
 		"items: [{{$fieldSetString}}]"
 	);
-	
+
 	$languageSetString = implode(', ', $languageSetProps);
-	
+
 	return $languageSetString;
 };
 
