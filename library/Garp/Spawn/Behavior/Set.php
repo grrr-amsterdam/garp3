@@ -20,9 +20,9 @@ class Garp_Spawn_Behavior_Set {
 		'NotEmpty',
 		'Email',
 		'Translatable',
-		'Truncatable'
+		//'Truncatable'
 	);
-	
+
 	protected $_validatorBehaviors = array(
 		'Email',
 		'NotEmpty'
@@ -47,11 +47,11 @@ class Garp_Spawn_Behavior_Set {
 
 		return $this->_behaviors[$name];
 	}
-		
+
 	public function displaysBehavior($behaviorName) {
 		return array_key_exists($behaviorName, $this->_behaviors);
 	}
-	
+
 	public function onAfterSingularRelationsDefinition() {
 		$this->_addWeighableBehavior();
 	}
@@ -62,7 +62,7 @@ class Garp_Spawn_Behavior_Set {
 	public function getModel() {
 		return $this->_model;
 	}
-	
+
 	/**
 	 * @param Garp_Spawn_Model_Abstract $model
 	 */
@@ -78,7 +78,7 @@ class Garp_Spawn_Behavior_Set {
 			$behaviorModule = array_key_exists('module', $behaviorConfig) ? $behaviorConfig['module'] : $behaviorModule;
 			unset($behaviorConfig['module']);
 		}
-		
+
 		if (!array_key_exists($behaviorName, $this->_behaviors)) {
 			$factory 	= new Garp_Spawn_Behavior_Factory();
 			$behavior 	= $factory->produce($this->_model, $origin, $behaviorName, $behaviorConfig, $behaviorType, $behaviorModule);
@@ -88,7 +88,7 @@ class Garp_Spawn_Behavior_Set {
 			$generatedFields = $this->_behaviors[$behaviorName]->getFields();
 			foreach ($generatedFields as $fieldName => $fieldParams) {
 				$this->_model->fields->add('behavior', $fieldName, $fieldParams);
-			}			
+			}
 
 		} else throw new Exception("The {$behaviorName} behavior is already registered.");
 	}
@@ -116,14 +116,14 @@ class Garp_Spawn_Behavior_Set {
 			$this->_add('default', $behaviorName, $behaviorConfig, $behaviorType);
 		}
 	}
-	
+
 	protected function _needsConditionalBehavior($behaviorName) {
 		$model = $this->getModel();
 		$class = 'Garp_Spawn_Behavior_Type_' . $behaviorName;
-		
+
 		return $class::isNeededBy($model);
 	}
-		
+
 	/**
 	 * Adds the weighable behavior, for user defined sorting of related objects.
 	 * Can only be initialized after the relations for this model are set.
