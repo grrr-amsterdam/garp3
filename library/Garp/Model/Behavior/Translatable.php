@@ -82,15 +82,19 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 			return;
 		}
 		if ($where = $select->getPart(Zend_Db_Select::WHERE)) {
+			$select->reset(Zend_Db_Select::WHERE);
 			foreach ($where as $clause) {
 				// Check if it's a search query
 				if (stripos($clause, 'like') !== false) {
 					preg_match('/%.*?%/', $clause, $matches);
 					if (!empty($matches[0])) {
-						$this->_joinCmsSearchQuery($model, $select, $matches[0]);
-						break;
+						$clause = trim($clause, '() ');
+						$clause .= ' OR ' . $this->_joinCmsSearchQuery($model, $select, $matches[0]);
 					}
 				}
+				// re-attach clause
+				$clause = preg_replace('/^OR|AND/', '', $clause);
+				$select->where($clause);
 			}
 		}
 		$this->bindWithI18nModel($model);
@@ -106,6 +110,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		// Exclude default language, since that's already joined in the joint view
 		$languages = array_diff($languages, $default_language);
 		$adapter = $model->getAdapter();
+		$where = array();
 		foreach ($languages as $language) {
 			$i18nModel = $this->getI18nModel($model);
 			$i18nAlias = $model->getName() . '_i18n_' . $language;
@@ -121,10 +126,11 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 			// add WHERE clauses that search in the i18n model
 			$translatedFields = $this->_translatableFields;
 			foreach ($translatedFields as $i18nField) {
-				$select->orWhere("{$i18nAlias}.{$i18nField} LIKE ?", $likeValue);
+				$where[] = "{$i18nAlias}.{$i18nField} LIKE " . $adapter->quote($likeValue);
 			}
 
 		}
+		return implode(' OR ', $where);
 	}
 
 	/**
