@@ -19,9 +19,9 @@ class Garp_Spawn_MySql_Column {
 	public $options = null;
 
 	protected $_statement;
-	
+
 	protected $_ignorableDiffProperties = array('position');
-	
+
 	protected $_columnOptions = array(
 		'not_nullable' 		=> 'NOT NULL',
 		'unsigned'			=> 'UNSIGNED',
@@ -30,7 +30,7 @@ class Garp_Spawn_MySql_Column {
 
 
 	/**
-	* 	
+	*
 	 * @param String $line Line with a column definition statement in SQL
 	 */
 	public function __construct($position, $line) {
@@ -66,7 +66,7 @@ class Garp_Spawn_MySql_Column {
 		foreach ($reflProps as $reflProp) {
 			$thisProp = $this->{$reflProp->name};
 			$thatProp = $columnToCompareWith->{$reflProp->name};
-			
+
 			if (
 				!$this->_isIgnorableDiffProperty($reflProp->name) &&
 				(
@@ -83,7 +83,7 @@ class Garp_Spawn_MySql_Column {
 
 		return $diffPropertyNames;
 	}
-	
+
 	protected function _isIgnorableDiffProperty($propName) {
 		return in_array($propName, $this->_ignorableDiffProperties);
 	}
@@ -110,7 +110,7 @@ class Garp_Spawn_MySql_Column {
 		if ($this->unsigned && $this->isNumeric($this->type)) {
 			$nodes[] = 'UNSIGNED';
 		}
-			
+
 		if (!$this->nullable) {
 			$nodes[] = 'NOT NULL';
 		}
@@ -121,7 +121,7 @@ class Garp_Spawn_MySql_Column {
 
 		if (isset($this->default)) {
 			$default = $this->default;
-			
+
 			$default = $this->_convertDefaultIfNecessary($default);
 			$default = $this->quoteIfNecessary($this->type, $default);
 			$nodes[] = 'DEFAULT ' . $default;
@@ -151,12 +151,12 @@ class Garp_Spawn_MySql_Column {
 				} else {
 					$type = 'int(11)';
 				}
-				
+
 				if ($field->unsigned) {
 					$type .= ' UNSIGNED';
 				}
 				return $type;
-				
+
 			case 'text':
 			case 'html':
 				if (empty($field->maxLength) || $field->maxLength > 255) {
@@ -196,10 +196,10 @@ class Garp_Spawn_MySql_Column {
 
 	static public function getRequiredAndDefault(Garp_Spawn_Field $field) {
 		$out = array();
-		if ($field->required && $field->relationType !== 'hasOne') {
+		if ($field->type === 'checkbox' || ($field->required && $field->relationType !== 'hasOne')) {
 			$out[] = 'NOT NULL';
 		}
-		
+
 		if (isset($field->default)) {
 			$default = $field->default;
 			$default = self::convertDefaultIfNecessary($default, $field);
@@ -209,8 +209,8 @@ class Garp_Spawn_MySql_Column {
 
 		return implode($out, " ");
 	}
-	
-	
+
+
 	static public function quoteIfNecessary($fieldType, $value) {
 		$decorator = null;
 
@@ -251,7 +251,7 @@ class Garp_Spawn_MySql_Column {
 
 		return 0;
 	}
-	
+
 
 	static public function isNumeric($sqlType) {
 		switch ($sqlType) {
@@ -277,7 +277,7 @@ class Garp_Spawn_MySql_Column {
 			if (is_numeric($key))
 				unset($matches[$key]);
 		}
-		
+
 		if (array_key_exists('default', $matches)) {
 			if ($matches['default'] === 'NULL')
 				$matches['default'] = null;
@@ -296,17 +296,17 @@ class Garp_Spawn_MySql_Column {
 
 		return $matches;
 	}
-	
+
 	/**
 	 * @param	Array	$matches	Result of preg_match on sql statement
 	 * @param	String	$prop		Matched property in sql statement, i.e. nullable | unsigned | auto_increment
 	 */
 	protected function _propExistsAndMatches(array $matches, $prop) {
-		$existsAndMatches = 
+		$existsAndMatches =
 			array_key_exists($prop, $matches) &&
 			strcasecmp($matches[$prop], $this->_columnOptions[$prop]) === 0
 		;
-		
+
 		return $existsAndMatches;
 	}
 }
