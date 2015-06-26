@@ -88,16 +88,27 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 				if (stripos($clause, 'like') !== false) {
 					preg_match('/%.*?%/', $clause, $matches);
 					if (!empty($matches[0])) {
-						$clause = trim($clause, '() ');
+						$clause = $this->_cleanClause($clause);
 						$clause .= ' OR ' . $this->_joinCmsSearchQuery($model, $select, $matches[0]);
 					}
 				}
 				// re-attach clause
 				$clause = preg_replace('/^OR|AND/', '', $clause);
+				$clause = $this->_cleanClause($clause);
 				$select->where($clause);
 			}
 		}
 		$this->bindWithI18nModel($model);
+	}
+
+	/**
+ 	 * Remove parentheses and whitespace around the clause
+	 */
+	protected function _cleanClause($clause) {
+		$clause = trim($clause);
+		$clause = preg_replace('/^\(+/', '', $clause);
+		$clause = preg_replace('/\)+$/', '', $clause);
+		return $clause;
 	}
 
 	/**
