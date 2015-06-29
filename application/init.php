@@ -87,6 +87,8 @@ $classLoader = Garp_Loader::getInstance(array(
 $classLoader->register();
 
 if (!$isCli && Garp_Application::isUnderConstruction()) {
+	header('HTTP/1.1 503 Service Temporarily Unavailable');
+	header('Retry-After: ' . date(DateTime::RFC2822, strtotime('+5 minutes')));
 	require(GARP_APPLICATION_PATH . '/modules/g/views/scripts/under-construction.phtml');
 	exit;
 }
@@ -109,7 +111,7 @@ $frontendName = 'Core';
 $memcacheAvailable = extension_loaded('memcache');
 if ($memcacheAvailable) {
 	$memcache = new Memcache;
-	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST);
+	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST, MEMCACHE_PORT);
 }
 if (!$memcacheAvailable) {
 	$backendName       = 'BlackHole';

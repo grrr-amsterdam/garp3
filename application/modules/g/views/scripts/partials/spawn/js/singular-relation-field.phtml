@@ -1,27 +1,34 @@
 <?php
-	if (!$this->relationName):
-		throw new Exception('This partial requires a String as $relationName parameter.');
-	endif;
-	if (!$this->relation instanceof Garp_Spawn_Relation):
-		throw new Exception('This partial requires a Garp_Spawn_Relation instance as $relation parameter.');
-	endif;
-	if (!$this->modelSet instanceof Garp_Spawn_Model_Set):
-		throw new Exception('This partial requires a Garp_Spawn_Model_Set instance as $modelSet parameter.');
-	endif;
-	if ($this->relation->model === 'Image'):
-		throw new Exception('This partial is intended for related models which are not images; please use image-field.phtml for that.');
-	endif;
-	
-	$lcRelationLabel = strtolower($this->relation->label);
-	
-	if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect): 
-		// simple drop down select
-	
+if (!$this->relationName):
+	throw new Exception('This partial requires a String as $relationName parameter.');
+endif;
+if (!$this->relation instanceof Garp_Spawn_Relation):
+	throw new Exception('This partial requires a Garp_Spawn_Relation instance as $relation parameter.');
+endif;
+if (!$this->modelSet instanceof Garp_Spawn_Model_Set):
+	throw new Exception('This partial requires a Garp_Spawn_Model_Set instance as $modelSet parameter.');
+endif;
+if ($this->relation->model === 'Image'):
+	throw new Exception('This partial is intended for related models which are not images; please use image-field.phtml for that.');
+endif;
+
+$lcRelationLabel = strtolower($this->relation->label);
+$relationJoinedFieldName = $this->relationName;
+
+$relationFieldName = $this->relation->column;
+if ($this->relation->multilingual):
+	$relationFieldName = '_' . $relationFieldName . '_' . $this->locale;
+	$relationJoinedFieldName = $relationJoinedFieldName . '_' . $this->locale;
+endif;
+
+if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect):
+	// simple drop down select
+
 ?>
-				name: '<?php echo $this->relation->column ?>',
+				name: '<?php echo $relationFieldName ?>',
 				xtype: 'relationfield',
 				triggerFn: false,
-				fieldLabel: __('<?php 
+				fieldLabel: __('<?php
 					if ($this->relation->label === $this->relation->model):
 						foreach ($this->modelSet as $model):
 							if ($model->id === $this->relation->model):
@@ -38,20 +45,20 @@
 				disabled: true,
 				<?php endif; ?>
 				model: '<?php echo $this->relation->model ?>'
-<?php 
-	
-	else: 
+<?php
+
+	else:
 		// select with popup relation chooser:
-	
+
 ?>
-				name: '<?php echo $this->relation->column ?>',
+				name: '<?php echo $relationFieldName ?>',
 				xtype: 'bindedfield',
-				bindedField: '<?php echo strtolower($this->relationName) ?>'
+				bindedField: '<?php echo strtolower($relationJoinedFieldName) ?>'
 			}, {
-				name: '<?php echo strtolower($this->relationName) ?>',
+				name: '<?php echo strtolower($relationJoinedFieldName) ?>',
 				xtype: 'joinedrelationfield',
-				bindedField: '<?php echo $this->relation->column ?>',
-				fieldLabel: __('<?php 
+				bindedField: '<?php echo $relationFieldName ?>',
+				fieldLabel: __('<?php
 					if ($this->relation->label === $this->relation->model):
 						foreach ($this->modelSet as $model):
 							if ($model->id === $this->relation->model):
@@ -68,5 +75,5 @@
 				disabled: true,
 				<?php endif; ?>
 				model: '<?php echo $this->relation->model ?>'
-<?php 	
-		endif; 
+<?php
+		endif;
