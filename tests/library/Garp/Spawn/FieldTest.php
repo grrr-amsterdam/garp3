@@ -14,6 +14,7 @@ class Garp_Spawn_FieldTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals(
 			'  `is_highlighted` tinyint(1) NOT NULL DEFAULT 0',
 			$sql);
+		$this->assertEquals(0, $field->default);
 	}
 
 }
