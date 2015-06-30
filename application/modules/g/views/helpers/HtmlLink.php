@@ -22,6 +22,8 @@ class G_View_Helper_HtmlLink extends Zend_View_Helper_HtmlElement {
 	public function htmlLink($url, $label, array $attributes = array(), $escape = true) {
 		if (is_array($url)) {
 			$url = call_user_func_array(array($this->view, 'url'), $url);
+		} elseif ($url instanceof Garp_Util_RoutedUrl) {
+			$url = (string)$url;
 		} else {
 			$urlAttribs = parse_url($url);
 			if (empty($urlAttribs['scheme']) && substr($url, 0, 2) !== '//') {
@@ -31,6 +33,6 @@ class G_View_Helper_HtmlLink extends Zend_View_Helper_HtmlElement {
 		$attributes['href'] = $url;
 		$label = $escape ? $this->view->escape($label) : $label;
 		$html = '<a'.$this->_htmlAttribs($attributes).'>'.$label.'</a>';
-		return $html;		
+		return $html;
 	}
 }

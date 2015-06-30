@@ -2,7 +2,7 @@
 /**
  * @author David Spreekmeester | grrr.nl
  */
-class Garp_Spawn_Behavior_Type_Translatable extends Garp_Spawn_Behavior_Type_Abstract {	
+class Garp_Spawn_Behavior_Type_Translatable extends Garp_Spawn_Behavior_Type_Abstract {
 
 	static public function isNeededBy(Garp_Spawn_Model_Abstract $model) {
 		return $model->isMultilingual();
@@ -14,25 +14,25 @@ class Garp_Spawn_Behavior_Type_Translatable extends Garp_Spawn_Behavior_Type_Abs
 	 */
 	public function needsPhpModelObserver() {
 		$model = $this->getModel();
-		
+
 		return !$model->isTranslated();
 	}
-	
+
 	public function getParams() {
 		$model = $this->getModel();
 
 		if (!$model->isMultilingual()) {
 			return;
 		}
-		
-		$fields 	= $model->fields->getFields('multilingual', true);
-		$fieldNames = array();
-		
-		foreach ($fields as $field) {
-			$fieldNames[] = $field->name;
-		}
-		
-		$params = array('columns' => $fieldNames);
+
+		$fieldNames = array_merge(
+			array_map(function($field) { return $field->name; },
+				$model->fields->getFields('multilingual', true)),
+			array_map(function($rel) { return $rel->column; },
+				$model->relations->getRelations('multilingual', true))
+		);
+
+		$params = array('columns' => array_values($fieldNames));
 		return $params;
 	}
 }

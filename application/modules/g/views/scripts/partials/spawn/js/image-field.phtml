@@ -2,9 +2,9 @@
 			if (!$this->relation instanceof Garp_Spawn_Relation):
 				throw new Exception('This partial requires a Garp_Spawn_Relation instance as $relation parameter.');
 			endif;
-			if (!$this->modelSet instanceof Garp_Spawn_Model_Set):
-				throw new Exception('This partial requires a Garp_Spawn_Model_Set instance as $modelSet parameter.');
-			endif;
+			//if (!$this->modelSet instanceof Garp_Spawn_Model_Set):
+				//throw new Exception('This partial requires a Garp_Spawn_Model_Set instance as $modelSet parameter.');
+			//endif;
 			if ($this->relation->model !== 'Image'):
 				throw new Exception('This partial is only intended for related Image models; please use singular-relation-field.phtml for that.');
 			endif;
@@ -14,32 +14,33 @@
 				throw new Exception("Scaling template 'cms_list' is not defined, or lacks width.");
 			}
 			$imageWidth = $ini->image->template->cms_list->w;
-			$imageFieldId = $this->spawnJs()->getImageFieldId($this->relation->column);
-			$imagePreviewId = $this->spawnJs()->getImagePreviewId($this->relation->column);
+			$imageFieldId = $this->spawnJs()->getImageFieldId($this->relation->column, $this->locale);
+			$imagePreviewId = $this->spawnJs()->getImagePreviewId($this->relation->column, $this->locale);
 			?>
 				fieldLabel: __('<?php echo $this->relation->label ?>'),
 				allowBlank: <?php echo $this->relation->type === 'belongsTo' || $this->relation->required ? 'false' : 'true' ?>,
 				xtype: 'button',
-				ref: '../../../<?php echo $imagePreviewId ?>',
+				ref: '<?php echo $this->spawnJs()->getImageRefDepth($this->relation->multilingual) . $imagePreviewId ?>',
 				tooltip: __('Click to change'),
 				boxMaxWidth: <?php echo $imageWidth ?>,
 				listeners: {
-					'click': function(){
+					'click': function() {
 						this.refOwner.<?php echo $imageFieldId ?>.triggerFn();
 					}
 				}
 			}, {
-				name: '<?php echo $this->relation->column ?>',
+			name: '<?php echo $this->relation->getNameKey($this->locale) ?>',
 				xtype: 'relationfield',
 				allowBlank: <?php echo $this->relation->type === 'belongsTo' || $this->relation->required ? 'false' : 'true' ?>,
 				autoLoad: false,
 				hidden: true,
 				displayField: 'filename',
-				ref: '../../../<?php echo $imageFieldId ?>',
+				ref: '<?php echo $this->spawnJs()->getImageRefDepth($this->relation->multilingual) . $imageFieldId ?>',
 				model: '<?php echo $this->relation->model ?>',
 				allowCreate: true,
 				listeners: {
-					select: function(s){
-						this.refOwner.<?php echo $imagePreviewId ?>.setText(s.selected ? Garp.renderers.imageRelationRenderer(s.selected.get('id'), null, s.selected) : __('Add image'));
+					select: function(s) {
+						this.refOwner.<?php echo $imagePreviewId ?>.setText(s.selected ?
+							Garp.renderers.imageRelationRenderer(s.selected.get('id'), null, s.selected, '<?php echo $this->locale ?>') : __('Add image'));
 					}
 				}

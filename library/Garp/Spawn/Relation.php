@@ -15,7 +15,9 @@ class Garp_Spawn_Relation {
 		"The relation name cannot be defined as a property for the %s relation. Instead, it should be the key of the relation.";
 	const ERROR_INVALID_RELATION_PROPERTY_VALUE =
 		"'%s' is not a valid parameter for the %s > %s relation field configuration. Try: %s";
-	
+	const ERROR_INVALID_RELATION_TYPE_FOR_MULTILINGUAL =
+		"'multilingual' is not a valid parameter for the %s > %s relation field configuration. It's only allowed on hasOne relations.";
+
 	/**
 	 * @var String $model The remote model which is referenced in this relation.
 	 */
@@ -28,10 +30,11 @@ class Garp_Spawn_Relation {
 	public $simpleSelect;
 	public $max;
 	public $paginated;
+	public $multilingual;
 
 	/** Whether this relation field is editable in the cms. For instance, hasMany relations of which the opposite side is belongsTo (instead of hasOne), are not editable. */
 	public $editable;
-	
+
 	/** Whether a singular relation (hasOne / belongsTo) also implicates a hasMany relation from the remote to the local model. */
 	public $inverse;
 
@@ -103,22 +106,22 @@ class Garp_Spawn_Relation {
 
 		$this->_initBindingModelIdProp();
 	}
-	
+
 	/**
 	 * @return Garp_Spawn_Model_Base
 	 */
 	public function getLocalModel() {
 		return $this->_localModel;
 	}
-	
+
 	public function isPlural() {
 		if ($this->type) {
 			return $this->type === 'hasAndBelongsToMany' || $this->type === 'hasMany';
 		}
-		
+
 		throw new Exception(self::ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_PLURAL);
 	}
-	
+
 	public function isSingular() {
 		if ($this->type) {
 			return $this->_isSingularByArg($this->type);
@@ -136,7 +139,7 @@ class Garp_Spawn_Relation {
 
 		return $out;
 	}
-	
+
 	/**
 	 * @param	Array	$propNames		Numeric array of property names
 	 * @param	Array	$propValues		Corresponding numeric array of property values.
@@ -148,12 +151,12 @@ class Garp_Spawn_Relation {
 
 			if (!in_array($this->{$propName}, $valuesForThisProp)) {
 				return false;
-			}			
+			}
 		}
 
 		return true;
 	}
-	
+
 	/**
 	 * @return Garp_Spawn_Model_Base 	A model object, representing the binding model
 	 * 									between two hasAndBelongsToMany related models.
@@ -224,48 +227,78 @@ class Garp_Spawn_Relation {
 		if (!array_key_exists('type', $params)) {
 			$error = sprintf(self::ERROR_RELATION_TYPE_MISSING, $name);
 			throw new Exception($error);
-		} else {
-			foreach ($params as $paramName => $paramValue) {
-				switch ($paramName) {
-					case 'type':
-						if (!in_array($paramValue, $this->_types)) {
-							$error = sprintf(
-								self::ERROR_RELATION_TYPE_INVALID,
-								$param['type'],
-								$name,
-								implode($this->_types, ', ')
-							);
-							throw new Exception($error);
-						}
-					break;
-					case 'name':
-						$error = sprintf(self::ERROR_RELATION_NAME_CANNOT_BE_PROPERTY, $name);
-						throw new Exception($error);
-					break;
-					default:
-						if (!property_exists($this, $paramName)) {
-							$refl = new ReflectionObject($this);
-							$reflProps = $refl->getProperties(ReflectionProperty::IS_PUBLIC);
-						    $publicProps = array();
-							foreach ($reflProps as $reflProp) {
-								if ($reflProp->name !== 'name')
-									$publicProps[] = $reflProp->name;
-							}
-							
-							$error = sprintf(
-								self::ERROR_INVALID_RELATION_PROPERTY_VALUE,
-								$paramName,
-								$this->_localModel->id,
-								$name,
-								implode($publicProps, ", ")
-							);
-							throw new Exception($error);
-						}
-				}
-			}
+		}
+		foreach ($params as $paramName => $paramValue) {
+			$this->_validateParam($paramName, $paramValue, $name);
+		}
+
+		if (isset($params['mirrored']) && $params['mirrored']) {
+			unset($params['multilingual']);
+		}
+		$this->_validateMultilingual($params, $name);
+	}
+
+	protected function _validateParam($paramName, $paramValue, $relName) {
+		switch ($paramName) {
+			case 'type':
+				$this->_validateType($paramValue, $relName);
+			break;
+			case 'name':
+				$this->_validateName($paramValue, $relName);
+			break;
+			default:
+				$this->_validateProp($paramName, $paramValue, $relName);
 		}
 	}
-		
+
+	protected function _validateType($paramValue, $relName) {
+		if (in_array($paramValue, $this->_types)) {
+			return true;
+		}
+		$error = sprintf(
+			self::ERROR_RELATION_TYPE_INVALID,
+			$param['type'],
+			$relName,
+			implode($this->_types, ', ')
+		);
+		throw new Exception($error);
+	}
+
+	protected function _validateName($paramValue, $relName) {
+		$error = sprintf(self::ERROR_RELATION_NAME_CANNOT_BE_PROPERTY, $relName);
+		throw new Exception($error);
+	}
+
+	protected function _validateProp($paramName, $paramValue, $relName) {
+		if (property_exists($this, $paramName)) {
+			return true;
+		}
+		$refl = new ReflectionObject($this);
+		$reflProps = $refl->getProperties(ReflectionProperty::IS_PUBLIC);
+		$publicProps = array();
+		foreach ($reflProps as $reflProp) {
+			if ($reflProp->name !== 'name')
+				$publicProps[] = $reflProp->name;
+		}
+
+		$error = sprintf(
+			self::ERROR_INVALID_RELATION_PROPERTY_VALUE,
+			$paramName,
+			$this->_localModel->id,
+			$relName,
+			implode($publicProps, ", ")
+		);
+		throw new Exception($error);
+	}
+
+	protected function _validateMultilingual($params, $relName) {
+		if (isset($params['multilingual']) && $params['multilingual'] &&
+			$params['type'] !== 'hasOne') {
+			throw new Exception(sprintf(self::ERROR_INVALID_RELATION_TYPE_FOR_MULTILINGUAL,
+				$this->_localModel->id, $relName));
+		}
+	}
+
 	protected function _appendDefaults($name, array &$params) {
 		//	during execution of this method, self::isSingular() is not yet available.
 		if (!array_key_exists('model', $params) || !$params['model'])
@@ -287,7 +320,7 @@ class Garp_Spawn_Relation {
 
 		if (!array_key_exists('editable', $params))
 			$params['editable'] = true;
-			
+
 		if (!array_key_exists('required', $params))
 			$params['required'] = $params['type'] === 'belongsTo';
 
@@ -316,9 +349,13 @@ class Garp_Spawn_Relation {
 			'required' => $this->required,
 			'relationType' => $this->type
 		);
+		if ($this->multilingual && $this->_localModel->isMultilingual()) {
+			// The relation is added to the i18n model by Garp_Spawn_Config_Model_I18n
+			return;
+		}
 		$this->_localModel->fields->add('relation', $column, $fieldParams);
-	}	
-	
+	}
+
 	protected function _addOppositeRule() {
 		if ($this->oppositeRule) return;
 
@@ -340,6 +377,13 @@ class Garp_Spawn_Relation {
 
 		$bindingModel = $this->getBindingModel();
 		$this->bindingModel = $bindingModel->id;
+	}
+
+	public function getNameKey($language) {
+		return $this->multilingual ?
+			'_' . $this->column . '_' . $language :
+			$this->column
+		;
 	}
 
 }
