@@ -13,21 +13,13 @@ class Garp_Spawn_Behavior_Type_Truncatable extends Garp_Spawn_Behavior_Type_Abst
 	 * 					called in the PHP model's init() method
 	 */
 	public function needsPhpModelObserver() {
-		return true;
+		return count(array_filter($this->getModel()->fields->getFields(),
+			$this->_getArrayFilterForTruncatableFields())) > 0;
 	}
 
 	public function getParams() {
-		$filterTruncatable = function(Garp_Spawn_Field $field) {
-			return 
-				$field->isTextual() &&
-				$field->maxLength
-			;
-		};
-
-		$textFields = array_filter(
-			$this->getModel()->fields->getFields(),
-			$filterTruncatable
-		); 
+		$textFields = array_filter($this->getModel()->fields->getFields(),
+			$this->_getArrayFilterForTruncatableFields());
 
 		$columns = array();
 		foreach ($textFields as $textField) {
@@ -36,5 +28,11 @@ class Garp_Spawn_Behavior_Type_Truncatable extends Garp_Spawn_Behavior_Type_Abst
 
 		$params = array('columns' => $columns);
 		return $params;
+	}
+
+	protected function _getArrayFilterForTruncatableFields() {
+		return function(Garp_Spawn_Field $field) {
+			return $field->isTextual() && $field->maxLength;
+		};
 	}
 }
