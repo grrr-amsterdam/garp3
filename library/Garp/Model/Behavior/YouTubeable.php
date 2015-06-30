@@ -164,7 +164,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		}
 
 		if (!isset($videoId)) {
-			throw new Garp_Model_Behavior_Exception('Not a valid YouTube url.');
+			throw new Garp_Model_Behavior_Exception("Not a valid YouTube url: {$watchUrl}");
 		}
 		return $videoId;
 	}
