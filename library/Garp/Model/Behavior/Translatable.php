@@ -81,11 +81,11 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		if (!$isCms && !$this->_forceI18nOutput) {
 			return;
 		}
-		$this->_modifySearchQuery($select);
+		$this->_modifySearchQuery($select, $model);
 		$this->bindWithI18nModel($model);
 	}
 
-	protected function _modifySearchQuery(Zend_Db_Select &$select) {
+	protected function _modifySearchQuery(Zend_Db_Select &$select, $model) {
 		$where = $select->getPart(Zend_Db_Select::WHERE);
 		if (!$where) {
 			return;
