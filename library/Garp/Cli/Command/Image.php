@@ -26,6 +26,11 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 			!empty($args['filename'])
 		) {
 			return $this->_generateScaledImagesForFilename($args['filename'], $overwrite);
+		} elseif(
+			array_key_exists('id', $args) &&
+			!empty($args['id'])
+		) {
+			return $this->_generateScaledImagesForId($args['id'], $overwrite);
 		}
 		return $this->_generateAllScaledImages($overwrite);
 	}
@@ -104,6 +109,22 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 		}
 
 		return $success == count($templates);
+	}
+
+	/**
+	 * Generate scaled versions of a specific source file, along all configured templates.
+	 * @param String $id Id of the source file in need of scaling
+	 * @param Boolean $overwrite
+	 * @return Void
+	 */
+	protected function _generateScaledImagesForId($id, $overwrite = false) {
+		if (!$id) {
+			return;
+		}
+
+		$imageModel = new G_Model_Image();
+		$record 	= $imageModel->fetchById($id);
+		return $this->_generateScaledImagesForFilename($record->filename);
 	}
 
 	/**
