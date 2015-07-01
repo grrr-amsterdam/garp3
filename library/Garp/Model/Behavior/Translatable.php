@@ -81,24 +81,42 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		if (!$isCms && !$this->_forceI18nOutput) {
 			return;
 		}
-		if ($where = $select->getPart(Zend_Db_Select::WHERE)) {
-			$select->reset(Zend_Db_Select::WHERE);
-			foreach ($where as $clause) {
-				// Check if it's a search query
-				if (stripos($clause, 'like') !== false) {
-					preg_match('/%.*?%/', $clause, $matches);
-					if (!empty($matches[0])) {
-						$clause = $this->_cleanClause($clause);
-						$clause .= ' OR ' . $this->_joinCmsSearchQuery($model, $select, $matches[0]);
-					}
-				}
-				// re-attach clause
-				$clause = preg_replace('/^OR|AND/', '', $clause);
-				$clause = $this->_cleanClause($clause);
-				$select->where($clause);
-			}
-		}
+		$this->_modifySearchQuery($select);
 		$this->bindWithI18nModel($model);
+	}
+
+	protected function _modifySearchQuery(Zend_Db_Select &$select) {
+		$where = $select->getPart(Zend_Db_Select::WHERE);
+		if (!$where) {
+			return;
+		}
+		$select->reset(Zend_Db_Select::WHERE);
+		foreach ($where as $clause) {
+			// Check if it's a search query
+			if (stripos($clause, 'like') !== false) {
+				preg_match('/%.*?%/', $clause, $matches);
+				if (!empty($matches[0])) {
+					$clause = $this->_cleanClause($clause);
+					$clause .= ' OR ' . $this->_joinCmsSearchQuery($model, $select, $matches[0]);
+				}
+			}
+			// re-attach clause
+			$whereBoolType = $this->_determineAndOrOr($clause);
+			$clause = preg_replace('/^OR|AND/', '', $clause);
+			$clause = $this->_cleanClause($clause);
+			if ($whereBoolType === 'OR') {
+				$select->orWhere($clause);
+				continue;
+			}
+			$select->where($clause);
+		}
+	}
+
+	/**
+ 	 * Determine wether a WHERE clause is AND or OR
+ 	 */
+	protected function _determineAndOrOr($clause) {
+		return substr(trim($clause), 0, 2) === 'OR' ? 'OR' : 'AND';
 	}
 
 	/**
