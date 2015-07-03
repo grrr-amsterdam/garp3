@@ -44,7 +44,12 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 		try {
 			$alternateRoute = $router->assemble($routeParams, $route);
 		} catch (Exception $e) {
-			return null;
+			// try to default to 'home'
+			if ($route === 'home') {
+				throw $e;
+			}
+			$args = func_get_args();
+			return $this->getAlternateUrl($args[0], $args[1], 'home');
 		}
 		// Remove the baseURl because it contains the current language
 		$alternateRoute =
