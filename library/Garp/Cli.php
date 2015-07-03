@@ -17,6 +17,9 @@ class Garp_Cli {
 	const GREEN = '2;32';
 	const BLUE = '2;34';
 	const YELLOW = '0;33';
+	const PURPLE = '0;35';
+	const WHITE = '1;37';
+	const CYAN = '0;36';
     /**#@-*/
 
 	/**
@@ -72,7 +75,7 @@ class Garp_Cli {
 		$s = "\033[{$color}m{$s}\033[0m";
 		mb_internal_encoding($prevEnc);
 	}
-	
+
 	/**
 	 * Receive input from the commandline.
 	 * @param String $prompt Something to say to the user indicating your waiting for a response
@@ -83,7 +86,7 @@ class Garp_Cli {
 		$prompt && self::lineOut($prompt);
 		self::lineOut('> ', null, false);
 		$response = fgets(STDIN);
-		
+
 		if ($trim) {
 			$response = trim($response);
 		}
@@ -128,24 +131,24 @@ class Garp_Cli {
 
 	/**
 	 * PARSE ARGUMENTS
-	 * 
+	 *
 	 * This command line option parser supports any combination of three types
 	 * of options (switches, flags and arguments) and returns a simple array.
-	 * 
+	 *
 	 * [pfisher ~]$ php test.php --foo --bar=baz
 	 *   ["foo"]   => true
 	 *   ["bar"]   => "baz"
-	 * 
+	 *
 	 * [pfisher ~]$ php test.php -abc
 	 *   ["a"]     => true
 	 *   ["b"]     => true
 	 *   ["c"]     => true
-	 * 
+	 *
 	 * [pfisher ~]$ php test.php arg1 arg2 arg3
 	 *   [0]       => "arg1"
 	 *   [1]       => "arg2"
 	 *   [2]       => "arg3"
-	 * 
+	 *
 	 * [pfisher ~]$ php test.php plain-arg --foo --bar=baz --funny="spam=eggs" --also-funny=spam=eggs \
 	 * > 'plain arg 2' -abc -k=value "plain arg 3" --s="original" --s='overwrite' --s
 	 *   [0]       => "plain-arg"
@@ -191,7 +194,7 @@ class Garp_Cli {
 			}
 			// -k=value -abc
 			elseif (substr($arg, 0, 1) == '-') {
-				
+
                 // -k=value
 				if (substr($arg, 2, 1) == '=') {
 					$key		= substr($arg,1,1);
@@ -246,7 +249,7 @@ class Garp_Cli {
 
 	/**
  	 * On shell, you must return 0 on success, 1 on failure.
- 	 * This method deals with that. Feed it any expression and 
+ 	 * This method deals with that. Feed it any expression and
  	 * it will exit the right way
  	 * @param Mixed $bool
  	 * @return Void
