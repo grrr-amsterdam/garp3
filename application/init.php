@@ -220,6 +220,15 @@ function instance($obj) {
 }
 
 /**
+ * Transform array of objects into a new array with just the given key of said objects
+ */
+function array_pluck($array, $column) {
+	return array_map(function($obj) use ($column) {
+		return $obj[$column];
+	}, $array);
+}
+
+/**
  * Flatten an array of arrays.
  * The cornerstone of functional programming.
  */
