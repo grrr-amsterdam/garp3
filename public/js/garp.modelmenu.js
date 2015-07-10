@@ -2,25 +2,55 @@
  * @class Garp.ModelMenu
  * @author Peter
  * garp.modelmenu.js
- * 
+ *
  */
 
-Garp.ModelMenu = function(cfg){
-	
+Garp.ModelMenu = function(cfg) {
 	Ext.apply(this, cfg);
-	
+
+	var definedModelsInMenu = extractConfiguredModelNames(this.menuItems);
+	this.menuItems = this.menuItems.concat(Object.keys(Garp.dataTypes).filter(function(modelName) {
+		return definedModelsInMenu.indexOf(modelName) == -1;
+	}));
+
 	var menuItems = [];
-	
-	for (var key in Garp.dataTypes){
-		if(this.menuItems.indexOf(key) == -1){
-			this.menuItems.push(key);
-		}	
+	menuItems.push(createMenuItemsForModels(this.menuItems));
+
+	Garp.ModelMenu.superclass.constructor.call(this, Ext.applyIf(cfg, {
+		cls: 'garp-model-menu',
+		text: __('Content'),
+		iconCls: 'icon-no-model',
+		menu: new Ext.menu.Menu({
+			items: menuItems
+		})
+	}));
+
+	this.on('afterrender', function(){
+		this.getEl().on('click', function(){
+			Garp.viewport.gridPanelCt.expand();
+		});
+	}, this);
+
+	function extractConfiguredModelNames(menuItems) {
+		return menuItems.filter(function(item) {
+			return !Ext.isObject(item);
+		}).concat(Ext.flatten(menuItems.filter(function(item) {
+			return Ext.isObject(item);
+		}).map(function(item) {
+			return extractConfiguredModelNames(item.menu);
+		})));
 	}
-	
-	menuItems.push((function(){
+
+	function createMenuItemsForModels(menuItems) {
 		var model, models = [];
-		Ext.each(this.menuItems, function(model){
-			if (model == '-') { 
+		Ext.each(menuItems, function(model) {
+			if (typeof model.menu !== 'undefined') {
+				models.push({
+					iconCls: model.iconCls || '',
+					text: model.text || 'submenu',
+					menu: createMenuItemsForModels(model.menu)
+				});
+			} else if (model == '-') {
 				// Check if models are already in array, otherwise a separator doesn't make sense.
 				if (models.length > 0 && models[models.length - 1] != '-') {
 					models.push('-');
@@ -34,7 +64,7 @@ Garp.ModelMenu = function(cfg){
 					throw 'Oops! dataType "' + model + '" not found! Does it exist in the smd?';
 				}
 				if (dataType.setupACL(Garp[model])) {
-					dataType.fireEvent('init');	
+					dataType.fireEvent('init');
 					models.push({
 						hidden: dataType.hidden,
 						text: __(dataType.text),
@@ -52,24 +82,7 @@ Garp.ModelMenu = function(cfg){
 			}
 		});
 		return models;
-	}).call(this));
-	
-	Garp.ModelMenu.superclass.constructor.call(this, Ext.applyIf(cfg, {
-		cls: 'garp-model-menu',
-		text: __('Content'),
-		iconCls: 'icon-no-model',
-		menu: new Ext.menu.Menu({
-			items: menuItems
-		})
-	}));
-
-	this.on('afterrender', function(){
-		this.getEl().on('click', function(){
-			Garp.viewport.gridPanelCt.expand();
-		});
-	}, this);
-	
-	
+	};
 };
 
 Ext.extend(Garp.ModelMenu, Ext.Button, {});
