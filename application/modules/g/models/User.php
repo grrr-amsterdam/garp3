@@ -22,6 +22,12 @@ class G_Model_User extends Model_Base_User {
 	const PASSWORD_COLUMN = 'password';
 
 	/**
+ 	 * ImageUrl column
+ 	 * @var String
+ 	 */
+	const IMAGE_URL_COLUMN = 'imageUrl';
+
+	/**
  	 * A password might be passed, but that belongs in G_Model_AuthLocal.
  	 * Since no primary key exists yet beforeInsert, save the password beforeInsert here,
  	 * and read it again afterInsert.
@@ -54,11 +60,12 @@ class G_Model_User extends Model_Base_User {
 	public function beforeInsert(array &$args) {
 		$data = &$args[1];
 
-		if (array_key_exists('imageUrl', $data) && !is_null($data['imageUrl'])) {
+		if (array_key_exists(self::IMAGE_URL_COLUMN, $data) &&
+			!is_null($data[self::IMAGE_URL_COLUMN])) {
 			// Allow passing in of image URLs. These are downloaded and added as image_id
-			$data['image_id'] = $this->_grabRemoteImage($data['imageUrl']);
+			$data['image_id'] = $this->_grabRemoteImage($data[self::IMAGE_URL_COLUMN]);
 		}
-		unset($data['imageUrl']);
+		unset($data[self::IMAGE_URL_COLUMN]);
 
 		// Prevent admins from saving a user's role greater than their own.
 		if (!empty($data[self::ROLE_COLUMN]) && !$this->_isRoleAllowed($data[self::ROLE_COLUMN])) {
@@ -130,10 +137,10 @@ class G_Model_User extends Model_Base_User {
 			}
 		}
 
-		if (array_key_exists('imageUrl', $data)) {
+		if (array_key_exists(self::IMAGE_URL_COLUMN, $data)) {
 			// Allow passing in of image URLs. These are downloaded and added as image_id
-			$data['image_id'] = $this->_grabRemoteImage($data['imageUrl']);
-			unset($data['imageUrl']);
+			$data['image_id'] = $this->_grabRemoteImage($data[self::IMAGE_URL_COLUMN]);
+			unset($data[self::IMAGE_URL_COLUMN]);
 		}
 
 		// A password might be passed in, and needs to be passed to G_Model_AuthLocal
@@ -385,4 +392,19 @@ class G_Model_User extends Model_Base_User {
 		$prefilledData = call_user_func_array('array_merge', $prefilledRecordsForUser);
 		return array_merge($prefilledData, $data);
 	}
+
+	/**
+ 	 * Strip an array of columns that are not part of this model.
+ 	 * This overrides Garp_Model_Db::filterColumns because the user model accepts some foreign
+ 	 * columns.
+ 	 * @param Array $data
+ 	 * @return Array
+ 	 */
+	public function filterColumns(array $data) {
+		$testCols = array_fill_keys($this->info(Zend_Db_Table_Abstract::COLS), null);
+		$testCols[self::PASSWORD_COLUMN] = null;
+		$testCols[self::IMAGE_URL_COLUMN] = null;
+		return array_intersect_key($data, $testCols);
+	}
+
 }
