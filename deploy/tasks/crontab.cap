@@ -1,7 +1,7 @@
 desc "Install crontab"
 task :install_crontab do
 	on roles(:web) do
-  		php_exec 		= "/usr/bin/php"
+  		php_exec 		= "php"
   		garp_exec 		= "#{current_path}/garp/scripts/garp.php"
 		garp_env		= fetch(:stage)
 		mute			= ">/dev/null 2>&1"
