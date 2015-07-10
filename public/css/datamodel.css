@@ -6,12 +6,13 @@ body {
 	line-height: 1.4em;
 	background-color: #eee;
 
-	background: linear-gradient(to bottom, #ddd 0%,#fff 20%,#fff 80%,#ddd 100%);
+	background: linear-gradient(to bottom, #eee 0%,#fff 20%,#fff 80%,#eee 100%);
 
 	
     background-repeat: no-repeat;
     background-attachment: fixed;
 
+	zoom: 67%;
 	
 /*	background: black url('/media/images/garp/datamodel/background-green.jpg') no-repeat fixed;*/
 }
@@ -99,7 +100,7 @@ div#section-fields {
 /*	overflow: hidden;*/
 
 	background-color: #fff;
-	border: 3px solid black;
+	border: 3px solid #ccc;
 	border-radius: 30px;
 	text-decoration: none;
 	color: black;
@@ -113,23 +114,23 @@ div#section-fields {
 }
 
 .model.dimmed {
-	border-color: #433720;
+	border-color: #eee;
 
-	/*background: linear-gradient(to bottom, #ddd 0%,#fff 20%,#fff 80%,#ddd 100%);*/
+	background: linear-gradient(to bottom, #ccc 0%,#fff 20%,#fff 80%,#ccc 100%);
 	/*background-image: linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
 	/*background-image: -o-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
 	/*background-image: -moz-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
 	/*background-image: -webkit-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
 	/*background-image: -ms-linear-gradient(bottom, rgb(0,0,0) 2%, rgb(206,169,102) 56%, rgb(212,190,128) 78%);*/
 
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0.02, rgb(0,0,0)),
-		color-stop(0.56, rgb(206,169,102)),
-		color-stop(0.78, rgb(212,190,128))
-	);
+	/*background-image: -webkit-gradient(*/
+		/*linear,*/
+		/*left bottom,*/
+		/*left top,*/
+		/*color-stop(0.02, rgb(0,0,0)),*/
+		/*color-stop(0.56, rgb(206,169,102)),*/
+		/*color-stop(0.78, rgb(212,190,128))*/
+	/*);*/
 
 
     background-repeat: no-repeat;
@@ -159,7 +160,7 @@ div#section-fields {
 }
 
 .model:hover {
-	border-color: #ccddcc;
+	border-color: #ccddff;
 	cursor: default;
 	-moz-transform: scale(1.2);
 	-webkit-transform: scale(1.2);

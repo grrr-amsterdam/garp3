@@ -239,7 +239,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 
 
 	public function getDefaultValue(Garp_Spawn_Field $field) {
-		return !empty($field->default) ?
+		return isset($field->default) ?
 			$this->quoteIfNecessary($field->type, $field->default) :
 			(
 				(
