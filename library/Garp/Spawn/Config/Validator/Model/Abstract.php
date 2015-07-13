@@ -16,7 +16,7 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 			'message' => "The 'order' attribute in the model configuration should be a string. To sort by multiple columns, use comma seperated SQL syntax, i.e.: 'name ASC, created DESC'."
 		)
 	);
-	
+
 	protected $_fieldTypeRestrictions = array(
 		'checkbox' => array(
 			'required' => true
@@ -26,13 +26,13 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 
 	/* Translations from internal model property (key) to configuration field (value).
 	 * i.e.: Since not all model fields can be configurated directly,
-	 * the 'fields' of a model are defined in config files as 'inputs'. */	
+	 * the 'fields' of a model are defined in config files as 'inputs'. */
 	protected $_translatedProperties = array('fields' => 'inputs');
 
 	protected $_configurableRelationTypes = array('hasOne', 'belongsTo', 'hasAndBelongsToMany');
 
 	protected $_defaultRelationType = 'hasOne';
-	
+
 	protected $_configurablePropertiesOutsideOfModel = array('listFields');
 
 
@@ -43,7 +43,7 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 		$this->_validateValueTypeRestrictedProps($config);
 		$this->_validateFieldTypeRestrictedProps($config);
 		$this->_validateRelationTypes($config);
-		
+
 		// specific and / or complex logic:
 		$this->_validateUniqueKeyLength($config);
 		$this->_validateIdCharacters($config);
@@ -57,9 +57,9 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 
 		foreach ($this->_translatedProperties as $fromProp => $toProp) {
 			unset($modelProps[array_search($fromProp, $modelProps)]);
-			$modelProps[] = $toProp;			
+			$modelProps[] = $toProp;
 		}
-		
+
 		$modelProps = array_merge($modelProps, $this->_configurablePropertiesOutsideOfModel);
 
 		return $modelProps;
@@ -83,8 +83,8 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 			}
 		}
 	}
-	
-	
+
+
 	protected function _validateValueRestrictedProps(ArrayObject $config) {
 		foreach ($this->_valueRestrictedProps as $prop => $validValues) {
 			if (array_key_exists($prop, $config)) {
@@ -113,8 +113,8 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 			}
 		}
 	}
-	
-	
+
+
 	protected function _validateFieldTypeRestrictedProps(ArrayObject $config) {
 		foreach ($config['inputs'] as $fieldName => $fieldConfig) {
 			if (array_key_exists('type', $fieldConfig)) {
@@ -193,11 +193,15 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 			}
 		}
 	}
-	
-	
+
+
 	protected function _validateIdCharacters(ArrayObject $config) {
-		if (!ctype_alnum($config['id'])) {
-			throw new Exception("Your model name '{$config['id']}' should only consist of alphanumeric characters.");
+		$id = $config['id'];
+		if ($id[0] === '_') {
+			$id = substr($id, 1);
+		}
+		if (!ctype_alnum($id)) {
+			throw new Exception("Your model name '{$id}' should only consist of alphanumeric characters.");
 		}
 	}
 }

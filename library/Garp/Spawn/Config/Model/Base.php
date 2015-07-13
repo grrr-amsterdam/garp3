@@ -47,11 +47,13 @@ class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
 
 	protected function _primaryKeyFieldIsPresent() {
 		foreach ($this['inputs'] as $inputName => $input) {
-			if (
-				$inputName !== 'id' &&
-				array_key_exists('primary', $input) &&
-				$input['primary']
-			) {
+			if ($inputName !== 'id' && array_key_exists('primary', $input) && $input['primary']) {
+				return true;
+			}
+		}
+
+		foreach ($this['relations'] as $relName => $props) {
+			if (array_key_exists('primary', $props) && $props['primary']) {
 				return true;
 			}
 		}
