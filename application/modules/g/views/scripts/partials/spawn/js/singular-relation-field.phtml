@@ -23,9 +23,17 @@ endif;
 
 if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect):
 	// simple drop down select
-
+	$model = $this->modelSet[$this->relation->model];
+	$possibleDisplayFields = array_filter($model->fields->listFieldNames, function($c) use ($model) {
+		return $model->fields->getField($c)->isTextual();
+	});
+	$displayField = 'name';
+	if (count($possibleDisplayFields)):
+		$displayField = current($possibleDisplayFields);
+	endif;
 ?>
 				name: '<?php echo $relationFieldName ?>',
+				displayField: '<?php echo $this->escape($displayField) ?>',
 				xtype: 'relationfield',
 				triggerFn: false,
 				fieldLabel: __('<?php
