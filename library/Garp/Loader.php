@@ -1,10 +1,11 @@
 <?php
 require_once 'Garp/Util/Configuration.php';
+require_once 'Garp/Loader/Exception.php';
 
 /**
  * Garp_Loader
  * @author Harmen Janssen | grrr.nl
- * @version 1.0
+ * @version 1.5
  * @package Garp
  * @subpackage Util
  */
@@ -15,13 +16,11 @@ class Garp_Loader {
 	 */
 	const NAMESPACE_SEPARATOR = '\\';
 
-
 	/**
  	 * Singleton
  	 * @var Garp_Loader
  	 */
 	protected static $_instance;
-
 
 	/**
 	 * The character you use to mimic a namespaced system in your class names (usually "_").
@@ -29,20 +28,17 @@ class Garp_Loader {
 	 */
 	protected $_folderSeparator = '_';
 
-
 	/**
 	 * The search roots. Multiple roots possible, specified on namespace.
 	 * @var String
 	 */
 	protected $_includePaths = array();
 
-
 	/**
 	 * Collection of string manipulation functions
 	 * @var Array
 	 */
 	protected $_filters = array();
-
 
 	/**
  	 * Check wether the file exists before including it.
@@ -52,7 +48,6 @@ class Garp_Loader {
  	 * @var Boolean
  	 */
 	protected $_checkIfFileExists = false;
-
 
 	/**
 	 * Class constructor
@@ -65,16 +60,13 @@ class Garp_Loader {
 			$options->obligate('paths')
 					->setDefault('autoRegister', false);
 
-			foreach ($options['paths'] as $path) {
-				$this->addIncludePath($path);
-			}
+			$this->addIncludePaths($options['paths']);
 
 			if ($options['autoRegister']) {
 				$this->register();
 			}
 		}
 	}
-
 
 	/**
  	 * Singleton interface
@@ -88,7 +80,6 @@ class Garp_Loader {
 		return self::$_instance;
 	}
 
-
 	/**
  	 * Do a file_exists check before including the file.
  	 * @param Boolean $flag
@@ -98,7 +89,6 @@ class Garp_Loader {
 		$this->_checkIfFileExists = $flag;
 		return $this;
 	}
-
 
 	/**
 	 * Set the include path (meaning, in this case, the root from which class files are found).
@@ -127,6 +117,12 @@ class Garp_Loader {
 		return $this;
 	}
 
+	public function addIncludePaths($paths) {
+		foreach ($paths as $pathOptions) {
+			$this->addIncludePath($pathOptions);
+		}
+		return $this;
+	}
 
 	/**
 	 * Get one of the registered include paths
@@ -140,6 +136,9 @@ class Garp_Loader {
 		return $this->_includePaths[$namespace];
 	}
 
+	public function getIncludePaths() {
+		return $this->_includePaths;
+	}
 
 	/**
 	 * Set folder separator
@@ -151,7 +150,6 @@ class Garp_Loader {
 		return $this;
 	}
 
-
 	/**
 	 * Get folder separator
 	 * @return String
@@ -159,7 +157,6 @@ class Garp_Loader {
 	public function getFolderSeparator() {
 		return $this->_folderSeparator;
 	}
-
 
 	/**
 	 * Add a filter to the stack.
@@ -179,7 +176,6 @@ class Garp_Loader {
 		return $this;
 	}
 
-
 	/**
 	 * Retrieve a filter
 	 * @param String $alias
@@ -188,7 +184,6 @@ class Garp_Loader {
 	public function getFilter($alias) {
 		return array_key_exists($alias, $this->_filters) ? $this->_filters[$alias] : null;
 	}
-
 
 	/**
 	 * Remove filter
@@ -200,7 +195,6 @@ class Garp_Loader {
 		return $this;
 	}
 
-
 	/**
 	 * Installs this class loader on the SPL autoload stack.
 	 * @return $this
@@ -210,7 +204,6 @@ class Garp_Loader {
 		return $this;
 	}
 
-
 	/**
 	 * Uninstalls this class loader from the SPL autoload stack.
 	 * @return $this
@@ -219,7 +212,6 @@ class Garp_Loader {
 		spl_autoload_unregister(array($this, 'loadClass'));
 		return $this;
 	}
-
 
 	/**
 	 * Load a class file
@@ -236,7 +228,6 @@ class Garp_Loader {
 		return include_once($path);
 	}
 
-
 	/**
  	 * Check if a class is loadable
  	 * @param String $className The name of the class to load
@@ -246,7 +237,6 @@ class Garp_Loader {
 		$path = $this->getPath($className);
 		return is_readable($path);
 	}
-
 
 	/**
  	 * Construct the path to a class file
@@ -291,11 +281,19 @@ class Garp_Loader {
 		if ($ignore) {
 			$className = preg_replace('/^'.preg_quote($ignore).'/', '', $className);
 		}
-		$includePath .= str_replace($separator, DIRECTORY_SEPARATOR, $className);
+		$includePath .= $this->_classToPath($separator, $className);
 		$includePath .= '.'.$extension;
 		return $includePath;
 	}
 
+	protected function _classToPath($separator, $className) {
+		// Prevent double slashes by temporarily replacing sequences with @ signs
+		$qs = preg_quote($separator);
+		$className = preg_replace('/(?<=' . $qs . '|^)(' . $qs . ')/', '@', $className);
+		$path = str_replace($separator, DIRECTORY_SEPARATOR, $className);
+		$path = str_replace('@', '_', $path);
+		return $path;
+	}
 
 	/**
 	 * Apply registered filters to the classname
