@@ -10,6 +10,10 @@
  */
 class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 	const EXCEPTION_VIDEO_NOT_FOUND = 'Could not retrieve YouTube data for %s';
+	const EXCEPTION_NO_URL = 'No YouTube url was received.';
+	const EXCEPTION_INVALID_YOUTUBE_URL = 'Not a valid YouTube url: %s';
+	const EXCEPTION_NO_API_RESPONSE = 'Could not retrieve API data from YouTube.';
+	const EXCEPTION_MISSING_FIELD = 'Field %s is mandatory.';
 
 	/**
 	 * Field translation table. Keys are internal names, values are the indexes of the output array.
@@ -56,7 +60,8 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 	public function beforeInsert(Array &$args) {
 		$data = &$args[1];
 		if (!$output = $this->_fillFields($data)) {
-			throw new Garp_Model_Behavior_Exception('Could not properly retrieve API data from YouTube.');
+			throw new Garp_Model_Behavior_YouTubeable_Exception_NoApiResponse(
+				self::EXCEPTION_NO_API_RESPONSE);
 		}
 		$data = $output + $data;
 	}
@@ -70,7 +75,8 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		$data = &$args[1];
 
 		if (!$output = $this->_fillFields($data)) {
-			throw new Garp_Model_Behavior_Exception('Could not properly retrieve API data from YouTube.');
+			throw new Garp_Model_Behavior_YouTubeable_Exception_NoApiResponse(
+				self::EXCEPTION_NO_API_RESPONSE);
 		}
 		$data = $output + $data;
 	}
@@ -80,7 +86,8 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 	 */
 	protected function _fillFields(Array $input) {
 		if (!array_key_exists($this->_fields['watch_url'], $input)) {
-			throw new Garp_Model_Behavior_Exception('Field '.$this->_fields['watch_url'].' is mandatory.');
+			throw new Garp_Model_Behavior_YouTubeable_Exception_MissingField(
+				sprintf(self::EXCEPTION_MISSING_FIELD, $this->_fields['watch_url']));
 		}
 		$url = $input[$this->_fields['watch_url']];
 		if (empty($url)) {
@@ -134,7 +141,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 			'id' => $youTubeId
 		));
 		if (empty($entries['items'])) {
-			throw new Garp_Model_Behavior_Exception(
+			throw new Garp_Model_Behavior_Youtubeable_Exception_VideoNotFound(
 				sprintf(self::EXCEPTION_VIDEO_NOT_FOUND, $watchUrl));
 		}
 
@@ -150,7 +157,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 	protected function _getId($watchUrl) {
 		$query = array();
 		if (!$watchUrl) {
-			throw new Garp_Model_Behavior_Exception('No YouTube url was received.');
+			throw new Garp_Model_Behavior_Youtubeable_Exception_NoUrl(self::EXCEPTION_NO_URL);
 		}
 
 		$url = parse_url($watchUrl);
@@ -164,7 +171,8 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 		}
 
 		if (!isset($videoId)) {
-			throw new Garp_Model_Behavior_Exception("Not a valid YouTube url: {$watchUrl}");
+			throw new Garp_Model_Behavior_Youtubeable_Exception_InvalidUrl(
+				sprintf(self::EXCEPTION_INVALID_YOUTUBE_URL, $watchUrl));
 		}
 		return $videoId;
 	}
