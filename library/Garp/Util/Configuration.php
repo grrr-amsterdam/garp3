@@ -27,7 +27,7 @@ class Garp_Util_Configuration extends ArrayIterator {
 
 	/**
 	 * Convenience method for requiring a certain key.
-	 * (note; this method is not called "require" as would be 
+	 * (note; this method is not called "require" as would be
 	 * more obvious since that is a PHP reserved keyword)
 	 * @param String|Int $key The key that's required
 	 * @param String $msg Optional error message
@@ -41,10 +41,10 @@ class Garp_Util_Configuration extends ArrayIterator {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Convenience method for setting default values.
-	 * The value gets set if the key does not exist or 
+	 * The value gets set if the key does not exist or
 	 * when it's empty (if $ifEmpty is true).
 	 * @param String|Int $key The key of the value
 	 * @param Mixed $default The default value
@@ -71,7 +71,7 @@ class Garp_Util_Configuration extends ArrayIterator {
 	public function validateType($key, $type, $msg = '') {
 		$this->obligate($key);
 		$val = $this[$key];
-		$msg = $msg ?: sprintf(self::EXCEPTION_INCORRECTTYPE, $key); 
+		$msg = $msg ?: sprintf(self::EXCEPTION_INCORRECTTYPE, $key);
 		$valid = true;
 		if ($type === self::TYPE_ARRAY) {
 			$valid = is_array($val);
@@ -96,6 +96,6 @@ class Garp_Util_Configuration extends ArrayIterator {
  	 * @return Array
  	 */
 	public function toArray() {
-		return (array)$this;
+		return $this->getArrayCopy();
 	}
 }

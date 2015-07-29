@@ -117,16 +117,15 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 
 
 	public function quoteIfNecessary($fieldType, $value) {
-		$decorator = null;
+		$decorator = '';
 
-		if (
-			$fieldType === 'enum' ||
-			(
+		if ($fieldType === 'enum' || (
 				!is_numeric($value) &&
 				!is_bool($value) &&
 				!is_null($value)
-			)
-		) $decorator = "'";
+			)) {
+			$decorator = "'";
+		}
 		return $decorator.$value.$decorator;
 	}
 
@@ -239,22 +238,18 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 
 
 	public function getDefaultValue(Garp_Spawn_Field $field) {
-		return isset($field->default) ?
-			$this->quoteIfNecessary($field->type, $field->default) :
-			(
-				(
-					!$field->required || $field->primary ||
-					$field->type === 'datetime' || $field->type === 'date' || $field->type === 'time' ||
-					$field->type === 'enum' || $field->type === 'imagefile' || $field->type === 'document'
-				) ?
-					'null' :
-					(
-						$field->isTextual() ?
-							"''" :
-							0
-					)
-			)
-		;
+		if ($field->type === 'checkbox' && !$field->default) {
+			return 0;
+		}
+		if (isset($field->default)) {
+			return $this->quoteIfNecessary($field->type, $field->default);
+ 		}
+		if (!$field->required || $field->primary ||
+			$field->type === 'datetime' || $field->type === 'date' || $field->type === 'time' ||
+			$field->type === 'enum' || $field->type === 'imagefile' || $field->type === 'document') {
+				return 'null';
+		}
+		return $field->isTextual() ?  "''" : 0;
 	}
 
 	public function getDefaultValueForRelation(Garp_Spawn_Relation $rel) {

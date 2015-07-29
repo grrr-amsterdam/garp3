@@ -2,14 +2,14 @@
 /**
  * Garp_Deploy_Config
  * Represents a (Capistrano) deploy configuration.
- * 
+ *
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
  * @package Garp
  * @subpackage Content
  * @lastmodified $Date: $
- */	
+ */
 class Garp_Deploy_Config {
 	const GENERIC_CONFIG_PATH = '/application/configs/deploy.rb';
 	const ENV_CONFIG_PATH = '/application/configs/deploy/';
@@ -85,10 +85,17 @@ class Garp_Deploy_Config {
 			}
 		}
 
+		// magic
+		if (!empty($output['server']) && strpos($output['server'], '@') !== false) {
+			$bits = explode('@', $output['server'], 2);
+			$output['user'] = $bits[0];
+			$output['server'] = $bits[1];
+		}
+
 		return $output;
 	}
 
-	
+
 	/**
 	 * Returns the raw content of the Capistrano
 	 * deploy configuration (in Ruby) per environment.
@@ -109,7 +116,7 @@ class Garp_Deploy_Config {
 
 		return $envConfig;
 	}
-	
+
 	protected function _fetchGenericContent() {
 		return file_get_contents(BASE_PATH . self::GENERIC_CONFIG_PATH);
 	}

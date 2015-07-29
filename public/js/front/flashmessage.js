@@ -96,7 +96,7 @@ Garp.FlashMessage = function(msg, timeout) {
 		body.appendChild(fm);
 		setTimeout(function() {
 			doc.className += ' ' + FM_ACTIVE_CLASS;
-		}, 0);
+		}, 400);
 
 		// clicking on flash message hides it
 		fm.onclick = hide;
