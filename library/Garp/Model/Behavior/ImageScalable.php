@@ -64,6 +64,7 @@ class Garp_Model_Behavior_ImageScalable extends Garp_Model_Behavior_Abstract {
  	 */
 	public function scale($filename, $id) {
 		$templates = instance(new Garp_Image_Scaler)->getTemplateNames();
+
 		// Divide templates into sync ones and async ones
 		$syncTemplates = array_intersect($templates, $this->_synchronouslyScaledTemplates);
 		$asyncTemplates = array_diff($templates, $this->_synchronouslyScaledTemplates);
@@ -88,7 +89,7 @@ class Garp_Model_Behavior_ImageScalable extends Garp_Model_Behavior_Abstract {
 		try {
 			// Execute scaling in the background
 			new Garp_Job_Background(
-				'image generateScaled --filename=' . $filename
+				'image generateScaled --filename=' . $filename . ' --template=' . $template
 			);
 		} catch (Garp_Job_Background_Exception $e) {
 			// Recover by scaling sync
