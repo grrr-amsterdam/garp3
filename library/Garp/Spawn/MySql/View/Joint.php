@@ -114,12 +114,12 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 		}
 
 		$config = Zend_Registry::get('config');
-		if (!($config->spawn && $config->spawn->use_new_joint_view)) {
-			foreach ($singularRelations as $relName => $rel) {
-				$select .= $this->_getJoinStatement($tableName, $relName, $rel);
-			}
+		if ($config->spawn && $config->spawn->use_new_joint_view) {
+			return $select;
 		}
-
+		foreach ($singularRelations as $relName => $rel) {
+			$select .= $this->_getJoinStatement($tableName, $relName, $rel);
+		}
 		return $select;
 	}
 
