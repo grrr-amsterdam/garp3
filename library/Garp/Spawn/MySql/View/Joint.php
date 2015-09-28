@@ -118,7 +118,7 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 			return $select;
 		}
 		foreach ($singularRelations as $relName => $rel) {
-			//$select .= $this->_getJoinStatement($tableName, $relName, $rel);
+			$select .= $this->_getJoinStatement($tableName, $relName, $rel);
 		}
 		return $select;
 	}
