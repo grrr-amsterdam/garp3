@@ -10,6 +10,11 @@
  * @lastmodified $Date: $
  */
 class G_AuthController extends Garp_Controller_Action {
+	const EXCEPTION_INVALID_LOGIN_HELPER =
+		'A Login Helper is registered, but not of type Garp_Controller_Helper_Login.';
+	const EXCEPTION_INVALID_REGISTER_HELPER =
+ 	   	'A Register Helper is registered, but not of type Garp_Controller_Helper_Register.';
+
 	public function init() {
 		$action = $this->getRequest()->getActionName();
 		$this->_setViewSettings($action);
@@ -244,8 +249,8 @@ class G_AuthController extends Garp_Controller_Action {
 
 		$cacheBuster = 'action=logout';
 		$target .= (strpos($target, '?') === false ? '?' : '&') . $cacheBuster;
-		$this->_redirect($target);
 		$this->_helper->viewRenderer->setNoRender(true);
+		$this->_redirect($target);
 	}
 
 	public function tokenrequestedAction() {
@@ -621,13 +626,14 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @return Zend_Controller_Action_Helper_Abstract
 	 */
 	protected function _getLoginHelper() {
-		if ($loginHelper = $this->_helper->getHelper('Login')) {
-			if (!$loginHelper instanceof Garp_Controller_Helper_Login) {
-				throw new Garp_Auth_Exception('A Login Helper is registered, but not of type Garp_Controller_Helper_Login.');
-			}
-			return $loginHelper;
+		$loginHelper = $this->_helper->getHelper('Login');
+		if (!$loginHelper) {
+			return null;
 		}
-		return null;
+		if (!$loginHelper instanceof Garp_Controller_Helper_Login) {
+			throw new Garp_Auth_Exception(self::EXCEPTION_INVALID_LOGIN_HELPER);
+		}
+		return $loginHelper;
 	}
 
 	/**
@@ -635,13 +641,14 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @return Zend_Controller_Action_Helper_Abstract
 	 */
 	protected function _getRegisterHelper() {
-		if ($registerHelper = $this->_helper->getHelper('Register')) {
-			if (!$registerHelper instanceof Garp_Controller_Helper_Register) {
-				throw new Garp_Auth_Exception('A Register Helper is registered, but not of type Garp_Controller_Helper_Register.');
-			}
-			return $registerHelper;
+		$registerHelper = $this->_helper->getHelper('Register');
+		if (!$registerHelper) {
+			return null;
 		}
-		return null;
+		if (!$registerHelper instanceof Garp_Controller_Helper_Register) {
+			throw new Garp_Auth_Exception(self::EXCEPTION_INVALID_REGISTER_HELPER);
+		}
+		return $registerHelper;
 	}
 
 	/**
