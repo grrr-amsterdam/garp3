@@ -226,6 +226,9 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @return Void
 	 */
 	public function logoutAction() {
+		// never cache the logout request
+		$this->_helper->cache->setNoCacheHeaders($this->getResponse());
+
 		$auth = Garp_Auth::getInstance();
 		$userData = $auth->getUserData();
 		$this->_beforeLogout($userData);
