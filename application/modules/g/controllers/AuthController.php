@@ -156,6 +156,8 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @return Void
 	 */
 	public function processAction() {
+		// never cache the process request
+		$this->_helper->cache->setNoCacheHeaders($this->getResponse());
 		// This action does not render a view, it only redirects elsewhere.
 		$this->_helper->viewRenderer->setNoRender(true);
 		$method = $this->getRequest()->getParam('method') ?: 'db';
