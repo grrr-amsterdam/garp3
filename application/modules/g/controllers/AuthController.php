@@ -131,6 +131,9 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @return Void
 	 */
 	public function loginAction() {
+		// Do not cache login page
+		$this->_helper->cache->setNoCacheHeaders($this->getResponse());
+
 		$this->view->title = __('login page title');
 		$this->view->description = __('login page description');
 
