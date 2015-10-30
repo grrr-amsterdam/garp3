@@ -12,7 +12,7 @@ $languageString = strtolower($locale) . '_' . strtoupper($country);
 ?>
 <div id="fb-root"></div>
 <script>
-setTimeout(function() {
+
   window.fbAsyncInit = function() {
     FB.init({
       appId      : '<?php echo $this->appId ?>', // App ID
@@ -27,9 +27,9 @@ setTimeout(function() {
   (function(d){
      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
      if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = false;
+     js = d.createElement('script'); js.id = id; js.async = true;
      js.src = "//connect.facebook.net/<?php echo $languageString ?>/all.js";
      ref.parentNode.insertBefore(js, ref);
    }(document));
-}, 2000);
+
 </script>
