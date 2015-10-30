@@ -10,6 +10,7 @@
  * @lastmodified $Date: $
  */
 class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
+
 	public function preDispatch(Zend_Controller_Request_Abstract $request) {
 		/**
  		 * First check if this request can actually be dispatched.
@@ -21,24 +22,28 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 			// let nature run its course
 			return true;
 		}
-		if (!$this->_isAuthRequest() && !$this->_isAllowed()) {
-			if (!$this->getRequest()->isXmlHttpRequest()) {
-				$this->_redirectToLogin();
-			} else {
-				/**
- 			 	 * In an AJAX environment it's not very useful to redirect to the login page.
- 			 	 * Instead, we configure a 403 unauthorized header, we send the headers early
- 			 	 * and exit the whole shebang.
-			 	 */
-				$this->getResponse()->setHttpResponseCode(403);
-				$this->getResponse()->sendHeaders();
-			}
+		if ($this->_isAuthRequest() || $this->_isAllowed()) {
+			return true;
 		}
+
+		if ($this->getRequest()->isXmlHttpRequest()) {
+			/**
+ 			 * In an AJAX environment it's not very useful to redirect to the login page.
+ 			 * Instead, we configure a 403 unauthorized header, we send the headers early
+ 			 * and exit the whole shebang.
+			 */
+			$this->getResponse()->setHttpResponseCode(403);
+			$this->getResponse()->sendHeaders();
+			return true;
+		}
+
+		// If you make it over here, you are not authorized and are redirected to the login page
+		$this->_redirectToLogin();
 	}
 
 	/**
  	 * Is called after an action is dispatched by the dispatcher.
- 	 * Here we force a write to the Auth cookie. Because user data may be 
+ 	 * Here we force a write to the Auth cookie. Because user data may be
  	 * read in the view, the cookie will otherwise not be written until
  	 * headers are already sent.
  	 * @param Zend_Controller_Request_Abstract $request
@@ -70,21 +75,24 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 	 */
 	protected function _redirectToLogin() {
 		$this->_storeTargetUrl();
-	
+
 		$auth = Garp_Auth::getInstance();
 		$authVars = $auth->getConfigValues();
 
 		$flashMessenger = Zend_Controller_Action_HelperBroker::getStaticHelper('FlashMessenger');
-		$flashMessenger->addMessage(
-			!$auth->isLoggedIn() ? __($authVars['notLoggedInMsg']) : __($authVars['noPermissionMsg'])
-		);
-		
+		$flashMessenger->addMessage(!$auth->isLoggedIn() ?
+			__($authVars['notLoggedInMsg']) : __($authVars['noPermissionMsg']));
+
+		// Make sure the redirect is not cached
+		Zend_Controller_Action_HelperBroker::getStaticHelper('cache')->setNoCacheHeaders(
+			$this->getResponse());
+
 		$redirector = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
 		$redirectMethod = 'gotoUrlAndExit';
 		$redirectParams = array('/g/auth/login');
-		
+
 		if (!empty($authVars['login']['route'])) {
-			$redirectMethod = 'gotoRoute'; //AndExit';
+			$redirectMethod = 'gotoRoute';
 			$redirectParams = array(array(), $authVars['login']['route']);
 		}
 		call_user_func_array(array($redirector, $redirectMethod), $redirectParams);
