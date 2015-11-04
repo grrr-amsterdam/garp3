@@ -274,7 +274,7 @@ class Garp_File {
 		$extension = $this->_getExtension($filename);
 		$allowedExtensions = $this->getAllowedExtensions();
 		if (!in_array(strtolower($extension), $allowedExtensions)) {
-			throw new Exception('The file type you\'re trying to upload is not allowed. Try: ' .
+			throw new Garp_File_Exception_InvalidType('The file type you\'re trying to upload is not allowed. Try: ' .
 				$this->_humanList($allowedExtensions, null, 'or'));
 		}
 	}
