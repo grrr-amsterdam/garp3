@@ -370,12 +370,15 @@ class G_AuthController extends Garp_Controller_Action {
 					$response = $mail->send();
 				} elseif (Garp_Loader::getInstance()->isLoadable($emailMethod)) {
 					$mailer = new $emailMethod;
-					$response = $mailer->send(array(
+					$params = isset($authVars['forgotpassword']['default_mail_params']) ?
+						(array)$authVars['forgotpassword']['default_mail_params'] : array();
+					$params = array_merge($params, array(
 						'to' => $email,
 						'subject' => __($authVars['forgotpassword']['email_subject']),
 						'message' => $emailMessage,
 						'from' => $authVars['forgotpassword']['email_from_address']
 					));
+					$response = $mailer->send($params);
 				} else {
 					throw new Garp_Auth_Exception('Unknown email_method chosen. '.
 						'Please reconfigure auth.forgotpassword.email_method');

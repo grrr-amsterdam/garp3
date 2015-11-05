@@ -77,8 +77,8 @@ class Garp_Model_Behavior_Videoable extends Garp_Model_Behavior_Abstract {
 				$behavior = new Garp_Model_Behavior_Vimeoable($this->_config['vimeo']);
 				$data['type'] = 'vimeo';
 			} else {
-				$error = self::ERROR_INVALID_VIDEO_URL . $url;
-				throw new Garp_Model_Exception($error);
+				$error = sprintf(self::ERROR_INVALID_VIDEO_URL, $url);
+				throw new Garp_Model_Behavior_Videoable_Exception_InvalidUrl($error);
 			}
 			$behavior->{$event}($args);
 		}

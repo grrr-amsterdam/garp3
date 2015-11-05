@@ -38,7 +38,7 @@ end
 
 desc "Perform administrative tasks after deploy"
 task :garp_env_setup do
-	on roles(:web) do
+	on roles(:app) do
 		execute "php #{release_path}/garp/scripts/garp.php Env setup --e=#{fetch(:stage)}"
 	end
 end

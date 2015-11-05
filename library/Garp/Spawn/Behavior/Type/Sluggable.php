@@ -26,11 +26,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 
 
 	public function getFields() {
-		$slugFieldName 		= $this->_getSlugFieldName();
-		$slugFieldConfig 	= $this->_getSlugFieldConfig();
-		$fields 			= array($slugFieldName => $slugFieldConfig);
-
-		return $fields;
+		return array($this->_getSlugFieldName() => $this->_getSlugFieldConfig());
 	}
 
 	public function getParams() {
@@ -62,6 +58,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 
 		return
 			!$model->isMultilingual() ||
+			($model->isMultilingual() && !$this->_baseFieldIsMultilingual()) ||
 			($model->isTranslated() && $this->_baseFieldIsMultilingual())
 		;
 	}
@@ -84,7 +81,6 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 		if (array_key_exists('required', $params)) {
 			$slugFieldConfig['required'] = $params['required'];
 		}
-
 		return $slugFieldConfig;
 	}
 

@@ -112,10 +112,14 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 		if ($this->_model->isMultilingual()) {
 			$select .= $this->_renderJoinsToLocalizedSelf();
 		}
+
+		$config = Zend_Registry::get('config');
+		if ($config->spawn && $config->spawn->use_new_joint_view) {
+			return $select;
+		}
 		foreach ($singularRelations as $relName => $rel) {
 			$select .= $this->_getJoinStatement($tableName, $relName, $rel);
 		}
-
 		return $select;
 	}
 
@@ -150,8 +154,23 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
 	public function getRecordLabelSqlForRelation($relationName, $relation, $locale = null) {
 		$tableAlias = strtolower($relationName);
 		if ($locale) {
-			$tableAlias = "{$tableAlias}_$locale";
+			$tableAlias = "{$tableAlias}_{$locale}";
 		}
+
+		$config = Zend_Registry::get('config');
+		if ($config->spawn && $config->spawn->use_new_joint_view) {
+			$relTableName = $this->_getOtherTableName($relation->model);
+			$tableName = $this->getTableName();
+
+			// Create subquery for every relation
+			$out  = "(SELECT ";
+			$out .= $this->_getRecordLabelSqlForModel($tableAlias, $relation->model) . " AS `{$tableAlias}`";
+			$out .= " FROM `{$relTableName}` AS `{$tableAlias}` WHERE ";
+			$out .= "`{$tableName}`.`{$relation->column}` = `{$tableAlias}`.`id`)";
+			$out .= " AS `{$tableAlias}`";
+			return $out;
+		}
+
 		$sql = $this->_getRecordLabelSqlForModel($tableAlias, $relation->model) . " AS `{$tableAlias}`";
 
 		return $sql;

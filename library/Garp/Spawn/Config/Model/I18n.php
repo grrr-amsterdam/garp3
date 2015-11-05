@@ -47,16 +47,15 @@ class Garp_Spawn_Config_Model_I18n extends ArrayObject {
 
 		$this->_validate($config);
 
-
-		$config['id']       .= self::I18N_MODEL_ID_POSTFIX;
-		$config	             = $this->_filterUnnecessaryFields($config);
-		$config['inputs']   += $this->_getI18nSpecificFields();
+		$config['id'] .= self::I18N_MODEL_ID_POSTFIX;
+		$config = $this->_filterUnnecessaryFields($config);
+		$config['inputs'] += $this->_getI18nSpecificFields();
 		$config['relations'] = array_merge(
 			$this->_extractI18nRelations($config),
 			$this->_getRelationConfigToParent()
 		);
 		$config['unique'] = $this->_getUniqueColumnNames();
-		$config           = $this->_correctOrderProperty($config);
+		$config = $this->_correctOrderProperty($config);
 
 		return $config;
 	}
@@ -69,6 +68,7 @@ class Garp_Spawn_Config_Model_I18n extends ArrayObject {
 
 	protected function _filterUnnecessaryFields(array $config) {
 		$config['inputs'] = array_filter($config['inputs'], array($this, '_isI18nField'));
+		$config['behaviors'] = $this->_getI18nBehaviors($config['behaviors'], $config['inputs']);
 		return $config;
 	}
 
@@ -81,12 +81,20 @@ class Garp_Spawn_Config_Model_I18n extends ArrayObject {
 	}
 
 	protected function _isI18nField(array $fieldConfig) {
-		if (
-			$this->_hasFieldProp($fieldConfig, 'primary') ||
-			$this->_hasFieldProp($fieldConfig, 'multilingual')
-		) {
-			return true;
+		return $this->_hasFieldProp($fieldConfig, 'primary') ||
+			$this->_hasFieldProp($fieldConfig, 'multilingual');
+	}
+
+	protected function _getI18nBehaviors($behaviors, $inputs) {
+		$i18nBehaviors = array();
+		foreach ($behaviors as $behaviorName => $behaviorConfig) {
+			if (!Garp_Spawn_Behavior_Factory::isI18nBehavior(
+				$behaviorName, $behaviorConfig, $inputs)) {
+				continue;
+			}
+			$i18nBehaviors[$behaviorName] = $behaviorConfig;
 		}
+		return $i18nBehaviors;
 	}
 
 	protected function _hasFieldProp(array $fieldConfig, $prop) {
