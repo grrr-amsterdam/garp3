@@ -1,3 +1,8 @@
 /** EXTENDED MODEL **/
-Garp.dataTypes.LocationTemp.on('init', function() {
-});
+(function() {
+	if (!('LocationTemp' in Garp.dataTypes)) {
+		return;
+	}
+	Garp.dataTypes.LocationTemp.on('init', function(){
+	});
+})();
