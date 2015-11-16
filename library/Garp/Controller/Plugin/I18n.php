@@ -19,6 +19,9 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 	 */
 	public function routeShutdown(Zend_Controller_Request_Abstract $request) {
 		$config = Zend_Registry::get('config');
+		if (!$config->resources->router->locale->enabled) {
+            return;
+        }
 		$frontController = Zend_Controller_Front::getInstance();
 		$params = $request->getParams();
 		$registry = Zend_Registry::getInstance();
