@@ -497,6 +497,7 @@ Garp.setupEventManager = function(){
 			if (t && s) {
 				var tpl = new Ext.Template(t.urlTpl);
 				var url = tpl.apply([s.get(t.param)]);
+				url += '&cb=' + +new Date();
 				var win = window.open(BASE + url);
 			}
 		},
