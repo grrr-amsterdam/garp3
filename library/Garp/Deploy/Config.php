@@ -95,6 +95,9 @@ class Garp_Deploy_Config {
 		return $output;
 	}
 
+	public function isConfigured($environment) {
+		return !!$this->_fetchEnvContent($environment);
+	}
 
 	/**
 	 * Returns the raw content of the Capistrano
