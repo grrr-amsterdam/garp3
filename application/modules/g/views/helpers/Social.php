@@ -51,6 +51,26 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	}
 
 	/**
+	 * Generate a Whatssap Share URL.
+	 *
+	 * @param String $msg The tweet
+	 * @param Boolean $shortenUrls Wether to shorten the URLs
+	 * @return String
+	 */
+	public function whatsappUrl($msg, $shortenUrls = true) {
+		$url = 'whatsapp://send?text=';
+		if ($shortenUrls) {
+			$msg = preg_replace_callback('~https?://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?~i', function($matches) {
+				$_this = new G_View_Helper_Social();
+				return $_this->tinyUrl($matches[0]);
+			}, $msg);
+		}
+		$url .= urlencode($msg);
+		return $url;
+	}
+
+
+	/**
 	 * Create a Tweet button.
 	 * @param Array $params
 	 * @see http://twitter.com/about/resources/tweetbutton
