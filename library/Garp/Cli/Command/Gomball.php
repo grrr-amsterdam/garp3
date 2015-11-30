@@ -10,6 +10,7 @@
 class Garp_Cli_Command_Gomball extends Garp_Cli_Command {
 	const PROMPT_OVERWRITE = 'Existing gomball found for version %s. Do you wish to overwrite?';
 	const PROMPT_SOURCE_DATABASE_ENVIRONMENT = 'Take database from which environment? (production)';
+	const PROMPT_INCLUDE_DATABASE = 'Do you want to include a database with this gomball?';
 	const DEFAULT_SOURCE_DATABASE_ENVIRONMENT = 'production';
 
 	const ABORT_NO_OVERWRITE = 'Stopping gomball creation, existing gomball stays untouched.';
@@ -20,13 +21,22 @@ class Garp_Cli_Command_Gomball extends Garp_Cli_Command {
 	const ABORT_DATADUMP_FAILED = 'Error: datadump failed';
 
 	public function make($args = array()) {
+		// @todo Superduperbonusmode: would be cool if you could go back in time and generate a
+		// gomball for a given semver (using Git to grab the correct tag).
+		// There would be no way to include that moment's data though.
 		$version = new Garp_Semver();
 		Garp_Cli::lineOut('Creating gomball ' . $version, Garp_Cli::PURPLE);
 
-		$fromEnv = Garp_Cli::prompt(self::PROMPT_SOURCE_DATABASE_ENVIRONMENT) ?:
-			self::DEFAULT_SOURCE_DATABASE_ENVIRONMENT;
+		$fromEnv = null;
+		if ($useDb = Garp_Cli::confirm(self::PROMPT_INCLUDE_DATABASE)) {
+			$fromEnv = Garp_Cli::prompt(self::PROMPT_SOURCE_DATABASE_ENVIRONMENT) ?:
+				self::DEFAULT_SOURCE_DATABASE_ENVIRONMENT;
+		}
 
-		$gomball = new Garp_Gomball($version, $fromEnv);
+		$gomball = new Garp_Gomball($version, array(
+			'useDatabase' => $useDb,
+			'databaseSourceEnvironment' => $fromEnv
+		));
 
 		if ($gomball->exists() &&
 			!Garp_Cli::confirm(sprintf(self::PROMPT_OVERWRITE, $version))) {

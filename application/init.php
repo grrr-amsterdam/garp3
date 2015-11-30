@@ -246,6 +246,10 @@ function concatAll($array) {
 	return $results;
 }
 
+function array_get(array $a, $key, $default = null) {
+	return isset($a[$key]) ? $a[$key] : $default;
+}
+
 if (!function_exists('gzdecode')) {
 	/**
  	 * @see http://nl1.php.net/gzdecode#82930

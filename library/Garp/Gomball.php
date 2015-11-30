@@ -15,20 +15,23 @@ class Garp_Gomball {
  	 */
 	protected $_version;
 	protected $_dbEnv;
+	protected $_useDatabase = true;
 	protected $_gomballDirectory;
 
 	// Paths that are not copied into the gomball
 	protected $_ignoredPaths = array('.DS_Store', 'node_modules', 'bower_components', 'gomballs');
 
 	/** Class constructor */
-	public function __construct(Garp_Semver $version, $dbEnv, $gomballDirectory = null) {
+	public function __construct(Garp_Semver $version, array $options = array()) {
 		$this->_version = $version;
-		$this->_dbEnv = $dbEnv;
-		if (!$gomballDirectory) {
+		$this->_useDatabase = array_get($options, 'useDatabase', false);
+		$this->_dbEnv = array_get($options, 'databaseSourceEnvironment');
+
+		if (!isset($options['gomballDirectory'])) {
 			// default to /gomballs
-			$gomballDirectory = APPLICATION_PATH . '/../gomballs';
+			$options['gomballDirectory'] = APPLICATION_PATH . '/../gomballs';
 		}
-		$this->_gomballDirectory = $gomballDirectory;
+		$this->_gomballDirectory = $options['gomballDirectory'];
 	}
 
 	/** Kick off the build */
@@ -96,6 +99,9 @@ class Garp_Gomball {
 	}
 
 	public function createDataDump() {
+		if (!$this->_useDatabase) {
+			return true;
+		}
 		$dbServer = new Golem_Content_Db_Server_Remote($this->_dbEnv, $this->_dbEnv);
 		$dump = $dbServer->fetchDump();
 		// @todo Change `from database` to `to database`
@@ -114,7 +120,7 @@ class Garp_Gomball {
 
 	protected function _getDataDumpLocation() {
 		return $this->_getTargetDirectoryPath() . '/application/data/sql/' .
-			$this->getName() . '.sql'
+			$this->getName() . '.sql';
 	}
 
 	protected function _removeDefinerCalls($dump, Golem_Content_Db_Server_Abstract $dbServer) {
