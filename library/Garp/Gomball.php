@@ -79,6 +79,7 @@ class Garp_Gomball {
 	}
 
 	public function copySourceFilesToTargetDirectory() {
+		$this->_createMissingDirectories();
 		$dirIterator = new DirectoryIterator(APPLICATION_PATH . '/..');
 		foreach ($dirIterator as $finfo) {
 			if (!$this->_copySourceFileToTargetDirectory($finfo)) {
@@ -116,6 +117,25 @@ class Garp_Gomball {
 	public function addUnderConstructionLock() {
 		touch($this->_getTargetDirectoryPath() . '/' .
 			Garp_Application::UNDERCONSTRUCTION_LOCKFILE);
+	}
+
+	public function remove() {
+		$zipPath = $this->_getGomballDirectory() . '/' . $this->getName() . '.zip';
+		unlink($zipPath);
+	}
+
+	protected function _createMissingDirectories() {
+		$appData = APPLICATION_PATH . '/data';
+		$appDataCache = "{$appData}/cache";
+		$paths = array(
+			'public/cached', $appDataCache, "$appDataCache/tags",
+			"$appDataCache/HTML", "$appDataCache/URI", "$appDataCache/CSS");
+
+		foreach ($paths as $path) {
+			if (!file_exists($path)) {
+				mkdir($path);
+			}
+		}
 	}
 
 	protected function _getDataDumpLocation() {

@@ -44,6 +44,8 @@ class Garp_Cli_Command_Gomball extends Garp_Cli_Command {
 			exit(1);
 		}
 
+		$gomball->exists() && $gomball->remove();
+
 		if (!$this->_createGomballDirectory()) {
 			Garp_Cli::errorOut(self::ABORT_CANT_MKDIR_GOMBALLS);
 			exit(1);
@@ -64,6 +66,10 @@ class Garp_Cli_Command_Gomball extends Garp_Cli_Command {
 			Garp_Cli::errorOut(self::ABORT_DATADUMP_FAILED);
 			exit(1);
 		}
+
+	}
+
+	public function restore($args = array()) {
 
 	}
 
