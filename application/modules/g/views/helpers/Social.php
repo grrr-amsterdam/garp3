@@ -50,13 +50,13 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	}
 
 	/**
-	 * Generate a Whatssap Share URL.
+	 * Generate a Whatsapp Share URL.
 	 *
 	 * @param String $msg The tweet
 	 * @param Boolean $shortenUrls Wether to shorten the URLs
 	 * @return String
 	 */
-	public function whatsappUrl($msg, $shortenUrls = true) {
+	public function whatsappUrl($msg, $shortenUrls = false) {
 		$url = 'whatsapp://send?text=';
 		if ($shortenUrls) {
 			$msg = preg_replace_callback('~https?://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?~i', function($matches) {
