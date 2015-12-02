@@ -59,6 +59,23 @@ class Garp_Gumball {
 		$this->_removeTargetDirectory();
 	}
 
+	/**
+ 	 * Restore a gumball. Assumption: this is run after a gumball is uploaded and extracted to the
+ 	 * webroot.
+ 	 */
+	public function restore() {
+		// if database, import database
+		if ($this->_hasDatabaseDump()) {
+			$this->restoreDatabase();
+		}
+
+		// set permissions on folders
+		$this->setWritePermissions();
+
+		// disable under construction
+		Garp_Application::setUnderConstruction(false);
+	}
+
 	/** Check wether gumball exists */
 	public function exists() {
 		return file_exists($this->_getGumballDirectory() . '/' . $this->getName() . '.zip');
@@ -122,6 +139,15 @@ class Garp_Gumball {
 		unlink($zipPath);
 	}
 
+	public function restoreDatabase() {
+		// @todo
+	}
+
+	public function setWritePermissions() {
+		$root = APPLICATION_PATH . '/..';
+		system("chmod -R g+w $root");
+	}
+
 	protected function _createMissingDirectories() {
 		$appData = APPLICATION_PATH . '/data';
 		$appDataCache = "{$appData}/cache";
@@ -139,6 +165,11 @@ class Garp_Gumball {
 	protected function _getDataDumpLocation() {
 		return $this->_getTargetDirectoryPath() . '/application/data/sql/' .
 			$this->getName() . '.sql';
+	}
+
+	protected function _hasDatabaseDump() {
+		return file_exists(APPLICATION_PATH . '/application/data/sql/' .
+			basename($this->_getDataDumpLocation()));
 	}
 
 	protected function _removeDefinerCalls($dump, Golem_Content_Db_Server_Abstract $dbServer) {

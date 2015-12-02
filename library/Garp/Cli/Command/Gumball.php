@@ -70,7 +70,46 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 	}
 
 	public function restore($args = array()) {
+		$version = new Garp_Semver();
+		Garp_Cli::lineOut('Restoring gumball ' . $version, Garp_Cli::PURPLE);
+		$gumball = new Garp_Gumball($version);
+		try {
+			//$gumball->restore();
+			$this->_broadcastGumballInstallation($version);
+			Garp_Cli::lineOut('Done!', Garp_Cli::GREEN);
+		} catch (Exception $e) {
+			Garp_Cli::errorOut('Error: ' . $e->getMessage());
+		}
+	}
 
+	protected function _broadcastGumballInstallation($version) {
+		$slack = new Garp_Service_Slack();
+
+		$slack->postMessage('', array(
+			'attachments' => array(
+				array(
+					'pretext' => 'A new gumball was deployed',
+					'color' => '#7CD197',
+					'fields' => array(
+						array(
+							'title' => 'Project',
+							'value' => Zend_Registry::get('config')->app->name,
+							'short' => false
+						),
+						array(
+							'title' => 'Environment',
+							'value' => APPLICATION_ENV,
+							'short' => false
+						),
+						array(
+							'title' => 'Version',
+							'value' => (string)$version,
+							'short' => false
+						)
+					)
+				)
+			)
+		));
 	}
 
 	protected function _createGumballDirectory() {
