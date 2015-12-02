@@ -52,8 +52,6 @@ class Garp_Gumball {
 		// Create Under Construction index.html in public that's used when unpacking the gumball
 		$this->addUnderConstructionLock();
 
-		// Create the unpack script, move to target folder
-
 		// Zip target folder
 		$this->createZipArchive();
 
