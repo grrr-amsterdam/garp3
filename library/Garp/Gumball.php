@@ -1,13 +1,13 @@
 <?php
 /**
- * Garp_Gomball
+ * Garp_Gumball
  * Represents a packaged Garp installation, including data and source files.
  *
  * @author       Harmen Janssen | grrr.nl
  * @version      0.1.0
  * @package      Garp
  */
-class Garp_Gomball {
+class Garp_Gumball {
 	const COPY_SOURCEFILE_CMD = 'cp -R %s %s 2>&1';
 
 	/**
@@ -16,10 +16,10 @@ class Garp_Gomball {
 	protected $_version;
 	protected $_dbEnv;
 	protected $_useDatabase = true;
-	protected $_gomballDirectory;
+	protected $_gumballDirectory;
 
-	// Paths that are not copied into the gomball
-	protected $_ignoredPaths = array('.DS_Store', 'node_modules', 'bower_components', 'gomballs');
+	// Paths that are not copied into the gumball
+	protected $_ignoredPaths = array('.DS_Store', 'node_modules', 'bower_components', 'gumballs');
 
 	/** Class constructor */
 	public function __construct(Garp_Semver $version, array $options = array()) {
@@ -27,29 +27,29 @@ class Garp_Gomball {
 		$this->_useDatabase = array_get($options, 'useDatabase', false);
 		$this->_dbEnv = array_get($options, 'databaseSourceEnvironment');
 
-		if (!isset($options['gomballDirectory'])) {
-			// default to /gomballs
-			$options['gomballDirectory'] = APPLICATION_PATH . '/../gomballs';
+		if (!isset($options['gumballDirectory'])) {
+			// default to /gumballs
+			$options['gumballDirectory'] = APPLICATION_PATH . '/../gumballs';
 		}
-		$this->_gomballDirectory = $options['gomballDirectory'];
+		$this->_gumballDirectory = $options['gumballDirectory'];
 	}
 
 	/** Kick off the build */
 	public function make() {
 		if (!$this->createTargetDirectory()) {
-			throw new Garp_Gomball_Exception_CannotWriteTargetDirectory();
+			throw new Garp_Gumball_Exception_CannotWriteTargetDirectory();
 		}
 
 		if (!$this->copySourceFilesToTargetDirectory()) {
-			throw new Garp_Gomball_Exception_CannotCopySourceFiles();
+			throw new Garp_Gumball_Exception_CannotCopySourceFiles();
 		}
 
 		// Create database dump of given environment
 		if (!$this->createDataDump()) {
-			throw new Garp_Gomball_Exception_DatadumpFailed();
+			throw new Garp_Gumball_Exception_DatadumpFailed();
 		}
 
-		// Create Under Construction index.html in public that's used when unpacking the gomball
+		// Create Under Construction index.html in public that's used when unpacking the gumball
 		$this->addUnderConstructionLock();
 
 		// Create the unpack script, move to target folder
@@ -61,9 +61,9 @@ class Garp_Gomball {
 		$this->_removeTargetDirectory();
 	}
 
-	/** Check wether gomball exists */
+	/** Check wether gumball exists */
 	public function exists() {
-		return file_exists($this->_getGomballDirectory() . '/' . $this->getName() . '.zip');
+		return file_exists($this->_getGumballDirectory() . '/' . $this->getName() . '.zip');
 	}
 
 	public function getName() {
@@ -90,10 +90,10 @@ class Garp_Gomball {
 	}
 
 	public function createZipArchive() {
-		$zipPath = $this->_getGomballDirectory() . '/' . $this->getName() . '.zip';
+		$zipPath = $this->_getGumballDirectory() . '/' . $this->getName() . '.zip';
 		$zip = new Garp_File_ZipArchive();
 		if (true !== $zip->open($zipPath, ZipArchive::OVERWRITE)) {
-			throw new Garp_Gomball_Exception_CannotCreateZip();
+			throw new Garp_Gumball_Exception_CannotCreateZip();
 		}
 		$zip->addDirectory($this->_getTargetDirectoryPath());
 		return $zip->close();
@@ -112,7 +112,7 @@ class Garp_Gomball {
 	}
 
 	/**
- 	 * Make sure the gomball will extract in under construction mode
+ 	 * Make sure the gumball will extract in under construction mode
  	 */
 	public function addUnderConstructionLock() {
 		touch($this->_getTargetDirectoryPath() . '/' .
@@ -120,7 +120,7 @@ class Garp_Gomball {
 	}
 
 	public function remove() {
-		$zipPath = $this->_getGomballDirectory() . '/' . $this->getName() . '.zip';
+		$zipPath = $this->_getGumballDirectory() . '/' . $this->getName() . '.zip';
 		unlink($zipPath);
 	}
 
@@ -184,7 +184,7 @@ class Garp_Gomball {
 	}
 
 	protected function _getTargetDirectoryPath() {
-		return $this->_getGomballDirectory() . '/' .  $this->getName();
+		return $this->_getGumballDirectory() . '/' .  $this->getName();
 	}
 
 	protected function _removeTargetDirectory() {
@@ -207,8 +207,8 @@ class Garp_Gomball {
     	rmdir($this->_getTargetDirectoryPath());
 	}
 
-	protected function _getGomballDirectory() {
-		return $this->_gomballDirectory;
+	protected function _getGumballDirectory() {
+		return $this->_gumballDirectory;
 	}
 
 }
