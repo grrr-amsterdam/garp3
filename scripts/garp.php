@@ -34,11 +34,16 @@ if (file_exists(APPLICATION_PATH . '/../vendor/autoload.php')) {
 }
 
 // Create application, bootstrap, and run
-$application = new Garp_Application(
-	APPLICATION_ENV,
-	APPLICATION_PATH.'/configs/application.ini'
-);
-$application->bootstrap();
+$applicationIni = APPLICATION_PATH.'/configs/application.ini';
+try {
+	$application = new Garp_Application(APPLICATION_ENV, $applicationIni);
+	$application->bootstrap();
+} catch (Garp_Config_Ini_InvalidSectionException $e) {
+	Garp_Cli::errorOut('Invalid environment: ' . APPLICATION_ENV);
+	Garp_Cli::lineOut("Valid options are: \n- " .
+		implode("\n- ", $e->getValidSections()), Garp_Cli::BLUE);
+	exit(1);
+}
 // save the application in the registry, so it can be used by commands.
 Zend_Registry::set('application', $application);
 
