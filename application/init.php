@@ -114,7 +114,7 @@ if ($memcacheAvailable) {
 	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST, MEMCACHE_PORT);
 }
 if (!$memcacheAvailable) {
-	$backendName       = 'BlackHole';
+	$backendName       = 'Black-Hole';
 	$cacheStoreEnabled = false;
 	$useWriteControl   = false;
 } else {

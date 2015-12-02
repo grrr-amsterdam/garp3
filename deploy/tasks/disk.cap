@@ -20,14 +20,6 @@ task :create_static_cache_dir do
 	end
 end
 
-desc "Fix casing"
-task :set_blackhole_path_symlink_fix do
-	on roles(:web) do
-		execute "ln -nfs #{release_path}/library/Zend/Cache/Backend/Blackhole.php "\
-			"#{release_path}/library/Zend/Cache/Backend/BlackHole.php"
-	end
-end
-
 desc "Create essential deploy directories"
 task :create_deploy_dirs do
 	on roles(:web) do
