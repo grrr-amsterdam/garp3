@@ -23,15 +23,15 @@ endif;
 
 // Text / Html
 $snippetContent = '';
-if ($this->snippet->has_text) {
+if ($this->snippet->has_text):
 	$snippetContent = $this->snippet->text;
-} elseif ($this->snippet->has_html) {
+elseif ($this->snippet->has_html):
 	$snippetContent = $this->snippet->html;
-}
+endif;
 // check for variables for interpolating
-if (isset($this->variables) && !empty($this->variables)) {
+if (isset($this->variables) && !empty($this->variables)):
 	$snippetContent = Garp_Util_String::interpolate($snippetContent, $this->variables);
-}
+endif;
 
 $theContent = '';
 if ($this->snippet->has_text):
