@@ -360,4 +360,9 @@ $translationTable = array(
 	'passwordless token expired' => 'Het opgegeven token is verlopen. Vul je e-mailadres opnieuw in om een nieuwe login link te ontvangen.',
 	'passwordless token claimed' => 'Het opgegeven token is al gebruikt om in te loggen. Vul je e-mailadres opnieuw in om een nieuwe login link te ontvangen.',
 	'login token requested page title' => 'Je login link is onderweg',
+	'gumball notification email message' => "Hallo,\n\nEen nieuwe versie van %s is zojuist live gezet.\n\n" .
+		"Omgeving: %s\n" .
+		"Versie: %s\n\n" .
+		"Bekijk hier: %s\n\n",
+	'gumball notification email subject' => '[%s] Een nieuwe versie staat live'
 );

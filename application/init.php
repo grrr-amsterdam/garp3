@@ -246,6 +246,15 @@ function concatAll($array) {
 	return $results;
 }
 
+/**
+ * Safe getter.
+ * Returns the $default if the requested $key is not set.
+ * Example:
+ * $a = array('foo' => 123, 'bar' => 456);
+ * array_get($a, 'foo'); // 123
+ * array_get($a, 'baz'); // null
+ * array_get($a, 'baz', 'abc'); // 'abc'
+ */
 function array_get(array $a, $key, $default = null) {
 	return isset($a[$key]) ? $a[$key] : $default;
 }

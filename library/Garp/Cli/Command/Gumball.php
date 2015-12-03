@@ -20,6 +20,10 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 	const ABORT_CANT_WRITE_ZIP = 'Error: cannot create zip file';
 	const ABORT_DATADUMP_FAILED = 'Error: datadump failed';
 
+	const NO_SES_WARNING = 'No email service configured, won\'t notify project owners.';
+	const NOTIFICATION_EMAIL_SUBJECT = 'gumball notification email subject';
+	const NOTIFICATION_EMAIL_MESSAGE = "gumball notification email message";
+
 	public function make($args = array()) {
 		// @todo Superduperbonusmode: would be cool if you could go back in time and generate a
 		// gumball for a given semver (using Git to grab the correct tag).
@@ -83,6 +87,40 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 	}
 
 	protected function _broadcastGumballInstallation($version) {
+		$this->_broadcastByMail($version);
+		//$this->_broadcastToSlack($version);
+	}
+
+	protected function _broadcastByMail($version) {
+		$config = Zend_Registry::get('config');
+		if (!isset($config->gumball->notificationEmail) || !$config->gumball->notificationEmail) {
+			return;
+		}
+
+		// @todo non-ses variant?
+		// We actually really need that Mailer class...
+		if (!isset($config->amazon->ses)) {
+			Garp_Cli::lineOut(self::NO_SES_WARNING);
+			return;
+		}
+
+		$ses = new Garp_Service_Amazon_Ses();
+		$response = $ses->sendEmail(array(
+			'Destination' => $config->gumball->notificationEmail,
+			'Message'     => array(
+				'Text' => sprintf(__(self::NOTIFICATION_EMAIL_MESSAGE),
+ 			   		$config->app->name,
+					APPLICATION_ENV,
+ 			   		$version,
+					$config->app->domain
+				)
+			),
+			'Subject'     => sprintf(__(self::NOTIFICATION_EMAIL_SUBJECT), $config->app->name),
+			'Source'      => $config->amazon->ses->fromAddress
+		));
+	}
+
+	protected function _broadcastToSlack($version) {
 		$slack = new Garp_Service_Slack();
 
 		$slack->postMessage('', array(
