@@ -35,7 +35,10 @@ endif;
 
 $theContent = '';
 if ($this->snippet->has_text):
-	$theContent = nl2br($this->escape($snippetContent));
+	$theContent = $this->escape($snippetContent);
+	if (!$this->disableNl2br):
+		$theContent = nl2br($this->escape($snippetContent));
+	endif;
 	if ($this->linkify != false):
 		$theContent = $this->string()->linkify($theContent);
 	endif;
