@@ -47,6 +47,13 @@ try {
 // save the application in the registry, so it can be used by commands.
 Zend_Registry::set('application', $application);
 
+// Since localisation is based on a URL, and URLs are not part of a commandline, no
+// translatation is loaded. But we might need it to convert system messages.
+if (!Zend_Registry::isRegistered('Zend_Translate') && Zend_Registry::isRegistered('Zend_Locale')) {
+	Zend_Registry::set('Zend_Translate',
+		Garp_I18n::getTranslateByLocale(Zend_Registry::get('Zend_Locale')));
+}
+
 /**
  * Report errors, since we're in CLI.
  * Note that log_errors = 1, which outputs to STDERR. display_errors however outputs to STDOUT. In a CLI
