@@ -46,6 +46,10 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		Zend_Registry::set('Zend_Translate', $translate);
 		Zend_Form::setDefaultTranslator($translate);
 
+		if (!$config->resources->router->locale->enabled) {
+            return;
+        }
+
 		$path = '/' . ltrim($request->getPathInfo(), '/\\');
 
 		// If the language is in the path, then we will want to set the baseUrl

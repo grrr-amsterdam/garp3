@@ -1,8 +1,8 @@
-	<?php /* _____DisplayField */ 
+	<?php /* _____DisplayField */
 	if (!$this->model instanceof Garp_Spawn_Model_Abstract):
 		throw new Exception('This partial requires a Garp_Spawn_Model_Base instance as $model parameter.');
 	endif;
-	
+
 	$model 					= $this->model;
 
 	$nameIsMandatory = function() use ($model) {
@@ -10,13 +10,13 @@
 		if (!$nameFieldSet) {
 			return false;
 		}
-		
+
 		$nameField = current($nameFieldSet);
 		return $nameField->required;
 	};
-	
+
 	$hasMandatoryName = $nameIsMandatory();
-	
+
 	$hasFirstAndLastName	= $this->spawnJs()->modelHasFirstAndLastName($model);
 
 	$printFieldGetter		= function($fieldName) use ($model) {
@@ -27,16 +27,16 @@
 
 		return $getter;
 	};
-	
+
 	$printListFieldGetters	= function() use ($model, $printFieldGetter) {
 		$getters = array();
 		foreach ($model->fields->listFieldNames as $fieldName) {
 			$getters[] = $printFieldGetter($fieldName);
 		}
-		
+
 		return implode(', ', $getters);
-	} 
-	
+	}
+
 	?>
 	displayFieldRenderer: function(rec){
 	<?php if ($hasFirstAndLastName): ?>
@@ -44,8 +44,8 @@
 	<?php elseif ($hasMandatoryName): ?>
 		return <?php echo $printFieldGetter('name') ?> || __('New');
 	<?php else: ?>
-		var out = [<?php echo $printListFieldGetters() ?>].join(" ").replace("  ", " "); 
-		if (!out || out === ' ') {
+		var out = [<?php echo $printListFieldGetters() ?>].join(" ").replace("  ", " ");
+		if (!Ext.util.Format.trim(out)) {
 			out = __("New");
 		}
 		return  out;

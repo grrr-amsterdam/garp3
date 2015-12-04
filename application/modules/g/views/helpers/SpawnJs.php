@@ -241,6 +241,9 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
 		if ($field->type === 'checkbox' && !$field->default) {
 			return 0;
 		}
+		if ($field->isRelationField()) {
+			return 'null';
+		}
 		if (isset($field->default)) {
 			return $this->quoteIfNecessary($field->type, $field->default);
  		}

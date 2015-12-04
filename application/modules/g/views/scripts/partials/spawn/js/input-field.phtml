@@ -121,7 +121,8 @@ if ($field->type === 'document' || $field->type === 'imagefile'):
 			<?php
 				echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
 					'text' => "__('" . addslashes($field->info) . "')",
-					'fieldName' => $field->getNameKey($this->language)
+					'fieldName' => $field->getNameKey($this->language),
+					'hidden' => !$field->visible
 				));
 			endif; ?>
 				<?php if ($field->type === 'document' || $field->type === 'imagefile'): ?>
