@@ -378,9 +378,10 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 	/**
 	 * @function getGridCfg
 	 * @param hideHeader
+	 * @param panelType "relatePanel" or "relateePanel"
 	 * @return defaultGridObj
 	 */
-	getGridCfg: function(hideHeaders){
+	getGridCfg: function(hideHeaders, panelType) {
 		return {
 			border: true,
 			region: 'center',
@@ -393,31 +394,23 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 				},
 				columns: (function(){
 					var cols = [], cmClone, c, l;
-					if (this.columns) {
-						cmClone = Garp.dataTypes[this.model].columnModel;
-						var shown = 0;
-						for (c = 0, l = cmClone.length; c < l; c++) {
-							// Skip hidden columns to keep it simple in the relationPanel
-							if (typeof cmClone[c].hidden === 'boolean' && cmClone[c].hidden) {
-								continue;
-							}
-							col = Ext.apply({}, cmClone[c]);
-							col.hidden = this.columns.indexOf(col.dataIndex) == -1;
-							cols.push(col);
-						}
-						return cols;
+					if (typeof Garp.dataTypes[this.model].getColumnModelForRelationPanel == 'function') {
+						cmClone = Garp.dataTypes[this.model].getColumnModelForRelationPanel(this, panelType);
 					} else {
 						cmClone = Garp.dataTypes[this.model].columnModel;
-						for (c = 0, l = cmClone.length; c < l; c++) {
-							// Skip hidden columns to keep it simple in the relationPanel
-							if (typeof cmClone[c].hidden === 'boolean' && cmClone[c].hidden) {
-								continue;
-							}
-							col = Ext.apply({}, cmClone[c]);
-							cols.push(col);
-						}
-						return cols;
 					}
+					for (c = 0, l = cmClone.length; c < l; c++) {
+						// Skip hidden columns to keep it simple in the relationPanel
+						if (typeof cmClone[c].hidden === 'boolean' && cmClone[c].hidden) {
+							continue;
+						}
+						col = Ext.apply({}, cmClone[c]);
+						if (this.columns) {
+							col.hidden = this.columns.indexOf(col.dataIndex) == -1;
+						}
+						cols.push(col);
+					}
+					return cols;
 				}).call(this)
 			}),
 			pageSize: Garp.pageSize,
@@ -824,7 +817,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					},
 					scope: this
 				}
-			}, this.getGridCfg(false)));
+			}, this.getGridCfg(false, 'relatePanel')));
 
 			var relateePanelCfg = Ext.apply({}, {
 				itemId: 'relateePanel',
@@ -846,7 +839,7 @@ Ext.ux.RelationPanel = Ext.extend(Ext.Panel, {
 					},
 					scope: this
 				})
-			}, this.getGridCfg(this.maxItems !== null));
+			}, this.getGridCfg(this.maxItems !== null, 'relateePanel'));
 			if (this.paginated) {
 				relateePanelCfg.pageSize = Garp.pageSize;
 				relateePanelCfg.bbar = new Ext.PagingToolbar({
