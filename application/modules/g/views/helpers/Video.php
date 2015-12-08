@@ -52,7 +52,7 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
  	 * Check if video is Vimeo
  	 */
 	public function isVimeo($video) {
-		$playerurl = $video instanceof Garp_Db_Table_Row ? $video->player : $video;
+		$playerurl = isset($video['player']) ? $video['player'] : $video;
 		return preg_match('~player\.vimeo\.com~', $playerurl);
 	}
 
@@ -60,9 +60,9 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
  	 * Check if video is Youtube
  	 */
 	public function isYoutube($video) {
-		$playerurl = $video instanceof Garp_Db_Table_Row ? $video->player : $video;
+		$playerurl = isset($video['player']) ? $video['player'] : $video;
 		return preg_match('~youtube\.com~', $playerurl);
-	}		
+	}
 
 	/**
  	 * Return either the Vimeo or YouTube helper
@@ -76,5 +76,5 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 		}
 		throw new Exception('Unsupported media type detected: '.$playerurl);
 	}
-	
+
 }
