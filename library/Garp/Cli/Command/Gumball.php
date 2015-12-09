@@ -79,7 +79,7 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 		$gumball = new Garp_Gumball($version);
 		try {
 			$gumball->restore();
-			//$this->_broadcastGumballInstallation($version);
+			$this->_broadcastGumballInstallation($version);
 			Garp_Cli::lineOut('Done!', Garp_Cli::GREEN);
 		} catch (Exception $e) {
 			Garp_Cli::errorOut('Error: ' . $e->getMessage());

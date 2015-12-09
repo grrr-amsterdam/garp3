@@ -3,6 +3,8 @@
  * Garp_Gumball
  * Represents a packaged Garp installation, including data and source files.
  *
+ * Unpack using `tar -xUf gumball.zip`
+ *
  * @author       Harmen Janssen | grrr.nl
  * @version      0.1.0
  * @package      Garp
@@ -17,6 +19,10 @@ class Garp_Gumball {
 	protected $_dbEnv;
 	protected $_useDatabase = true;
 	protected $_gumballDirectory;
+	/**
+ 	 * @var Zend_Config
+ 	 */
+	protected $_gumballConfig;
 
 	// Paths that are not copied into the gumball
 	protected $_ignoredPaths = array('.DS_Store', 'node_modules', 'bower_components', 'gumballs');
@@ -51,6 +57,9 @@ class Garp_Gumball {
 
 		// Create Under Construction index.html in public that's used when unpacking the gumball
 		$this->addUnderConstructionLock();
+
+		// Create config file which can be read @ restore time
+		$this->addSettingsFile();
 
 		// Zip target folder
 		$this->createZipArchive();
@@ -104,6 +113,23 @@ class Garp_Gumball {
 		return true;
 	}
 
+	// For now only contains the database source environment, but can be used to add more
+	// configuration that's needed @ restore time.
+	public function addSettingsFile() {
+		$config = new Zend_Config(array(), true);
+		$config->gumball = array();
+		$config->gumball->sourceDbEnvironment = $this->_dbEnv;
+
+		$writer = new Zend_Config_Writer_Ini(
+			array(
+				'config' => $config,
+				'filename' => $this->_getTargetDirectoryPath() . '/application/configs/gumball.ini'
+			)
+		);
+		$writer->setRenderWithoutSections();
+		$writer->write();
+	}
+
 	public function createZipArchive() {
 		$zipPath = $this->_getGumballDirectory() . '/' . $this->getName() . '.zip';
 		$zip = new Garp_File_ZipArchive();
@@ -118,11 +144,13 @@ class Garp_Gumball {
 		if (!$this->_useDatabase) {
 			return true;
 		}
-		$dbServer = new Golem_Content_Db_Server_Remote($this->_dbEnv, $this->_dbEnv);
+		$mediator = new Garp_Content_Db_Mediator($this->_dbEnv, $this->_dbEnv);
+		$dbServer = $mediator->getSource();
+
 		$dump = $dbServer->fetchDump();
 		// @todo Change `from database` to `to database`
 		// Of doen we dat @ restore time?
-		$dump = $this->_removeDefinerCalls($dump, $dbServer);
+		//$dump = $this->_removeDefinerCalls($dump, $dbServer);
 		return file_put_contents($this->_getDataDumpLocation(), $dump);
 	}
 
@@ -140,7 +168,14 @@ class Garp_Gumball {
 	}
 
 	public function restoreDatabase() {
-		// @todo
+		// @todo Assuming CLI environment, better to use some kind of abstract output writer
+		Garp_Cli::lineOut('Restoring database...');
+		$sourceEnv = $this->_getGumballConfig('sourceDbEnvironment');
+		$mediator = new Garp_Content_Db_Mediator($sourceEnv, APPLICATION_ENV);
+		$target = $mediator->getTarget();
+		$dump = file_get_contents(
+			APPLICATION_PATH . '/data/sql/' . basename($this->_getDataDumpLocation()));
+		$target->restore($dump);
 	}
 
 	public function setWritePermissions() {
@@ -168,26 +203,8 @@ class Garp_Gumball {
 	}
 
 	protected function _hasDatabaseDump() {
-		return file_exists(APPLICATION_PATH . '/application/data/sql/' .
+		return file_exists(APPLICATION_PATH . '/data/sql/' .
 			basename($this->_getDataDumpLocation()));
-	}
-
-	protected function _removeDefinerCalls($dump, Golem_Content_Db_Server_Abstract $dbServer) {
-		// Note: taken from Golem_Content_Db_Server_Abstract::_removeDefinerCalls
-		$dbConfig = $dbServer->getDbConfigParams();
-		$dbUser = $dbConfig->username;
-		$dbHost = $dbConfig->host;
-
-		// Replace DEFINER statement with the actual host...
-		$definerStringWithHost = sprintf(Golem_Content_Db_Server_Abstract::SQL_DEFINER_STATEMENT,
-			$dbUser, $dbHost);
-		$dump = str_replace($definerStringWithHost, '', $dump);
-
-		// ...but also replace DEFINER statement where host is a wildcard character
-		$definerStringWithWildcard = sprintf(Golem_Content_Db_Server_Abstract::SQL_DEFINER_STATEMENT,
-			$dbUser, '%');
-		$dump = str_replace($definerStringWithWildcard, '', $dump);
-		return $dump;
 	}
 
 	protected function _copySourceFileToTargetDirectory(SplFileInfo $finfo) {
@@ -240,4 +257,11 @@ class Garp_Gumball {
 		return $this->_gumballDirectory;
 	}
 
+	// Read config values from packaged config file
+	protected function _getGumballConfig($configKey) {
+		if (!$this->_gumballConfig) {
+			$this->_gumballConfig = new Garp_Config_Ini(APPLICATION_PATH . '/configs/gumball.ini');
+		}
+		return $this->_gumballConfig->gumball->{$configKey};
+	}
 }

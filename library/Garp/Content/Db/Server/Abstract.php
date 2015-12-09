@@ -298,12 +298,17 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	}
 
 	protected function _removeDefinerCalls(&$dump) {
-		$otherDbParams 		= $this->_fetchOtherDatabaseParams();
-		$otherDbUsername	= $otherDbParams->username;
-		$otherDbHost		= $otherDbParams->host;
+		$otherDbParams   = $this->_fetchOtherDatabaseParams();
+		$otherDbUsername = $otherDbParams->username;
+		$otherDbHost     = $otherDbParams->host;
 
-		$oldDefinerString 	= sprintf(self::SQL_DEFINER_STATEMENT, $otherDbUsername, $otherDbHost);
-		$dump 				= str_replace($oldDefinerString, '', $dump);
+		// Replace DEFINER statement with the actual host...
+		$oldDefinerString = sprintf(self::SQL_DEFINER_STATEMENT, $otherDbUsername, $otherDbHost);
+		$dump             = str_replace($oldDefinerString, '', $dump);
+
+		// ...but also replace DEFINER statement where host is a wildcard character
+		$definerStringWithWildcard = sprintf(self::SQL_DEFINER_STATEMENT, $otherDbUsername, '%');
+		$dump                      = str_replace($definerStringWithWildcard, '', $dump);
 
 		/*!50013 DEFINER=`garp_remote`@`db.gargamel.nl` SQL SECURITY INVOKER */
 		// $pattern 		= '#([/*!\s\d]+DEFINER=`[\w-.]+`@`[\w-.]+`\s*(SQL SECURITY INVOKER)?\s*\*/)#';
