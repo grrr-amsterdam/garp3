@@ -25,6 +25,9 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 	const NOTIFICATION_EMAIL_MESSAGE = "gumball notification email message";
 
 	public function make($args = array()) {
+		$mem = new Garp_Util_Memory();
+		$mem->useHighMemory();
+
 		// @todo Superduperbonusmode: would be cool if you could go back in time and generate a
 		// gumball for a given semver (using Git to grab the correct tag).
 		// There would be no way to include that moment's data though.
@@ -74,6 +77,9 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 	}
 
 	public function restore($args = array()) {
+		$mem = new Garp_Util_Memory();
+		$mem->useHighMemory();
+
 		$version = new Garp_Semver();
 		Garp_Cli::lineOut('Restoring gumball ' . $version, Garp_Cli::PURPLE);
 		$gumball = new Garp_Gumball($version);
