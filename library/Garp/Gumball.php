@@ -132,12 +132,8 @@ class Garp_Gumball {
 
 	public function createZipArchive() {
 		$zipPath = $this->_getGumballDirectory() . '/' . $this->getName() . '.zip';
-		$zip = new Garp_File_ZipArchive();
-		if (true !== $zip->open($zipPath, ZipArchive::OVERWRITE)) {
-			throw new Garp_Gumball_Exception_CannotCreateZip();
-		}
-		$zip->addDirectory($this->_getTargetDirectoryPath());
-		return $zip->close();
+		$targetDir = $this->_getTargetDirectoryPath();
+		return `tar -C {$targetDir} -cf {$zipPath} .`;
 	}
 
 	public function createDataDump() {
@@ -244,7 +240,7 @@ class Garp_Gumball {
 			if (in_array($file->getFilename(), array('.', '..'))) {
 				continue;
 			}
-      		if ($file->isDir()) {
+      		if (!$file->isLink() && $file->isDir()) {
          		rmdir($file->getPathname());
       		} else {
          		unlink($file->getPathname());
