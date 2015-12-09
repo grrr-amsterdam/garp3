@@ -122,4 +122,44 @@ class Garp_I18n {
 		$territory = isset($config->resources->locale->territories->{$lang}) ? $config->resources->locale->territories->{$lang} : Zend_Locale::getLocaleToTerritory($lang);
 		return $territory;
 	}
+
+	/**
+	 * Create a Zend_Translate instance for the given locale.
+	 * @param Zend_Locale $locale
+	 * @return Zend_Translate
+	 */
+	public static function getTranslateByLocale(Zend_Locale $locale) {
+		$adapterParams = array(
+			'locale' => $locale,
+			'disableNotices' => true,
+			'scan' => Zend_Translate::LOCALE_FILENAME,
+			// Argh: the 'content' key is necessary in order to load the actual data,
+			// even when using an adapter that ignores it.
+			'content' => '!'
+		);
+
+		// Figure out which adapter to use
+		$translateAdapter = 'array';
+		$config = Zend_Registry::get('config');
+		if (!empty($config->resources->locale->translate->adapter)) {
+			$translateAdapter = $config->resources->locale->translate->adapter;
+		}
+		$adapterParams['adapter'] = $translateAdapter;
+
+		// Some additional configuration for the array adapter
+		if ($translateAdapter == 'array') {
+			$language = $locale->getLanguage();
+			// @todo Move this to applciation.ini?
+			$adapterParams['content'] = APPLICATION_PATH.'/data/i18n/'.$language.'.php';
+
+			// Turn on caching
+			if (Zend_Registry::isRegistered('CacheFrontend')) {
+				$adapterParams['cache'] = Zend_Registry::get('CacheFrontend');
+			}
+
+		}
+
+		$translate = new Zend_Translate($adapterParams);
+		return $translate;
+	}
 }

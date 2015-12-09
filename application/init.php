@@ -114,7 +114,7 @@ if ($memcacheAvailable) {
 	$memcacheAvailable = @$memcache->connect(MEMCACHE_HOST, MEMCACHE_PORT);
 }
 if (!$memcacheAvailable) {
-	$backendName       = 'BlackHole';
+	$backendName       = 'Black-Hole';
 	$cacheStoreEnabled = false;
 	$useWriteControl   = false;
 } else {
@@ -244,6 +244,19 @@ function concatAll($array) {
 		$results[] = $item;
 	}
 	return $results;
+}
+
+/**
+ * Safe getter.
+ * Returns the $default if the requested $key is not set.
+ * Example:
+ * $a = array('foo' => 123, 'bar' => 456);
+ * array_get($a, 'foo'); // 123
+ * array_get($a, 'baz'); // null
+ * array_get($a, 'baz', 'abc'); // 'abc'
+ */
+function array_get(array $a, $key, $default = null) {
+	return isset($a[$key]) ? $a[$key] : $default;
 }
 
 if (!function_exists('gzdecode')) {
