@@ -78,8 +78,8 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 		Garp_Cli::lineOut('Restoring gumball ' . $version, Garp_Cli::PURPLE);
 		$gumball = new Garp_Gumball($version);
 		try {
-			//$gumball->restore();
-			$this->_broadcastGumballInstallation($version);
+			$gumball->restore();
+			//$this->_broadcastGumballInstallation($version);
 			Garp_Cli::lineOut('Done!', Garp_Cli::GREEN);
 		} catch (Exception $e) {
 			Garp_Cli::errorOut('Error: ' . $e->getMessage());
@@ -88,7 +88,7 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 
 	protected function _broadcastGumballInstallation($version) {
 		$this->_broadcastByMail($version);
-		//$this->_broadcastToSlack($version);
+		$this->_broadcastToSlack($version);
 	}
 
 	protected function _broadcastByMail($version) {
@@ -115,8 +115,8 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 					$config->app->domain
 				)
 			),
-			'Subject'     => sprintf(__(self::NOTIFICATION_EMAIL_SUBJECT), $config->app->name),
-			'Source'      => $config->amazon->ses->fromAddress
+			'Subject' => sprintf(__(self::NOTIFICATION_EMAIL_SUBJECT), $config->app->name),
+			'Source'  => $config->amazon->ses->fromAddress
 		));
 	}
 
