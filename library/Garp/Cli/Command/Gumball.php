@@ -20,6 +20,8 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 	const ABORT_CANT_WRITE_ZIP = 'Error: cannot create zip file';
 	const ABORT_DATADUMP_FAILED = 'Error: datadump failed';
 
+	const ERROR_SOURCE_ENV_NOT_CONFIGURED = 'Error: the database source environment was not configured. Cannot migrate data.';
+
 	const NO_SES_WARNING = 'No email service configured, won\'t notify project owners.';
 	const NOTIFICATION_EMAIL_SUBJECT = 'gumball notification email subject';
 	const NOTIFICATION_EMAIL_MESSAGE = "gumball notification email message";
@@ -87,8 +89,12 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 			$gumball->restore();
 			$this->_broadcastGumballInstallation($version);
 			Garp_Cli::lineOut('Done!', Garp_Cli::GREEN);
+		} catch (Garp_Gumball_Exception_SourceEnvNotConfigured $e) {
+			Garp_Cli::errorOut(self::ERROR_SOURCE_ENV_NOT_CONFIGURED);
+			exit(1);
 		} catch (Exception $e) {
 			Garp_Cli::errorOut('Error: ' . $e->getMessage());
+			exit(1);
 		}
 	}
 

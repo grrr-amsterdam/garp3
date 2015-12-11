@@ -167,6 +167,10 @@ class Garp_Gumball {
 		// @todo Assuming CLI environment, better to use some kind of abstract output writer
 		Garp_Cli::lineOut('Restoring database...');
 		$sourceEnv = $this->_getGumballConfig('sourceDbEnvironment');
+		if (!$sourceEnv) {
+			throw new Garp_Gumball_Exception_SourceEnvNotConfigured();
+		}
+
 		$mediator = new Garp_Content_Db_Mediator($sourceEnv, APPLICATION_ENV);
 		$target = $mediator->getTarget();
 		$dump = file_get_contents(
