@@ -42,7 +42,19 @@ class Garp_Config_Ini extends Zend_Config_Ini {
 
     public function __construct($filename, $section = null, $options = false) {
 		$options['allowModifications'] = true;
-		parent::__construct($filename, $section, $options);
+		try {
+			parent::__construct($filename, $section, $options);
+		} catch (Zend_Config_Exception $e) {
+			// Catch invalid Section exceptions here...
+			if (!count(sscanf($e->getMessage(), "Section '%s' cannot be found in %s"))) {
+				throw $e;
+			}
+			// ...and provide a better one we can use to show a friendly error
+        	$validSections = array_keys($this->_loadIniFile($filename));
+			$superException = new Garp_Config_Ini_InvalidSectionException($e->getMessage());
+			$superException->setValidSections($validSections);
+			throw $superException;
+		}
 
 		if (isset($this->config)) {
 			$this->_mergeSubConfigs($section, $options);

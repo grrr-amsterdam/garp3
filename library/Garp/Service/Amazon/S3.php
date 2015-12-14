@@ -33,7 +33,9 @@ class Garp_Service_Amazon_S3 extends Zend_Service_Amazon_S3 {
 	            }
 	        }
 	        // The lead marker is the last key
-	        $leadMarker = $objects[count($objects) - 1];
+			if (isset($objects[count($objects) - 1])) {
+	        	$leadMarker = $objects[count($objects) - 1];
+			}
 	    } while( /* Until we exhaust the elements. */ $xml->IsTruncated == 'true');
 
         return $objects;

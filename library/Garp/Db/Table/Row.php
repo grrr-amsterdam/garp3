@@ -15,7 +15,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 	 * @var Array
 	 */
 	protected $_related = array();
-	
+
 	/**
  	 * Virtual properties. Used with setVirtual() when you wish to transport arbitrary values
  	 * thru Row objects.
@@ -28,13 +28,13 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 			// Convert so it can be used by array_intersect_key
 			$column = array_fill_keys($column, null);
 		}
-		return is_array($column) ? 
+		return is_array($column) ?
 			array_intersect_key($this->toArray(), $column) : $this->{$column};
 	}
-	
+
 	/**
 	 * Overwritten to also store $this->_related. This property was not returned, of course,
-	 * so when serializing it would disappear. 
+	 * so when serializing it would disappear.
 	 * @return array
 	 */
 	public function __sleep() {
@@ -43,10 +43,10 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		$props[] = '_virtual';
 		return $props;
 	}
-	
+
 	/**
      * ATTENTION:
-     * This code is copied and altered from Zend_Db_Table_Abstract::findManyToManyRowset(). 
+     * This code is copied and altered from Zend_Db_Table_Abstract::findManyToManyRowset().
      * The alterations made are the following;
      * - manually trigger 'beforeFetch' callback on $intersectionTable and $matchTable
      * - manually trigger 'afterFetch' callback on $matchTable
@@ -57,7 +57,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
      *     SELECT `m`.* FROM `tags` AS `m` INNER JOIN `tags_users` AS `i` ON `i`.`tag_id` = `m`.`id` WHERE (`i`.`user_id` = 18)
      *   in order to make its meaning a little clearer, especially in the beforeFetch callback of the match table.
      * - changed space-indenting to tab-indenting ;-)
-     * 
+     *
      * @param  string|Zend_Db_Table_Abstract  $matchTable
      * @param  string|Zend_Db_Table_Abstract  $intersectionTable
      * @param  string                         OPTIONAL $callerRefRule
@@ -153,7 +153,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
 		// Manually trigger 'beforeFetch' thru the intersection table, so it may manipulate the SELECT object.
 		$intersectionTable->notifyObservers('beforeFetch', array($intersectionTable, $select));
-	
+
 		// Same on the match table
 		$matchTable->notifyObservers('beforeFetch', array($matchTable, $select));
 
@@ -180,24 +180,24 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
 		/**
 		 * Perform 'afterFetch' callback on the match table
-		 * NOTE: 'afterFetch' is NOT triggered on the intersection table. This might seem 
+		 * NOTE: 'afterFetch' is NOT triggered on the intersection table. This might seem
 		 * inconsistent, but consider the following;
-		 * 
+		 *
 		 * This delivers TagUser records to the observers:
 		 *  $ TagUser.fetchAll()
 		 * This is expected behavior.
-		 * 
+		 *
 		 * However;
 		 *  $ Tag.bindModel(User);
 		 *  $ Tag.findManyToManyRowset(User);
-		 * This would deliver User records to the observers of the TagUser model. This would be 
+		 * This would deliver User records to the observers of the TagUser model. This would be
 		 * very confusing, and more importantly, trigger incorrect behavior, because behaviors
 		 * written to modify TagUser records would modify User records in ways impossible or
 		 * simply unwanted.
-		 * 
+		 *
 		 * This is why we've chosen to not trigger 'afterFetch' on the intersection table.
 		 */
-		$matchTable->notifyObservers('afterFetch', array($matchTable, $rowset));		
+		$matchTable->notifyObservers('afterFetch', array($matchTable, $rowset));
 		return $rowset;
 	}
 
@@ -278,7 +278,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
         return $parentTable->fetchRow($select);
     }
-	
+
 	/**
 	 * Return the value of the primary key(s) for this row.
 	 * Extended to not return arrays when primary key is just one column.
@@ -296,8 +296,8 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		}
 		return count($out) > 1 ? $out : $out[0];
 	}
-	
-	
+
+
 	/**
 	 * Set a related rowset as property of this row.
 	 * @param String $binding An alias for storing the binding name
@@ -308,7 +308,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		$this->_related[$binding] = !is_null($rowset) ? $rowset : array();
 		return $this;
 	}
-	
+
 	/**
 	 * Get a related rowset.
 	 * @param String $binding The alias for the related rowset
@@ -320,7 +320,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		}
 		return $this->_related[$binding];
 	}
-	
+
 	/**
  	 * Set arbitrary virtual value that is not a table column.
  	 * @param String $key
@@ -331,7 +331,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		$this->_virtual[$key] = $value;
 		return $this;
 	}
-	
+
 	/**
  	 * Return all virtual values
  	 * @return Array
@@ -339,7 +339,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 	public function getVirtual() {
 		return $this->_virtual;
 	}
-	
+
 	/**
      * Retrieve row field value
      * Modified to also return related rowsets.
@@ -361,7 +361,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 		}
 		return $result;
 	}
-	
+
 	/**
      * Set row field value
      *
@@ -430,15 +430,15 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
      */
     public function toArray() {
 		$data = parent::toArray();
-		foreach ($this->_related as $key => $rowset) {
-			if ($rowset instanceof Zend_Db_Table_Row_Abstract || $rowset instanceof Zend_Db_Table_Rowset_Abstract) {
-				$data[$key] = $rowset->toArray();
-			} else {
-				$data[$key] = $rowset;
+		foreach (array('_related', '_virtual') as $prop) {
+			foreach ($this->{$prop} as $key => $val) {
+				if ($val instanceof Zend_Db_Table_Row_Abstract ||
+					$val instanceof Zend_Db_Table_Rowset_Abstract) {
+					$data[$key] = $val->toArray();
+				} else {
+					$data[$key] = $val;
+				}
 			}
-		}
-		foreach ($this->_virtual as $key => $value) {
-			$data[$key] = $value;
 		}
 		return $data;
 	}

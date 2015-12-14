@@ -37,4 +37,10 @@ $translationTable = array(
 	'passwordless token expired' => 'The token is expired. Please submit your email address again and we will send you a new login link',
 	'passwordless token claimed' => 'The token is already used to login. Please submit your email address again and we will send you a new login link',
 	'login token requested page title' => 'A login link was sent to your inbox',
+	'gumball notification email message' => "Hello,\n\nA new version of your site was just deployed.\n\n
+		Site name: %s\n
+		Environment: %s\n
+		Version: %s\n\n
+		View here directly: %s\n\n",
+	'gumball notification email subject' => '[%s] A new version is deployed'
 );
