@@ -74,7 +74,7 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 		} elseif ($this->isYoutube($video)) {
 			return $this->view->youTube();
 		}
-		throw new Exception('Unsupported media type detected: '.$playerurl);
+		throw new Exception('Unsupported media type detected: ' . $video);
 	}
 
 }
