@@ -52,7 +52,8 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
  	 * Check if video is Vimeo
  	 */
 	public function isVimeo($video) {
-		$playerurl = isset($video['player']) ? $video['player'] : $video;
+		$playerurl = (is_string($video) ? $video :
+			(isset($video['player']) ? $video['player'] : $video));
 		return preg_match('~player\.vimeo\.com~i', $playerurl);
 	}
 
@@ -60,7 +61,8 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
  	 * Check if video is Youtube
  	 */
 	public function isYoutube($video) {
-		$playerurl = isset($video['player']) ? $video['player'] : $video;
+		$playerurl = (is_string($video) ? $video :
+			(isset($video['player']) ? $video['player'] : $video));
 		return preg_match('~youtube\.com~i', $playerurl);
 	}
 
