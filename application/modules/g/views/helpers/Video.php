@@ -62,7 +62,7 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
  	 */
 	public function isYoutube($video) {
 		$playerurl = (is_string($video) ? $video :
-			(isset($video['player']) ? $video['player'] : $video));
+			(isset($video['player']) ? $video['player'] : ''));
 		return preg_match('~youtube\.com~i', $playerurl);
 	}
 
