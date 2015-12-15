@@ -42,6 +42,10 @@ class G_Model_User extends Model_Base_User {
  	 */
 	protected $_validateEmail;
 
+	public function fetchByEmail($email) {
+		return $this->fetchRow($this->select()->where('email = ?', $email));
+	}
+
 	/**
  	 * Grab only session columns by userid
  	 */

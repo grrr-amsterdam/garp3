@@ -12,7 +12,8 @@
  */
 class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
 {
-	const DEFAULT_HOST = 'https://email.eu-west-1.amazonaws.com';
+	const DEFAULT_REGION = 'eu-west-1';
+	const HOST_TEMPLATE = 'https://email.%s.amazonaws.com';
 
     /**
      * Template of the webservice body request
@@ -60,16 +61,17 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
 		if ($config instanceof Zend_Config) {
 			$config = $config->toArray();
 		}
-        if(!array_key_exists('accessKey', $config)){
+        if (!array_key_exists('accessKey', $config)) {
             throw new Zend_Mail_Transport_Exception('This transport requires the Amazon access key');
         }
 
-        if(!array_key_exists('privateKey', $config)){
+        if (!array_key_exists('privateKey', $config)) {
             throw new Zend_Mail_Transport_Exception('This transport requires the Amazon private key');
         }
 
 		if (!array_key_exists('host', $config)) {
-			$config['host'] = self::DEFAULT_HOST;
+			$config['host'] = sprintf(self::HOST_TEMPLATE,
+				isset($config['region']) ? $config['region'] : self::DEFAULT_REGION);
 		}
 
         $this->_accessKey = $config['accessKey'];

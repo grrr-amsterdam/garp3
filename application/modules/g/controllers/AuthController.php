@@ -271,33 +271,28 @@ class G_AuthController extends Garp_Controller_Action {
 	 */
 	public function forgotpasswordAction() {
 		$this->view->title = __('forgot password page title');
-		$auth = Garp_Auth::getInstance();
-		$authVars = $auth->getConfigValues();
-		$request = $this->getRequest();
+		$authVars = Garp_Auth::getInstance()->getConfigValues();
+		// Set successMessage based on request param
+		$this->view->successMessage = intval($this->getRequest()->getParam('success')) === 1 ?
+ 			__($authVars['forgotpassword']['success_message']) : null
 
-		if ($request->getParam('success') == '1') {
-			$this->view->successMessage = __($authVars['forgotpassword']['success_message']);
-		}
-
-		if (!$request->isPost()) {
+		if (!$this->getRequest()->isPost()) {
 			return;
 		}
 
 		// Honeypot validation
-		$hp = $request->getPost('hp');
+		$hp = $this->getRequest()->getPost('hp');
 		if (!empty($hp)) {
 			throw new Garp_Auth_Exception(__('honeypot error'));
 		}
 
 		// Find user by email address
-		$this->view->email = $email = $request->getPost('email');
-		$userModel = new Model_User();
-		$user = $userModel->fetchRow(
-			$userModel->select()->where('email = ?', $email)
-		);
-		if (!$user) {
+		$this->view->email = $email = $this->getRequest()->getPost('email');
+		if ($user = instance(new Model_User)->fetchByEmail($email)) {
 			$this->view->formError = __('email addr not found');
-		} else {
+			return;
+		}
+
 			// Update user
 			$activationToken = uniqid();
 			$activationCode  = '';
@@ -393,7 +388,6 @@ class G_AuthController extends Garp_Controller_Action {
 				} else {
 					$this->view->formError = __($authVars['forgotpassword']['failure_message']);
 				}
-			}
 		}
 	}
 
