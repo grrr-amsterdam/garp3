@@ -39,4 +39,22 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract {
         ));
 		return $out;
 	}
+
+	/**
+ 	 * Filter a rowset using $fn
+ 	 * @param Function $fn
+ 	 * @return Garp_Db_Table_Rowset
+ 	 */
+	public function filter($fn) {
+		$rows = array_values(array_filter($this->toArray(), $fn));
+		$out = new $this(array(
+            'table'    => $this->getTable(),
+            'data'     => $rows,
+            'readOnly' => $this->_readOnly,
+            'rowClass' => $this->_rowClass,
+            'stored'   => true
+		));
+		return $out;
+	}
+
 }
