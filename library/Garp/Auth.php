@@ -330,12 +330,13 @@ class Garp_Auth {
 		return date('Y-m-d', strtotime($authVars['forgotpassword']['activation_code_expires_in']));
 	}
 
-	public function generateActivationCodeForUser($user) {
+	public function generateActivationCodeForUser($token, $email, $userId) {
 		$authVars = $this->getConfigValues();
-		$activationCode = uniqid();
-		$activationCode .= md5($user['email']);
+		$activationCode = '';
+		$activationCode .= $token;
+		$activationCode .= md5($email);
 		$activationCode .= md5($authVars['salt']);
-		$activationCode .= md5($user['id']);
+		$activationCode .= md5($userId);
 		$activationCode = md5($activationCode);
 		return $activationCode;
 	}

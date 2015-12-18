@@ -292,9 +292,12 @@ class G_AuthController extends Garp_Controller_Action {
 			return;
 		}
 
-		$activationCode = Garp_Auth::getInstance()->generateActivationCodeForUser($user);
+		$activationToken = uniqid();
+		$activationCode = Garp_Auth::getInstance()->generateActivationCodeForUser(
+			$activationToken, $email, $user->id);
 		$activationCodeExpiry = Garp_Auth::getInstance()->generateActivationCodeExpiry();
-		$userModel->updateUserWithActivationCode($user->id, $activationCode, $activationCodeExpiry);
+		$userModel->updateUserWithActivationCode(
+			$user->id, $activationToken, $activationCodeExpiry);
 
 		// @todo Use named route for this
 		$activationUrl = '/g/auth/resetpassword/c/'.$activationCode.'/e/'.md5($email).'/';
