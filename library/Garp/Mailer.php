@@ -14,7 +14,6 @@ class Garp_Mailer {
 	protected $_transport;
 	protected $_fromAddress;
 	protected $_characterEncoding = 'utf-8';
-	protected $_requiredParams = array('to', 'subject', 'message');
 	protected $_attachments = array();
 	protected $_htmlView;
 
@@ -37,13 +36,16 @@ class Garp_Mailer {
 
 		$mail = new Zend_Mail($this->getCharacterEncoding());
 		$mail->setSubject($params['subject']);
-		$mail->setBodyText($params['message']);
+		$mail->setBodyText($this->_getPlainBodyText($params));
 		$mail->setFrom($this->getFromAddress());
 		$mail->addTo($params['to']);
 
 		if ($this->getHtmlTemplate()) {
-			$viewParams['message'] = $params['message'];
+			$viewParams['message'] = isset($params['message']) ? $params['message'] : '';
+			$viewParams['htmlMessage'] = isset($params['htmlMessage']) ? $params['htmlMessage'] : '';
 			$mail->setBodyHtml($this->_renderView($viewParams));
+		} elseif (isset($params['htmlMessage'])) {
+			$mail->setBodyHtml($params['htmlMessage']);
 		}
 
 		if (!empty($params['replyTo'])) {
@@ -214,13 +216,28 @@ class Garp_Mailer {
 		return $viewObj->render($this->getHtmlTemplate());
 	}
 
+	protected function _getPlainBodyText($params) {
+		if (isset($params['message'])) {
+			return $params['message'];
+		}
+		if (isset($params['htmlMessage'])) {
+			return strip_tags($params['htmlMessage']);
+		}
+		return null;
+	}
+
  	/**
- 	 * Required keys: to, subject, message
+ 	 * Required keys: to, subject, message OR htmlMessage
  	 */
 	protected function _validateParams(array $params) {
 		$config = new Garp_Util_Configuration($params);
-		foreach ($this->_requiredParams as $param) {
-			$config->obligate($param);
+		$config->obligate('to');
+		$config->obligate('subject');
+
+		if (!isset($params['message']) && !isset($params['htmlMessage'])) {
+			throw new Garp_Util_Configuration_Exception(
+				sprintf(Garp_Util_Configuration::EXCEPTION_MISSINGKEY,
+					'message OR htmlMessage'));
 		}
 	}
 }

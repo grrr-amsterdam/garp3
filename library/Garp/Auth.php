@@ -140,9 +140,10 @@ class Garp_Auth {
 		$token .= md5($salt);
 
 		/**
- 		 * Embed an outline of the User table columns in the token. That way, whenever the database changes,
- 		 * all current cookies are made invalid and users have to generate a new cookie afresh by logging in.
- 		 * This ensures the user cookies always contain all the columns.
+ 		 * Embed an outline of the User table columns in the token. That way, whenever the
+ 		 * database changes, all current cookies are made invalid and users have to generate a
+ 		 * new cookie afresh by logging in.
+ 		 * This ensures the user cookies always contains all the columns.
  		 */
 		$columns = '';
 		try {
@@ -196,18 +197,22 @@ class Garp_Auth {
 	 * Retrieve auth-related config values from application.ini
 	 * @return Array
 	 */
-	public function getConfigValues() {
+	public function getConfigValues($subSection = null) {
 		$config = Zend_Registry::get('config');
 		// set defaults
 		$values = $this->_defaultConfigValues;
 		if ($config->auth) {
 			$values = array_merge($values, $config->auth->toArray());
 		}
+		if ($subSection) {
+			return array_get($values, $subSection);
+		}
 		return $values;
 	}
 
 	/**
- 	 * Check if the current user (ARO) has access to a certain controller action or Model CRUD method (ACO).
+ 	 * Check if the current user (ARO) has access to a certain controller action or Model CRUD
+ 	 * method (ACO).
  	 * Note that this requires 'Zend_Acl' to be available from Zend_Registry.
  	 * @param String $resource A resource
  	 * @param String $privilege A specific privilege within a resource
@@ -220,7 +225,8 @@ class Garp_Auth {
 			return $acl->has($resource) ? $acl->isAllowed($role, $resource, $privilege) : false;
 		}
 		/**
- 		 * Return TRUE when ACL is not in use, to allow for small, quick projects that don't need a configured ACL.
+ 		 * Return TRUE when ACL is not in use, to allow for small, quick projects that don't need
+ 		 * a configured ACL.
  		 */
 		return true;
 	}
@@ -317,5 +323,78 @@ class Garp_Auth {
  		   	$sessionColumns = explode(',', $sessionColumns);
 		}
 		return $sessionColumns;
+	}
+
+	public function generateActivationCodeExpiry() {
+		$authVars = $this->getConfigValues();
+		return date('Y-m-d', strtotime($authVars['forgotpassword']['activation_code_expires_in']));
+	}
+
+	public function generateActivationCodeForUser($user) {
+		$authVars = $this->getConfigValues();
+		$activationCode = uniqid();
+		$activationCode .= md5($user['email']);
+		$activationCode .= md5($authVars['salt']);
+		$activationCode .= md5($user['id']);
+		$activationCode = md5($activationCode);
+		return $activationCode;
+	}
+
+	/**
+ 	 * Figure out wether the forgot password email message is HTML or plain
+ 	 */
+	public function getForgotPasswordMessageFormat() {
+		$authVars = $this->getConfigValues('forgotpassword');
+		return !empty($authVars['email_partial']) ? 'html' :
+ 		   (!empty($authVars['email_snippet_column']) ?
+				$authVars['email_snippet_column'] : 'text');
+
+	}
+
+	public function getForgotPasswordEmailMessage($user, $activationUrl) {
+		$authVars = $this->getConfigValues('forgotpassword');
+		if (!empty($authVars['email_partial'])) {
+			return $this->_renderForgotPasswordPartial(
+				$authVars['email_partial'], $user, $activationUrl);
+		}
+		return $this->_getForgotPasswordSnippet($user, $activationUrl);
+	}
+
+	protected function _renderForgotPasswordPartial($partial, $user, $activationUrl) {
+		$viewObj = Zend_Controller_Front::getInstance()->getParam('bootstrap')
+			->getResource('view');
+		$viewObj->assign(array(
+			'user' => $user,
+			'activationUrl' => $activationUrl
+		));
+		return $viewObj->render($partial);
+	}
+
+	protected function _getForgotPasswordSnippet($user, $activationUrl) {
+		$authVars = $this->getConfigValues('forgotpassword');
+
+		$snippet_column = !empty($authVars['email_snippet_column']) ?
+			$authVars['email_snippet_column'] : 'text';
+		$snippet_identifier = !empty($authVars['email_snippet_identifier']) ?
+			$authVars['email_snippet_identifier'] : 'forgot password email';
+		$snippetModel = $this->_getSnippetModel();
+		$emailSnippet = $snippetModel->fetchByIdentifier($snippet_identifier);
+		$emailMessage = $emailSnippet->{$snippet_column};
+		return Garp_Util_String::interpolate($emailMessage, array(
+			'USERNAME'       => (string)new Garp_Util_FullName($user),
+			'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
+		));
+	}
+
+	/**
+ 	 * Retrieve snippet model for system messages.
+ 	 */
+	protected function _getSnippetModel() {
+		$snippetModel = new Model_Snippet();
+		if ($snippetModel->getObserver('Translatable')) {
+			$i18nModelFactory = new Garp_I18n_ModelFactory();
+			$snippetModel = $i18nModelFactory->getModel($snippetModel);
+		}
+		return $snippetModel;
 	}
 }

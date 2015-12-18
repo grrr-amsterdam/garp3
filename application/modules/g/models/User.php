@@ -57,6 +57,22 @@ class G_Model_User extends Model_Base_User {
 	}
 
 	/**
+ 	 * Update user with activation code and expire time.
+ 	 * Used when forgot password
+ 	 */
+	public function updateUserWithActivationCode($userId, $activationCode, $activationExpiry) {
+		$authVars = Garp_Auth::getInstance()->getConfigValues();
+		$expiresColumn = $authVars['forgotpassword']['activation_code_expiration_date_column'];
+		$tokenColumn   = $authVars['forgotpassword']['activation_token_column'];
+
+		$quotedUserId = $this->getAdapter()->quote($userId);
+		return $this->update(array(
+			$expiresColumn => $activationExpiry,
+			$tokenColumn => $activationCode
+		), "id = $quotedUserId");
+	}
+
+	/**
  	 * BeforeInsert callback
  	 * @param Array $args
  	 * @return Void
