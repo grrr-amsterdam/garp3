@@ -3,7 +3,7 @@ Ext.ns('Garp.dataTypes');
 	if (!('Video' in Garp.dataTypes)) {
 		return;
 	}
-	Garp.dataTypes.Video.on('init', function(){
+	Garp.dataTypes.Video.on('init', function() {
 
 		// Thumbnail column:
 		this.insertColumn(0, {
@@ -13,16 +13,11 @@ Ext.ns('Garp.dataTypes');
 			dataIndex: 'thumbnail',
 			renderer: Garp.renderers.imageRenderer
 		});
-		
-		// Remove 'required' fields that have nothing to do with the UI:
-		//this.removeField('identifier');
-		//this.removeField('type');
-		
-		
+
 		// Move url field:
 		var urlField = this.getField('url');
 		this.removeField('url');
-		this.insertField(1, Ext.apply(urlField,{
+		this.insertField(1, Ext.apply(urlField, {
 			ref: 'urlField'
 		}));
 		// ..and put some infotexts near it:
@@ -56,12 +51,13 @@ Ext.ns('Garp.dataTypes');
 			},
 			text: __('Upload a new video to YouTube')
 		});
-		
+
 		// Preview & other fields:
 		this.addFields([{
 			xtype: 'box',
 			ref: '../../../preview',
 			fieldLabel: __('Preview'),
+			allowBlank: true,
 			_data: {
 				player: '',
 				width: 0,
@@ -70,7 +66,8 @@ Ext.ns('Garp.dataTypes');
 			tpl: Garp.videoTpl
 		}, {
 			xtype: 'box',
-			cls: 'separator'
+			cls: 'separator',
+			allowBlank: true
 		}, {
 			name: 'tags',
 			fieldLabel: __('Tags'),
@@ -83,12 +80,12 @@ Ext.ns('Garp.dataTypes');
 			allowBlank: true,
 			xtype: 'displayfield'
 		}]);
-		
+
 		this.getField('player').hidden = true;
-		
+
 		this.addListener('loaddata', function(rec, formPanel){
 			function updateUI() {
-				
+
 				// relate create (quick add) may have already closed the window:
 				if (!formPanel.el || !formPanel.el.dom){
 					return;
@@ -122,15 +119,15 @@ Ext.ns('Garp.dataTypes');
 				});
 			}
 		});
-		
+
 		if (Garp.dataTypes.Image && Garp.dataTypes.Image.Wysiwyg) {
 			this.Wysiwyg = Ext.extend(Garp.dataTypes.Image.Wysiwyg, {
-			
+
 				model: 'Video',
 				idProperty: 'id',
-				
+
 				pickerHandler: function(sel, afterInitCb){
-				
+
 					this._data = {
 						id: sel.data.id,
 						image: sel.data.image
@@ -139,24 +136,24 @@ Ext.ns('Garp.dataTypes');
 					args.shift();
 					afterInitCb.call(this, args);
 				},
-				
+
 				getData: function(){
 					return {
 						id: this._data.id,
 						image: this._data.image
 					};
 				},
-				
+
 				initComponent: function(){
-				
+
 					this.html += '<div class="contenteditable"></div>';
-					
+
 					this.addClass('wysiwyg-image');
 					this.addClass('wysiwyg-box');
 					if (this.col) {
 						this.addClass(this.col);
 					}
-					
+
 					this.on('user-resize', function(w, nw){
 						this.setHeight(this.resizeContent(nw));
 					});
@@ -164,7 +161,7 @@ Ext.ns('Garp.dataTypes');
 						this.contentEditableEl = this.el.child('.contenteditable');
 						this.contentEditableEl.update('');
 						this.contentEditableEl.dom.setAttribute('contenteditable', false);
-						
+
 						var i = new Image();
 						var scope = this;
 						var path = this._data.image;
@@ -173,31 +170,31 @@ Ext.ns('Garp.dataTypes');
 								width: i.width,
 								height: i.height
 							});
-							
+
 							scope.contentEditableEl.setStyle({
 								position: 'relative',
 								padding: 0
 							});
-							
+
 							scope.contentEditableEl.update('<div class="img"></div>');
 							scope.contentEditableEl.child('.img').setStyle({
 								backgroundImage: 'url("' + path + '")'
 							});
-							
+
 							scope.resizeContent(scope.contentEditableEl.getWidth());
 							if (scope.ownerCt) {
 								scope.ownerCt.doLayout();
 							}
-							
+
 						};
 						i.src = path;
 						if (i.complete) {
 							i.onload();
 						}
 					}, this);
-					
+
 					Garp.dataTypes.Image.Wysiwyg.superclass.initComponent.call(this, arguments);
-					
+
 				}
 			});
 		}
