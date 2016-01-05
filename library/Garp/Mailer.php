@@ -149,53 +149,6 @@ class Garp_Mailer {
 		$this->_attachments[] = array($id, $attachment);
 	}
 
-	protected function _attachmentToMimePart($args) {
-		list($id, $attachment) = $args;
-		$obj = file_get_contents($attachment);
-		// Check if the attachment is gzipped and act accordingly
-		$unpacked = @gzdecode($obj);
-		$obj = null !== $unpacked && false !== $unpacked ? $unpacked : $obj;
-
-		$finfo = new finfo(FILEINFO_MIME);
-		$mime  = $finfo->buffer($obj);
-
-		$at = new Zend_Mime_Part($obj);
-		$at->id = $id;
-		$at->type = $mime;
-		$at->disposition = Zend_Mime::DISPOSITION_INLINE;
-		$at->encoding = Zend_Mime::ENCODING_BASE64;
-		$at->filename = basename($attachment);
-		return $at;
-	}
-
-	/**
- 	 * For legacy reasons, mailing can be disabled both thru the mailer key or thru amazon ses
- 	 * configuration.
- 	 */
-	protected function _isMailingDisabled() {
-		$config = Zend_Registry::get('config');
-		return (isset($config->mailer->sendMail) && !$config->mailer->sendMail) ||
-			($this->_isAmazonSesConfigured() &&
-				(isset($config->amazon->ses->sendMail) && !$config->amazon->ses->sendMail));
-	}
-
-	protected function _isAmazonSesConfigured() {
-		return isset(Zend_Registry::get('config')->amazon->ses->accessKey);
-	}
-
-	protected function _configureAmazonSesTransport() {
-		$sesConfig = $this->_getAmazonSesConfiguration();
-		return array(
-			'accessKey'  => $sesConfig->accessKey,
-			'privateKey' => $sesConfig->secretKey,
-			'region'     => $sesConfig->region
-		);
-	}
-
-	protected function _getAmazonSesConfiguration() {
-		return Zend_Registry::get('config')->amazon->ses;
-	}
-
 	public function getDefaultHtmlTemplate() {
 		return isset(Zend_Registry::get('config')->mailer->template) ?
 			Zend_Registry::get('config')->mailer->template : null;
@@ -240,4 +193,55 @@ class Garp_Mailer {
 					'message OR htmlMessage'));
 		}
 	}
+
+	protected function _attachmentToMimePart($args) {
+		list($id, $attachment) = $args;
+		$obj = file_get_contents($attachment);
+		// Check if the attachment is gzipped and act accordingly
+		$unpacked = @gzdecode($obj);
+		$obj = null !== $unpacked && false !== $unpacked ? $unpacked : $obj;
+
+		$finfo = new finfo(FILEINFO_MIME);
+		$mime  = $finfo->buffer($obj);
+
+		$at = new Zend_Mime_Part($obj);
+		$at->id = $id;
+		$at->type = $mime;
+		/**
+ 		 * @todo Allow disposition attachment
+ 		 */
+		$at->disposition = Zend_Mime::DISPOSITION_INLINE;
+		$at->encoding = Zend_Mime::ENCODING_BASE64;
+		$at->filename = basename($attachment);
+		return $at;
+	}
+
+	/**
+ 	 * For legacy reasons, mailing can be disabled both thru the mailer key or thru amazon ses
+ 	 * configuration.
+ 	 */
+	protected function _isMailingDisabled() {
+		$config = Zend_Registry::get('config');
+		return (isset($config->mailer->sendMail) && !$config->mailer->sendMail) ||
+			($this->_isAmazonSesConfigured() &&
+				(isset($config->amazon->ses->sendMail) && !$config->amazon->ses->sendMail));
+	}
+
+	protected function _isAmazonSesConfigured() {
+		return isset(Zend_Registry::get('config')->amazon->ses->accessKey);
+	}
+
+	protected function _configureAmazonSesTransport() {
+		$sesConfig = $this->_getAmazonSesConfiguration();
+		return array(
+			'accessKey'  => $sesConfig->accessKey,
+			'privateKey' => $sesConfig->secretKey,
+			'region'     => $sesConfig->region
+		);
+	}
+
+	protected function _getAmazonSesConfiguration() {
+		return Zend_Registry::get('config')->amazon->ses;
+	}
+
 }
