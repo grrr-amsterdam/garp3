@@ -55,7 +55,6 @@ class Garp_File {
 	* @param Boolean $uploadOrStatic Options: 'upload' or 'static'. Whether this upload is a user upload, stored in the uploads directory, or a static file used in the site.
 	*/
 	public function __construct($uploadType = null, $uploadOrStatic = null) {
-		$ini = $this->_getIni();
 		$this->validateUploadType($uploadType);
 		$this->_validateUploadOrStatic($uploadOrStatic);
 
@@ -63,12 +62,22 @@ class Garp_File {
 			$this->_uploadOrStatic = $uploadOrStatic;
 		}
 
-		$this->_path = $this->_getPath($ini, $uploadType);
-		$this->_initStorage($ini);
+		$this->setPath($this->_getPathFromConfig($uploadType));
+	}
+
+	public function setPath($path) {
+		$this->_path = $path;
+	}
+
+	public function getPath() {
+		return $this->_path;
 	}
 
 	/** Make public methods of the Garp_File_Storage object available. */
 	public function __call($method, $args) {
+		if (!$this->_storage) {
+			$this->_initStorage($this->_getIni());
+		}
 		if (!method_exists($this->_storage, $method)) {
 			throw new BadMethodCallException('Call to undefined method ' .
 				get_class($this) . '::' . $method);
@@ -203,7 +212,8 @@ class Garp_File {
 		} else throw new Exception("The provided filename does not have an extension. Please use the appropriate 3-character extension (such as .jpg, .png) after your filename.");
 	}
 
-	protected function _getPath($ini, $uploadType) {
+	protected function _getPathFromConfig($uploadType) {
+		$ini = $this->_getIni();
 		return !$uploadType ?
 			$ini->cdn->path->{$this->_uploadOrStatic}->{$this->_defaultUploadType} :
 			$ini->cdn->path->{$this->_uploadOrStatic}->{$uploadType}
