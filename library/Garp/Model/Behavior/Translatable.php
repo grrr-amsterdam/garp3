@@ -188,7 +188,10 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		if (!isset($result->{self::I18N_MODEL_BINDING_ALIAS})) {
 			return;
 		}
-		$translationRecordList = $result->{self::I18N_MODEL_BINDING_ALIAS}->toArray();
+		$translationRecordList = $result->{self::I18N_MODEL_BINDING_ALIAS};
+		if ($translationRecordList instanceof Zend_Db_Table_Rowset_Abstract) {
+			$translationRecordList = $translationRecordList->toArray();
+		}
 		$translatedFields = array();
 		$allLocales = Garp_I18n::getLocales();
 		foreach ($this->_translatableFields as $translatableField) {

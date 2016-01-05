@@ -59,6 +59,14 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 	<?php /* _____PreviewLink */
 	if ($model->route):
 		$route = $model->route;
+		// bit arbitrary, but assume you want a named route when no slashes are present
+		if (strpos($route, '/') === false):
+			$router = Zend_Controller_Front::getInstance()->getRouter();
+			$route = $router->getRoute($route);
+			$vars = array_combine($route->getVariables(),
+ 			   	array_map(function($var) { return ':' . $var; }, $route->getVariables()));
+			$route = $route->assemble($vars);
+		endif;
 		if ($route[0] === '/'):
 			$route = substr($route, 1);
 		endif;
@@ -66,10 +74,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 		$routeParts = explode("/", $route);
 
 		foreach ($routeParts as &$part) {
-			if (
-				strlen($part) > 0 &&
-				$part[0] === ':'
-			) {
+			if (strlen($part) > 0 && $part[0] === ':') {
 				$urlParam = substr($part, 1);
 				$part = '{0}';
 			}

@@ -20,7 +20,6 @@ namespace :deploy do
 		# Disk tasks
 		invoke :create_system_cache_dirs
 		invoke :create_static_cache_dir
-		invoke :set_blackhole_path_symlink_fix
 
 		# Garp tasks
 		invoke :spawn

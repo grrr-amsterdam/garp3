@@ -35,6 +35,7 @@ if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect):
 				name: '<?php echo $relationFieldName ?>',
 				displayField: '<?php echo $this->escape($displayField) ?>',
 				xtype: 'relationfield',
+				hidden: <?php echo ($this->relation->visible ? 'false' : 'true') ?>,
 				triggerFn: false,
 				fieldLabel: __('<?php
 					if ($this->relation->label === $this->relation->model):
@@ -48,7 +49,7 @@ if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect):
 						echo $this->relation->label;
 					endif;
 				?>'),
-				allowBlank: <?php echo $this->relation->type === 'belongsTo' ? 'false' : 'true' ?>,
+				allowBlank: <?php echo $this->relation->type === 'belongsTo' || $this->relation->required ? 'false' : 'true' ?>,
 				<?php if (!$this->relation->editable): ?>
 				disabled: true,
 				<?php endif; ?>
@@ -65,6 +66,7 @@ if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect):
 			}, {
 				name: '<?php echo strtolower($relationJoinedFieldName) ?>',
 				xtype: 'joinedrelationfield',
+				hidden: <?php echo ($this->relation->visible ? 'false' : 'true') ?>,
 				bindedField: '<?php echo $relationFieldName ?>',
 				fieldLabel: __('<?php
 					if ($this->relation->label === $this->relation->model):
@@ -85,3 +87,13 @@ if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect):
 				model: '<?php echo $this->relation->model ?>'
 <?php
 		endif;
+		if ($this->relation->info): ?>
+}, {
+<?php
+	echo $this->partial('partials/spawn/js/input-field-caption.phtml', 'g', array(
+		'text' => "__('" . addslashes($this->relation->info) . "')",
+		'fieldName' => $this->relation->getNameKey($this->language),
+		'hidden' => !$this->relation->visible
+	));
+endif; ?>
+

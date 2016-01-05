@@ -2,6 +2,7 @@
 				name: '<?php echo $this->fieldName ?>_info',
 				virtual: true,
 				xtype: 'box',
+				hidden: <?php echo $this->hidden ? 'true' : 'false' ?>,
 				cls: 'garp-notification-boxcomponent',
 				html: '<div class=\"icon-infofield\"></div>&nbsp;' + <?php echo $this->text ?>,
 				fieldLabel: ' '

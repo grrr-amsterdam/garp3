@@ -20,6 +20,11 @@ class G_ContentController extends Garp_Controller_Action {
  	 * Called before all actions
  	 */
 	public function init() {
+		// Do not cache CMS pages. This prevents a common situation where people logout, return to
+		// the CMS, and see the interface but none of the content feeds load. Only after a browser
+		// refresh they'll get bounced to the login page.
+		$this->_helper->cache->setNoCacheHeaders($this->getResponse());
+
 		$config = Zend_Registry::get('config');
 		$this->_setCmsClosedMessage();
 		if (!$config->cms || !$config->cms->ipfilter || !count($config->cms->ipfilter->toArray())) {

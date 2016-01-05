@@ -32,6 +32,8 @@ class Garp_Spawn_Relation {
 	public $paginated;
 	public $multilingual;
 	public $primary;
+	public $info;
+	public $visible = true;
 
 	/** Whether this relation field is editable in the cms. For instance, hasMany relations of which the opposite side is belongsTo (instead of hasOne), are not editable. */
 	public $editable;

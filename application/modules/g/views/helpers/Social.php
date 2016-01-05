@@ -37,7 +37,7 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 	 * @param Boolean $shortenUrls Wether to shorten the URLs
 	 * @return String
 	 */
-	public function tweetUrl($msg, $shortenUrls = true) {
+	public function tweetUrl($msg, $shortenUrls = false) {
 		$url = 'http://twitter.com/?status=';
 		if ($shortenUrls) {
 			$msg = preg_replace_callback('~https?://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?~i', function($matches) {
@@ -45,10 +45,29 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 				return $_this->tinyUrl($matches[0]);
 			}, $msg);
 		}
-		$msg = substr($msg, 0, 140);
 		$url .= urlencode($msg);
 		return $url;
 	}
+
+	/**
+	 * Generate a Whatsapp Share URL.
+	 *
+	 * @param String $msg The tweet
+	 * @param Boolean $shortenUrls Wether to shorten the URLs
+	 * @return String
+	 */
+	public function whatsappUrl($msg, $shortenUrls = false) {
+		$url = 'whatsapp://send?text=';
+		if ($shortenUrls) {
+			$msg = preg_replace_callback('~https?://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?~i', function($matches) {
+				$_this = new G_View_Helper_Social();
+				return $_this->tinyUrl($matches[0]);
+			}, $msg);
+		}
+		$url .= urlencode($msg);
+		return $url;
+	}
+
 
 	/**
 	 * Create a Tweet button.

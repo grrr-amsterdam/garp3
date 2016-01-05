@@ -10,7 +10,7 @@
 class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 	/**
 	 * Render a youtube object tag.
-	 * If no arguments are given, $this is returned 
+	 * If no arguments are given, $this is returned
 	 * so there can be some chaining.
 	 * @param Garp_Db_Table_Row $youtube A record from the `youtube_videos` table (or `media` view)
 	 * @param Array $options Various rendering options
@@ -21,8 +21,8 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 			return $this;
 		}
 		return $this->render($youtube, $options);
-	} 
-	
+	}
+
 	/**
 	 * Render a youtube object tag.
 	 * @param Garp_Db_Table_Row|String $youtube A record from the `youtube_videos` table (or `media` view), or a url to a YouTube video.
@@ -37,7 +37,7 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 		$_attribs['height'] = $options['height'];
 		$_attribs['frameborder'] = '0';
 		$_attribs['allowfullscreen'] = 'allowfullscreen';
-		
+
 		// unset the parameters that are not part of the query string
 		unset($options['width']);
 		unset($options['height']);
@@ -47,13 +47,15 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 		$youtubeUrl = $this->getPlayerUrl($youtube, $options);
 		$_attribs['src'] = $youtubeUrl;
 
-		$html = '<iframe'.$this->_htmlAttribs($_attribs).'></iframe>'; 
+		$html = '<iframe'.$this->_htmlAttribs($_attribs).'></iframe>';
 		return $html;
 	}
-	
+
 	public function getPlayerUrl($youtube, $options = array()) {
 		$this->_setDefaultQueryParams($options);
-		$youtubeUrl  = $youtube instanceof Garp_Db_Table_Row ? $youtube->player : $youtube;
+		$youtubeUrl = (is_string($youtube) ? $youtube :
+			(isset($youtube['player']) ? $youtube['player'] : ''));
+
 		if (strpos($youtubeUrl, '?') === false) {
 			$youtubeUrl .= '?';
 		} else {
@@ -61,8 +63,8 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 		}
 		$youtubeUrl .= http_build_query($options);
 		return $youtubeUrl;
-	}		
-	
+	}
+
 	/**
 	 * Normalize some configuration values.
 	 * @param Array $options

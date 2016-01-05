@@ -1,14 +1,14 @@
 /**
  * @class Garp.DataType
- * Provides basic DataType skeleton to 
- * 
+ * Provides basic DataType skeleton to
+ *
  * @author Peter
  */
 
 Ext.ns('Garp');
 
 Garp.DataType = Ext.extend(Ext.util.Observable, {
-	
+
 	/**
 	 * Grid store needs field definitions. We create it from the columnModel
 	 */
@@ -29,7 +29,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		});
 		return fields;
 	},
-	
+
 	/**
 	 * EXPERIMENTAL view tpl (creates HTML view, when editing is not allowed)
 	 */
@@ -45,11 +45,11 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		this.viewTpl = new Ext.XTemplate(str,{ compiled: true });
 		return this.viewTpl;
 	},
-	
+
 	/**
 	 * Sets permissions according to Garp.API offered methods
 	 * @param {Object} model
-	 * @return false if model is not accesible in the first place 
+	 * @return false if model is not accesible in the first place
 	 */
 	setupACL: function(model){
 		if(!Ext.isDefined(model.create)){
@@ -74,8 +74,8 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		}
 		return true;
 	},
-	
-	/** 
+
+	/**
 	 * Removes a column
 	 * @param {String} dataIndex
 	 */
@@ -97,7 +97,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		});
 		return column;
 	},
-	
+
 	/**
 	 * Add a column
 	 * @param {Object} column
@@ -105,7 +105,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 	addColumn: function(column){
 		this.columnModel.push(column);
 	},
-	
+
 	/**
 	 * Insert a column
 	 * @param {Object} index
@@ -114,15 +114,15 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 	insertColumn: function(index, column){
 		this.columnModel.splice(index, 0, column);
 	},
-	
-	/** 
+
+	/**
 	 * Remove a field
 	 * @param {String} name
 	 */
 	removeField: function(name){
 		this.formConfig[0].items[0].items.remove(this.getField(name));
 	},
-	
+
 	/**
 	 * Get a Field by its name
 	 * @param {String} name
@@ -139,7 +139,38 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		});
 		return field;
 	},
-	
+
+	getFieldBy: function(field, value) {
+		var out = { field: null, index: null };
+		Ext.each(this.formConfig[0].items[0].items, function(items) {
+			Ext.each(items, function(item, index) {
+				if (typeof i[field] !== 'undefined' && i[field] == value) {
+					out.field = item;
+					out.index = index;
+					return false;
+				}
+			});
+		});
+		return out;
+	},
+
+	/**
+	 * Get field index
+	 * @param {String} name
+	 */
+	getFieldIndex: function(name) {
+		var _index = -1;
+		Ext.each(this.formConfig[0].items[0].items, function(item, index) {
+				if (item.name === name) {
+				console.log('found item', name, 'at index', index);
+				console.log(item);
+					_index = index;
+				}
+				return false;
+		});
+		return _index;
+	},
+
 	/**
 	 * add a Field at the end
 	 * @param {Object} config
@@ -147,7 +178,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 	addField: function(config){
 		this.formConfig[0].items[0].items.push(config);
 	},
-	
+
 	/**
 	 * Adds an array of fields
 	 * @param {Object} arr of configs
@@ -157,7 +188,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 			this.addField(config);
 		}, this);
 	},
-	
+
 	/**
 	 * add a Field at specified index
 	 * @param {Object} index
@@ -166,8 +197,8 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 	insertField: function(index, config){
 		this.formConfig[0].items[0].items.splice(index, 0, config);
 	},
-	
-	
+
+
 	/**
 	 * Grab your RelationPanel
 	 * @param {Object} modelName
@@ -199,9 +230,9 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 			};
 		};
 	},
-	
+
 	/**
-	 * Retrieve all relation data 
+	 * Retrieve all relation data
 	 * @return {Array} modelNames
 	 */
 	getRelations: function(){
@@ -213,7 +244,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		});
 		return out;
 	},
-	
+
 	/**
 	 * Add a RelationPanel, simple convenience utility
 	 * @param {Object} config
@@ -224,7 +255,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		});
 		this.formConfig.push(cfg);
 	},
-	
+
 	/**
 	 * Adds a listener
 	 * @param {Object} eventName
@@ -246,7 +277,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 			};
 		}
 	},
-	
+
 	// private
 	setupListeners: function(eventName){
 		Ext.applyIf(this.formConfig[0], {
@@ -254,68 +285,68 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 		});
 		Ext.applyIf(this.formConfig[0].eventName, {
 			loaddata : function(){}
-		});		
+		});
 	},
-	
-	
+
+
 	constructor: function(cfg){
 		this.addEvents('init');
 		this.listeners = cfg.listeners;
 		this.initialCfg = Ext.apply({}, cfg);
-		
+
 		Ext.apply(this, cfg);
-		
+
 		Ext.applyIf(this, {
-		
+
 			// simple description text to be used at infopanel
 			description: '',
-			
+
 			// count is used at infopanel
 			countTpl: new Ext.XTemplate([__('Total'), ': {count} ', '<tpl if="count == 1">', __('item'), '</tpl>', '<tpl if="count != 1">', __('items'), '</tpl>']),
-			
+
 			// disabling will prevent this model from being accesible altogether
 			disabled: false,
-			
-			// prevents User to delete record  
+
+			// prevents User to delete record
 			disableDelete: false,
-			
+
 			// prevents User to create record
 			disableCreate: false,
-			
-			// For relationpanels and fields. If this model is too complicated, one might want to set this to false: 
+
+			// For relationpanels and fields. If this model is too complicated, one might want to set this to false:
 			quickCreatable: true,
-			
+
 			// how to display a record:
 			displayFieldRenderer: function(rec){
 				return rec.get('name') ? rec.get('name') : rec.phantom ? __('New ' + this.text) : __('Unnamed ' + this.text);
 			},
-			
+
 			// the items to use for simple tooltips when referenced from a relationfield
 			previewItems: [],
-			
+
 			// the items that the form's metaPanel will hold
 			metaPanelItems: [],
-			
+
 			// previewlink can hold an object previewLink{urlTpl, param} for building a dynamic preview path for the user
 			// urlTpl is an Ext.Template, and param the field/column reference
 			previewLink: null,
-			
+
 			// the icon
 			iconCls: 'icon-' + this.text.toLowerCase(),
-			
+
 			// this datatype does not contain editable fields, so hide the form and focus on the first relation tab:
 			isRelationalDataType: false
 		});
-		
+
 		Ext.applyIf(this.defaultData, {
 			'created': null,
 			'modified': null
 		});
-		
+
 		Ext.applyIf(this, {
 			columnModel: []
 		});
-		
+
 		if (this.isRelationalDataType) {
 			Ext.apply(this, {
 				disableCreate: true,
@@ -326,7 +357,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 				fp.items.get(0).hideTabStripItem(0);
 			});
 		}
-		
+
 		for (var column in this.defaultData) {
 			var found = false;
 			Ext.each(this.columnModel, function(item){
@@ -336,7 +367,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 			});
 			if (!found) {
 				var txt = Ext.util.Format.capitalize(column.replace('_', ' '));
-				
+
 				this.columnModel.push({
 					hidden: true,
 					renderer: (column == 'created' || column == 'modified') ? Garp.renderers.dateTimeRenderer : null,
@@ -345,7 +376,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 				});
 			}
 		}
-		
+
 		Ext.each(this.columnModel, function(col){
 			if(col.defaultData && col.defaultData === null){
 				col.useNull = true;
@@ -354,7 +385,7 @@ Garp.DataType = Ext.extend(Ext.util.Observable, {
 				col.sortable = false;
 			}
 		});
-		
+
 		Garp.DataType.superclass.constructor.call(this, cfg);
 	}
 });

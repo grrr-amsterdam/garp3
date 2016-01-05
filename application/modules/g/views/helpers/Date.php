@@ -8,11 +8,10 @@
  * @subpackage Helper
  * @lastmodified $Date: $
  */
-class G_View_Helper_Date extends Zend_View_Helper_BaseUrl {	
+class G_View_Helper_Date extends Zend_View_Helper_BaseUrl {
 	public function date() {
 		return $this;
 	}
-
 
 	/**
 	 * Formats dates according to configuration settings in the ini file.
@@ -21,16 +20,8 @@ class G_View_Helper_Date extends Zend_View_Helper_BaseUrl {
 	 * @return String
 	 */
 	public function format($type, $date) {
-		$ini = Zend_Registry::get('config');
-		$format = $ini->date->format->$type;
-
-		if (strpos($format, '%') !== false) {
-			return strftime($format, strtotime($date));
-		} else {
-			return date($format, strtotime($date));
-		}
+		return Garp_DateTime::formatFromConfig($type, $date);
 	}
-	
 
 	/**
 	 * @param Int $minutes Minutes as an integer

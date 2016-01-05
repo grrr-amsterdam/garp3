@@ -10,7 +10,7 @@
 class G_View_Helper_Vimeo extends Zend_View_Helper_HtmlElement {
 	/**
 	 * Render a Vimeo player.
-	 * If no arguments are given, $this is returned 
+	 * If no arguments are given, $this is returned
 	 * so there can be some chaining.
 	 * @param Garp_Db_Table_Row $vimeo A record from the `vimeo_videos` table
 	 * @param Array $options Various rendering options
@@ -22,8 +22,8 @@ class G_View_Helper_Vimeo extends Zend_View_Helper_HtmlElement {
 		}
 		return $this->render($vimeo, $options);
 	}
-	
-	
+
+
 	/**
 	 * Render a Vimeo object tag.
 	 * @param Garp_Db_Table_Row $vimeo A record from the `vimeo_videos` table (or `media` view)
@@ -44,18 +44,20 @@ class G_View_Helper_Vimeo extends Zend_View_Helper_HtmlElement {
 
 		$_attribs['frameborder'] = 0;
 		$_attribs['src'] = $playerUrl;
-		
+
 		$html = '<iframe'.$this->_htmlAttribs($_attribs).'></iframe>';
 		return $html;
 	}
-	
+
 	public function getPlayerUrl($vimeo, $options = array()) {
 		$this->_setDefaultQueryParams($options);
-		$playerurl  = $vimeo instanceof Garp_Db_Table_Row ? $vimeo->player : $vimeo;
+		$playerurl = (is_string($vimeo) ? $vimeo :
+			(isset($vimeo['player']) ? $vimeo['player'] : ''));
+
 		$playerurl .= '?'.http_build_query((array)$options);
 		return $playerurl;
 	}
-	
+
 	/**
 	 * Normalize some configuration values.
 	 * @param Array $options

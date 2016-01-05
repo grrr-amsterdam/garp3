@@ -496,7 +496,12 @@ Garp.setupEventManager = function(){
 			var s = Garp.gridPanel.getSelectionModel().getSelected();
 			if (t && s) {
 				var tpl = new Ext.Template(t.urlTpl);
-				var url = tpl.apply([s.get(t.param)]);
+				var paramValue = s.get(t.param);
+				if (Ext.isObject(paramValue) && DEFAULT_LANGUAGE in paramValue) {
+					paramValue = paramValue[DEFAULT_LANGUAGE];
+				}
+				var url = tpl.apply([paramValue]);
+				url += '&cb=' + +new Date();
 				var win = window.open(BASE + url);
 			}
 		},
