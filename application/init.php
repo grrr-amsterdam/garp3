@@ -224,6 +224,9 @@ function instance($obj) {
  */
 function array_pluck($array, $column) {
 	return array_map(function($obj) use ($column) {
+		if(!isset($obj[$column])) {
+			return null;
+		}
 		return $obj[$column];
 	}, $array);
 }
