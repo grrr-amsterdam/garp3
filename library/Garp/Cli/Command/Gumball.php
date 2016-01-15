@@ -20,9 +20,16 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 	const ABORT_CANT_WRITE_ZIP = 'Error: cannot create zip file';
 	const ABORT_DATADUMP_FAILED = 'Error: datadump failed';
 
+<<<<<<< HEAD
 	const ERROR_SOURCE_ENV_NOT_CONFIGURED = 'Error: the database source environment was not configured. Cannot migrate data.';
 
 	const NO_SES_WARNING = 'No email service configured, won\'t notify project owners.';
+||||||| merged common ancestors
+	const NO_SES_WARNING = 'No email service configured, won\'t notify project owners.';
+=======
+	const ERROR_SOURCE_ENV_NOT_CONFIGURED = 'Error: the database source environment was not configured. Cannot migrate data.';
+
+>>>>>>> ec15473d688228791ae189d0475d2c919dedef8d
 	const NOTIFICATION_EMAIL_SUBJECT = 'gumball notification email subject';
 	const NOTIFICATION_EMAIL_MESSAGE = "gumball notification email message";
 
@@ -109,26 +116,16 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 			return;
 		}
 
-		// @todo non-ses variant?
-		// We actually really need that Mailer class...
-		if (!isset($config->amazon->ses)) {
-			Garp_Cli::lineOut(self::NO_SES_WARNING);
-			return;
-		}
-
-		$ses = new Garp_Service_Amazon_Ses();
-		$response = $ses->sendEmail(array(
-			'Destination' => $config->gumball->notificationEmail,
-			'Message'     => array(
-				'Text' => sprintf(__(self::NOTIFICATION_EMAIL_MESSAGE),
- 			   		$config->app->name,
-					APPLICATION_ENV,
- 			   		$version,
-					$config->app->domain
-				)
-			),
-			'Subject' => sprintf(__(self::NOTIFICATION_EMAIL_SUBJECT), $config->app->name),
-			'Source'  => $config->amazon->ses->fromAddress
+		$mailer = new Garp_Mailer();
+		$mailer->send(array(
+			'to' => $config->gumball->notificationEmail,
+			'subject' => sprintf(__(self::NOTIFICATION_EMAIL_SUBJECT), $config->app->name),
+			'message' => sprintf(__(self::NOTIFICATION_EMAIL_MESSAGE),
+				$config->app->name,
+				APPLICATION_ENV,
+				$version,
+				$config->app->domain
+			)
 		));
 	}
 

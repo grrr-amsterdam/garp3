@@ -9,15 +9,7 @@
 	 * This prevents form fuckup on the _actual_ fields below.
 	 */
 	function addHoneypotFieldsForChromeAutofill(target) {
-		target.addField({
-			hidden: true,
-			disabled: false,
-			allowBlank: true,
-			name: '__fake_login__',
-			fieldLabel: 'fake login'
-		});
-
-		target.addField({
+		target.formConfig[0].items[0].items.unshift({
 			hidden: true,
 			disabled: false,
 			allowBlank: true,
@@ -25,6 +17,16 @@
 			name: '__fake_password__',
 			fieldLabel: 'fake password'
 		});
+
+		target.formConfig[0].items[0].items.unshift({
+			hidden: true,
+			disabled: false,
+			allowBlank: true,
+			inputType: 'email',
+			name: '__fake_login__',
+			fieldLabel: 'fake login'
+		});
+
 	}
 
 	Garp.dataTypes.User.on('init', function(){
@@ -104,8 +106,8 @@
 
 			// Cleanup honeypot fields
 			setTimeout(function() {
-				formPanel.getForm().remove(formPanel.getForm().findField('__fake_login__'));
-				formPanel.getForm().remove(formPanel.getForm().findField('__fake_password__'));
+				//formPanel.getForm().remove(formPanel.getForm().findField('__fake_login__'));
+				//formPanel.getForm().remove(formPanel.getForm().findField('__fake_password__'));
 			}, 1000);
 		});
 

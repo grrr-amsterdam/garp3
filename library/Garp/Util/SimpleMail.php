@@ -1,8 +1,8 @@
 <?php
 /**
  * Garp_Util_SimpleMail
- * Sends simple mails to clients. Mails that come down to a list of the 
- * filled out form fields. 
+ * Sends simple mails to clients. Mails that come down to a list of the
+ * filled out form fields.
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -17,74 +17,64 @@ class Garp_Util_SimpleMail {
 	 */
 	const NEWLINE = "\r\n";
 
-
 	/**
 	 * Honeypot key in the form
 	 * @var String
 	 */
 	const HONEYPOT_KEY = 'hp';
-	
-	
+
 	/**
 	 * Timestamp key in the form
 	 * @var String
 	 */
 	const TIMESTAMP_KEY = 'ts';
 
-
 	/**
 	 * The actual Mail object
 	 * @var Zend_Mail
 	 */
 	protected $_mail;
-	
-	
+
 	/**
 	 * Various parameters concerning the email
 	 * @var Array
 	 */
 	protected $_params = array();
-	
-	
+
 	/**
 	 * Submitted post values
 	 * @var Array
 	 */
 	protected $_postParams = array();
-	
-	
+
 	/**
 	 * Skippable keys, don't add these to the list.
 	 * @var Array
 	 */
 	protected $_skippableKeys = array('controller', 'module', 'action', 'locale', 'ts', 'hp');
-	
-	
+
 	/**
 	 * Errors
 	 * @var Array
 	 */
 	protected $_errors = array();
-	
-	
+
 	/**
 	 * Use aliases for keys
 	 * @var Array
 	 */
 	protected $_aliases = array();
-	
-	
+
 	/**
 	 * Class constructor
-	 * @param Array $postParams 
+	 * @param Array $postParams
 	 * @return Void
 	 */
 	public function __construct(array $postParams) {
 		$this->_mail = new Zend_Mail();
 		$this->_postParams = $postParams;
 	}
-	
-	
+
 	/**
 	 * Set body text
 	 * @param String $body
@@ -94,8 +84,7 @@ class Garp_Util_SimpleMail {
 		$this->_params['body'] = $body;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Get body text
 	 * @return String
@@ -103,8 +92,7 @@ class Garp_Util_SimpleMail {
 	public function getBodyText() {
 		return !empty($this->_params['body']) ? $this->_params['body'] : '';
 	}
-	
-	
+
 	/**
 	 * Set subject
 	 * @param String $subject
@@ -114,8 +102,7 @@ class Garp_Util_SimpleMail {
 		$this->_params['subject'] = $subject;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Get subject
 	 * @return String
@@ -123,8 +110,7 @@ class Garp_Util_SimpleMail {
 	public function getSubject() {
 		return !empty($this->_params['subject']) ? $this->_params['subject'] : '';
 	}
-	
-	
+
 	/**
 	 * Set from address
 	 * @param Mixed $from
@@ -137,8 +123,7 @@ class Garp_Util_SimpleMail {
 		$this->_params['from'] = $from;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Get from address
 	 * @return String
@@ -146,11 +131,10 @@ class Garp_Util_SimpleMail {
 	public function getFrom() {
 		return !empty($this->_params['from']) ? $this->_params['from'] : '';
 	}
-	
-	
+
 	/**
 	 * Set to address
-	 * @param Mixed $to 
+	 * @param Mixed $to
 	 * @return $this
 	 */
 	public function setTo($to) {
@@ -160,8 +144,7 @@ class Garp_Util_SimpleMail {
 		$this->_params['to'] = $to;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Get to address
 	 * @return Array
@@ -169,8 +152,7 @@ class Garp_Util_SimpleMail {
 	public function getTo() {
 		return !empty($this->_params['to']) ? $this->_params['to'] : array();
 	}
-	
-	
+
 	/**
 	 * Add skippable key
 	 * @param String $key
@@ -179,8 +161,7 @@ class Garp_Util_SimpleMail {
 	public function addSkippableKey($key) {
 		$this->_skippableKeys[] = $key;
 	}
-	
-	
+
 	/**
 	 * Set an alias for a certain posted key
 	 * @param String $key
@@ -191,8 +172,7 @@ class Garp_Util_SimpleMail {
 		$this->_aliases[$key] = $alias;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Get an alias for a certain posted key
 	 * @param String $key
@@ -201,10 +181,9 @@ class Garp_Util_SimpleMail {
 	public function getAlias($key) {
 		return !empty($this->_aliases[$key]) ? $this->_aliases[$key] : ucfirst($key);
 	}
-	
-	
+
 	/**
-	 * Set error 
+	 * Set error
 	 * @param String $error
 	 * @return $this
 	 */
@@ -212,20 +191,18 @@ class Garp_Util_SimpleMail {
 		$this->_errors[] = $error;
 		return $this;
 	}
-	
-	
+
 	/**
 	 * Get errors
-	 * @return Array 
+	 * @return Array
 	 */
 	public function getErrors() {
 		return $this->_errors;
 	}
-	
-	
+
 	/**
 	 * Check if the submitted data is valid
-	 * @param Array $requiredFields 
+	 * @param Array $requiredFields
 	 * @return Boolean description
 	 */
 	public function isValid(array $requiredFields = array()) {
@@ -237,21 +214,21 @@ class Garp_Util_SimpleMail {
 			$this->addError('Not all required mail parameters were given.');
 			return false;
 		}
-		
+
 		// check that at least 1 second passed from form rendering to form submit
 		if (array_key_exists(self::TIMESTAMP_KEY, $this->_postParams) &&
 			time()-$this->_postParams[self::TIMESTAMP_KEY] <= 1) {
 			$this->addError('Timestamp difference is less than or equal to 1 second.');
 			return false;
 		}
-		
+
 		// check if the honeypot was filled
 		if (array_key_exists(self::HONEYPOT_KEY, $this->_postParams) &&
 			!empty($this->_postParams[self::HONEYPOT_KEY])) {
 			$this->addError('Honeypot was filled.');
 			return false;
 		}
-		
+
 		// check if all required fields were filled
 		foreach ($requiredFields as $field) {
 			if (empty($this->_postParams[$field])) {
@@ -261,8 +238,7 @@ class Garp_Util_SimpleMail {
 		}
 		return true;
 	}
-	
-	
+
 	/**
 	 * Create a list of values from posted variables
 	 * @param Array $postParams
@@ -286,21 +262,21 @@ class Garp_Util_SimpleMail {
 		$out .= self::NEWLINE;
 		return $out;
 	}
-	
-	
+
 	/**
 	 * Send the mail.
 	 * @return Boolean
 	 */
 	public function send() {
-		if ($this->isValid()) {
-			$postList = $this->composeListFromPost($this->_postParams);			
-			$this->_mail->setBodyText($this->_params['body'].$postList);
-			$this->_mail->setFrom($this->_params['from'][0], $this->_params['from'][1]);
-			$this->_mail->addTo($this->_params['to'][0], $this->_params['to'][1]);
-			$this->_mail->setSubject($this->_params['subject']);
-			return $this->_mail->send();
+		if (!$this->isValid()) {
+			return false;
 		}
-		return false;
+		$postList = $this->composeListFromPost($this->_postParams);
+		$mailer = new Garp_Mailer();
+		return $mailer->send(array(
+			'to' => array($this->_params['to'][0] => $this->_params['to'][1]),
+			'subject' => $this->_params['subject'],
+			'message' => $this-._params['body'] . $postList
+		));
 	}
 }

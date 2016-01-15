@@ -51,7 +51,9 @@ class G_View_Helper_Vimeo extends Zend_View_Helper_HtmlElement {
 
 	public function getPlayerUrl($vimeo, $options = array()) {
 		$this->_setDefaultQueryParams($options);
-		$playerurl  = isset($vimeo['player']) ? $vimeo['player'] : $vimeo;
+		$playerurl = (is_string($vimeo) ? $vimeo :
+			(isset($vimeo['player']) ? $vimeo['player'] : ''));
+
 		$playerurl .= '?'.http_build_query((array)$options);
 		return $playerurl;
 	}
