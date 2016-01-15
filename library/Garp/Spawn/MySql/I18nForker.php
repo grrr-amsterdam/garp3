@@ -132,12 +132,18 @@ class Garp_Spawn_MySql_I18nForker {
 				"`{$i18nTableName}`.`{$relationColumnName}` = `{$target->name}`.`id` AND " .
 				"`lang` = '{$language}'";
 		}
-
 		return $statement;
 	}
 
 	protected function _tableHasRecords($tableName) {
-		return Zend_Db_Table::getDefaultAdapter()->query("SELECT COUNT(*) FROM {$tableName}");
+		$stmt = Zend_Db_Table::getDefaultAdapter()->query(
+			"SELECT COUNT(*) AS `count` FROM {$tableName}");
+		$rows = $stmt->fetchAll();
+		if (!isset($rows[0]['count'])) {
+			return;
+		}
+		$count = $rows[0]['count'];
+		return intval($count) > 0;
 	}
 
 	protected function _getSqlSetStatementsForUpdate($fromTable, $toTable, $columns) {
