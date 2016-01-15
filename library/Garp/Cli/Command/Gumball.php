@@ -20,16 +20,8 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 	const ABORT_CANT_WRITE_ZIP = 'Error: cannot create zip file';
 	const ABORT_DATADUMP_FAILED = 'Error: datadump failed';
 
-<<<<<<< HEAD
 	const ERROR_SOURCE_ENV_NOT_CONFIGURED = 'Error: the database source environment was not configured. Cannot migrate data.';
 
-	const NO_SES_WARNING = 'No email service configured, won\'t notify project owners.';
-||||||| merged common ancestors
-	const NO_SES_WARNING = 'No email service configured, won\'t notify project owners.';
-=======
-	const ERROR_SOURCE_ENV_NOT_CONFIGURED = 'Error: the database source environment was not configured. Cannot migrate data.';
-
->>>>>>> ec15473d688228791ae189d0475d2c919dedef8d
 	const NOTIFICATION_EMAIL_SUBJECT = 'gumball notification email subject';
 	const NOTIFICATION_EMAIL_MESSAGE = "gumball notification email message";
 
