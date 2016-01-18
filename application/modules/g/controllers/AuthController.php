@@ -281,7 +281,7 @@ class G_AuthController extends Garp_Controller_Action {
 			return;
 		}
 
-		if (!empty($this->getRequest()->getPost(self::HONEYPOT_COLUMN))) {
+		if ($this->getRequest()->getPost(self::HONEYPOT_COLUMN)) {
 			throw new Garp_Auth_Exception(__('honeypot error'));
 		}
 
