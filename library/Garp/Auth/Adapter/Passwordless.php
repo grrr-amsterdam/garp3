@@ -151,15 +151,13 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 		return date('Y-m-d H:i:s', strtotime(self::DEFAULT_TOKEN_EXPIRATION_TIME));
 	}
 
-	// @todo HTML email version
 	protected function _sendTokenEmail($email, $userId, $token) {
-		$mail = new Zend_Mail('utf-8');
-		$mail->setSubject($this->_getEmailSubject());
-		$mail->setBodyText($this->_getEmailBody($userId, $token));
-		$mail->setFrom($this->_getEmailFromAddress());
-		$mail->addTo($email);
-		$transport = $this->_getTransportMethod();
-		return $mail->send($transport);
+		$mailer = new Garp_Mailer();
+		return $mailer->send(array(
+			'to' => $email,
+			'subject' => $this->_getEmailSubject(),
+			'message' => $this->_getEmailBody($userId, $token)
+		));
 	}
 
 	protected function _getEmailBody($userId, $token) {
@@ -196,35 +194,6 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 		return Garp_Util_String::interpolate($body, array(
 			'LOGIN_URL' => $this->_getLoginUrl($userId, $token)
 		));
-	}
-
-	/**
- 	 * @todo In the future when a global Zend_Mail config is present in config, this can all be
- 	 * refactored and just use Zend_Mail using the default app settings for this environment.
- 	 */
-	protected function _getEmailFromAddress() {
-		$authVars = $this->_getAuthVars();
-		// Check some sensible default locations for email addresses
-		if ($authVars->email_transport_method === 'Garp_Mail_Transport_AmazonSes') {
-			return Zend_Registry::get('config')->amazon->ses->fromAddress;
-		}
-		if (isset($authVars->email_from_address)) {
-			return $authVars->email_from_address;
-		}
-		return Zend_Registry::get('config')->organization->email;
-	}
-
-	/**
- 	 * @todo In the future when a global Zend_Mail config is present in config, this can all be
- 	 * refactored and just use Zend_Mail using the default app settings for this environment.
- 	 */
-	protected function _getTransportMethod() {
-		$authVars = $this->_getAuthVars();
-		if (!isset($authVars->email_transport_method)) {
-			throw new Garp_Auth_Adapter_Passwordless_Exception('No transport method chosen');
-		}
-		$options = $authVars->email_transport_options ?: array();
-		return new $authVars->email_transport_method($options);
 	}
 
 	protected function _getLoginUrl($userId, $token) {

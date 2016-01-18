@@ -9,22 +9,14 @@
  * @lastmodified $Date: $
  */
 class G_Model_User extends Model_Base_User {
-	/**
- 	 * Role column
- 	 * @var String
- 	 */
+	const EXCEPTION_CANNOT_ASSIGN_GREATER_ROLE =
+		'You are not allowed to assign a role greater than your own.';
+	const EXCEPTION_CANNOT_EDIT_GREATER_ROLE =
+		'You are not allowed to edit users with a role greater than your own.';
+
+
 	const ROLE_COLUMN = 'role';
-
-	/**
- 	 * Password column
- 	 * @var String
- 	 */
 	const PASSWORD_COLUMN = 'password';
-
-	/**
- 	 * ImageUrl column
- 	 * @var String
- 	 */
 	const IMAGE_URL_COLUMN = 'imageUrl';
 
 	/**
@@ -42,6 +34,10 @@ class G_Model_User extends Model_Base_User {
  	 */
 	protected $_validateEmail;
 
+	public function fetchByEmail($email) {
+		return $this->fetchRow($this->select()->where('email = ?', $email));
+	}
+
 	/**
  	 * Grab only session columns by userid
  	 */
@@ -50,6 +46,22 @@ class G_Model_User extends Model_Base_User {
 			->from($this->getName(), Garp_Auth::getInstance()->getSessionColumns())
 			->where('id = ?', $userId);
 		return $this->fetchRow($select);
+	}
+
+	/**
+ 	 * Update user with activation code and expire time.
+ 	 * Used when forgot password
+ 	 */
+	public function updateUserWithActivationCode($userId, $activationCode, $activationExpiry) {
+		$authVars = Garp_Auth::getInstance()->getConfigValues('forgotpassword');
+		$expiresColumn = $authVars['activation_code_expiration_date_column'];
+		$tokenColumn   = $authVars['activation_token_column'];
+
+		$quotedUserId = $this->getAdapter()->quote($userId);
+		return $this->update(array(
+			$expiresColumn => $activationExpiry,
+			$tokenColumn => $activationCode
+		), "id = $quotedUserId");
 	}
 
 	/**
@@ -69,7 +81,7 @@ class G_Model_User extends Model_Base_User {
 
 		// Prevent admins from saving a user's role greater than their own.
 		if (!empty($data[self::ROLE_COLUMN]) && !$this->_isRoleAllowed($data[self::ROLE_COLUMN])) {
-			throw new Garp_Model_Exception('You are not allowed to assign a role greater than your own.');
+			throw new Garp_Model_Exception(self::EXCEPTION_CANNOT_ASSIGN_GREATER_ROLE);
 		}
 
 		// A password might be passed along, but that is actually a column of G_Model_AuthLocal
@@ -98,7 +110,7 @@ class G_Model_User extends Model_Base_User {
 			$this->_onEmailChange($data['email']);
 		}
 
-		// Save the password that was stored in beforeInsert
+		// Save the password that was stored in beforeInsert()
 		if ($this->_password) {
 			$authLocalModel = new G_Model_AuthLocal();
 			$newAuthLocalData = array(
@@ -118,12 +130,10 @@ class G_Model_User extends Model_Base_User {
 	public function beforeUpdate(array &$args) {
 		$data = &$args[1];
 		$where = $args[2];
-		$auth = Garp_Auth::getInstance();
-		$authVars = $auth->getConfigValues();
+		$authVars = Garp_Auth::getInstance()->getConfigValues('validateEmail');
 
 		// Check if the email address is about to be changed, and wether we should respond to it
-		if ((!empty($authVars['validateEmail']['enabled']) &&
-			$authVars['validateEmail']['enabled']) &&
+		if ((!empty($authVars['enabled']) && $authVars['enabled']) &&
 			array_key_exists('email', $data)) {
 			// Collect the current email addresses to see if they are to be changed
 			// @todo For now we assume that email is a unique value. This means that
@@ -178,18 +188,17 @@ class G_Model_User extends Model_Base_User {
 		}
 
 		// If the role is not part of the data, fetch it live
-		$exception = 'You are not allowed to edit users with a role greater than your own.';
 		if (empty($data[self::ROLE_COLUMN])) {
 			$rows = $this->fetchAll($where);
 			foreach ($rows as $row) {
 				if (!$this->_isRoleAllowed($row->{self::ROLE_COLUMN})) {
-					throw new Garp_Model_Exception($exception);
+					throw new Garp_Model_Exception(self::EXCEPTION_CANNOT_EDIT_GREATER_ROLE);
 				}
 			}
 		} else {
 			// Prevent admins from saving a user's role greater than their own.
 			if (!$this->_isRoleAllowed($data[self::ROLE_COLUMN])) {
-				throw new Garp_Model_Exception($exception);
+				throw new Garp_Model_Exception(self::EXCEPTION_CANNOT_EDIT_GREATER_ROLE);
 			}
 		}
 	}
@@ -230,20 +239,24 @@ class G_Model_User extends Model_Base_User {
  	 * @return Void
  	 */
 	protected function _onEmailChange($email, $updateOrInsert = 'insert') {
-		$auth = Garp_Auth::getInstance();
-		$authVars = $auth->getConfigValues();
+		$authVars = Garp_Auth::getInstance()->getConfigValues('validateEmail');
 
 		// See if validation of email is enabled
-		if (!empty($authVars['validateEmail']['enabled']) && $authVars['validateEmail']['enabled']) {
-			$validationTokenColumn = $authVars['validateEmail']['token_column'];
-			$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
+		if (empty($authVars['enabled']) || !$authVars['enabled']) {
+			return;
+		}
+		$validationTokenColumn = $authVars['token_column'];
+		$emailValidColumn = $authVars['email_valid_column'];
 
-			// Fetch fresh user data by email
-			$users = $this->fetchAll($this->select()->from($this->getName(), array('id', 'email', $validationTokenColumn, $emailValidColumn))->where('email = ?', $email));
-			// Generate validation token for all the found users
-			foreach ($users as $user) {
-				$this->invalidateEmailAddress($user, $updateOrInsert);
-			}
+		// Fetch fresh user data by email
+		$users = $this->fetchAll(
+			$this->select()->from($this->getName(),
+				array('id', 'email', $validationTokenColumn, $emailValidColumn))
+			->where('email = ?', $email));
+
+		// Generate validation token for all the found users
+		foreach ($users as $user) {
+			$this->invalidateEmailAddress($user, $updateOrInsert);
 		}
 	}
 
@@ -254,10 +267,9 @@ class G_Model_User extends Model_Base_User {
  	 * @return Boolean Wether the procedure succeeded
  	 */
 	public function invalidateEmailAddress(Garp_Db_Table_Row $user, $updateOrInsert = 'insert') {
-		$auth = Garp_Auth::getInstance();
-		$authVars = $auth->getConfigValues();
-		$validationTokenColumn = $authVars['validateEmail']['token_column'];
-		$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
+		$authVars = Garp_Auth::getInstance()->getConfigValues('validateEmail');
+		$validationTokenColumn = $authVars['token_column'];
+		$emailValidColumn = $authVars['email_valid_column'];
 
 		// Generate the validation code
 		$validationToken = uniqid();
@@ -281,8 +293,7 @@ class G_Model_User extends Model_Base_User {
  	 * @return String
  	 */
 	public function generateEmailValidationCode(Garp_Db_Table_Row $user, $validationToken) {
-		$auth = Garp_Auth::getInstance();
-		$authVars = $auth->getConfigValues();
+		$authVars = Garp_Auth::getInstance()->getConfigValues();
 
 		$validationCode  = '';
 		$validationCode .= $validationToken;
@@ -301,20 +312,20 @@ class G_Model_User extends Model_Base_User {
  	 * @return Boolean
  	 */
 	public function sendEmailValidationEmail(Garp_Db_Table_Row $user, $code, $updateOrInsert = 'insert') {
-		$auth = Garp_Auth::getInstance();
-		$authVars = $auth->getConfigValues();
+		$authVars = Garp_Auth::getInstance()->getConfigValues('validateEmail');
 
 		// Render the email message
 		$activationUrl = '/g/auth/validateemail/c/'.$code.'/e/'.md5($user->email).'/';
 
-		if (!empty($authVars['validateEmail']['email_partial'])) {
+		if (!empty($authVars['email_partial'])) {
 			$bootstrap = Zend_Controller_Front::getInstance()->getParam('bootstrap');
 			$view = $bootstrap->getResource('View');
-			$emailMessage = $view->partial($authVars['validateEmail']['email_partial'], 'default', array(
+			$emailMessage = $view->partial($authVars['email_partial'], 'default', array(
 				'user' => $user,
 				'activationUrl' => $activationUrl,
 				'updateOrInsert' => $updateOrInsert
 			));
+			$messageParam = 'htmlMessage';
 		} else {
 			$snippetId = 'validate email ';
 			$snippetId .= $updateOrInsert == 'insert' ? 'new user' : 'existing user';
@@ -324,17 +335,15 @@ class G_Model_User extends Model_Base_User {
 				'USERNAME' => (string)new Garp_Util_FullName($user),
 				'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
 			));
+			$messageParam = 'message';
 		}
 
-		// Note: this requires SES credentials defined in amazon.ses.accessKey and amazon.ses.secretKey
-		$ses = new Garp_Service_Amazon_Ses();
-		$response = $ses->sendEmail(array(
-			'Destination' => $user->email,
-			'Message'     => $emailMessage,
-			'Subject'     => __($authVars['validateEmail']['email_subject']),
-			'Source'      => $authVars['validateEmail']['email_from_address']
+		$mailer = new Garp_Mailer();
+		return $mailer->send(array(
+			'to' => $user->email,
+			'subject' => __($authVars['email_subject']),
+			$messageParam => $emailMessage
 		));
-		return $response;
 	}
 
 	/**
