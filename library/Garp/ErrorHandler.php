@@ -105,7 +105,7 @@ class Garp_ErrorHandler {
 		$mailer = new Garp_Mailer();
 		return $mailer->send(array(
 			'to' => $to,
-			'subject' => $subjectPrefix . 'An application error occurred'
+			'subject' => $subjectPrefix . 'An application error occurred',
 			'message' => $errorMessage
 		));
 	}
