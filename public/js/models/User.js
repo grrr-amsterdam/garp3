@@ -4,29 +4,6 @@
 		return;
 	}
 
-	/**
-	 * Add some fields that trick Chrome into auto-filling them.
-	 * This prevents form fuckup on the _actual_ fields below.
-	 */
-	function addHoneypotFieldsForChromeAutofill(target) {
-		target.addField({
-			hidden: true,
-			disabled: false,
-			allowBlank: true,
-			name: '__fake_login__',
-			fieldLabel: 'fake login'
-		});
-
-		target.addField({
-			hidden: true,
-			disabled: false,
-			allowBlank: true,
-			inputType: 'password',
-			name: '__fake_password__',
-			fieldLabel: 'fake password'
-		});
-	}
-
 	Garp.dataTypes.User.on('init', function(){
 		['AuthLocal', 'AuthPasswordless', 'AuthFacebook', 'AuthTwitter', 'AuthLinkedin']
 			.map(function(rl) {
@@ -36,8 +13,6 @@
 		Ext.apply(this.getColumn('fullname'), {
 			virtualSortField: 'first_name'
 		});
-
-		addHoneypotFieldsForChromeAutofill(this);
 
 		this.addColumn({
 			dataIndex: 'password',
@@ -101,12 +76,6 @@
 			} else if (email) {
 				email._keepRequired = false;
 			}
-
-			// Cleanup honeypot fields
-			setTimeout(function() {
-				formPanel.getForm().remove(formPanel.getForm().findField('__fake_login__'));
-				formPanel.getForm().remove(formPanel.getForm().findField('__fake_password__'));
-			}, 1000);
 		});
 
 	});

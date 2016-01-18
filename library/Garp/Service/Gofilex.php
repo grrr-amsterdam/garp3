@@ -167,7 +167,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 			$response->SUCCESS = 1;
 			return $response;
 		}
-		
+
 		$args = $args instanceof Garp_Util_Configuration ? $args : new Garp_Util_Configuration($args);
 		$args->obligate('movieId')
 			->obligate('distributorId')
@@ -208,7 +208,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
  	 */
 	protected function _throwException(Exception $e, $method, $args = array()) {
 		$this->_logTraffic();
-		
+
 		// Mail Amstelfilm about this error
 		$ini = Zend_Registry::get('config');
 		if (!empty($ini->gofilex->errorReportEmailAddress)) {
@@ -223,7 +223,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 				$message .= "$key: $value\n\r";
 			}
 
-			// Especially interesting is the submitted POST data, since here 
+			// Especially interesting is the submitted POST data, since here
 			// user-submitted movie data will reside
 			$message .= "\n\rPOST data (ingevuld in het formulier):\n\r";
 			if (empty($_POST)) {
@@ -233,8 +233,13 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 					$message .= "$key: $value\n\r";
 				}
 			}
-			
-			@mail($to, $subject, $message);
+
+			$mailer = new Garp_Mailer();
+			$mailer->send(array(
+				'to' => $to,
+				'subject' => $subject,
+				'message' => $message
+			));
 		}
 
 		throw $e;

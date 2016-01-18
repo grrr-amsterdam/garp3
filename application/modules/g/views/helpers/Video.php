@@ -52,16 +52,18 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
  	 * Check if video is Vimeo
  	 */
 	public function isVimeo($video) {
-		$playerurl = isset($video['player']) ? $video['player'] : $video;
-		return preg_match('~player\.vimeo\.com~', $playerurl);
+		$playerurl = (is_string($video) ? $video :
+			(isset($video['player']) ? $video['player'] : $video));
+		return preg_match('~player\.vimeo\.com~i', $playerurl);
 	}
 
 	/**
  	 * Check if video is Youtube
  	 */
 	public function isYoutube($video) {
-		$playerurl = isset($video['player']) ? $video['player'] : $video;
-		return preg_match('~youtube\.com~', $playerurl);
+		$playerurl = (is_string($video) ? $video :
+			(isset($video['player']) ? $video['player'] : ''));
+		return preg_match('~youtube\.com~i', $playerurl);
 	}
 
 	/**
@@ -74,7 +76,7 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 		} elseif ($this->isYoutube($video)) {
 			return $this->view->youTube();
 		}
-		throw new Exception('Unsupported media type detected: '.$playerurl);
+		throw new Exception('Unsupported media type detected: ' . $video);
 	}
 
 }

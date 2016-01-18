@@ -53,7 +53,9 @@ class G_View_Helper_YouTube extends Zend_View_Helper_HtmlElement {
 
 	public function getPlayerUrl($youtube, $options = array()) {
 		$this->_setDefaultQueryParams($options);
-		$youtubeUrl  = isset($youtube['player']) ? $youtube['player'] : $youtube;
+		$youtubeUrl = (is_string($youtube) ? $youtube :
+			(isset($youtube['player']) ? $youtube['player'] : ''));
+
 		if (strpos($youtubeUrl, '?') === false) {
 			$youtubeUrl .= '?';
 		} else {

@@ -14,13 +14,13 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 	border: true,
 	preventBodyReset: false,
 	autoScroll: true,
-	
+
 	rec: null,
-	
+
 	quickCreatableInit: Ext.emptyFn,
-	
+
 	initComponent: function(){
-	
+
 		if (!this.iconCls) {
 			this.setIconClass(Garp.dataTypes[this.model].iconCls);
 		}
@@ -28,7 +28,7 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			this.setTitle(Garp.dataTypes[this.model].text);
 		}
 		this.addEvents('aftersave', 'afterinit');
-		
+
 		this.writer = new Ext.data.JsonWriter({
 			paramsAsHash: false,
 			encode: false
@@ -38,7 +38,7 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 		Ext.each(cm, function(c){
 			fields.push(c.dataIndex);
 		});
-		
+
 		this.store = new Ext.data.DirectStore({
 			fields: fields,
 			autoLoad: false,
@@ -62,7 +62,7 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			},
 			writer: this.writer
 		});
-		
+
 		var items = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].items[0]);
 		var listeners = Ext.apply({}, Garp.dataTypes[this.model].formConfig[0].listeners);
 		items = {
@@ -73,15 +73,19 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			border: false
 		};
 
-		// Collapse fieldsets, to save some room (window is tiny as it is)
+		// Collapse fieldsets and hide non-required fields,
+		// to save some room (window is tiny as it is)
 		for (var j = 0; j < items.items[0].items.length; ++j) {
+			console.info(items.items[0].items[j]);
 			if ('collapsed' in items.items[0].items[j]) {
 				items.items[0].items[j].collapsed = true;
 			}
+			if (items.items[0].items[j].disabled ||
+			   items.items[0].items[j].allowBlank) {
+				items.items[0].items[j].hidden = true;
+			}
 		}
-		
-		// Now hide disabled items, they have no function when adding a new item. It may otherwise confuse users:
-		// Also: if the field is not in the columnModel, it has no place here in this window
+
 		this.items = [{
 			border: false,
 			xtype: 'form',
@@ -94,7 +98,7 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			},
 			items: items
 		}];
-		
+
 		if (!this.buttons) {
 			this.buttons = [];
 		}
@@ -113,10 +117,10 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			},
 			scope: this
 		}]);
-		
+
 		Garp.RelateCreateWindow.superclass.initComponent.call(this);
 	},
-	
+
 	saveAll: function(doClose){
 		if (!this.form.getForm().isValid()) {
 			this.form.getForm().items.each(function(){
@@ -147,7 +151,7 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 			this.loadMask.show();
 		}
 	},
-	
+
 	afterRender: function(){
 		Garp.RelateCreateWindow.superclass.afterRender.call(this);
 		this.form.getForm().setValues(Garp.dataTypes[this.model].defaultData);
@@ -157,13 +161,13 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 		var rec = new this.store.recordType(Ext.apply({}, Garp.dataTypes[this.model].defaultData));
 		this.rec = rec;
 		this.store.insert(0, rec);
-		
+
 		this.getForm = function(){
 			return this.form.getForm();
 		};
-		
+
 		this.on('save-all', this.saveAll, this);
-		
+
 		this.on('show', function(){
 			this.formcontent.fireEvent('loaddata', rec, this);
 			this.quickCreatableInit();
@@ -182,7 +186,6 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 				this.setHeight(this.getHeight());
 				this.center();
 			}
-			window.weenerdog = this;
 			this.keymap = new Ext.KeyMap(this.formcontent.getEl(), [{
 				key: Ext.EventObject.ENTER,
 				ctrl: true,
