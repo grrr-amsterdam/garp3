@@ -106,12 +106,12 @@ class Garp_ErrorHandler {
 			: self::ERROR_REPORT_MAIL_ADDRESS_FALLBACK
 		;
 
-		$mail = new Zend_Mail('utf-8');
-		$mail->setSubject($subjectPrefix . 'An application error occurred');
-		$mail->setBodyText($errorMessage);
-		$mail->setFrom(self::ERROR_REPORT_MAIL_ADDRESS_FALLBACK);
-		$mail->addTo($to);
-		return $mail->send(new Zend_Mail_Transport_Sendmail());
+		$mailer = new Garp_Mailer();
+		return $mailer->send(array(
+			'to' => $to,
+			'subject' => $subjectPrefix . 'An application error occurred'
+			'message' => $errorMessage
+		));
 	}
 
 	protected static function _composeShortErrorMessage(ArrayObject $errors) {

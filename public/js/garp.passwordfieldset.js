@@ -5,15 +5,15 @@ Ext.ns('Garp');
  */
 
 Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
-	
+
 	callback: Ext.emptyFn,
 
 	style:'margin:0;padding:0;',
 	defaultType: 'textfield',
 	defaults:{
 		allowBlank: true
-	},	
-	
+	},
+
 	collapseAndHide: function(){
 		this.showpassword.hide();
 		this.password.hide();
@@ -23,9 +23,9 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 		this.plaintext.setValue('');
 		this.plaintext.originalValue = '';
 	},
-	
+
 	initComponent: function(ct){
-	
+
 		this.items = [{
 			ref: 'setPasswordBtn',
 			fieldLabel : ' &nbsp; ',
@@ -46,9 +46,22 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 		}, {
 			ref: 'password',
 			fieldLabel : __('Password'),
-			inputType: 'password',
+			inputType: 'text',
 			hidden: true,
 			listeners: {
+				/**
+				 * This render callback tricks Google Chrome. It normally tries to auto-populate
+				 * forms with a password field. In our case it fails horribly and clears the form,
+				 * leaving the administrator with blank fields.
+				 * This callback swaps the "text" type for an actual "password" type. Chrome will
+				 * leave the form alone thinking it does not contain a password field.
+				 */
+				'render': function() {
+					var dom = this.el.dom;
+					setTimeout(function() {
+						dom.setAttribute('type', 'password');
+					}, 100);
+				},
 				'change': this.callback
 			}
 		}, {
@@ -72,7 +85,7 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 				r[c ? 'plaintext' : 'password'].setValue(r[c ? 'password' : 'plaintext'].getValue());
 			}
 		}];
-		
+
 		var scope = this;
 		this._interval = setInterval(function(){
 			if (scope.password) {
@@ -89,31 +102,31 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 				clearInterval(this._interval);
 			}
 		}, 100);
-		
+
 		Garp.PasswordFieldset.superclass.initComponent.call(this, ct);
-		
-		
+
+
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * Private
 	 */
-	
+
 	/*listeners: {
 		click: function(){
-			
+
 			var id = this.refOwner.getForm().findField('id').getValue();
 			var scope = this;
 			var win;
-			
+
 			function btnHandler(ref){
 				if (ref.text != __('Cancel')) {
 					var val = win.password.getValue();
 					scope.refOwner.getForm().findField(scope.passwordFieldname).setValue(val ? val : null);
-					scope.callback(scope, val);		
+					scope.callback(scope, val);
 				}
 				win.close();
 			}
@@ -133,7 +146,7 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 							key: Ext.EventObject.ESC,
 							fn: win.close
 						}]);
-						
+
 						// we need to delay this, because monitorValid is a taskRunner
 						win.passwordform.startMonitoring();
 						setTimeout(function(){
@@ -171,10 +184,10 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 							var r = this.refOwner, c = this.checked;
 							r.password.setVisible(!c);
 							r.plaintext.setVisible(c);
-							r[c ? 
-								'plaintext' : 
-								'password'].setValue(r[c ? 
-									'password' : 
+							r[c ?
+								'plaintext' :
+								'password'].setValue(r[c ?
+									'password' :
 									'plaintext'].getValue());
 						}
 					}]
@@ -190,7 +203,7 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 			win.show();
 		}
 	}*/
-	
+
 });
 
 Ext.reg('passwordfieldset', Garp.PasswordFieldset);
