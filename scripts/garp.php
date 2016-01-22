@@ -102,7 +102,10 @@ if (!$command instanceof Garp_Cli_Command) {
 
 // Since localisation is based on a URL, and URLs are not part of a commandline, no
 // translatation is loaded. But we might need it to convert system messages.
-if ($classArgument !== 'Spawn') {
+$commandsWithoutTranslation = array(
+	'Spawn', 'Config'
+);
+if (!in_array($classArgument, $commandsWithoutTranslation)) {
 	if (!Zend_Registry::isRegistered('Zend_Translate') && Zend_Registry::isRegistered('Zend_Locale')) {
 		Zend_Registry::set('Zend_Translate',
 			Garp_I18n::getTranslateByLocale(Zend_Registry::get('Zend_Locale')));
