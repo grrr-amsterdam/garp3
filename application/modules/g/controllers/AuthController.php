@@ -395,7 +395,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$request = $this->getRequest();
 		$activationCode = $request->getParam('c');
 		$activationEmail = $request->getParam('e');
-		$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
+		$emailValidColumn = $authVars['validateemail']['email_valid_column'];
 
 		if (!$activationEmail || !$activationCode) {
 			throw new Zend_Controller_Action_Exception('Invalid request.', 404);
@@ -406,7 +406,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$userModel->setCacheQueries(false);
 		$activationCodeClause =
 			'MD5(CONCAT('.
-				$userModel->getAdapter()->quoteIdentifier($authVars['validateEmail']['token_column']).','.
+				$userModel->getAdapter()->quoteIdentifier($authVars['validateemail']['token_column']).','.
 				'MD5(email),'.
 				'MD5('.$userModel->getAdapter()->quote($authVars['salt']).'),'.
 				'MD5(id)'.
@@ -446,6 +446,7 @@ class G_AuthController extends Garp_Controller_Action {
 	 */
 	protected function _setViewSettings($action) {
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
+		
 		if (!isset($authVars[$action])) {
 			return;
 		}

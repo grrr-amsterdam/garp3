@@ -130,7 +130,7 @@ class G_Model_User extends Model_Base_User {
 	public function beforeUpdate(array &$args) {
 		$data = &$args[1];
 		$where = $args[2];
-		$authVars = Garp_Auth::getInstance()->getConfigValues('validateEmail');
+		$authVars = Garp_Auth::getInstance()->getConfigValues('validateemail');
 
 		// Check if the email address is about to be changed, and wether we should respond to it
 		if ((!empty($authVars['enabled']) && $authVars['enabled']) &&
@@ -239,7 +239,7 @@ class G_Model_User extends Model_Base_User {
  	 * @return Void
  	 */
 	protected function _onEmailChange($email, $updateOrInsert = 'insert') {
-		$authVars = Garp_Auth::getInstance()->getConfigValues('validateEmail');
+		$authVars = Garp_Auth::getInstance()->getConfigValues('validateemail');
 
 		// See if validation of email is enabled
 		if (empty($authVars['enabled']) || !$authVars['enabled']) {
@@ -267,7 +267,7 @@ class G_Model_User extends Model_Base_User {
  	 * @return Boolean Wether the procedure succeeded
  	 */
 	public function invalidateEmailAddress(Garp_Db_Table_Row $user, $updateOrInsert = 'insert') {
-		$authVars = Garp_Auth::getInstance()->getConfigValues('validateEmail');
+		$authVars = Garp_Auth::getInstance()->getConfigValues('validateemail');
 		$validationTokenColumn = $authVars['token_column'];
 		$emailValidColumn = $authVars['email_valid_column'];
 
@@ -312,7 +312,7 @@ class G_Model_User extends Model_Base_User {
  	 * @return Boolean
  	 */
 	public function sendEmailValidationEmail(Garp_Db_Table_Row $user, $code, $updateOrInsert = 'insert') {
-		$authVars = Garp_Auth::getInstance()->getConfigValues('validateEmail');
+		$authVars = Garp_Auth::getInstance()->getConfigValues('validateemail');
 
 		// Render the email message
 		$activationUrl = '/g/auth/validateemail/c/'.$code.'/e/'.md5($user->email).'/';
