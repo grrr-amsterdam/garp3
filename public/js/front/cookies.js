@@ -30,10 +30,14 @@ Garp.Cookie.get = function(name) {
  * Set a cookie
  * @param {Object} name
  * @param {Object} value
- * @param {Date} expiration date 
+ * @param {Date} expiration date
+ * @param {String} domain
  */
-Garp.Cookie.set = function(name, value, date) {
+Garp.Cookie.set = function(name, value, date, domain) {
 	value = escape(value) + "; path=/";
+	if (domain) {
+		value += '; domain=' + escape(domain);
+	}
 	value += (!date ? "" : "; expires=" + date.toGMTString());
 	document.cookie = name + "=" + value;
 };
