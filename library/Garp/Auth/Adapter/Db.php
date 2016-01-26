@@ -2,7 +2,7 @@
 /**
  * Garp_Auth_Adapter_Db
  * Simplest authentication method; thru a local database table.
- * 
+ *
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -16,27 +16,29 @@ class Garp_Auth_Adapter_Db extends Garp_Auth_Adapter_Abstract {
 	 * @var String
 	 */
 	protected $_configKey = 'db';
-	
-	
+
+
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
+	 * @param Zend_Controller_Response_Abstract $response The current response
 	 * @return Array|Boolean User data, or FALSE
 	 */
-	public function authenticate(Zend_Controller_Request_Abstract $request) {
+	public function authenticate(Zend_Controller_Request_Abstract $request,
+		Zend_Controller_Response_Abstract $response) {
 		$authVars = new Garp_Util_Configuration($this->_getAuthVars()->toArray());
 		$authVars->obligate('model')
 				 ->obligate('identityColumn')
 				 ->obligate('credentialColumn')
 				 ->setDefault('hashMethod', 'MD5')
 				 ->setDefault('salt', '');
-		
+
 		if (!$request->getPost($authVars['identityColumn']) ||
 			!$request->getPost($authVars['credentialColumn'])) {
 			$this->_addError('Insufficient data received');
 			return false;
 		}
-		
+
 		$identityValue = $request->getPost($authVars['identityColumn']);
 		$credentialValue = $request->getPost($authVars['credentialColumn']);
 

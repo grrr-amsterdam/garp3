@@ -176,8 +176,15 @@ class G_AuthController extends Garp_Controller_Action {
 		 * The implementing adapter should decide which to use,
 		 * using the current request to fetch params.
 		 */
-		if (!$userData = $adapter->authenticate($this->getRequest())) {
+		if (!$userData = $adapter->authenticate($this->getRequest(), $this->getResponse())) {
 			$this->_respondToFaultyProcess($adapter);
+			return;
+		}
+
+		$this->_helper->viewRenderer->setNoRender(true);
+
+		// Check if adapter issued a redirect (as is the case with oAuth for instance)
+		if ($this->getResponse()->isRedirect()) {
 			return;
 		}
 
@@ -223,7 +230,6 @@ class G_AuthController extends Garp_Controller_Action {
 			));
 		}
 		$flashMessenger->addMessage($successMsg);
-		$this->_helper->viewRenderer->setNoRender(true);
 		$this->_redirect($targetUrl);
 	}
 
