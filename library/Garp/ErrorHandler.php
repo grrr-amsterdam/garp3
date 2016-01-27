@@ -9,16 +9,20 @@ class Garp_ErrorHandler {
  	 * for instance).
  	 */
 	public static function handlePrematureException(Exception $e) {
+		$error = new Zend_Controller_Plugin_ErrorHandler();
+		$error->type = Zend_Controller_Plugin_ErrorHandler::EXCEPTION_OTHER;
+		$error->exception = $e;
+
 		$request = Zend_Controller_Front::getInstance()->getRequest();
+		if (!$request) {
+			return;
+		}
 		$request->setModuleName('default');
 		$request->setControllerName('error');
 		$request->setActionName('error');
-
-		$error = new Zend_Controller_Plugin_ErrorHandler();
-		$error->type = Zend_Controller_Plugin_ErrorHandler::EXCEPTION_OTHER;
-		$error->request = clone $request;
-		$error->exception = $e;
 		$request->setParam('error_handler', $error);
+
+		$error->request = clone $request;
 	}
 
 	/**
@@ -105,7 +109,7 @@ class Garp_ErrorHandler {
 		$mailer = new Garp_Mailer();
 		return $mailer->send(array(
 			'to' => $to,
-			'subject' => $subjectPrefix . 'An application error occurred'
+			'subject' => $subjectPrefix . 'An application error occurred',
 			'message' => $errorMessage
 		));
 	}

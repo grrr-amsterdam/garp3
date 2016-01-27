@@ -43,6 +43,8 @@
 .icon-document { background-image: url(../../media/images/garp/icons2/page.png); }
 .icon-group { background-image: url(../../media/images/garp/icons2/user-group.png); }
 .icon-text {background-image: url(../../media/images/garp/icons2/write-note.png); }
+.icon-text {background-image: url(../../media/images/garp/icons2/write-note.png); }
+.icon-contact-moment {background-image: url(../../media/images/garp/icons2/email.png); }
 
 .icon-richtext-add-link{background-image:url(../../media/images/garp/icons2/link.png)!important;}
 .icon-richtext-add-heading{background-image:url(../../media/images/garp/icons/text_heading_1.png)!important;}

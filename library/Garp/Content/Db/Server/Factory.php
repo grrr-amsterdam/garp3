@@ -11,8 +11,10 @@ class Garp_Content_Db_Server_Factory {
 	 * 									(i.e. target if this is source, and vice versa).
 	 */
 	public static function create($environment, $otherEnvironment) {
-		// @todo Don't hard-code this?
-		if ($environment === 'development' || $environment === 'testing') {
+		// @todo Can be more sophisticated (should check wether db host is localhost)
+		if ($environment === APPLICATION_ENV ||
+			// @todo Don't hard-code this?
+			$environment === 'development' || $environment === 'testing') {
 			return new Garp_Content_Db_Server_Local($environment, $otherEnvironment);
 		} else {
 			return new Garp_Content_Db_Server_Remote($environment, $otherEnvironment);
