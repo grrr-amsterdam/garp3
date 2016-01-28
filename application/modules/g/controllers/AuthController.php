@@ -139,8 +139,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->view->description = __('login page description');
 
 		// allow callers to set a targetUrl via the request
-		if ($this->getRequest()->getParam('targetUrl')) {
-			$targetUrl = $this->getRequest()->getParam('targetUrl');
+		if ($targetUrl = $this->_getSubmittedTargetUrl()) {
 			Garp_Auth::getInstance()->getStore()->targetUrl = $targetUrl;
 		}
 
@@ -160,6 +159,11 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @return Void
 	 */
 	public function processAction() {
+		// allow callers to set a targetUrl via the request
+		if ($targetUrl = $this->_getSubmittedTargetUrl()) {
+			Garp_Auth::getInstance()->getStore()->targetUrl = $targetUrl;
+		}
+
 		// never cache the process request
 		$this->_helper->cache->setNoCacheHeaders($this->getResponse());
 		// This action does not render a view, it only redirects elsewhere.
@@ -532,7 +536,7 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @param String $targetUrl The URL the user is being redirected to
 	 * @return Void
 	 */
-	protected function _afterLogin(array $userData, $targetUrl) {
+	protected function _afterLogin(array $userData, &$targetUrl) {
 		if ($loginHelper = $this->_getLoginHelper()) {
 			$loginHelper->afterLogin($userData, $targetUrl);
 		}
@@ -619,5 +623,10 @@ class G_AuthController extends Garp_Controller_Action {
 			$snippetModel = $i18nModelFactory->getModel($snippetModel);
 		}
 		return $snippetModel;
+	}
+
+	protected function _getSubmittedTargetUrl() {
+		return $this->getRequest()->getPost('targetUrl') ?:
+			$this->getRequest()->getParam('targetUrl');
 	}
 }
