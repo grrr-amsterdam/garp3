@@ -78,6 +78,70 @@ class Garp_Util_String {
 	}
 
 	/**
+ 	 * Converts 'السلام عليكم‎' to 'alslam 3lykm‎'
+ 	 * Not based on anything scientific, very informal and probably wrong, but
+ 	 * better than an empty string. Will leave unknown characters intact.
+ 	 * See: https://en.wikipedia.org/wiki/Arabic_chat_alphabet
+ 	 */
+	static public function arabicToArabicChatAlphabet( $input) {
+		// Based loosely on https://en.wikipedia.org/wiki/Arabic_chat_alphabet
+		$chatAlphabet = array(
+			'ا' => 'a',
+			'أ' => 'a',
+			'إ' => 'i',
+			'ب' => 'b',
+			'ت' => 't',
+			'ث' => 's',
+			'ج' => 'j',
+			'ح' => '7',
+			'خ' => 'kh',
+			'د' => 'd',
+			'ذ' => 'z',
+			'ر' => 'r',
+			'ز' => 'z',
+			'س' => 's',
+			'ش' => 'sh',
+			'ص' => 's',
+			'ض' => 'd',
+			'ط' => 't',
+			'ظ' => 'z',
+			'ع' => '3',
+			'غ' => 'gh',
+			'ف' => 'f',
+			'ق' => '2',
+			'ك' => 'k',
+			'ل' => 'l',
+			'م' => 'm',
+			'ن' => 'n',
+			'ه' => 'h',
+			'ة' => 'a',
+			'و' => 'w',
+			'ي' => 'y',
+			'ى' => 'y',
+			'ئ' => 'y',
+
+			'پ‎' => 'p',
+			'چ' => 'j',
+			'ڜ‎' => 'ch',
+			'ڥ' => 'v',
+			'ڤ' => 'v',
+			'ݣ' => 'g',
+			'گ' => 'g',
+			'ڨ' => 'g',
+
+			'؟' => '?',
+			'،' => ','
+		);
+
+		// Weird little accents and stuff that mess up a lot
+		$diacritics = array('ِ', 'ُ', 'ٓ', 'ٰ', 'ْ', 'ٌ', 'ٍ', 'ً', 'ّ', 'َ', 'ء');
+
+		$input = str_replace($diacritics, '', $input);
+
+		return str_replace(array_keys($chatAlphabet), array_values($chatAlphabet), $input);
+	}
+
+	/**
 	 * Converts 'Snøøp Düggy Døg' to 'Snoop Doggy Dog'
 	 * This method uses modified parts of code from WordPress.
 	 * (replace_accents):
@@ -88,6 +152,8 @@ class Garp_Util_String {
 		if (!preg_match('/[\x80-\xff]/', $string)) {
 			return $string;
 		}
+
+		$string = self::arabicToArabicChatAlphabet($string);
 
 		if (self::seemsUtf8($string)) {
 			$chars = array(
