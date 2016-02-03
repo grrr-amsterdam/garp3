@@ -59,8 +59,9 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 		$colsInSync = $this->_syncColumns($target);
 
 		$i18nTableFork = $this->_detectI18nTableFork();
+
 		if ($i18nTableFork) {
-			$dbManager = Garp_Spawn_MySql_Manager::getInstance();
+			$dbManager = Garp_Spawn_MySql_Manager::getInstance($this->_feedback);
 			$dbManager->onI18nTableFork($this->getModel());
 		}
 
