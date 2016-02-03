@@ -16,6 +16,7 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 
 	protected $_slugFieldConfig = array(
 		'type' => 'text',
+		'index' => true,
 		'maxLength' => 255,
 		'editable' => false,
 		'unique' => true,
