@@ -15,31 +15,34 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 	 * @var String
 	 */
 	protected $_extension = 'xls';
-	
-	
+
+
 	/**
 	 * Format a recordset
 	 * @param Garp_Model $model
 	 * @param Array $rowset
 	 * @return String
 	 */
-	protected function _format(Garp_Model $model, array $rowset) {
+	public function format(Garp_Model $model, array $rowset) {
 		require APPLICATION_PATH.'/../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel.php';
 		$phpexcel = new PHPExcel();
 		PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );
-		
+
 		// set metadata
 		$props = $phpexcel->getProperties();
 		if (Garp_Auth::getInstance()->isLoggedIn()) {
 			$userData = Garp_Auth::getInstance()->getUserData();
-			$view = Zend_Controller_Front::getInstance()->getParam('bootstrap')->getResource('view');
-			$userName = $view->fullName($userData);
-			$props->setCreator($userName)
-				->setLastModifiedBy($userName);
+			$bootstrap = Zend_Controller_Front::getInstance()->getParam('bootstrap');
+			if ($bootstrap) {
+				$view = $bootstrap->getResource('view');
+				$userName = $view->fullName($userData);
+				$props->setCreator($userName)
+					->setLastModifiedBy($userName);
+			}
 		}
 		$props->setTitle('Garp content export – '.$model->getName());
 
-		// add header (row containing column names) at row 1 
+		// add header (row containing column names) at row 1
 		$i = 1;
 		$this->_addRow($phpexcel, array_keys($rowset[0]), $i);
 		// add rows, from row 2
@@ -61,13 +64,13 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 				)
 			),
 		);
-		
+
 		// set autosize = true for every column, also add alternate styles to header cells
 		for ($i = 0, $colCount = count(array_keys($rowset[0])), $char = 'A'; $i < $colCount; $i++, $char++) {
 			$phpexcel->getActiveSheet()->getStyle($char.'1')->applyFromArray($styleArray);
 			$phpexcel->getActiveSheet()->getColumnDimension($char)->setAutoSize(true);
 		}
-		
+
 		/**
 		 * Hm, PHPExcel seems to only be able to write to a file (instead of returning
 		 * an XLS binary string). Therefore, we save a temporary file, read its contents
@@ -80,8 +83,8 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 		unlink($tmpFileName);
 		return $contents;
 	}
-	
-	
+
+
 	/**
 	 * Add row to spreadsheet
 	 * @param PHPExcel $phpexcel
@@ -105,5 +108,5 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 			}
 			$phpexcel->getActiveSheet()->setCellValueByColumnAndRow($colIndex, $rowIndex, $value);
 		}
-	}	
+	}
 }

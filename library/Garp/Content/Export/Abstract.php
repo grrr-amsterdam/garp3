@@ -39,7 +39,8 @@ abstract class Garp_Content_Export_Abstract {
 		);
 
 		if (!empty($params['fields'])) {
-			$fields = explode(',', $params['fields']);
+			$fields = is_array($params['fields']) ? $params['fields'] :
+ 			   	explode(',', $params['fields']);
 			$fetchOptions['fields'] = array_combine($fields, $fields);
 		}
 
@@ -95,7 +96,7 @@ abstract class Garp_Content_Export_Abstract {
 			);
 		}
 		$humanizedData = $this->_humanizeData($data, $model);
-		$formattedData = $this->_format($model, $humanizedData);
+		$formattedData = $this->format($model, $humanizedData);
 		return $formattedData;
 	}
 
@@ -123,7 +124,7 @@ abstract class Garp_Content_Export_Abstract {
 	 * @param Array $rowset
 	 * @return String
 	 */
-	abstract protected function _format(Garp_Model $model, array $rowset);
+	abstract public function format(Garp_Model $model, array $rowset);
 
 
 	/**
