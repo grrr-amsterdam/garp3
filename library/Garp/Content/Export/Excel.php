@@ -24,7 +24,7 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 	 * @return String
 	 */
 	public function format(Garp_Model $model, array $rowset) {
-		require APPLICATION_PATH.'/../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel.php';
+		require_once APPLICATION_PATH.'/../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel.php';
 		$phpexcel = new PHPExcel();
 		PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );
 
@@ -42,9 +42,28 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 		}
 		$props->setTitle('Garp content export – '.$model->getName());
 
+		if (count($rowset)) {
+			$this->_addContent($phpexcel, $model, $rowset);
+		}
+
+		/**
+		 * Hm, PHPExcel seems to only be able to write to a file (instead of returning
+		 * an XLS binary string). Therefore, we save a temporary file, read its contents
+		 * and return those, after which we unlink the temp file.
+		 */
+		$tmpFileName = APPLICATION_PATH.'/data/logs/tmp.xls';
+		$writer = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel5');
+		$writer->save($tmpFileName);
+		$contents = file_get_contents($tmpFileName);
+		unlink($tmpFileName);
+		return $contents;
+	}
+
+	protected function _addContent(PHPExcel $phpexcel, Garp_Model $model, array $rowset) {
 		// add header (row containing column names) at row 1
 		$i = 1;
 		$this->_addRow($phpexcel, array_keys($rowset[0]), $i);
+
 		// add rows, from row 2
 		foreach ($rowset as $row) {
 			$this->_addRow($phpexcel, $row, ++$i);
@@ -71,19 +90,7 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 			$phpexcel->getActiveSheet()->getColumnDimension($char)->setAutoSize(true);
 		}
 
-		/**
-		 * Hm, PHPExcel seems to only be able to write to a file (instead of returning
-		 * an XLS binary string). Therefore, we save a temporary file, read its contents
-		 * and return those, after which we unlink the temp file.
-		 */
-		$tmpFileName = APPLICATION_PATH.'/data/logs/tmp.xls';
-		$writer = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel5');
-		$writer->save($tmpFileName);
-		$contents = file_get_contents($tmpFileName);
-		unlink($tmpFileName);
-		return $contents;
 	}
-
 
 	/**
 	 * Add row to spreadsheet
