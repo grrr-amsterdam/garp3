@@ -131,12 +131,19 @@ class Garp_Auth {
 	 * @return String
 	 */
 	public function createToken($input) {
+		$slack = new Garp_Service_Slack();
+		$slackDebug = "Token Creation Debug:\n";
+
 		$config = $this->getConfigValues();
 		$salt   = $config['salt'];
+		$slackDebug .= "*Salt*: $salt\n";
 
 		$token  = '';
 		$token .= !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$slackDebug .= "*User Agent*: $token\n";
 		$token .= md5($input);
+		$slackDebug .= "*Input*: $input\n";
+		$slackDebug .= "*Unserialized input*: " . print_r(unserialize($input), true) . "\n";
 		$token .= md5($salt);
 
 		/**
@@ -150,12 +157,17 @@ class Garp_Auth {
 			$userModel = new Model_User();
 			$columns = $userModel->info(Zend_Db_Table_Abstract::COLS);
 			$columns = implode('.', $columns);
+			$slackDebug .= "*Columns*: " . $columns . "\n";
 		} catch (Zend_Db_Adapter_Exception $e) {
+			$slackDebug .= "*Columns*: failed: " . $e->getMessage() . "\n";
 			Garp_ErrorHandler::handlePrematureException($e);
 		}
 
 		$token .= $columns;
 		$token = md5($token);
+		$slackDebug .= "*Final token*: $token\n";
+
+		$slack->postMessage($slackDebug);
 
 		return $token;
 	}
