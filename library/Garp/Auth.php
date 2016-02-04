@@ -168,7 +168,9 @@ class Garp_Auth {
 		$token = md5($token);
 		$slackDebug .= "*Final token*: $token\n";
 
-		$slack->postMessage($slackDebug);
+		if (unserialize($input)) {
+			$slack->postMessage($slackDebug);
+		}
 
 		return $token;
 	}
