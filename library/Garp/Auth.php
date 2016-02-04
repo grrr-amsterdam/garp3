@@ -140,7 +140,7 @@ class Garp_Auth {
 
 		$token  = '';
 		$slackDebug .= "*HOST*: " . $_SERVER['HTTP_HOST'] . "\n";
-		$token .= !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		//$token .= !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		$slackDebug .= "*User Agent*: $token\n";
 		$token .= md5($input);
 		$slackDebug .= "*Input*: $input\n";
