@@ -209,6 +209,12 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 		$newCreateDbSql = sprintf(self::SQL_CREATE_DB_STATEMENT, $thisDbName);
 		$dump 			= str_replace($oldCreateDbSql, $newCreateDbSql, $dump);
 
+		// Fixes an incompatibility issue between MySQL 5.1 and 5.6, where keys can have comments.
+		// Note that this only fixes keys that get a null comment from mysqldump, not keys with
+		// actual comments. But who would ever do that?
+		// @see http://9seeds.com/tech/import-export-issues-between-mysql-5-1-and-5-6/
+		$dump = str_replace(" COMMENT '(null)'", '', $dump);
+
 		//	preg_replace seems to be way too demanding for large (180 MB) mysqldump files. Using str_replace now.
 	}
 

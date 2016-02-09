@@ -16,14 +16,14 @@ class Garp_Content_Export_Csv extends Garp_Content_Export_Abstract {
 	 */
 	protected $_extension = 'csv';
 
-	
+
 	/**
 	 * Format a recordset
 	 * @param Garp_Model $model
 	 * @param Array $rowset
 	 * @return String
 	 */
-	protected function _format(Garp_Model $model, array $rowset) {
+	public function format(Garp_Model $model, array $rowset) {
 		$out = '';
 		// add fields
 		$fields = array_keys($rowset[0]);
@@ -32,12 +32,12 @@ class Garp_Content_Export_Csv extends Garp_Content_Export_Abstract {
 			$outFields[] = $this->_escape($field);
 		}
 		$out .= implode(',', $outFields)."\n";
-		
+
 		// values
 		foreach ($rowset as $i => $row) {
 			$outValues = array();
 			foreach ($row as $key => $value) {
-				// In the case of related hasMany or hasAndBelongsToMany 
+				// In the case of related hasMany or hasAndBelongsToMany
 				// rowsets...
 				if (is_array($value)) {
 					$rowset = $value;
@@ -58,8 +58,8 @@ class Garp_Content_Export_Csv extends Garp_Content_Export_Abstract {
 		}
 		return $out;
 	}
-	
-	
+
+
 	/**
 	 * Make sure a field is valid as per the CSV spec
 	 * @param String $str The string
