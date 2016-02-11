@@ -584,6 +584,9 @@ Garp.flashMessage = function(){
 			var date = new Date();
 			date.setHours(date.getHours(-1));
 			value += ((date===null) ? "" : "; expires="+date.toGMTString());
+			if (typeof COOKIEDOMAIN !== 'undefined') {
+				value += '; domain=' + escape(COOKIEDOMAIN);
+			}
 			document.cookie='FlashMessenger' + "=" + value;
 			return true;
 		}
