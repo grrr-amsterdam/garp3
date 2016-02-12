@@ -52,6 +52,14 @@ class Garp_Mailer {
 			$mail->setReplyTo($params['replyTo']);
 		}
 
+		if (!empty($params['cc'])) {
+			$mail->addCc($params['cc']);
+		}
+
+		if (!empty($params['bcc'])) {
+			$mail->addBcc($params['bcc']);
+		}
+
 		$this->addAttachments($attachments);
 		$mimeParts = array_map(array($this, '_attachmentToMimePart'), $this->_attachments);
 		array_walk($mimeParts, array($mail, 'addAttachment'));
