@@ -10,15 +10,11 @@ $modelSet       = $this->modelSet;
  * @return 	String 	The English label for the given language id
  */
 $getLanguageLabel = function($language) {
-	switch ($language) {
-		case 'nl': return 'Dutch';
-		case 'en': return 'English';
-		case 'fr': return 'French';
-		case 'de': return 'German';
-		case 'it': return 'Italian';
-		case 'es': return 'Spanish';
-		case 'pt': return 'Portuguese';
+	$list = Zend_Locale::getTranslationList('language', 'en');
+	if (isset($list[$language])) {
+		return $list[$language];
 	}
+	return $language;
 };
 
 $isExcludedField = function(Garp_Spawn_Field $field) use ($excludedFields) {
