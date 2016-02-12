@@ -69,6 +69,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$userModel = new Model_User();
 		try {
 			// Before register hook
+
 			$this->_beforeRegister($postData);
 
 			// Extract columns that are not part of the user model
