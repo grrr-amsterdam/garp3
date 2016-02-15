@@ -5,6 +5,8 @@
  * @package Garp
  */
 class Garp_File {
+	const EXCEPTION_CDN_READONLY =
+		'You cannot upload or remove files here, CDN is configured read-only';
 
 	/**
 	 * Constants that are used for filetypes
@@ -82,20 +84,39 @@ class Garp_File {
 			throw new BadMethodCallException('Call to undefined method ' .
 				get_class($this) . '::' . $method);
 		}
-		if ($method == 'store') {
-			$filename = $args[0];
-			// Check for filename that's only an extension (".jpg")
-			if ($filename[0] === '.' && strrpos($filename, '.') === 0) {
-				// Arbitrarily cast filename to current time
-				$args[0] = time() . $filename;
-			}
-
-			if (!array_key_exists(3, $args) || $args[3]) {
-				$this->_restrictExtension($filename);
-			}
-		}
 
 		return call_user_func_array(array($this->_storage, $method), $args);
+	}
+
+	public function store($filename, $data, $overwrite = false, $formatFilename = true) {
+		if (!$this->_storage) {
+			$this->_initStorage($this->_getIni());
+		}
+		$ini = $this->_getIni();
+		if ($ini->cdn->readonly) {
+			throw new Garp_File_Exception(self::EXCEPTION_CDN_READONLY);
+		}
+		// Check for filename that's only an extension (".jpg")
+		if ($filename[0] === '.' && strrpos($filename, '.') === 0) {
+			// Arbitrarily cast filename to current time
+			$filename = time() . $filename;
+		}
+
+		if ($formatFilename) {
+			$this->_restrictExtension($filename);
+		}
+		return $this->_storage->store($filename, $data, $overwrite, $formatFilename);
+	}
+
+	public function remove($filename) {
+		if (!$this->_storage) {
+			$this->_initStorage($this->_getIni());
+		}
+		$ini = $this->_getIni();
+		if ($ini->cdn->readonly) {
+			throw new Garp_File_Exception(self::EXCEPTION_CDN_READONLY);
+		}
+		return $this->_storage->remove($filename);
 	}
 
 	public static function formatFilename($filename) {
@@ -203,6 +224,12 @@ class Garp_File {
 
 		    return $val / 1024 / 1024;
 		} else throw new Exception("Could not retrieve the maximum filesize for uploads.");
+	}
+
+	public function clearContext() {
+		static::$_cachedStorage = array();
+		$this->_storage = null;
+		self::$_config = null;
 	}
 
 	protected function _getExtension($filename) {
