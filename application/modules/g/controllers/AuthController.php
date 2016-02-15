@@ -173,8 +173,9 @@ class G_AuthController extends Garp_Controller_Action {
 		$adapter = Garp_Auth_Factory::getAdapter($method);
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
 
+		$postData = $this->getRequest()->getPost();
 		// Before login hook.
-		$this->_beforeLogin($authVars, $adapter);
+		$this->_beforeLogin($authVars, $adapter, $postData);
 
 		/**
 		 * Params can come from GET or POST.
@@ -526,9 +527,9 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @param Garp_Auth_Adapter_Abstract $adapter The chosen adapter.
 	 * @return Void
 	 */
-	protected function _beforeLogin(array $authVars, Garp_Auth_Adapter_Abstract $adapter) {
+	protected function _beforeLogin(array $authVars, Garp_Auth_Adapter_Abstract $adapter, array $postData) {
 		if ($loginHelper = $this->_getLoginHelper()) {
-			$loginHelper->beforeLogin($authVars, $adapter);
+			$loginHelper->beforeLogin($authVars, $adapter, $postData);
 		}
 	}
 

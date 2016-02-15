@@ -43,6 +43,9 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 				$token = $consumer->getRequestToken();
 				$cookie = new Garp_Store_Cookie('Twitter_request_token');
 				$cookie->token = serialize($token);
+				if (!empty($this->_extendedUserColumns)) {
+					$cookie->extendedUserColumns = serialize($this->_extendedUserColumns);
+				}
 				$cookie->writeCookie();
 				$consumer->redirect();
 				return true;
@@ -51,6 +54,10 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 			if ($request->getParam('oauth_token') && isset($cookie->token)) {
 				$accesstoken = $consumer->getAccessToken($_GET, unserialize($cookie->token));
 				// Discard request token
+				if ($cookie->extendedUserColumns) {
+					$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));	
+				}
+				
 				$cookie->destroy();
 				return $this->_getUserData(
 					$this->_getTwitterService($accesstoken, $authVars->consumerKey, $authVars->consumerSecret),

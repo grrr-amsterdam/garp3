@@ -42,6 +42,9 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 			if ($request->isPost()) {
 				$token = $consumer->getRequestToken();
 				$cookie = new Garp_Store_Cookie('Vimeo_request_token');
+				if (!empty($this->_extendedUserColumns)) {
+					$cookie->extendedUserColumns = serialize($this->_extendedUserColumns);
+				}
 				$cookie->token = serialize($token);
 				$cookie->writeCookie();
 				$consumer->redirect();
@@ -50,6 +53,9 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 				$cookie = new Garp_Store_Cookie('Vimeo_request_token');
 				if (isset($cookie->token)) {
 					$accesstoken = $consumer->getAccessToken($_GET, unserialize($cookie->token));
+					if ($cookie->extendedUserColumns) {
+						$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));
+					}
 					// Discard request token
 					$cookie->destroy();
 					return $this->_getUserData($accesstoken);
