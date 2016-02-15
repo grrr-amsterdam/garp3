@@ -77,10 +77,10 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 * @param String $cookieDomain
  	 * @return Void
  	 */
-	public function __construct($namespace, $cookieDuration = self::DEFAULT_COOKIE_DURATION,
+	public function __construct($namespace, $cookieDuration = false,
  	   	$cookiePath = self::DEFAULT_COOKIE_PATH, $cookieDomain = false) {
 		$this->_namespace = $namespace;
-		$this->_cookieDuration = $cookieDuration;
+		$this->_cookieDuration = $cookieDuration ?: self::DEFAULT_COOKIE_DURATION;
 		$this->_cookiePath = $cookiePath;
 		$this->_cookieDomain = $cookieDomain ?: $this->_getCookieDomain();
 
