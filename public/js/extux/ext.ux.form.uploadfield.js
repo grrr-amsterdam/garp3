@@ -133,7 +133,11 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 				var result = Ext.decode(iframe.dom.contentDocument.body.innerHTML);
 				if(!result || !result.success){
 					//scope.setValue(scope.originalValue);
-					Ext.Msg.alert(__('Garp'), __('Error uploading file.'));
+					var msg = '';
+					if (result.messages) {
+						msg = result.messages.join('<br />');
+					}
+					Ext.Msg.alert(__('Error'), '<b>' + __('Error uploading file') + '</b>' + (msg ? ':<br />' + msg : ''));
 				} else {
 					scope.setValue(result.filename);
 					scope.fireEvent('change', scope, result.filename);
@@ -195,7 +199,10 @@ Ext.ux.form.UploadField = Ext.extend(Ext.ux.form.FileUploadField, {
 							scope.setValue(response.filename);
 							scope.fireEvent('change', scope, response.filename);
 						} else {
-							error();
+							if (Ext.isArray(response.messages)) {
+								response.messages = response.messages.join('<br>');
+							}
+							error(__('Error'), response.messages);
 						}
 					}, false);
 					xhr.addEventListener('error', function(e){

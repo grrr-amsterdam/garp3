@@ -19,7 +19,8 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 
 	protected $_configKey = 'linkedin';
 
-	public function authenticate(Zend_Controller_Request_Abstract $request) {
+	public function authenticate(Zend_Controller_Request_Abstract $request,
+		Zend_Controller_Response_Abstract $response) {
 		if ($request->getParam('error')) {
 			$this->_addError($request->getParam('error_description'));
 			return false;

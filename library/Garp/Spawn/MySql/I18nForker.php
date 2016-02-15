@@ -24,8 +24,15 @@ class Garp_Spawn_MySql_I18nForker {
 	 */
 	protected $_target;
 
+	/**
+ 	 * @var Garp_Cli_Protocol
+ 	 */
+	protected $_feedback;
 
-	public function __construct(Garp_Spawn_Model_Base $model) {
+
+	public function __construct(Garp_Spawn_Model_Base $model, Garp_Cli_Ui_Protocol $feedback = null) {
+		$this->setFeedback($feedback);
+
 		$tableFactory = new Garp_Spawn_MySql_Table_Factory($model);
 
 		$this->setModel($model);
@@ -39,6 +46,14 @@ class Garp_Spawn_MySql_I18nForker {
 
 		$sql = $this->_renderContentMigrationSql();
 		$this->_executeSql($sql);
+	}
+
+	public function setFeedback(Garp_Cli_Ui_Protocol $feedback) {
+		$this->_feedback = $feedback;
+	}
+
+	public function getFeedback() {
+		return $this->_feedback;
 	}
 
 	/**
@@ -92,6 +107,17 @@ class Garp_Spawn_MySql_I18nForker {
 		$tableFactory = new Garp_Spawn_MySql_Table_Factory($this->getModel()->getI18nModel());
 		$table        = $tableFactory->produceConfigTable();
 
+
+		if (!Garp_Spawn_MySql_Table_Base::exists($table->name)) {
+			$table->create();
+		} else {
+			// Make sure an existing table is updated
+			$baseSynchronizer = new Garp_Spawn_MySql_Table_Synchronizer(
+				$this->getModel()->getI18nModel(), $this->getFeedback());
+			$baseSynchronizer->sync(false);
+		}
+
+		/*
 		if (
 			!Garp_Spawn_MySql_Table_Base::exists($table->name) &&
 			!$table->create()
@@ -99,6 +125,7 @@ class Garp_Spawn_MySql_I18nForker {
 			$error = sprintf(self::ERROR_CANT_CREATE_TABLE, $table->name);
 			throw new Exception($error);
 		}
+		 */
 
 	}
 
@@ -132,12 +159,18 @@ class Garp_Spawn_MySql_I18nForker {
 				"`{$i18nTableName}`.`{$relationColumnName}` = `{$target->name}`.`id` AND " .
 				"`lang` = '{$language}'";
 		}
-
 		return $statement;
 	}
 
 	protected function _tableHasRecords($tableName) {
-		return Zend_Db_Table::getDefaultAdapter()->query("SELECT COUNT(*) FROM {$tableName}");
+		$stmt = Zend_Db_Table::getDefaultAdapter()->query(
+			"SELECT COUNT(*) AS `count` FROM {$tableName}");
+		$rows = $stmt->fetchAll();
+		if (!isset($rows[0]['count'])) {
+			return;
+		}
+		$count = $rows[0]['count'];
+		return intval($count) > 0;
 	}
 
 	protected function _getSqlSetStatementsForUpdate($fromTable, $toTable, $columns) {

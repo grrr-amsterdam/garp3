@@ -9,6 +9,7 @@
 class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	protected $_mockUser = array(
 		'first_name' => 'Harmen',
+		'last_name' => 'Janssen',
 		'email' => 'harmen@grrr.nl',
 		'password' => 'supersecret',
 		'role' => 'user'

@@ -33,9 +33,11 @@ abstract class Garp_Auth_Adapter_Abstract {
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
+	 * @param Zend_Controller_Response_Abstract $response The current response
 	 * @return Array|Boolean User data, or FALSE
 	 */
-	abstract public function authenticate(Zend_Controller_Request_Abstract $request);
+	abstract public function authenticate(Zend_Controller_Request_Abstract $request,
+		Zend_Controller_Response_Abstract $response);
 
 	/**
 	 * Fetch user data. We never store all the user data in the session, just

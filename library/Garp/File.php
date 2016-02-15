@@ -5,6 +5,8 @@
  * @package Garp
  */
 class Garp_File {
+	const EXCEPTION_CDN_READONLY =
+		'You cannot upload or remove files here, CDN is configured read-only';
 
 	/**
 	 * Constants that are used for filetypes
@@ -55,7 +57,6 @@ class Garp_File {
 	* @param Boolean $uploadOrStatic Options: 'upload' or 'static'. Whether this upload is a user upload, stored in the uploads directory, or a static file used in the site.
 	*/
 	public function __construct($uploadType = null, $uploadOrStatic = null) {
-		$ini = $this->_getIni();
 		$this->validateUploadType($uploadType);
 		$this->_validateUploadOrStatic($uploadOrStatic);
 
@@ -63,30 +64,59 @@ class Garp_File {
 			$this->_uploadOrStatic = $uploadOrStatic;
 		}
 
-		$this->_path = $this->_getPath($ini, $uploadType);
-		$this->_initStorage($ini);
+		$this->setPath($this->_getPathFromConfig($uploadType));
+	}
+
+	public function setPath($path) {
+		$this->_path = $path;
+	}
+
+	public function getPath() {
+		return $this->_path;
 	}
 
 	/** Make public methods of the Garp_File_Storage object available. */
 	public function __call($method, $args) {
+		if (!$this->_storage) {
+			$this->_initStorage($this->_getIni());
+		}
 		if (!method_exists($this->_storage, $method)) {
 			throw new BadMethodCallException('Call to undefined method ' .
 				get_class($this) . '::' . $method);
 		}
-		if ($method == 'store') {
-			$filename = $args[0];
-			// Check for filename that's only an extension (".jpg")
-			if ($filename[0] === '.' && strrpos($filename, '.') === 0) {
-				// Arbitrarily cast filename to current time
-				$args[0] = time() . $filename;
-			}
-
-			if (!array_key_exists(3, $args) || $args[3]) {
-				$this->_restrictExtension($filename);
-			}
-		}
 
 		return call_user_func_array(array($this->_storage, $method), $args);
+	}
+
+	public function store($filename, $data, $overwrite = false, $formatFilename = true) {
+		if (!$this->_storage) {
+			$this->_initStorage($this->_getIni());
+		}
+		$ini = $this->_getIni();
+		if ($ini->cdn->readonly) {
+			throw new Garp_File_Exception(self::EXCEPTION_CDN_READONLY);
+		}
+		// Check for filename that's only an extension (".jpg")
+		if ($filename[0] === '.' && strrpos($filename, '.') === 0) {
+			// Arbitrarily cast filename to current time
+			$filename = time() . $filename;
+		}
+
+		if ($formatFilename) {
+			$this->_restrictExtension($filename);
+		}
+		return $this->_storage->store($filename, $data, $overwrite, $formatFilename);
+	}
+
+	public function remove($filename) {
+		if (!$this->_storage) {
+			$this->_initStorage($this->_getIni());
+		}
+		$ini = $this->_getIni();
+		if ($ini->cdn->readonly) {
+			throw new Garp_File_Exception(self::EXCEPTION_CDN_READONLY);
+		}
+		return $this->_storage->remove($filename);
 	}
 
 	public static function formatFilename($filename) {
@@ -196,6 +226,12 @@ class Garp_File {
 		} else throw new Exception("Could not retrieve the maximum filesize for uploads.");
 	}
 
+	public function clearContext() {
+		static::$_cachedStorage = array();
+		$this->_storage = null;
+		self::$_config = null;
+	}
+
 	protected function _getExtension($filename) {
 		$filenameParts = explode('.', $filename);
 		if (count($filenameParts) >1) {
@@ -203,7 +239,8 @@ class Garp_File {
 		} else throw new Exception("The provided filename does not have an extension. Please use the appropriate 3-character extension (such as .jpg, .png) after your filename.");
 	}
 
-	protected function _getPath($ini, $uploadType) {
+	protected function _getPathFromConfig($uploadType) {
+		$ini = $this->_getIni();
 		return !$uploadType ?
 			$ini->cdn->path->{$this->_uploadOrStatic}->{$this->_defaultUploadType} :
 			$ini->cdn->path->{$this->_uploadOrStatic}->{$uploadType}

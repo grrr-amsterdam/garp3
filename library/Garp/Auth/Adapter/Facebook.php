@@ -16,9 +16,11 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
+	 * @param Zend_Controller_Response_Abstract $response The current response
 	 * @return Array|Boolean User data, or FALSE
 	 */
-	public function authenticate(Zend_Controller_Request_Abstract $request) {
+	public function authenticate(Zend_Controller_Request_Abstract $request,
+		Zend_Controller_Response_Abstract $response) {
 		$facebook = $this->_getFacebookClient();
 		$authVars = $this->_getAuthVars();
 

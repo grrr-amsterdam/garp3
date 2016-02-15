@@ -8,7 +8,8 @@
 Ext.form.CKEditor = function(config) {
     this.config = config;
 
-    config.CKEditor = {
+
+    config.CKEditor = window.WYSIWYG_CKEDITOR_CONFIG || {
         // Allow only these tags (=true for all of them)
         allowedContent: true,
 		customConfig: '',

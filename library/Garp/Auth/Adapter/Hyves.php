@@ -11,14 +11,16 @@
  */
 class Garp_Auth_Adapter_Hyves extends Garp_Auth_Adapter_OpenId {
 	protected $_configKey = 'hyves';
-	
-	
+
+
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
+	 * @param Zend_Controller_Response_Abstract $response The current response
 	 * @return Array|Boolean User data, or FALSE
 	 */
-	public function authenticate(Zend_Controller_Request_Abstract $request) {
+	public function authenticate(Zend_Controller_Request_Abstract $request,
+		Zend_Controller_Response_Abstract $response) {
 		$this->setSreg(new Zend_OpenId_Extension_Sreg(
 			array(
 	            "nickname"	=> true,
@@ -32,7 +34,7 @@ class Garp_Auth_Adapter_Hyves extends Garp_Auth_Adapter_OpenId {
 			null,
 			1.1
 		));
-		
+
 		return parent::authenticate($request);
 	}
 }
