@@ -154,7 +154,7 @@ class Garp_Spawn_MySql_Manager {
 	 * This method is called by Garp_Spawn_MySql_Table_Base when that happens.
 	 */
 	public function onI18nTableFork(Garp_Spawn_Model_Base $model) {
-		new Garp_Spawn_MySql_I18nForker($model);
+		new Garp_Spawn_MySql_I18nForker($model, $this->_feedback);
 	}
 
 	/**

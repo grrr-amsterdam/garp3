@@ -15,15 +15,15 @@ class Garp_Content_Export_Html extends Garp_Content_Export_Abstract {
 	 * @var String
 	 */
 	protected $_extension = 'html';
-	
-	
+
+
 	/**
 	 * Format a recordset
 	 * @param Garp_Model $model
 	 * @param Array $rowset
 	 * @return String
 	 */
-	protected function _format(Garp_Model $model, array $rowset) {
+	public function format(Garp_Model $model, array $rowset) {
 		$view = new Zend_View();
 		$view->setScriptPath(GARP_APPLICATION_PATH.'/modules/g/views/scripts/content/export/');
 		$view->data = $rowset;
