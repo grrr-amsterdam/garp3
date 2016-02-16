@@ -384,6 +384,9 @@ class G_ContentController extends Garp_Controller_Action {
 	 */
 	public function exportAction() {
 		Zend_Registry::set('CMS', true);
+		$mem = new Garp_Util_Memory();
+		$mem->useHighMemory();
+
 		$params = new Garp_Util_Configuration($this->getRequest()->getParams());
 		// make sure some required parameters are in place
 		$params->obligate('exporttype')
