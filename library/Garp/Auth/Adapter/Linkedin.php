@@ -61,7 +61,6 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 			}
 			$this->_addError(APPLICATION_ENV === 'development' ? $e->getMessage() :
  			   	__('login error'));
-			throw $e;
 			return false;
 		}
 	}
