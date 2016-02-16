@@ -24,7 +24,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		$facebook = $this->_getFacebookClient();
 		$authVars = $this->_getAuthVars();
 
-		$cookie = new Garp_Store_Cookie('Facebook_Oauth_Helper');
+		$cookie = new Garp_Store_Cookie('Garp_Auth');
 		/**
 		 * Send the user to Facebook to login and give us access.
 		 * This happens when the form on the login page gets posted.
@@ -50,8 +50,8 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		try {
 			if ($cookie->extendedUserColumns) {
 				$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));	
+				$cookie->destroy('extendedUserColumns');
 			}
-			$cookie->destroy();
 			$userData = $facebook->login(!!$authVars->grabUserImage);
 			$userData = $this->_getUserData($userData);
 

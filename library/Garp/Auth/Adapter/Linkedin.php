@@ -27,14 +27,14 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 		}
 
 		try {
-			$cookie = new Garp_Store_Cookie('LinkedIn_Oauth_Helper');
+			$cookie = new Garp_Store_Cookie('Garp_Auth');
 			// User returns from LinkedIn and has authorized the app
 			if ($request->getParam('code')) {
 				$accessToken = $this->_getLinkedInInstance()->getAccessToken($request->getParam('code'));
 				if ($cookie->extendedUserColumns) {
 					$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));	
+					$cookie->destroy('extendedUserColumns');
 				}
-				$cookie->destroy();
 
 				return $this->_getUserData($accessToken);
 			}
