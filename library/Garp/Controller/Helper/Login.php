@@ -26,7 +26,7 @@ class Garp_Controller_Helper_Login extends Zend_Controller_Action_Helper_Abstrac
  	 * @param String $targetUrl The URL the user is being redirected to
  	 * @return Void
  	 */
-	public function afterLogin(array $userData, $targetUrl) {
+	public function afterLogin(array $userData, &$targetUrl) {
 	}
 
 

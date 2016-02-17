@@ -21,9 +21,11 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
+	 * @param Zend_Controller_Response_Abstract $response The current response
 	 * @return Array|Boolean User data, or FALSE
 	 */
-	public function authenticate(Zend_Controller_Request_Abstract $request) {
+	public function authenticate(Zend_Controller_Request_Abstract $request,
+		Zend_Controller_Response_Abstract $response) {
 		$callbackUrl = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://').$_SERVER['HTTP_HOST'].$request->getBaseUrl().'/g/auth/login/process/twitter';
 		$authVars = $this->_getAuthVars();
 		if (!$authVars->consumerKey || !$authVars->consumerSecret) {
@@ -39,17 +41,25 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 			$consumer = new Zend_Oauth_Consumer($config);
 			if ($request->isPost()) {
 				$token = $consumer->getRequestToken();
-				$cookie = new Garp_Store_Cookie('Twitter_request_token');
+				$cookie = new Garp_Store_Cookie('Garp_Auth');
 				$cookie->token = serialize($token);
+				if (!empty($this->_extendedUserColumns)) {
+					$cookie->extendedUserColumns = serialize($this->_extendedUserColumns);
+				}
 				$cookie->writeCookie();
 				$consumer->redirect();
 				return true;
 			}
-			$cookie = new Garp_Store_Cookie('Twitter_request_token');
+			$cookie = new Garp_Store_Cookie('Garp_Auth');
 			if ($request->getParam('oauth_token') && isset($cookie->token)) {
 				$accesstoken = $consumer->getAccessToken($_GET, unserialize($cookie->token));
 				// Discard request token
-				$cookie->destroy();
+				if ($cookie->extendedUserColumns) {
+					$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));
+					$cookie->destroy('extendedUserColumns');	
+				}
+				$cookie->destroy('oauth_token');
+
 				return $this->_getUserData(
 					$this->_getTwitterService($accesstoken, $authVars->consumerKey, $authVars->consumerSecret),
 					$accesstoken->getParam('user_id')

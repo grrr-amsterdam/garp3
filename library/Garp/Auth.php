@@ -135,7 +135,7 @@ class Garp_Auth {
 		$salt   = $config['salt'];
 
 		$token  = '';
-		$token .= !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		//$token .= !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		$token .= md5($input);
 		$token .= md5($salt);
 

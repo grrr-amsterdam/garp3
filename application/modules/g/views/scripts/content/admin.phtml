@@ -44,6 +44,7 @@ LANGUAGES = ['<?php echo implode("', '", Garp_I18n::getLocales()); ?>'];
 DEFAULT_LANGUAGE = '<?php echo Garp_I18n::getDefaultLocale(); ?>';
 CURRENT_LANGUAGE = '<?php echo Garp_I18n::getCurrentLocale(); ?>';
 CKEDITOR_BASEPATH = ASSET_URL + "js/garp/ckeditor/";
+COOKIEDOMAIN = <?php echo isset($this->config()->app->cookiedomain) ? '"' . $this->config()->app->cookiedomain . '"' : 'undefined' ?>;
 </script>
 
 <?php

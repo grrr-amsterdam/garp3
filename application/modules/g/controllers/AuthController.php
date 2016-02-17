@@ -69,6 +69,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$userModel = new Model_User();
 		try {
 			// Before register hook
+
 			$this->_beforeRegister($postData);
 
 			// Extract columns that are not part of the user model
@@ -139,8 +140,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$this->view->description = __('login page description');
 
 		// allow callers to set a targetUrl via the request
-		if ($this->getRequest()->getParam('targetUrl')) {
-			$targetUrl = $this->getRequest()->getParam('targetUrl');
+		if ($targetUrl = $this->_getSubmittedTargetUrl()) {
 			Garp_Auth::getInstance()->getStore()->targetUrl = $targetUrl;
 		}
 
@@ -160,6 +160,11 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @return Void
 	 */
 	public function processAction() {
+		// allow callers to set a targetUrl via the request
+		if ($targetUrl = $this->_getSubmittedTargetUrl()) {
+			Garp_Auth::getInstance()->getStore()->targetUrl = $targetUrl;
+		}
+
 		// never cache the process request
 		$this->_helper->cache->setNoCacheHeaders($this->getResponse());
 		// This action does not render a view, it only redirects elsewhere.
@@ -168,16 +173,24 @@ class G_AuthController extends Garp_Controller_Action {
 		$adapter = Garp_Auth_Factory::getAdapter($method);
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
 
+		$postData = $this->getRequest()->getPost();
 		// Before login hook.
-		$this->_beforeLogin($authVars, $adapter);
+		$this->_beforeLogin($authVars, $adapter, $postData);
 
 		/**
 		 * Params can come from GET or POST.
 		 * The implementing adapter should decide which to use,
 		 * using the current request to fetch params.
 		 */
-		if (!$userData = $adapter->authenticate($this->getRequest())) {
+		if (!$userData = $adapter->authenticate($this->getRequest(), $this->getResponse())) {
 			$this->_respondToFaultyProcess($adapter);
+			return;
+		}
+
+		$this->_helper->viewRenderer->setNoRender(true);
+
+		// Check if adapter issued a redirect (as is the case with oAuth for instance)
+		if ($this->getResponse()->isRedirect()) {
 			return;
 		}
 
@@ -223,7 +236,6 @@ class G_AuthController extends Garp_Controller_Action {
 			));
 		}
 		$flashMessenger->addMessage($successMsg);
-		$this->_helper->viewRenderer->setNoRender(true);
 		$this->_redirect($targetUrl);
 	}
 
@@ -395,7 +407,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$request = $this->getRequest();
 		$activationCode = $request->getParam('c');
 		$activationEmail = $request->getParam('e');
-		$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
+		$emailValidColumn = $authVars['validateemail']['email_valid_column'];
 
 		if (!$activationEmail || !$activationCode) {
 			throw new Zend_Controller_Action_Exception('Invalid request.', 404);
@@ -406,7 +418,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$userModel->setCacheQueries(false);
 		$activationCodeClause =
 			'MD5(CONCAT('.
-				$userModel->getAdapter()->quoteIdentifier($authVars['validateEmail']['token_column']).','.
+				$userModel->getAdapter()->quoteIdentifier($authVars['validateemail']['token_column']).','.
 				'MD5(email),'.
 				'MD5('.$userModel->getAdapter()->quote($authVars['salt']).'),'.
 				'MD5(id)'.
@@ -446,6 +458,7 @@ class G_AuthController extends Garp_Controller_Action {
 	 */
 	protected function _setViewSettings($action) {
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
+		
 		if (!isset($authVars[$action])) {
 			return;
 		}
@@ -514,9 +527,9 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @param Garp_Auth_Adapter_Abstract $adapter The chosen adapter.
 	 * @return Void
 	 */
-	protected function _beforeLogin(array $authVars, Garp_Auth_Adapter_Abstract $adapter) {
+	protected function _beforeLogin(array $authVars, Garp_Auth_Adapter_Abstract $adapter, array $postData) {
 		if ($loginHelper = $this->_getLoginHelper()) {
-			$loginHelper->beforeLogin($authVars, $adapter);
+			$loginHelper->beforeLogin($authVars, $adapter, $postData);
 		}
 	}
 
@@ -526,7 +539,7 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @param String $targetUrl The URL the user is being redirected to
 	 * @return Void
 	 */
-	protected function _afterLogin(array $userData, $targetUrl) {
+	protected function _afterLogin(array $userData, &$targetUrl) {
 		if ($loginHelper = $this->_getLoginHelper()) {
 			$loginHelper->afterLogin($userData, $targetUrl);
 		}
@@ -613,5 +626,10 @@ class G_AuthController extends Garp_Controller_Action {
 			$snippetModel = $i18nModelFactory->getModel($snippetModel);
 		}
 		return $snippetModel;
+	}
+
+	protected function _getSubmittedTargetUrl() {
+		return $this->getRequest()->getPost('targetUrl') ?:
+			$this->getRequest()->getParam('targetUrl');
 	}
 }

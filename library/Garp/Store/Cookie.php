@@ -13,7 +13,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 * @var Int
  	 * @todo Make this configurable, right now it's set to 30 days
  	 */
-	const DEFAULT_COOKIE_DURATION = 2592000; 
+	const DEFAULT_COOKIE_DURATION = 2592000;
 
 	/**
  	 * Cookie save path
@@ -52,13 +52,13 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 * the current domain.
  	 * @var String
  	 */
-	protected $_cookieDomain = ''; 
+	protected $_cookieDomain = '';
 
 	/**
  	 * Record wether changes are made to the cookie
  	 * @var Boolean
  	 */
-	protected $_modified = false; 
+	protected $_modified = false;
 
 	/**
  	 * Check if a cookie is available
@@ -71,52 +71,24 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
 	/**
  	 * Class constructor
- 	 * @param String $namespace 
+ 	 * @param String $namespace
  	 * @param String $cookieDuration
  	 * @param String $cookiePath
  	 * @param String $cookieDomain
  	 * @return Void
  	 */
-	public function __construct($namespace, $cookieDuration = self::DEFAULT_COOKIE_DURATION, $cookiePath = self::DEFAULT_COOKIE_PATH, $cookieDomain = false) {
+	public function __construct($namespace, $cookieDuration = false,
+ 	   	$cookiePath = self::DEFAULT_COOKIE_PATH, $cookieDomain = false) {
 		$this->_namespace = $namespace;
-		$this->_cookieDuration = $cookieDuration;
+		$this->_cookieDuration = $cookieDuration ?: self::DEFAULT_COOKIE_DURATION;
 		$this->_cookiePath = $cookiePath;
-		/* $this->_cookieDomain = $cookieDomain ?: (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : gethostname()); */
+		$this->_cookieDomain = $cookieDomain ?: $this->_getCookieDomain();
 
 		// fill internal array with existing cookie values
 		if (array_key_exists($namespace, $_COOKIE)) {
-			$this->_data = json_decode($_COOKIE[$namespace], true);
-			if ($jsonError = json_last_error()) {
-				$this->_data = array();
-				$ini = Zend_Registry::get('config');
-				if (!empty($ini->logging->enabled) && $ini->logging->enabled) {
-					$jsonErrorStr = '';
-					switch ($jsonError) {
-						case JSON_ERROR_NONE:
-							$jsonErrorStr = 'No error has occurred';
-						break;
-						case JSON_ERROR_DEPTH:
-							$jsonErrorStr = 'The maximum stack depth has been exceeded';
-						break;
-						case JSON_ERROR_STATE_MISMATCH:
-							$jsonErrorStr = 'Invalid or malformed JSON';
-						break;
-						case JSON_ERROR_CTRL_CHAR:
-							$jsonErrorStr = 'Control character error, possibly incorrectly encoded';
-						break;
-						case JSON_ERROR_SYNTAX:
-							$jsonErrorStr = 'Syntax error';
-						break;
-						case JSON_ERROR_UTF8:
-							$jsonErrorStr = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-						break;
-					}
-
-					dump('cookie_faulty_json', $jsonErrorStr.': '.$_COOKIE[$namespace]);
-				}
-			}
+			$this->_readInitialData($namespace);
 		}
-	} 
+	}
 
 	/**
  	 * Write internal array to actual cookie.
@@ -126,7 +98,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 		if ($this->isModified()) {
 			$this->writeCookie();
 		}
-	} 
+	}
 
 	/**
  	 * Check if cookie is modified
@@ -134,7 +106,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 */
 	public function isModified() {
 		return $this->_modified;
-	} 
+	}
 
 	/**
  	 * Write internal array to actual cookie.
@@ -161,9 +133,9 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 			$this->_cookiePath,
 			$this->_cookieDomain
 		);
-		
+
 		$this->_modified = false;
-	} 
+	}
 
 	/**
  	 * Get value by key $key
@@ -175,7 +147,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 			return $this->_data[$key];
 		}
 		return null;
-	} 
+	}
 
 	/**
  	 * Store $value by key $key
@@ -212,7 +184,7 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 */
 	public function __get($key) {
 		return $this->get($key);
-	} 
+	}
 
 	/**
  	 * Magic setter
@@ -274,6 +246,51 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
  	 */
 	public function toArray() {
 		return $this->_data;
+	}
+
+	/**
+ 	 * Read cookie domain from config.
+ 	 * If no cookie domain is present, return an empty string. The empty string will restrict the
+ 	 * cookie to the current domain.
+ 	 * @return String
+ 	 */
+	protected function _getCookieDomain() {
+		$config = Zend_Registry::get('config');
+		return $config->app->cookiedomain ?: '';
+	}
+
+	protected function _readInitialData($namespace) {
+		$this->_data = json_decode($_COOKIE[$namespace], true);
+		if (!$jsonError = json_last_error()) {
+			return;
+		}
+		$this->_data = array();
+		$config = Zend_Registry::get('config');
+		if (!empty($config->logging->enabled) && $config->logging->enabled) {
+			$jsonErrorStr = '';
+			switch ($jsonError) {
+				case JSON_ERROR_NONE:
+					$jsonErrorStr = 'No error has occurred';
+				break;
+				case JSON_ERROR_DEPTH:
+					$jsonErrorStr = 'The maximum stack depth has been exceeded';
+				break;
+				case JSON_ERROR_STATE_MISMATCH:
+					$jsonErrorStr = 'Invalid or malformed JSON';
+				break;
+				case JSON_ERROR_CTRL_CHAR:
+					$jsonErrorStr = 'Control character error, possibly incorrectly encoded';
+				break;
+				case JSON_ERROR_SYNTAX:
+					$jsonErrorStr = 'Syntax error';
+				break;
+				case JSON_ERROR_UTF8:
+					$jsonErrorStr = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+				break;
+			}
+
+			dump('cookie_faulty_json', $jsonErrorStr.': '.$_COOKIE[$namespace]);
+		}
 	}
 
 }

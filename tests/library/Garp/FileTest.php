@@ -4,7 +4,7 @@
  * @author David Spreekmeester | Grrr.nl
  * @group File
  */
-class Garp_FileTest extends PHPUnit_Framework_TestCase {
+class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
 	protected $_bogusFilenames = array(
 		'$(4g3s#@!)@#%(#@√£¡).JPEG',
 		'émerfep¢9£ª^ƒ˚ßƒ´¬å⌛✇☠❄☺☹♨ ♩ ✙✈ ✉✌ ✁ ✎ ✐ ❀ ✰ ❁ ❤ ❥ ❦❧ ➳ ➽ εїз℡❣·۰•●○●',
@@ -76,8 +76,40 @@ class Garp_FileTest extends PHPUnit_Framework_TestCase {
 			);
 		}
 	}
-	
 
+	public function testReadOnlyCdnShouldProhibitStorage() {
+		$this->_helper->injectConfigValues(array(
+			'cdn' => array('readonly' => true)));
+
+		$exception = null;
+		try {
+			$filename = 'wefoiejwoiejfeiowjfeowijfoewijf.txt';
+			$file = new Garp_File(Garp_File::TYPE_DOCUMENTS);
+			$file->clearContext();
+			$file->store($filename, 'lorem ipsum');
+			// add a remove() just in case the test fails and the store() succeeds
+			$file->remove($filename);
+		} catch (Exception $e) {
+			$exception = $e->getMessage();
+		}
+		$this->assertEquals(Garp_File::EXCEPTION_CDN_READONLY, $exception);
+	}
+
+	public function testReadOnlyCdnShouldProhibitRemoval() {
+		$this->_helper->injectConfigValues(array(
+			'cdn' => array('readonly' => true)));
+
+		$exception = null;
+		try {
+			$filename = 'wefoiejwoiejfeiowjfeowijfoewijf.txt';
+			$file = new Garp_File(Garp_File::TYPE_DOCUMENTS);
+			$file->clearContext();
+			$file->remove($filename);
+		} catch (Exception $e) {
+			$exception = $e->getMessage();
+		}
+		$this->assertEquals(Garp_File::EXCEPTION_CDN_READONLY, $exception);
+	}
 	/**
 	 * Checks whether the argument provided contains only word characters (a to z, A to Z, 0 to 9 or underscores), dashes and dots. This excludes characters with accents.
 	 * @param String $filename The filename to be checked

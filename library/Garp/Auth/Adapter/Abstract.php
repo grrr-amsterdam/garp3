@@ -30,12 +30,16 @@ abstract class Garp_Auth_Adapter_Abstract {
  	 */
 	protected $_redirect = null;
 
+	protected $_extendedUserColumns = array();
+
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
+	 * @param Zend_Controller_Response_Abstract $response The current response
 	 * @return Array|Boolean User data, or FALSE
 	 */
-	abstract public function authenticate(Zend_Controller_Request_Abstract $request);
+	abstract public function authenticate(Zend_Controller_Request_Abstract $request,
+		Zend_Controller_Response_Abstract $response);
 
 	/**
 	 * Fetch user data. We never store all the user data in the session, just
@@ -63,6 +67,10 @@ abstract class Garp_Auth_Adapter_Abstract {
 
 	public function getRedirect() {
 		return $this->_redirect;
+	}
+
+	public function setExtendedUserColumns($cols) {
+		$this->_extendedUserColumns = $cols;
 	}
 
 	/**
@@ -93,7 +101,7 @@ abstract class Garp_Auth_Adapter_Abstract {
 				throw new Garp_Auth_Adapter_Exception('Invalid property mapper specified: ' .
 					$authVars->mapperClass);
 			}
-			return $mapper->map($props);
+			$cols = $mapper->map($props);
 		}
 		if ($authVars->mapping && !empty($authVars->mapping)) {
 			$cols = array();
@@ -102,11 +110,12 @@ abstract class Garp_Auth_Adapter_Abstract {
 					$cols[$col] = !empty($props[$mappedProp]) ? $props[$mappedProp] : null;
 				}
 			}
-			return $cols;
 		} else {
 			throw new Garp_Auth_Exception('This authentication method requires '.
 								' a mapping of columns in application.ini.');
 		}
+		
+		return array_merge($cols, $this->_extendedUserColumns);
 	}
 
 	/**
@@ -151,4 +160,5 @@ abstract class Garp_Auth_Adapter_Abstract {
 		$this->_errors = array();
 		return $this;
 	}
+
 }

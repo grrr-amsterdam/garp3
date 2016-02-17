@@ -15,15 +15,15 @@ class Garp_Model_Behavior_Timestampable extends Garp_Model_Behavior_Abstract {
 	 * @var String
 	 */
 	const DATE_FORMAT = 'Y-m-d H:i:s';
-	
-	 
+
+
 	/**
 	 * Fields to work on
 	 * @var Array
 	 */
 	protected $_fields;
-	
-	
+
+
 	/**
 	 * Make sure the config array is at least filled with some default values to work with.
 	 * @param Array $config Configuration values
@@ -38,8 +38,8 @@ class Garp_Model_Behavior_Timestampable extends Garp_Model_Behavior_Abstract {
 		}
 		$this->_fields = $config;
 	}
-	
-	
+
+
 	/**
 	 * Before insert callback. Manipulate the new data here.
 	 * @param Array $options The new data is in $args[1]
@@ -47,11 +47,15 @@ class Garp_Model_Behavior_Timestampable extends Garp_Model_Behavior_Abstract {
 	 */
 	public function beforeInsert(array &$args) {
 		$data = &$args[1];
-		$data[$this->_fields['createdField']]  = date(self::DATE_FORMAT);
-		$data[$this->_fields['modifiedField']] = date(self::DATE_FORMAT);
+		if (empty($data[$this->_fields['createdField']])) {
+			$data[$this->_fields['createdField']]  = date(self::DATE_FORMAT);
+		}
+		if (empty($data[$this->_fields['modifiedField']])) {
+			$data[$this->_fields['modifiedField']] = date(self::DATE_FORMAT);
+		}
 	}
-	
-	
+
+
 	/**
 	 * Before update callback. Manipulate the new data here.
 	 * @param Array $data The new data is in $args[1]

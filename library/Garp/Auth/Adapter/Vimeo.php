@@ -21,9 +21,11 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 	/**
 	 * Authenticate a user.
 	 * @param Zend_Controller_Request_Abstract $request The current request
+	 * @param Zend_Controller_Response_Abstract $response The current response
 	 * @return Array|Boolean User data, or FALSE
 	 */
-	public function authenticate(Zend_Controller_Request_Abstract $request) {
+	public function authenticate(Zend_Controller_Request_Abstract $request,
+		Zend_Controller_Response_Abstract $response) {
 		$callbackUrl = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://').$_SERVER['HTTP_HOST'].$request->getBaseUrl().'/g/auth/login/process/vimeo';
 		$authVars = $this->_getAuthVars();
 		if (!$authVars->consumerKey || !$authVars->consumerSecret) {
@@ -39,17 +41,24 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 			$consumer = new Zend_Oauth_Consumer($config);
 			if ($request->isPost()) {
 				$token = $consumer->getRequestToken();
-				$cookie = new Garp_Store_Cookie('Vimeo_request_token');
+				$cookie = new Garp_Store_Cookie('Garp_Auth');
+				if (!empty($this->_extendedUserColumns)) {
+					$cookie->extendedUserColumns = serialize($this->_extendedUserColumns);
+				}
 				$cookie->token = serialize($token);
 				$cookie->writeCookie();
 				$consumer->redirect();
 				exit;
 			} elseif ($request->getParam('oauth_token')) {
-				$cookie = new Garp_Store_Cookie('Vimeo_request_token');
+				$cookie = new Garp_Store_Cookie('Garp_Auth');
 				if (isset($cookie->token)) {
 					$accesstoken = $consumer->getAccessToken($_GET, unserialize($cookie->token));
+					if ($cookie->extendedUserColumns) {
+						$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));
+						$cookie->destroy('extendedUserColumns');
+					}
 					// Discard request token
-					$cookie->destroy();
+					$cookie->destroy('token');
 					return $this->_getUserData($accesstoken);
 				} else {
 					$this->_addError('App was not authorized. Please try again.');
