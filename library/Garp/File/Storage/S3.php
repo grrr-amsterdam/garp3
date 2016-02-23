@@ -248,6 +248,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			$this->_config['bucket'] = $config->s3->bucket;
 			$this->_config['domain'] = !empty($config->domain) ? $config->domain : null;
 			$this->_config['gzip']   = $config->gzip;
+			$this->_config['gzip_exceptions'] = (array)$config->gzip_exceptions;
 		}
 	}
 
@@ -284,11 +285,11 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		if (!$ext) {
 			return true;
 		}
-		return in_array($ext, $this->_getNonZippableExtensions());
+		return !in_array($ext, $this->_getGzipExceptions());
 	}
 
-	protected function _getNonZippableExtensions() {
-		return array('mp3');
+	protected function _getGzipExceptions() {
+		return $this->_config['gzip_exceptions'];
 	}
 
 }
