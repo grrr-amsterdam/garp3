@@ -69,6 +69,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$userModel = new Model_User();
 		try {
 			// Before register hook
+
 			$this->_beforeRegister($postData);
 
 			// Extract columns that are not part of the user model
@@ -172,8 +173,9 @@ class G_AuthController extends Garp_Controller_Action {
 		$adapter = Garp_Auth_Factory::getAdapter($method);
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
 
+		$postData = $this->getRequest()->getPost();
 		// Before login hook.
-		$this->_beforeLogin($authVars, $adapter);
+		$this->_beforeLogin($authVars, $adapter, $postData);
 
 		/**
 		 * Params can come from GET or POST.
@@ -405,7 +407,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$request = $this->getRequest();
 		$activationCode = $request->getParam('c');
 		$activationEmail = $request->getParam('e');
-		$emailValidColumn = $authVars['validateEmail']['email_valid_column'];
+		$emailValidColumn = $authVars['validateemail']['email_valid_column'];
 
 		if (!$activationEmail || !$activationCode) {
 			throw new Zend_Controller_Action_Exception('Invalid request.', 404);
@@ -416,7 +418,7 @@ class G_AuthController extends Garp_Controller_Action {
 		$userModel->setCacheQueries(false);
 		$activationCodeClause =
 			'MD5(CONCAT('.
-				$userModel->getAdapter()->quoteIdentifier($authVars['validateEmail']['token_column']).','.
+				$userModel->getAdapter()->quoteIdentifier($authVars['validateemail']['token_column']).','.
 				'MD5(email),'.
 				'MD5('.$userModel->getAdapter()->quote($authVars['salt']).'),'.
 				'MD5(id)'.
@@ -456,6 +458,7 @@ class G_AuthController extends Garp_Controller_Action {
 	 */
 	protected function _setViewSettings($action) {
 		$authVars = Garp_Auth::getInstance()->getConfigValues();
+		
 		if (!isset($authVars[$action])) {
 			return;
 		}
@@ -524,9 +527,9 @@ class G_AuthController extends Garp_Controller_Action {
 	 * @param Garp_Auth_Adapter_Abstract $adapter The chosen adapter.
 	 * @return Void
 	 */
-	protected function _beforeLogin(array $authVars, Garp_Auth_Adapter_Abstract $adapter) {
+	protected function _beforeLogin(array $authVars, Garp_Auth_Adapter_Abstract $adapter, array $postData) {
 		if ($loginHelper = $this->_getLoginHelper()) {
-			$loginHelper->beforeLogin($authVars, $adapter);
+			$loginHelper->beforeLogin($authVars, $adapter, $postData);
 		}
 	}
 

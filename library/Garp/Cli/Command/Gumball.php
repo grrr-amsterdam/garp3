@@ -22,9 +22,6 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 
 	const ERROR_SOURCE_ENV_NOT_CONFIGURED = 'Error: the database source environment was not configured. Cannot migrate data.';
 
-	const NOTIFICATION_EMAIL_SUBJECT = 'gumball notification email subject';
-	const NOTIFICATION_EMAIL_MESSAGE = "gumball notification email message";
-
 	public function make($args = array()) {
 		$mem = new Garp_Util_Memory();
 		$mem->useHighMemory();
@@ -111,8 +108,8 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 		$mailer = new Garp_Mailer();
 		$mailer->send(array(
 			'to' => $config->gumball->notificationEmail,
-			'subject' => sprintf(__(self::NOTIFICATION_EMAIL_SUBJECT), $config->app->name),
-			'message' => sprintf(__(self::NOTIFICATION_EMAIL_MESSAGE),
+			'subject' => sprintf($this->_getRestoreEmailSubject(), $config->app->name),
+			'message' => sprintf($this->_getRestoreEmailMessage(),
 				$config->app->name,
 				APPLICATION_ENV,
 				$version,
@@ -160,5 +157,22 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
 
 	protected function _getGumballDirectory() {
 		return APPLICATION_PATH . '/../gumballs';
+	}
+
+	/**
+ 	 * Note: these used to be snippets but in multilingual environments snippets are not loaded for
+ 	 * this command in the CLI environment.
+ 	 * Anyways. It's not that important, for the time being this is a fine message.
+ 	 */
+	protected function _getRestoreEmailSubject() {
+		return '[%s] Een nieuwe versie staat live';
+	}
+
+	protected function _getRestoreEmailMessage() {
+		return "Hallo, \n\n" .
+			"Een nieuwe versie van %s is zojuist live gezet.\n\n" .
+			"Omgeving: %s\n" .
+			"Versie: %s\n\n" .
+			"Bekijk hier: %s";
 	}
 }

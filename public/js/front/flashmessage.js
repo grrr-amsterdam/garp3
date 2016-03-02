@@ -135,7 +135,7 @@ Garp.FlashMessage.parseCookie = function() {
 	// Remove the cookie after parsing the flash message
 	var exp = new Date();
 	exp.setHours(exp.getHours() - 1);
-	Garp.Cookie.set(FM_COOKIE, '', exp, (typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : document.location.host);
+	Garp.Cookie.set(FM_COOKIE, '', exp, (typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : undefined);
 
 	return out;
 };
