@@ -13,7 +13,7 @@ if (!defined('BASE_PATH')) {
 	define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
 }
 define('APPLICATION_PATH', BASE_PATH . '/application');
-define('GARP_APPLICATION_PATH', BASE_PATH . '/garp/application');
+define('GARP_APPLICATION_PATH', realpath(dirname(__FILE__)));
 
 $appSpecificInit = APPLICATION_PATH . '/configs/init.php';
 if (file_exists($appSpecificInit)) {
@@ -25,10 +25,7 @@ defined('MEMCACHE_HOST') || define('MEMCACHE_HOST', '127.0.0.1');
 defined('MEMCACHE_PORT') || define('MEMCACHE_PORT', '11211');
 
 $isCli = false;
-if (
-	array_key_exists('HTTP_HOST', $_SERVER) &&
-	$_SERVER['HTTP_HOST']
-) {
+if (array_key_exists('HTTP_HOST', $_SERVER) && $_SERVER['HTTP_HOST']) {
 	//	h t t p   c o n t e x t
 	define('HTTP_HOST', $_SERVER['HTTP_HOST']);
 
