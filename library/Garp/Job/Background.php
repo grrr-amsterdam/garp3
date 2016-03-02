@@ -16,7 +16,7 @@ class Garp_Job_Background {
 	 * 							Don't include the environment parameter or the php executable.
 	 */
 	public function __construct($command) {
-		$scriptPath = realpath(APPLICATION_PATH . '/../garp/scripts/garp.php');
+		$scriptPath = realpath(GARP_APPLICATION_PATH . '/../scripts/garp.php');
 		$phpCmd     = "(php {$scriptPath} {$command} --e=" . APPLICATION_ENV . ' &> /dev/null &)';
 		$sclPhpPackage = 'php54';
 		if (isset(Zend_Registry::get('config')->scl->phpPackage)) {

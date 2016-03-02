@@ -3,7 +3,7 @@ task :enable_under_construction do
 	on roles(:web) do
 		if fetch(:this_host_last_release)
     		# Previous release exists, update it to under construction
-			execute "[ -f #{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php ] && php #{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php Env setUnderConstruction --e=#{fetch(:stage)}"
+			execute "[ -f #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php ] && php #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setUnderConstruction --e=#{fetch(:stage)}"
 		end
 	end
 end
@@ -13,7 +13,7 @@ task :disable_under_construction do
 	on roles(:web) do
 		if fetch(:this_host_last_release)
 			# Previous release exists, remove under construction flag
-			execute "[ -f #{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php ] && php #{releases_path}/#{fetch(:this_host_last_release)}/garp/scripts/garp.php Env setUnderConstruction false --e=#{fetch(:stage)}"
+			execute "[ -f #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php ] && php #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setUnderConstruction false --e=#{fetch(:stage)}"
 		end
 	end
 end
@@ -27,18 +27,18 @@ task :spawn do
 	# race conditions and multiple clients simultaneously trying to update
 	# the same tables and views.
 	on roles(:app) do
-		execute "php #{release_path}/garp/scripts/garp.php Spawn --only=db -b --e=#{fetch(:stage)}"
+		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Spawn --only=db -b --e=#{fetch(:stage)}"
 	end
 
 	on roles(:web) do
-		execute "php #{release_path}/garp/scripts/garp.php Spawn --only=files -b --e=#{fetch(:stage)}"
-		execute "php #{release_path}/garp/scripts/garp.php cache clear --e=#{fetch(:stage)}"
+		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Spawn --only=files -b --e=#{fetch(:stage)}"
+		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php cache clear --e=#{fetch(:stage)}"
 	end
 end
 
 desc "Perform administrative tasks after deploy"
 task :garp_env_setup do
 	on roles(:app) do
-		execute "php #{release_path}/garp/scripts/garp.php Env setup --e=#{fetch(:stage)}"
+		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setup --e=#{fetch(:stage)}"
 	end
 end

@@ -1,3 +1,0 @@
-#!/bin/sh
-php garp/scripts/garp.php Version update > /dev/null 2>&1
-exit 0
