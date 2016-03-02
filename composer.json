@@ -9,5 +9,5 @@
         "phpunit/phpunit": "3.7.*"
     },
     "license": "BSD-3-Clause",
-    "minimum-stability": "stable"
+    "minimum-stability": "dev"
 }
