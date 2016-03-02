@@ -73,7 +73,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		// return fopen($this->getUrl($filename), 'r');
 		$this->_initApi();
 		$obj = $this->_api->getObject($this->_config['bucket'].$this->_getUri($filename));
-		if ($this->_config['gzip']) {
+		if ($this->_config['gzip'] && $this->_gzipIsAllowedForFilename($filename)) {
 			$unzipper = new Garp_File_Unzipper($obj);
 			$obj = $unzipper->getUnpacked();
 		}
@@ -180,7 +180,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			$mime  = $finfo->buffer($data);
 		}
 		$meta[Zend_Service_Amazon_S3::S3_CONTENT_TYPE_HEADER] = $mime;
-		if ($this->_config['gzip']) {
+		if ($this->_config['gzip'] && $this->_gzipIsAllowedForFilename($filename)) {
 			$meta['Content-Encoding'] = 'gzip';
 			$data = gzencode($data);
 		}
@@ -248,6 +248,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			$this->_config['bucket'] = $config->s3->bucket;
 			$this->_config['domain'] = !empty($config->domain) ? $config->domain : null;
 			$this->_config['gzip']   = $config->gzip;
+			$this->_config['gzip_exceptions'] = (array)$config->gzip_exceptions;
 		}
 	}
 
@@ -279,7 +280,16 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 		}
 	}
 
-	protected function _unzipFile($obj) {
-
+	protected function _gzipIsAllowedForFilename($filename) {
+		$ext = substr($filename, strrpos($filename, '.')+1);
+		if (!$ext) {
+			return true;
+		}
+		return !in_array($ext, $this->_getGzipExceptions());
 	}
+
+	protected function _getGzipExceptions() {
+		return $this->_config['gzip_exceptions'];
+	}
+
 }
