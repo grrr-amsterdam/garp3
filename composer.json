@@ -9,9 +9,5 @@
         "phpunit/phpunit": "3.7.*"
     },
     "license": "MIT",
-    "minimum-stability": "stable",
-    "scripts": {
-    	"post-install-cmd": "echo 'post-install-cmd'",
-    	"post-update-cmd": "echo 'post-update-cmd'"
-    }
+    "minimum-stability": "stable"
 }
