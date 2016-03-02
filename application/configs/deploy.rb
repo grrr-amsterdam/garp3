@@ -10,7 +10,7 @@ set :keep_releases, 2
 
 load "application/configs/deploy.rb"
 
-Dir.glob("garp/deploy/tasks/*.cap").each { |r| load r }
-load "garp/deploy/garp3.cap"
+Dir.glob("vendor/grrr-amsterdam/garp3/deploy/tasks/*.cap").each { |r| load r }
+load "vendor/grrr-amsterdam/garp3/deploy/garp3.cap"
 
 set :tmp_dir, "/tmp/#{fetch(:application)}-#{fetch(:stage)}"
