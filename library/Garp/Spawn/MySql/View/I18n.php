@@ -91,10 +91,13 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 		//	Multilingual fields
 		$multilingualFieldRefs = array();
 		foreach ($multilingualFields as $field) {
+			$multilingualFieldRefs[] =	"`{$modelId}_{$locale}`.{$field->name} AS `{$field->name}`";
+			/*
 			$multilingualFieldRefs[] = $locale === $defaultLocale ?
 				"`{$modelId}_{$locale}`.{$field->name} AS `{$field->name}`" :
 				"IF(`{$modelId}_{$locale}`.`{$field->name}` <> '' AND `{$modelId}_{$locale}`.`{$field->name}` IS NOT NULL, `{$modelId}_{$locale}`.`{$field->name}`, `{$modelId}_{$defaultLocale}`.`{$field->name}`) AS `{$field->name}`"
 			;
+			 */
 		}
 		$sql .= implode(', ', $multilingualFieldRefs) . ' ';
 
@@ -102,9 +105,9 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
 		$sql .= 'FROM `' . $modelId . '`';
 		$sql .= $this->_renderJoinForLocale($locale);
 
-		if ($locale !== $defaultLocale) {
-			$sql .= $this->_renderJoinForLocale($defaultLocale);
-		}
+		//if ($locale !== $defaultLocale) {
+			//$sql .= $this->_renderJoinForLocale($defaultLocale);
+		//}
 		return $sql;
 	}
 

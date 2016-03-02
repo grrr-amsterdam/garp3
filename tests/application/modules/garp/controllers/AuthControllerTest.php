@@ -51,9 +51,8 @@ class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		// sanity check
 		$sampleRow = $userModel->createRow();
 		if (isset($sampleRow->name)) {
-			$this->_mockUser['name'] = $this->_mockUser['first_name'] . ' ' .$this->_mockUser['last_name'];
+			$this->_mockUser['name'] = $this->_mockUser['first_name'];
 			unset($this->_mockUser['first_name']);
-			unset($this->_mockUser['last_name']);
 		}
 
 		$userModel->delete('id > 0');

@@ -76,6 +76,7 @@ Garp.RelateCreateWindow = Ext.extend(Ext.Window,{
 		// Collapse fieldsets and hide non-required fields,
 		// to save some room (window is tiny as it is)
 		for (var j = 0; j < items.items[0].items.length; ++j) {
+			console.info(items.items[0].items[j]);
 			if ('collapsed' in items.items[0].items[j]) {
 				items.items[0].items[j].collapsed = true;
 			}

@@ -27,25 +27,13 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 		}
 
 		try {
-			$cookie = new Garp_Store_Cookie('Garp_Auth');
 			// User returns from LinkedIn and has authorized the app
 			if ($request->getParam('code')) {
 				$accessToken = $this->_getLinkedInInstance()->getAccessToken($request->getParam('code'));
-				if ($cookie->extendedUserColumns) {
-					$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));	
-					$cookie->destroy('extendedUserColumns');
-				}
-
 				return $this->_getUserData($accessToken);
 			}
 
 			// User has not interacted yet, and needs to authorize the app
-			
-			if (!empty($this->_extendedUserColumns)) {
-				$cookie->extendedUserColumns = serialize($this->_extendedUserColumns);
-			}
-			$cookie->writeCookie();
-
 			$authorizeUrl = $this->_getLinkedInInstance()->getLoginUrl(array(
 				LinkedIn::SCOPE_BASIC_PROFILE,
 				LinkedIn::SCOPE_EMAIL_ADDRESS

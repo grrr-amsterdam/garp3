@@ -5,12 +5,24 @@
  */
 class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
 
+	public function testShouldGetSubsetOfArray() {
+		$my_array = array(
+  			'name' => 'Henk',
+  			'occupation' => 'Doctor',
+  			'age' => 43,
+  			'country' => 'Zimbabwe'
+		);
+		$allowed = array('country', 'name');
+		$this->assertEquals(array('name' => 'Henk', 'country' => 'Zimbabwe'),
+ 		   	array_get_subset($my_array, $allowed));
+	}
+
 	public function testShouldHaveSuccessfullyClonedGzdecode() {
 		if (version_compare(PHP_VERSION, '5.4.0') === -1) {
-			// gzdecode() is not available, so we can't compare the clone to the native function. 
+			// gzdecode() is not available, so we can't compare the clone to the native function.
 			return true;
 		}
-		
+
 		function clonedGzDecode($data,&$filename='',&$error='',$maxlength=null) {
     		$len = strlen($data);
     		if ($len < 18 || strcmp(substr($data,0,2),"\x1f\x8b")) {

@@ -41,24 +41,17 @@ class Garp_Auth_Adapter_Vimeo extends Garp_Auth_Adapter_Abstract {
 			$consumer = new Zend_Oauth_Consumer($config);
 			if ($request->isPost()) {
 				$token = $consumer->getRequestToken();
-				$cookie = new Garp_Store_Cookie('Garp_Auth');
-				if (!empty($this->_extendedUserColumns)) {
-					$cookie->extendedUserColumns = serialize($this->_extendedUserColumns);
-				}
+				$cookie = new Garp_Store_Cookie('Vimeo_request_token');
 				$cookie->token = serialize($token);
 				$cookie->writeCookie();
 				$consumer->redirect();
 				exit;
 			} elseif ($request->getParam('oauth_token')) {
-				$cookie = new Garp_Store_Cookie('Garp_Auth');
+				$cookie = new Garp_Store_Cookie('Vimeo_request_token');
 				if (isset($cookie->token)) {
 					$accesstoken = $consumer->getAccessToken($_GET, unserialize($cookie->token));
-					if ($cookie->extendedUserColumns) {
-						$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));
-						$cookie->destroy('extendedUserColumns');
-					}
 					// Discard request token
-					$cookie->destroy('token');
+					$cookie->destroy();
 					return $this->_getUserData($accesstoken);
 				} else {
 					$this->_addError('App was not authorized. Please try again.');

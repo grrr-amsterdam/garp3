@@ -77,6 +77,9 @@ abstract class Garp_Content_Export_Abstract {
 		$model = new $className;
 		$this->_bindModels($model);
 
+		$mem = new Garp_Util_Memory();
+		$mem->useHighMemory();
+
 		// Allow the model or its observers to modify the fetchOptions
 		$model->notifyObservers('beforeExport', array(&$fetchOptions));
 

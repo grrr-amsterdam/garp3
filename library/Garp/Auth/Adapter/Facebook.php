@@ -24,7 +24,6 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		$facebook = $this->_getFacebookClient();
 		$authVars = $this->_getAuthVars();
 
-		$cookie = new Garp_Store_Cookie('Garp_Auth');
 		/**
 		 * Send the user to Facebook to login and give us access.
 		 * This happens when the form on the login page gets posted.
@@ -34,10 +33,6 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		 * Just note that any POST request here results in the user being redirected to Facebook.
 		 */
 		if ($request->isPost()) {
-			if (!empty($this->_extendedUserColumns)) {
-				$cookie->extendedUserColumns = serialize($this->_extendedUserColumns);
-			}
-			$cookie->writeCookie();
 			$redirector = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
 			$scope = isset($authVars->scope) ? $authVars->scope : null;
 			$redirector->gotoUrl($facebook->getLoginUrl(array(
@@ -48,10 +43,6 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 
 		// Session based API call.
 		try {
-			if ($cookie->extendedUserColumns) {
-				$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));	
-				$cookie->destroy('extendedUserColumns');
-			}
 			$userData = $facebook->login(!!$authVars->grabUserImage);
 			$userData = $this->_getUserData($userData);
 

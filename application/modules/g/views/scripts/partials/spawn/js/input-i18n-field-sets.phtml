@@ -66,7 +66,8 @@ $renderLanguageSet = function($language, $view) use ($fieldSet, $relations, $get
 		"ref: '../../../{$language}_fieldset'",
 		"xtype: 'i18nfieldset'",
 		"title: __('{$languageLabel}')",
-		"collapsed: " . ($isForDefaultLocale ? 'false' : 'true'),
+		//"collapsed: " . ($isForDefaultLocale ? 'false' : 'true'),
+		"collapsed: false",
 		"items: [{{$fieldSetString}}]"
 	);
 

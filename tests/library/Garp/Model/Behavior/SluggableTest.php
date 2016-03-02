@@ -66,6 +66,11 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 
 		$model = new Mocks_Model_Sluggable2Test();
 		// Save only Dutch name, slug should appear in both Dutch and English records
+		/*
+ 		 * @deprecated Kept for reference, but Translatable is refactored to always fill the other
+ 		 * language fields as well, so the slug _will_ be filled, but currently a suffix "-2" will
+ 		 * be added
+ 		 *
 		$model->insert(array(
 			'name' => array('nl' => 'Henk Jan De Beuker'),
 		));
@@ -77,6 +82,19 @@ class Garp_Model_Behavior_SluggableTest extends Garp_Test_PHPUnit_TestCase {
 		$modelEn = new Mocks_Model_Sluggable2TestEn();
 		$row = $modelEn->fetchRow();
 		$this->assertEquals('henk-jan-de-beuker', $row->slug);
+		 */
+
+		// This checks the new behavior, but without the equals check since it's no longer true
+		$model->insert(array(
+			'name' => array('nl' => 'Henk Jan De Beuker'),
+		));
+		$modelNl = new Mocks_Model_Sluggable2TestNl();
+		$row = $modelNl->fetchRow();
+		$this->assertEquals('henk-jan-de-beuker', $row->slug);
+
+		$modelEn = new Mocks_Model_Sluggable2TestEn();
+		$row = $modelEn->fetchRow();
+		$this->assertTrue(!!$row->slug);
 	}
 
 	/**
