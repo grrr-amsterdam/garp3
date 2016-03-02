@@ -298,11 +298,12 @@ class Garp_Cache_Manager {
 
 	protected static function _getGarpCliScriptPath() {
 		if (strpos(APPLICATION_PATH, 'releases') === false) {
-			return realpath(APPLICATION_PATH . '/../garp/scripts/garp.php');
+			return realpath(GARP_APPLICATION_PATH . '/../scripts/garp.php');
 		}
 		// When `releases` is in the path, assume Capistrano setup and point to the `current`
 		// symlink. The different release folders are purged over time, so not reliable to use when
 		// scheduling a future operation.
-		return realpath(APPLICATION_PATH . '/../../..') . '/current/garp/scripts/garp.php';
+		return realpath(APPLICATION_PATH . '/../../..') .
+			'/current/vendor/grrr-amsterdam/garp3/scripts/garp.php';
 	}
 }
