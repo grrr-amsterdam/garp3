@@ -5,3 +5,5 @@ application/configs/version.php
 application/configs/authorized_keys
 scripts/scaffold/application/configs/application.ini
 library/Garp/3rdParty/amazon_ses_scripts
+vendor
+composer.lock
