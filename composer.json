@@ -8,6 +8,6 @@
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
     },
-    "license": "MIT",
-    "minimum-stability": "stable"
+    "license": "BSD-3-Clause",
+    "minimum-stability": "dev"
 }
