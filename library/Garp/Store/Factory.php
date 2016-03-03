@@ -19,7 +19,7 @@ class Garp_Store_Factory {
 	public static function getStore($namespace, $type = null) {
 		$ini = Zend_Registry::get('config');
 		if (is_null($type)) {
-			$type = !empty($ini->store->type) ? $ini->store->type : 'Session';
+			$type = !empty($ini->store->type) ? $ini->store->type : 'Cookie';
 		}
 		$type = ucfirst($type);
 		if (!in_array($type, array('Session', 'Cookie'))) {
