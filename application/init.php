@@ -86,6 +86,10 @@ $classLoader->register();
 if (!$isCli && Garp_Application::isUnderConstruction()) {
 	//header('HTTP/1.1 503 Service Temporarily Unavailable');
 	//header('Retry-After: ' . date(DateTime::RFC2822, strtotime('+5 minutes')));
+	header('Cache-Control: no-cache');
+	header('Pragma: no-cache');
+	header('Expires: ' . date(DATE_RFC1123, strtotime('-1 year')));
+
 	require(GARP_APPLICATION_PATH . '/modules/g/views/scripts/under-construction.phtml');
 	exit;
 }
