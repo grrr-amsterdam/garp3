@@ -19,7 +19,7 @@ class Garp_Store_Session implements Garp_Store_Interface {
 
 	/**
  	 * Class constructor
- 	 * @param String $namespace 
+ 	 * @param String $namespace
  	 * @return Void
  	 */
 	public function __construct($namespace) {
@@ -105,5 +105,9 @@ class Garp_Store_Session implements Garp_Store_Interface {
 			$this->_session->unsetAll();
 		}
 		return $this;
+	}
+
+	public function toArray() {
+		return (array)$this->_session;
 	}
 }

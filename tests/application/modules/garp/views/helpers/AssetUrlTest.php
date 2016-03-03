@@ -1,6 +1,6 @@
 <?php
 /**
- * @group Helpers
+ * @group AssetUrlHelper
  */
 class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 
@@ -115,6 +115,32 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 		$this->assertEquals('/foo.pdf', $this->_getHelper()->assetUrl('foo.pdf'));
 	}
 
+	public function testShouldRenderProperS3UrlForHttps() {
+		$this->_helper->injectConfigValues(array(
+			'cdn' => array(
+				'type' => 's3',
+				'ssl' => true,
+				's3' => array(
+					'region' => 'eu-west',
+					'bucket' => 'doodoobucket'
+				),
+				'css' => array('location' => 's3'),
+			),
+			'assets' => array(
+				'css' => array(
+					'location' => 's3'
+				)
+			)
+		));
+		$removeSemver = $this->_createTmpSemver();
+		$this->assertEquals($this->_getHelper()->assetUrl('/main.css'),
+			'https://s3.eu-west.amazonaws.com/doodoobucket/main.css?' . new Garp_Semver);
+
+		if ($removeSemver) {
+			$this->_removeTmpSemver();
+		}
+	}
+
 	protected function _getSemverPath() {
 		return APPLICATION_PATH . '/../.semver';
 	}
@@ -146,6 +172,16 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 
 	protected function _getView() {
 		return Zend_Registry::get('application')->getBootstrap()->getResource('View');
+	}
+
+	public function setUp() {
+		$this->_helper->injectConfigValues(array(
+			'resources' => array(
+				'view' => array(
+					'doctype' => 'html5'
+				)
+			)
+		));
 	}
 
 	public function tearDown() {
