@@ -65,7 +65,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	public function getUrl($filename) {
 		$this->_verifyPath();
 		if ($this->_config['ssl'] && $this->_config['region']) {
-			return 'https://s3.' . $this->_config['region'] . '.amazonaws.com/' .
+			return 'https://s3-' . $this->_config['region'] . '.amazonaws.com/' .
 				$this->_config['bucket'] . $this->_config['path'] . '/' . $filename;
 		}
 		return 'http://' . $this->_config['domain'] . $this->_config['path'] . '/' . $filename;
