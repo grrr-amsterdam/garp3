@@ -40,15 +40,26 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 
 		// For backwards compatibility: deprecated param assetType
 		if ($ini->cdn->assetType) {
-			return $this->_getUrl($file, $ini->cdn->assetType, $ini->cdn->domain);
+			return $this->_getUrl($file, $ini->cdn->assetType,
+				$this->_getAssetDomain($ini, $ini->cdn->assetType), $ini->cdn->ssl);
 		}
 
 		$extension = $forced_extension ? $forced_extension : $this->_getExtension($file);
 		if (!empty($ini->cdn->{$extension}->location)) {
-			return $this->_getUrl($file, $ini->cdn->{$extension}->location, $ini->cdn->domain);
+			return $this->_getUrl($file, $ini->cdn->{$extension}->location,
+				$this->_getAssetDomain($ini, $ini->cdn->{$extension}->location), $ini->cdn->ssl);
 		}
 
-		return $this->_getUrl($file, $ini->cdn->type, $ini->cdn->domain);
+		return $this->_getUrl($file, $ini->cdn->type,
+			$this->_getAssetDomain($ini, $ini->cdn->type), $ini->cdn->ssl);
+	}
+
+	protected function _getAssetDomain(Zend_Config $ini, $cdnType) {
+		if ($cdnType === 's3' && $ini->cdn->ssl && $ini->cdn->s3->region) {
+			// Technically not a domain since there's a path containing the bucket
+			return 's3.' . $ini->cdn->s3->region . '.amazonaws.com/' . $ini->cdn->s3->bucket;
+		}
+		return $ini->cdn->domain;
 	}
 
 	protected function _getExtension($file) {
@@ -67,10 +78,10 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		return $lastPart;
 	}
 
-	protected function _getUrl($file, $cdnType, $domain) {
+	protected function _getUrl($file, $cdnType, $domain, $ssl) {
 		switch ($cdnType) {
 			case 's3':
-				return $this->_getS3Url($file, $domain);
+				return $this->_getS3Url($file, $domain, $ssl);
 			break;
 			case 'local':
 				return $this->_getLocalUrl($file);
@@ -81,8 +92,8 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	}
 
 
-	protected function _getS3Url($file, $domain) {
-		return 'http://' . $domain . $file;
+	protected function _getS3Url($file, $domain, $ssl) {
+		return 'http' . ($ssl ? 's' : '') . '://' . $domain . $file;
 	}
 
 
