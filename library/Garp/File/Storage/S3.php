@@ -64,6 +64,10 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 	/** Fetches the url to the file, suitable for public access on the web. */
 	public function getUrl($filename) {
 		$this->_verifyPath();
+		if ($this->_config['ssl'] && $this->_config['region']) {
+			return 'https://s3.' . $this->_config['region'] . '.amazonaws.com/' .
+				$this->_config['bucket'] . $this->_config['path'] . '/' . $filename;
+		}
 		return 'http://' . $this->_config['domain'] . $this->_config['path'] . '/' . $filename;
 	}
 
@@ -248,6 +252,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
 			$this->_config['bucket'] = $config->s3->bucket;
 			$this->_config['domain'] = !empty($config->domain) ? $config->domain : null;
 			$this->_config['gzip']   = $config->gzip;
+			$this->_config['ssl']    = $config->ssl;
+			$this->_config['region'] = $config->s3->region;
 			$this->_config['gzip_exceptions'] = (array)$config->gzip_exceptions;
 		}
 	}
