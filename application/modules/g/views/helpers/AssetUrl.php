@@ -57,7 +57,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	protected function _getAssetDomain(Zend_Config $ini, $cdnType) {
 		if ($cdnType === 's3' && $ini->cdn->ssl && $ini->cdn->s3->region) {
 			// Technically not a domain since there's a path containing the bucket
-			return 's3.' . $ini->cdn->s3->region . '.amazonaws.com/' . $ini->cdn->s3->bucket;
+			return 's3-' . $ini->cdn->s3->region . '.amazonaws.com/' . $ini->cdn->s3->bucket;
 		}
 		return $ini->cdn->domain;
 	}
