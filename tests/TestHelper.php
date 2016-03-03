@@ -7,7 +7,27 @@ require_once $rootPath.'/application/init.php';
 
 $application = new Garp_Application(
 	APPLICATION_ENV,
-	APPLICATION_PATH.'/configs/application.ini'
+	GARP_APPLICATION_PATH . '/../tests/config.ini'
+	/*
+	array(
+		'bootstrap' => array(
+			'path' => GARP_APPLICATION_PATH . "/../library/Garp/Application/Bootstrap/Bootstrap.php",
+			'class' => 'Garp_Application_Bootstrap_Bootstrap'
+		),
+		'resources' => array(
+			'view' => array(
+				'doctype' => 'html5'
+			),
+			'db' => array(
+			),
+			'locale' => array(
+			)
+		),
+	)
+	 */
+
+
+	//APPLICATION_PATH.'/configs/application.ini'
 );
 
 $application->bootstrap();
@@ -17,5 +37,6 @@ $mem = new Garp_Util_Memory();
 $mem->useHighMemory();
 
 error_reporting(-1);
-ini_set('display_errors', 'stdout');
-ini_set('display_startup_errors', true);
+ini_set('log_errors', 0);
+ini_set('display_startup_errors', 1);
+ini_set('display_errors', 'stderr');

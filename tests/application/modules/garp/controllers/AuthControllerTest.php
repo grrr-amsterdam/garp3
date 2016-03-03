@@ -61,7 +61,9 @@ class G_AuthControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	}
 
 	public function tearDown() {
-		$this->_auth->destroy();
+		if ($this->_auth) {
+			$this->_auth->destroy();
+		}
 		$userModel = new Model_User();
 		$userModel->delete('id > 0');
 	}
