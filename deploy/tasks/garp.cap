@@ -14,6 +14,7 @@ task :disable_under_construction do
 		if fetch(:this_host_last_release)
 			# Previous release exists, remove under construction flag
 			execute "if [ -f #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php ]; then php #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setUnderConstruction false --e=#{fetch(:stage)}; fi"
+		end
 	end
 end
 
