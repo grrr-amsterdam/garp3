@@ -24,6 +24,9 @@ abstract class Garp_Content_Export_Abstract {
 	 * @return String
 	 */
 	public function getOutput(Garp_Util_Configuration $params) {
+		$mem = new Garp_Util_Memory();
+		$mem->useHighMemory();
+
 		$params->setDefault('rule', null)
 			->setDefault('rule2', null);
 
