@@ -134,7 +134,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 		));
 		$removeSemver = $this->_createTmpSemver();
 		$this->assertEquals($this->_getHelper()->assetUrl('/main.css'),
-			'https://s3.eu-west.amazonaws.com/doodoobucket/main.css?' . new Garp_Semver);
+			'https://s3-eu-west.amazonaws.com/doodoobucket/main.css?' . new Garp_Semver);
 
 		if ($removeSemver) {
 			$this->_removeTmpSemver();
