@@ -30,7 +30,7 @@ class G_Model_Location extends Model_Base_Location {
 
 		if (!$googleLocation || $googleLocation->error) {
 			return null;
-		} 
+		}
 
 		$this->_storeLocation($zip, $googleLocation);
 		$row = $this->_fetchRowByZipFromDatabase($zip);
@@ -51,7 +51,8 @@ class G_Model_Location extends Model_Base_Location {
 	}
 
 	protected function _fetchRowByZipFromDatabase($zip) {
-		$select = $this->select()->where('zip = ?', $zip);
+		$select = $this->select()->where('zip = ?', $zip)
+			->where('number IS NULL');
 		$row = $this->fetchRow($select);
 
 		return $row;
