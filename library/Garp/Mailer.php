@@ -16,6 +16,7 @@ class Garp_Mailer {
 	protected $_characterEncoding = 'utf-8';
 	protected $_attachments = array();
 	protected $_htmlView;
+	protected $_htmlViewModule;
 
 	public function __construct() {
 		$this->addAttachments($this->getDefaultAttachments());
@@ -173,7 +174,7 @@ class Garp_Mailer {
 
 	public function getDefaultHtmlTemplateModule() {
 		return isset(Zend_Registry::get('config')->mailer->template_module) ?
-			Zend_Registry::get('config')->mailer->template_module : null;
+			Zend_Registry::get('config')->mailer->template_module : 'default';
 	}
 
 	public function setHtmlTemplateModule($module) {
@@ -195,7 +196,7 @@ class Garp_Mailer {
 			$viewPath = $moduleDirectory.'/views/scripts/';
 			$viewObj->addScriptPath($viewPath);
 		}
-		
+
 		$viewObj->assign($viewParams);
 		return $viewObj->render($this->getHtmlTemplate());
 	}
