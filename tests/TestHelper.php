@@ -3,6 +3,7 @@ date_default_timezone_set('Europe/Amsterdam');
 define('APPLICATION_ENV', 'testing');
 $rootPath = dirname(__FILE__).'/..';
 
+require_once 'vendor/autoload.php';
 require_once $rootPath.'/application/init.php';
 
 $application = new Garp_Application(

@@ -4,8 +4,8 @@
  * This class tests Garp_Image_File.
  */
 class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
-	const RESOURCE_UNOPTIMIZED_PNG = '/../garp/tests/application/modules/mocks/resources/images/unoptimized.png';
-	
+	const RESOURCE_UNOPTIMIZED_PNG = '/../tests/application/modules/mocks/resources/images/unoptimized.png';
+
 	protected $_bogusValidImageFilenames = array(
 		'$(4g3s#@!)@#%(#@√£¡).JPEG',
 		'poesje-4.jpg',
@@ -13,7 +13,7 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 		'33.png'
 	);
 
-	
+
 	public function testGetImageType() {
 		$imageFile = new Garp_Image_File();
 
@@ -27,7 +27,7 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 			);
 		}
 	}
-	
+
 	//public function testCanStorePngsOptimized() {
 		//$imageFile = new Garp_Image_File();
 
@@ -35,7 +35,7 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 		//$sourceData 	= $this->_getMockImageData($sourcePath);
 		//$sourceSize 	= strlen($sourceData);
 		//$sourceFilename = basename($sourcePath);
-		
+
 		//$destinationFilename 	= $imageFile->store($sourceFilename, $sourceData);
 		//$destinationData 		= $imageFile->fetch($destinationFilename);
 		//$destinationSize 		= strlen($destinationData);
@@ -45,7 +45,7 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 	//}
 
 	protected function _getMockImagePath() {
-		return APPLICATION_PATH . self::RESOURCE_UNOPTIMIZED_PNG;
+		return GARP_APPLICATION_PATH . self::RESOURCE_UNOPTIMIZED_PNG;
 	}
 
 	protected function _getMockImageData() {
@@ -62,8 +62,8 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 	// 		);
 	// 	}
 	// }
-	// 
-	// 
+	//
+	//
 	// function testFormatFilenameShouldContainNoneOrASingleDot() {
 	// 	foreach ($this->_bogusFilenames as $origFilename) {
 	// 		$newFilename = Garp_File::formatFilename($origFilename);
@@ -73,8 +73,8 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 	// 		);
 	// 	}
 	// }
-	// 
-	// 
+	//
+	//
 	// function testFormatFilenameShouldContainOnlyPlainCharacters() {
 	// 	foreach ($this->_bogusFilenames as $origFilename) {
 	// 		$newFilename = Garp_File::formatFilename($origFilename);
@@ -84,8 +84,8 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 	// 		);
 	// 	}
 	// }
-	// 
-	// 
+	//
+	//
 	// function testGetCumulativeFilenameShouldReturnNonEmpty() {
 	// 	foreach ($this->_bogusFilenames as $origFilename) {
 	// 		$newFilename = Garp_File::getCumulativeFilename($origFilename);
@@ -95,8 +95,8 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 	// 		);
 	// 	}
 	// }
-	// 
-	// 
+	//
+	//
 	// function testGetCumulativeFilenameShouldContainNoneOrASingleDot() {
 	// 	foreach ($this->_bogusFilenames as $origFilename) {
 	// 		$newFilename = Garp_File::getCumulativeFilename($origFilename);
@@ -106,8 +106,8 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 	// 		);
 	// 	}
 	// }
-	// 
-	// 
+	//
+	//
 	// function testGetCumulativeFilenameShouldContainOnlyPlainCharacters() {
 	// 	foreach ($this->_bogusFilenames as $origFilename) {
 	// 		$newFilename = Garp_File::getCumulativeFilename($origFilename);
@@ -117,8 +117,8 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 	// 		);
 	// 	}
 	// }
-	// 
-	// 
+	//
+	//
 	// /**
 	//  * Checks whether the argument provided contains only word characters (a to z, A to Z, 0 to 9 or underscores), dashes and dots. This excludes characters with accents.
 	//  * @param String $filename The filename to be checked

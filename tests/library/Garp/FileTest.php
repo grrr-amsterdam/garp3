@@ -118,4 +118,24 @@ class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
 	protected function _containsOnlyPlainCharacters($filename) {
 		return preg_match('/[^\w-\.]/', $filename) === 0;
 	}
+
+	public function setUp() {
+		parent::setUp();
+		$this->_helper->injectConfigValues(array(
+			'cdn' => array(
+				'type' => 'local',
+				'extensions' => 'jpg,jpeg,gif,png,zip,pdf,xls,xlsx,csv,json',
+				'path' => array(
+					'upload' => array(
+						'image' => GARP_APPLICATION_PATH  . '/../tests/tmp',
+						'document' => GARP_APPLICATION_PATH . '/../tests/tmp'
+					),
+					'static' => array(
+						'image' => GARP_APPLICATION_PATH  . '/../tests/tmp',
+						'document' => GARP_APPLICATION_PATH . '/../tests/tmp'
+					)
+				)
+			)
+		));
+	}
 }

@@ -12,6 +12,7 @@
  * @group        Controller
  *
  */
+	/*
 class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 	protected $_cachePath;
 
@@ -144,3 +145,4 @@ class G_CachedControllerTest extends Garp_Test_PHPUnit_ControllerTestCase {
 		return $pageCache;
 	}
 }
+	 */

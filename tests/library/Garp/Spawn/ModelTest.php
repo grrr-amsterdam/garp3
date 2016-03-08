@@ -13,7 +13,7 @@ class Garp_Spawn_Model_BaseTest extends PHPUnit_Framework_TestCase {
 
 
 	public function setUp() {
-		$this->_mocks['directory'] = APPLICATION_PATH."/../garp/application/modules/mocks/models/config/";
+		$this->_mocks['directory'] = GARP_APPLICATION_PATH . "/modules/mocks/models/config/";
 	}
 
 	public function testModelShouldHaveALabel() {

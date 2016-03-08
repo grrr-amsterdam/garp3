@@ -49,8 +49,8 @@ class G_View_Helper_PartialTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function setUp(){
 		parent::setUp();
-		require_once 'garp/application/modules/mocks/resources/PartialTestMockDataGenerator.php';
-		$generator = new PartialTestMockDataGenerator();
+		//require_once 'garp/application/modules/mocks/resources/PartialTestMockDataGenerator.php';
+		$generator = new Mock_Resource_PartialTestMockDataGenerator();
 		$this->_staticArgs = $generator->wordpressDatabaseArray();
 	}
 

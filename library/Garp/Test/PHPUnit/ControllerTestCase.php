@@ -27,11 +27,7 @@ abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_Co
 	}
 
 	public function setUp() {
-		$this->application = new Garp_Application(
-			APPLICATION_ENV,
-			APPLICATION_PATH.'/configs/application.ini'
-		);
-
+		$this->application = Zend_Registry::get('application');
 		$this->bootstrap = array($this, 'appBootstrap');
 
 		$this->_helper->setUp($this->_mockData);

@@ -319,7 +319,7 @@ class Garp_Form extends Zend_Form {
 			$labelOptions['requiredSuffix'] = $this->getDefaultRequiredLabelSuffix();
 			$escape = isset($options['escape']) ? $options['escape'] : true;
 			if (!empty($options['label']) && $escape) {
-				$options['label'] = $this->getView()->escape($options['label']);
+				$options['label'] = htmlspecialchars($options['label'], ENT_COMPAT, 'UTF-8');
 			}
 			$labelOptions['escape'] = false;
 			unset($options['escape']);

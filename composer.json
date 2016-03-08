@@ -10,5 +10,12 @@
         "phpunit/phpunit": "3.7.*"
     },
     "license": "BSD-3-Clause",
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "Garp_": "library/",
+            "G_": "application/modules/g/",
+            "Mock_": "application/modules/mocks/"
+        }
+    }
 }
