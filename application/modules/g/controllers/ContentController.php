@@ -75,8 +75,8 @@ class G_ContentController extends Garp_Controller_Action {
 			$pageTitle .= ' | '.$ini->app->name;
 		}
 
-		$this->view->imagesCdn = 'http://'.$ini->cdn->domain.$ini->cdn->path->upload->image.'/';
-		$this->view->documentsCdn = 'http://'.$ini->cdn->domain.$ini->cdn->path->upload->document.'/';
+		$this->view->imagesCdn = $this->view->assetUrl('') . $ini->cdn->path->upload->image.'/';
+		$this->view->documentsCdn = $this->view->assetUrl('') . $ini->cdn->path->upload->document.'/';
 
 		$this->view->title = $pageTitle;
 		$this->view->locale = $ini->resources->locale->default;
