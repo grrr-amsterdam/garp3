@@ -1,7 +1,7 @@
 {
     "name": "grrr-amsterdam/garp3",
     "description": "Framework and CMS built on top of Zend Framework.",
-    "type": "project",
+    "type": "library",
     "require": {
         "google/apiclient": "^1.1",
         "zendframework/zendframework1": "^1"
