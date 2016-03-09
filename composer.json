@@ -17,5 +17,8 @@
             "G_": "application/modules/g/",
             "Mock_": "application/modules/mocks/"
         }
-    }
+    },
+    "include-path": [
+    	"library/"
+    ]
 }
