@@ -1,16 +1,17 @@
 <?php
 date_default_timezone_set('Europe/Amsterdam');
 define('APPLICATION_ENV', 'testing');
-$rootPath = dirname(__FILE__).'/..';
+$garpRoot = dirname(__FILE__).'/..';
 
-require_once $rootPath.'/application/init.php';
+require_once $garpRoot . '/application/init.php';
 
 // Grab either the configuration of a host project, where garp3 is installed as dependency,
 // or take predefined config.ini used in Garp's own test suite.
+$assumedApplicationIniPath = APPLICATION_PATH . '/configs/application.ini';
 $application = new Garp_Application(
 	APPLICATION_ENV,
-	file_exists(APPLICATION_PATH . '/configs/application.ini') ?
-		APPLICATION_PATH . '/configs/application.ini' :
+	file_exists($assumedApplicationIniPath) ?
+		$assumedApplicationIniPath :
 		GARP_APPLICATION_PATH . '/../tests/config.ini'
 );
 

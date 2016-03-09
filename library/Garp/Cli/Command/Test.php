@@ -10,9 +10,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Cli_Command_Test extends Garp_Cli_Command {
-	protected $_garpPath = 'garp/tests/';
+	protected $_garpPath = 'vendor/grrr-amsterdam/garp3/tests/';
 	protected $_appPath = 'tests/';
-	protected $_command = 'phpunit --verbose --colors --bootstrap vendor/grrr-amsterdam/garp3/tests/TestHelper.php ';
+	protected $_command = 'phpunit --verbose --colors ';
 
 	/**
 	 * Central start method
@@ -41,14 +41,17 @@ class Garp_Cli_Command_Test extends Garp_Cli_Command {
 		if (array_key_exists('module', $args) && $args['module']) {
 			if ($args['module'] === 'garp') {
 				$path = $this->_garpPath;
+				$command .= '--bootstrap vendor/grrr-amsterdam/garp3/tests/TestHelper.php ';
 				$command .= $path;
 			} elseif ($args['module'] === 'default') {
 				$path = $this->_appPath;
+				$command .= '--bootstrap tests/TestHelper.php ';
 				$command .= $path;
 			} else {
 				throw new Exception("Only 'garp' and 'default' are valid configurable modules for the test environment.");
 			}
 		} else {
+			$command .= '--bootstrap tests/TestHelper.php ';
 			$command .= $this->_appPath.' && '.$command.$this->_garpPath;
 		}
 		system($command);
