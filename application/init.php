@@ -29,42 +29,43 @@ if (array_key_exists('HTTP_HOST', $_SERVER) && $_SERVER['HTTP_HOST']) {
 	//	h t t p   c o n t e x t
 	define('HTTP_HOST', $_SERVER['HTTP_HOST']);
 
-	set_include_path(
-		realpath(APPLICATION_PATH.'/../library')
-		. PATH_SEPARATOR . realpath(GARP_APPLICATION_PATH.'/../library')
-		. PATH_SEPARATOR . '.'
-	);
+	//set_include_path(
+		//realpath(APPLICATION_PATH.'/../library')
+		//. PATH_SEPARATOR . realpath(GARP_APPLICATION_PATH.'/../library')
+		//. PATH_SEPARATOR . '.'
+	//);
 
 } else {
 	//	c l i   c o n t e x t
 	define('HTTP_HOST', gethostname());
 
-	set_include_path(
-		'.'
-		. PATH_SEPARATOR . BASE_PATH . '/library'
-		. PATH_SEPARATOR . realpath(GARP_APPLICATION_PATH.'/../library')
-		. PATH_SEPARATOR . get_include_path()
-	);
+	//set_include_path(
+		//'.'
+		//. PATH_SEPARATOR . BASE_PATH . '/library'
+		//. PATH_SEPARATOR . realpath(GARP_APPLICATION_PATH.'/../library')
+		//. PATH_SEPARATOR . get_include_path()
+	//);
 
 	$isCli = true;
 }
 
-if (!class_exists('Garp_Loader')) {
-	require GARP_APPLICATION_PATH . '/../library/Garp/Loader.php';
-}
+//if (!class_exists('Garp_Loader')) {
+	//require GARP_APPLICATION_PATH . '/../library/Garp/Loader.php';
+//}
 
 /**
  * Set up class loading.
  */
+/*
 $classLoader = Garp_Loader::getInstance()->addIncludePaths(array(
-	array(
-		'namespace' => '*',
-		'path' => realpath(APPLICATION_PATH.'/../library')
-	),
-	array(
-		'namespace' => 'Garp',
-		'path' => realpath(GARP_APPLICATION_PATH.'/../library')
-	),
+	//array(
+		//'namespace' => '*',
+		//'path' => realpath(APPLICATION_PATH.'/../library')
+	//),
+	//array(
+		//'namespace' => 'Garp',
+		//'path' => realpath(GARP_APPLICATION_PATH.'/../library')
+	//),
 	array(
 		'namespace' => 'Model',
 		'path' => APPLICATION_PATH.'/modules/default/models/',
@@ -81,7 +82,8 @@ $classLoader = Garp_Loader::getInstance()->addIncludePaths(array(
 		'ignore' => 'Mocks_Model_'
 	)
 ));
-$classLoader->register();
+//$classLoader->register();
+ */
 
 if (!$isCli && Garp_Application::isUnderConstruction()) {
 	//header('HTTP/1.1 503 Service Temporarily Unavailable');

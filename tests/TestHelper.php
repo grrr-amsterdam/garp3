@@ -3,32 +3,15 @@ date_default_timezone_set('Europe/Amsterdam');
 define('APPLICATION_ENV', 'testing');
 $rootPath = dirname(__FILE__).'/..';
 
-require_once 'vendor/autoload.php';
 require_once $rootPath.'/application/init.php';
 
+// Grab either the configuration of a host project, where garp3 is installed as dependency,
+// or take predefined config.ini used in Garp's own test suite.
 $application = new Garp_Application(
 	APPLICATION_ENV,
-	GARP_APPLICATION_PATH . '/../tests/config.ini'
-	/*
-	array(
-		'bootstrap' => array(
-			'path' => GARP_APPLICATION_PATH . "/../library/Garp/Application/Bootstrap/Bootstrap.php",
-			'class' => 'Garp_Application_Bootstrap_Bootstrap'
-		),
-		'resources' => array(
-			'view' => array(
-				'doctype' => 'html5'
-			),
-			'db' => array(
-			),
-			'locale' => array(
-			)
-		),
-	)
-	 */
-
-
-	//APPLICATION_PATH.'/configs/application.ini'
+	file_exists(APPLICATION_PATH . '/configs/application.ini') ?
+		APPLICATION_PATH . '/configs/application.ini' :
+		GARP_APPLICATION_PATH . '/../tests/config.ini'
 );
 
 $application->bootstrap();
