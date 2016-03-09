@@ -14,8 +14,8 @@
     "autoload": {
         "psr-0": {
             "Garp_": "library/",
-            "G_": "application/modules/g/",
-            "Mock_": "application/modules/mocks/"
+            "G_": "application/modules/",
+            "Mock_": "application/modules/"
         }
     },
     "include-path": [

@@ -239,7 +239,7 @@ abstract class Garp_Content_Db_Server_Abstract implements Garp_Content_Db_Server
 	 * @return 	String 			The dump output, with adjusted casing.
 	 */
 	protected function _lowerCaseTableAndViewNames(&$dump) {
-		$configDir 		= APPLICATION_PATH."/modules/default/models/config/";
+		$configDir 		= APPLICATION_PATH."/modules/default/Model/config/";
 		$extension 		= 'json';
 		$patterns 		= array();
 		$replacements 	= array();
