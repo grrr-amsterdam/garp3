@@ -39,7 +39,6 @@ abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_Co
 			APPLICATION_ENV,
 			APPLICATION_PATH.'/configs/application.ini'
 		);
-		var_dump($this->application); exit;
 
 		$this->bootstrap = array($this, 'appBootstrap');
 
