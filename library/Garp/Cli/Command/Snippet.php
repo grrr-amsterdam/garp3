@@ -211,8 +211,7 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
 		if ($this->_loadable) {
 			return true;
 		}
-		$classLoader = Garp_Loader::getInstance();
-		if (!$classLoader->isLoadable('Model_Snippet')) {
+		if (!class_exists('Model_Snippet')) {
 			throw new Exception('The Snippet model could not be autoloaded. Spawn it first, dumbass!');
 		}
 		$this->_loadable = true;

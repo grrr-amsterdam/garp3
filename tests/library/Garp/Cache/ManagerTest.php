@@ -24,7 +24,7 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testCreationOfScheduledJob() {
 		// Act only when ScheduledJob model exists
-		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+		if (!class_exists('Model_ScheduledJob')) {
 			return;
 		}
 
@@ -39,7 +39,7 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testCreationOfScheduledJobWithTags() {
 		// Act only when ScheduledJob model exists
-		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+		if (!class_exists('Model_ScheduledJob')) {
 			return;
 		}
 
@@ -54,7 +54,7 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testScheduledJobShouldCreateChecksum() {
 		// Act only when ScheduledJob model exists
-		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+		if (!class_exists('Model_ScheduledJob')) {
 			return;
 		}
 
@@ -72,7 +72,7 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testChecksumShouldPreventDuplicatesWithoutException() {
 		// Act only when ScheduledJob model exists
-		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+		if (!class_exists('Model_ScheduledJob')) {
 			return;
 		}
 
@@ -158,7 +158,7 @@ class Garp_Cache_ManagerTest extends Garp_Test_PHPUnit_TestCase {
 		$dbAdapter->query('SET foreign_key_checks = 1;');
 
 		// Act only when ScheduledJob model exists
-		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+		if (!class_exists('Model_ScheduledJob')) {
 			return;
 		}
 		$scheduledJobModel = new Model_ScheduledJob();

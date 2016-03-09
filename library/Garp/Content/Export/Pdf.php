@@ -39,9 +39,10 @@ class Garp_Content_Export_Pdf extends Garp_Content_Export_Html {
  		 * DOMPDF has its own autoloader. checkIfFileExists(true) allows our
  		 * loader to be chainable. That way the DOMPDF autoloader will take over
  		 * when our loader cannot find the class.
+ 		 * @deprecated We don't use our loader anymore, in favor of Composer's autoloader
  		 */
-		$loader = Garp_Loader::getInstance();
-		$loader->checkIfFileExists(true);
+		//$loader = Garp_Loader::getInstance();
+		//$loader->checkIfFileExists(true);
 
 		$html = parent::format($model, $rowset);
 		$dompdf = new DOMPDF();

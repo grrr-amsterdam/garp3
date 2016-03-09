@@ -29,7 +29,7 @@ class Garp_Cli_Command_ClusterTest extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function setUp() {
-		$this->_testsEnabled = Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob');
+		$this->_testsEnabled = class_exists('Model_ScheduledJob');
 		parent::setUp();
 	}
 

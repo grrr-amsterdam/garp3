@@ -46,8 +46,7 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 	protected function _initConfig() {
 		$this->bootstrap('db');
 		$this->bootstrap('locale');
-		$loader = Garp_Loader::getInstance();
-		if (!$loader->isLoadable('Model_Info')) {
+		if (!class_exists('Model_Info')) {
 			return;
 		}
 		try {
