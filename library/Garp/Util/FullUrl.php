@@ -103,10 +103,16 @@ class Garp_Util_FullUrl {
 	}
 
 	protected function _getScheme() {
-		if ($request = Zend_Controller_Front::getInstance()->getRequest()) {
-			return $request->getScheme();
+		if (!$request = Zend_Controller_Front::getInstance()->getRequest()) {
+			return 'http';
 		}
-		return 'http';
+		// When using CloudFront scheme will be reported as "http" even when it's "https".
+		// When configured correctly, the HTTP_CLOUDFRONT_FORWARDED_PROTO will contain the right
+		// value.
+		if ($request->getHeader('CLOUDFRONT_FORWARDED_PROTO')) {
+            return $request->getHeader('CLOUDFRONT_FORWARDED_PROTO');
+        }
+		return $request->getScheme();
 	}
 
 	/**
