@@ -47,7 +47,7 @@ class Garp_Spawn_Php_Model_Extended extends Garp_Spawn_Php_Model_Abstract {
 		$modelClass 	= get_class($model);
 		$dynamicBase 	= $modelClass === 'Garp_Spawn_Model_Base';
 		$isGarp			= $model->module === 'garp';
-		$namespace		= $dynamicBase && $isGarp ? 'G_Model_' : 'Model_Base_';
+		$namespace		= $dynamicBase && $isGarp ? 'Garp_Model_Db_' : 'Model_Base_';
 
 		return $namespace;
 	}

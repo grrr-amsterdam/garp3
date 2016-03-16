@@ -29,7 +29,7 @@ class G_Model_UserTest extends Garp_Test_PHPUnit_TestCase {
 	);
 
 	public function testNewUserShouldGetPrefilledData() {
-		$modelUser = new G_Model_User();
+		$modelUser = new Model_User();
 
 		$newUserData = array('email' => 'harmen@grrr.nl');
 		$prefilledData = $modelUser->getPrefilledData($newUserData);
@@ -46,7 +46,7 @@ class G_Model_UserTest extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function testNewUserDataShouldOverwritePredefinedData() {
-		$modelUser = new G_Model_User();
+		$modelUser = new Model_User();
 
 		$newUserData = array(
 			'email' => 'frits@grrr.nl',
@@ -66,7 +66,7 @@ class G_Model_UserTest extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function testUserDataWithoutEmailShouldNotRaiseError() {
-		$modelUser = new G_Model_User();
+		$modelUser = new Model_User();
 		$newUserData = array(
 			'first_name' => 'Hank',
 			'last_name' => 'O\'Reilly'
@@ -76,7 +76,7 @@ class G_Model_UserTest extends Garp_Test_PHPUnit_TestCase {
 	}
 
 	public function testUserDataWithUnknownEmailShouldNotRaiseError() {
-		$modelUser = new G_Model_User();
+		$modelUser = new Model_User();
 		$newUserData = array(
 			'first_name' => 'Hank',
 			'last_name' => 'O\'Reilly',
@@ -88,7 +88,7 @@ class G_Model_UserTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function testMultipleEntriesShouldBeCombined() {
 		// edge case
-		$modelUser = new G_Model_User();
+		$modelUser = new Model_User();
 		$newUserData = array('email' => 'henk@grrr.nl');
 
 		$prefilledData = $modelUser->getPrefilledData($newUserData);

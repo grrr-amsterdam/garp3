@@ -56,7 +56,7 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 				// Discard request token
 				if ($cookie->extendedUserColumns) {
 					$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));
-					$cookie->destroy('extendedUserColumns');	
+					$cookie->destroy('extendedUserColumns');
 				}
 				$cookie->destroy('oauth_token');
 
@@ -95,7 +95,7 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 		$userConditions = $userModel->select()->from(
 			$userModel->getName(), $this->_getSessionColumns());
 
-		$model = new G_Model_AuthTwitter();
+		$model = new Model_AuthTwitter();
 		$model->bindModel('Model_User', array(
 			'conditions' => $userConditions,
 			'rule' => 'User'

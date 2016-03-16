@@ -33,7 +33,7 @@ class G_ImagesController extends Garp_Controller_Action {
 
 		if (!$filename) {
 			throw new Zend_Controller_Action_Exception('No filename was provided.', 404);
-		} 
+		}
 
 		if (!is_numeric($filename)) {
 			throw new Zend_Controller_Action_Exception("Referring to images by their filename is no longer supported in this url format. Please use the image id.", 404);
@@ -50,7 +50,7 @@ class G_ImagesController extends Garp_Controller_Action {
 	}
 
 	private function _viewSourceById($id) {
-		$imageModel = new G_Model_Image();
+		$imageModel = new Model_Image();
 		$imageRow = $imageModel->fetchRow($imageModel->getAdapter()->quoteInto("id = ?", $id));
 		if (count($imageRow) && isset($imageRow->filename)) {
 			$file = new Garp_File('image');
@@ -69,7 +69,7 @@ class G_ImagesController extends Garp_Controller_Action {
 	// public function ____viewAction() {
 	// 	$request = $this->getRequest();
 	// 	$filename = $request->getParam('file');
-	// 
+	//
 	// 	//	decide the type of image request
 	// 	if (
 	// 		!$filename
@@ -88,18 +88,18 @@ class G_ImagesController extends Garp_Controller_Action {
 	// 	) {
 	// 		$scaleParams = array();
 	// 		$isInNeedOfScaling = false;
-	// 
+	//
 	// 		foreach ($this->_scaleParams as $scaleParamName) {
 	// 			$scaleParams[$scaleParamName] = $request->getParam($scaleParamName);
 	// 			if (!is_null($scaleParams[$scaleParamName]))
 	// 				$isInNeedOfScaling = true;
 	// 		}
-	// 
+	//
 	// 		if ($isInNeedOfScaling)
 	// 			$this->_viewCustomScaled($filename, $scaleParams);
 	// 		else
 	// 			$this->_viewSource($filename);
-	// 
+	//
 	// 	} else {
 	// 		throw new Exception('Image request was malformed.');
 	// 	}
@@ -108,7 +108,7 @@ class G_ImagesController extends Garp_Controller_Action {
 
 // 		//	TODO ______________checken, aanpassen, fixen:
 // 		$imageFile = new Garp_Image_File();
-// 
+//
 // 		if (
 // 			array_key_exists('remote', $scaleParams) &&
 // 			$scaleParams['remote']
@@ -120,7 +120,7 @@ class G_ImagesController extends Garp_Controller_Action {
 // 				exit($e->getMessage());
 // 			}
 // 		}
-// 
+//
 // 		if (
 // 			!(
 // 				array_key_exists('cache', $scaleParams) &&
@@ -141,7 +141,7 @@ class G_ImagesController extends Garp_Controller_Action {
 // exit('nieuwe scale genereren');
 // 			//	A new scaled cache file should be generated.
 // 			$imageScaler = new Garp_Image_Scaler($scaleParams);
-// 
+//
 // 			try {
 // 				$image = $imageScaler->render($filename);
 // 				$this->output($image['path'], $image['timestamp'], $image['mime']);
@@ -179,7 +179,7 @@ class G_ImagesController extends Garp_Controller_Action {
 
 	/** DEPRECATED */
 	// private function _viewSourceById($id) {
-	// 	$imageModel = new G_Model_Image();
+	// 	$imageModel = new Model_Image();
 	// 	$imageRow = $imageModel->fetchRow($imageModel->getAdapter()->quoteInto("id = ?", $id));
 	// 	if (count($imageRow) && isset($imageRow->filename)) {
 	// 		$this->_viewSource($imageRow->filename);
@@ -192,7 +192,7 @@ class G_ImagesController extends Garp_Controller_Action {
 	 */
 	// private function _viewCustomScaled($filename, $scaleParams) {
 	// 	$imageFile = new Garp_Image_File();
-	// 
+	//
 	// 	if (
 	// 		!$imageFile->exists(
 	// 			$imageFile->createCustomScaledPath($filename, $scaleParams, true)
@@ -204,7 +204,7 @@ class G_ImagesController extends Garp_Controller_Action {
 	// 			$scaleParams
 	// 		);
 	// 	}
-	// 	
+	//
 	// 	$imageFile->show(
 	// 		$imageFile->createCustomScaledPath($filename, $scaleParams, true)
 	// 	);

@@ -32,7 +32,7 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 			if ($request->getParam('code')) {
 				$accessToken = $this->_getLinkedInInstance()->getAccessToken($request->getParam('code'));
 				if ($cookie->extendedUserColumns) {
-					$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));	
+					$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));
 					$cookie->destroy('extendedUserColumns');
 				}
 
@@ -40,7 +40,7 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 			}
 
 			// User has not interacted yet, and needs to authorize the app
-			
+
 			if (!empty($this->_extendedUserColumns)) {
 				$cookie->extendedUserColumns = serialize($this->_extendedUserColumns);
 			}
@@ -72,7 +72,7 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
 		$userConditions = $userModel->select()
 			->from($userModel->getName(), $this->_getSessionColumns());
 
-		$model = new G_Model_AuthLinkedin();
+		$model = new Model_AuthLinkedin();
 		$model->bindModel('Model_User', array(
 			'conditions' => $userConditions,
 			'rule' => 'User'

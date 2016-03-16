@@ -111,7 +111,7 @@ class Garp_Model_Db_Chapter extends Model_Base_Chapter {
 			$node['chapter_id'] = $chapterId;
 			$contentNodeId = $this->_insertContentNode($node);
 
-			// @todo Move everything below here to G_Model_ContentNode::afterInsert()
+			// @todo Move everything below here to Model_ContentNode::afterInsert()
 
 			// Determine content type
 			$contentTypeModelName = 'Model_'.$node['model'];

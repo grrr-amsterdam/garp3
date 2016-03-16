@@ -20,7 +20,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 	const IMAGE_URL_COLUMN = 'imageUrl';
 
 	/**
- 	 * A password might be passed, but that belongs in G_Model_AuthLocal.
+ 	 * A password might be passed, but that belongs in Model_AuthLocal.
  	 * Since no primary key exists yet beforeInsert, save the password beforeInsert here,
  	 * and read it again afterInsert.
  	 * @var String
@@ -84,7 +84,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 			throw new Garp_Model_Exception(self::EXCEPTION_CANNOT_ASSIGN_GREATER_ROLE);
 		}
 
-		// A password might be passed along, but that is actually a column of G_Model_AuthLocal
+		// A password might be passed along, but that is actually a column of Model_AuthLocal
 		if (!empty($data[self::PASSWORD_COLUMN])) {
 			// Save it for later, for reading from afterInsert
 			$this->_password = $data[self::PASSWORD_COLUMN];
@@ -112,7 +112,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
 		// Save the password that was stored in beforeInsert()
 		if ($this->_password) {
-			$authLocalModel = new G_Model_AuthLocal();
+			$authLocalModel = new Model_AuthLocal();
 			$newAuthLocalData = array(
 				'password' => $this->_password,
 				'user_id'  => $primaryKey
@@ -153,7 +153,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 			unset($data[self::IMAGE_URL_COLUMN]);
 		}
 
-		// A password might be passed in, and needs to be passed to G_Model_AuthLocal
+		// A password might be passed in, and needs to be passed to Model_AuthLocal
 		if (!empty($data[self::PASSWORD_COLUMN])) {
 			// $primaryKey = $this->info(self::PRIMARY);
 			// @note 'id' is the only valid primary key here. This might not be flexible enough
@@ -166,7 +166,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
 			foreach ($matchedRecords as $matchedRecord) {
 				$thePrimaryKey = $matchedRecord->{$primaryKey};
-				$authLocalModel = new G_Model_AuthLocal();
+				$authLocalModel = new Model_AuthLocal();
 				// Check if an AuthLocal record already exists
 				$authLocalRecord = $authLocalModel->fetchRow(
 					$authLocalModel->select()->where('user_id = ?', $thePrimaryKey)

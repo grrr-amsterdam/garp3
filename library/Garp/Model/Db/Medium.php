@@ -28,8 +28,8 @@ class Garp_Model_Db_Medium extends Model_Base_Medium {
 	 */
 	public function fetchBy($modelName, $primary, $select = null) {
 		$model				 = new $modelName();
-		$imageBindingModel	 = $model->getBindingModel(new G_Model_Image());
-		$youtubeBindingModel = $model->getBindingModel(new G_Model_YouTubeVideo());
+		$imageBindingModel	 = $model->getBindingModel(new Model_Image());
+		$youtubeBindingModel = $model->getBindingModel(new Model_YouTubeVideo());
 		$imageBindingTable	 = $imageBindingModel->getName();
 		$youtubeBindingTable = $youtubeBindingModel->getName();
 		$modelToImageRef	 = $imageBindingModel->getReference($modelName);

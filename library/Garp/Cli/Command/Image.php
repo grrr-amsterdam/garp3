@@ -93,7 +93,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 
 		$scaler 	= new Garp_Image_Scaler();
 		$templates 	= $scaler->getTemplateNames();
-		$imageModel = new G_Model_Image();
+		$imageModel = new Model_Image();
 		$select 	= $imageModel->getAdapter()->quoteInto('filename = ?', $filename);
 		$record 	= $imageModel->fetchRow($select);
 		$file 		= new Garp_Image_File();
@@ -122,7 +122,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 			return;
 		}
 
-		$imageModel = new G_Model_Image();
+		$imageModel = new Model_Image();
 		$record 	= $imageModel->fetchById($id);
 		return $this->_generateScaledImagesForFilename($record->filename);
 	}
@@ -136,7 +136,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 	protected function _generateScaledImagesForTemplate($template, $overwrite = false) {
 		Garp_Cli::lineOut('Generating scaled images for template "' . $template . '".');
 
-		$imageModel = new G_Model_Image();
+		$imageModel = new Model_Image();
 		$records 	= $imageModel->fetchAll();
 		$file 		= new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);
 		$scaler 	= new Garp_Image_Scaler();

@@ -49,7 +49,7 @@ class Garp_Auth_Adapter_Db extends Garp_Auth_Adapter_Abstract {
  		   	$sessionColumns = explode(',', $sessionColumns);
 		}
 
-		$model = new G_Model_AuthLocal();
+		$model = new Model_AuthLocal();
 		try {
 			$result = $model->tryLogin($identityValue, $credentialValue, $authVars, $sessionColumns);
 			return $result->toArray();
