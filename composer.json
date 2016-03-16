@@ -13,9 +13,7 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
-            "Garp_": "library/",
-            "G_": "application/modules/",
-            "Mock_": "application/modules/"
+            "Garp_": "library/"
         }
     },
     "include-path": [
