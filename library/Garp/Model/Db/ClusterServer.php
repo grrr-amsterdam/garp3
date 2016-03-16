@@ -1,5 +1,5 @@
 <?php
-class G_Model_ClusterServer extends Model_Base_ClusterServer {
+class Garp_Model_Db_ClusterServer extends Model_Base_ClusterServer {
 	public function init() {
 		parent::init();
 
@@ -33,15 +33,15 @@ class G_Model_ClusterServer extends Model_Base_ClusterServer {
 			$lastCheckIn
 		);
 	}
-	
-	
+
+
 	public function fetchServerId() {
 		if ($serverRow = $this->_fetchServerRow()) {
 			return $serverRow->id;
 		}
 	}
-	
-	
+
+
 	protected function _fetchServerRow() {
 		return $this->fetchRow(
 			$this->select()->where('hostname = ?', gethostname())

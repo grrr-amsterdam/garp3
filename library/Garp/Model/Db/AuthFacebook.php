@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_AuthFacebook
+ * Garp_Model_Db_AuthFacebook
  * class description
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -9,7 +9,7 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthFacebook extends Model_Base_AuthFacebook {
+class Garp_Model_Db_AuthFacebook extends Model_Base_AuthFacebook {
 	protected $_name = 'authfacebook';
 
 	public function init() {

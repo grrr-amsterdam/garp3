@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_Location
+ * Garp_Model_Db_Location
  * Standard implementation of a (Dutch) location, based on the 6PP postal code database.
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -8,7 +8,7 @@
  * @package Garp
  * @lastmodified $Date: $
  */
-class G_Model_Location extends Model_Base_Location {
+class Garp_Model_Db_Location extends Model_Base_Location {
 
 	/**
  	 * Fetches the location record from the database if it exists.
@@ -30,7 +30,7 @@ class G_Model_Location extends Model_Base_Location {
 
 		if (!$googleLocation || $googleLocation->error) {
 			return null;
-		} 
+		}
 
 		$this->_storeLocation($zip, $googleLocation);
 		$row = $this->_fetchRowByZipFromDatabase($zip);

@@ -1,9 +1,9 @@
 <?php
 /**
- * G_Model_Medium
- * This model acts on a view called 'media'. 
- * This view is a union of 'images' and 'youtube_videos' and is not 
- * updatable. Therefore, insert, update and delete are disabled in 
+ * Garp_Model_Db_Medium
+ * This model acts on a view called 'media'.
+ * This view is a union of 'images' and 'youtube_videos' and is not
+ * updatable. Therefore, insert, update and delete are disabled in
  * this model.
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -12,14 +12,14 @@
  * @subpackage Model
  * @lastmodified $Date: $
  */
-class G_Model_Medium extends Model_Base_Medium {
+class Garp_Model_Db_Medium extends Model_Base_Medium {
 	/**
 	 * Primary key
 	 * @var String
 	 */
 	protected $_primary = 'id';
-	
-	
+
+
 	/**
 	 * Fetch media related to another model.
 	 * @param String $model The other model
@@ -34,12 +34,12 @@ class G_Model_Medium extends Model_Base_Medium {
 		$youtubeBindingTable = $youtubeBindingModel->getName();
 		$modelToImageRef	 = $imageBindingModel->getReference($modelName);
 		$modelToYoutubeRef	 = $youtubeBindingModel->getReference($modelName);
-		
+
 		// determine foreign keys;
 		$primary = (array)$primary;
 		$imageBindingConditions = $this->_getBindingConditions($modelToImageRef['columns'], $primary, $imageBindingTable);
 		$youtubeBindingConditions = $this->_getBindingConditions($modelToYoutubeRef['columns'], $primary, $youtubeBindingTable);
-		
+
 		$select = $select ?: $this->select();
 		$select->from($this->_name)
 			   ->joinLeft($imageBindingTable, $imageBindingTable.".image_id = {$this->_name}.id", array())
@@ -48,8 +48,8 @@ class G_Model_Medium extends Model_Base_Medium {
 			   ->orWhere($youtubeBindingConditions);
 		return $this->fetchAll($select);
 	}
-	
-	
+
+
 	/**
 	 * Generate binding conditions for the fetchBy method
 	 * @param Array $columns The columns that are foreign keys in the binding table
@@ -67,21 +67,21 @@ class G_Model_Medium extends Model_Base_Medium {
 		}
 		return implode(' AND ', $conditions);
 	}
-	
-	
+
+
 	/**
 	 * The following methods disable updating of the view:
 	 */
 	public function insert(array $data) {
 		throw new Garp_Model_Exception('Medium can not be inserted.');
 	}
-	
-	
+
+
 	public function update(array $data, $where) {
 		throw new Garp_Model_Exception('Medium can not be updated.');
 	}
-	
-	
+
+
     public function delete($where) {
 		throw new Garp_Model_Exception('Medium can not be deleted.');
 	}

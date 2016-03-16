@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_AuthOpenId
+ * Garp_Model_Db_AuthOpenId
  * class description
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -9,7 +9,7 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthOpenId extends Model_Base_AuthOpenId {
+class Garp_Model_Db_AuthOpenId extends Model_Base_AuthOpenId {
 	protected $_name = 'authopenid';
 
 	public function init() {

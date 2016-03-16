@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_AuthVimeo
+ * Garp_Model_Db_AuthTwitter
  * class description
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -9,8 +9,8 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthVimeo extends Model_Base_Vimeo {
-	protected $_name = 'authvimeo';
+class Garp_Model_Db_AuthTwitter extends Model_Base_AuthTwitter {
+	protected $_name = 'authtwitter';
 
 	public function init() {
 		parent::init();
@@ -18,23 +18,20 @@ class G_Model_AuthVimeo extends Model_Base_Vimeo {
 	}
 
 	/**
-	 * Store a new user. This creates a new AuthVimeo record, but also
+	 * Store a new user. This creates a new auth_twitter record, but also
 	 * a new user record.
-	 * @param String $vimeoId Vimeo user id
-	 * @param Zend_Oauth_Token_Access $accessToken oAuth access token
-	 * @param Array $props Properties received from Vimeo
+	 * @param String $twitterId Twitter user id
+	 * @param Array $props Properties received from Twitter
 	 * @return Garp_Db_Table_Row The new user data
 	 */
-	public function createNew($vimeoId, Zend_Oauth_Token_Access $accessToken, array $props) {
+	public function createNew($twitterId, array $props) {
 		// first save the new user
 		$userModel	= new Model_User();
 		$userId		= $userModel->insert($props);
 		$userData	= $userModel->find($userId)->current();
 		$this->insert(array(
-			'vimeo_id'            => $vimeoId,
-			'access_token'        => $accessToken->getToken(),
-			'access_token_secret' => $accessToken->getTokenSecret(),
-			'user_id'             => $userId
+			'twitter_uid' => $twitterId,
+			'user_id' => $userId
 		));
 
 		$this->getObserver('Authenticatable')->updateLoginStats($userId);

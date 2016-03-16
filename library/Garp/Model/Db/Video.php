@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_Video
+ * Garp_Model_Db_Video
  * @author Harmen Janssen, David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -8,7 +8,7 @@
  * @subpackage Model
  * @lastmodified $Date: $
  */
-class G_Model_Video extends Model_Base_Video {
+class Garp_Model_Db_Video extends Model_Base_Video {
 	public function insert(array $data) {
 		try {
 			return parent::insert($data);

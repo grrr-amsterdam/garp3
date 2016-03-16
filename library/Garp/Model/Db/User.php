@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_User
+ * Garp_Model_Db_User
  * Standard implementation of a User model.
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -8,7 +8,7 @@
  * @package Garp
  * @lastmodified $Date: $
  */
-class G_Model_User extends Model_Base_User {
+class Garp_Model_Db_User extends Model_Base_User {
 	const EXCEPTION_CANNOT_ASSIGN_GREATER_ROLE =
 		'You are not allowed to assign a role greater than your own.';
 	const EXCEPTION_CANNOT_EDIT_GREATER_ROLE =

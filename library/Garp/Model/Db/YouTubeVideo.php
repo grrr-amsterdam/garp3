@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_YouTubeVideo
+ * Garp_Model_Db_YouTubeVideo
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -8,14 +8,14 @@
  * @subpackage Model
  * @lastmodified $Date: $
  */
-class G_Model_YouTubeVideo extends Garp_Model_Db {
+class Garp_Model_Db_YouTubeVideo extends Garp_Model_Db {
 	/**
 	 * The table name
 	 * @var String
 	 */
 	protected $_name = 'youtubevideo';
-	
-	
+
+
 	/**
      * Initialize object
      * Called from {@link __construct()} as final step of object instantiation.

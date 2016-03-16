@@ -1,5 +1,5 @@
 <?php
-class G_Model_ScheduledJob extends Model_Base_ScheduledJob {
+class Garp_Model_Db_ScheduledJob extends Model_Base_ScheduledJob {
 	public function init() {
 		parent::init();
 

@@ -3,7 +3,7 @@
 * @author David Spreekmeester | grrr.nl
 */
 
-class G_Model_ClusterClearCacheJob extends Model_Base_ClusterClearCacheJob {
+class Garp_Model_Db_ClusterClearCacheJob extends Model_Base_ClusterClearCacheJob {
 	public function init() {
 		parent::init();
 
@@ -23,7 +23,7 @@ class G_Model_ClusterClearCacheJob extends Model_Base_ClusterClearCacheJob {
 
 		return $this->fetchAll($select);
 	}
-	
+
 	/**
 	 * @param Int $serverId Database id of the current server in the cluster
 	 * @param Array $tags Array of tags, for specific cache clearing

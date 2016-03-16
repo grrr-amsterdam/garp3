@@ -1,13 +1,13 @@
 <?php
 /**
- * Garp_Model_Info
+ * Garp_Model_Db_Info
  * Generic info model. Allows admins to configure various parameters about their system.
  *
  * @author       Harmen Janssen | grrr.nl
  * @version      1.0
- * @package      G_Model
+ * @package      Garp_Model_Db
  */
-class G_Model_Info extends Model_Base_Info {
+class Garp_Model_Db_Info extends Model_Base_Info {
 	/**#@+
 	 * Constants that are used for types of info
 	 * @var string

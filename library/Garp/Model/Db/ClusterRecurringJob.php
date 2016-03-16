@@ -2,7 +2,7 @@
 /**
  * @author David Spreekmeester | grrr.nl
  */
-class G_Model_ClusterRecurringJob extends Model_Base_ClusterRecurringJob {
+class Garp_Model_Db_ClusterRecurringJob extends Model_Base_ClusterRecurringJob {
 	public function init() {
 		parent::init();
 

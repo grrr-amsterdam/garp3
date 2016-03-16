@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_AuthLinkedin
+ * Garp_Model_Db_AuthLinkedin
  * class description
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -9,7 +9,7 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthLinkedin extends Model_Base_AuthLinkedin {
+class Garp_Model_Db_AuthLinkedin extends Model_Base_AuthLinkedin {
 	protected $_name = 'authlinkedin';
 
 	public function init() {

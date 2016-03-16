@@ -1,13 +1,13 @@
 <?php
 /**
- * G_Model_Chapter
+ * Garp_Model_Db_Chapter
  * class description
  *
  * @author       Harmen Janssen | grrr.nl
  * @package      Garp
  * @subpackage   Model
  */
-class G_Model_Chapter extends Model_Base_Chapter {
+class Garp_Model_Db_Chapter extends Model_Base_Chapter {
 	/**
  	 * Content nodes. Saved here from beforeInsert til afterInsert
  	 * @var Array
@@ -106,7 +106,7 @@ class G_Model_Chapter extends Model_Base_Chapter {
 		$contentNodeList = array_reverse($contentNodeList);
 		foreach ($contentNodeList as $contentNode) {
 			$node = $this->_getValidContentNodeData($contentNode);
-			
+
 			// Save ContentNode
 			$node['chapter_id'] = $chapterId;
 			$contentNodeId = $this->_insertContentNode($node);

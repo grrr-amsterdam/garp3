@@ -1,6 +1,6 @@
 <?php
 /**
- * Garp_Model_Image
+ * Garp_Model_Db_Image
  * Generic image model.
  * @author David Spreekmeester | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -9,7 +9,7 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_Image extends Model_Base_Image {
+class Garp_Model_Db_Image extends Model_Base_Image {
 	protected $_name = 'image';
 
 	public function init() {

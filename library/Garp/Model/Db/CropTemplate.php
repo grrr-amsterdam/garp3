@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_CropTemplate
+ * Garp_Model_Db_CropTemplate
  * Model for CropTemplates (@see templates in application.ini)
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -9,21 +9,21 @@
  * @subpackage Model
  * @lastmodified $Date: $
  */
-class G_Model_CropTemplate extends Garp_Model_IniFile {
+class Garp_Model_Db_CropTemplate extends Garp_Model_IniFile {
 	/**
 	 * Which backend ini file to use
 	 * @var String
 	 */
 	protected $_file = 'application.ini';
-	
-	
+
+
 	/**
 	 * Which namespace to use
 	 * @var String
 	 */
 	protected $_namespace = 'image.template';
-	
-	
+
+
 	/**
 	 * Fetch all entries
 	 * @return Array

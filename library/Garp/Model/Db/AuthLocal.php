@@ -1,6 +1,6 @@
 <?php
 /**
- * G_Model_AuthLocal
+ * Garp_Model_Db_AuthLocal
  * Stores login data from local accounts
  * @author Harmen Janssen | grrr.nl
  * @modifiedby $LastChangedBy: $
@@ -9,7 +9,7 @@
  * @subpackage Db
  * @lastmodified $Date: $
  */
-class G_Model_AuthLocal extends Model_Base_AuthLocal {
+class Garp_Model_Db_AuthLocal extends Model_Base_AuthLocal {
 	protected $_name = 'authlocal';
 
 	public function init() {
