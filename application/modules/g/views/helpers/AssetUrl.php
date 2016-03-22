@@ -11,6 +11,7 @@
  */
 class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	protected $_useSemver = false;
+	protected $_revManifest;
 
 	/**
 	 * Create a versioned URL to a file
@@ -24,11 +25,15 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		}
 
 		$ini = Zend_Registry::get('config');
+		// If using manifest, gulp-rev is used to generate versioned filenames.
+		// Look 'em up in the manifest file
+		if ($ini->cdn->useRevManifest) {
+			$file = $this->_processRevManifest($file);
 		// If only basename is given, we assume "modern" approach.
 		// AssetUrl will:
 		// - prepend assets.<extension>.root to the file
 		// - add the current semver to the path
-		if (strpos($file, '/') === false) {
+		} else if (strpos($file, '/') === false) {
 			$file = $this->getVersionedBuildPath($file);
 
 		// Else we will use the old (but actually more "modern") approach.
@@ -131,5 +136,26 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 		}
 		return rtrim(Zend_Registry::get('config')->assets->{$this->_getExtension($file)}->root, '/') .
 			'/' . new Garp_Semver() . '/' . $file;
+	}
+
+	protected function _processRevManifest($file) {
+		$base = basename($file);
+		$manifest = $this->getRevManifest();
+		if (!$manifest) {
+			throw new Exception('There is no manifest file for environment ' . APPLICATION_ENV);
+		}
+
+		if (array_key_exists($base, $manifest)) {
+			$base = $manifest[$base];
+		}
+		return dirname($file) . DIRECTORY_SEPARATOR . $base;
+	}
+
+	public function getRevManifest() {
+		if (!$this->_revManifest) {
+			$manifestPath = APPLICATION_PATH . '/../rev-manifest-' . 'staging'. '.json';
+			$this->_revManifest = json_decode(@file_get_contents($manifestPath), true);
+		}
+		return $this->_revManifest;
 	}
 }
