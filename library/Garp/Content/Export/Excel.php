@@ -24,7 +24,8 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
 	 * @return String
 	 */
 	public function format(Garp_Model $model, array $rowset) {
-		require_once APPLICATION_PATH.'/../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel.php';
+		require_once GARP_APPLICATION_PATH .
+			'/../library/Garp/3rdParty/PHPExcel/Classes/PHPExcel.php';
 		$phpexcel = new PHPExcel();
 		PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );
 
