@@ -3,7 +3,8 @@
     "description": "Framework and CMS built on top of Zend Framework.",
     "type": "project",
     "require": {
-        "google/apiclient": "^1.1"
+        "google/apiclient": "^1.1",
+        "phpoffice/phpexcel": "^1.8"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*"

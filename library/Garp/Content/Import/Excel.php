@@ -111,7 +111,10 @@ class Garp_Content_Import_Excel extends Garp_Content_Import_Abstract {
 	 * @return PHPExcel
 	 */
 	protected function _getReader() {
-		require APPLICATION_PATH.'/../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel.php';
+		/**
+ 	 	 * Note: this is now autoloaded by Composer
+ 	 	 */
+		//require APPLICATION_PATH.'/../garp/library/Garp/3rdParty/PHPExcel/Classes/PHPExcel.php';
 
 		$inputFileType = PHPExcel_IOFactory::identify($this->_importFile);
 		// HTML is never correct. Just default to Excel2007
