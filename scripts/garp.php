@@ -29,8 +29,8 @@ if (!defined('APPLICATION_ENV')) {
 }
 
 define('BASE_PATH', realpath(dirname(__FILE__) . '/../../../../'));
-if (file_exists(APPLICATION_PATH . '/../vendor/autoload.php')) {
-	require_once(APPLICATION_PATH . '/../vendor/autoload.php');
+if (file_exists(BASE_PATH . '/vendor/autoload.php')) {
+	require_once(BASE_PATH . '/vendor/autoload.php');
 }
 
 require_once(dirname(__FILE__)."/../application/init.php");
