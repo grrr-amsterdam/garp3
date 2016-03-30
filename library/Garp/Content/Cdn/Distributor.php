@@ -24,8 +24,9 @@ class Garp_Content_Cdn_Distributor {
 
 
 
-	public function __construct() {
-		$this->_baseDir = realpath(APPLICATION_PATH . self::RELATIVE_BASEDIR_AFTER_APPLICATION_PATH);
+	public function __construct($path = null) {
+		$this->_baseDir = realpath($path ?:
+			APPLICATION_PATH . self::RELATIVE_BASEDIR_AFTER_APPLICATION_PATH);
 	}
 
 

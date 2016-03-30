@@ -139,6 +139,11 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 	}
 
 	protected function _processRevManifest($file) {
+		// If argument is the root and not a file, return early
+		if ($file === '/') {
+			return $file;
+		}
+
 		$base = basename($file);
 		$manifest = $this->getRevManifest();
 		if (!$manifest) {
@@ -153,7 +158,7 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
 
 	public function getRevManifest() {
 		if (!$this->_revManifest) {
-			$manifestPath = APPLICATION_PATH . '/../rev-manifest-' . 'staging'. '.json';
+			$manifestPath = APPLICATION_PATH . '/../rev-manifest-' . APPLICATION_ENV . '.json';
 			$this->_revManifest = json_decode(@file_get_contents($manifestPath), true);
 		}
 		return $this->_revManifest;

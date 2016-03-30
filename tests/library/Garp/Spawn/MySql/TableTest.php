@@ -14,8 +14,9 @@ class Garp_Spawn_MySql_TableTest extends PHPUnit_Framework_TestCase {
 
 
 	public function setUp() {
-		$this->_mocks['directory'] = APPLICATION_PATH . "/../garp/application/modules/mocks/models/config/";
-		$this->_mocks['sql'] = file_get_contents($this->_mocks['directory'] . '../sql/bogus.sql');
+		$this->_mocks['directory'] = GARP_APPLICATION_PATH . "/../tests/model-config/";
+		$this->_mocks['sql'] = file_get_contents(GARP_APPLICATION_PATH .
+			'/../tests/files/bogus.sql');
 	}
 
 	function testTableShouldContainColumns() {

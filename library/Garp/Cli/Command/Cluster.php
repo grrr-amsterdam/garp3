@@ -80,7 +80,7 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 
 	protected function _runScheduledJobs($serverId, $lastCheckIn) {
 		// Make sure the model exists
-		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+		if (!class_exists('Model_ScheduledJob')) {
 			return;
 		}
 		$scheduledJobModel = new Model_ScheduledJob();
@@ -99,7 +99,6 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 	}
 
 	protected function _executeJob(Garp_Db_Table_Row $job, $serverId) {
-		$loader = Garp_Loader::getInstance(array('paths' => array()));
 		$commandParts = explode(' ', $job->command);
 
 		$class = $commandParts[0];
@@ -122,9 +121,9 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 		$appClassName = 'App_' . $fullClassNameWithoutModule;
 		$garpClassName = 'Garp_' . $fullClassNameWithoutModule;
 
-		if ($loader->isLoadable($appClassName)) {
+		if (class_exists($appClassName)) {
 			$className = $appClassName;
-		} elseif ($loader->isLoadable($garpClassName)) {
+		} elseif (class_exists($garpClassName)) {
 			$className = $garpClassName;
 		} else {
 			throw new Exception("Cannot load {$appClassName} or {$garpClassName}.");

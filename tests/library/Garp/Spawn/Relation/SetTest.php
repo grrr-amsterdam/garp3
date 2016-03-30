@@ -14,10 +14,10 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 	 * Garp_Spawn_Model_Set $_modelSet
 	 */
 	protected $_modelSet;
-	
-	
+
+
 	public function setUp() {
-		$this->_mocks['directory'] = APPLICATION_PATH . "/../garp/application/modules/mocks/models/config/";
+		$this->_mocks['directory'] = GARP_APPLICATION_PATH . "/../tests/model-config/";
 		$this->_modelSet = $this->_constructMockModelSet();
 	}
 
@@ -121,13 +121,13 @@ class Garp_Spawn_Relation_SetTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($relNameFromA, $relFromA->oppositeRule);
 	}
 
-	
+
 	protected function _constructMockModelSet() {
 		$config = new Garp_Spawn_Config_Model_Set(
 			new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
 			new Garp_Spawn_Config_Format_Json
 		);
-		
+
 		return Garp_Spawn_Model_Set::getInstance($config);
 	}
 }

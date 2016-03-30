@@ -6,7 +6,7 @@
  * @subpackage Spawn
  */
 class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
-	const MODEL_DIR = '/modules/default/models/Base/';
+	const MODEL_DIR = '/modules/default/Model/Base/';
 
 	protected $_behaviorsThatRequireParams = array('Weighable');
 
