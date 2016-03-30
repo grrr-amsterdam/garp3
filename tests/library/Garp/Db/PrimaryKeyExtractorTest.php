@@ -77,33 +77,4 @@ class Garp_Db_PrimaryKeyExtractorTest extends Garp_Test_PHPUnit_TestCase {
 		}
 	}
 
-	public function setUp() {
-		/*
-		$dbAdapter = $this->getDatabaseAdapter();
-		$dbAdapter->query('DROP TABLE IF EXISTS `_pkExtractorTestSingle`;');
-		$dbAdapter->query('
-		CREATE TABLE `_pkExtractorTestSingle`(
-			`id` int UNSIGNED NOT NULL,
-			PRIMARY KEY (`id`)
-		) ENGINE=`InnoDB`;');
-		$dbAdapter->query('DROP TABLE IF EXISTS `_pkExtractorTestMulti`;');
-		$dbAdapter->query('
-		CREATE TABLE `_pkExtractorTestMulti`(
-			`id1` int UNSIGNED NOT NULL,
-			`id2` int UNSIGNED NOT NULL,
-			PRIMARY KEY (`id1`,`id2`)
-		) ENGINE=`InnoDB`;');
-
-		// Create bogus models
-		$this->_singularPkModel = new Mocks_Model_PKExtractorSingle();
-		$this->_multiPkModel = new Mocks_Model_PKExtractorMulti();
-		 */
-	}
-
-	public function tearDown() {
-		//$dbAdapter = $this->getDatabaseAdapter();
-		//$dbAdapter->query('DROP TABLE `_pkExtractorTestSingle`;');
-		//$dbAdapter->query('DROP TABLE `_pkExtractorTestMulti`;');
-	}
 }
-

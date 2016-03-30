@@ -3,7 +3,8 @@
  * @author David Spreekmeester | Grrr.nl
  */
 class Garp_Image_PngQuantTest extends PHPUnit_Framework_TestCase {
-	const RESOURCE_UNOPTIMIZED_PNG = '/../tests/application/modules/mocks/resources/images/unoptimized.png';
+	const RESOURCE_UNOPTIMIZED_PNG =
+		'/../tests/files/images/unoptimized.png';
 
 
 	public function testCanOptimizePng() {

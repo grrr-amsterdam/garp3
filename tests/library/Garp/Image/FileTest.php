@@ -4,7 +4,8 @@
  * This class tests Garp_Image_File.
  */
 class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
-	const RESOURCE_UNOPTIMIZED_PNG = '/../tests/application/modules/mocks/resources/images/unoptimized.png';
+	const RESOURCE_UNOPTIMIZED_PNG =
+		'/../tests/files/images/unoptimized.png';
 
 	protected $_bogusValidImageFilenames = array(
 		'$(4g3s#@!)@#%(#@√£¡).JPEG',
@@ -12,7 +13,6 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
 		'émerfep¢9£ª^ƒ˚ßƒ´¬å⌛✇☠❄☺☹♨ ♩ ✙✈ ✉✌ ✁ ✎ ✐ ❀ ✰ ❁ ❤ ❥ ❦❧ ➳ ➽ εїз℡❣·۰•●○●.gif',
 		'33.png'
 	);
-
 
 	public function testGetImageType() {
 		$imageFile = new Garp_Image_File();
