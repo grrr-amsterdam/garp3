@@ -57,7 +57,7 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
 	protected $_useVimeoPro = false;
 
 	/**
-	 * Setup fields. If certain fields are not provided, 
+	 * Setup fields. If certain fields are not provided,
 	 * the defaults in $this->_fields are used.
 	 * @param Array $config
 	 * @return Void
@@ -70,7 +70,7 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
 			$this->_fields = $config + $this->_fields;
 		}
 	}
-	
+
 	/**
 	 * Before insert callback. Manipulate the new data here. Set $data to FALSE to stop the insert.
 	 * @param Array $options The new data is in $args[1]
@@ -97,7 +97,7 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
 	}
 
 	/**
-	 * Retrieves additional data about the video corresponding with given input url from Vimeo, or video id, 
+	 * Retrieves additional data about the video corresponding with given input url from Vimeo, or video id,
 	 * and returns new data structure.
 	 * @param Array $input New data
 	 * @return Array
@@ -147,7 +147,7 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
 		}
 
 		$value = $this->_extractValue($videoData, $vimeoKey);
-		
+
 		// allow overwriting of fields
 		if (!empty($input[$garpKey]) && $this->_valueMaybeOverwritten($garpKey)) {
 			$value = $input[$garpKey];
@@ -175,7 +175,7 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
 			$key = next($keyParts);
 		}
 		if (is_array($value)) {
-			throw new Garp_Model_Behavior_Exception(sprintf(self::EXCEPTION_UNDEFINED_MAPPING, $key));			
+			throw new Garp_Model_Behavior_Exception(sprintf(self::EXCEPTION_UNDEFINED_MAPPING, $key));
 		}
 		return $value;
 	}
@@ -195,7 +195,7 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
 		$array = Garp_Util_String::toArray($key, '.', $value);
 		$output += $array;
 	}
-	
+
 	/**
 	 * Retrieve Vimeo video
 	 * @param String $url Vimeo url
@@ -239,13 +239,13 @@ class Garp_Model_Behavior_Vimeoable extends Garp_Model_Behavior_Abstract {
 			return;
 		}
 		$currentUser = $garpAuth->getUserData();
-		$authVimeoModel = new G_Model_AuthVimeo();
+		$authVimeoModel = new Model_AuthVimeo();
 		$authVimeoRecord = $authVimeoModel->fetchRow($authVimeoModel->select()->where('user_id = ?', $currentUser['id']));
 		if ($authVimeoRecord) {
 			$vimeo->setAccessToken($authVimeoRecord->access_token);
 			$vimeo->setAccessTokenSecret($authVimeoRecord->access_token_secret);
 		}
-	}		
+	}
 
 	/**
  	 * Retrieve Vimeo video from the regular API.

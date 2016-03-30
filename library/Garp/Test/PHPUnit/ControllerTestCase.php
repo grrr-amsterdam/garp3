@@ -27,6 +27,14 @@ abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_Co
 	}
 
 	public function setUp() {
+		/**
+ 	 	 * Very bummed out that the following line does not work. Somehow the application created in
+ 	 	 * tests/TestHelper.php is not the same as a new application _created in the exact same
+ 	 	 * way_.
+ 	 	 * It boggles the mind. The only difference is the non-working version is bootstrapped
+ 	 	 * inside TestHelper but if anything I'd think that would be an advantage.
+ 	 	 */
+		//$this->application = Zend_Registry::get('application');
 		$this->application = new Garp_Application(
 			APPLICATION_ENV,
 			APPLICATION_PATH.'/configs/application.ini'

@@ -54,22 +54,22 @@ class Garp_Cli_Command_Admin extends Garp_Cli_Command {
 			$newAuthLocalData = array(
 				'password' => trim(Garp_Cli::prompt('Choose a password:'))
 			);
-			
+
 			/**
 		 	 * A lot of assumptions are made here;
 		 	 * - a users table is available, as well as a User model
 		 	 * - an auth_local table is available, following the conventions set by Garp
-		 	 * - the users table has an id, name, email and role column, while the password 
+		 	 * - the users table has an id, name, email and role column, while the password
 		 	 *   column resides in the auth_local table
-		 	 * 
+		 	 *
 		 	 * While all this is the preferred method, it's entirely possible to circumvent these
-		 	 * conventions and come up with project-specific standards. 
+		 	 * conventions and come up with project-specific standards.
 		 	 * In that case however, this CLI command is not for you.
 		 	 */
 			$user = new Model_User();
 			try {
 				$id = $user->insert($newUserData);
-				$authLocal = new G_Model_AuthLocal();
+				$authLocal = new Model_AuthLocal();
 				$newAuthLocalData['user_id'] = $id;
 				if ($authLocal->insert($newAuthLocalData)) {
 					Garp_Cli::lineOut('Successfully created the administrator. (id: '.$id.')');
@@ -112,10 +112,10 @@ class Garp_Cli_Command_Admin extends Garp_Cli_Command {
 		} else {
 			$user->role = 'admin';
 			if ($user->save()) {
-				// For completeness sake, check if the user has an AuthLocal 
-				// record. We disregard the fact wether the user already has any 
+				// For completeness sake, check if the user has an AuthLocal
+				// record. We disregard the fact wether the user already has any
 				// of the other Auth- records.
-				$authLocalModel = new G_Model_AuthLocal();
+				$authLocalModel = new Model_AuthLocal();
 				$authLocalRecord = $authLocalModel->fetchRow($authLocalModel->select()->where('user_id = ?', $user->id));
 				if (!$authLocalRecord) {
 					$newAuthLocalData = array(

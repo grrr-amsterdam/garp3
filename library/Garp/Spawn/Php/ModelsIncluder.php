@@ -1,14 +1,11 @@
 <?php
-require_once APPLICATION_PATH . '/../library/Zend/Config/Ini.php';
-require_once GARP_APPLICATION_PATH . '/../library/Garp/Config/Ini.php';
-
 /**
  * @author David Spreekmeester | grrr.nl
  */
 class Garp_Spawn_Php_ModelsIncluder {
 	const _MODELS_INCLUDE_FILE = '/configs/content.ini';
 	const _ACL_FILE = '/configs/acl.ini';
-	
+
 	/**
 	 * @var String $_modelId
 	 */
@@ -21,14 +18,14 @@ class Garp_Spawn_Php_ModelsIncluder {
 		$this->_addToAclIni();
 		$this->_addToContentIni();
 	}
-	
+
 	/**
 	 * @return String
 	 */
 	public function getModelId() {
 		return $this->_modelId;
 	}
-	
+
 	/**
 	 * @param String $modelId
 	 */
@@ -57,7 +54,7 @@ class Garp_Spawn_Php_ModelsIncluder {
 
 	protected function _addToContentIni() {
 		$ini = $this->_getContentIni();
-				
+
 		if ($this->_modelIsIncludedInContentIni($ini)) {
 			return;
 		}
@@ -90,8 +87,8 @@ class Garp_Spawn_Php_ModelsIncluder {
 			return explode("\n", $productionEnvContent);
 		}
 	}
-	
-	
+
+
 	/**
 	 * @param String $content The full content of the ini file
 	 * @param String $newContent The new content to be added to the targeted environment section
@@ -112,7 +109,7 @@ class Garp_Spawn_Php_ModelsIncluder {
 
 		return implode("", $contentEnvSections);
 	}
-	
+
 
 	/**
 	 * @param String $content The full content of the ini file
@@ -121,7 +118,7 @@ class Garp_Spawn_Php_ModelsIncluder {
 	protected function _splitIniIntoEnvSections($content) {
 		return preg_split('/(\[[\w\s:]+\])/', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
 	}
-	
+
 	/**
 	 * @param 	String	$ini
 	 */
@@ -129,10 +126,10 @@ class Garp_Spawn_Php_ModelsIncluder {
 		$path 		= $this->_getContentIniPath();
 		$ini = new Garp_Config_Ini($path, 'production');
 		$modelId = $this->getModelId();
-		
+
 		return isset($ini->content->commands->{$modelId}->class);
 	}
-	
+
 	/**
 	 * @param 	String	$ini
 	 */
@@ -148,18 +145,18 @@ class Garp_Spawn_Php_ModelsIncluder {
 	protected function _getContentIni() {
 		return file_get_contents($this->_getContentIniPath());
 	}
-	
-	
+
+
 	protected function _getAclIni() {
 		return file_get_contents($this->_getAclIniPath());
 	}
-	
-	
+
+
 	protected function _getContentIniPath() {
 		return APPLICATION_PATH . self::_MODELS_INCLUDE_FILE;
 	}
-	
-	
+
+
 	protected function _getAclIniPath() {
 		return APPLICATION_PATH . self::_ACL_FILE;
 	}

@@ -93,7 +93,7 @@ class Garp_Social_Facebook {
 
 		if (!$config['accessToken']) {
 			// Find the auth record
-			$authModel = new G_Model_AuthFacebook();
+			$authModel = new Model_AuthFacebook();
 			$authRow   = $authModel->fetchRow($authModel->select()->where('user_id = ?', $config['user_id']));
 			if (!$authRow || !$authRow->access_token) {
 				return false;
@@ -105,7 +105,7 @@ class Garp_Social_Facebook {
 		}
 		try {
 			$this->_client->setAccessToken($config['accessToken']);
-			
+
 			// Find the friends' Facebook UIDs
 			$friends = $this->_client->api(array(
 				'method' => 'fql.query',
@@ -115,7 +115,7 @@ class Garp_Social_Facebook {
 			// Find local user records
 			$userModel = new Model_User();
 			$userTable = $userModel->getName();
-			$authFbModel = new G_Model_AuthFacebook();
+			$authFbModel = new Model_AuthFacebook();
 			$authFbTable = $authFbModel->getName();
 
 			$fbIds = '';

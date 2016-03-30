@@ -12,8 +12,7 @@ final class Garp_Version {
  	 * Garp version identification - see compareVersion()
  	 * @var String
      */
-    const VERSION = '3.7';
-
+    const VERSION = '3.8';
 
     /**
      * (taken from Zend_Version)

@@ -1,14 +1,23 @@
 {
     "name": "grrr-amsterdam/garp3",
     "description": "Framework and CMS built on top of Zend Framework.",
-    "type": "project",
+    "type": "library",
     "require": {
         "google/apiclient": "^1.1",
         "phpoffice/phpexcel": "^1.8"
+        "zendframework/zendframework1": "^1"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
     },
     "license": "BSD-3-Clause",
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "Garp_": "library/"
+        }
+    },
+    "include-path": [
+    	"library/"
+    ]
 }

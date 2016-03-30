@@ -49,7 +49,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		// Session based API call.
 		try {
 			if ($cookie->extendedUserColumns) {
-				$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));	
+				$this->setExtendedUserColumns(unserialize($cookie->extendedUserColumns));
 				$cookie->destroy('extendedUserColumns');
 			}
 			$userData = $facebook->login(!!$authVars->grabUserImage);
@@ -98,7 +98,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 		}
 		$userModel = new Model_User();
 		$userConditions = $userModel->select()->from($userModel->getName(), $sessionColumns);
-		$model = new G_Model_AuthFacebook();
+		$model = new Model_AuthFacebook();
 		$model->bindModel('Model_User', array(
 			'conditions' => $userConditions,
 			'rule' => 'User'

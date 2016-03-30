@@ -89,7 +89,7 @@ class Garp_Auth_Adapter_OpenId extends Garp_Auth_Adapter_Abstract {
 		$userModel = new Model_User();
 		$userConditions = $userModel->select()->from($userModel->getName(), $sessionColumns);
 
-		$model = new G_Model_AuthOpenId();
+		$model = new Model_AuthOpenId();
 		$model->bindModel('Model_User', array('conditions' => $userConditions));
 		$userData = $model->fetchRow(
 			$model->select()

@@ -148,7 +148,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 			if ($imageIdOrRecord instanceof Garp_Db_Table_Row) {
 				$filename = $imageIdOrRecord->filename;
 			} else {
-				$imageModel = new G_Model_Image();
+				$imageModel = new Model_Image();
 				$filename = $imageModel->fetchFilenameById($imageIdOrRecord);
 			}
 			$file = new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);

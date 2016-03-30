@@ -48,6 +48,11 @@ class Garp_Test_PHPUnit_Helper {
 			$model = instance('Model_' . $datatype);
 			$model->getAdapter()->query('SET foreign_key_checks=0;');
 			$model->getAdapter()->query('TRUNCATE TABLE ' . $model->getName());
+			if (array_key_exists('i18n', $mockData)) {
+				$modelI18n = instance('Model_' . $datatype .
+					Garp_Model_Behavior_Translatable::I18N_MODEL_SUFFIX);
+				$model->getAdapter()->query('TRUNCATE TABLE ' . $modelI18n->getName());
+			}
 		}
 	}
 

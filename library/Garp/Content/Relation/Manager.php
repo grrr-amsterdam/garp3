@@ -3,13 +3,14 @@
  * Garp_Content_Relation_Manager
  * Manages relationships between records.
  * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Content
- * @lastmodified $Date: $
+ * @version 2.0.0
+ * @package Garp_Content_Relation
  */
 class Garp_Content_Relation_Manager {
+	const EXCEPTION_MISSING_VALUE = "Unable to fill %s because there is no value provided for it.";
+	const EXCEPTION_MISSING_KEYS = 'Either keyA or keyB must be provided when unrelating.';
+	const EXCEPTION_ROW_NOT_FOUND_BY_PRIMARY_KEY = 'Row of type %s with primary key (%s) not found.';
+
 	/**
  	 * Relate records.
  	 * @param Array|Garp_Util_Configuration $options Lots o' options:
@@ -17,7 +18,8 @@ class Garp_Content_Relation_Manager {
  	 * 'modelB'    String|Garp_Model_Db    The second model or classname thereof
  	 * 'keyA'      Mixed                   Primary key(s) of the first model
  	 * 'keyB'      Mixed                   Primary key(s) of the second model
- 	 * 'rule'      String                  The rule that stores this relationship in one of the reference maps
+ 	 * 'rule'      String                  The rule that stores this relationship in one
+ 	 *                                     of the reference maps
  	 * 'extraFields' Array                 Extra fields that can be saved with a HABTM record
  	 * @return Boolean Success
  	 */
@@ -45,7 +47,8 @@ class Garp_Content_Relation_Manager {
 			try {
 				/**
  		 	 	 * If this succeeds, the foreign key resides in the modelA.
- 		 	 	 * Flip modelA and modelB and keyA and keyB in order to normalize the given configuration.
+ 		 	 	 * Flip modelA and modelB and keyA and keyB in order to normalize
+ 		 	 	 * the given configuration.
  		 	 	 * Call self::relate() recursively with these new options.
  		 	 	 */
 				$reference = $modelB->getReference(get_class($modelA), $options['rule']);
@@ -72,7 +75,8 @@ class Garp_Content_Relation_Manager {
 
 		$rowA = call_user_func_array(array($options['modelA'], 'find'), (array)$options['keyA']);
 		if (!count($rowA)) {
-			$errorMsg = sprintf('Row of type %s with primary key (%s) not found.', $modelA->getName(), implode(',', (array)$options['keyA']));
+			$errorMsg = sprintf(self::EXCEPTION_ROW_NOT_FOUND_BY_PRIMARY_KEY,
+ 			   	$modelA->getName(), implode(',', (array)$options['keyA']));
 			throw new Garp_Content_Relation_Exception($errorMsg);
 		}
 		$rowA = $rowA->current();
@@ -80,9 +84,9 @@ class Garp_Content_Relation_Manager {
 		return $rowA->save();
 	}
 
-
 	/**
- 	 * Since it's such a different case than the other two types, hasAndBelongsToMany gets its own method.
+ 	 * Since it's such a different case than the other two types,
+ 	 * hasAndBelongsToMany gets its own method.
  	 * @param Garp_Util_Configuration $options
  	 * @return Boolean Success
 	 */
@@ -93,7 +97,8 @@ class Garp_Content_Relation_Manager {
 		$keyB   = $options['keyB'];
 		$ruleA  = $options['ruleA'];
 		$ruleB  = $options['ruleB'];
-		$bindingModel = !$options['bindingModel'] ? $modelA->getBindingModel($modelB) : $options['bindingModel'];
+		$bindingModel = !$options['bindingModel'] ? $modelA->getBindingModel($modelB) :
+ 		   	$options['bindingModel'];
 
 		/**
  		 * Warning: assumptions are made!
@@ -106,7 +111,8 @@ class Garp_Content_Relation_Manager {
 		$referenceA = $bindingModel->getReference(get_class($modelA), $ruleA);
 		$referenceB = $bindingModel->getReference(get_class($modelB), $ruleB);
 
-		// The only place where extraFields is used: to fill fields other than the primary key references in the binding row
+		// The only place where extraFields is used: to fill fields other than the primary key
+		// references in the binding row
 		$bindingRow = $bindingModel->createRow($options['extraFields']);
 		self::_addForeignKeysToRow($bindingRow, $referenceA, $keyA);
 		self::_addForeignKeysToRow($bindingRow, $referenceB, $keyB);
@@ -123,14 +129,14 @@ class Garp_Content_Relation_Manager {
 		return $success;
 	}
 
-
 	/**
  	 * Provide a set of options with keys you can rely on.
  	 * @param Array|Garp_Util_Configuration $options
  	 * @return Void
  	 */
 	protected static function _normalizeOptionsForRelate(&$options) {
-		$options = ($options instanceof Garp_Util_Configuration) ? $options : new Garp_Util_Configuration($options);
+		$options = ($options instanceof Garp_Util_Configuration) ? $options :
+ 		   	new Garp_Util_Configuration($options);
 		$options->obligate('modelA')
 			->obligate('modelB')
 			->obligate('keyA')
@@ -168,15 +174,15 @@ class Garp_Content_Relation_Manager {
 		}
 	}
 
-
 	/**
  	 * Unrelate records.
  	 * @param Array|Garp_Util_Configuration $options Lots o' options:
- 	 * 'modelA'    String|Garp_Model_Db    The first model or classname thereof
- 	 * 'modelB'    String|Garp_Model_Db    The second model or classname thereof
- 	 * 'keyA'      Mixed                   Primary key(s) of the first model
- 	 * 'keyB'      Mixed                   Primary key(s) of the second model
- 	 * 'rule'      String                  The rule that stores this relationship in one of the reference maps
+ 	 * 'modelA'    String|Garp_Model_Db  The first model or classname thereof
+ 	 * 'modelB'    String|Garp_Model_Db  The second model or classname thereof
+ 	 * 'keyA'      Mixed                 Primary key(s) of the first model
+ 	 * 'keyB'      Mixed                 Primary key(s) of the second model
+ 	 * 'rule'      String                The rule that stores this relationship in one of the
+ 	 *                                   reference maps
  	 * @return Boolean Success
  	 */
 	public static function unrelate($options) {
@@ -203,7 +209,8 @@ class Garp_Content_Relation_Manager {
 			try {
 				/**
  		 	 	 * If this succeeds, the foreign key resides in the modelA.
- 		 	 	 * Flip modelA and modelB and keyA and keyB in order to normalize the given configuration.
+ 		 	 	 * Flip modelA and modelB and keyA and keyB in order to normalize the
+ 		 	 	 * given configuration.
  		 	 	 * Call self::relate() recursively with these new options.
  		 	 	 */
 				$reference = $modelB->getReference(get_class($modelA), $options['rule']);
@@ -261,9 +268,9 @@ class Garp_Content_Relation_Manager {
 		return $modelA->getAdapter()->query($query);
 	}
 
-
 	/**
- 	 * Since it's such a different case than the other two types, hasAndBelongsToMany gets its own method.
+ 	 * Since it's such a different case than the other two types,
+ 	 * hasAndBelongsToMany gets its own method.
  	 * @param Garp_Util_Configuration $options
  	 * @return Boolean Success
 	 */
@@ -274,7 +281,8 @@ class Garp_Content_Relation_Manager {
 		$keyB   = $options['keyB'];
 		$ruleA  = $options['ruleA'];
 		$ruleB  = $options['ruleB'];
-		$bindingModel = !$options['bindingModel'] ? $modelA->getBindingModel($modelB) : $options['bindingModel'];
+		$bindingModel = !$options['bindingModel'] ? $modelA->getBindingModel($modelB) :
+ 		   	$options['bindingModel'];
 
 		/**
  		 * Warning: assumptions are made!
@@ -323,14 +331,14 @@ class Garp_Content_Relation_Manager {
 		return $bindingModel->delete($where);
 	}
 
-
 	/**
  	 * Provide a set of options with keys you can rely on.
  	 * @param Array|Garp_Util_Configuration $options
  	 * @return Void
  	 */
 	public static function _normalizeOptionsForUnrelate(&$options) {
-		$options = ($options instanceof Garp_Util_Configuration) ? $options : new Garp_Util_Configuration($options);
+		$options = ($options instanceof Garp_Util_Configuration) ? $options :
+ 		   	new Garp_Util_Configuration($options);
 		$options->obligate('modelA')
 			->obligate('modelB')
 			->setDefault('keyA', null)
@@ -342,7 +350,7 @@ class Garp_Content_Relation_Manager {
 			->setDefault('bidirectional', true)
 			;
 		if (!$options['keyA'] && !$options['keyB']) {
-			throw new Garp_Content_Relation_Exception('Either keyA or keyB must be provided when unrelating.');
+			throw new Garp_Content_Relation_Exception(static::EXCEPTION_MISSING_KEYS);
 		}
 
 		// use models, not class names
@@ -371,7 +379,6 @@ class Garp_Content_Relation_Manager {
 		}
 	}
 
-
 	/**
  	 * Fill foreign key columns in a row.
  	 * @param Zend_Db_Table_Row_Abstract $row The row object
@@ -379,26 +386,30 @@ class Garp_Content_Relation_Manager {
  	 * @param Array $values The foreign key values
  	 * @return Void Edits the row by reference
  	 */
-	protected static function _addForeignKeysToRow(Zend_Db_Table_Row_Abstract &$row, array $reference, array $values) {
+	protected static function _addForeignKeysToRow(Zend_Db_Table_Row_Abstract &$row,
+ 	   	array $reference, array $values) {
 		// Normalize array keys
 		$values = array_values($values);
 		foreach ($reference['columns'] as $i => $column) {
 			if (!isset($values[$i])) {
-				throw new Exception("Unable to fill $column because there is no value provided for it.");
+				throw new Garp_Content_Relation_Exception(
+					sprintf(static::EXCEPTION_MISSING_VALUE, $column));
 			}
 			$row->{$column} = $values[$i];
 		}
 	}
 
-
 	/**
  	 * Unfortunately, almost all the Zend exceptions coming from Zend_Db_Table_Abstract are of type
- 	 * Zend_Db_Table_Exception, so we cannot check wether a query fails or wether there is no binding possible.
+ 	 * Zend_Db_Table_Exception, so we cannot check wether a query fails or wether there is no
+ 	 * binding possible.
  	 * This method checks wether the exception describes an invalid reference.
  	 * @param Exception $e
  	 * @return Boolean
  	 */
 	static public function isInvalidReferenceException(Exception $e) {
-		return stripos($e->getMessage(), 'No reference') !== false;
+		return stripos($e->getMessage(), 'No reference') !== false ||
+			count(sscanf($e->getMessage(), 'Reference rule "%s" does not reference table %s')) == 2;
 	}
 }
+

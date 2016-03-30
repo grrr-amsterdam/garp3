@@ -171,7 +171,7 @@ class Garp_Cache_Manager {
  	 */
 	public static function scheduleClear($timestamp, array $tags = array()) {
 		// Use ScheduledJob model if available, otherwise fall back to `at`
-		if (!Garp_Loader::getInstance()->isLoadable('Model_ScheduledJob')) {
+		if (!class_exists('Model_ScheduledJob')) {
 			return static::createAtCommand($timestamp, $tags);
 		}
 		return static::createScheduledJob($timestamp, $tags);

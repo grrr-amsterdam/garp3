@@ -12,7 +12,7 @@
  */
 class Garp_Content_Cdn_AssetList_Test extends PHPUnit_Framework_TestCase {
 	const FILTER_STRING_MATCHING_MULTIPLE 	= 'css';
-	const FILTER_STRING_MATCHING_ONE_GARP 	= 'css/garp/images/garp.png';
+	const FILTER_STRING_MATCHING_ONE_GARP 	= 'css/images/garp.png';
 	const FILTER_STRING_MATCHING_ONE_APP 	= 'cms.css';
 	const FILTER_STRING_NOT_MATCHING 		= 'l3$#j@[hdv%@u2w2a9g08u.e3#d@c';
 	const FILE_TIMESTAMP_THRESHOLD 			= '-2 weeks';
@@ -79,7 +79,7 @@ class Garp_Content_Cdn_AssetList_Test extends PHPUnit_Framework_TestCase {
 	}
 
 	protected function _getBaseDir() {
-		$distributor = new Garp_Content_Cdn_Distributor();
+		$distributor = new Garp_Content_Cdn_Distributor(GARP_APPLICATION_PATH . '/../public');
 		return $distributor->getBaseDir();
 	}
 

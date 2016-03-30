@@ -4,14 +4,12 @@
  * Extracts primary keys from a WHERE clause
  *
  * @author       Harmen Janssen | grrr.nl
- * @version      1.0
+ * @version      1.0.1
  * @package      Garp_Db
  */
 class Garp_Db_PrimaryKeyExtractor {
-	/**
- 	 * @var Garp_Model_Db
- 	 */
-	protected $_model;
+	protected $_tableName;
+	protected $_pkColumns;
 
 	/**
  	 * @var Mixed
@@ -20,32 +18,45 @@ class Garp_Db_PrimaryKeyExtractor {
 
 	/**
  	 * Class constructor
- 	 * @param Zend_Db_Table_Abstract $model
+ 	 * @param Mixed $tableName Either a model or a table name as string
+ 	 * @param Mixed $pkColumns Either an array, or if the first argument is a model,
+ 	 *                         it is assumed to be the WHERE clause.
  	 * @param Mixed $where
  	 * @return Void
  	 */
-	public function __construct(Zend_Db_Table_Abstract $model, $where) {
-		$this->_model = $model;
-		if (is_array($where)) {
-			$where = implode(' AND ', $where);
+	public function __construct($tableName, $pkColumns, $where = null) {
+		if ($tableName instanceof Zend_Db_Table_Abstract) {
+			$this->_tableName = $tableName->getName();
+			$this->_pkColumns = $tableName->info(Zend_Db_Table_Abstract::PRIMARY);
+			$this->_where = $pkColumns;
+		} else if (func_num_args() === 3) {
+			$this->_tableName = $tableName;
+			$this->_pkColumns = (array)$pkColumns;
+			$this->_where = $where;
+		} else {
+			throw new InvalidArgumentException('Invalid parameters. ' .
+				'Either provide the full 3 arguments, or provide a model to take info from.');
 		}
-		$this->_where = $where;
+
+		if (is_array($this->_where)) {
+			$this->_where = implode(' AND ', $this->_where);
+		}
 	}
 
 	/**
 	 * Extract primary key information from a WHERE clause and construct a cache key from it.
+	 * @param Array $pkColumns Primary keys to extract (will be taken from the model if omitted)
 	 * @return Array
 	 */
 	public function extract() {
-		$pkColumns = $this->_model->info(Zend_Db_Table_Abstract::PRIMARY);
 		$pkValues = array();
-		$table = $this->_model->getName();
-		$where = $this->_where;
 		// Lose the parentheses, they mean nothing to us (more importantly, "((key = value))" fails)
-		// @fixme A string primary key containing a "(" will not be returned. 
-		$where = str_replace(array('(', ')'), '', $where);
-		foreach ($pkColumns as $pk) {
-			$regexp = '/(?:`?'.preg_quote($table).'`?\.|\s|^){1}`?(?:'.preg_quote($pk).')`?\s?=\s?(?:(?P<q>[\'"])(?P<value>(?:(?!\k<q>).)*)\k<q>|(?P<rest>\w*))/';
+		// @fixme A string primary key containing a "(" will not be returned.
+		$where = str_replace(array('(', ')'), '', $this->_where);
+		foreach ($this->_pkColumns as $pk) {
+			$regexp = '/(?:`?' . preg_quote($this->_tableName) . '`?\.|\s|^){1}`?(?:' .
+ 			   	preg_quote($pk) .
+ 			   	')`?\s?=\s?(?:(?P<q>[\'"])(?P<value>(?:(?!\k<q>).)*)\k<q>|(?P<rest>\w*))/';
 			if (!preg_match($regexp, $where, $matches)) {
 				continue;
 			}

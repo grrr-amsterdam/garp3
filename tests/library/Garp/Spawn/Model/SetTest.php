@@ -14,10 +14,10 @@ class Garp_Spawn_Model_SetTest extends PHPUnit_Framework_TestCase {
 	 * Garp_Spawn_Model_Set $_modelSet
 	 */
 	protected $_modelSet;
-	
-	
+
+
 	public function setUp() {
-		$this->_mocks['directory'] = APPLICATION_PATH . "/../garp/application/modules/mocks/models/config/";
+		$this->_mocks['directory'] = GARP_APPLICATION_PATH . '/../tests/model-config/';
 		$this->_modelSet = $this->_constructMockModelSet();
 	}
 
@@ -25,8 +25,8 @@ class Garp_Spawn_Model_SetTest extends PHPUnit_Framework_TestCase {
 	public function testModelSetShouldContainModels() {
 		$this->assertGreaterThan(0, count($this->_modelSet));
 	}
-	
-	
+
+
 	protected function _constructMockModelSet() {
 		return Garp_Spawn_Model_Set::getInstance(
 			new Garp_Spawn_Config_Model_Set(

@@ -100,8 +100,9 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 			)
 		));
 		$removeSemver = $this->_createTmpSemver();
-		$this->assertEquals($this->_getHelper()->assetUrl('main.css'),
-			'http://static.sesamestreet.co.uk/css/build/prod/' . new Garp_Semver . '/main.css');
+		$expectedUrl = 'http://static.sesamestreet.co.uk/css/build/prod/' .
+			new Garp_Semver . '/main.css';
+		$this->assertEquals($expectedUrl, $this->_getHelper()->assetUrl('main.css'));
 
 		if ($removeSemver) {
 			$this->_removeTmpSemver();
@@ -176,6 +177,9 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 
 	public function setUp() {
 		$this->_helper->injectConfigValues(array(
+			'cdn' => array(
+				'ssl' => false
+			),
 			'resources' => array(
 				'view' => array(
 					'doctype' => 'html5'
