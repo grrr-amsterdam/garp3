@@ -21,18 +21,19 @@ if (!defined('APPLICATION_ENV')) {
 	if (getenv('APPLICATION_ENV')) {
 		define('APPLICATION_ENV', getenv('APPLICATION_ENV'));
 	} else {
-		require_once(dirname(__FILE__) . "/../../garp/library/Garp/Cli.php");
-		Garp_Cli::errorOut("APPLICATION_ENV is not set. Please set it as a shell variable or pass it along as an argument, like so: --e=development");
+		require_once(dirname(__FILE__) . "/../../vendor/grrr-amsterdam/garp3/library/Garp/Cli.php");
+		Garp_Cli::errorOut("APPLICATION_ENV is not set. Please set it as a shell variable or ' .
+			'pass it along as an argument, like so: --e=development");
 		exit;
 	}
 }
 
 define('BASE_PATH', realpath(dirname(__FILE__) . '/../../../../'));
-require_once(dirname(__FILE__)."/../application/init.php");
-
 if (file_exists(APPLICATION_PATH . '/../vendor/autoload.php')) {
 	require_once(APPLICATION_PATH . '/../vendor/autoload.php');
 }
+
+require_once(dirname(__FILE__)."/../application/init.php");
 
 // Create application, bootstrap, and run
 $applicationIni = APPLICATION_PATH.'/configs/application.ini';
@@ -50,9 +51,9 @@ Zend_Registry::set('application', $application);
 
 /**
  * Report errors, since we're in CLI.
- * Note that log_errors = 1, which outputs to STDERR. display_errors however outputs to STDOUT. In a CLI
- * environment this results in a double error. display_errors is therefore set to 0 so that STDERR is
- * the only stream showing errors.
+ * Note that log_errors = 1, which outputs to STDERR. display_errors however outputs to STDOUT.
+ * In a CLI environment this results in a double error. display_errors is therefore set to 0
+ * so that STDERR is the only stream showing errors.
  * @see http://stackoverflow.com/questions/9001911/why-are-php-errors-printed-twice
  */
 error_reporting(-1);
@@ -97,7 +98,8 @@ if (isset($classLoader) && !$classLoader->isLoadable($commandName)) {
 }
 $command = new $commandName();
 if (!$command instanceof Garp_Cli_Command) {
-	Garp_Cli::errorOut('Error: '.$commandName.' is not a valid Command. Command must implement Garp_Cli_Command.');
+	Garp_Cli::errorOut('Error: '.$commandName.' is not a valid Command. ' .
+		'Command must implement Garp_Cli_Command.');
 	exit;
 }
 
@@ -107,7 +109,8 @@ $commandsWithoutTranslation = array(
 	'Spawn', 'Config', 'Gumball'
 );
 if (!in_array($classArgument, $commandsWithoutTranslation)) {
-	if (!Zend_Registry::isRegistered('Zend_Translate') && Zend_Registry::isRegistered('Zend_Locale')) {
+	if (!Zend_Registry::isRegistered('Zend_Translate') &&
+		Zend_Registry::isRegistered('Zend_Locale')) {
 		Zend_Registry::set('Zend_Translate',
 			Garp_I18n::getTranslateByLocale(Zend_Registry::get('Zend_Locale')));
 	}
