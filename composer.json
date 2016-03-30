@@ -4,7 +4,7 @@
     "type": "library",
     "require": {
         "google/apiclient": "^1.1",
-        "phpoffice/phpexcel": "^1.8"
+        "phpoffice/phpexcel": "^1.8",
         "zendframework/zendframework1": "^1"
     },
     "require-dev": {
