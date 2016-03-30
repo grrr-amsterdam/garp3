@@ -83,7 +83,7 @@ $i = count($namespaces)-1;
 while ($i >= 0) {
 	$ns = $namespaces[$i];
 	$commandName = $ns.'_Cli_Command_'.$classArgument;
-	if ($classLoader->isLoadable($commandName)) {
+	if (class_exists($commandName)) {
 		break;
 	}
 	--$i;
