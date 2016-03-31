@@ -19,5 +19,8 @@
     },
     "include-path": [
     	"library/"
-    ]
+    ],
+    "scripts": {
+    	"test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/"
+    }
 }
