@@ -1,0 +1,15 @@
+language: php
+php:
+    - '5.3'
+script:
+    - composer test
+before_install:
+    - composer install
+notifications:
+    email: false
+    slack:
+        rooms:
+            - secure: h9R+NUBeVXZfJ37cbdX72/ICIYS8mXMS2WR8DGDsTCx+mT6cru+D1UvnorXpOcPkv8FdX6aDHfK8LjsAT1a3IgcImRwVW4kdC7hq4L/NNlNNnTTchE/5+N6JqNY9nxrNweivMu/yuG/UzMVPLu5F1pyP3D26WGBelS3Y4eV+SgU=
+        on_success: change
+        on_failure: always
+        template: "<%{build_url}|%{repository_name} [%{branch}] #%{build_number}>:\n%{message} (in %{duration})\nBy: %{author}\n<%{compare_url}|%{commit_message}>"
