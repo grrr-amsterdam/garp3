@@ -1,14 +1,15 @@
 language: php
 php:
-- '5.3'
+    - '5.3'
 script:
-- composer test
+    - composer test
 before_install:
-- composer install
+    - composer install
 notifications:
-  email: false
-  slack:
-    secure: O1r03yV5oM+2t6MgtzPC3n9MM8tUOF0E/GpTYFdc3qPmsMg4mvsR0WbNqKId78PLeVsJW4fetjGT04wyA9MdSeeWHYh+Ey5MF/jl3X8or2zUzegqpiRxIQs9oiqtvdQsyF93lXf0qZlM3OG5XNg6ki/m3nXoiFjUa++G7bjzLpg=
-    on_success: change
-    on_failure: always
-    template: "<%{build_url}|%{repository_name} [%{branch}] #%{build_number}>:\n%{message} (in %{duration})\nBy: %{author}\n<%{compare_url}|%{commit_message}>"
+    email: false
+    slack:
+        rooms:
+            secure: O1r03yV5oM+2t6MgtzPC3n9MM8tUOF0E/GpTYFdc3qPmsMg4mvsR0WbNqKId78PLeVsJW4fetjGT04wyA9MdSeeWHYh+Ey5MF/jl3X8or2zUzegqpiRxIQs9oiqtvdQsyF93lXf0qZlM3OG5XNg6ki/m3nXoiFjUa++G7bjzLpg=
+        on_success: always
+        on_failure: always
+        template: "<%{build_url}|%{repository_name} [%{branch}] #%{build_number}>:\n%{message} (in %{duration})\nBy: %{author}\n<%{compare_url}|%{commit_message}>"
