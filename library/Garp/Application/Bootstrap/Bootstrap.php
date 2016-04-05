@@ -30,13 +30,17 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 	 */
 	protected function _initEssentialGarpHelpers() {
 		// Action helpers
-		Zend_Controller_Action_HelperBroker::addPrefix('Garp_Controller_Helper');
-		Zend_Controller_Action_HelperBroker::addPrefix('App_Controller_Helper');
+		Zend_Controller_Action_HelperBroker::addPath(GARP_APPLICATION_PATH .
+ 		   	'/../library/Garp/Controller/Helper', 'Garp_Controller_Helper');
+		Zend_Controller_Action_HelperBroker::addPath(APPLICATION_PATH .
+ 		   	'/../library/App/Controller/Helper', 'App_Controller_Helper');
 
 		// View helpers
 		$this->bootstrap('View');
-		$this->getResource('View')->addHelperPath(GARP_APPLICATION_PATH.'/modules/g/views/helpers', 'G_View_Helper');
-		$this->getResource('View')->addHelperPath(APPLICATION_PATH.'/modules/default/views/helpers', 'App_View_Helper');
+		$this->getResource('View')->addHelperPath(GARP_APPLICATION_PATH .
+ 		   	'/modules/g/views/helpers', 'G_View_Helper');
+		$this->getResource('View')->addHelperPath(APPLICATION_PATH .
+ 		   	'/modules/default/views/helpers', 'App_View_Helper');
 	}
 
 	/**
