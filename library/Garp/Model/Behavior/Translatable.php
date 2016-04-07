@@ -203,6 +203,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 				$lang = $translationRecord[self::LANG_COLUMN];
 				$translatedFields[$translatableField][$lang] = $translationRecord[$translatableField];
 			}
+			$result->setVirtual($translatableField, $translatedFields[$translatableField]);
 		}
 		// We now have a $translatedFields array like this:
 		// array(
@@ -211,7 +212,6 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
 		//     "en" => "Sheep"
 		//   )
 		// )
-		$result->setFromArray($translatedFields);
 		unset($result->{self::I18N_MODEL_BINDING_ALIAS});
 	}
 
