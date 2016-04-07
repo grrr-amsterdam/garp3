@@ -275,6 +275,10 @@ class Garp_Model_Db_User extends Model_Base_User {
 		$validationToken = uniqid();
 		$validationCode = $this->generateEmailValidationCode($user, $validationToken);
 
+		if (!$user->isConnected()) {
+			$user->setTable($this);
+		}
+
 		// Store the token in the user record
 		$user->{$validationTokenColumn} = $validationToken;
 		// Invalidate the user's email
