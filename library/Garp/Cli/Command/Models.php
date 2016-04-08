@@ -14,6 +14,18 @@ class Garp_Cli_Command_Models extends Garp_Cli_Command {
 			}
 			$this->_modifyModelFile($finfo);
 		}
+
+		$this->_updateCropTemplateRefs();
+	}
+
+	// Change references to G_Model_CropTemplate
+	protected function _updateCropTemplateRefs() {
+		$iniPaths = ['/configs/content.ini', '/configs/acl.ini'];
+		foreach ($iniPaths as $i => $path) {
+			$content = file_get_contents(APPLICATION_PATH . $path);
+			$content = str_replace('G_Model_CropTemplate', 'Garp_Model_Db_CropTemplate', $content);
+			file_put_contents(APPLICATION_PATH . $path, $content);
+		}
 	}
 
 	protected function _modifyModelFile($finfo) {
