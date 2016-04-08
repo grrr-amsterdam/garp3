@@ -463,10 +463,9 @@ class G_AuthController extends Garp_Controller_Action {
 		$userModel->invalidateEmailAddress($currentUser, 'update');
 
 		$authVars = $auth->getConfigValues();
-
-		// $flashMessage = __($authVars['validateemail']['validation_email_send_message']);
-
-		// $this->_helper->flashMessenger($flashMessage);
+		$flashMessage = __($authVars['validateemail']['validation_email_send_message']);
+		$this->_helper->flashMessenger($flashMessage);
+		
 		$this->_redirect('/');
 	}
 	
