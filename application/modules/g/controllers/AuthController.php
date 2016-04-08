@@ -448,9 +448,27 @@ class G_AuthController extends Garp_Controller_Action {
 					$auth->store($userData, $method);
 				}
 			}
+			$this->view->user = $user;
 		}
 	}
 
+	public function sendvalidateemailAction() {
+		$auth = Garp_Auth::getInstance();
+		if (!$this->getRequest()->isPost() || !$auth->isLoggedIn()) {
+			throw new Zend_Controller_Action_Exception('Page not found', 404);
+		}
+		
+		$userModel = new Model_User();
+		$currentUser = $userModel->fetchById($auth->getUserId());
+		$userModel->invalidateEmailAddress($currentUser, 'update');
+
+		$authVars = $auth->getConfigValues();
+		$flashMessage = __($authVars['validateemail']['validation_email_send_message']);
+		$this->_helper->flashMessenger($flashMessage);
+		
+		$this->_redirect('/');
+	}
+	
 	/**
 	 * Render a configured view
 	 * @param Array $authVars Configuration for a specific auth section.
