@@ -129,8 +129,8 @@ class Garp_ErrorHandler {
 			$message .= 'Caused by '
 				. $userData['role'] . ' '
 				. new Garp_Util_FullName($userData)
-				. (isset($userData['email']) ? ' (' . $userData['email'] . ")' : '')
-				.\n"
+				. (isset($userData['email']) ? ' (' . $userData['email'] . ')' : '')
+				. "\n"
 			;
 		}
 
