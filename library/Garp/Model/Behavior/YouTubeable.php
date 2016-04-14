@@ -131,7 +131,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 	}
 
 	protected function _getFlashPlayerUrl(Google_Service_YouTube_Video $entry) {
-		return 'http://www.youtube.com/embed/' . $entry->getId();
+		return 'https://www.youtube.com/embed/' . $entry->getId();
 	}
 
 	protected function _fetchEntryByUrl($watchUrl) {
