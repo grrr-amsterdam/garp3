@@ -27,16 +27,17 @@ class Garp_Form_Element_File extends Zend_Form_Element_Xhtml {
 			$parentClass = $this->getDecorator('HtmlTag')->getOption('class');
 		}
 
-		$options = array(
-			'decorators' => array(
+		$options = array();
+		if (!count($this->getDecorators())) {
+			$options['decorators'] = array(
 				'ViewHelper',
 				array(array('input-wrapper' => 'HtmlTag'), array('tag' => 'div', 'class' => 'file-input-wrapper')),
 				'Label',
 				'Description',
 				'Errors',
 				array(array('outer-wrapper' => 'HtmlTag'), array('tag' => 'div', 'class' => $parentClass))
-			)
-		);
+			);
+		}
 		if (is_null($this->getDescription())) {
 			$uploadInfoStr = $this->_getUploadInfoString();
 			$options['description'] = $uploadInfoStr;
