@@ -32,6 +32,10 @@ define('BASE_PATH', realpath(dirname(__FILE__) . '/../../../../'));
 if (file_exists(BASE_PATH . '/vendor/autoload.php')) {
 	require_once(BASE_PATH . '/vendor/autoload.php');
 }
+// Include new-style environment configuration. This sets memcache ports
+if (file_exists(BASE_PATH . '/application/configs/environment.php')) {
+	require_once(BASE_PATH . '/application/configs/environment.php');
+}
 
 require_once(dirname(__FILE__)."/../application/init.php");
 
