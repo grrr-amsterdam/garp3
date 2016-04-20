@@ -4,7 +4,7 @@
  * Use PHP date() formats to generate regexp rules for validation
  *
  * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
+ * @version      0.1.1
  * @package      Garp_Validate
  * @see http://nl1.php.net/manual/en/function.date.php
  */
@@ -13,18 +13,25 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 	const FORMAT_MISMATCH = 'formatMismatch';
 
 	protected $_messageTemplates = array(
-		self::FORMAT_MISMATCH => "'%value%' does not fit the date format '%format%'",
+		self::FORMAT_MISMATCH => "'%value%' does not fit the date format '%readableFormat%'",
 	);
 
     protected $_messageVariables = array(
-        'format'  => '_format'
-    );	
+        'format'  => '_format',
+		'readableFormat' => '_readableFormat'
+    );
 
 	/**
  	 * The chosen date format
  	 * @var String
  	 */
 	protected $_format;
+
+	/**
+ 	 * A human readable format to show in the error message
+ 	 * @var String
+ 	 */
+	protected $_readableFormat;
 
 	/**
  	 * Map date symbols to regexp
@@ -59,12 +66,14 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 	/**
  	 * Class constructor
  	 * @param String $format date() compatible format
+ 	 * @param String $humanReadableFormat Something to show the user
  	 * @return Void
  	 */
-	public function __construct($format) {
+	public function __construct($format, $humanReadableFormat = null) {
 		$this->setFormat($format);
+		$this->setReadableFormat($humanReadableFormat ?: $format);
 	}
-	
+
 	public function getRegexp() {
 		// construct regexp
 		$regexp = '~';
@@ -72,7 +81,8 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 		for ($i = 0; $i < strlen($this->_format); ++$i) {
 			$char = $this->_format[$i];
 			$quotedChar = preg_quote($char, '~');
-			// look for escape characters, this enters escape mode (literal adding of the next char in the iteration
+			// look for escape characters, this enters escape mode (literal adding of the next
+			// char in the iteration
 			if ($char == '\\') {
 				$escape = true;
 				continue;
@@ -117,4 +127,21 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 		return $this;
 	}
 
+	/**
+	 * Get readableFormat
+	 * @return String
+	 */
+	public function getReadableFormat() {
+		return $this->_readableFormat;
+	}
+
+	/**
+	 * Set readableFormat
+	 * @param String $readableFormat
+	 * @return $this
+	 */
+	public function setReadableFormat($readableFormat) {
+		$this->_readableFormat = $readableFormat;
+		return $this;
+	}
 }
