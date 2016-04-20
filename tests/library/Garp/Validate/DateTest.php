@@ -4,13 +4,13 @@
  * Tests Garp_Validate_Date
  *
  * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
+ * @version      0.1.1
  * @package      Garp
  * @group Validate
  */
 class Garp_Validate_DateTest extends Garp_Test_PHPUnit_TestCase {
-		
-	public function testFormatsShouldMatch() {
+
+	public function test_formats_should_match() {
 		/**
  	 	 * Test a shitload of date formats
  	 	 */
@@ -31,6 +31,13 @@ class Garp_Validate_DateTest extends Garp_Test_PHPUnit_TestCase {
 			$val = new Garp_Validate_Date($format);
 			$this->assertTrue($val->isValid($match), "$match does not match date format $format");
 		}
-	}		
+	}
 
+	public function test_should_show_humand_readable_error() {
+		$validator = new Garp_Validate_Date('d-m-Y', 'mm-dd-jjjj');
+		$validator->isValid('banaan');
+
+		$errorMessage = current($validator->getMessages());
+		$this->assertEquals("'banaan' does not fit the date format 'mm-dd-jjjj'", $errorMessage);
+	}
 }
