@@ -23,7 +23,7 @@
 		$defaultLanguage	= Garp_I18n::getDefaultLocale();
 		$isMultilingual		= $model->fields->getField($fieldName)->isMultilingual();
 		$postfix			= $isMultilingual ? '.' . $defaultLanguage : '';
- 		$getter				= "rec.get('{$fieldName}')" . $postfix;
+ 		$getter				= "rec.get('{$fieldName}') && rec.get('{$fieldName}')" . $postfix;
 
 		return $getter;
 	};
