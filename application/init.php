@@ -226,6 +226,23 @@ function array_get(array $a, $key, $default = null) {
 	return isset($a[$key]) ? $a[$key] : $default;
 }
 
+/**
+ * Create a new array containing only the keys from the original that you want.
+ * Example:
+ * $my_array = array(
+ *   'name' => 'Henk',
+ *   'occupation' => 'Doctor',
+ *   'age' => 43,
+ *   'country' => 'Zimbabwe'
+ * );
+ * array_get_subset($my_array, array('name', 'country'))
+ *
+ * Returns array('name' => 'Henk', 'country' => 'Zimbabwe')
+ */
+function array_get_subset(array $a, array $allowed) {
+	return array_intersect_key($a, array_flip($allowed));
+}
+
 if (!function_exists('gzdecode')) {
 	/**
  	 * @see http://nl1.php.net/gzdecode#82930
