@@ -11,7 +11,8 @@ class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
 
 	/**
 	 * Sets the required HTTP headers to prevent this request from being cached by the browser.
-	 * @param Zend_Controller_Response_Http $response The HTTP response object. Use $this->getResponse() from a controller.
+	 * @param Zend_Controller_Response_Http $response The HTTP response object.
+	 *                                                Use $this->getResponse() from a controller.
 	 */
 	public function setNoCacheHeaders(Zend_Controller_Response_Http $response) {
 		$this->getResponse()
@@ -19,6 +20,16 @@ class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
 			->setHeader('Pragma', 'no-cache', true)
 			->setHeader('Expires', date(DATE_RFC1123, strtotime('-1 year')), true)
 		;
+	}
+
+	/**
+	 * Sets cache headers with a default expiration time of 5 minute (300 seconds)
+	 * @param $expirationTimeInSeconds
+	 */
+	public function setExpiresHeader($expirationTimeInSeconds = 300) {
+		$this->getResponse()
+			->setHeader('Expires', gmdate('D, d M Y H:i:s \G\M\T', time() +
+ 		   		$expirationTimeInSeconds));
 	}
 
 	/**
@@ -54,5 +65,5 @@ class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
  	 */
 	public function disable() {
 		$this->_enabled = false;
-	}	
+	}
 }
