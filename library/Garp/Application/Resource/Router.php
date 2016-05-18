@@ -151,6 +151,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 		$bits = array_filter($bits, 'strlen');
 		// reindex the array
 		$bits = array_values($bits);
+		$bits = array_map('strtolower', $bits);
 		$locales = $this->_getPossibleLocales();
 		if (array_key_exists(0, $bits) && in_array($bits[0], $locales)) {
 			return $bits[0];

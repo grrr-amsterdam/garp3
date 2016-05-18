@@ -34,10 +34,10 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 		$tldLocales = $frontController->getParam('tldLocales');
 		if (is_array($tldLocales) && array_key_exists($tld, $tldLocales)) {
 			// The TLD in the request matches one of our specified TLD -> Locales
-			$locale->setLocale($tldLocales[$tld]);
+			$locale->setLocale(strtolower($tldLocales[$tld]));
 		} elseif (isset($params['locale'])) {
 			// There is a locale specified in the request params.
-			$locale->setLocale($params['locale']);
+			$locale->setLocale(strtolower($params['locale']));
 		}
 		// Now that our locale is set, let's check which language has been selected
 		// and try to load a translation file for it.
