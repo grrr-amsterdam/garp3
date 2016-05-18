@@ -293,15 +293,15 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 			}
 		}
 		if (empty($ogData['title'])) {
-			$title = array();
  		   	if ($this->view->title) {
-				$title[] = $this->view->title;
-			}
-			if ($appName = $this->view->config()->app->name) {
-				$title[] = $appName;
+				$title = $this->view->title;
+			} else if (!empty($this->view->config()->app->name)) {
+				$title = $this->view->config()->app->name;
 			}
 
-			$ogData['title'] = implode(' | ', $title);
+			if ($title) {
+				$ogData['title'] = $title;
+			}
 		}
 
 		if (empty($ogData['image']) && !empty($this->view->config()->app->image)) {
@@ -320,6 +320,10 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		}
 		if (empty($ogData['locale']) && !empty($this->view->config()->app->locale)) {
 			$ogData['locale'] = $this->view->config()->app->locale;
+		}
+
+		if (!empty($this->view->config()->app->name)) {
+			$ogData['site_name'] = $this->view->config()->app->name;
 		}
 
 		foreach ($ogData as $ogKey => $ogValue) {
@@ -408,3 +412,4 @@ class G_View_Helper_Social extends Zend_View_Helper_Abstract {
 		return $this->_needsFacebookInit;
 	}
 }
+

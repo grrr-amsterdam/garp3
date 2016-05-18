@@ -92,11 +92,16 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 		$utf8_extension = PHP_OS === 'Linux' ? '.utf8' : '.UTF-8';
 		setlocale(LC_ALL, $territory . $utf8_extension);
 
-		if (
-			$this->_localeIsEnabled() &&
-			$lang &&
-			isset($options['routesFile'][$lang])
-		) {
+		/**
+		 * Fix for Turkish language lowercasing issues.
+		 * @see: http://www.sobstel.org/blog/php-call-to-undefined-method-on-tr-tr-locale/
+		 * @see: https://bugs.php.net/bug.php?id=18556
+		 */
+		if (in_array($territory, array('tr_TR', 'ku', 'az_AZ'))) {
+			setlocale(LC_CTYPE, 'en_US' . $utf8_extension);
+	 	}
+
+		if ($this->_localeIsEnabled() && $lang && isset($options['routesFile'][$lang])) {
 			$langFile = $options['routesFile'][$lang];
 			$langRoutes = $this->_loadRoutesConfig($langFile);
 
@@ -153,3 +158,4 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 		return Garp_I18n::getDefaultLocale();
 	}
 }
+
