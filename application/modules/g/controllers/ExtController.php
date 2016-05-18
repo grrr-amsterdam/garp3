@@ -27,8 +27,8 @@ class G_ExtController extends G_ContentController {
 
 	public function init() {
 		$this->_helper->cache(array(
-			'smd', 'closevimeologin', 'getlocale'
-		));
+			'smd', 'getlocale'
+		), array(), 'js');
 	}
 
 	/**
