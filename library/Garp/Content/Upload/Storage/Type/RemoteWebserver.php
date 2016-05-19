@@ -172,12 +172,12 @@ class Garp_Content_Upload_Storage_Type_RemoteWebserver extends Garp_Content_Uplo
 
 
 	public function getServer() {
-		return $this->_deployParams['server'];
+		return $this->_deployParams['server'][0]['server'];
 	}
 
 
 	public function getUser() {
-		return $this->_deployParams['user'];
+		return $this->_deployParams['server'][0]['user'];
 	}
 
 	public function getSshSession() {
