@@ -18,7 +18,8 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	protected $_session;
 
 	/**
-	 * @var Array $_deployParams 		Deployment parameters containing values for 'server', 'user' and 'deploy_to' path.
+	 * @var Array $_deployParams Deployment parameters containing values
+	 *                           for 'server', 'user' and 'deploy_to' path.
 	 */
 	protected $_deployParams;
 
@@ -39,7 +40,7 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	 */
 	public function getUser() {
 		$deployParams = $this->getDeployParams();
-		return $deployParams['user'];
+		return $deployParams['server'][0]['user'];
 	}
 
 	/**
@@ -47,7 +48,7 @@ class Garp_Content_Db_Server_Remote extends Garp_Content_Db_Server_Abstract {
 	 */
 	public function getHost() {
 		$deployParams = $this->getDeployParams();
-		return $deployParams['server'];
+		return $deployParams['server'][0]['server'];
 	}
 
 	public function getRemotePath() {

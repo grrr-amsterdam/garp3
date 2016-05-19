@@ -20,11 +20,9 @@ class Garp_Deploy_Config {
 		'server', 'deploy_to', 'user', 'application', 'repo_url', 'branch'
 	);
 
-
 	public function __construct() {
 		$this->_genericContent = $this->_fetchGenericContent();
 	}
-
 
 	/**
 	 * Returns the deploy parameters for a specific environment.
@@ -39,7 +37,6 @@ class Garp_Deploy_Config {
 	public function getParams($env) {
 		$genericParams = $this->_parseContent($this->_genericContent);
 		$envParams = $this->_parseContent($this->_fetchEnvContent($env));
-
 		$output = $genericParams + $envParams;
 
 		return $output;
@@ -79,17 +76,30 @@ class Garp_Deploy_Config {
 		}
 
 		foreach ($this->_deployParams as $p) {
-			$index = array_search($p, $matches['paramName']);
-			if ($index !== false) {
-				$output[$p] = $matches['paramValue'][$index];
+			$indices = array_keys(array_filter($matches['paramName'], function($pn) use ($p) {
+				return $pn === $p;
+			}));
+			if (!count($indices)) {
+				continue;
+			}
+			$output[$p] = array_values(array_get_subset($matches['paramValue'], $indices));
+
+			// For now: only treat the server param as array (since it's common for it to be an
+			// array, in the case of a multi-server setup)
+			if ($p !== 'server') {
+				$output[$p] = $output[$p][0];
 			}
 		}
 
-		// magic
-		if (!empty($output['server']) && strpos($output['server'], '@') !== false) {
-			$bits = explode('@', $output['server'], 2);
-			$output['user'] = $bits[0];
-			$output['server'] = $bits[1];
+		// explode server into user and server parts
+		if (!empty($output['server'])) {
+			$output['server'] = array_map(function($serverConfig) {
+				$bits = explode('@', $serverConfig, 2);
+				return array(
+					'user' => $bits[0],
+					'server' => $bits[1]
+				);
+			}, $output['server']);
 		}
 
 		return $output;
@@ -124,3 +134,4 @@ class Garp_Deploy_Config {
 		return file_get_contents(BASE_PATH . self::GENERIC_CONFIG_PATH);
 	}
 }
+
