@@ -9,7 +9,7 @@ if (isset($this->config()->cms->minifiedAssets) && $this->config()->cms->minifie
 	$jsPath = 'cms.js';
 	// Alas, we need this for backward-compatibility
 	if (!$this->config()->cms->useVersionedJavascript):
-		$jsPath = $this->config()->assets->js->root . '/' . $jsPath;
+		$jsPath = $this->config()->assets->js->build . '/' . $jsPath;
 	endif;
 	echo $this->script()->src($jsPath, true, array('crossorigin' => 'anonymous'));
 else:
