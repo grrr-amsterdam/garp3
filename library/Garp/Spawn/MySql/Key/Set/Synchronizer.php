@@ -223,16 +223,17 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 		foreach ($keysToRemove as $key) {
 			$fields = $this->_model->fields->getFields('name', $key->column);
 			$field = current($fields);
+            $columnsOutput = implode(', ', (array)$key->column);
 
 			if ($progress->isInteractive()) {
-				$progress->display("Make {$this->_model->id}.{$key->column} no longer unique? ");
+				$progress->display("Make {$this->_model->id}.{$columnsOutput} no longer unique? ");
 				if (!Garp_Spawn_Util::confirm()) {
 					continue;
 				}
 			}
 
 			if (!Garp_Spawn_MySql_UniqueKey::delete($tableName, $key)) {
-				throw new Exception("Could not set column '{$key->column}' to non-unique.");
+				throw new Exception("Could not set column '{$columnsOutput}' to non-unique.");
 			}
 		}
 	}
@@ -459,3 +460,4 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 		}
 	}
 }
+

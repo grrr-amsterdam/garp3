@@ -145,7 +145,12 @@ class Garp_Spawn_MySql_Table_Factory {
 		$uniqueKeys = array();
 
 		if ($unique) {
-			$uniqueKeys[] = $unique;
+			// This checks wether a single one-dimensional array is given: a collection of
+			// columns combined into a unique key, or wether an array of arrays is given, meaning
+			// multiple collections of columns combining into multiple unique keys per table.
+			$isArrayOfArrays = count(array_filter($unique, 'is_array')) === count($unique);
+			$unique = !$isArrayOfArrays ? array($unique) : $unique;
+			$uniqueKeys = array_merge($uniqueKeys, $unique);
 		}
 
 		foreach ($fields as $field) {
@@ -191,3 +196,4 @@ class Garp_Spawn_MySql_Table_Factory {
 	}
 
 }
+

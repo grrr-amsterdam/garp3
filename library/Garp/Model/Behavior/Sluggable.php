@@ -4,7 +4,7 @@
  * Generates a unique slug for a record
  *
  * @author       Harmen Janssen, David Spreekmeester | grrr.nl
- * @version      1.5
+ * @version      1.6
  * @package      Garp_Model_Behavior
  */
 class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
@@ -156,11 +156,15 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 		if (!empty($targetData[$slugField])) {
 			return;
 		}
+        $lang = null;
+        if (isset($referenceData[Garp_Model_Behavior_Translatable::LANG_COLUMN])) {
+            $lang = $referenceData[Garp_Model_Behavior_Translatable::LANG_COLUMN];
+        }
 		foreach ((array)$baseFields as $baseColumn) {
 			$baseData[] = $this->_getBaseString($baseColumn, $referenceData);
 		}
 		$baseData = implode(' ', $baseData);
-		$targetData[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField);
+		$targetData[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField, $lang);
 	}
 
 	/**
@@ -173,13 +177,17 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 	protected function _addSlugFromSingle(Garp_Model_Db $model, array &$targetData, array $referenceData) {
 		$baseFields = $this->_config['baseField'];
 		$slugFields = $this->_config['slugField'];
+        $lang = null;
+        if (isset($referenceData[Garp_Model_Behavior_Translatable::LANG_COLUMN])) {
+            $lang = $referenceData[Garp_Model_Behavior_Translatable::LANG_COLUMN];
+        }
 		foreach ($baseFields as $i => $baseField) {
 			$baseData = $this->_getBaseString($baseField, $referenceData);
 			$slugField = $slugFields[$i];
 			if (!empty($targetData[$slugField])) {
 				continue;
 			}
-			$targetData[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField);
+			$targetData[$slugField] = $this->generateUniqueSlug($baseData, $model, $slugField, $lang);
 		}
 	}
 
@@ -238,18 +246,19 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
 	* @param String $base
 	* @param Model $model Model object of this record
 	* @param String $slugField Name of the slug column in the database
+	* @param String $lang Optional language. Used with internationalized models
 	* @return String $slug The generated unique slug
 	*/
-	public function generateUniqueSlug($base, $model, $slugField) {
+	public function generateUniqueSlug($base, $model, $slugField, $lang = null) {
 		$slug = $this->generateSlug($base);
 		$select = $model->getAdapter()->select()
 			->from($model->getName(), 'COUNT(*)')
 		;
-		$this->_setWhereClause($select, $slugField, $slug, $model);
+		$this->_setWhereClause($select, $slugField, $slug, $model, $lang);
 		$n = 1;
 		while ($this->_rowsExist($select)) {
 			$this->_incrementSlug($slug, ++$n, $base);
-			$this->_setWhereClause($select, $slugField, $slug, $model);
+			$this->_setWhereClause($select, $slugField, $slug, $model, $lang);
 		}
 		return $slug;
 	}
@@ -260,12 +269,16 @@ class Garp_Model_Behavior_Sluggable extends Garp_Model_Behavior_Abstract {
  	 * @param String $slugField
  	 * @param String $slug
  	 * @param Garp_Model_Db $model
+ 	 * @param String $lang
  	 * @return Void
  	 */
-	protected function _setWhereClause(Zend_Db_Select &$select, $slugField, $slug, Garp_Model_Db $model) {
+	protected function _setWhereClause(Zend_Db_Select &$select, $slugField, $slug, Garp_Model_Db $model, $lang = null) {
 		$slugField = $model->getAdapter()->quoteIdentifier($slugField);
 		$select->reset(Zend_Db_Select::WHERE)
 			->where($slugField . ' = ?', $slug);
+        if ($lang) {
+            $select->where(Garp_Model_Behavior_Translatable::LANG_COLUMN . ' = ?', $lang);
+        }
 	}
 
 	/**
