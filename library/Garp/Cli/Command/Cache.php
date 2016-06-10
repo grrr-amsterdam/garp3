@@ -36,7 +36,10 @@ class Garp_Cli_Command_Cache extends Garp_Cli_Command {
 	}
 
 	public function info() {
-		Garp_Cache_Manager::info();
+        $backend = Garp_Cache_Manager::getCacheBackend();
+        Garp_Cli::lineOut('# Server cache backend');
+        $out = $backend ? 'Backend type: ' . get_class($backend) : 'No cache backend found';
+        Garp_Cli::lineOut($out);
 	}
 
 
