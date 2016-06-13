@@ -68,9 +68,16 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 	 * @return	Array	Configuration of the slug field
 	 */
 	protected function _getSlugFieldConfig() {
-		$slugFieldConfig 	= $this->_slugFieldConfig;
-
+		$slugFieldConfig = $this->_slugFieldConfig;
+		$model = $this->getModel();
 		if ($this->_baseFieldIsMultilingual()) {
+            if ($model instanceof Garp_Spawn_Model_I18n) {
+                // Add slug and lang as combined unique key to the model
+                // Only applicable to I18n models hence the icky instanceof check
+                $existingUnique = $model->unique ?: array();
+			    $model->unique = array_merge($existingUnique, array(array('lang', 'slug')));
+			    unset($slugFieldConfig['unique']);
+            }
 			$slugFieldConfig['multilingual'] = true;
 		}
 
@@ -136,3 +143,4 @@ class Garp_Spawn_Behavior_Type_Sluggable extends Garp_Spawn_Behavior_Type_Abstra
 	}
 
 }
+

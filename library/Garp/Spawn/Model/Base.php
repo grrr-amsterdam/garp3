@@ -13,7 +13,7 @@ class Garp_Spawn_Model_Base extends Garp_Spawn_Model_Abstract {
 
 	public function __construct(Garp_Spawn_Config_Model_Abstract $config) {
 		if ($config->isMultilingual()) {
-			$i18nModelConfig = new Garp_Spawn_Config_Model_I18n($config);
+			$i18nModelConfig = new Garp_Spawn_Config_Model_I18n(clone $config);
 			$i18nModel       = new Garp_Spawn_Model_I18n($i18nModelConfig);
 			$this->setI18nModel($i18nModel);
 		}

@@ -1,6 +1,10 @@
 <?php
 $locales		= Garp_I18n::getLocales();
 $defaultLocale 	= Garp_I18n::getDefaultLocale();
+usort($locales, function($a, $b) use ($defaultLocale) {
+    // sort default locale on top
+    return $a === $b ? 0 : ($a === $defaultLocale ? -1 : 1);
+});
 $fieldSet		= $this->fieldSet;
 $excludedFields	= $this->spawnJs()->getExcludedFormFields();
 $relations      = $this->relations;

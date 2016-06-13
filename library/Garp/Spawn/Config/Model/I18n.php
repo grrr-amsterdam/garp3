@@ -54,7 +54,7 @@ class Garp_Spawn_Config_Model_I18n extends ArrayObject {
 			$this->_extractI18nRelations($config),
 			$this->_getRelationConfigToParent()
 		);
-		$config['unique'] = $this->_getUniqueColumnNames();
+		$config['unique'] = array($this->_getUniqueColumnNames());
 		$config = $this->_correctOrderProperty($config);
 
 		return $config;
