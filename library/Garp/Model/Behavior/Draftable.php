@@ -2,7 +2,7 @@
 /**
  * Garp_Model_Behavior_Draftable
  * Handles 'draft' status and 'published' dates.
- * A table must have an 'online_status' column (TINYINT) and a 'published' column (DATETIME) to 
+ * A table must have an 'online_status' column (TINYINT) and a 'published' column (DATETIME) to
  * work with this behavior.
  * The SELECT object is modified with every fetch() command to include the following WHERE clause:
  *
@@ -74,7 +74,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	 */
 	public function beforeFetch(&$args) {
 		$is_cms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
-		$is_preview = isset($_GET) && array_key_exists('preview', $_GET) && Garp_Auth::getInstance()->isLoggedIn();
+		$is_preview = $this->_isPreview() && Garp_Auth::getInstance()->isLoggedIn();
+
 		$force = $this->_force;
 		if (($is_cms || $is_preview) && !$force) {
 			// don't use in the CMS, or in preview mode
@@ -131,7 +132,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 			}
 		}
 		$select->where($publishedColumn.' IS NULL OR '.$publishedColumn.' <= NOW() '.$timecalc);
-	}		
+	}
 
 	/**
  	 * After insert callback.
@@ -198,7 +199,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	public function getBlockOfflineItems() {
 		return $this->_blockOfflineItems;
 	}
-	
+
  	/**
  	 * Set modelAlias
  	 * @param String $modelAlias
@@ -208,7 +209,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
  		$this->_modelAlias = $modelAlias;
  		return $this;
  	}
- 	
+
 	/**
 	 * Get modelAlias
 	 * @return String
@@ -216,7 +217,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	public function getModelAlias() {
 		return $this->_modelAlias;
 	}
-	
+
 	/**
 	 * Set force
 	 * @param Boolean $force
@@ -234,5 +235,12 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 	public function getForce() {
 		return $this->_force;
 	}
-	
+
+    protected function _isPreview() {
+        $currentRequest = Zend_Controller_Front::getInstance()->getRequest();
+        $previewInGet = isset($_GET) && array_key_exists('preview', $_GET);
+        $previewInRequest = $currentRequest &&
+            array_key_exists('preview', $currentRequest->getParams());
+        return $previewInGet || $previewInRequest;
+    }
 }
