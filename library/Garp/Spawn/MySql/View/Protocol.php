@@ -7,18 +7,18 @@
  * @group Spawn
  */
 interface Garp_Spawn_MySql_View_Protocol {
-	/**
-	 * @return String The name of this view in the database
-	 */
-	public function getName();
-	
-	/**
-	 * @return String The sql to create this view
-	 */
-	public function renderSql();
-	
-	/**
-	 * Do a direct query on the database, removing all views of this type
-	 */
-	public static function deleteAll();
+    /**
+     * @return String The name of this view in the database
+     */
+    public function getName();
+    
+    /**
+     * @return String The sql to create this view
+     */
+    public function renderSql();
+    
+    /**
+     * Do a direct query on the database, removing all views of this type
+     */
+    public static function deleteAll();
 }

@@ -8,11 +8,11 @@
  */
 class Garp_Form_Element_Url extends Garp_Form_Element_Text {
 
-	public function init() {
-		parent::init();
+    public function init() {
+        parent::init();
 
-		$this->addFilter(new Garp_Filter_ForceUriScheme());
-		$this->addValidator(new Garp_Validate_Url());
-	}
+        $this->addFilter(new Garp_Filter_ForceUriScheme());
+        $this->addValidator(new Garp_Validate_Url());
+    }
 
 }

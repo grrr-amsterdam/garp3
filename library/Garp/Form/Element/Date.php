@@ -16,21 +16,21 @@
  */
 class Garp_Form_Element_Date extends Garp_Form_Element_Text {
 
-	const DEFAULT_DATE_FORMAT = 'j-n-Y';
+    const DEFAULT_DATE_FORMAT = 'j-n-Y';
 
-	public function init() {
-		$class = $this->getAttrib('class');
-		$class .= ($class ? ' ' : '') . 'date';
-		$this->setAttrib('class', $class);
+    public function init() {
+        $class = $this->getAttrib('class');
+        $class .= ($class ? ' ' : '') . 'date';
+        $this->setAttrib('class', $class);
 
-		if (!$this->getAttrib('data-format')) {
-			$this->setAttrib('data-format', self::DEFAULT_DATE_FORMAT);
-		}
+        if (!$this->getAttrib('data-format')) {
+            $this->setAttrib('data-format', self::DEFAULT_DATE_FORMAT);
+        }
 
-		// Add server validation/filtering
-		$this->addValidator(new Garp_Validate_Date($this->getAttrib('data-format')));
-		// Convert to MySQL compatible date by default
-		$this->addFilter(new Garp_Filter_MysqlDate());
-	}
+        // Add server validation/filtering
+        $this->addValidator(new Garp_Validate_Date($this->getAttrib('data-format')));
+        // Convert to MySQL compatible date by default
+        $this->addFilter(new Garp_Filter_MysqlDate());
+    }
 
 }

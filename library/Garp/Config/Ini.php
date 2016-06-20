@@ -11,85 +11,85 @@
  */
 class Garp_Config_Ini extends Zend_Config_Ini {
 
-	/**
- 	 * Keep track of loaded ini files within a single request
- 	 * @var Array
- 	 */
-	protected static $_store = array();
+    /**
+     * Keep track of loaded ini files within a single request
+     * @var Array
+     */
+    protected static $_store = array();
 
-	/**
- 	 * Receive a config ini file from cache
- 	 * @param String $filename
- 	 * @return Garp_Config_Ini
- 	 */
-	public static function getCached($filename) {
-		$cache = Zend_Registry::get('CacheFrontend');
-		$key = preg_replace('/[^0-9a-zA-Z_]/', '_', basename($filename));
+    /**
+     * Receive a config ini file from cache
+     * @param String $filename
+     * @return Garp_Config_Ini
+     */
+    public static function getCached($filename) {
+        $cache = Zend_Registry::get('CacheFrontend');
+        $key = preg_replace('/[^0-9a-zA-Z_]/', '_', basename($filename));
 
-		// Check the store first to see if the ini file is already loaded within this session
-		if (array_key_exists($key, static::$_store)) {
-			return static::$_store[$key];
-		}
+        // Check the store first to see if the ini file is already loaded within this session
+        if (array_key_exists($key, static::$_store)) {
+            return static::$_store[$key];
+        }
 
-		$config = $cache->load('Ini_Config_'.$key);
-		if (!$config) {
-			$config = new Garp_Config_Ini($filename, APPLICATION_ENV);
-			$cache->save($config, 'Ini_Config_'.$key);
-		}
-		static::$_store[$key] = $config;
-		return $config;
-	}
-
-    public function __construct($filename, $section = null, $options = false) {
-		$options['allowModifications'] = true;
-		try {
-			parent::__construct($filename, $section, $options);
-		} catch (Zend_Config_Exception $e) {
-			// Catch invalid Section exceptions here...
-			if (!count(sscanf($e->getMessage(), "Section '%s' cannot be found in %s"))) {
-				throw $e;
-			}
-			// ...and provide a better one we can use to show a friendly error
-        	$validSections = array_keys($this->_loadIniFile($filename));
-			$superException = new Garp_Config_Ini_InvalidSectionException($e->getMessage());
-			$superException->setValidSections($validSections);
-			throw $superException;
-		}
-
-		if (isset($this->config)) {
-			$this->_mergeSubConfigs($section, $options);
-		}
+        $config = $cache->load('Ini_Config_'.$key);
+        if (!$config) {
+            $config = new Garp_Config_Ini($filename, APPLICATION_ENV);
+            $cache->save($config, 'Ini_Config_'.$key);
+        }
+        static::$_store[$key] = $config;
+        return $config;
     }
 
-	protected function _mergeSubConfigs($section, $options) {
-		foreach ($this->config as $subConfigPath) {
-			$subConfig = new Garp_Config_Ini($subConfigPath, $section, $options);
-			$this->merge($subConfig);
-		}
-	}
+    public function __construct($filename, $section = null, $options = false) {
+        $options['allowModifications'] = true;
+        try {
+            parent::__construct($filename, $section, $options);
+        } catch (Zend_Config_Exception $e) {
+            // Catch invalid Section exceptions here...
+            if (!count(sscanf($e->getMessage(), "Section '%s' cannot be found in %s"))) {
+                throw $e;
+            }
+            // ...and provide a better one we can use to show a friendly error
+            $validSections = array_keys($this->_loadIniFile($filename));
+            $superException = new Garp_Config_Ini_InvalidSectionException($e->getMessage());
+            $superException->setValidSections($validSections);
+            throw $superException;
+        }
 
-	/**
- 	 * Hacked to allow ini strings as well as ini files.
- 	 * @param String|Garp_Config_Ini_String $filename If this is a Garp_Config_Ini_String, an ini string is assumed instead of an ini file.
- 	 * @return Array
- 	 */
-	protected function _parseIniFile($filename) {
-		if ($filename instanceof Garp_Config_Ini_String) {
-			$ini = $filename->getValue();
-			return parse_ini_string($ini);
-		}
-		return parent::_parseIniFile($filename);
-	}
+        if (isset($this->config)) {
+            $this->_mergeSubConfigs($section, $options);
+        }
+    }
 
-	/**
- 	 * Take an ini string to populate the config object.
- 	 * @param String $iniString
- 	 * @param String $section
- 	 * @param Array $options
- 	 * @return Garp_Config_Ini
- 	 * @see Zend_Config_Ini::__construct for an explanation of the second and third arguments.
- 	 */
-	public static function fromString($iniString, $section = null, $options = false) {
-		return new Garp_Config_Ini(new Garp_Config_Ini_String($iniString), $section, $options);
-	}
+    protected function _mergeSubConfigs($section, $options) {
+        foreach ($this->config as $subConfigPath) {
+            $subConfig = new Garp_Config_Ini($subConfigPath, $section, $options);
+            $this->merge($subConfig);
+        }
+    }
+
+    /**
+     * Hacked to allow ini strings as well as ini files.
+     * @param String|Garp_Config_Ini_String $filename If this is a Garp_Config_Ini_String, an ini string is assumed instead of an ini file.
+     * @return Array
+     */
+    protected function _parseIniFile($filename) {
+        if ($filename instanceof Garp_Config_Ini_String) {
+            $ini = $filename->getValue();
+            return parse_ini_string($ini);
+        }
+        return parent::_parseIniFile($filename);
+    }
+
+    /**
+     * Take an ini string to populate the config object.
+     * @param String $iniString
+     * @param String $section
+     * @param Array $options
+     * @return Garp_Config_Ini
+     * @see Zend_Config_Ini::__construct for an explanation of the second and third arguments.
+     */
+    public static function fromString($iniString, $section = null, $options = false) {
+        return new Garp_Config_Ini(new Garp_Config_Ini_String($iniString), $section, $options);
+    }
 }

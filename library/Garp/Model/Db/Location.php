@@ -10,70 +10,70 @@
  */
 class Garp_Model_Db_Location extends Model_Base_Location {
 
-	/**
- 	 * Fetches the location record from the database if it exists.
- 	 * If not, a call is made to the Google Maps API,
- 	 * and the result is stored in the database.
- 	 */
-	public function fetchRowByZip($zip) {
-		$zip = $this->normalizeZip($zip);
-		return $this->_fetchRowByZipFromDatabase($zip);
+    /**
+     * Fetches the location record from the database if it exists.
+     * If not, a call is made to the Google Maps API,
+     * and the result is stored in the database.
+     */
+    public function fetchRowByZip($zip) {
+        $zip = $this->normalizeZip($zip);
+        return $this->_fetchRowByZipFromDatabase($zip);
 
-		/*
- 		 * Google is unreliable, let's not do this
- 		 *
-		if ($row) {
-			return $row;
-		}
+        /*
+         * Google is unreliable, let's not do this
+         *
+        if ($row) {
+            return $row;
+        }
 
-		$googleLocation = $this->_fetchRowByZipFromGoogle($zip);
+        $googleLocation = $this->_fetchRowByZipFromGoogle($zip);
 
-		if (!$googleLocation || $googleLocation->error) {
-			return null;
-		}
+        if (!$googleLocation || $googleLocation->error) {
+            return null;
+        }
 
-		$this->_storeLocation($zip, $googleLocation);
-		$row = $this->_fetchRowByZipFromDatabase($zip);
+        $this->_storeLocation($zip, $googleLocation);
+        $row = $this->_fetchRowByZipFromDatabase($zip);
 
-		return $row;
-		 */
-	}
+        return $row;
+         */
+    }
 
-	/**
- 	 * Normalize the input so that it matches the stored format.
- 	 */
-	public function normalizeZip($zip) {
-		if (strlen($zip) === 6) {
-			$zip = substr($zip, 0, 4) . ' ' . strtoupper(substr($zip, 4, 2));
-		}
+    /**
+     * Normalize the input so that it matches the stored format.
+     */
+    public function normalizeZip($zip) {
+        if (strlen($zip) === 6) {
+            $zip = substr($zip, 0, 4) . ' ' . strtoupper(substr($zip, 4, 2));
+        }
 
-		return $zip;
-	}
+        return $zip;
+    }
 
-	protected function _fetchRowByZipFromDatabase($zip) {
-		$select = $this->select()->where('zip = ?', $zip)
-			->where('number IS NULL');
-		$row = $this->fetchRow($select);
+    protected function _fetchRowByZipFromDatabase($zip) {
+        $select = $this->select()->where('zip = ?', $zip)
+            ->where('number IS NULL');
+        $row = $this->fetchRow($select);
 
-		return $row;
-	}
+        return $row;
+    }
 
-	/**
- 	 * @param String $zip
- 	 * @return Garp_Service_Google_Maps_Response
- 	 */
-	protected function _fetchRowByZipFromGoogle($zip) {
-		$api = new Garp_Service_Google_Maps();
-		$response = $api->fetchLocation($zip);
+    /**
+     * @param String $zip
+     * @return Garp_Service_Google_Maps_Response
+     */
+    protected function _fetchRowByZipFromGoogle($zip) {
+        $api = new Garp_Service_Google_Maps();
+        $response = $api->fetchLocation($zip);
 
-		return $response;
-	}
+        return $response;
+    }
 
-	protected function _storeLocation($zip, Garp_Service_Google_Maps_Response $location) {
-		$row = (array)$location;
-		unset($row['error']);
-		$row['zip'] = $zip;
-		$row['source'] = 'Google';
-		$this->insert($row);
-	}
+    protected function _storeLocation($zip, Garp_Service_Google_Maps_Response $location) {
+        $row = (array)$location;
+        unset($row['error']);
+        $row['zip'] = $zip;
+        $row['source'] = 'Google';
+        $this->insert($row);
+    }
 }

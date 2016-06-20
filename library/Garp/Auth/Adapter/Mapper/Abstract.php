@@ -9,5 +9,5 @@
  * @package      Garp_Auth_Adapter_Mapper
  */
 interface Garp_Auth_Adapter_Mapper_Abstract {
-	public function map(array $props);
+    public function map(array $props);
 }

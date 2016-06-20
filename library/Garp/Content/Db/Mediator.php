@@ -16,47 +16,47 @@ class Garp_Content_Db_Mediator {
      */
     private static $_instance = null;
 
-	/**
-	 * @var Garp_Content_Db_Server_*
-	 */
-	protected $_source;
+    /**
+     * @var Garp_Content_Db_Server_*
+     */
+    protected $_source;
 
-	/**
-	 * @var Garp_Content_Db_Server_*
-	 */
-	protected $_target;
+    /**
+     * @var Garp_Content_Db_Server_*
+     */
+    protected $_target;
 
 
-	/**
-	 * @param String $sourceEnv
-	 * @param String $targetEnv
-	 */
-	public function __construct($sourceEnv, $targetEnv) {
-		$this->setSource($sourceEnv, $targetEnv);
-		$this->setTarget($targetEnv, $sourceEnv);
-	}
+    /**
+     * @param String $sourceEnv
+     * @param String $targetEnv
+     */
+    public function __construct($sourceEnv, $targetEnv) {
+        $this->setSource($sourceEnv, $targetEnv);
+        $this->setTarget($targetEnv, $sourceEnv);
+    }
 
-	/**
-	 * @param String $environment
-	 */
-	public function setSource($environment, $otherEnvironment) {
-		$this->_source = Garp_Content_Db_Server_Factory::create($environment, $otherEnvironment);
-	}
+    /**
+     * @param String $environment
+     */
+    public function setSource($environment, $otherEnvironment) {
+        $this->_source = Garp_Content_Db_Server_Factory::create($environment, $otherEnvironment);
+    }
 
-	/**
-	 * @param String $environment
-	 */
-	public function setTarget($environment, $otherEnvironment) {
-		$this->_target = Garp_Content_Db_Server_Factory::create($environment, $otherEnvironment);
-	}
+    /**
+     * @param String $environment
+     */
+    public function setTarget($environment, $otherEnvironment) {
+        $this->_target = Garp_Content_Db_Server_Factory::create($environment, $otherEnvironment);
+    }
 
-	public function getSource() {
-		return $this->_source;
-	}
+    public function getSource() {
+        return $this->_source;
+    }
 
-	public function getTarget() {
-		return $this->_target;
-	}
+    public function getTarget() {
+        return $this->_target;
+    }
 
 
 }

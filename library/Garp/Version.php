@@ -9,8 +9,8 @@
  */
 final class Garp_Version {
     /**
- 	 * Garp version identification - see compareVersion()
- 	 * @var String
+     * Garp version identification - see compareVersion()
+     * @var String
      */
     const VERSION = '3.8';
 
@@ -27,8 +27,8 @@ final class Garp_Version {
      *
      */
     public static function compareVersion($version) {
-		$version = strtolower($version);
-		$version = preg_replace('/(\d)pr(\d?)/', '$1a$2', $version);
-		return version_compare($version, strtolower(static::VERSION));
-	}
+        $version = strtolower($version);
+        $version = preg_replace('/(\d)pr(\d?)/', '$1a$2', $version);
+        return version_compare($version, strtolower(static::VERSION));
+    }
 }

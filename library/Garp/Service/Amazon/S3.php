@@ -6,37 +6,37 @@
  */
 class Garp_Service_Amazon_S3 extends Zend_Service_Amazon_S3 {
 
-	/**
-	 * @author David Spreekmeester | grrr.nl
-	 * @original Edgar Hassler, http://framework.zend.com/issues/browse/ZF-7675
-	 */
+    /**
+     * @author David Spreekmeester | grrr.nl
+     * @original Edgar Hassler, http://framework.zend.com/issues/browse/ZF-7675
+     */
     public function getObjectsByBucket($bucket, $params = array()) {
         $objects = array();
-		$leadMarker = '';
+        $leadMarker = '';
 
-		do {
-			$params['marker'] = $leadMarker;
-	        $response = $this->_makeRequest('GET', $bucket, $params);
+        do {
+            $params['marker'] = $leadMarker;
+            $response = $this->_makeRequest('GET', $bucket, $params);
 
-	        if ($response->getStatus() != 200) {
-	            return false;
-	        }
+            if ($response->getStatus() != 200) {
+                return false;
+            }
 
-	        $xml = new SimpleXMLElement($response->getBody());
+            $xml = new SimpleXMLElement($response->getBody());
 
 
-	        if (isset($xml->Contents)) {
-	            foreach ($xml->Contents as $contents) {
-	                foreach ($contents->Key as $object) {
-	                    $objects[] = (string)$object;
-	                }
-	            }
-	        }
-	        // The lead marker is the last key
-			if (isset($objects[count($objects) - 1])) {
-	        	$leadMarker = $objects[count($objects) - 1];
-			}
-	    } while( /* Until we exhaust the elements. */ $xml->IsTruncated == 'true');
+            if (isset($xml->Contents)) {
+                foreach ($xml->Contents as $contents) {
+                    foreach ($contents->Key as $object) {
+                        $objects[] = (string)$object;
+                    }
+                }
+            }
+            // The lead marker is the last key
+            if (isset($objects[count($objects) - 1])) {
+                $leadMarker = $objects[count($objects) - 1];
+            }
+        } while( /* Until we exhaust the elements. */ $xml->IsTruncated == 'true');
 
         return $objects;
     }

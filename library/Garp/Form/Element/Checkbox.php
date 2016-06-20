@@ -9,8 +9,8 @@
  */
 class Garp_Form_Element_Checkbox extends Zend_Form_Element_Checkbox {
 
-	public function init() {
-		$this->setUncheckedValue('');
-	}
+    public function init() {
+        $this->setUncheckedValue('');
+    }
 
 }
