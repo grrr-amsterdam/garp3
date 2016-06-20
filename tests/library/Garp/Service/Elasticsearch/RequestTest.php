@@ -5,23 +5,23 @@
  * @group Elasticsearch
  */
 class Garp_Service_Elasticsearch_RequestTest extends PHPUnit_Framework_TestCase {
-	const BOGUS_PATH = '/Bogus/666';
+    const BOGUS_PATH = '/Bogus/666';
 
 
-	public function testRequestShouldNotHaveDuplicateSlashes() {
-		// only test ElasticSearch in a project that uses ElasticSearch
-		if (!isset(Zend_Registry::get('config')->elasticsearch)) {
-			return;
-		}
-		$method 	= Garp_Service_Elasticsearch_Request::GET;
-		$request 	= new Garp_Service_Elasticsearch_Request($method, self::BOGUS_PATH);
-		$url 		= $request->getUrl();
+    public function testRequestShouldNotHaveDuplicateSlashes() {
+        // only test ElasticSearch in a project that uses ElasticSearch
+        if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+            return;
+        }
+        $method     = Garp_Service_Elasticsearch_Request::GET;
+        $request    = new Garp_Service_Elasticsearch_Request($method, self::BOGUS_PATH);
+        $url        = $request->getUrl();
 
-		// strip off the protocol, cause those duplicate slashes don't count.
-		$url = substr($url, 7);
+        // strip off the protocol, cause those duplicate slashes don't count.
+        $url = substr($url, 7);
 
-		$containsDuplicateSlashes = strpos($url, '//') !== false;
-		$this->assertFalse($containsDuplicateSlashes, "Does the following request url contain duplicate slashes?\n" . $url);
-	}
+        $containsDuplicateSlashes = strpos($url, '//') !== false;
+        $this->assertFalse($containsDuplicateSlashes, "Does the following request url contain duplicate slashes?\n" . $url);
+    }
 
 }

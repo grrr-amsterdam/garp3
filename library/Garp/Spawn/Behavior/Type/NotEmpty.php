@@ -4,79 +4,79 @@
  */
 class Garp_Spawn_Behavior_Type_NotEmpty extends Garp_Spawn_Behavior_Type_Abstract {
 
-	static public function isNeededBy(Garp_Spawn_Model_Abstract $model) {
-		$requiredFields = $model->fields->getFields('required', true);
+    static public function isNeededBy(Garp_Spawn_Model_Abstract $model) {
+        $requiredFields = $model->fields->getFields('required', true);
 
-		if (!$model->isMultilingual()) {
-			return (bool)$requiredFields;
-		}
+        if (!$model->isMultilingual()) {
+            return (bool)$requiredFields;
+        }
 
-		$unilingualFieldNames 	= array();
+        $unilingualFieldNames   = array();
 
-		foreach ($requiredFields as $field) {
-			if (!$field->isMultilingual()) {
-				return true;
-			}
-		}
-	}
+        foreach ($requiredFields as $field) {
+            if (!$field->isMultilingual()) {
+                return true;
+            }
+        }
+    }
 
-	/**
-	 * In translated models (i18n leaves), multilingual columns should not be mandatory on PHP validator level.
-	 */
-	public function getParams() {
-		$model 	= $this->getModel();
-		$params = $this->_getFieldNames();
+    /**
+     * In translated models (i18n leaves), multilingual columns should not be mandatory on PHP validator level.
+     */
+    public function getParams() {
+        $model  = $this->getModel();
+        $params = $this->_getFieldNames();
 
-		if (!$model->isTranslated()) {
-			return $params;
-		}
+        if (!$model->isTranslated()) {
+            return $params;
+        }
 
-		/**
- 		 * @deprecated, since we now populate records in all languages.
- 		 */
-		//$params = array_filter($params, array($this, '_isUnilingualField'));
-		return $params;
-	}
+        /**
+         * @deprecated, since we now populate records in all languages.
+         */
+        //$params = array_filter($params, array($this, '_isUnilingualField'));
+        return $params;
+    }
 
-	protected function _isUnilingualField($fieldName) {
-		$modelField = $this->getModel()->fields->getField($fieldName);
-		return !$modelField->isMultilingual();
-	}
+    protected function _isUnilingualField($fieldName) {
+        $modelField = $this->getModel()->fields->getField($fieldName);
+        return !$modelField->isMultilingual();
+    }
 
-	protected function _getFieldNames() {
-		$requiredFieldNames = $this->_getRequiredFieldNames();
-		if (!$requiredFieldNames) {
-			return;
-		}
+    protected function _getFieldNames() {
+        $requiredFieldNames = $this->_getRequiredFieldNames();
+        if (!$requiredFieldNames) {
+            return;
+        }
 
-		$fieldNames = $requiredFieldNames;
-		$indexOfIdColumn = array_search('id', $fieldNames);
-		unset($fieldNames[$indexOfIdColumn]);
+        $fieldNames = $requiredFieldNames;
+        $indexOfIdColumn = array_search('id', $fieldNames);
+        unset($fieldNames[$indexOfIdColumn]);
 
-		return $fieldNames;
-	}
+        return $fieldNames;
+    }
 
-	protected function _getRequiredFieldNames() {
-		$model = $this->getModel();
+    protected function _getRequiredFieldNames() {
+        $model = $this->getModel();
 
-		if (!$model->isMultilingual()) {
-			return $this->_model->fields->getFieldNames('required', true);
-		}
+        if (!$model->isMultilingual()) {
+            return $this->_model->fields->getFieldNames('required', true);
+        }
 
-		return $this->_getUnilingualFieldNames();
-	}
+        return $this->_getUnilingualFieldNames();
+    }
 
-	protected function _getUnilingualFieldNames() {
-		$unilingualFieldNames 	= array();
-		$requiredFields 		= $this->_model->fields->getFields('required', true);
+    protected function _getUnilingualFieldNames() {
+        $unilingualFieldNames   = array();
+        $requiredFields         = $this->_model->fields->getFields('required', true);
 
-		foreach ($requiredFields as $field) {
-			if (!$field->isMultilingual()) {
-				$unilingualFieldNames[] = $field->name;
-			}
-		}
+        foreach ($requiredFields as $field) {
+            if (!$field->isMultilingual()) {
+                $unilingualFieldNames[] = $field->name;
+            }
+        }
 
-		return $unilingualFieldNames;
-	}
+        return $unilingualFieldNames;
+    }
 
 }

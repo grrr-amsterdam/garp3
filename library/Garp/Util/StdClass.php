@@ -10,16 +10,16 @@
  * @lastmodified $Date: $
  */
 class Garp_Util_StdClass extends stdClass {
-	/**
-	 * Class constructor.
-	 * @param Array $props Key => value pairs translate to properties. Only string keys are used.
-	 * @return Void
-	 */
-	public function __construct(array $props) {
-		foreach ($props as $prop => $val) {
-			if (is_string($prop)) {
-				$this->{$prop} = $val;
-			}
-		}
-	}
+    /**
+     * Class constructor.
+     * @param Array $props Key => value pairs translate to properties. Only string keys are used.
+     * @return Void
+     */
+    public function __construct(array $props) {
+        foreach ($props as $prop => $val) {
+            if (is_string($prop)) {
+                $this->{$prop} = $val;
+            }
+        }
+    }
 }

@@ -4,5 +4,5 @@
  */
 interface Garp_Spawn_Config_Validator_Interface {
 
-	public function validate(ArrayObject $config);
+    public function validate(ArrayObject $config);
 }

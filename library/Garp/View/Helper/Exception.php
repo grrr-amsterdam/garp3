@@ -10,5 +10,5 @@
  * @lastmodified $Date: $
  */
 class Garp_View_Helper_Exception extends Exception {
-	
+    
 }

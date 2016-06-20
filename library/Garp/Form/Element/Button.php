@@ -9,9 +9,9 @@
  */
 class Garp_Form_Element_Button extends Zend_Form_Element_Button {
 
-		public function init() {
-			// Don't be silly. Buttons don't use labels.
-			$this->removeDecorator('Label');
-		}
+        public function init() {
+            // Don't be silly. Buttons don't use labels.
+            $this->removeDecorator('Label');
+        }
 
 }

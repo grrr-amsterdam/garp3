@@ -6,5 +6,5 @@
  * @subpackage Model
  */
 interface Garp_Spawn_Js_Model_Interface {
-	public function render();
+    public function render();
 }

@@ -3,162 +3,162 @@
  * @author David Spreekmeester | grrr.nl
  */
 class Garp_Spawn_Config_Model_I18n extends ArrayObject {
-	const I18N_MODEL_ID_POSTFIX = 'I18n';
-	const LANGUAGE_COLUMN 	= 'lang';
+    const I18N_MODEL_ID_POSTFIX = 'I18n';
+    const LANGUAGE_COLUMN   = 'lang';
 
-	/**
-	 * @var String $_parentId
-	 */
-	protected $_parentId;
+    /**
+     * @var String $_parentId
+     */
+    protected $_parentId;
 
 
-	public function __construct(Garp_Spawn_Config_Model_Base $baseConfig) {
-		$this->setParentId($baseConfig['id']);
-		$config = $this->_deriveI18nShadowModelConfig($baseConfig);
+    public function __construct(Garp_Spawn_Config_Model_Base $baseConfig) {
+        $this->setParentId($baseConfig['id']);
+        $config = $this->_deriveI18nShadowModelConfig($baseConfig);
 
-		$this->setArrayProperties($config);
-	}
+        $this->setArrayProperties($config);
+    }
 
-	/**
-	 * @return String
-	 */
-	public function getParentId() {
-		return $this->_parentId;
-	}
+    /**
+     * @return String
+     */
+    public function getParentId() {
+        return $this->_parentId;
+    }
 
-	/**
-	 * @param String $parentId
-	 */
-	public function setParentId($parentId) {
-		$this->_parentId = $parentId;
-	}
+    /**
+     * @param String $parentId
+     */
+    public function setParentId($parentId) {
+        $this->_parentId = $parentId;
+    }
 
-	public function setArrayProperties(array $config) {
-		foreach ($config as $key => $val) {
-			$this[$key] = $val;
-		}
-	}
+    public function setArrayProperties(array $config) {
+        foreach ($config as $key => $val) {
+            $this[$key] = $val;
+        }
+    }
 
-	/**
-	 * @return 	Array 	Derived configuration for the i18n shadow model.
-	 */
-	protected function _deriveI18nShadowModelConfig(Garp_Spawn_Config_Model_Base $config) {
-		$config = (array)$config;
+    /**
+     * @return  Array   Derived configuration for the i18n shadow model.
+     */
+    protected function _deriveI18nShadowModelConfig(Garp_Spawn_Config_Model_Base $config) {
+        $config = (array)$config;
 
-		$this->_validate($config);
+        $this->_validate($config);
 
-		$config['id'] .= self::I18N_MODEL_ID_POSTFIX;
-		$config = $this->_filterUnnecessaryFields($config);
-		$config['inputs'] += $this->_getI18nSpecificFields();
-		$config['relations'] = array_merge(
-			$this->_extractI18nRelations($config),
-			$this->_getRelationConfigToParent()
-		);
-		$config['unique'] = array($this->_getUniqueColumnNames());
-		$config = $this->_correctOrderProperty($config);
+        $config['id'] .= self::I18N_MODEL_ID_POSTFIX;
+        $config = $this->_filterUnnecessaryFields($config);
+        $config['inputs'] += $this->_getI18nSpecificFields();
+        $config['relations'] = array_merge(
+            $this->_extractI18nRelations($config),
+            $this->_getRelationConfigToParent()
+        );
+        $config['unique'] = array($this->_getUniqueColumnNames());
+        $config = $this->_correctOrderProperty($config);
 
-		return $config;
-	}
+        return $config;
+    }
 
-	protected function _validate(array $config) {
-		if (!array_key_exists('inputs', $config)) {
-			throw new Exception('No inputs found in Model config for ' . $config['id']);
-		}
-	}
+    protected function _validate(array $config) {
+        if (!array_key_exists('inputs', $config)) {
+            throw new Exception('No inputs found in Model config for ' . $config['id']);
+        }
+    }
 
-	protected function _filterUnnecessaryFields(array $config) {
-		$config['inputs'] = array_filter($config['inputs'], array($this, '_isI18nField'));
-		$config['behaviors'] = $this->_getI18nBehaviors($config['behaviors'], $config['inputs']);
-		return $config;
-	}
+    protected function _filterUnnecessaryFields(array $config) {
+        $config['inputs'] = array_filter($config['inputs'], array($this, '_isI18nField'));
+        $config['behaviors'] = $this->_getI18nBehaviors($config['behaviors'], $config['inputs']);
+        return $config;
+    }
 
-	protected function _extractI18nRelations(array $config) {
-		return array_map(function($rel) {
-			// The eventual relation in the i18n model doesn't need the 'multilingual' property
-			$rel['multilingual'] = false;
-			return $rel;
-		}, array_filter($config['relations'], array($this, '_isI18nField')));
-	}
+    protected function _extractI18nRelations(array $config) {
+        return array_map(function($rel) {
+            // The eventual relation in the i18n model doesn't need the 'multilingual' property
+            $rel['multilingual'] = false;
+            return $rel;
+        }, array_filter($config['relations'], array($this, '_isI18nField')));
+    }
 
-	protected function _isI18nField(array $fieldConfig) {
-		return $this->_hasFieldProp($fieldConfig, 'primary') ||
-			$this->_hasFieldProp($fieldConfig, 'multilingual');
-	}
+    protected function _isI18nField(array $fieldConfig) {
+        return $this->_hasFieldProp($fieldConfig, 'primary') ||
+            $this->_hasFieldProp($fieldConfig, 'multilingual');
+    }
 
-	protected function _getI18nBehaviors($behaviors, $inputs) {
-		$i18nBehaviors = array();
-		foreach ($behaviors as $behaviorName => $behaviorConfig) {
-			if (!Garp_Spawn_Behavior_Factory::isI18nBehavior(
-				$behaviorName, $behaviorConfig, $inputs)) {
-				continue;
-			}
-			$i18nBehaviors[$behaviorName] = $behaviorConfig;
-		}
-		return $i18nBehaviors;
-	}
+    protected function _getI18nBehaviors($behaviors, $inputs) {
+        $i18nBehaviors = array();
+        foreach ($behaviors as $behaviorName => $behaviorConfig) {
+            if (!Garp_Spawn_Behavior_Factory::isI18nBehavior(
+                $behaviorName, $behaviorConfig, $inputs)) {
+                continue;
+            }
+            $i18nBehaviors[$behaviorName] = $behaviorConfig;
+        }
+        return $i18nBehaviors;
+    }
 
-	protected function _hasFieldProp(array $fieldConfig, $prop) {
-		if (
-			array_key_exists($prop, $fieldConfig) &&
-			$fieldConfig[$prop]
-		) {
-			return true;
-		}
+    protected function _hasFieldProp(array $fieldConfig, $prop) {
+        if (
+            array_key_exists($prop, $fieldConfig) &&
+            $fieldConfig[$prop]
+        ) {
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * @return	Array	The names of the columns that are unique to this record ('lang' and parent relation column)
-	 */
-	protected function _getUniqueColumnNames() {
-		$columns = array(
-			self::LANGUAGE_COLUMN,
-			$this->_getRelationColumnToParent()
-		);
+    /**
+     * @return  Array   The names of the columns that are unique to this record ('lang' and parent relation column)
+     */
+    protected function _getUniqueColumnNames() {
+        $columns = array(
+            self::LANGUAGE_COLUMN,
+            $this->_getRelationColumnToParent()
+        );
 
-		return $columns;
-	}
+        return $columns;
+    }
 
-	/**
-	 * @return 	String	The name of the column that refers to the translatable parent model
-	 */
-	protected function _getRelationColumnToParent() {
-		$parentModelId 	= $this->getParentId();
-		$columnName 	= Garp_Spawn_Relation_Set::getRelationColumn($parentModelId);
+    /**
+     * @return  String  The name of the column that refers to the translatable parent model
+     */
+    protected function _getRelationColumnToParent() {
+        $parentModelId  = $this->getParentId();
+        $columnName     = Garp_Spawn_Relation_Set::getRelationColumn($parentModelId);
 
-		return $columnName;
-	}
+        return $columnName;
+    }
 
-	protected function _getRelationConfigToParent() {
-		$relation = array(
-			$this->getParentId() => array(
-				'type' => 'belongsTo'
-			)
-		);
+    protected function _getRelationConfigToParent() {
+        $relation = array(
+            $this->getParentId() => array(
+                'type' => 'belongsTo'
+            )
+        );
 
-		return $relation;
-	}
+        return $relation;
+    }
 
-	protected function _getI18nSpecificFields() {
-		$fields = array(
-			self::LANGUAGE_COLUMN => array(
-				'type' => 'text',
-				'maxLength' => 2
-			)
-		);
+    protected function _getI18nSpecificFields() {
+        $fields = array(
+            self::LANGUAGE_COLUMN => array(
+                'type' => 'text',
+                'maxLength' => 2
+            )
+        );
 
-		return $fields;
-	}
+        return $fields;
+    }
 
-	protected function _correctOrderProperty(array $config) {
-		if (
-			array_key_exists('order', $config) &&
-			!array_key_exists($config['order'], $config['inputs'])
-		) {
-			$config['order'] = 'id';
-		}
+    protected function _correctOrderProperty(array $config) {
+        if (
+            array_key_exists('order', $config) &&
+            !array_key_exists($config['order'], $config['inputs'])
+        ) {
+            $config['order'] = 'id';
+        }
 
-		return $config;
-	}
+        return $config;
+    }
 }

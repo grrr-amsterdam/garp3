@@ -6,9 +6,9 @@
  * @subpackage Spawn
  */
 interface Garp_Spawn_Php_Model_Protocol {
-	public function render();
-	
-	public function getPath();
-	
-	public function isOverwriteEnabled();
+    public function render();
+    
+    public function getPath();
+    
+    public function isOverwriteEnabled();
 }

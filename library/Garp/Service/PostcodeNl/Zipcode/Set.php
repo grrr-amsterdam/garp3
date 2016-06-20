@@ -11,24 +11,24 @@
  * @lastmodified $Date: $
  */
 class Garp_Service_PostcodeNl_Zipcode_Set extends ArrayObject {
-	/**
- 	 * @param String $content The content of the 6PP CSV file
- 	 */
-	public function __construct($content) {
-		$lines = explode("\n", $content);
+    /**
+     * @param String $content The content of the 6PP CSV file
+     */
+    public function __construct($content) {
+        $lines = explode("\n", $content);
 
-		// remove header row
-		unset($lines[0]);
+        // remove header row
+        unset($lines[0]);
 
-		array_walk($lines, array($this, '_loadNode'));
-	}
+        array_walk($lines, array($this, '_loadNode'));
+    }
 
-	protected function _loadNode($line) {
-		$node = new Garp_Service_PostcodeNl_Zipcode($line);
-		if ($node->isValid()) {
-			$this[] = $node;
-		}
+    protected function _loadNode($line) {
+        $node = new Garp_Service_PostcodeNl_Zipcode($line);
+        if ($node->isValid()) {
+            $this[] = $node;
+        }
 
-	}
+    }
 }
 

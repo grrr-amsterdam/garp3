@@ -14,10 +14,10 @@ require_once $garpRoot . '/application/init.php';
 // or take predefined config.ini used in Garp's own test suite.
 $assumedApplicationIniPath = APPLICATION_PATH . '/configs/application.ini';
 $application = new Garp_Application(
-	APPLICATION_ENV,
-	file_exists($assumedApplicationIniPath) ?
-		$assumedApplicationIniPath :
-		GARP_APPLICATION_PATH . '/../tests/config.ini'
+    APPLICATION_ENV,
+    file_exists($assumedApplicationIniPath) ?
+        $assumedApplicationIniPath :
+        GARP_APPLICATION_PATH . '/../tests/config.ini'
 );
 
 $application->bootstrap();

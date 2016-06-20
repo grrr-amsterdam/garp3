@@ -20,90 +20,90 @@ class Garp_Form_Element_File extends Zend_Form_Element_Xhtml {
     public $helper = 'formFile';
 
 
-	public function init() {
-		// parentClass might by set by Garp_Form
-		$parentClass = null;
-		if ($this->getDecorator('HtmlTag')) {
-			$parentClass = $this->getDecorator('HtmlTag')->getOption('class');
-		}
+    public function init() {
+        // parentClass might by set by Garp_Form
+        $parentClass = null;
+        if ($this->getDecorator('HtmlTag')) {
+            $parentClass = $this->getDecorator('HtmlTag')->getOption('class');
+        }
 
-		$options = array();
-		if (!count($this->getDecorators())) {
-			$options['decorators'] = array(
-				'ViewHelper',
-				array(array('input-wrapper' => 'HtmlTag'), array('tag' => 'div', 'class' => 'file-input-wrapper')),
-				'Label',
-				'Description',
-				'Errors',
-				array(array('outer-wrapper' => 'HtmlTag'), array('tag' => 'div', 'class' => $parentClass))
-			);
-		}
-		if (is_null($this->getDescription())) {
-			$uploadInfoStr = $this->_getUploadInfoString();
-			$options['description'] = $uploadInfoStr;
-		}
-		$this->setOptions($options);
+        $options = array();
+        if (!count($this->getDecorators())) {
+            $options['decorators'] = array(
+                'ViewHelper',
+                array(array('input-wrapper' => 'HtmlTag'), array('tag' => 'div', 'class' => 'file-input-wrapper')),
+                'Label',
+                'Description',
+                'Errors',
+                array(array('outer-wrapper' => 'HtmlTag'), array('tag' => 'div', 'class' => $parentClass))
+            );
+        }
+        if (is_null($this->getDescription())) {
+            $uploadInfoStr = $this->_getUploadInfoString();
+            $options['description'] = $uploadInfoStr;
+        }
+        $this->setOptions($options);
 
-		// Render file metadata as data-attributes so Javascript can use them.
-		if (!$this->getAttrib('data-max-file-size')) {
-			$this->setAttrib('data-max-file-size', $this->getUploadMaxFilesize());
-		}
-		if (!$this->getAttrib('data-allowed-extensions')) {
-			$extensions = implode(',', $this->getAllowedExtensions());
-			$this->setAttrib('data-allowed-extensions', $extensions);
-		}
-	}
-
-
-	/**
- 	 * Retrieve an informative string describing upload restrictions.
- 	 * @return String
- 	 */
-	protected function _getUploadInfoString() {
-		$maxFileSize = $this->getUploadMaxFilesize();
-		$allowedExtensions = $this->getAllowedExtensions();
-		$lastExtension = array_pop($allowedExtensions);
-
-		$translator = $this->getTranslator();
-		$uploadInfoStr = $translator->translate('Only %1$s and %2$s files with a maximum of %3$s MB are allowed');
-		$uploadInfoStr = sprintf($uploadInfoStr, implode(', ', $allowedExtensions), $lastExtension, $maxFileSize);
-
-		return $uploadInfoStr;
-	}
+        // Render file metadata as data-attributes so Javascript can use them.
+        if (!$this->getAttrib('data-max-file-size')) {
+            $this->setAttrib('data-max-file-size', $this->getUploadMaxFilesize());
+        }
+        if (!$this->getAttrib('data-allowed-extensions')) {
+            $extensions = implode(',', $this->getAllowedExtensions());
+            $this->setAttrib('data-allowed-extensions', $extensions);
+        }
+    }
 
 
-	/**
- 	 * Retrieve allowed extensions.
- 	 * @return Array
- 	 */
-	public function getAllowedExtensions() {
-		$file = $this->getFileObject();
-		$allowedExtensions = $file->getAllowedExtensions();
-		return $allowedExtensions;
-	}
+    /**
+     * Retrieve an informative string describing upload restrictions.
+     * @return String
+     */
+    protected function _getUploadInfoString() {
+        $maxFileSize = $this->getUploadMaxFilesize();
+        $allowedExtensions = $this->getAllowedExtensions();
+        $lastExtension = array_pop($allowedExtensions);
+
+        $translator = $this->getTranslator();
+        $uploadInfoStr = $translator->translate('Only %1$s and %2$s files with a maximum of %3$s MB are allowed');
+        $uploadInfoStr = sprintf($uploadInfoStr, implode(', ', $allowedExtensions), $lastExtension, $maxFileSize);
+
+        return $uploadInfoStr;
+    }
 
 
-	/**
- 	 * Retrieve max upload size
- 	 * @return Int
- 	 */
-	public function getUploadMaxFilesize() {
-		$file = $this->getFileObject();
-		$maxFileSize = $file->getUploadMaxFilesize();
-		return $maxFileSize;
-	}
+    /**
+     * Retrieve allowed extensions.
+     * @return Array
+     */
+    public function getAllowedExtensions() {
+        $file = $this->getFileObject();
+        $allowedExtensions = $file->getAllowedExtensions();
+        return $allowedExtensions;
+    }
 
 
-	/**
- 	 * Get file object based on attribute data-type
- 	 * @return Garp_File
- 	 */
-	public function getFileObject() {
-		if ($this->getAttrib('data-type') === Garp_File::TYPE_IMAGES) {
-			$file = new Garp_Image_File();
-		} else {
-			$file = new Garp_File();
-		}
-		return $file;
-	}
+    /**
+     * Retrieve max upload size
+     * @return Int
+     */
+    public function getUploadMaxFilesize() {
+        $file = $this->getFileObject();
+        $maxFileSize = $file->getUploadMaxFilesize();
+        return $maxFileSize;
+    }
+
+
+    /**
+     * Get file object based on attribute data-type
+     * @return Garp_File
+     */
+    public function getFileObject() {
+        if ($this->getAttrib('data-type') === Garp_File::TYPE_IMAGES) {
+            $file = new Garp_Image_File();
+        } else {
+            $file = new Garp_File();
+        }
+        return $file;
+    }
 }

@@ -16,7 +16,7 @@ class G_View_Helper_FormText extends Zend_View_Helper_FormText {
      * @var array
      */
     protected $_allowedTypes = array('text', 'email', 'url', 'number', 'range', 'date',
-    	'month', 'week', 'time', 'datetime', 'datetime-local', 'search', 'color');
+        'month', 'week', 'time', 'datetime', 'datetime-local', 'search', 'color');
 
     /**
      * Generates a 'text' element.

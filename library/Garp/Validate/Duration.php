@@ -13,19 +13,19 @@
  */
 class Garp_Validate_Duration extends Zend_Validate_Abstract {
 
-	const MIN_DURATION = 1;
-	const DURATION_TOO_SHORT = 'durationTooShort';
+    const MIN_DURATION = 1;
+    const DURATION_TOO_SHORT = 'durationTooShort';
 
-	protected $_errorMessages = array(
-		//                           is this proper English?
-		self::DURATION_TOO_SHORT => 'The timestamp is not long ago enough'
-	);
+    protected $_errorMessages = array(
+        //                           is this proper English?
+        self::DURATION_TOO_SHORT => 'The timestamp is not long ago enough'
+    );
 
-	public function isValid($value) {
-		if (time() - $value <= self::MIN_DURATION) {
-			$this->_error(self::DURATION_TOO_SHORT);
-			return false;
-		}
-		return true;	
-	}
+    public function isValid($value) {
+        if (time() - $value <= self::MIN_DURATION) {
+            $this->_error(self::DURATION_TOO_SHORT);
+            return false;
+        }
+        return true;    
+    }
 }

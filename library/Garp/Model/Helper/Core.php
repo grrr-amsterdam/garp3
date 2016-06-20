@@ -18,27 +18,27 @@
  * @lastmodified $Date: $
  */
 abstract class Garp_Model_Helper_Core extends Garp_Model_Helper {
-	/**
-	 * Storing state; these core helpers may be executed before
-	 * all other observers or after all observers.
-	 * @var String
-	 */
-	const EXECUTE_FIRST = 'first';
-	const EXECUTE_LAST  = 'last';
-	
-	
-	/**
-	 * Wether to execute before or after other observers.
-	 * @var String
-	 */
-	protected $_executionPosition = self::EXECUTE_LAST;
-	
-	
-	/**
-	 * Get execution position
-	 * @return String
-	 */
-	public function getExecutionPosition() {
-		return $this->_executionPosition;
-	}	
+    /**
+     * Storing state; these core helpers may be executed before
+     * all other observers or after all observers.
+     * @var String
+     */
+    const EXECUTE_FIRST = 'first';
+    const EXECUTE_LAST  = 'last';
+    
+    
+    /**
+     * Wether to execute before or after other observers.
+     * @var String
+     */
+    protected $_executionPosition = self::EXECUTE_LAST;
+    
+    
+    /**
+     * Get execution position
+     * @return String
+     */
+    public function getExecutionPosition() {
+        return $this->_executionPosition;
+    }   
 }

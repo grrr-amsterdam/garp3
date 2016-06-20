@@ -13,14 +13,14 @@
  */
 class G_View_Helper_FormFile extends Zend_View_Helper_FormElement {
 
-	/**
- 	 * @param String $name
- 	 * @param String $value Disregarded in this case: only there to match API
- 	 * @param Array $attribs
- 	 */
-	public function formFile($name, $value, $attribs) {
-		// taken from Zend_View_Helper_FormFile:
-		$info = $this->_getInfo($name, null, $attribs);
+    /**
+     * @param String $name
+     * @param String $value Disregarded in this case: only there to match API
+     * @param Array $attribs
+     */
+    public function formFile($name, $value, $attribs) {
+        // taken from Zend_View_Helper_FormFile:
+        $info = $this->_getInfo($name, null, $attribs);
         extract($info); // name, id, value, attribs, options, listsep, disable
 
         // is it disabled?
@@ -36,20 +36,20 @@ class G_View_Helper_FormFile extends Zend_View_Helper_FormElement {
         }
 
         // build the element
-		if (!empty($attribs['class']) && $attribs['class'] == 'hijack-upload') {
-			$xhtml = '<noscript data-name="'.$this->view->escape($name).'" id="'.$this->view->escape($id).'" '.
-				$this->_htmlAttribs($attribs).'><p><em>Om bestanden te uploaden dient Javascript ingeschakeld te zijn.'.
-				'</em></p></noscript>'
-			;
-		} else {
-        	$xhtml = '<input type="file"'
-                	. ' name="' . $this->view->escape($name) . '"'
-                	. ' id="' . $this->view->escape($id) . '"'
-                	. $disabled
-                	. $this->_htmlAttribs($attribs)
-                	. $endTag;
-		}
+        if (!empty($attribs['class']) && $attribs['class'] == 'hijack-upload') {
+            $xhtml = '<noscript data-name="'.$this->view->escape($name).'" id="'.$this->view->escape($id).'" '.
+                $this->_htmlAttribs($attribs).'><p><em>Om bestanden te uploaden dient Javascript ingeschakeld te zijn.'.
+                '</em></p></noscript>'
+            ;
+        } else {
+            $xhtml = '<input type="file"'
+                    . ' name="' . $this->view->escape($name) . '"'
+                    . ' id="' . $this->view->escape($id) . '"'
+                    . $disabled
+                    . $this->_htmlAttribs($attribs)
+                    . $endTag;
+        }
         return $xhtml;
-	}
+    }
 
 }

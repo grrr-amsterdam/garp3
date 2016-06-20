@@ -16,23 +16,23 @@ class Garp_Store_Factory {
  * @param String $type Pick a type of store manually
  * @return Garp_Store_Interface
  */
-	public static function getStore($namespace, $type = null) {
-		$ini = Zend_Registry::get('config');
-		if (is_null($type)) {
-			$type = !empty($ini->store->type) ? $ini->store->type : 'Cookie';
-		}
-		$type = ucfirst($type);
-		if (!in_array($type, array('Session', 'Cookie'))) {
-			throw new Garp_Store_Exception('Invalid Store type selected. Must be Session or Cookie.');
-		}
+    public static function getStore($namespace, $type = null) {
+        $ini = Zend_Registry::get('config');
+        if (is_null($type)) {
+            $type = !empty($ini->store->type) ? $ini->store->type : 'Cookie';
+        }
+        $type = ucfirst($type);
+        if (!in_array($type, array('Session', 'Cookie'))) {
+            throw new Garp_Store_Exception('Invalid Store type selected. Must be Session or Cookie.');
+        }
 
-		$duration = false;
-		if (isset($ini->store->lifetime)) {
-			$duration = $ini->store->lifetime;
-		}
+        $duration = false;
+        if (isset($ini->store->lifetime)) {
+            $duration = $ini->store->lifetime;
+        }
 
-		$className = 'Garp_Store_'.$type;
-		$obj = new $className($namespace, $duration);
-		return $obj;
-	}
+        $className = 'Garp_Store_'.$type;
+        $obj = new $className($namespace, $duration);
+        return $obj;
+    }
 }

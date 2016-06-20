@@ -8,59 +8,59 @@
  * @package      Garp_I18n_Translate_Adapter
  */
 class Garp_I18n_Translate_Adapter_Snippet extends Zend_Translate_Adapter {
-	/**
-	 * Load translation data
-	 *
-	 * @param  string|array  $data
-	 * @param  string        $locale  Locale/Language to add data for, identical with locale identifier,
-	 *                                see Zend_Locale for more information
-	 * @param  array         $options OPTIONAL Options to use
-	 * @return array
-	 */
-	protected function _loadTranslationData($data, $locale, array $options = array()) {
-		$data = array();
-		try {
-			$i18nModelFactory = new Garp_I18n_ModelFactory($locale);
-			$snippetModel = $i18nModelFactory->getModel('Snippet');
+    /**
+     * Load translation data
+     *
+     * @param  string|array  $data
+     * @param  string        $locale  Locale/Language to add data for, identical with locale identifier,
+     *                                see Zend_Locale for more information
+     * @param  array         $options OPTIONAL Options to use
+     * @return array
+     */
+    protected function _loadTranslationData($data, $locale, array $options = array()) {
+        $data = array();
+        try {
+            $i18nModelFactory = new Garp_I18n_ModelFactory($locale);
+            $snippetModel = $i18nModelFactory->getModel('Snippet');
 
-			$out = array();
-			$data = $snippetModel->fetchAll(
-				$snippetModel->select()
-				->from($snippetModel->getName(), array(
-					'identifier',
-					'text' => new Zend_Db_Expr('IF(text IS NULL, IF(name IS NULL, identifier, name), text)'),
-				))
-				->where('has_text = ?', 1)
-				->orWhere('has_name = ?', 1)
-				->order('identifier ASC')
-			);
-			$data = $this->_reformatData($data);
-		} catch (Zend_Db_Adapter_Exception $e) {
-			Garp_ErrorHandler::handlePrematureException($e);
-		}
+            $out = array();
+            $data = $snippetModel->fetchAll(
+                $snippetModel->select()
+                ->from($snippetModel->getName(), array(
+                    'identifier',
+                    'text' => new Zend_Db_Expr('IF(text IS NULL, IF(name IS NULL, identifier, name), text)'),
+                ))
+                ->where('has_text = ?', 1)
+                ->orWhere('has_name = ?', 1)
+                ->order('identifier ASC')
+            );
+            $data = $this->_reformatData($data);
+        } catch (Zend_Db_Adapter_Exception $e) {
+            Garp_ErrorHandler::handlePrematureException($e);
+        }
 
-		$out[$locale] = $data;
-		return $out;
-	}
+        $out[$locale] = $data;
+        return $out;
+    }
 
-	/**
- 	 * Reformat rowset into a usable array.
- 	 * @param Garp_Db_Table_Rowset $data
- 	 * @return Array
- 	 */
-	protected function _reformatData(Garp_Db_Table_Rowset $data) {
-		$out = array();
-		foreach ($data as $datum) {
-			$out[$datum->identifier] = $datum->text;
-		}
-		return $out;
-	}
+    /**
+     * Reformat rowset into a usable array.
+     * @param Garp_Db_Table_Rowset $data
+     * @return Array
+     */
+    protected function _reformatData(Garp_Db_Table_Rowset $data) {
+        $out = array();
+        foreach ($data as $datum) {
+            $out[$datum->identifier] = $datum->text;
+        }
+        return $out;
+    }
 
-	/**
- 	 * Return the adapters name
- 	 * @return String
- 	 */
-	public function toString() {
-		return 'Snippet';
-	}
+    /**
+     * Return the adapters name
+     * @return String
+     */
+    public function toString() {
+        return 'Snippet';
+    }
 }
