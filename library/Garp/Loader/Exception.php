@@ -10,5 +10,5 @@
  * @lastmodified $Date: $
  */
 class Garp_Loader_Exception extends Exception {
-	
+    
 }

@@ -10,25 +10,25 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_Export_Html extends Garp_Content_Export_Abstract {
-	/**
-	 * File extension
-	 * @var String
-	 */
-	protected $_extension = 'html';
+    /**
+     * File extension
+     * @var String
+     */
+    protected $_extension = 'html';
 
 
-	/**
-	 * Format a recordset
-	 * @param Garp_Model $model
-	 * @param Array $rowset
-	 * @return String
-	 */
-	public function format(Garp_Model $model, array $rowset) {
-		$view = new Zend_View();
-		$view->setScriptPath(GARP_APPLICATION_PATH.'/modules/g/views/scripts/content/export/');
-		$view->data = $rowset;
-		$view->name = $model->getName();
-		$out = $view->render('html.phtml');
-		return $out;
-	}
+    /**
+     * Format a recordset
+     * @param Garp_Model $model
+     * @param Array $rowset
+     * @return String
+     */
+    public function format(Garp_Model $model, array $rowset) {
+        $view = new Zend_View();
+        $view->setScriptPath(GARP_APPLICATION_PATH.'/modules/g/views/scripts/content/export/');
+        $view->data = $rowset;
+        $view->name = $model->getName();
+        $out = $view->render('html.phtml');
+        return $out;
+    }
 }

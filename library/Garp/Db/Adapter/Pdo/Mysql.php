@@ -17,7 +17,7 @@
  * @lastmodified $Date: $
  */
 class Garp_Db_Adapter_Pdo_Mysql extends Zend_Db_Adapter_Pdo_Mysql {
-	public function quote($value, $type = null) {
+    public function quote($value, $type = null) {
         //$this->_connect();
 
         if ($value instanceof Zend_Db_Select) {
@@ -67,7 +67,7 @@ class Garp_Db_Adapter_Pdo_Mysql extends Zend_Db_Adapter_Pdo_Mysql {
     }
 
 
-	/**
+    /**
      * Quote a raw string.
      *
      * @param string $value     Raw string

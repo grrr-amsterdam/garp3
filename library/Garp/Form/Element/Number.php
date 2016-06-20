@@ -8,11 +8,11 @@
  */
 class Garp_Form_Element_Number extends Garp_Form_Element_Text {
 
-	public function init() {
-		$this->addFilter('Digits');
-		$this->addValidator('Digits');
+    public function init() {
+        $this->addFilter('Digits');
+        $this->addValidator('Digits');
 
-		$validatorOpts = array(
+        $validatorOpts = array(
             'min' => $this->getAttrib('min'),
             'max' => $this->getAttrib('max'),
         );
@@ -28,6 +28,6 @@ class Garp_Form_Element_Number extends Garp_Form_Element_Text {
         if ($validator) {
             $this->addValidator($validator, false, $validatorOpts);
         }
-	}
+    }
 
 }

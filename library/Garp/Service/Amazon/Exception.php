@@ -10,5 +10,5 @@
  * @lastmodified $Date: $
  */
 class Garp_Service_Amazon_Exception extends Exception {
-	
+    
 }

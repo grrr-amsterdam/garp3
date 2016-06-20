@@ -12,13 +12,13 @@
  */
 class Garp_Controller_Plugin_LayoutBroker extends Zend_Controller_Plugin_Abstract {
 
-	public function preDispatch(Zend_Controller_Request_Abstract $request) {
-		$request = $this->getRequest();
-		$moduleName = $request->getModuleName();
-		$frontController = Zend_Controller_Front::getInstance();
-		$currentModuleDirectory = $frontController->getModuleDirectory($moduleName);
-		$layout = Zend_Controller_Action_HelperBroker::getExistingHelper('layout');
-		$layout->setLayoutPath($currentModuleDirectory.'/views/layouts')->setLayout('layout');
-	}
+    public function preDispatch(Zend_Controller_Request_Abstract $request) {
+        $request = $this->getRequest();
+        $moduleName = $request->getModuleName();
+        $frontController = Zend_Controller_Front::getInstance();
+        $currentModuleDirectory = $frontController->getModuleDirectory($moduleName);
+        $layout = Zend_Controller_Action_HelperBroker::getExistingHelper('layout');
+        $layout->setLayoutPath($currentModuleDirectory.'/views/layouts')->setLayout('layout');
+    }
 
 }

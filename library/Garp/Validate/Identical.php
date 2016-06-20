@@ -8,19 +8,19 @@
  * @subpackage Validate
  */
 class Garp_Validate_Identical extends Zend_Validate_Identical {
-	/**
- 	 * Overwritten to support nested tokens, from input fields in subforms (such 
- 	 * as credentials[pwd].
- 	 */
-	public function isValid($value, $context = null) {
+    /**
+     * Overwritten to support nested tokens, from input fields in subforms (such 
+     * as credentials[pwd].
+     */
+    public function isValid($value, $context = null) {
         $this->_setValue((string) $value);
 
-		$token = $this->getToken();
-		$pos = strrpos($token, '[');
-		if ($pos !== false) {
-			$token = rtrim($token, ']');
-			$token = substr($token, $pos+1);
-		}
+        $token = $this->getToken();
+        $pos = strrpos($token, '[');
+        if ($pos !== false) {
+            $token = rtrim($token, ']');
+            $token = substr($token, $pos+1);
+        }
 
         if (($context !== null) && isset($context) && array_key_exists($token, $context)) {
             $token = $context[$token];

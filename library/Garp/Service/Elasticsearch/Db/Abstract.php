@@ -10,14 +10,14 @@
  * @lastmodified $Date: $
  */
 abstract class Garp_Service_Elasticsearch_Db_Abstract {
-	
-	protected function _getModelNamespace() {
-		$namespace = APPLICATION_ENV === 'testing'
-			? 'Mocks_Model_'
-			: 'Model_'
-		;
+    
+    protected function _getModelNamespace() {
+        $namespace = APPLICATION_ENV === 'testing'
+            ? 'Mocks_Model_'
+            : 'Model_'
+        ;
 
-		return $namespace;
-	}
+        return $namespace;
+    }
 
 }

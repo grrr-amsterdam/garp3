@@ -10,18 +10,18 @@
  * @lastmodified $Date: $
  */
 class Garp_Model_Db_Document extends Model_Base_Document {
-	public function init() {
-		$this->registerObserver(new Garp_Model_Behavior_Timestampable())
-			 ->registerObserver(new Garp_Model_Validator_NotEmpty(array('filename')))
-			 ;
-		parent::init();
-	}
+    public function init() {
+        $this->registerObserver(new Garp_Model_Behavior_Timestampable())
+             ->registerObserver(new Garp_Model_Validator_NotEmpty(array('filename')))
+             ;
+        parent::init();
+    }
 
 
-	public function fetchFilenameById($id) {
-		$row = $this->fetchRow($this->select()->where('id = ?', $id));
-		if (isset($row->filename)) {
-			return $row->filename;
-		} else throw new Exception("Could not retrieve image record {$id}.");
-	}
+    public function fetchFilenameById($id) {
+        $row = $this->fetchRow($this->select()->where('id = ?', $id));
+        if (isset($row->filename)) {
+            return $row->filename;
+        } else throw new Exception("Could not retrieve image record {$id}.");
+    }
 }

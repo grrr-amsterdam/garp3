@@ -10,35 +10,35 @@
  * @lastmodified $Date: $
  */
 class Garp_Content_Cdn_Distributor_Test extends PHPUnit_Framework_TestCase {
-	const FILTER_STRING_MATCHING_MULTIPLE = 'css';
-	const FILTER_STRING_MATCHING_ONE = 'css/images/garp.png';
-	const FILTER_STRING_NOT_MATCHING = 'l3$#j@[hdv%@u2w2a9g08u.e3#d@c';
+    const FILTER_STRING_MATCHING_MULTIPLE = 'css';
+    const FILTER_STRING_MATCHING_ONE = 'css/images/garp.png';
+    const FILTER_STRING_NOT_MATCHING = 'l3$#j@[hdv%@u2w2a9g08u.e3#d@c';
 
 
-	public function test_No_Assets_Should_Be_Selected_If_No_Match() {
-		$distributor = $this->_getDistributor();
-		$assetList   = $distributor->select(self::FILTER_STRING_NOT_MATCHING, false);
+    public function test_No_Assets_Should_Be_Selected_If_No_Match() {
+        $distributor = $this->_getDistributor();
+        $assetList   = $distributor->select(self::FILTER_STRING_NOT_MATCHING, false);
 
-		$this->assertSame(count($assetList), 0);
-	}
-
-
-	public function test_Multiple_Assets_Should_Be_Selected_If_Match() {
-		$distributor = $this->_getDistributor();
-		$assetList   = $distributor->select(self::FILTER_STRING_MATCHING_MULTIPLE, false);
-
-		$this->assertTrue((bool)count($assetList));
-	}
+        $this->assertSame(count($assetList), 0);
+    }
 
 
-	public function test_One_Asset_Should_Be_Selected_If_Specific_Match() {
-		$distributor = $this->_getDistributor();
-		$assetList   = $distributor->select(self::FILTER_STRING_MATCHING_ONE, false);
+    public function test_Multiple_Assets_Should_Be_Selected_If_Match() {
+        $distributor = $this->_getDistributor();
+        $assetList   = $distributor->select(self::FILTER_STRING_MATCHING_MULTIPLE, false);
 
-		$this->assertSame(count($assetList), 1);
-	}
+        $this->assertTrue((bool)count($assetList));
+    }
 
-	protected function _getDistributor() {
-		return new Garp_Content_Cdn_Distributor(GARP_APPLICATION_PATH . '/../public');
-	}
+
+    public function test_One_Asset_Should_Be_Selected_If_Specific_Match() {
+        $distributor = $this->_getDistributor();
+        $assetList   = $distributor->select(self::FILTER_STRING_MATCHING_ONE, false);
+
+        $this->assertSame(count($assetList), 1);
+    }
+
+    protected function _getDistributor() {
+        return new Garp_Content_Cdn_Distributor(GARP_APPLICATION_PATH . '/../public');
+    }
 }
