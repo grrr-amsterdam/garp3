@@ -10,12 +10,14 @@
 <!-- Include the PEAR standard -->
 <rule ref="PEAR">
     <exclude name="PEAR.Classes.ClassDeclaration.OpenBraceNewLine"/>
+    <exclude name="PEAR.Functions.FunctionDeclaration.BraceOnSameLine"/>
     <exclude name="PEAR.Commenting.FileComment.Missing"/>
     <exclude name="PEAR.Commenting.FunctionComment.Missing"/>
-    <exclude name="PEAR.Functions.FunctionDeclaration.BraceOnSameLine"/>
     <exclude name="PEAR.Commenting.ClassComment.MissingLicenseTag"/>
     <exclude name="PEAR.Commenting.ClassComment.MissingLinkTag"/>
     <exclude name="PEAR.Commenting.ClassComment.MissingCategoryTag"/>
+    <exclude name="PEAR.NamingConventions.ValidFunctionName.PublicUnderscore"/>
+    <exclude name="PEAR.NamingConventions.ValidVariableName.PublicUnderscore"/>
 </rule>
 
 <rule ref="Generic.Files.LineLength">
