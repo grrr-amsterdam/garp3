@@ -2,16 +2,15 @@
 /**
  * G_View_Helper_Script
  * Various Javascript functions
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Db
- * @lastmodified $Date: $
+ *
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @version 1.0.0
  */
 class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
     /**
      * Collection of scripts
+     *
      * @var Array
      */
     protected static $_scripts = array();
@@ -19,6 +18,7 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
     /**
      * Central interface for this helper, used for chainability.
      * Usage: $this->script()->render('...');
+     *
      * @return $this
      */
     public function script() {
@@ -26,7 +26,22 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
     }
 
     /**
+     * Include the contents of a Javascript file directly in a template.
+     *
+     * @param String $path Path to the source file
+     * @param Boolean $checkExistence Wether to check if the file exists first
+     * @return String
+     */
+    public function includeSource($path, $checkExistence = false) {
+        if ($checkExistence && !file_exists($path)) {
+            return '';
+        }
+        return file_get_contents($path);
+    }
+
+    /**
      * Render a script tag containing a minified script reference.
+     *
      * @param String $identifier Needs to be in the config under assets.js.$identifier
      * @param String $render Wether to render directly
      * @return String Script tag to the right file.
@@ -35,8 +50,10 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
     public function minifiedSrc($identifier, $render = false) {
         $config = Zend_Registry::get('config');
         if (empty($config->assets->js->{$identifier})) {
-            throw new Garp_Exception("JS configuration for identifier {$identifier} not found. ".
-                "Please configure assets.js.{$identifier}");
+            throw new Garp_Exception(
+                "JS configuration for identifier {$identifier} not found. ".
+                "Please configure assets.js.{$identifier}"
+            );
         }
         $jsRoot = rtrim($config->assets->js->basePath ?: '/js', '/').'/';
         $config = $config->assets->js->{$identifier};
@@ -65,32 +82,45 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
 
     /**
      * Push a script to the stack. It will be rendered later.
-     * @param String $code
+     *
+     * @param String $code Javascript source code
      * @param Boolean $render Wether to render directly
      * @param Array $attrs HTML attributes
      * @return Mixed
      */
     public function block($code, $render = false, array $attrs = array()) {
-        return $this->_storeOrRender('block', array(
-            'value' => $code, 'render' => $render, 'attrs' => $attrs
-        ));
+        return $this->_storeOrRender(
+            'block',
+            array(
+                'value' => $code,
+                'render' => $render,
+                'attrs' => $attrs
+            )
+        );
     }
 
     /**
      * Push a URL to a script to the stack. It will be rendered later.
-     * @param String $url
+     *
+     * @param String $url Url to Javascript file
      * @param Boolean $render Wether to render directly
      * @param Array $attrs HTML attributes
      * @return Mixed
      */
     public function src($url, $render = false, array $attrs = array()) {
-        return $this->_storeOrRender('src', array(
-            'value' => $url, 'render' => $render, 'attrs' => $attrs
-        ));
+        return $this->_storeOrRender(
+            'src',
+            array(
+                'value' => $url,
+                'render' => $render,
+                'attrs' => $attrs
+            )
+        );
     }
 
     /**
      * Render everything on the stack
+     *
      * @return String
      */
     public function render() {
@@ -104,6 +134,10 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
 
     /**
      * Save a script (src or block) to the stack, or render immediately
+     *
+     * @param String $type The type of <script> (`src` or `block`)
+     * @param Array $args Options
+     * @return G_View_Helper_Script
      */
     protected function _storeOrRender($type, array $args) {
         if ($args['render']) {
@@ -120,7 +154,9 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
 
     /**
      * Render a Javascript.
+     *
      * @param String $code If not given, everything in $this->_scripts will be rendered.
+     * @param Array $attrs HTML attributes for the <script> tag
      * @return String
      */
     protected function _renderBlock($code, array $attrs = array()) {
@@ -131,11 +167,16 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
 
     /**
      * Render Javascript tags with a "src" attribute.
+     *
      * @param String $url If not given, everything in $this->_urls will be rendered.
+     * @param Array $attrs HTML attributes for the <script> tag
      * @return String
      */
     protected function _renderSrc($url, array $attrs = array()) {
-        if ('http://' !== substr($url, 0, 7) && 'https://' !== substr($url, 0, 8) && '//' !== substr($url, 0, 2)) {
+        if ('http://' !== substr($url, 0, 7)
+            && 'https://' !== substr($url, 0, 8)
+            && '//' !== substr($url, 0, 2)
+        ) {
             $url = $this->view->assetUrl($url);
         }
         $attrs['src'] = $url;

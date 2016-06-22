@@ -11,6 +11,10 @@
 <rule ref="PEAR">
     <exclude name="PEAR.Classes.ClassDeclaration.OpenBraceNewLine"/>
     <exclude name="PEAR.Functions.FunctionDeclaration.BraceOnSameLine"/>
+    <exclude name="Generic.Commenting.DocComment.TagValueIndent"/>
+    <exclude name="Generic.Commenting.DocComment.NonParamGroup"/>
+    <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamType"/>
+    <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamName"/>
     <exclude name="PEAR.Commenting.FileComment.Missing"/>
     <exclude name="PEAR.Commenting.FunctionComment.Missing"/>
     <exclude name="PEAR.Commenting.ClassComment.MissingLicenseTag"/>
