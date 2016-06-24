@@ -1,21 +1,13 @@
-<?php
-$locale = Garp_I18n::getCurrentLocale();
-$locale = $locale ?: Garp_I18n::getDefaultLocale();
+{% set locale = zf.i18n().getCurrentLocale() ?: zf.i18n.getDefaultLocale() %}
+{% set country = locale == 'en' ? 'US' : locale | upper %}
+{% set languageString = locale | lower ~ '_' ~ country | upper %}
 
-$country = $locale === 'en'
-	?'US'
-	:strtoupper($locale)
-;
-$languageString = strtolower($locale) . '_' . strtoupper($country);
-
-?>
 <div id="fb-root"></div>
 <script>
-
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : '<?php echo $this->appId ?>', // App ID
-      channelUrl : '<?php echo $this->channelUrl ?>',
+      appId      : '{{ appId }}', // App ID
+      channelUrl : '{{ channelUrl }}',
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
       xfbml      : true  // parse XFBML
@@ -27,8 +19,8 @@ $languageString = strtolower($locale) . '_' . strtoupper($country);
      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
      if (d.getElementById(id)) {return;}
      js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/<?php echo $languageString ?>/all.js";
+     js.src = "//connect.facebook.net/{{ languageString }}/all.js";
      ref.parentNode.insertBefore(js, ref);
    }(document));
-
 </script>
+

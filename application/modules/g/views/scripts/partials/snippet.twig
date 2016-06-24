@@ -1,0 +1,62 @@
+{# Name #}
+{% if snippet.has_name %}
+    {% set headerText = snippet.name | nl2br %}
+    {% set headerTag = headerTag ?: 'h3' %}
+    {% set headerClass = headerClass ?: '' %}
+
+	{{ ('<' ~ headerTag ~ (headerClass ? ' class="' ~ headerClass ~ '"' : '') ~ '>') | raw }}
+	{{ headerText }}
+	{{ ('</' ~ headerTag ~ '>') | raw }}
+{% endif %}
+
+{# Image #}
+{% if snippet.has_image and snippet.Image %}
+<figure>
+	{# Allow scalingTemplate as well as scaling_template... to preserve backward compatibility... >.< ugh #}
+    {% set scalingTpl = scaling_template ? scaling_template : scalingTemplate %}
+    {{ zf.image().render(snippet.Image.id, scalingTpl) }}
+
+    {% if snippet.Image.caption %}
+	<figcaption>{{ snippet.Image.caption }}</figcaption>
+	{% endif %}
+</figure>
+{% endif %}
+
+{# Text / Html #}
+{% if snippet.has_text %}
+    {% set snippetContent = snippet.text %}
+{% elseif snippet.has_html %}
+    {% set snippetContent = snippet.html %}
+{% endif %}
+
+{# Check for variables for interpolating #}
+{% if variables and variables is not empty %}
+    {% set snippetContent = zf.string().interpolate(snippetContent, variables) %}
+{% endif %}
+
+{% set theContent = '' %}
+{% if snippet.has_text %}
+    {% set theContent = snippetContent %}
+	{% if not disableNl2br %}
+	    {% set theContent = theContent | escape | nl2br %}
+	{% endif %}
+	{% if linkify is not same as(false) %}
+	    {% set theContent = zf.string().linkify(theContent) %}
+	{% endif %}
+	{% if textWrapperTag %}
+	    {% set textWrapper = '<' ~ textWrapperTag %}
+		{% if textWrapperClass %}
+		    {% set textWrapper = textWrapper ~ ' class="' ~ textWrapperClass | escape ~ '"' %}
+		{% endif %}
+		{% set textWrapper = textWrapper ~ '>' %}
+		{% set theContent = textWrapper ~ theContent ~ '</' ~ textWrapperTag ~ '>' %}
+	{% endif %}
+{% elseif snippet.has_html %}
+    {% set htmlBodyClass = 'rich' %}
+	{% if bodyClass %}
+	    {% set htmlBodyClass = htmlBodyClass ~ ' ' ~ bodyClass | escape %}
+	{% endif %}
+	{% set theContent = '<div class="' ~ htmlBodyClass ~ '">' ~ snippetContent ~ '</div>' %}
+{% endif %}
+
+{{ theContent | raw }}

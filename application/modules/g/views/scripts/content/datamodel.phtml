@@ -1,7 +1,4 @@
 <?php
-$r = 0;
-$modelsPerRow = 5;
-$totalModels = count($this->models);
 $jsModels = array();
 $hiddenModels = array('AuthLocal', 'ClusterServer', 'ClusterClearCacheJob', 'ClusterRecurringJob');
 
@@ -19,15 +16,7 @@ foreach ($this->models as $model) {
 		foreach ($this->models as $modelName => $model):
 			if (in_array($modelName, $hiddenModels)) continue;
 			if ($model->fields->exists('name')):
-				echo $this->partial('partials/datamodel/listmodel.phtml', array('model' => $model));
-			endif;
-		endforeach;
-	?>
-	<?php
-		foreach ($this->models as $modelName => $model):
-			if (in_array($modelName, $hiddenModels)) continue;
-			if (!$model->fields->exists('name')):
-				echo $this->partial('partials/datamodel/listmodel.phtml', array('model' => $model));
+				echo $this->partial('partials/datamodel/listmodel.phtml', 'g', array('model' => $model));
 			endif;
 		endforeach;
 	?>
@@ -49,7 +38,6 @@ foreach ($this->models as $model) {
 				</div>
 			</div>
 		</a>
-		<?php $r++; ?>
 	<?php endforeach; ?>
 
 	<canvas id="canvas"></canvas>

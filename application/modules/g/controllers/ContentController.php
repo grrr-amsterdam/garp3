@@ -3,12 +3,11 @@
  * G_ContentController
  * This controller handles content managing actions. The usual crud;
  * fetch, create, update, delete
- * @author Harmen Janssen, David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
  * @subpackage Controllers
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
+ * @author David Spreekmeester <david@grrr.nl>
  */
 class G_ContentController extends Garp_Controller_Action {
     /**
@@ -18,6 +17,8 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Called before all actions
+     *
+     * @return Void
      */
     public function init() {
         // Do not cache CMS pages. This prevents a common situation where people logout, return to
@@ -45,6 +46,7 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Test page
+     *
      * @return Void
      */
     public function indexAction() {
@@ -53,11 +55,13 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Display some information about cookies
+     *
      * @return Void
      */
     public function cookiesAction() {
         $config       = Zend_Registry::get('config');
-        $viewBasePath = $config->resources->view->basePath ?: APPLICATION_PATH . '/modules/default/views';
+        $viewBasePath = $config->resources->view->basePath ?:
+            APPLICATION_PATH . '/modules/default/views';
 
         $this->_helper->layout->setLayoutPath($viewBasePath . '/layouts/');
         $this->view->title = 'Cookies';
@@ -65,6 +69,7 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Landing page
+     *
      * @return Void
      */
     public function adminAction() {
@@ -75,16 +80,18 @@ class G_ContentController extends Garp_Controller_Action {
             $pageTitle .= ' | '.$ini->app->name;
         }
 
-        $this->view->imagesCdn = $this->view->assetUrl('') . $ini->cdn->path->upload->image.'/';
-        $this->view->documentsCdn = $this->view->assetUrl('') . $ini->cdn->path->upload->document.'/';
+        $this->view->imagesCdn = $this->view->assetUrl('') . $ini->cdn->path->upload->image . '/';
+        $this->view->documentsCdn = $this->view->assetUrl('') .
+            $ini->cdn->path->upload->document . '/';
 
         $this->view->title = $pageTitle;
         $this->view->locale = $ini->resources->locale->default;
-        $this->_helper->layout->setLayout('admin');
+        $this->_helper->layout->setLayout('admin-layout');
     }
 
     /**
      * Image browser (trimmed down version of Garp CMS)
+     *
      * @return Void
      */
     public function imagebrowserAction() {
@@ -95,6 +102,7 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * JSON-RPC entrance.
+     *
      * @return Void
      */
     public function apiAction() {
@@ -128,7 +136,8 @@ class G_ContentController extends Garp_Controller_Action {
                 $requestObj->loadJson($requestJson);
                 $server->setRequest($requestObj);
                 /**
-                 * Note; response gets returned by reference, resulting in a $responses array containing all the same items.
+                 * Note; response gets returned by reference, resulting in a $responses array
+                 * containing all the same items.
                  * That's why clone is used here.
                  */
                 $response = clone $server->handle();
@@ -146,6 +155,7 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Upload a file.
+     *
      * @return Void
      */
     public function uploadAction() {
@@ -184,8 +194,10 @@ class G_ContentController extends Garp_Controller_Action {
                 $success = true;
             } else {
                 try {
-                    $response = $this->_helper->upload($uploadType, null, false,
-                        1 === (int)$this->getRequest()->getParam('overwrite'));
+                    $response = $this->_helper->upload(
+                        $uploadType, null, false,
+                        1 === (int)$this->getRequest()->getParam('overwrite')
+                    );
                     $success = true;
                 } catch (Exception $e) {
                     $response['messages'] = $e->getMessage();
@@ -193,7 +205,8 @@ class G_ContentController extends Garp_Controller_Action {
             }
             // Also create a new record for the uploaded file
             if ($request->getParam('insert') && $request->getParam('insert')) {
-                $modelClass = Garp_File::TYPE_IMAGES == $uploadType ? 'Model_Image' : 'Model_Document';
+                $modelClass = Garp_File::TYPE_IMAGES == $uploadType ? 'Model_Image' :
+                    'Model_Document';
                 // create new record here...
                 $model = new $modelClass();
                 $_response = array();
@@ -226,6 +239,7 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Download an uploaded file
+     *
      * @return Void
      */
     public function downloadAction() {
@@ -250,15 +264,16 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * /g/content/download-zipped/dinges.pdf,jadda.gif/myZipArchiveName
+     *
+     * @return Void
      */
     public function downloadzippedAction() {
         $params = $this->getRequest()->getParams();
 
-        if (
-            !array_key_exists('files', $params) ||
-            !array_key_exists('zipname', $params) ||
-            !$params['files'] ||
-            !$params['zipname']
+        if (!array_key_exists('files', $params)
+            || !array_key_exists('zipname', $params)
+            || !$params['files']
+            || !$params['zipname']
         ) {
             throw new Exception('Please provide a filename list, and a name for the archive.');
         }
@@ -268,7 +283,7 @@ class G_ContentController extends Garp_Controller_Action {
         $tmpDir .= $tmpDir[strlen($tmpDir) - 1] !== '/' ? '/' : '';
         $zipPath = $tmpDir . $params['zipname'] . '.zip';
 
-        if ($zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE) !== TRUE) {
+        if ($zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE) !== true) {
             throw new Exception("Cannot open <$zipPath>\n");
         }
 
@@ -292,7 +307,9 @@ class G_ContentController extends Garp_Controller_Action {
             $url = $file->getUrl($filename);
             if ($content = @file_get_contents($url)) {
                 $zip->addFromString('/' . $params['zipname'] . '/' . $filename, $content);
-            } else throw new Exception($url . ' could not be opened for inclusion in the zip archive.');
+            } else {
+                throw new Exception("{$url} could not be opened for inclusion in the zip archive.");
+            }
         }
 
         $zip->close();
@@ -302,7 +319,10 @@ class G_ContentController extends Garp_Controller_Action {
     }
 
     /**
+     * Download a file
+     *
      * @param String $path Local path to a file, or a url.
+     * @return Void
      */
     protected function _downloadFile($path) {
         // Push up memory_limit to deal with large files
@@ -328,6 +348,7 @@ class G_ContentController extends Garp_Controller_Action {
      *   where they have to map columns in the datafile to columns in the database.
      * - then this URL is called again with the selected mapping, and the columns are
      *   mapped and inserted into the database.
+     *
      * @return Void
      */
     public function importAction() {
@@ -338,10 +359,9 @@ class G_ContentController extends Garp_Controller_Action {
         Zend_Registry::set('CMS', true);
         $params = new Garp_Util_Configuration($this->getRequest()->getParams());
         $params->obligate('datafile')
-               ->obligate('model')
-               ->setDefault('firstRow', 0)
-               ->setDefault('ignoreErrors', false)
-        ;
+            ->obligate('model')
+            ->setDefault('firstRow', 0)
+            ->setDefault('ignoreErrors', false);
         $importer = Garp_Content_Import_Factory::getImporter($params['datafile']);
         $success = false;
         if (isset($params['mapping'])) {
@@ -351,10 +371,12 @@ class G_ContentController extends Garp_Controller_Action {
             $model = new $className();
             $response = array();
             try {
-                $success    = !!$importer->save($model, $mapping, array(
+                $success    = !!$importer->save(
+                    $model, $mapping, array(
                     'firstRow' => $params['firstRow'],
                     'ignoreErrors' => $params['ignoreErrors'],
-                ));
+                    )
+                );
             } catch (Exception $e) {
                 $response['message'] = $e->getMessage();
             }
@@ -380,6 +402,7 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Export content in various formats
+     *
      * @return Void
      */
     public function exportAction() {
@@ -390,10 +413,9 @@ class G_ContentController extends Garp_Controller_Action {
         $params = new Garp_Util_Configuration($this->getRequest()->getParams());
         // make sure some required parameters are in place
         $params->obligate('exporttype')
-               ->obligate('model')
-               ->obligate('selection')
-               ->setDefault('fields', Zend_Db_Select::SQL_WILDCARD)
-        ;
+            ->obligate('model')
+            ->obligate('selection')
+            ->setDefault('fields', Zend_Db_Select::SQL_WILDCARD);
 
         // fetch exporter
         $exporter = Garp_Content_Export_Factory::getExporter($params['exporttype']);
@@ -407,8 +429,10 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Clear all cache system wide.
-     * Static Cache is tagged, so a comma-separated list of tags may be given to only clear cache tagged with those tags.
+     * Static Cache is tagged, so a comma-separated list of tags may be given to
+     * only clear cache tagged with those tags.
      * Memcache is not tagged.
+     *
      * @return Void
      */
     public function clearcacheAction() {
@@ -417,7 +441,8 @@ class G_ContentController extends Garp_Controller_Action {
         if ($request->getParam('tags')) {
             $tags = explode(',', $request->getParam('tags'));
         }
-        $createClusterJob = is_null($request->getParam('createClusterJob')) ? 1 : $request->getParam('createClusterJob');
+        $createClusterJob = is_null($request->getParam('createClusterJob')) ? 1 :
+            $request->getParam('createClusterJob');
 
         $this->view->title = 'Clear that cache';
         Garp_Cache_Manager::purge($tags, $createClusterJob);
@@ -425,17 +450,22 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Shortcut to phpinfo
+     *
      * @return Void
      */
     public function infoAction() {
         phpinfo();
-        exit;
+        $this->_helper->viewRenderer->setNoRender(true);
+        $this->_helper->layout->disableLayout();
     }
 
+    /**
+     * Show datamodel
+     *
+     * @todo: refactor naar nieuwe Spawn opbouw.
+     * @return Void
+     */
     public function datamodelAction() {
-        /**
-         * @todo: refactor naar nieuwe Spawn opbouw.
-         */
         $this->view->models = Garp_Spawn_Model_Set::getInstance();
 
         $request = $this->getRequest();
@@ -445,13 +475,14 @@ class G_ContentController extends Garp_Controller_Action {
             $this->view->textMode = true;
             $this->_helper->layout->setLayout('blank');
         } else {
-            $this->_helper->layout->setLayout('datamodel');
+            $this->_helper->layout->setLayout('datamodel-layout');
         }
     }
 
     /**
      * Edit request so everything passes thru the Garp_Content_Manager_Proxy::pass
-     * @param Array $request
+     *
+     * @param Array $request The original request
      * @return Array
      */
     protected function _reformJsonRpcRequest($request) {
@@ -459,7 +490,10 @@ class G_ContentController extends Garp_Controller_Action {
          * Sanity check, if the right properties are not found in the object,
          * pass the original along to Zend_Json_Server and let it fail.
          */
-        if (!is_array($request) || !array_key_exists('method', $request) || !array_key_exists('params', $request)) {
+        if (!is_array($request)
+            || !array_key_exists('method', $request)
+            || !array_key_exists('params', $request)
+        ) {
             return $request;
         }
         $meth = $request['method'];
@@ -472,6 +506,7 @@ class G_ContentController extends Garp_Controller_Action {
 
     /**
      * Retrieve POSTed JSON-RPC request
+     *
      * @return String
      */
     protected function _getJsonRpcRequest() {

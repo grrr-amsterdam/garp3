@@ -1,70 +1,86 @@
 <?php
+require 'ContentController.php';
+
 /**
  * G_ExtController
  * This controller handles Ext.Direct requests and sends 'em off to either the appropriate
  * models or the ContentController, which acts as a wrapper around crud functionality.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
  * @subpackage Controllers
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
-require 'ContentController.php';
 class G_ExtController extends G_ContentController {
     /**
-     * Specify how to modify the results after the JSON-RPC handling. (Array because batches are possible)
+     * Specify how to modify the results after the JSON-RPC handling.
+     * (Array because batches are possible)
+     *
      * @var Array
      */
     protected $_postModifyMethods = array();
 
     /**
-     * Sometimes additional data from the original request is needed to properly modify the response.
+     * Sometimes additional data from the original request is needed to properly
+     * modify the response.
      * Store the original request here. (Array because batches are possible)
+     *
      * @var Array
      */
     protected $_originalRequests = array();
 
     public function init() {
-        $this->_helper->cache(array(
-            'smd', 'getlocale'
-        ), array(), 'js');
+        $this->_helper->cache(
+            array('smd', 'getlocale'),
+            array(),
+            'js'
+        );
     }
 
     /**
-     * Generate Ext.Direct API, publishing allowed actions to Ext.Direct, according to Service Mapping Description JSON-RPC protocol.
+     * Generate Ext.Direct API, publishing allowed actions to Ext.Direct,
+     * according to Service Mapping Description JSON-RPC protocol.
+     *
      * @return Void
      */
     public function smdAction() {
-        $this->_helper->layout->setLayout('json');
         $api = new Garp_Content_Api();
         $this->view->api = $api->getLayout();
+
+        $this->_renderJs();
     }
 
     /**
      * Peter considered this docblock not important.
+     *
+     * @return Void
      */
     public function closevimeologinAction() {
     }
 
     /**
      * Get translation table
+     *
      * @return Void
      */
     public function getlocaleAction() {
         if (!Zend_Registry::isRegistered('Zend_Translate')) {
-            throw new Zend_Controller_Action_Exception('Zend_Translate was not registered in Zend_Registry.', 500);
+            throw new Zend_Controller_Action_Exception(
+                'Zend_Translate was not registered in Zend_Registry.',
+                500
+            );
         }
         $translate = Zend_Registry::get('Zend_Translate');
         $messages = $translate->getMessages();
         $this->view->messages = $messages;
-        $this->_helper->layout->setLayout('json');
+
+        $this->_renderJs();
     }
 
     /**
      * Callback called before executing action.
      * Transforms requests to a format ExtJs accepts.
      * Also turns off caching, since the CMS always receives live data.
+     *
      * @return Void
      */
     public function preDispatch() {
@@ -106,6 +122,7 @@ class G_ExtController extends G_ContentController {
      * Callback called after executing action.
      * Transforms requests to a format ExtJs accepts.
      * Also turns on caching, because this request might be chained.
+     *
      * @return Void
      */
     public function postDispatch() {
@@ -127,7 +144,10 @@ class G_ExtController extends G_ContentController {
             foreach ($this->_postModifyMethods as $i => $postMethod) {
                 if (!empty($response[$i]) && !empty($this->_originalRequests[$i])) {
                     $modifyMethod = '_modifyAfter'.ucfirst($postMethod);
-                    $response[$i] = $this->{$modifyMethod}($response[$i], $this->_originalRequests[$i]);
+                    $response[$i] = $this->{$modifyMethod}(
+                        $response[$i],
+                        $this->_originalRequests[$i]
+                    );
                 }
             }
             if ($batch) {
@@ -141,6 +161,7 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Save a request preDispatch for modification postDispatch
+     *
      * @param Array $request The request
      * @param Int $i The index under which the request should be filed in the array
      * @return Void
@@ -158,8 +179,9 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Fetch total amount of records condoning to a set of conditions
+     *
      * @param String $modelName The entity name
-     * @param Array $conditions
+     * @param Array $conditions Query modifiers
      * @return Int
      */
     protected function _fetchTotal($modelName, $conditions) {
@@ -172,7 +194,8 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Check if the JSON-RPC request failed
-     * @param Array $obj The response object (json_decoded)
+     *
+     * @param Array $response The response object (json_decoded)
      * @return Boolean
      */
     protected function _methodFailed($response) {
@@ -181,7 +204,8 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Toggle cache on and off
-     * @param Boolean $on
+     *
+     * @param Boolean $on Wether to toggle the cache on or off
      * @return Boolean Wether the cache is on or off
      */
     protected function _toggleCache($on) {
@@ -197,6 +221,7 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Modify results after fetch
+     *
      * @param Array $response The original response
      * @param Array $request The original request
      * @return String
@@ -219,6 +244,7 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Modify results after create
+     *
      * @param Array $response The original response
      * @param Array $request The original request
      * @return String
@@ -248,6 +274,7 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Modify results after update
+     *
      * @param Array $response The original response
      * @param Array $request The original request
      * @return String
@@ -259,9 +286,11 @@ class G_ExtController extends G_ContentController {
         $methodParts = explode('.', $request['method']);
         $modelClass  = Garp_Content_Api::modelAliasToClass(array_shift($methodParts));
         $man = new Garp_Content_Manager($modelClass);
-        $rows = $man->fetch(array(
-            'query' => array('id' => $request['params'][0]['rows']['id'])
-        ));
+        $rows = $man->fetch(
+            array(
+                'query' => array('id' => $request['params'][0]['rows']['id'])
+            )
+        );
         $response['result'] = array(
             'rows' => $rows
         );
@@ -270,6 +299,7 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Modify results after destroy
+     *
      * @param Array $response The original response
      * @param Array $request The original request
      * @return String
@@ -285,7 +315,8 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Modify results before create
-     * @param Array $request
+     *
+     * @param Array $request The original request
      * @return Array
      */
     protected function _modifyBeforeCreate($request) {
@@ -295,7 +326,8 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Modify results before update
-     * @param Array $request
+     *
+     * @param Array $request The original request
      * @return Array
      */
     protected function _modifyBeforeUpdate($request) {
@@ -305,11 +337,17 @@ class G_ExtController extends G_ContentController {
 
     /**
      * Modify results before create
-     * @param Array $request
+     *
+     * @param Array $request The original request
      * @return Array
      */
     protected function _modifyBeforeDestroy($request) {
         $request['params'] = array(array('id' => $request['params'][0]['rows']));
         return $request;
+    }
+
+    protected function _renderJs() {
+        $this->getResponse()->setHeader('Content-Type', 'text/javascript; charset=UTF-8');
+        $this->_helper->layout->setLayout('json');
     }
 }

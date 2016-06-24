@@ -1,0 +1,15 @@
+{% if app.environment = 'production' %}
+    {% if not analyticsId %}
+        {% set analyticsId = app.config.google.analytics.id %}
+    {% endif %}
+    {% if not analyticsId %}
+    <p style="color:red">No Google Analytics ID found in application.ini. Please configure <code>google.analytics.id</code>.</p>
+    {% endif %}
+
+<script>
+    var _gaq=[['_setAccount','{{ analyticsId }}'],['_trackPageview'],['_trackPageLoadTime'],['_gat._anonymizeIp']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+{% endif %}
