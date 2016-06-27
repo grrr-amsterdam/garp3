@@ -1,0 +1,7 @@
+Ext.ns('Garp');
+Garp.API = {
+    "url": "{{ zf.baseUrl("/g/ext/api") }}",
+    "type": "zfprovider",
+	"namespace": "Garp",
+    "actions": {{ api.actions | json_encode | raw }}
+};

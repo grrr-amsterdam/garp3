@@ -1,0 +1,19 @@
+<RoutingRules>
+    {% set templates = [] %}
+    {% if app.config.image.template %}
+        {% set templates = app.config.image.template %}
+    {% endif %}
+    {% for templateName, templateConfig in templates %}
+        {% set fallback = not templateConfig.fallback ? "fallback_" ~ templateName ~ ".jpg" : templateConfig.fallback %}
+    <RoutingRule>
+        <Condition>
+        	<KeyPrefixEquals>uploads/images/scaled/{{ templateName }}</KeyPrefixEquals>
+            <HttpErrorCodeReturnedEquals>404</HttpErrorCodeReturnedEquals>
+        </Condition>
+        <Redirect>
+        	<ReplaceKeyWith>media/images/{{ fallback }}</ReplaceKeyWith>
+        </Redirect>
+    </RoutingRule>
+    {% endfor %}
+</RoutingRules>
+

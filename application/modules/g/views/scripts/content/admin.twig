@@ -1,0 +1,70 @@
+{% if isClosed %}
+<div class="closed-notification">{{ cmsClosedMessage }}</div>
+{% else %}
+<noscript style="position:absolute;top:0;right:0;left:0;bottom:0;z-index:100000000000000;padding:25px;background:#000;color:#FFF;font-size:large;line-height:2;">
+	<p>Garp gebruikt Javascript om te functioneren. Javascript is op dit moment uitgeschakeld in je browser.</p>
+	<p>Op <a target="_blank" href="http://enable-javascript.com/">http://enable-javascript.com/</a> kun je zien hoe je Javascript inschakelt.</p>
+</noscript>
+
+<div id="icon-loading-spinner"></div>
+<div id="app-loader">{{ 'Loading Garp' | trans }}&hellip;</div>
+<!-- Required fields for history management -->
+<form id="history-form" class="x-hidden" action="">
+	<input type="hidden" id="x-history-field">
+	<iframe id="x-history-frame"></iframe>
+</form>
+
+<div id="welcome-panel-content" class="x-hidden">
+	<div class="garp-welcome-body">
+		<h1>{{ 'garp welcome header' | trans }}</h1>
+		<p>{{ 'garp welcome tagline' | trans }}</p>
+	</div>
+</div>
+<div id="fb-root"></div>
+
+<script>
+BASE = '{{ zf.baseUrl('/') }}';
+ASSET_URL = '{{ zf.assetUrl('/', 'js') }}';
+IMAGES_CDN = '{{ imagesCdn }}';
+DOCUMENTS_CDN = '{{ documentsCdn }}';
+    {% if app.config.video.template.w %}
+VIDEO_WIDTH = {{ app.config.video.template.w }};
+    {% endif %}
+    {% if app.config.video.template.h %}
+VIDEO_HEIGHT = {{ app.config.video.template.h }};
+    {% endif %}
+APP_TITLE = "{{ title }}";
+    {% if app.config.auth.adapters.facebook %}
+FB_APP_ID = "{{ app.config.auth.adapters.facebook.appId }}";
+    {% endif %}
+DEBUG = window.location.hash.indexOf('debug') > -1;
+LANGUAGES = ['{{ zf.i18n().getLocales()|join(', ') }}'];
+DEFAULT_LANGUAGE = '{{ zf.i18n().getDefaultLocale() }}';
+CURRENT_LANGUAGE = '{{ zf.i18n().getCurrentLocale() }}';
+CKEDITOR_BASEPATH = ASSET_URL + "js/garp/ckeditor/";
+COOKIEDOMAIN = {% if app.config.app.cookiedomain %} "{{ app.config.app.cookiedomain }}" {% else %} undefined {% endif %};
+</script>
+
+{{ include('@g/partials/cms-script-includes.twig') }}
+{{ include('partials/models.twig') }}
+
+<!-- Garp init -->
+<script>
+// LocalUser object
+{% if zf.auth().isLoggedIn() %}
+    {% set userData = auth.getUserData() %}
+    {% set localUser = {
+        role: userData.role,
+        id: userData.id,
+        nick: ''
+    } %}
+Garp.localUser = {{ localUser | json_encode | raw }};
+{% endif %}
+
+// Inform front-end of ACL setup
+Garp.ACL = {{ zf.auth().getRoles(true) | json_encode | raw }};
+
+// Here we go
+Ext.onReady(Garp.init);
+</script>
+{% endif %}
