@@ -1,0 +1,22 @@
+{% if displayErrors %}
+<h3>Exception information:</h3>
+<pre><b>Where:</b> {{ exception.getFile() ~ ':' ~ exception.getLine() }}<br>
+<b>Message:</b> {{ exception.getMessage() }}</pre>
+
+    {% if lastQuery %}
+<h3>Last executed query:</h3>
+<pre>{{ lastQuery }}</pre>
+    {% endif %}
+
+<h3>Stack trace:</h3>
+<pre>{{ exception.getTraceAsString() }}</pre>
+
+<h3>Request Parameters:</h3>
+<pre>{{ dump(request.getParams()) }}</pre>
+
+{% else %}
+
+<h1>Error 404</h1>
+<p>Oeps! De opgevraagde pagina kan niet gevonden worden.</p>
+
+{% endif %}

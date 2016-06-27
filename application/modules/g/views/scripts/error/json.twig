@@ -1,0 +1,11 @@
+{% set out = { success: false } %}
+{% if displayErrors %}
+    {% set out = out | merge({
+        message: exception.getMessage(),
+        lastQuery: lastQuery,
+        stackTrace: exception.getTrace(),
+        requestParameters: request.getParams()
+    }) %}
+{% endif %}
+
+{{ out | json_encode | raw %}

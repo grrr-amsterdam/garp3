@@ -1,0 +1,16 @@
+<div class="listmodel">
+	<h2>
+		<span class="icon icon-{{ zf.string().camelcasedToDashed(model.id) }}"></span>
+		{{ model.label }}
+	</h2>
+	<ul>
+		{% for field in model.fields.getFields() %}
+		    {% set classes = [] %}
+			{% if not field.editable %}
+			    {% set classes = classes | merge(['readonly']) %}
+			{% endif %}
+		    <li class="{{ classes | join(" ") }}">{{ zf.string().underscoredToReadable(field.name, false) }} ({{ field.type }})</li>
+		{% endfor %}
+	</ul>
+</div>
+

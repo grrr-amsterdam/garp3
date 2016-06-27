@@ -1,0 +1,45 @@
+{% set hiddenModels = ['AuthLocal', 'ClusterServer', 'ClusterClearCacheJob', 'ClusterRecurringJob'] %}
+
+<div id="section-fields">
+	{% for model in models %}
+        {% if model.id not in hiddenModels %}
+		    {% if model.fields.exists('name') %}
+			{{ include('@g/partials/datamodel/listmodel.twig') }}
+			{% endif %}
+        {% endif %}
+	{% endfor %}
+</div>
+
+{% if not textMode %}
+<div id="section-relations">
+	{% for model in models %}
+	    {% if model.id not in hiddenModels %}
+		<a href="#" class="model" id="{{ model.id }}">
+			<div class="content_container">
+				<div class="content">
+					<h2>{{ model.label }}</h2>
+					<ul class="fields">
+						{% set fields = model.fields.getFields('editable', true) %}
+						{% for field in fields %}
+						<li class="field">{{ field.name | replace({ "_": " "}) }}</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</a>
+		{% endif %}
+	{% endfor %}
+
+	<canvas id="canvas"></canvas>
+</div>
+{% endif %}
+
+<script>
+    var modelData = {
+        {% for model in models %}
+            "{{ model.id }}": {
+                "relations": {{ model.relations.getRelations() | json_encode | raw }}
+            }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+</script>

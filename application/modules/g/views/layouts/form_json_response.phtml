@@ -1,7 +1,0 @@
-<?php
-header('Content-Type: text/javascript; charset=UTF-8');
-$response = array(
-	'success' => $this->valid,
-	'html' => $this->layout()->content
-);
-echo Zend_Json::encode($response);
