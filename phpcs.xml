@@ -2,6 +2,7 @@
 <ruleset name="PHP_CodeSniffer">
     <description>The coding standard for PHP_CodeSniffer.</description>
     <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>application/modules/default/Model/Base/*</exclude-pattern>
 
     <arg value="s"/>
     <arg value="p"/>
@@ -35,5 +36,21 @@
     <properties>
         <property name="forbiddenFunctions" type="array" value="exit=>null,var_dump=>null"/>
     </properties>
+</rule>
+
+<rule ref="Generic.Commenting.DocComment.ContentBeforeClose">
+    <exclude-pattern>*/tests/*</exclude-pattern>
+</rule>
+<rule ref="PEAR.Commenting.FunctionComment.MissingReturn">
+    <exclude-pattern>*/tests/*</exclude-pattern>
+</rule>
+<rule ref="PEAR.NamingConventions.ValidFunctionName.NotCamelCaps">
+    <exclude-pattern>*/tests/*</exclude-pattern>
+</rule>
+<rule ref="Generic.Commenting.DocComment.MissingShort">
+    <exclude-pattern>*/tests/*</exclude-pattern>
+</rule>
+<rule ref="Generic.Commenting.DocComment.ContentAfterOpen">
+    <exclude-pattern>*/tests/*</exclude-pattern>
 </rule>
 </ruleset>
