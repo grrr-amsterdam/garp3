@@ -8,7 +8,7 @@
  * @author  Harmen Janssen <harmen@grrr.nl>
  * @version 0.1.0
  */
-class Garp_View_Helper_FullTitle extends Zend_View_Helper_Abstract {
+class G_View_Helper_FullTitle extends Zend_View_Helper_Abstract {
 
     public function fullTitle($title, $currentPage) {
         if ($currentPage == 'home') {
