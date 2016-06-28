@@ -5,7 +5,7 @@
  *
  * @package G_View_Helper
  * @author  Harmen Janssen <harmen@grrr.nl>
- * @version 1.0.0
+ * @version 1.0.1
  */
 class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
     /**
@@ -27,6 +27,7 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
 
     /**
      * Include the contents of a Javascript file directly in a template.
+     * Note: adds @-sign to file_get_contents to suppress warnings if the file does not exist.
      *
      * @param String $path Path to the source file
      * @param Boolean $checkExistence Wether to check if the file exists first
@@ -36,7 +37,7 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
         if ($checkExistence && !file_exists($path)) {
             return '';
         }
-        return file_get_contents($path);
+        return @file_get_contents($path);
     }
 
     /**
