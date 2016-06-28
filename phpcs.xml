@@ -23,6 +23,8 @@
     <exclude name="PEAR.Commenting.ClassComment.MissingCategoryTag"/>
     <exclude name="PEAR.NamingConventions.ValidFunctionName.PublicUnderscore"/>
     <exclude name="PEAR.NamingConventions.ValidVariableName.PublicUnderscore"/>
+    <exclude name="Generic.Commenting.DocComment.MissingShort"/>
+    <exclude name="PEAR.Commenting.FunctionComment.MissingParamComment"/>
 </rule>
 
 <rule ref="Generic.Files.LineLength">
