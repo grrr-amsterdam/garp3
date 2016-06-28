@@ -77,7 +77,7 @@ class Garp_Spawn_Js_ModelsIncluder {
      */
     protected function _save($content) {
         if (!file_put_contents($this->_getIncludesFilename(), $content)) {
-            throw new Exception(sprintf(self::EXCEPTION_WRITE_ERROR);
+            throw new Exception(sprintf(self::EXCEPTION_WRITE_ERROR));
         }
         return true;
     }
