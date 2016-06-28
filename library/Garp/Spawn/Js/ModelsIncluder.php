@@ -1,70 +1,84 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
+ * Garp_Spawn_Js_ModelsIncluder
+ * Writes script tags linking JS models to the CMS models include file.
+ *
+ * @package Garp_Spawn
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @version 0.2.0
  */
 class Garp_Spawn_Js_ModelsIncluder {
-    const _MODELS_INCLUDE_FILE_DEFAULT = '/modules/default/views/scripts/partials/models.phtml';
-    const _START_TAG = 'BEGIN SPAWNED CALLS';
-    const _END_TAG = 'END SPAWNED CALLS';
-    const _JS_GARP_PATH = '/js/garp/models/';
-    const _JS_APP_PATH = '/js/models/';
+    const MODELS_INCLUDE_FILE_DEFAULT = '/modules/default/views/scripts/partials/models.phtml';
+    const START_TAG = 'BEGIN SPAWNED CALLS';
+    const END_TAG = 'END SPAWNED CALLS';
+    const JS_GARP_PATH = '/js/garp/models/';
+    const JS_APP_PATH = '/js/models/';
+    const SCRIPT_TAG = '<script crossorigin="anonymous" src="%s"></script>';
+    const EXCEPTION_WRITE_ERROR = 'Could not save the model includes file.';
 
-    
     public function __construct(Garp_Spawn_Model_Set $modelSet) {
         $modelsIncludeFile = explode("\n", file_get_contents($this->_getIncludesFilename()));
 
         foreach ($modelsIncludeFile as $i => $line) {
-            if (strpos($line, self::_START_TAG) !== false) {
+            if (strpos($line, self::START_TAG) !== false) {
                 $startLine = $i;
-            } elseif (strpos($line, self::_END_TAG) !== false) {
+            } elseif (strpos($line, self::END_TAG) !== false) {
                 $endLine = $i;
             }
         }
-        
+
         $fileHead = implode("\n", array_slice($modelsIncludeFile, 0, $startLine + 1));
         $fileFoot = implode("\n", array_slice($modelsIncludeFile, $endLine));
         $spawnerCalls = '';
 
         foreach ($modelSet as $model) {
             if ($model->module === 'garp') {
-                $this->_appendToIncludes($model->id, self::_JS_GARP_PATH, $spawnerCalls);
+                $spawnerCalls .= $this->_createScriptInclude($model->id, self::JS_GARP_PATH) . "\n";
             }
 
-            $this->_appendToIncludes($model->id, self::_JS_APP_PATH, $spawnerCalls);
+            $spawnerCalls .= $this->_createScriptInclude($model->id, self::JS_APP_PATH) . "\n";
         }
-        
-        if (!$this->_save(
-            $fileHead . "\n"
-            . $spawnerCalls . "\n"
-            . $fileFoot
-        )) {
-            throw new Exception("Could not save the model includes file.");
-        }
+
+        return $this->_save(implode("\n", array($fileHead, $spawnerCalls, $fileFoot)));
     }
 
-
-    protected function _appendToIncludes($modelId, $path, &$output) {
-        $newEntry = '<script crossorigin="anonymous" src="<?php echo $this->assetUrl(\''.$path.$modelId.'.js\') ?>"></script>' . "\n";
-        $output .= $newEntry;
+    protected function _createScriptInclude($modelId, $path) {
+        return sprintf(self::SCRIPT_TAG, $this->_getAssetUrlCall($path, $modelId));
     }
 
+    protected function _getAssetUrlCall($path, $modelId) {
+        $config = Zend_Registry::get('config');
+
+        // Check to see if we're using twig templates
+        if (isset($config->resources->view->engines->twig->isDefault)
+            && $config->resources->view->engines->twig->isDefault
+        ) {
+            return '{{ zf.assetUrl(\'' . $path . $modelId . '.js\') }}';
+        }
+
+        return '<?php echo $this->assetUrl(\'' . $path . $modelId . '.js\') ?>';
+    }
 
     protected function _getIncludesFilename() {
         $ini = Zend_Registry::get('config');
-        if (@$ini->spawn->js->modelLoaderFile) {
+        if (isset($ini->spawn->js->modelLoaderFile)) {
             return APPLICATION_PATH . $ini->spawn->js->modelLoaderFile;
         }
-        
-        return APPLICATION_PATH . self::_MODELS_INCLUDE_FILE_DEFAULT;
+
+        return APPLICATION_PATH . self::MODELS_INCLUDE_FILE_DEFAULT;
     }
-    
 
     /**
+     * Write the file
+     *
      * @param String $content The full content to write to the includes file.
+     * @return bool
      */
     protected function _save($content) {
         if (!file_put_contents($this->_getIncludesFilename(), $content)) {
-            throw new Exception ("Could not append the admin frontend include for the '{$modelId}' Javascript model.");
-        } else return true;
+            throw new Exception(sprintf(self::EXCEPTION_WRITE_ERROR);
+        }
+        return true;
     }
 }

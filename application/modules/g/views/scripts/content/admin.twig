@@ -52,7 +52,7 @@ COOKIEDOMAIN = {% if app.config.app.cookiedomain %} "{{ app.config.app.cookiedom
 <script>
 // LocalUser object
 {% if zf.auth().isLoggedIn() %}
-    {% set userData = auth.getUserData() %}
+    {% set userData = zf.auth().getUserData() %}
     {% set localUser = {
         role: userData.role,
         id: userData.id,
