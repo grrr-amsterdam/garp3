@@ -3,13 +3,13 @@
  * Garp_Cache_Manager
  * Provides various ways of purging the many caches Garp uses.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.1
- * @package      Garp_Cache
+ * @package Garp_Cache
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cache_Manager {
     /**
      * Read query cache
+     *
      * @param Garp_Model_Db $model
      * @param String $key
      * @return Mixed
@@ -21,6 +21,7 @@ class Garp_Cache_Manager {
 
     /**
      * Write query cache
+     *
      * @param Garp_Model_Db $model
      * @param String $key
      * @param Mixed $results
@@ -33,8 +34,10 @@ class Garp_Cache_Manager {
 
     /**
      * Purge all cache system wide
+     *
      * @param Array|Garp_Model_Db $tags
-     * @param Boolean $createClusterJob Whether this purge should create a job to clear the other nodes in this server cluster, if applicable.
+     * @param Boolean $createClusterJob Whether this purge should create a job to clear the other
+     *                                  nodes in this server cluster, if applicable.
      * @param String $cacheDir Directory which stores static HTML cache files.
      * @return Void
      */
@@ -55,6 +58,7 @@ class Garp_Cache_Manager {
 
     /**
      * Clear the Memcached cache that stores queries and ini files and whatnot.
+     *
      * @param Array|Garp_Model_Db $modelNames
      * @return Void
      */
@@ -79,17 +83,18 @@ class Garp_Cache_Manager {
         foreach ($modelNames as $modelName) {
             $model = new $modelName();
             self::_incrementMemcacheVersion($model);
-            if ($model->getObserver('Translatable')) {
-                // Make sure cache is cleared for all languages.
-                $locales = Garp_I18n::getLocales();
-                foreach ($locales as $locale) {
-                    try {
-                        $modelFactory = new Garp_I18n_ModelFactory($locale);
-                        $i18nModel = $modelFactory->getModel($model);
-                        self::_incrementMemcacheVersion($i18nModel);
-                    } catch (Garp_I18n_ModelFactory_Exception_ModelAlreadyLocalized $e) {
-                        // all good in the hood  ｡^‿^｡
-                    }
+            if (!$model->getObserver('Translatable')) {
+                continue;
+            }
+            // Make sure cache is cleared for all languages.
+            $locales = Garp_I18n::getLocales();
+            foreach ($locales as $locale) {
+                try {
+                    $modelFactory = new Garp_I18n_ModelFactory($locale);
+                    $i18nModel = $modelFactory->getModel($model);
+                    self::_incrementMemcacheVersion($i18nModel);
+                } catch (Garp_I18n_ModelFactory_Exception_ModelAlreadyLocalized $e) {
+                    // all good in the hood  ｡^‿^｡
                 }
             }
         }
@@ -97,11 +102,19 @@ class Garp_Cache_Manager {
 
     /**
      * This clears Zend's Static caching.
+     *
      * @param Array|Garp_Model_Db $modelNames Clear the cache of a specific bunch of models.
      * @param String $cacheDir Directory containing the cache files
      * @return Void
      */
     public static function purgeStaticCache($modelNames = array(), $cacheDir = false) {
+        if (!Zend_Registry::get('CacheFrontend')->getOption('caching')) {
+            // caching is disabled (yes, this particular frontend is not in charge of static
+            // cache, but in practice this toggle is used to enable/disable caching globally, so
+            // this matches developer expectations better, probably)
+            return;
+        }
+
         if ($modelNames instanceof Garp_Model_Db) {
             $modelNames = self::getTagsFromModel($modelNames);
         }
@@ -144,7 +157,8 @@ class Garp_Cache_Manager {
 
     /**
      * Remove pluginLoaderCache.php
-     * @return Void
+     *
+     * @return void
      */
     public static function purgePluginLoaderCache() {
         @unlink(APPLICATION_PATH.'/data/cache/pluginLoaderCache.php');
@@ -152,8 +166,9 @@ class Garp_Cache_Manager {
 
     /**
      * Remove static cache file(s)
-     * @param String $path
-     * @return Boolean
+     *
+     * @param string $path
+     * @return bool
      */
     protected static function _deleteStaticCacheFile($path) {
         $success = @system('rm -rf '.$path.';') !== false;
@@ -162,9 +177,10 @@ class Garp_Cache_Manager {
 
     /**
      * Schedule a cache clear in the future.
-     * @see Garp_Model_Behavior_Draftable for a likely pairing
+     *
      * @param Int $timestamp
      * @param Array $tags
+     * @see Garp_Model_Behavior_Draftable for a likely pairing
      * @return Bool A guesstimate of wether the command has successfully been scheduled.
      *              Note that it's hard to determine if this is true. I have, for instance,
      *              not yet found a way to determine if the atrun daemon actually is active.
@@ -183,19 +199,31 @@ class Garp_Cache_Manager {
             $cmd .= ' ' . implode(' ', $tags);
         }
         $scheduledJobModel = new Model_ScheduledJob();
-        return $scheduledJobModel->insert(array(
-            'command' => $cmd,
-            'at' => date('Y-m-d H:i:s', $timestamp),
-        ));
+        return $scheduledJobModel->insert(
+            array(
+                'command' => $cmd,
+                'at' => date('Y-m-d H:i:s', $timestamp),
+            )
+        );
     }
 
-    /** Ye olde scheduleClear() */
+    /**
+     * Ye olde scheduleClear()
+     *
+     * @param int $timestamp
+     * @param array $tags
+     * @deprecated More or less. You can use it, but ScheduledJob does it better
+     * @return bool
+     */
     public static function createAtCommand($timestamp, array $tags = array()) {
         $time = date('H:i d.m.y', $timestamp);
 
-        // Sanity check: are php and at available? ('which' returns an empty string in case of failure)
+        // Sanity check: are php and at available?
+        // ('which' returns an empty string in case of failure)
         if (!exec('which php') || !exec('which at')) {
-            throw new Garp_Model_Behavior_Exception('php and/or at are not available in this shell.');
+            throw new Garp_Model_Behavior_Exception(
+                'php and/or at are not available in this shell.'
+            );
         }
         // The command must come from a file, create that in the data folder of this project.
         // Add timestamp to the filename so we can safely delete the file later
@@ -203,7 +231,8 @@ class Garp_Cache_Manager {
         $file = APPLICATION_PATH.'/data/at_cmd_'.time().md5($tags);
 
         $garpScriptFile = self::_getGarpCliScriptPath();
-        $cmd  = 'php '.$garpScriptFile.' Cache clear --APPLICATION_ENV='.APPLICATION_ENV.' '.$tags.';';
+        $cmd  = 'php ' . $garpScriptFile . ' Cache clear --APPLICATION_ENV=' . APPLICATION_ENV .
+            ' ' . $tags . ';';
 
         // Create temp file
         $tmpFile = tmpfile();
@@ -225,6 +254,7 @@ class Garp_Cache_Manager {
 
     /**
      * Get cache tags used with a given model.
+     *
      * @param Garp_Model_Db $model
      * @return Array
      */
@@ -240,6 +270,8 @@ class Garp_Cache_Manager {
 
     /**
      * Returns information for debugging purposes.
+     *
+     * @return Zend_Cache_Backend
      */
     public static function getCacheBackend() {
         if (Zend_Registry::isRegistered('CacheFrontend')) {
@@ -251,6 +283,7 @@ class Garp_Cache_Manager {
 
     /**
      * Increment the version to invalidate a given model's cache.
+     *
      * @param Garp_Model_Db $model
      * @return Void
      */
@@ -261,21 +294,39 @@ class Garp_Cache_Manager {
 
     /**
      * Fetch the cache directory for static caching
+     *
      * @return String
      */
     protected static function _getStaticCacheDir() {
+        $config = Zend_Registry::get('config');
+        if (!isset($config->resources->cacheManager->page->backend->options->public_dir)) {
+            return false;
+        }
+        return $config->resources->cacheManager->page->backend->options->public_dir;
+
+        /**
+         * Cache dir used to be read from the Front controller, which I would prefer under normal
+         * circumstances. But the front controller is not bootstrapped in CLI environment, so I've
+         * refactored to read from cache. I'm leaving this for future me to think about some more
+         *
+         * (full disclaimer: I'm probably never going to think about it anymore)
+         *
         $front = Zend_Controller_Front::getInstance();
-        if (!$front->getParam('bootstrap') || !$front->getParam('bootstrap')->getResource('cachemanager')) {
+        if (!$front->getParam('bootstrap')
+            || !$front->getParam('bootstrap')->getResource('cachemanager')) {
+            Garp_Cli::errorOut('no bootstrap or whatever');
             return false;
         }
         $cacheManager = $front->getParam('bootstrap')->getResource('cachemanager');
         $cache = $cacheManager->getCache(Zend_Cache_Manager::PAGECACHE);
         $cacheDir = $cache->getBackend()->getOption('public_dir');
         return $cacheDir;
+         */
     }
 
     /**
      * Fetch mapping of available tags to file paths
+     *
      * @return Zend_Config
      */
     protected static function _getTagList() {
@@ -303,4 +354,5 @@ class Garp_Cache_Manager {
         return realpath(APPLICATION_PATH . '/../../..') .
             '/current/vendor/grrr-amsterdam/garp3/scripts/garp.php';
     }
+
 }
