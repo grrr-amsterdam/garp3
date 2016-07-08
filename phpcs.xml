@@ -55,4 +55,7 @@
 <rule ref="Generic.Commenting.DocComment.ContentAfterOpen">
     <exclude-pattern>*/tests/*</exclude-pattern>
 </rule>
+<rule ref="PEAR.Commenting.ClassComment.MissingPackageTag">
+    <exclude-pattern>*/tests/*</exclude-pattern>
+</rule>
 </ruleset>
