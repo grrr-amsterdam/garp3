@@ -135,10 +135,10 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
     }
 
     public function getVersionedBuildPath($file) {
-        if (!isset(Zend_Registry::get('config')->assets->{$this->_getExtension($file)}->root)) {
+        if (!isset(Zend_Registry::get('config')->assets->{$this->_getExtension($file)}->build)) {
             return $file;
         }
-        return rtrim(Zend_Registry::get('config')->assets->{$this->_getExtension($file)}->root, '/') .
+        return rtrim(Zend_Registry::get('config')->assets->{$this->_getExtension($file)}->build, '/') .
             '/' . new Garp_Semver() . '/' . $file;
     }
 
