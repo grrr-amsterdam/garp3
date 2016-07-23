@@ -18,6 +18,11 @@ class G_ErrorController extends Garp_Controller_Action {
         if (!$errors) {
             return;
         }
+
+        if (APPLICATION_ENV !== 'development') {
+            Garp_Service_Sentry::log($errors->exception);
+        }
+
         if (!$this->view) {
             $bootstrap = Zend_Registry::get('application')->getBootstrap();
             $this->view = $bootstrap->getResource('View');
@@ -90,4 +95,5 @@ class G_ErrorController extends Garp_Controller_Action {
             $this->_helper->viewRenderer('error/json', null, true);
         }
     }
+
 }
