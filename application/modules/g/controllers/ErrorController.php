@@ -18,6 +18,10 @@ class G_ErrorController extends Garp_Controller_Action {
         if (!$errors) {
             return;
         }
+
+        $sentry = Garp_Service_Sentry::getInstance();
+        $sentry->log($errors->exception);
+
         if (!$this->view) {
             $bootstrap = Zend_Registry::get('application')->getBootstrap();
             $this->view = $bootstrap->getResource('View');
@@ -51,18 +55,24 @@ class G_ErrorController extends Garp_Controller_Action {
                     $this->view->lastQuery = $profiler->getLastQueryProfile()->getQuery();
                 }
             }
-        } else {
-            // Oh dear, this is the production environment. This is serious.
-            // Better log the error and mail a crash report to a nerd somewhere.
-            if ($this->getResponse()->getHttpResponseCode() != 500) {
-                return;
-            }
 
-            Garp_ErrorHandler::logErrorToFile($errors);
+            return;
+        }
 
-            if (!Garp_ErrorHandler::logErrorToSlack($errors)) {
-                Garp_ErrorHandler::mailErrorToAdmin($errors);
-            }
+        // Oh dear, this is the production environment. This is serious.
+        // Better log the error and mail a crash report to a nerd somewhere.
+        if ($this->getResponse()->getHttpResponseCode() != 500) {
+            return;
+        }
+
+        Garp_ErrorHandler::logErrorToFile($errors);
+
+        if ($sentry->isActive()) {
+            return;
+        }
+
+        if (!Garp_ErrorHandler::logErrorToSlack($errors)) {
+            Garp_ErrorHandler::mailErrorToAdmin($errors);
         }
     }
 
@@ -90,4 +100,5 @@ class G_ErrorController extends Garp_Controller_Action {
             $this->_helper->viewRenderer('error/json', null, true);
         }
     }
+
 }
