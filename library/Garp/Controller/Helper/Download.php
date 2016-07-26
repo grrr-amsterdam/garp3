@@ -2,16 +2,18 @@
 /**
  * Garp_Controller_Helper_ForceDownload
  * Force download dialog for a certain file.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
  * @subpackage Db
+ * @author Harmen Janssen <harmen@grrr.nl>
+ * @modifiedby $LastChangedBy: $
+ * @version $Revision: $
  * @lastmodified $Date: $
  */
 class Garp_Controller_Helper_Download extends Zend_Controller_Action_Helper_Abstract {
     /**
      * Force download dialog
+     *
      * @param String $bytes The bytes that are to be downloaded
      * @param String $filename The filename of the downloaded file
      * @param Zend_Controller_Response_Abstract $response The response object
@@ -34,6 +36,7 @@ class Garp_Controller_Helper_Download extends Zend_Controller_Action_Helper_Abst
     
     /**
      * Set the neccessary headers for forcing the download dialog
+     *
      * @param String $bytes The bytes that are to be downloaded
      * @param String $filename The filename of the downloaded file
      * @param Zend_Controller_Response_Abstract $response The response object
@@ -48,13 +51,14 @@ class Garp_Controller_Helper_Download extends Zend_Controller_Action_Helper_Abst
         $response->setHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0');
     
         // force download dialog
-        $response->setHeader('Content-Type', 'application/force-download');
         $response->setHeader('Content-Type', 'application/octet-stream');
-        $response->setHeader('Content-Type', 'application/download');
     
         // use the Content-Disposition header to supply a recommended filename and
         // force the browser to display the save dialog.
-        $response->setHeader('Content-Disposition', 'attachment; filename="'.basename($filename).'"');
+        $response->setHeader(
+            'Content-Disposition',
+            'attachment; filename="'.basename($filename).'"'
+        );
 
         /*
         The Content-transfer-encoding header should be binary, since the file will be read
