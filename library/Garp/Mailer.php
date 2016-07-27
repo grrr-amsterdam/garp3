@@ -4,15 +4,16 @@
  * Central mail singleton that you don't have to configure every time you want to send a little
  * message.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
  * @package      Garp
+ * @author       Harmen Janssen <harmen@grrr.nl>
+ * @version      0.1.0
  */
 class Garp_Mailer {
     const EXCEPTION_CANNOT_RESOLVE_FROM_ADDRESS = 'Unable to find from address.';
 
     protected $_transport;
     protected $_fromAddress;
+    protected $_fromName;
     protected $_characterEncoding = 'utf-8';
     protected $_attachments = array();
     protected $_htmlView;
@@ -26,6 +27,7 @@ class Garp_Mailer {
 
     /**
      * Send an email.
+     *
      * @param Array $params Config object.
      *  Required keys: to, subject, message
      *  Optional keys: replyTo
@@ -39,12 +41,13 @@ class Garp_Mailer {
         $mail = new Zend_Mail($this->getCharacterEncoding());
         $mail->setSubject($params['subject']);
         $mail->setBodyText($this->_getPlainBodyText($params));
-        $mail->setFrom($this->getFromAddress());
+        $mail->setFrom($this->getFromAddress(), $this->getFromName());
         $mail->addTo($params['to']);
 
         if ($this->getHtmlTemplate()) {
             $viewParams['message'] = isset($params['message']) ? $params['message'] : '';
-            $viewParams['htmlMessage'] = isset($params['htmlMessage']) ? $params['htmlMessage'] : '';
+            $viewParams['htmlMessage'] = isset($params['htmlMessage']) 
+                ? $params['htmlMessage'] : '';
             $mail->setBodyHtml($this->_renderView($viewParams));
         } elseif (isset($params['htmlMessage'])) {
             $mail->setBodyHtml($params['htmlMessage']);
@@ -105,21 +108,33 @@ class Garp_Mailer {
         return $this->_fromAddress;
     }
 
+    public function setFromName($fromName) {
+        $this->_fromName = $fromName;
+        return $this;
+    }
+
+    public function getFromName() {
+        return $this->_fromName ?: null;
+    }
+
     public function getDefaultFromAddress() {
         $config = Zend_Registry::get('config');
-        if ($this->_isAmazonSesConfigured() &&
-            isset($this->_getAmazonSesConfiguration()->fromAddress)) {
+        if ($this->_isAmazonSesConfigured() 
+            && isset($this->_getAmazonSesConfiguration()->fromAddress)
+        ) {
             return $this->_getAmazonSesConfiguration()->fromAddress;
         }
         if (isset($config->mailer->fromAddress)) {
             return $config->mailer->fromAddress;
         }
         throw new Garp_Mailer_Exception_CannotResolveFromAddress(
-            self::EXCEPTION_CANNOT_RESOLVE_FROM_ADDRESS);
+            self::EXCEPTION_CANNOT_RESOLVE_FROM_ADDRESS
+        );
     }
 
     /**
      * Set character encoding
+     *
      * @param String $characterEncoding
      * @return $this
      */
@@ -130,6 +145,7 @@ class Garp_Mailer {
 
     /**
      * Get character encoding
+     *
      * @return String
      */
     public function getCharacterEncoding() {
@@ -139,6 +155,7 @@ class Garp_Mailer {
     /**
      * Read default attachments from config. Handy if you use images in your HTML template that are
      * in every mail.
+     *
      * @return Array
      */
     public function getDefaultAttachments() {
@@ -213,6 +230,9 @@ class Garp_Mailer {
 
     /**
      * Required keys: to, subject, message OR htmlMessage
+     *
+     * @param array $params 
+     * @return void
      */
     protected function _validateParams(array $params) {
         $config = new Garp_Util_Configuration($params);
@@ -221,8 +241,11 @@ class Garp_Mailer {
 
         if (!isset($params['message']) && !isset($params['htmlMessage'])) {
             throw new Garp_Util_Configuration_Exception(
-                sprintf(Garp_Util_Configuration::EXCEPTION_MISSINGKEY,
-                    'message OR htmlMessage'));
+                sprintf(
+                    Garp_Util_Configuration::EXCEPTION_MISSINGKEY,
+                    'message OR htmlMessage'
+                )
+            );
         }
     }
 
@@ -251,6 +274,8 @@ class Garp_Mailer {
     /**
      * For legacy reasons, mailing can be disabled both thru the mailer key or thru amazon ses
      * configuration.
+     *
+     * @return void
      */
     protected function _isMailingDisabled() {
         $config = Zend_Registry::get('config');
