@@ -147,10 +147,10 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
     public function getVersionedBuildPath($file) {
         $buildConfig = 'build';
         $assetsConfig = Zend_Registry::get('config')->assets->{$this->_getExtension($file)};
-        if (!isset($assetsConfig->$buildConfig)) {
+        if (empty($assetsConfig->$buildConfig)) {
             $buildConfig = 'root';
         }
-        if (!isset($assetsConfig->$buildConfig)) {
+        if (empty($assetsConfig->$buildConfig)) {
             return $file;
         }
         return rtrim($assetsConfig->$buildConfig, '/') .

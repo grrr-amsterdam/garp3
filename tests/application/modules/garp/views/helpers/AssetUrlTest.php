@@ -57,7 +57,8 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             ),
             'assets' => array(
                 'css' => array(
-                    'root' => '/css/build/prod'
+                    'root' => '/css/build/prod',
+                    'build' => '' // empty build config value to check backwards comptability
                 )
             )
             )
