@@ -1,0 +1,18 @@
+version: '2'
+services:
+  garp_web:
+    image: grrrnl/garp3-httpd:3.8
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+    privileged: true
+  garp_db:
+    image: grrrnl/garp3-db
+    ports:
+      - "3306:3306"
+    restart: always
+  garp_dbdata:
+    image: grrrnl/garp3-data
+    volumes:
+      - ./application/data/docker:/var/lib/mysql
