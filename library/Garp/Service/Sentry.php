@@ -2,6 +2,7 @@
 /**
  * Garp_Service_Sentry
  * Error Monitoring through https://getsentry.com
+ * Note! To be activated, this class requires the global $ravenClient.
  * @author David Spreekmeester <david@grrr.nl>
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
@@ -11,11 +12,15 @@
  */
 class Garp_Service_Sentry {
     private static $instance;
+    protected Raven_Client $_client;
 
 
     public static function getInstance() {
+        global $ravenClient;
+        
         if (null === static::$instance) {
             static::$instance = new static();
+            $this->_client = $ravenClient;
         }
         
         return static::$instance;
@@ -29,45 +34,58 @@ class Garp_Service_Sentry {
      * Returns whether the Raven client (needed for Sentry) is configured / enabled.
      */
     public function isActive() {
-        global $ravenClient;
-
-        return (bool)$ravenClient;
+        return (bool)$this->_client;
     }
 
+    /**
+     * Log an exception.
+     */
     public function log(Exception $exception) {
-        global $ravenClient;
-
         if (!$this->isActive()) {
             return;
         }
 
-        $debugVars = $this->_getBasicVars();
-        $debugVars += $this->_getUserVars();
+        $this->_client->setEnvironment(APPLICATION_ENV);
+        $this->_addExtraVars();
+        $this->_addUserContext();
+        $this->_addReleaseVersion();
+        $this->_addEnvTags();
 
-        $varList = array('extra' => $debugVars);
-
-        $event_id = $ravenClient->getIdent(
-            $ravenClient->captureException($exception, $varList)
+        $this->_client->getIdent(
+            $this->_client->captureException($exception)
         );
     }
 
-    protected function _getBasicVars() {
-        return array(
-            '_php_version' => phpversion(),
-            '_garp_version' => Garp_Version::VERSION,
+    protected function _addExtraVars() {
+        $extra = array(
             'extensions' => get_loaded_extensions()
         );
+
+        $this->_client->extra_context($extra);
     }
 
-    protected function _getUserVars() {
-        // Add logged in user data to log
+    protected function _addEnvTags() {
+        $this->_client->tags_context(array(
+            'php_version' => phpversion(),
+        ));
+    }
+
+    protected function _addReleaseVersion() {
+        $version = new Garp_Semver();
+        $this->_client->setRelease($version->getVersion());
+    }
+
+    /**
+     * Add logged-in user data to the log.
+     */ 
+    protected function _addUserContext() {
         $auth = Garp_Auth::getInstance();
         $output = array();
 
-        if ($auth->isLoggedIn()) {
-            $output['_user_data'] = $auth->getUserData();
+        if (!$auth->isLoggedIn()) {
+            return;
         };
 
-        return $output;
+        $this->_client->user_context($auth->getUserData());
     }
 }
