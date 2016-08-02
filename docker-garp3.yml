@@ -1,7 +1,7 @@
 version: '2'
 services:
   garp_web:
-    image: grrrnl/garp3-httpd:3.8
+    image: grrrnl/garp3-httpd:3.9
     ports:
       - "80:80"
     volumes:
