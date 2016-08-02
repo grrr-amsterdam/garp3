@@ -61,8 +61,8 @@ class Garp_Content_Manager {
         }
 
         if ($this->_model instanceof Garp_Model_Db) {
-            $options = $options instanceof Garp_Util_Configuration 
-                ? $options 
+            $options = $options instanceof Garp_Util_Configuration
+                ? $options
                 : new Garp_Util_Configuration($options);
             $options
                 ->setDefault('sort', array())
@@ -91,7 +91,7 @@ class Garp_Content_Manager {
             $related = array();
             if ($options['query'] && !empty($options['query'])) {
                 /**
-                 * Check for other model names in the conditions. 
+                 * Check for other model names in the conditions.
                  * These are indicated by a dot (".") in the name.
                  * If available, add these models as joins to the Select object.
                  * The format is <related-model-name>.<primary-key> => <value>.
@@ -127,7 +127,11 @@ class Garp_Content_Manager {
             // ============================================================
             if (count($related)) {
                 $this->_addJoinClause(
-                    $select, $related, $options['rule'], $options['bindingModel']
+                    $select,
+                    $related,
+                    $options['rule'],
+                    $options['bindingModel'],
+                    $options['bidirectional']
                 );
             }
 
@@ -176,8 +180,8 @@ class Garp_Content_Manager {
             // LIMIT
             // ============================================================
             // Do not limit when a COUNT(*) is performed, this skews results.
-            $isCountQuery = count($fields) == 1 
-                && !empty($fields[0]) 
+            $isCountQuery = count($fields) == 1
+                && !empty($fields[0])
                 && strtolower($fields[0]) == 'count(*)';
             if (!$isCountQuery) {
                 $select->limit($options['limit'], $options['start']);
@@ -277,13 +281,13 @@ class Garp_Content_Manager {
             $this->_checkAcl('update');
         } catch (Garp_Auth_Exception $e) {
             /**
-             * If that fails, check if the user is allowed to update her own material 
+             * If that fails, check if the user is allowed to update her own material
              * AND if the current item is hers.
              */
             $this->_checkAcl('update_own');
 
             /**
-             * Good, the user is allowed to 'update_own'. In that case we have to check if 
+             * Good, the user is allowed to 'update_own'. In that case we have to check if
              * the current item is actually the user's.
              */
             if (!$this->_itemBelongsToUser($data, $where)) {
@@ -310,13 +314,13 @@ class Garp_Content_Manager {
             $this->_model->delete($where);
         } catch (Garp_Auth_Exception $e) {
             /**
-             * If that fails, check if the user is allowed to update her own material 
+             * If that fails, check if the user is allowed to update her own material
              * AND if the current item is hers.
              */
             $this->_checkAcl('destroy_own');
 
             /**
-             * Good, the user is allowed to 'destroy_own'. In that case we have to check 
+             * Good, the user is allowed to 'destroy_own'. In that case we have to check
              * if the current item is actually the user's.
              */
             $rows = $this->_model->fetchAll($where);
@@ -377,8 +381,8 @@ class Garp_Content_Manager {
             }
 
             $foreignKey  = $relationData['key'];
-            $extraFields = array_key_exists('relationMetadata', $relationData) 
-                ? $relationData['relationMetadata'] 
+            $extraFields = array_key_exists('relationMetadata', $relationData)
+                ? $relationData['relationMetadata']
                 : array();
 
             if (Garp_Content_Relation_Manager::relate(
@@ -454,7 +458,7 @@ class Garp_Content_Manager {
                 $where[] = $this->_createWhereClause($value, 'OR');
             } elseif (is_array($value)) {
                 $where[] = $adapter->quoteInto(
-                    $adapter->quoteIdentifier($tableName) .'.'.$column.' IN(?)', 
+                    $adapter->quoteIdentifier($tableName) .'.'.$column.' IN(?)',
                     $value
                 );
             } elseif (is_null($value)) {
@@ -495,10 +499,11 @@ class Garp_Content_Manager {
      * @param Array $related Collection of related models
      * @param String $rule Used to figure out the relationship metadata from the referencemap
      * @param String $bindingModel Binding model used in HABTM relations
+     * @param Boolean $bidirectional
      * @return Void
      */
-    protected function _addJoinClause(Zend_Db_Select $select, array $related, $rule = null, 
-        $bindingModel = null
+    protected function _addJoinClause(Zend_Db_Select $select, array $related, $rule = null,
+        $bindingModel = null, $bidirectional = true
     ) {
         foreach ($related as $filterModelName => $filterValue) {
             $fieldInfo = explode('.', $filterModelName, 2);
@@ -514,13 +519,13 @@ class Garp_Content_Manager {
             $filterColumn = str_replace(' <>', '', $filterColumn);
 
             if ($filterModelName === get_class($this->_model)) {
-                /*  This is a homophile relation and the current condition touches the 
+                /*  This is a homophile relation and the current condition touches the
                     homophile model.
-                    The following condition prevents a 'relatable' list to include the 
+                    The following condition prevents a 'relatable' list to include the
                     current record, because a record cannot be related to itself.
                 */
                 $select->where(
-                    $filterModel->getJointView().'.'.$filterColumn.' != ?', 
+                    $filterModel->getJointView().'.'.$filterColumn.' != ?',
                     $filterValue
                 );
             }
@@ -561,7 +566,8 @@ class Garp_Content_Manager {
                             'filterColumn'  => $filterColumn,
                             'filterValue'   => $filterValue,
                             'negation'      => $negation,
-                            'bindingModel'  => $bindingModel
+                            'bindingModel'  => $bindingModel,
+                            'bidirectional' => $bidirectional
                             )
                         );
                     } catch (Zend_Db_Table_Exception $e) {
@@ -624,7 +630,7 @@ class Garp_Content_Manager {
 
         $bindingCondition = $foreignKeyColumn.' = '.$joinColumn;
         $bindingCondition .= $filterModel->getAdapter()->quoteInto(
-            ' AND '.$filterModelName.'.'.$filterColumn.' = ?', 
+            ' AND '.$filterModelName.'.'.$filterColumn.' = ?',
             $filterValue
         );
 
@@ -701,20 +707,20 @@ class Garp_Content_Manager {
      * ['filterValue']  Mixed           The value used as the query filter
      * ['negation']     Boolean         Wether the query should include or exclude
      *                                  matches found by $filterValue
+     * ['bidirectional'] Boolean        Wether homophile relationships should be queried
+     *                                  bidirectionally
      * @return Void
      */
     protected function _addHasAndBelongsToManyClause(array $options) {
-        // keys of $options available in the local space as variables
-        extract($options);
-        if (!isset($bindingModel)) {
+        if (!isset($options['bindingModel'])) {
             $modelNames = array(
-                $this->_model->getNameWithoutNamespace(), 
-                $filterModel->getNameWithoutNamespace()
+                $this->_model->getNameWithoutNamespace(),
+                $options['filterModel']->getNameWithoutNamespace()
             );
             sort($modelNames);
             $bindingModelName = 'Model_'.implode('', $modelNames);
         } else {
-            $bindingModelName = 'Model_'.$bindingModel;
+            $bindingModelName = 'Model_' . $options['bindingModel'];
         }
         $bindingModel = new $bindingModelName();
         $thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
@@ -722,7 +728,7 @@ class Garp_Content_Manager {
 
         $reference = $bindingModel->getReference(get_class($this->_model));
         foreach ($reference['refColumns'] as $i => $column) {
-            if ($column === $filterColumn) {
+            if ($column === $options['filterColumn']) {
                 $bindingModelForeignKeyField = $reference['columns'][$i];
                 $foreignKeyField = $column;
                 break;
@@ -730,29 +736,28 @@ class Garp_Content_Manager {
         }
 
         $reference = $bindingModel->getReference(
-            get_class($filterModel), 
-            $this->_findSecondRuleKeyForHomophiles($filterModel, $bindingModel)
+            get_class($options['filterModel']),
+            $this->_findSecondRuleKeyForHomophiles($options['filterModel'], $bindingModel)
         );
         foreach ($reference['refColumns'] as $i => $column) {
-            if ($column === $filterColumn) {
+            if ($column === $options['filterColumn']) {
                 $filterField = $reference['columns'][$i];
                 break;
             }
         }
 
-        $bindingCondition = $bindingModelTable.'
-            .'.$bindingModelForeignKeyField.' = '
-            .$thisTableName.'.'.$foreignKeyField;
+        $bindingCondition = $bindingModelTable . '.' . $bindingModelForeignKeyField . ' = ' .
+            $thisTableName . '.' . $foreignKeyField;
         $bindingCondition .= $bindingModel->getAdapter()->quoteInto(
-            ' AND '.$bindingModelTable.'.'.$filterField.' = ?', 
-            $filterValue
+            ' AND ' . $bindingModelTable . '.' . $filterField . ' = ?',
+            $options['filterValue']
         );
-        if ($this->_isHomophile($filterModel)) {
+        if ($this->_isHomophile($options['filterModel']) && array_get($options, 'bidirectional')) {
             $bindingCondition .= ' OR '.$bindingModelTable.'.'
                 .$filterField.' = '.$thisTableName.'.'.$foreignKeyField;
             $bindingCondition .= $bindingModel->getAdapter()->quoteInto(
                 ' AND '.$bindingModelTable.'.'.$bindingModelForeignKeyField.' = ?',
-                $filterValue
+                $options['filterValue']
             );
         }
 
@@ -775,23 +780,28 @@ class Garp_Content_Manager {
             $bindingColumns[$bindingModel->getNameWithoutNamespace().'.'.$bc] = $bc;
         }
 
-        $select->joinLeft($bindingModelTable, $bindingCondition, $bindingColumns);
+        $options['select']->joinLeft($bindingModelTable, $bindingCondition, $bindingColumns);
 
-        if ($negation) {
-            $select->where($bindingModelTable.'.'.$filterField.' IS NULL');
+        if ($options['negation']) {
+            $options['select']->where($bindingModelTable.'.'.$filterField.' IS NULL');
         } else {
-            $select->where($bindingModelTable.'.'.$filterField.' = ?', $filterValue);
-            if ($this->_isHomophile($filterModel)) {
-                $select->orWhere(
+            $options['select']->where(
+                $bindingModelTable . '.' . $filterField . ' = ?',
+                $options['filterValue']
+            );
+            if ($this->_isHomophile($options['filterModel'])
+                && array_get($options, 'bidirectional')
+            ) {
+                $options['select']->orWhere(
                     $bindingModelTable.'.'.$bindingModelForeignKeyField.' = ?',
-                    $filterValue
+                    $options['filterValue']
                 );
-                $select->group('id');
+                $options['select']->group('id');
             }
         }
 
         // Allow behaviors to modify the SELECT object
-        $bindingModel->notifyObservers('beforeFetch', array($bindingModel, $select));
+        $bindingModel->notifyObservers('beforeFetch', array($bindingModel, $options['select']));
     }
 
 
@@ -827,7 +837,7 @@ class Garp_Content_Manager {
 
     /**
     * In case of a homophile relation, this function returns the key to the second rule,
-    * to prevent the same rule being returned twice, because both rules in 
+    * to prevent the same rule being returned twice, because both rules in
     * a homophile binding model point to the same related model.
     *
     * @param Garp_Model_Db $filterModel
