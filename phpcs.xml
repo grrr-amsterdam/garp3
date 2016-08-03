@@ -27,6 +27,12 @@
     <exclude name="PEAR.Commenting.FunctionComment.MissingParamComment"/>
 </rule>
 
+<rule ref="Squiz.Strings.ConcatenationSpacing">
+    <properties>
+        <property name="spacing" value="1"/>
+    </properties>
+</rule>
+
 <rule ref="Generic.Files.LineLength">
     <properties>
         <property name="lineLimit" value="100"/>
