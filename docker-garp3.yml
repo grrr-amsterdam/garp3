@@ -5,7 +5,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - .:/var/www/html
+      - ../../..:/var/www/html
     privileged: true
   garp_db:
     image: grrrnl/garp3-db
