@@ -49,7 +49,7 @@
 <rule ref="PEAR.NamingConventions.ValidFunctionName.NotCamelCaps">
     <exclude-pattern>*/tests/*</exclude-pattern>
 </rule>
-<rule ref="EAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps">
+<rule ref="PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps">
     <exclude-pattern>*/tests/*</exclude-pattern>
 </rule>
 <rule ref="Generic.Commenting.DocComment.MissingShort">
