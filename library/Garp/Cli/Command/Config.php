@@ -1,4 +1,11 @@
 <?php
+/**
+ * Garp_Cli_Command_Config
+ * Read configuration values
+ *
+ * @package Garp_Cli_Command
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ */
 class Garp_Cli_Command_Config extends Garp_Cli_Command {
     public function get($args) {
         $key = $args[0];
