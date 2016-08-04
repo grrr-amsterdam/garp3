@@ -86,7 +86,7 @@ class Garp_Service_Sentry {
         if (!file_exists($lockFilePath)) {
             return $versionInCaseOfError;
         }
-        $lockFile = json_decode(file_get_contents($lockFilePath));
+        $lockFile = json_decode(file_get_contents($lockFilePath), true);
         $packages = $lockFile['packages'];
 
         return array_reduce(
