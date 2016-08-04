@@ -108,7 +108,9 @@ Garp.MetaPanel = Ext.extend(Ext.Container, {
 			}
 		}, this);
 
-		tpl.push('<div class="copyright">', 'Garp &copy {[Garp.renderers.yearRenderer(new Date())]} by ', '<a href="http://grrr.nl/" target="_blank">', 'Grrr', '</a><br>version 3.5', '</div>');
+		tpl.push('<div class="copyright">',
+		         'Garp &copy {[Garp.renderers.yearRenderer(new Date())]} by ',
+		         '<a href="http://grrr.nl/" target="_blank">', 'Grrr', '</a>', '</div>');
 
 		this.tpl = new Ext.XTemplate(tpl, {
 			compiled: true
