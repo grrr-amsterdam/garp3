@@ -58,6 +58,7 @@ class Garp_Service_Sentry {
         return array(
             '_php_version' => phpversion(),
             '_garp_version' => $this->_readGarpVersion(),
+            '_app_version' => new Garp_Semver(),
             'extensions' => get_loaded_extensions()
         );
     }
