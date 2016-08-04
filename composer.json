@@ -23,5 +23,6 @@
     ],
     "scripts": {
     	"test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/"
-    }
+    },
+    "bin": ['scripts/garp']
 }
