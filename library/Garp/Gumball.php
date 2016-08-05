@@ -5,9 +5,8 @@
  *
  * Unpack using `tar -xUf gumball.zip`
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
- * @package      Garp
+ * @package Garp
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Gumball {
     const COPY_SOURCEFILE_CMD = 'cp -R %s %s 2>&1';
@@ -19,6 +18,7 @@ class Garp_Gumball {
     protected $_dbEnv;
     protected $_useDatabase = true;
     protected $_gumballDirectory;
+
     /**
      * @var Zend_Config
      */
@@ -27,7 +27,13 @@ class Garp_Gumball {
     // Paths that are not copied into the gumball
     protected $_ignoredPaths = array('.DS_Store', 'node_modules', 'bower_components', 'gumballs');
 
-    /** Class constructor */
+    /**
+     * Class constructor
+     *
+     * @param Garp_Semver $version
+     * @param array $options
+     * @return void
+     */
     public function __construct(Garp_Semver $version, array $options = array()) {
         $this->_version = $version;
         $this->_useDatabase = array_get($options, 'useDatabase', false);
@@ -40,7 +46,11 @@ class Garp_Gumball {
         $this->_gumballDirectory = $options['gumballDirectory'];
     }
 
-    /** Kick off the build */
+    /**
+     * Kick off the build
+     *
+     * @return void
+     */
     public function make() {
         if (!$this->createTargetDirectory()) {
             throw new Garp_Gumball_Exception_CannotWriteTargetDirectory();
@@ -71,6 +81,8 @@ class Garp_Gumball {
     /**
      * Restore a gumball. Assumption: this is run after a gumball is uploaded and extracted to the
      * webroot.
+     *
+     * @return void
      */
     public function restore() {
         // if database, import database
@@ -81,11 +93,18 @@ class Garp_Gumball {
         // set permissions on folders
         $this->setWritePermissions();
 
+        // create snippets
+        $this->createSnippets();
+
         // disable under construction
         Garp_Application::setUnderConstruction(false);
     }
 
-    /** Check wether gumball exists */
+    /**
+     * Check wether gumball exists
+     *
+     * @return bool
+     */
     public function exists() {
         return file_exists($this->_getGumballDirectory() . '/' . $this->getName() . '.zip');
     }
@@ -113,8 +132,12 @@ class Garp_Gumball {
         return true;
     }
 
-    // For now only contains the database source environment, but can be used to add more
-    // configuration that's needed @ restore time.
+    /**
+     * For now only contains the database source environment, but can be used to add more
+     * configuration that's needed at restore time.
+     *
+     * @return void
+     */
     public function addSettingsFile() {
         $config = new Zend_Config(array(), true);
         $config->gumball = array();
@@ -144,18 +167,19 @@ class Garp_Gumball {
         $dbServer = $mediator->getSource();
 
         $dump = $dbServer->fetchDump();
-        // @todo Change `from database` to `to database`
-        // Of doen we dat @ restore time?
-        //$dump = $this->_removeDefinerCalls($dump, $dbServer);
         return file_put_contents($this->_getDataDumpLocation(), $dump);
     }
 
     /**
      * Make sure the gumball will extract in under construction mode
+     *
+     * @return void
      */
     public function addUnderConstructionLock() {
-        touch($this->_getTargetDirectoryPath() . '/' .
-            Garp_Application::UNDERCONSTRUCTION_LOCKFILE);
+        touch(
+            $this->_getTargetDirectoryPath() . '/' .
+            Garp_Application::UNDERCONSTRUCTION_LOCKFILE
+        );
     }
 
     public function remove() {
@@ -174,13 +198,19 @@ class Garp_Gumball {
         $mediator = new Garp_Content_Db_Mediator($sourceEnv, APPLICATION_ENV);
         $target = $mediator->getTarget();
         $dump = file_get_contents(
-            APPLICATION_PATH . '/data/sql/' . basename($this->_getDataDumpLocation()));
+            APPLICATION_PATH . '/data/sql/' . basename($this->_getDataDumpLocation())
+        );
         $target->restore($dump);
     }
 
     public function setWritePermissions() {
         $root = APPLICATION_PATH . '/..';
         system("chmod -R g+w $root");
+    }
+
+    public function createSnippets() {
+        $snippetCmd = new Garp_Cli_Command_Snippet();
+        $snippetCmd->create();
     }
 
     protected function _createMissingDirectories() {
@@ -203,8 +233,10 @@ class Garp_Gumball {
     }
 
     protected function _hasDatabaseDump() {
-        return file_exists(APPLICATION_PATH . '/data/sql/' .
-            basename($this->_getDataDumpLocation()));
+        return file_exists(
+            APPLICATION_PATH . '/data/sql/' .
+            basename($this->_getDataDumpLocation())
+        );
     }
 
     protected function _copySourceFileToTargetDirectory(SplFileInfo $finfo) {
@@ -214,9 +246,6 @@ class Garp_Gumball {
         $fromPath = $finfo->getPath() . '/' . $finfo->getFilename();
         $toPath = rtrim($this->_getTargetDirectoryPath(), '/') . '/';
         exec(sprintf(self::COPY_SOURCEFILE_CMD, $fromPath, $toPath), $output, $status);
-        if ($status !== 0) {
-            exit(implode("\n", $output));
-        }
         return $status === 0;
     }
 
@@ -230,7 +259,7 @@ class Garp_Gumball {
     }
 
     protected function _getTargetDirectoryPath() {
-        return $this->_getGumballDirectory() . '/' .  $this->getName();
+        return $this->_getGumballDirectory() . '/' . $this->getName();
     }
 
     protected function _removeTargetDirectory() {
@@ -239,8 +268,10 @@ class Garp_Gumball {
         }
         // Recursively remove target dir and its contents
         $iterator = new RecursiveDirectoryIterator($this->_getTargetDirectoryPath());
-        foreach (new RecursiveIteratorIterator($iterator,
-            RecursiveIteratorIterator::CHILD_FIRST) as $file) {
+        foreach (new RecursiveIteratorIterator(
+            $iterator,
+            RecursiveIteratorIterator::CHILD_FIRST
+        ) as $file) {
             if (in_array($file->getFilename(), array('.', '..'))) {
                 continue;
             }
@@ -257,7 +288,12 @@ class Garp_Gumball {
         return $this->_gumballDirectory;
     }
 
-    // Read config values from packaged config file
+    /**
+     * Read config values from packaged config file
+     *
+     * @param string $configKey
+     * @return string
+     */
     protected function _getGumballConfig($configKey) {
         if (!$this->_gumballConfig) {
             $this->_gumballConfig = new Garp_Config_Ini(APPLICATION_PATH . '/configs/gumball.ini');
