@@ -1,23 +1,38 @@
 <?php
 /**
-*   Before inclusion of this file:
-*
-*   APPLICATION_ENV needs to be defined.
-*
-*   optional:
-*   bool READ_FROM_CACHE, default true
-*   string MEMCACHE_HOST, default '127.0.0.1'
-*
-*/
+ * Before inclusion of this file:
+ *
+ *   APPLICATION_ENV needs to be defined.
+ *
+ * Optionally you may define:
+ *   bool READ_FROM_CACHE, default true
+ *   string MEMCACHE_HOST, default '127.0.0.1'
+ *   string SENTRY_API_URL
+ *   string BASE_PATH
+ *
+ * @package Garp
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @author  David Spreekmeester <david@grrr.nl>
+ */
 if (!defined('BASE_PATH')) {
     define('BASE_PATH', realpath(dirname(__FILE__) . '/../..'));
 }
 define('APPLICATION_PATH', BASE_PATH . '/application');
 define('GARP_APPLICATION_PATH', realpath(dirname(__FILE__)));
 
+// Sentry integration
+if (defined('SENTRY_API_URL') && APPLICATION_ENV !== 'development') {
+    $ravenClient = new Raven_Client(SENTRY_API_URL);
+    $ravenErrorHandler = new Raven_ErrorHandler($ravenClient);
+    $ravenErrorHandler->registerExceptionHandler();
+    $ravenErrorHandler->registerErrorHandler();
+    $ravenErrorHandler->registerShutdownFunction();
+    Zend_Registry::set('RavenClient', $ravenClient);
+}
+
 $appSpecificInit = APPLICATION_PATH . '/configs/init.php';
 if (file_exists($appSpecificInit)) {
-    include_once($appSpecificInit);
+    include_once $appSpecificInit;
 }
 
 defined('READ_FROM_CACHE') || define('READ_FROM_CACHE', true);
@@ -56,8 +71,10 @@ if (!$isCli && Garp_Application::isUnderConstruction()) {
     header('Pragma: no-cache');
     header('Expires: ' . date(DATE_RFC1123, strtotime('-1 year')));
 
-    require(GARP_APPLICATION_PATH . '/modules/g/views/scripts/under-construction.phtml');
+    include GARP_APPLICATION_PATH . '/modules/g/views/scripts/under-construction.phtml';
+    // @codingStandardsIgnoreStart
     exit;
+    // @codingStandardsIgnoreEnd
 }
 
 /**
@@ -67,11 +84,11 @@ Zend_Registry::set('CLI', $isCli);
 
 /**
  * Set up caching
-*/
-$rootFolder = strtolower(dirname(APPLICATION_PATH.'/'));
+ */
+$rootFolder = strtolower(dirname(APPLICATION_PATH . '/'));
 $rootFolder = str_replace(DIRECTORY_SEPARATOR, '_', $rootFolder);
-$filePrefix = $rootFolder.'_'.APPLICATION_ENV;
-$filePrefix = preg_replace('/[^a-zA-A0-9_]/', '_', $filePrefix).'_';
+$filePrefix = $rootFolder . '_' . APPLICATION_ENV;
+$filePrefix = preg_replace('/[^a-zA-A0-9_]/', '_', $filePrefix) . '_';
 
 $frontendName = 'Core';
 
@@ -100,7 +117,7 @@ $frontendOptions = array(
     'write_control' => $useWriteControl,
 );
 $backendOptions = array(
-    'cache_dir' => APPLICATION_PATH.'/data/cache',
+    'cache_dir' => APPLICATION_PATH . '/data/cache',
     // include the hostname and app environment in the filename for security
     'file_name_prefix' => $filePrefix,
     'servers' => array(
@@ -140,11 +157,12 @@ Zend_Registry::set('CacheFrontend', $cache);
 
 /**
  * Shortcut to logging messages.
- * @param String $file Basename of a log file. Extension may be omitted.
+ *
+ * @param string $file Basename of a log file. Extension may be omitted.
  *                     File will end up in /application/data/logs
- * @param String $message Your log message. Arrays will be print_r'd.
- * @param Int $priority A Zend_Log priority (e.g. INFO, NOTICE, WARN etc.)
- * @return Void
+ * @param string $message Your log message. Arrays will be print_r'd.
+ * @param int $priority A Zend_Log priority (e.g. INFO, NOTICE, WARN etc.)
+ * @return void
  */
 function dump($file, $message, $priority = Zend_Log::INFO) {
     if (strpos($file, '.') === false) {
@@ -159,6 +177,7 @@ function dump($file, $message, $priority = Zend_Log::INFO) {
 
 /**
  * Translate text
+ *
  * @param String $str
  * @return String
  */
@@ -176,8 +195,9 @@ function __($str) {
  * (new Instance())->doSomething();
  * This method sort of brings this to earlier versions of PHP:
  * instance(new Instance())->doSomething();
- * @param Object $obj
- * @return Object
+ *
+ * @param object $obj
+ * @return object
  */
 function instance($obj) {
     if (is_string($obj)) {
@@ -188,16 +208,27 @@ function instance($obj) {
 
 /**
  * Transform array of objects into a new array with just the given key of said objects
+ *
+ * @param array $array
+ * @param string $column
+ * @return array
  */
+// Note: coding standards are ignored here because "array_" in "array_pluck" is perceived as package
+// name but it's instead chosen to be in line with existing php functions.
+// @codingStandardsIgnoreStart
 function array_pluck($array, $column) {
     return array_map(function($obj) use ($column) {
         return isset($obj[$column]) ? $obj[$column] : null;
     }, $array);
 }
+// @codingStandardsIgnoreEnd
 
 /**
  * Flatten an array of arrays.
  * The cornerstone of functional programming.
+ *
+ * @param array $array
+ * @return array
  */
 function concatAll($array) {
     $results = array();
@@ -221,10 +252,19 @@ function concatAll($array) {
  * array_get($a, 'foo'); // 123
  * array_get($a, 'baz'); // null
  * array_get($a, 'baz', 'abc'); // 'abc'
+ *
+ * @param array $a
+ * @param string $key
+ * @param mixed $default
+ * @return mixed
  */
+// Note: coding standards are ignored here because "array_" in "array_get" is perceived as package
+// name but it's instead chosen to be in line with existing php functions.
+// @codingStandardsIgnoreStart
 function array_get(array $a, $key, $default = null) {
     return isset($a[$key]) ? $a[$key] : $default;
 }
+// @codingStandardsIgnoreEnd
 
 /**
  * Create a new array containing only the keys from the original that you want.
@@ -238,11 +278,21 @@ function array_get(array $a, $key, $default = null) {
  * array_get_subset($my_array, array('name', 'country'))
  *
  * Returns array('name' => 'Henk', 'country' => 'Zimbabwe')
+ *
+ * @param array $a
+ * @param array $allowed
+ * @return array
  */
+// Note: coding standards are ignored here because "array_" in "array_get_subset" is perceived as
+// package name but it's instead chosen to be in line with existing php functions.
+// @codingStandardsIgnoreStart
 function array_get_subset(array $a, array $allowed) {
     return array_intersect_key($a, array_flip($allowed));
 }
+// @codingStandardsIgnoreEnd
 
+// Ignoring coding standards because the following is all third party code
+// @codingStandardsIgnoreStart
 if (!function_exists('gzdecode')) {
     /**
      * @see http://nl1.php.net/gzdecode#82930
@@ -473,4 +523,5 @@ if (!function_exists('array_column')) {
     }
 
 }
+// @codingStandardsIgnoreEnd
 

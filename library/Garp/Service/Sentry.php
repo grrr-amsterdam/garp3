@@ -32,14 +32,10 @@ class Garp_Service_Sentry {
      * @return bool
      */
     public function isActive() {
-        global $ravenClient;
-
-        return (bool)$ravenClient;
+        return Zend_Registry::isRegistered('RavenClient');
     }
 
     public function log(Exception $exception) {
-        global $ravenClient;
-
         if (!$this->isActive()) {
             return;
         }
@@ -49,6 +45,7 @@ class Garp_Service_Sentry {
 
         $varList = array('extra' => $debugVars);
 
+        $ravenClient = Zend_Registry::get('RavenClient');
         $event_id = $ravenClient->getIdent(
             $ravenClient->captureException($exception, $varList)
         );
