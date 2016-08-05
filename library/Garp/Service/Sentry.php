@@ -2,41 +2,40 @@
 /**
  * Garp_Service_Sentry
  * Error Monitoring through https://getsentry.com
- * @author David Spreekmeester <david@grrr.nl>
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Service
- * @lastmodified $Date: $
+ *
+ * @package Garp_Service
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Service_Sentry {
-    private static $instance;
-
+    private static $_instance;
 
     public static function getInstance() {
-        if (null === static::$instance) {
-            static::$instance = new static();
+        if (null === static::$_instance) {
+            static::$_instance = new static();
         }
-        
-        return static::$instance;
+
+        return static::$_instance;
     }
 
-    protected function __construct() {}
-    private function __clone() {}
-    private function __wakeup() {}
+    protected function __construct() {
+    }
+
+    private function __clone() {
+    }
+
+    private function __wakeup() {
+    }
 
     /**
      * Returns whether the Raven client (needed for Sentry) is configured / enabled.
+     *
+     * @return bool
      */
     public function isActive() {
-        global $ravenClient;
-
-        return (bool)$ravenClient;
+        return Zend_Registry::isRegistered('RavenClient');
     }
 
     public function log(Exception $exception) {
-        global $ravenClient;
-
         if (!$this->isActive()) {
             return;
         }
@@ -46,6 +45,7 @@ class Garp_Service_Sentry {
 
         $varList = array('extra' => $debugVars);
 
+        $ravenClient = Zend_Registry::get('RavenClient');
         $event_id = $ravenClient->getIdent(
             $ravenClient->captureException($exception, $varList)
         );
@@ -54,7 +54,8 @@ class Garp_Service_Sentry {
     protected function _getBasicVars() {
         return array(
             '_php_version' => phpversion(),
-            '_garp_version' => Garp_Version::VERSION,
+            '_garp_version' => $this->_readGarpVersion(),
+            '_app_version' => new Garp_Semver(),
             'extensions' => get_loaded_extensions()
         );
     }
@@ -69,5 +70,35 @@ class Garp_Service_Sentry {
         };
 
         return $output;
+    }
+
+    /**
+     * Read Garp version from composer.lock. This will be available when Garp is installed as
+     * dependency of some app.
+     *
+     * @return string
+     */
+    protected function _readGarpVersion() {
+        $versionInCaseOfError = 'v0.0.0';
+        $lockFilePath = APPLICATION_PATH . '/../composer.lock';
+        if (!file_exists($lockFilePath)) {
+            return $versionInCaseOfError;
+        }
+        $lockFile = json_decode(file_get_contents($lockFilePath), true);
+        $packages = $lockFile['packages'];
+
+        return array_reduce(
+            $packages,
+            function ($prevVersion, $package) {
+                // Found Garp? Return its version
+                if ($package['name'] === 'grrr-amsterdam/garp3') {
+                    return $package['version'];
+                }
+                // Otherwise return whatever version we previously got
+                return $prevVersion;
+            },
+            // Initial value
+            $versionInCaseOfError
+        );
     }
 }
