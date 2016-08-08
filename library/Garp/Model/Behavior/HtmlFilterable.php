@@ -182,6 +182,6 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         if (isset($config->htmlFilterable->cachePath)) {
             return $config->htmlFilterable->cachePath;
         }
-        return APPLICATION_PATH . '/data/cache/htmlpurifier';
+        return null;
     }
 }
