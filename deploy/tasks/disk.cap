@@ -5,9 +5,10 @@ task :create_system_cache_dirs do
     	server_cache_dir = "#{path}/application/data/cache"
 
     	execute print_create_dir_if_nonexistent "#{server_cache_dir}"
-    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/URI"
-    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/HTML"
-    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/CSS"
+    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier"
+    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier/URI"
+    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier/HTML"
+    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier/CSS"
     	# run "echo '<?php' > #{server_cache_dir}/pluginLoaderCache.php"
     end
 end
