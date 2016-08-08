@@ -5,7 +5,8 @@
     "require": {
         "google/apiclient": "^1.1",
         "phpoffice/phpexcel": "1.8.*",
-        "zendframework/zendframework1": "^1"
+        "zendframework/zendframework1": "^1",
+        "ezyang/htmlpurifier": "^4.8"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.6",
