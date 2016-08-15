@@ -2,11 +2,9 @@
 /**
  * Garp_Application
  * Provides the extra functionality of being able to cache config files.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
- * @lastmodified $Date: $
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Application extends Zend_Application {
     const UNDERCONSTRUCTION_LOCKFILE = 'underconstruction.lock';
@@ -21,10 +19,9 @@ class Garp_Application extends Zend_Application {
      * @return array
      */
     protected function _loadConfig($file) {
-        $suffix      = pathinfo($file, PATHINFO_EXTENSION);
-        $suffix      = ($suffix === 'dist')
-                     ? pathinfo(basename($file, ".$suffix"), PATHINFO_EXTENSION)
-                     : $suffix;
+        $suffix = pathinfo($file, PATHINFO_EXTENSION);
+        $suffix = ($suffix === 'dist') ?
+                    pathinfo(basename($file, ".$suffix"), PATHINFO_EXTENSION) : $suffix;
         if ($suffix == 'ini') {
             $config = Garp_Config_Ini::getCached($file)->toArray();
         } else {
@@ -39,7 +36,7 @@ class Garp_Application extends Zend_Application {
     }
 
     public static function isUnderConstruction() {
-        return @include(APPLICATION_PATH . '/../' . self::UNDERCONSTRUCTION_LOCKFILE);
+        return file_exists(self::getUnderConstructionLockFilePath());
     }
 
     public static function getUnderConstructionLockFilePath() {

@@ -2,9 +2,10 @@
 /**
  * G_ErrorController
  * Handles display and logging of errors
- * @author Harmen Janssen, David Spreekmeester | grrr.nl
+ *
  * @package Garp
- * @subpackage Controllers
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class G_ErrorController extends Garp_Controller_Action {
     public function indexAction() {
@@ -19,27 +20,24 @@ class G_ErrorController extends Garp_Controller_Action {
             return;
         }
 
-        $sentry = Garp_Service_Sentry::getInstance();
-        $sentry->log($errors->exception);
-
         if (!$this->view) {
             $bootstrap = Zend_Registry::get('application')->getBootstrap();
             $this->view = $bootstrap->getResource('View');
         }
 
         switch ($errors->type) {
-            case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_CONTROLLER:
-            case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_ACTION:
-                // 404 error -- controller or action not found
-                $this->getResponse()->setHttpResponseCode(404);
-                $this->view->httpCode = 404;
-                $this->view->message = 'Page not found';
+        case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_CONTROLLER:
+        case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_ACTION:
+            // 404 error -- controller or action not found
+            $this->getResponse()->setHttpResponseCode(404);
+            $this->view->httpCode = 404;
+            $this->view->message = 'Page not found';
             break;
-            default:
-                // application error
-                $this->getResponse()->setHttpResponseCode(500);
-                $this->view->httpCode = 500;
-                $this->view->message = 'Application error';
+        default:
+            // application error
+            $this->getResponse()->setHttpResponseCode(500);
+            $this->view->httpCode = 500;
+            $this->view->message = 'Application error';
             break;
         }
 
@@ -68,6 +66,8 @@ class G_ErrorController extends Garp_Controller_Action {
         Garp_ErrorHandler::logErrorToFile($errors);
 
         if ($sentry->isActive()) {
+            $sentry = Garp_Service_Sentry::getInstance();
+            $sentry->log($errors->exception);
             return;
         }
 
@@ -94,7 +94,9 @@ class G_ErrorController extends Garp_Controller_Action {
         if (strpos($acceptTypes[0], 'json') !== -1) {
             // In the case of XHR being true, and JSON being the primary accepted type, render a
             // Garp view with a nicely laid out error response.
-            $this->_helper->layout->setLayoutPath(GARP_APPLICATION_PATH.'/modules/g/views/layouts');
+            $this->_helper->layout->setLayoutPath(
+                GARP_APPLICATION_PATH . '/modules/g/views/layouts'
+            );
             $this->_helper->layout->setLayout('json');
             $this->view->setScriptPath(GARP_APPLICATION_PATH . '/modules/g/views/scripts/');
             $this->_helper->viewRenderer('error/json', null, true);

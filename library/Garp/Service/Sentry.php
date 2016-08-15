@@ -46,6 +46,7 @@ class Garp_Service_Sentry {
         $varList = array('extra' => $debugVars);
 
         $ravenClient = Zend_Registry::get('RavenClient');
+        $ravenClient->setRelease((string)new Garp_Semver);
         $event_id = $ravenClient->getIdent(
             $ravenClient->captureException($exception, $varList)
         );
@@ -55,7 +56,6 @@ class Garp_Service_Sentry {
         return array(
             '_php_version' => phpversion(),
             '_garp_version' => $this->_readGarpVersion(),
-            '_app_version' => new Garp_Semver(),
             'extensions' => get_loaded_extensions()
         );
     }
