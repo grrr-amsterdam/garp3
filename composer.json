@@ -7,7 +7,8 @@
         "phpoffice/phpexcel": "1.8.*",
         "zendframework/zendframework1": "^1",
         "ezyang/htmlpurifier": "^4.8",
-        "sentry/sentry": "^1.1"
+        "sentry/sentry": "^1.1",
+        "monolog/monolog": "^1.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.6",
