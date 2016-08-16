@@ -51,10 +51,10 @@ if (file_exists(BASE_PATH . '/application/configs/environment.php')) {
     include_once BASE_PATH . '/application/configs/environment.php';
 }
 
-require_once dirname(__FILE__)."/../application/init.php";
+require_once dirname(__FILE__) . "/../application/init.php";
 
 // Create application, bootstrap, and run
-$applicationIni = APPLICATION_PATH.'/configs/application.ini';
+$applicationIni = APPLICATION_PATH . '/configs/application.ini';
 try {
     $application = new Garp_Application(APPLICATION_ENV, $applicationIni);
     $application->bootstrap();
@@ -90,7 +90,7 @@ ini_set('display_errors', 'stderr');
 $args = Garp_Cli::parseArgs($_SERVER['argv']);
 if (empty($args[0])) {
     Garp_Cli::errorOut('No command given.');
-    Garp_Cli::errorOut('Usage: php garp.php <command> [args,..]');
+    Garp_Cli::errorOut('Usage: g <command> [args,..]');
     // @codingStandardsIgnoreStart
     exit(1);
     // @codingStandardsIgnoreEnd
@@ -98,31 +98,30 @@ if (empty($args[0])) {
 
 /* Construct command classname */
 $classArgument = ucfirst($args[0]);
-$namespaces = array('Garp', 'App');
+$namespaces = array('App', 'Garp');
 $config = Zend_Registry::get('config');
 if (!empty($config->cli->namespaces)) {
     $namespaces = $config->cli->namespaces->toArray();
 }
-// Try to load CLI command in LIFO order
-$i = count($namespaces)-1;
-while ($i >= 0) {
-    $ns = $namespaces[$i];
-    $commandName = $ns.'_Cli_Command_'.$classArgument;
-    if (class_exists($commandName)) {
-        break;
-    }
-    --$i;
-}
+
+$commandNames = array_map(
+    function ($ns) use ($classArgument) {
+        return $ns . '_Cli_Command_' . $classArgument;
+    },
+    $namespaces
+);
+$commandNames = array_filter($commandNames, 'class_exists');
 
 // Remove the command name from the argument list
 $args = array_splice($args, 1);
 
-if (isset($classLoader) && !$classLoader->isLoadable($commandName)) {
+if (!count($commandNames)) {
     Garp_Cli::errorOut('Silly developer. This is not the command you\'re looking for.');
     // @codingStandardsIgnoreStart
     exit(1);
     // @codingStandardsIgnoreEnd
 }
+$commandName = current($commandNames);
 $command = new $commandName();
 if (!$command instanceof Garp_Cli_Command) {
     Garp_Cli::errorOut(
@@ -150,16 +149,9 @@ if (!in_array($classArgument, $commandsWithoutTranslation)) {
     }
 }
 
-/**
- * Helper functionality for the bash-completion script: look for the --complete flag.
- * If it's present, dump a space-separated list of public methods.
- */
-if (array_key_exists('complete', $args)) {
-    $publicMethods = $command->getPublicMethods();
-    Garp_Cli::lineOut(implode(' ', $publicMethods));
-} else {
-    $command->main($args);
-}
+$command->main($args);
+
 // @codingStandardsIgnoreStart
 exit(0);
 // @codingStandardsIgnoreEnd
+
