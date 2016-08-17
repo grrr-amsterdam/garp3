@@ -2,42 +2,46 @@
 /**
  * Garp_Util_FullUrl
  * Represents a full URL to this application.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Util
- * @lastmodified $Date: $
+ *
+ * @package Garp_Util
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Util_FullUrl {
-    const INVALID_ROUTE = 'Given route is invalid. Please provide an array with valid keys 0 and 1.';
+    const INVALID_ROUTE
+        = 'Given route is invalid. Please provide an array with valid keys 0 and 1.';
     const CANNOT_RESOLVE_HTTP_HOST = 'Unable to resolve host. Please configure app.domain.';
 
     /**
      * The URL
-     * @var String
+     *
+     * @var string
      */
     protected $_url;
 
     /**
      * Wether to omit protocol
-     * @var Boolean
+     *
+     * @var bool
      */
     protected $_omitProtocol;
 
     /**
      * Wether to omit baseUrl
-     * @var Boolean
+     *
+     * @var bool
      */
     protected $_omitBaseUrl;
 
     /**
      * Class constructor
-     * @param String|Array $route String containing the path or Array containing route properties
+     *
+     * @param string|array $route String containing the path or Array containing route properties
      *                            (@see Zend_View_Helper_Url for the format)
-     * @param Boolean $omitProtocol Whether the protocol should be omitted, resulting in //www.example.com urls.
-     * @param Boolean $omitBaseUrl Wether the baseUrl should be omitted, for strings that already contain that.
-     * @return Void
+     * @param bool $omitProtocol Whether the protocol should be omitted,
+     *                           resulting in //www.example.com urls.
+     * @param bool $omitBaseUrl Wether the baseUrl should be omitted,
+     *                          for strings that already contain that.
+     * @return void
      */
     public function __construct($route, $omitProtocol = false, $omitBaseUrl = false) {
         $this->_omitProtocol = $omitProtocol;
@@ -47,7 +51,8 @@ class Garp_Util_FullUrl {
 
     /**
      * Get the value
-     * @return String
+     *
+     * @return string
      */
     public function __toString() {
         return $this->_url;
@@ -55,8 +60,9 @@ class Garp_Util_FullUrl {
 
     /**
      * Create full URL
-     * @param String $route
-     * @return String
+     *
+     * @param string $route
+     * @return string
      */
     protected function _createFullUrl($route) {
         $route = $this->_resolveRoute($route);
@@ -99,16 +105,21 @@ class Garp_Util_FullUrl {
             return $httpHost;
         }
 
-        throw new Garp_Exception(CANNOT_RESOLVE_HTTP_HOST);
+        throw new Garp_Exception(self::CANNOT_RESOLVE_HTTP_HOST);
     }
 
     protected function _getScheme() {
+        if (isset(Zend_Registry::get('config')->app->protocol)) {
+            return Zend_Registry::get('config')->app->protocol;
+        }
         if (!$request = Zend_Controller_Front::getInstance()->getRequest()) {
             return 'http';
         }
-        // When using CloudFront scheme will be reported as "http" even when it's "https".
-        // When configured correctly, the HTTP_CLOUDFRONT_FORWARDED_PROTO will contain the right
-        // value.
+        /**
+         * When using CloudFront scheme will be reported as "http" even when it's "https".
+         * When configured correctly, the HTTP_CLOUDFRONT_FORWARDED_PROTO will contain the right
+         * value.
+         */
         if ($request->getHeader('CLOUDFRONT_FORWARDED_PROTO')) {
             return $request->getHeader('CLOUDFRONT_FORWARDED_PROTO');
         }
@@ -117,8 +128,9 @@ class Garp_Util_FullUrl {
 
     /**
      * Check if given route array is valid.
-     * @param Array $route
-     * @return Boolean
+     *
+     * @param array $route
+     * @return bool
      */
     protected function _validateRouteArray(array $route) {
         if (!array_key_exists(0, $route) || !array_key_exists(1, $route)) {
@@ -128,7 +140,8 @@ class Garp_Util_FullUrl {
 
     /**
      * Get omitBaseUrl
-     * @return Boolean
+     *
+     * @return bool
      */
     public function getOmitBaseUrl() {
         return $this->_omitBaseUrl;
@@ -136,6 +149,7 @@ class Garp_Util_FullUrl {
 
     /**
      * Get omitProtocol
+     *
      * @return Boolean
      */
     public function getOmitProtocol() {
