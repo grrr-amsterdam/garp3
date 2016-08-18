@@ -14,18 +14,16 @@ class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
      * @param int Expiration time in seconds.
      */
     public function setCacheHeaders($expirationTimeInSeconds = 300) {
+        $expirationString = strtotime("+{$expirationTimeInSeconds} seconds");
+        $gmtDate = gmdate(DATE_RFC1123, $expirationString);
+
         $this->getResponse()
             ->setHeader('Cache-Control', 'public', true)
             ->setHeader('Pragma', 'cache', true)
-            ->setHeader('Expires',
-                gmdate(
-                    DATE_RFC1123,
-                    strtotime("+{$expirationTimeInSeconds} seconds")
-                ),
-                true
-            );
-    }
-    
+            ->setHeader('Expires', $gmtDate, true)
+        ;
+    }
+
     /**
      * Sets the required HTTP headers to prevent this request from being cached by the browser.
      * @param Zend_Controller_Response_Http $response The HTTP response object.
