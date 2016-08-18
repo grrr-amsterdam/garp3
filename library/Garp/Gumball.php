@@ -88,6 +88,10 @@ class Garp_Gumball {
         // if database, import database
         if ($this->_hasDatabaseDump()) {
             $this->restoreDatabase();
+        } else {
+            // Execute a spawn call in batch mode, to make sure all new columns are there
+            $spawnCmd = new Garp_Cli_Command_Spawn();
+            $spawnCmd->main(array('b' => true, 'only' => 'db'));
         }
 
         // set permissions on folders
