@@ -14,7 +14,7 @@ class Garp_Controller_Helper_Cache extends Zend_Controller_Action_Helper_Cache {
      * @param int Expiration time in seconds.
      */
     public function setCacheHeaders($expirationTimeInSeconds = 300) {
-        $this->getResponse()
+        $this->getResponse()
             ->setHeader('Cache-Control', 'public', true)
             ->setHeader('Pragma', 'cache', true)
             ->setHeader('Expires', 
