@@ -65,8 +65,8 @@ class G_ErrorController extends Garp_Controller_Action {
 
         Garp_ErrorHandler::logErrorToFile($errors);
 
+        $sentry = Garp_Service_Sentry::getInstance();
         if ($sentry->isActive()) {
-            $sentry = Garp_Service_Sentry::getInstance();
             $sentry->log($errors->exception);
             return;
         }
