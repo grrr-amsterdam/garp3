@@ -15,7 +15,7 @@ class Garp_Cache_Manager {
      * @return Mixed
      */
     public static function readQueryCache(Garp_Model_Db $model, $key) {
-        $cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
+        $cache = new Garp_Cache_Store_Versioned($model->getName() . '_version');
         return $cache->read($key);
     }
 
@@ -28,7 +28,7 @@ class Garp_Cache_Manager {
      * @return Void
      */
     public static function writeQueryCache(Garp_Model_Db $model, $key, $results) {
-        $cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
+        $cache = new Garp_Cache_Store_Versioned($model->getName() . '_version');
         $cache->write($key, $results);
     }
 
@@ -48,7 +48,6 @@ class Garp_Cache_Manager {
 
         self::purgeStaticCache($tags, $cacheDir);
         self::purgeMemcachedCache($tags);
-        self::purgePluginLoaderCache();
 
         $ini = Zend_Registry::get('config');
         if ($createClusterJob && $ini->app->clusteredHosting) {
@@ -124,11 +123,11 @@ class Garp_Cache_Manager {
             return;
         }
         $cacheDir = str_replace(' ', '\ ', $cacheDir);
-        $cacheDir = rtrim($cacheDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+        $cacheDir = rtrim($cacheDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
         // Destroy all if no model names are given
         if (empty($modelNames)) {
-            $allPath = $cacheDir.'*';
+            $allPath = $cacheDir . '*';
             return self::_deleteStaticCacheFile($allPath);
         }
         // Fetch model names from configuration
@@ -144,7 +143,7 @@ class Garp_Cache_Manager {
                 while (strpos($path, '..') !== false) {
                     $path = str_replace('..', '.', $path);
                 }
-                $filePath = $cacheDir.$path;
+                $filePath = $cacheDir . $path;
                 // Keep track of purged paths, forget about duplicates
                 if (in_array($filePath, $_purged)) {
                     continue;
@@ -156,22 +155,13 @@ class Garp_Cache_Manager {
     }
 
     /**
-     * Remove pluginLoaderCache.php
-     *
-     * @return void
-     */
-    public static function purgePluginLoaderCache() {
-        @unlink(APPLICATION_PATH.'/data/cache/pluginLoaderCache.php');
-    }
-
-    /**
      * Remove static cache file(s)
      *
      * @param string $path
      * @return bool
      */
     protected static function _deleteStaticCacheFile($path) {
-        $success = @system('rm -rf '.$path.';') !== false;
+        $success = @system('rm -rf ' . $path . ';') !== false;
         return $success;
     }
 
@@ -228,7 +218,7 @@ class Garp_Cache_Manager {
         // The command must come from a file, create that in the data folder of this project.
         // Add timestamp to the filename so we can safely delete the file later
         $tags = implode(' ', $tags);
-        $file = APPLICATION_PATH.'/data/at_cmd_'.time().md5($tags);
+        $file = APPLICATION_PATH . '/data/at_cmd_' . time() . md5($tags);
 
         $garpScriptFile = self::_getGarpCliScriptPath();
         $cmd  = 'php ' . $garpScriptFile . ' Cache clear --APPLICATION_ENV=' . APPLICATION_ENV .
@@ -288,7 +278,7 @@ class Garp_Cache_Manager {
      * @return Void
      */
     protected static function _incrementMemcacheVersion(Garp_Model_Db $model) {
-        $cache = new Garp_Cache_Store_Versioned($model->getName().'_version');
+        $cache = new Garp_Cache_Store_Versioned($model->getName() . '_version');
         $cache->incrementVersion();
     }
 
@@ -336,7 +326,7 @@ class Garp_Cache_Manager {
         }
 
         // For backward-compatibility: fall back to a separate cache.ini
-        $ini = new Garp_Config_Ini(APPLICATION_PATH.'/configs/cache.ini', APPLICATION_ENV);
+        $ini = new Garp_Config_Ini(APPLICATION_PATH . '/configs/cache.ini', APPLICATION_ENV);
         if (!empty($ini->tags)) {
             return $ini->tags;
         }
