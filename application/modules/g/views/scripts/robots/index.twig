@@ -1,0 +1,7 @@
+{% if app.environment == 'production' %}
+User-agent: *
+Disallow:
+{% else %}
+User-agent: *
+Disallow: /
+{% endif %}
