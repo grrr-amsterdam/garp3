@@ -42,3 +42,11 @@ task :garp_env_setup do
 		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setup --e=#{fetch(:stage)}"
 	end
 end
+
+desc "Install composer dependencies"
+task :composer_install do
+    on roles(:web) do
+        composerPharPath = "#{deploy_to}/shared/composer.phar"
+        execute "if [ -f #{composerPharPath} ]; then php #{composerPharPath} install -d #{release_path}; fi"
+    end
+end
