@@ -25,7 +25,7 @@ if (!defined('APPLICATION_ENV')) {
     if (getenv('APPLICATION_ENV')) {
         define('APPLICATION_ENV', getenv('APPLICATION_ENV'));
     } else {
-        include_once dirname(__FILE__) . "/../../vendor/grrr-amsterdam/garp3/library/Garp/Cli.php";
+        include_once dirname(__FILE__) . '/../library/Garp/Cli.php';
         Garp_Cli::errorOut(
             "APPLICATION_ENV is not set. Please set it as a shell variable or ' .
             'pass it along as an argument, like so: --e=development"
