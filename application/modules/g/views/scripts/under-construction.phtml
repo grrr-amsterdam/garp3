@@ -3,7 +3,9 @@
  * Default Under Construction file.
  * Tries to load an app-side under construction file first.
  */
-if (@include(APPLICATION_PATH . '/modules/default/views/scripts/under-construction.phtml')) {
+$localUnderConstructionFile = APPLICATION_PATH . '/modules/default/views/scripts/under-construction.phtml';
+if (file_exists($localUnderConstructionFile)) {
+    include_once $localUnderConstructionFile;
 	return;
 }
 ?>
