@@ -1,8 +1,10 @@
 <?php
 /**
  * This class tests Garp_Spawn_Model_Set.
- * @author David Spreekmeester | Grrr.nl
- * @group Spawn
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Spawn
  */
 class Garp_Spawn_Model_SetTest extends PHPUnit_Framework_TestCase {
     protected $_mocks = array(
@@ -30,7 +32,10 @@ class Garp_Spawn_Model_SetTest extends PHPUnit_Framework_TestCase {
     protected function _constructMockModelSet() {
         return Garp_Spawn_Model_Set::getInstance(
             new Garp_Spawn_Config_Model_Set(
-                new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
+                new Garp_Spawn_Config_Storage_File(
+                    $this->_mocks['directory'],
+                    $this->_mocks['extension']
+                ),
                 new Garp_Spawn_Config_Format_Json
             )
         );

@@ -1,13 +1,10 @@
 <?php
 /**
  * Garp_Content_Distribution
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @group CDN
- * @lastmodified $Date: $
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   CDN
  */
 class Garp_Content_Cdn_Distributor_Test extends PHPUnit_Framework_TestCase {
     const FILTER_STRING_MATCHING_MULTIPLE = 'css';

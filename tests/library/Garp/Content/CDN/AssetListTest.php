@@ -1,22 +1,20 @@
 <?php
 /**
  * Garp_Content_Cdn_AssetList
- * You can use an instance of this class as a numeric array, containing the paths to the selected assets.
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Content
- * @group Cdn
- * @lastmodified $Date: $
+ * You can use an instance of this class as a numeric array,
+ * containing the paths to the selected assets.
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Cdn
  */
 class Garp_Content_Cdn_AssetList_Test extends PHPUnit_Framework_TestCase {
-    const FILTER_STRING_MATCHING_MULTIPLE   = 'css';
-    const FILTER_STRING_MATCHING_ONE_GARP   = 'css/images/garp.png';
-    const FILTER_STRING_MATCHING_ONE_APP    = 'cms.css';
-    const FILTER_STRING_NOT_MATCHING        = 'l3$#j@[hdv%@u2w2a9g08u.e3#d@c';
-    const FILE_TIMESTAMP_THRESHOLD          = '-2 weeks';
-    const TEST_FILENAME                     = 'tmp_file_Garp_Content_Cdn_AssetList_Test_tmp_file';
+    const FILTER_STRING_MATCHING_MULTIPLE = 'css';
+    const FILTER_STRING_MATCHING_ONE_GARP = 'css/images/garp.png';
+    const FILTER_STRING_MATCHING_ONE_APP  = 'cms.css';
+    const FILTER_STRING_NOT_MATCHING      = 'l3$#j@[hdv%@u2w2a9g08u.e3#d@c';
+    const FILE_TIMESTAMP_THRESHOLD        = '-2 weeks';
+    const TEST_FILENAME                   = 'tmp_file_Garp_Content_Cdn_AssetList_Test_tmp_file';
 
     public function test_Base_Dir_Should_Not_Be_Empty() {
         $baseDir = $this->_getBaseDir();
@@ -32,7 +30,10 @@ class Garp_Content_Cdn_AssetList_Test extends PHPUnit_Framework_TestCase {
         $this->_addTmpFile();
 
         $assetList = $this->_getListInstance(self::FILTER_STRING_MATCHING_MULTIPLE);
-        $this->assertTrue((bool)count($assetList), 'Assetlist length is actually: ' . count($assetList));
+        $this->assertTrue(
+            (bool)count($assetList),
+            'Assetlist length is actually: ' . count($assetList)
+        );
 
         // cleanup
         $this->_rmTmpFile();
@@ -55,7 +56,10 @@ class Garp_Content_Cdn_AssetList_Test extends PHPUnit_Framework_TestCase {
         $this->_addTmpFile();
 
         $assetList = $this->_getListInstance(self::FILTER_STRING_MATCHING_MULTIPLE);
-        $this->assertTrue((bool)count($assetList), 'Assetlist length is actually: ' . count($assetList));
+        $this->assertTrue(
+            (bool)count($assetList),
+            'Assetlist length is actually: ' . count($assetList)
+        );
         $this->assertTrue(strpos($assetList[0], $this->_getBaseDir()) === false);
 
         // cleanup
@@ -84,20 +88,34 @@ class Garp_Content_Cdn_AssetList_Test extends PHPUnit_Framework_TestCase {
     }
 
     protected function _getListInstance($filterString, $filterByFileDate = null) {
-        return new Garp_Content_Cdn_AssetList($this->_getBaseDir(), $filterString, $filterByFileDate);
+        return new Garp_Content_Cdn_AssetList(
+            $this->_getBaseDir(),
+            $filterString,
+            $filterByFileDate
+        );
     }
 
-    // Make sure a changed file is present
+    /**
+     * Make sure a changed file is present
+     *
+     * @return void
+     */
     protected function _addTmpFile() {
         $baseDir = $this->_getBaseDir();
-        $tmpFilePath = $baseDir . DIRECTORY_SEPARATOR . self::TEST_FILENAME . self::FILTER_STRING_MATCHING_MULTIPLE;
+        $tmpFilePath = $baseDir . DIRECTORY_SEPARATOR . self::TEST_FILENAME .
+            self::FILTER_STRING_MATCHING_MULTIPLE;
         file_put_contents($tmpFilePath, uniqid());
     }
 
-    // Cleanup tmp file
+    /**
+     * Cleanup tmp file
+     *
+     * @return void
+     */
     protected function _rmTmpFile() {
         $baseDir = $this->_getBaseDir();
-        $tmpFilePath = $baseDir . DIRECTORY_SEPARATOR . self::TEST_FILENAME . self::FILTER_STRING_MATCHING_MULTIPLE;
+        $tmpFilePath = $baseDir . DIRECTORY_SEPARATOR . self::TEST_FILENAME .
+            self::FILTER_STRING_MATCHING_MULTIPLE;
         unlink($tmpFilePath);
     }
 }

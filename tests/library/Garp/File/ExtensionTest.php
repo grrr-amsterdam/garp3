@@ -1,5 +1,7 @@
 <?php
 /**
+ * @package Tests
+ * @author  Harmen Janssen <harmen@grrr.nl>
  * @group File
  */
 class Garp_File_ExtensionTest extends Garp_Test_PHPUnit_TestCase {

@@ -1,11 +1,12 @@
 <?php
 /**
- * @author David Spreekmeester | Grrr.nl
  * This class tests Garp_Image_File.
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
-    const RESOURCE_UNOPTIMIZED_PNG =
-        '/../tests/files/images/unoptimized.png';
+    const RESOURCE_UNOPTIMIZED_PNG = '/../tests/files/images/unoptimized.png';
 
     protected $_bogusValidImageFilenames = array(
         '$(4g3s#@!)@#%(#@√£¡).JPEG',
@@ -44,6 +45,11 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
         //$this->assertLessThan($sourceSize, $destinationSize);
     //}
 
+    /**
+     * Grab path to mock image
+     *
+     * @return string
+     */
     protected function _getMockImagePath() {
         return GARP_APPLICATION_PATH . self::RESOURCE_UNOPTIMIZED_PNG;
     }
@@ -120,7 +126,9 @@ class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
     //
     //
     // /**
-    //  * Checks whether the argument provided contains only word characters (a to z, A to Z, 0 to 9 or underscores), dashes and dots. This excludes characters with accents.
+    //  * Checks whether the argument provided contains only
+    //  * word characters (a to z, A to Z, 0 to 9 or underscores), dashes and dots.
+    //  * This excludes characters with accents.
     //  * @param String $filename The filename to be checked
     //  * @return Boolean Whether the provided argument contains only plain characters.
     //  */

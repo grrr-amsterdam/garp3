@@ -1,15 +1,18 @@
 <?php
-// /**
-//  * This class tests Garp_Spawn_Config_Model.
-//  * @author David Spreekmeester | Grrr.nl
-//  * @group Spawn
-//  */
+/**
+ * This class tests Garp_Spawn_Config_Model.
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Spawn
+ */
 // class Garp_Spawn_Config_ModelTest extends PHPUnit_Framework_TestCase {
 //  protected $_mockModelDir;
 
 
 //  public function setUp() {
-//      $this->_mockModelDir = APPLICATION_PATH."/../garp/tests/mocks/application/modules/default/models/config/";
+//      $this->_mockModelDir = APPLICATION_PATH .
+//          "/../garp/tests/mocks/application/modules/default/models/config/";
 //  }
 
 

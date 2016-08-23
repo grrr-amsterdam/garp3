@@ -4,30 +4,34 @@
  * Allow token-based, passwordless authentication.
  * Inspired by https://passwordless.net/
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
- * @package      Garp_Auth_Adapter
+ * @package Garp_Auth_Adapter
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
     const DEFAULT_TOKEN_EXPIRATION_TIME = '+30 minutes';
 
     /**
      * Config key
+     *
      * @var String
      */
     protected $_configKey = 'passwordless';
 
     /**
      * Authenticate a user.
+     *
      * @param Zend_Controller_Request_Abstract $request The current request
      * @param Zend_Controller_Response_Abstract $response The current response
      * @return Array|Boolean User data, or FALSE when no user is logged in yet
      */
     public function authenticate(Zend_Controller_Request_Abstract $request,
-        Zend_Controller_Response_Abstract $response) {
+        Zend_Controller_Response_Abstract $response
+    ) {
         if (!$request->isPost()) {
-            return $this->acceptToken($request->getParam('token'),
-                $request->getParam('uid'));
+            return $this->acceptToken(
+                $request->getParam('token'),
+                $request->getParam('uid')
+            );
         }
         $this->requestToken($request->getPost());
         return false;
@@ -35,12 +39,19 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 
     /**
      * Request a new token
+     *
+     * @param array $userData
+     * @return void
      * @todo Allow different delivery-methods, such as SMS?
      */
     public function requestToken(array $userData) {
         if (empty($userData['email'])) {
-            $this->_addError(sprintf(__('%s is a required field'),
-                __('Email')));
+            $this->_addError(
+                sprintf(
+                    __('%s is a required field'),
+                    __('Email')
+                )
+            );
             return false;
         }
         $userId = $this->_createOrFetchUserRecord($userData);
@@ -53,6 +64,7 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 
     /**
      * Accept a user token
+     *
      * @param String $token
      * @param Int $uid User id
      * @return Garp_Model_Db Logged in user
@@ -64,12 +76,16 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
         }
         $authPwlessModel = new Model_AuthPasswordless();
         $userModel = new Model_User();
-        $userConditions = $userModel->select()->from($userModel->getName(),
-            Garp_Auth::getInstance()->getSessionColumns());
-        $authPwlessModel->bindModel('Model_User', array(
+        $userConditions = $userModel->select()->from(
+            $userModel->getName(),
+            Garp_Auth::getInstance()->getSessionColumns()
+        );
+        $authPwlessModel->bindModel(
+            'Model_User', array(
             'conditions' => $userConditions,
             'rule' => 'User'
-        ));
+            )
+        );
         $select = $authPwlessModel->select()
             ->where('`token` = ?', $token)
             ->where('user_id = ?', $uid);
@@ -83,8 +99,9 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
         // Check wether the user is already logged in. Let's not inconvenience them
         // with security when it's not that important
         $currentUserData = $this->_getCurrentUserData();
-        if (isset($currentUserData['id']) &&
-            (int)$currentUserData['id'] === (int)$row->Model_User->id) {
+        if (isset($currentUserData['id'])
+            && (int)$currentUserData['id'] === (int)$row->Model_User->id
+        ) {
             return $row->Model_User;
         }
 
@@ -100,9 +117,11 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
             return false;
         }
 
-        $authPwlessModel->getObserver('Authenticatable')->updateLoginStats($row->Model_User->id, array(
+        $authPwlessModel->getObserver('Authenticatable')->updateLoginStats(
+            $row->Model_User->id, array(
             'claimed' => 1
-        ));
+            )
+        );
 
         return $row->Model_User;
     }
@@ -122,18 +141,22 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
         $authPwlessModel = new Model_AuthPasswordless();
         $select = $authPwlessModel->select()->where('user_id = ?', $userId);
         if ($authRecord = $authPwlessModel->fetchRow($select)) {
-            $authPwlessModel->update(array(
+            $authPwlessModel->update(
+                array(
                 'token' => $token,
                 'token_expiration_date' => $this->_getExpirationDate(),
                 'claimed' => 0
-            ), 'id = ' . $authRecord->id);
+                ), 'id = ' . $authRecord->id
+            );
             return $token;
         }
-        $authPwlessModel->insert(array(
+        $authPwlessModel->insert(
+            array(
             'user_id' => $userId,
             'token' => $token,
             'token_expiration_date' => $this->_getExpirationDate()
-        ));
+            )
+        );
 
         return $token;
     }
@@ -155,47 +178,58 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 
     protected function _sendTokenEmail($email, $userId, $token) {
         $mailer = new Garp_Mailer();
-        return $mailer->send(array(
+        return $mailer->send(
+            array(
             'to' => $email,
             'subject' => $this->_getEmailSubject(),
             'message' => $this->_getEmailBody($userId, $token)
-        ));
+            )
+        );
     }
 
     protected function _getEmailBody($userId, $token) {
         $authVars = $this->_getAuthVars();
-        if (!empty($authVars->email_body_snippet_identifier) &&
-            $authVars->email_body_snippet_identifier) {
+        if (!empty($authVars->email_body_snippet_identifier)
+            && $authVars->email_body_snippet_identifier
+        ) {
             return $this->_interpolateEmailBody(
-                $this->_getSnippet($authVars->email_body_snippet_identifier), $userId, $token);
+                $this->_getSnippet($authVars->email_body_snippet_identifier), $userId, $token
+            );
         }
         if (!empty($authVars->email_body)) {
             return $this->_interpolateEmailBody($authVars->email_body, $userId, $token);
         }
 
-        throw new Garp_Auth_Adapter_Passwordless_Exception('Missing email body: configure a ' .
-            'snippet or hard-code a string.');
+        throw new Garp_Auth_Adapter_Passwordless_Exception(
+            'Missing email body: configure a ' .
+            'snippet or hard-code a string.'
+        );
     }
 
     protected function _getEmailSubject() {
         $authVars = $this->_getAuthVars();
-        if (isset($authVars->email_subject_snippet_identifier) &&
-            $authVars->email_subject_snippet_identifier) {
+        if (isset($authVars->email_subject_snippet_identifier)
+            && $authVars->email_subject_snippet_identifier
+        ) {
             return $this->_getSnippet($authVars->email_subject_snippet_identifier);
         }
         if (isset($authVars->email_subject) && $authVars->email_subject) {
             return $authVars->email_subject;
         }
 
-        throw new Garp_Auth_Adapter_Passwordless_Exception('Missing email subject: configure a ' .
-            'snippet or hard-code a string.');
+        throw new Garp_Auth_Adapter_Passwordless_Exception(
+            'Missing email subject: configure a ' .
+            'snippet or hard-code a string.'
+        );
 
     }
 
     protected function _interpolateEmailBody($body, $userId, $token) {
-        return Garp_Util_String::interpolate($body, array(
+        return Garp_Util_String::interpolate(
+            $body, array(
             'LOGIN_URL' => $this->_getLoginUrl($userId, $token)
-        ));
+            )
+        );
     }
 
     protected function _getLoginUrl($userId, $token) {

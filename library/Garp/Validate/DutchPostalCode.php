@@ -2,10 +2,9 @@
 /**
  * Garp_Validate_DutchPostalCode
  * Validates a Dutch postal code
- * @author Harmen Janssen | grrr.nl
- * @version 1
- * @package Garp
- * @subpackage Validate
+ *
+ * @package Garp_Validate
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Validate_DutchPostalCode extends Zend_Validate_Abstract {
 

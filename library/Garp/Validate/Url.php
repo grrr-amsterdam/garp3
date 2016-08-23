@@ -2,10 +2,9 @@
 /**
  * Garp_Validate_Url
  * class description
- * @author Harmen Janssen | grrr.nl
- * @version 1
- * @package Garp
- * @subpackage Validate
+ *
+ * @package Garp_Validate
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Validate_Url extends Zend_Validate_Abstract {
 
@@ -20,7 +19,7 @@ class Garp_Validate_Url extends Zend_Validate_Abstract {
     public function isValid($value) {
         $value = trim($value);
         $this->_setValue($value);
-    
+
         // Taken from @see http://nl.php.net/manual/en/function.preg-match.php#93824
         $regexp = "((https?|ftp)\:\/\/)?"; // SCHEME
         $regexp .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?"; // User and Pass
@@ -29,11 +28,11 @@ class Garp_Validate_Url extends Zend_Validate_Abstract {
         $regexp .= "(\/([a-z0-9+\$_-]\.?)+)*\/?"; // Path
         $regexp .= "(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?"; // GET Query
         $regexp .= "(#[a-z_.-][a-z0-9+\$_.-]*)?"; // Anchor
-        
+
         if (!is_string($value)) {
             $this->_error(self::INVALID_INPUT);
             return false;
-        } elseif (!preg_match('/^'.$regexp.'$/i', $value)) {
+        } elseif (!preg_match('/^' . $regexp . '$/i', $value)) {
             $this->_error(self::INVALID_URL);
             return false;
         }

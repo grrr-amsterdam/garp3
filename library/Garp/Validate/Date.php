@@ -3,9 +3,8 @@
  * Garp_Validate_Date
  * Use PHP date() formats to generate regexp rules for validation
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.1
- * @package      Garp_Validate
+ * @package Garp_Validate
+ * @author  Harmen Janssen <harmen@grrr.nl>
  * @see http://nl1.php.net/manual/en/function.date.php
  */
 class Garp_Validate_Date extends Zend_Validate_Abstract {
@@ -23,18 +22,21 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 
     /**
      * The chosen date format
+     *
      * @var String
      */
     protected $_format;
 
     /**
      * A human readable format to show in the error message
+     *
      * @var String
      */
     protected $_readableFormat;
 
     /**
      * Map date symbols to regexp
+     *
      * @var String
      */
     protected $_dateRegexpMapper = array(
@@ -50,7 +52,8 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
         // Week
         'W' => '\d{1,2}',
         // Month
-        'F' => 'January|February|March|April|May|June|July|August|September|October|November|December',
+        'F' =>
+            'January|February|March|April|May|June|July|August|September|October|November|December',
         'm' => '\d{1,2}',
         'M' => 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec',
         'n' => '\d{1,2}',
@@ -65,6 +68,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 
     /**
      * Class constructor
+     *
      * @param String $format date() compatible format
      * @param String $humanReadableFormat Something to show the user
      * @return Void
@@ -111,6 +115,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 
     /**
      * Get format
+     *
      * @return String
      */
     public function getFormat() {
@@ -119,6 +124,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 
     /**
      * Set format
+     *
      * @param String $format
      * @return $this
      */
@@ -129,6 +135,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 
     /**
      * Get readableFormat
+     *
      * @return String
      */
     public function getReadableFormat() {
@@ -137,6 +144,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 
     /**
      * Set readableFormat
+     *
      * @param String $readableFormat
      * @return $this
      */

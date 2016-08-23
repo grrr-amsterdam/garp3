@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('Europe/Amsterdam');
 define('APPLICATION_ENV', 'testing');
-$garpRoot = dirname(__FILE__).'/..';
+$garpRoot = dirname(__FILE__) . '/..';
 
 error_reporting(-1);
 ini_set('log_errors', 0);

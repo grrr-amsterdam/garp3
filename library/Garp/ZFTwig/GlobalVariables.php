@@ -5,7 +5,6 @@
  *
  * @package Garp_ZFTwig
  * @author  Harmen Janssen <harmen@grrr.nl>
- * @version 0.1.0
  */
 class Garp_ZFTwig_GlobalVariables extends Ano_ZFTwig_GlobalVariables {
 

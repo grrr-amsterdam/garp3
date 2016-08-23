@@ -25,7 +25,8 @@
     	"library/"
     ],
     "scripts": {
-    	"test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/"
+    	"test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/",
+        "phpcs": "vendor/bin/phpcs --standard=./phpcs.xml --extensions=php --colors .",
     },
     "bin": ["scripts/g"]
 }

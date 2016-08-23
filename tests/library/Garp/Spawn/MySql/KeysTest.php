@@ -1,9 +1,11 @@
 <?php
-// /**
-//  * @author David Spreekmeester | Grrr.nl
-//  * This class tests Garp_Spawn_Keys.
-//  * @group Spawn
-//  */
+/**
+ * This class tests Garp_Spawn_Keys.
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Spawn
+ */
 // class Garp_Spawn_MySql_KeysTest extends PHPUnit_Framework_TestCase {
 //  protected $_mocks = array(
 //      'directory' => null,
@@ -13,11 +15,13 @@
 
 
 //  public function setUp() {
-//      $this->_mocks['directory'] = APPLICATION_PATH."/../garp/tests/mocks/application/modules/default/models/config/";
+//      $this->_mocks['directory'] = APPLICATION_PATH .
+//          "/../garp/tests/mocks/application/modules/default/models/config/";
 //  }
 
 
 //  protected $_bogusTableSqlLines = array(
+//      // @codingStandardsIgnoreStart
 //      "CREATE TABLE `Bogus` (",
 //      "  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,",
 //          "  `name` varchar(124) NOT NULL,",
@@ -37,6 +41,7 @@
 //      "  CONSTRAINT `a1125055e1239cc6582f97c58813cae1` FOREIGN KEY (`modifier_id`) REFERENCES `User` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,",
 //      "  CONSTRAINT `abb2a4eb90c8f9f85d0d3bca202a1ca5` FOREIGN KEY (`author_id`) REFERENCES `User` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,",
 //      ") ENGINE=InnoDB AUTO_INCREMENT=607279 DEFAULT CHARSET=utf8"
+//      @codingStandardsIgnoreEnd
 //  );
 
 
@@ -65,14 +70,21 @@
 
 
 //  protected function _createBogusKeysObject() {
-//      return new Garp_Spawn_MySql_Keys($this->_bogusTableSqlLines, $this->_mocks['modelName'], $this->_constructMockModel());
+//      return new Garp_Spawn_MySql_Keys(
+//          $this->_bogusTableSqlLines,
+//          $this->_mocks['modelName'],
+//          $this->_constructMockModel()
+//      );
 //  }
-    
-    
+
+
 //  protected function _constructMockModel() {
 //      $modelConfig = new Garp_Spawn_Config_Model(
 //          $this->_mocks['modelName'],
-//          new Garp_Spawn_Config_Storage_File($this->_mocks['directory'], $this->_mocks['extension']),
+//          new Garp_Spawn_Config_Storage_File(
+//              $this->_mocks['directory'],
+//              $this->_mocks['extension']
+//          ),
 //          new Garp_Spawn_Config_Format_Json
 //      );
 

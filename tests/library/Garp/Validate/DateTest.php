@@ -3,10 +3,9 @@
  * Garp_Validate_DateTest
  * Tests Garp_Validate_Date
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.1
- * @package      Garp
- * @group Validate
+ * @package Tests
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @group   Validate
  */
 class Garp_Validate_DateTest extends Garp_Test_PHPUnit_TestCase {
 
