@@ -3,10 +3,10 @@ php:
     - '5.3'
 script:
     - composer test
-#     - if [ "$(git diff --name-only HEAD^..HEAD -- '*.php')" != "" ]; then ./vendor/bin/phpcs --standard=vendor/grrr-amsterdam/garp3/phpcs.xml --colors --encoding=utf-8 -n -p $(git diff --name-only HEAD^..HEAD -- '*.php'); fi
-# before_script:
-#     - chmod -R +x vendor/bin/phpunit
-#     - chmod -R +x vendor/bin/phpcs
+    - if [ "$(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php')" != "" ]; then ./vendor/bin/phpcs --standard=phpcs.xml --colors --encoding=utf-8 -n -p $(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php'); fi
+before_script:
+    - chmod -R +x vendor/bin/phpunit
+    - chmod -R +x vendor/bin/phpcs
 before_install:
     - composer install
 notifications:
