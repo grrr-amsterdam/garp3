@@ -63,7 +63,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
             'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'dd', 'del',
             'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'figure', 'figcaption', 'h1', 'h2', 'h3', 'h4',
             'h5', 'h6', 'hr', 'i', 'iframe', 'img', 'ins', 'kbd', 'li', 'object', 'ol', 'p',
-            'param', 'pre', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul', 'var'
+            'param', 'pre', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'ul', 'var'
             )
         );
 
