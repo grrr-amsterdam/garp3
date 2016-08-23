@@ -75,7 +75,7 @@ class Garp_Cli_Command_Feature extends Garp_Cli_Command_Flow {
         }
         $name = trim($name);
         $name = explode(' ', $name);
-        return strtolower($name[0]);
+        return strtolower(Garp_Util_String::toDashed($name[0]));
     }
 
     public function help() {
