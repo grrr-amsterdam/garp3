@@ -1,7 +1,10 @@
 <?php
 /**
  * Tests Garp_Db_PrimaryKeyExtractorTest
- * @group Db
+ *
+ * @package Tests
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @group   Db
  */
 class Garp_Db_PrimaryKeyExtractorTest extends Garp_Test_PHPUnit_TestCase {
     protected $_singularPkModel;
@@ -58,7 +61,8 @@ class Garp_Db_PrimaryKeyExtractorTest extends Garp_Test_PHPUnit_TestCase {
         );
         foreach ($whereClauses as $whereClause => $result) {
             $pkExtractor = new Garp_Db_PrimaryKeyExtractor(
-                'multi', array('id1', 'id2'), $whereClause);
+                'multi', array('id1', 'id2'), $whereClause
+            );
             $this->assertEquals($pkExtractor->extract(), $result);
         }
     }
@@ -71,8 +75,10 @@ class Garp_Db_PrimaryKeyExtractorTest extends Garp_Test_PHPUnit_TestCase {
             'id2 = "abc"' => array('id2' => 'abc'),
         );
         foreach ($whereClauses as $whereClause => $result) {
-            $pkExtractor = new Garp_Db_PrimaryKeyExtractor('multi', array('id1', 'id2'),
-                $whereClause);
+            $pkExtractor = new Garp_Db_PrimaryKeyExtractor(
+                'multi', array('id1', 'id2'),
+                $whereClause
+            );
             $this->assertEquals($pkExtractor->extract(), $result);
         }
     }

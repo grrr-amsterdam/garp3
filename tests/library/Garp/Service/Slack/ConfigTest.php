@@ -1,8 +1,10 @@
 <?php
 /**
- * @author David Spreekmeester | Grrr.nl
  * This class tests Garp_Service_Slack_Config
- * @group Slack
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Slack
  */
 class Garp_Service_Slack_ConfigTest extends PHPUnit_Framework_TestCase {
 
@@ -10,16 +12,16 @@ class Garp_Service_Slack_ConfigTest extends PHPUnit_Framework_TestCase {
      * @var Garp_Service_Slack_Config $_config
      */
     protected $_config;
-    
+
     /**
      * @return Garp_Service_Slack_Config
      */
     public function getConfig() {
         return $this->_config;
     }
-    
+
     /**
-     * @param Garp_Service_Slack_Config _config
+     * @param Garp_Service_Slack_Config $config
      */
     public function setConfig($config) {
         $this->_config = $config;

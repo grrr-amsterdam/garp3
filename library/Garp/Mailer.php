@@ -46,7 +46,7 @@ class Garp_Mailer {
 
         if ($this->getHtmlTemplate()) {
             $viewParams['message'] = isset($params['message']) ? $params['message'] : '';
-            $viewParams['htmlMessage'] = isset($params['htmlMessage']) 
+            $viewParams['htmlMessage'] = isset($params['htmlMessage'])
                 ? $params['htmlMessage'] : '';
             $mail->setBodyHtml($this->_renderView($viewParams));
         } elseif (isset($params['htmlMessage'])) {
@@ -119,7 +119,7 @@ class Garp_Mailer {
 
     public function getDefaultFromAddress() {
         $config = Zend_Registry::get('config');
-        if ($this->_isAmazonSesConfigured() 
+        if ($this->_isAmazonSesConfigured()
             && isset($this->_getAmazonSesConfiguration()->fromAddress)
         ) {
             return $this->_getAmazonSesConfiguration()->fromAddress;
@@ -210,7 +210,7 @@ class Garp_Mailer {
         if ($module) {
             $moduleDirectory = Zend_Controller_Front::getInstance()
             ->getModuleDirectory($module);
-            $viewPath = $moduleDirectory.'/views/scripts/';
+            $viewPath = $moduleDirectory . '/views/scripts/';
             $viewObj->addScriptPath($viewPath);
         }
 
@@ -231,7 +231,7 @@ class Garp_Mailer {
     /**
      * Required keys: to, subject, message OR htmlMessage
      *
-     * @param array $params 
+     * @param array $params
      * @return void
      */
     protected function _validateParams(array $params) {
@@ -253,8 +253,8 @@ class Garp_Mailer {
         list($id, $attachment) = $args;
         $obj = file_get_contents($attachment);
         // Check if the attachment is gzipped and act accordingly
-        $unpacked = @gzdecode($obj);
-        $obj = null !== $unpacked && false !== $unpacked ? $unpacked : $obj;
+        $unzipper = new Garp_File_Unzipper($obj);
+        $obj = $unzipper->getUnpacked();
 
         $finfo = new finfo(FILEINFO_MIME);
         $mime  = $finfo->buffer($obj);

@@ -1,8 +1,10 @@
 <?php
 /**
- * @author David Spreekmeester | Grrr.nl
  * This class tests Garp_Service_Elasticsearch_Request
- * @group Elasticsearch
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Elasticsearch
  */
 class Garp_Service_Elasticsearch_RequestTest extends PHPUnit_Framework_TestCase {
     const BOGUS_PATH = '/Bogus/666';
@@ -21,7 +23,10 @@ class Garp_Service_Elasticsearch_RequestTest extends PHPUnit_Framework_TestCase 
         $url = substr($url, 7);
 
         $containsDuplicateSlashes = strpos($url, '//') !== false;
-        $this->assertFalse($containsDuplicateSlashes, "Does the following request url contain duplicate slashes?\n" . $url);
+        $this->assertFalse(
+            $containsDuplicateSlashes,
+            "Does the following request url contain duplicate slashes?\n" . $url
+        );
     }
 
 }

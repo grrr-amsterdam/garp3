@@ -1,8 +1,10 @@
 <?php
 /**
- * @author David Spreekmeester | Grrr.nl
  * This class tests Garp_Service_Elasticsearch_Model
- * @group Elasticsearch
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Elasticsearch
  */
 class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
     const BOGUS_MODEL_NAME = 'ElasticsearchBogus';
@@ -14,12 +16,12 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
         'name'          => 'Bogus name',
         'description'   => 'Bogus description'
     );
-    
+
     /**
      * @var Garp_Service_Elasticsearch_Model $_model
      */
     protected $_model;
-    
+
 
     public function setUp() {
         $model = new Garp_Service_Elasticsearch_Model(self::BOGUS_MODEL_NAME);
@@ -37,7 +39,11 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
         $data = $this->_fetchBogusRecord();
 
         $this->assertTrue($data['exists'], 'Does the bogus record exist?');
-        $this->assertEquals($data['_source']['name'], $bogusData['name'], 'Does the stored name equal the bogus data?');
+        $this->assertEquals(
+            $data['_source']['name'],
+            $bogusData['name'],
+            'Does the stored name equal the bogus data?'
+        );
 
         $this->_deleteBogusRecord();
 
@@ -45,8 +51,9 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
         try {
             $data = $this->_fetchBogusRecord();
             $recordExists = $data['exists'];
-        } catch (Exception $e) {}
-        
+        } catch (Exception $e) {
+        }
+
         $this->assertFalse($recordExists, 'Is the bogus record actually removed?');
     }
 
@@ -56,7 +63,7 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
     public function getModel() {
         return $this->_model;
     }
-    
+
     /**
      * @param Garp_Service_Elasticsearch_Model $model
      */
@@ -71,7 +78,7 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
     public function getBogusData() {
         return $this->_bogusData;
     }
-    
+
     protected function _createBogusRecord() {
         $bogusData  = $this->getBogusData();
 

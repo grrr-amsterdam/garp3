@@ -1,8 +1,10 @@
 <?php
 /**
- * @author David Spreekmeester | Grrr.nl
  * This class tests Garp_Service_Elasticsearch_Configuration
- * @group Elasticsearch
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Elasticsearch
  */
 class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_TestCase {
 
@@ -10,16 +12,16 @@ class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_Tes
      * @var Garp_Service_Elasticsearch_Configuration $_config
      */
     protected $_config;
-    
+
     /**
      * @return Garp_Service_Elasticsearch_Configuration
      */
     public function getConfig() {
         return $this->_config;
     }
-    
+
     /**
-     * @param Garp_Service_Elasticsearch_Configuration _config
+     * @param Garp_Service_Elasticsearch_Configuration $config
      */
     public function setConfig($config) {
         $this->_config = $config;
@@ -41,7 +43,7 @@ class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_Tes
         if (!isset(Zend_Registry::get('config')->elasticsearch)) {
             return;
         }
-        
+
         $config     = $this->getConfig();
         $baseUrl    = $config->getBaseUrl();
 
@@ -58,6 +60,5 @@ class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_Tes
 
         $this->assertTrue(!empty($index), 'Does configuration.index have a value?');
     }
-
 
 }

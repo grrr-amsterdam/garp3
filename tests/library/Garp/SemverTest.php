@@ -1,6 +1,8 @@
 <?php
 /**
- * @group Semver
+ * @package Tests
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @group   Semver
  */
 class Garp_SemverTest extends Garp_Test_PHPUnit_TestCase {
 
@@ -17,18 +19,22 @@ class Garp_SemverTest extends Garp_Test_PHPUnit_TestCase {
 
     public function setUp() {
         parent::setUp();
-        file_put_contents($this->_getSemverLocation(),
+        file_put_contents(
+            $this->_getSemverLocation(),
             "---
             :major: 2
             :minor: 4
             :patch: 29
-            :special: ''");
-        file_put_contents($this->_getSpecialSemverLocation(),
+            :special: ''"
+        );
+        file_put_contents(
+            $this->_getSpecialSemverLocation(),
             "---
             :major: 0
             :minor: 7
             :patch: 7
-            :special: 'alpha'"); 
+            :special: 'alpha'"
+        );
     }
 
     public function tearDown() {

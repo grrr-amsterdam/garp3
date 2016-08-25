@@ -1,6 +1,8 @@
 <?php
 /**
- * @group File
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   File
  */
 class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
     protected $_storage;
@@ -14,7 +16,9 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
         }
 
 
+        // @codingStandardsIgnoreStart
         $testContent =  'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+        // @codingStandardsIgnoreEnd
         $this->assertTrue(!!$this->_storage->store($this->_gzipTestFile, $testContent, true));
 
         $contents = $this->_storage->fetch($this->_gzipTestFile);
@@ -55,13 +59,15 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
     }
 
     public function setUp() {
-        $this->_helper->injectConfigValues(array(
-            'cdn' => array(
-                'gzip' => true,
-                's3' => array(
+        $this->_helper->injectConfigValues(
+            array(
+                'cdn' => array(
+                    'gzip' => true,
+                    's3' => array(
+                    )
                 )
             )
-        ));
+        );
 
         if ($this->_isS3Configured()) {
             $this->_storage = new Garp_File_Storage_S3(Zend_Registry::get('config')->cdn, '/');

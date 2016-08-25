@@ -1,11 +1,13 @@
 <?php
 /**
- * @group Image
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   Image
  */
 class G_View_Helper_Image_Test extends Garp_Test_PHPUnit_TestCase {
     public function test_source_url_should_not_be_empty() {
-        $imageHelper    = $this->_getImageHelper();
-        $sourceUrl      = $imageHelper->getSourceUrl('foo.png');
+        $imageHelper = $this->_getImageHelper();
+        $sourceUrl   = $imageHelper->getSourceUrl('foo.png');
 
         $this->assertTrue(!empty($sourceUrl));
     }
@@ -32,14 +34,15 @@ class G_View_Helper_Image_Test extends Garp_Test_PHPUnit_TestCase {
 
 
     protected function _getImageHelper() {
-        $bootstrap      = Zend_Registry::get('application')->getBootstrap();
-        $imageHelper    = $bootstrap->getResource('View')->image();
+        $bootstrap   = Zend_Registry::get('application')->getBootstrap();
+        $imageHelper = $bootstrap->getResource('View')->image();
         return $imageHelper;
     }
 
     public function setUp() {
         parent::setUp();
-        $this->_helper->injectConfigValues(array(
+        $this->_helper->injectConfigValues(
+            array(
             'cdn' => array(
                 'type' => 'local',
                 'ssl' => true,
@@ -55,6 +58,7 @@ class G_View_Helper_Image_Test extends Garp_Test_PHPUnit_TestCase {
                 ),
                 'extensions' => 'jpg,gif,png'
             )
-        ));
+            )
+        );
     }
 }

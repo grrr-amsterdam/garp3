@@ -1,8 +1,10 @@
 <?php
 /**
  * This class tests Garp_File.
- * @author David Spreekmeester | Grrr.nl
- * @group File
+ *
+ * @package Tests
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @group   File
  */
 class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
     protected $_bogusFilenames = array(
@@ -78,8 +80,10 @@ class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
     }
 
     public function testReadOnlyCdnShouldProhibitStorage() {
-        $this->_helper->injectConfigValues(array(
-            'cdn' => array('readonly' => true)));
+        $this->_helper->injectConfigValues(
+            array(
+            'cdn' => array('readonly' => true))
+        );
 
         $exception = null;
         try {
@@ -96,8 +100,10 @@ class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
     }
 
     public function testReadOnlyCdnShouldProhibitRemoval() {
-        $this->_helper->injectConfigValues(array(
-            'cdn' => array('readonly' => true)));
+        $this->_helper->injectConfigValues(
+            array(
+            'cdn' => array('readonly' => true))
+        );
 
         $exception = null;
         try {
@@ -111,7 +117,10 @@ class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertEquals(Garp_File::EXCEPTION_CDN_READONLY, $exception);
     }
     /**
-     * Checks whether the argument provided contains only word characters (a to z, A to Z, 0 to 9 or underscores), dashes and dots. This excludes characters with accents.
+     * Checks whether the argument provided contains only word characters
+     * (a to z, A to Z, 0 to 9 or underscores), dashes and dots.
+     * This excludes characters with accents.
+     *
      * @param String $filename The filename to be checked
      * @return Boolean Whether the provided argument contains only plain characters.
      */
@@ -121,21 +130,23 @@ class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->_helper->injectConfigValues(array(
+        $this->_helper->injectConfigValues(
+            array(
             'cdn' => array(
                 'type' => 'local',
                 'extensions' => 'jpg,jpeg,gif,png,zip,pdf,xls,xlsx,csv,json',
                 'path' => array(
                     'upload' => array(
-                        'image' => GARP_APPLICATION_PATH  . '/../tests/tmp',
+                        'image' => GARP_APPLICATION_PATH . '/../tests/tmp',
                         'document' => GARP_APPLICATION_PATH . '/../tests/tmp'
                     ),
                     'static' => array(
-                        'image' => GARP_APPLICATION_PATH  . '/../tests/tmp',
+                        'image' => GARP_APPLICATION_PATH . '/../tests/tmp',
                         'document' => GARP_APPLICATION_PATH . '/../tests/tmp'
                     )
                 )
             )
-        ));
+            )
+        );
     }
 }

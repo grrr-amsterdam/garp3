@@ -2,15 +2,18 @@
 /**
  * Garp_Validate_Identical
  * class description
- * @author Harmen Janssen | grrr.nl
- * @version 1
- * @package Garp
- * @subpackage Validate
+ *
+ * @package Garp_Validate
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Validate_Identical extends Zend_Validate_Identical {
     /**
-     * Overwritten to support nested tokens, from input fields in subforms (such 
+     * Overwritten to support nested tokens, from input fields in subforms (such
      * as credentials[pwd].
+     *
+     * @param string $value
+     * @param array $context
+     * @return bool
      */
     public function isValid($value, $context = null) {
         $this->_setValue((string) $value);

@@ -1,7 +1,10 @@
 <?php
 /**
  * Test utility stuff in init.php
- * @group Init
+ *
+ * @package Tests
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @group   Init
  */
 class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
 
@@ -13,8 +16,10 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
             'country' => 'Zimbabwe'
         );
         $allowed = array('country', 'name');
-        $this->assertEquals(array('name' => 'Henk', 'country' => 'Zimbabwe'),
-            array_get_subset($my_array, $allowed));
+        $this->assertEquals(
+            array('name' => 'Henk', 'country' => 'Zimbabwe'),
+            array_get_subset($my_array, $allowed)
+        );
     }
 
     public function testShouldHaveSuccessfullyClonedGzdecode() {
@@ -23,6 +28,7 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
             return true;
         }
 
+        // @codingStandardsIgnoreStart
         function clonedGzDecode($data,&$filename='',&$error='',$maxlength=null) {
             $len = strlen($data);
             if ($len < 18 || strcmp(substr($data,0,2),"\x1f\x8b")) {
@@ -136,6 +142,7 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
 
         $encodedContent =
             gzencode('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+        // @codingStandardsIgnoreEnd
 
         // Compare output of cloned version with native function
         $this->assertEquals(clonedGzDecode($encodedContent), gzdecode($encodedContent));

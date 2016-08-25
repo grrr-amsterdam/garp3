@@ -1,6 +1,8 @@
 <?php
 /**
- * @group Auth
+ * @package Tests
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @group   Auth
  */
 class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
@@ -91,12 +93,16 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
         $tokenUrl = new Garp_Util_FullUrl(array(array('method' => 'passwordless'), 'auth_submit')) .
             '?uid=' . $theUser->id . '&token=' . $authRecord->token;
 
-        $storedMessage = file_get_contents(GARP_APPLICATION_PATH .
-            '/../tests/tmp/' . self::TEST_EMAIL . '.tmp');
+        $storedMessage = file_get_contents(
+            GARP_APPLICATION_PATH .
+            '/../tests/tmp/' . self::TEST_EMAIL . '.tmp'
+        );
 
-        $expectedMessage = Garp_Util_String::interpolate($this->_getMockEmailMessage(), array(
+        $expectedMessage = Garp_Util_String::interpolate(
+            $this->_getMockEmailMessage(), array(
             'LOGIN_URL' => $tokenUrl
-        ));
+            )
+        );
 
         // Pass thru actual Mime part, otherwise the two wil never be the same
         $mp = new Zend_Mime_Part($expectedMessage);
@@ -138,7 +144,13 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
         $userModel->insert(array('email' => 'henk@grrr.nl', 'id' => 1));
         $userModel->insert(array('email' => 'jaap@grrr.nl', 'id' => 2));
         $authModel = new Model_AuthPasswordless();
-        $authModel->insert(array('token' => '12345', 'token_expiration_date' => date('Y-m-d H:i:s', strtotime('+30 minutes')), 'user_id' => 2));
+        $authModel->insert(
+            array(
+                'token' => '12345',
+                'token_expiration_date' => date('Y-m-d H:i:s', strtotime('+30 minutes')),
+                'user_id' => 2
+            )
+        );
 
         $pwless = new Garp_Auth_Adapter_Passwordless();
         $response = $pwless->acceptToken('12345', 1);
@@ -150,22 +162,30 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
         if (!$this->_testsEnabled) {
             return;
         }
-        instance(new Model_User())->insert(array(
+        instance(new Model_User())->insert(
+            array(
             'id' => 5,
             'email' => 'henk@grrr.nl'
-        ));
-        instance(new Model_AuthPasswordless())->insert(array(
+            )
+        );
+        instance(new Model_AuthPasswordless())->insert(
+            array(
             'user_id' => 5,
             'token' => 'abc',
-            'token_expiration_date' => date('Y-m-d H:i:s',
-                strtotime('-1 hour'))
-        ));
+            'token_expiration_date' => date(
+                'Y-m-d H:i:s',
+                strtotime('-1 hour')
+            )
+            )
+        );
 
         $pwless = new Garp_Auth_Adapter_Passwordless();
         $response = $pwless->acceptToken('abc', 5);
         $this->assertFalse($response);
-        $this->assertEquals(array(__('passwordless token expired')),
-            $pwless->getErrors());
+        $this->assertEquals(
+            array(__('passwordless token expired')),
+            $pwless->getErrors()
+        );
     }
 
     public function testShouldAcceptValidToken() {
@@ -218,7 +238,8 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
         }
         parent::setUp();
 
-        $this->_helper->injectConfigValues(array(
+        $this->_helper->injectConfigValues(
+            array(
             'app' => array(
                 'domain' => 'testing.example.com'
             ),
@@ -240,7 +261,8 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
                     )
                 )
             )
-        ));
+            )
+        );
 
     }
 
