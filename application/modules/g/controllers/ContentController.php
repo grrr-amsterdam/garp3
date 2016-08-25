@@ -77,7 +77,7 @@ class G_ContentController extends Garp_Controller_Action {
         $ini = Zend_Registry::get('config');
         $pageTitle = 'Garp CMS';
         if (!empty($ini->app->name)) {
-            $pageTitle .= ' | '.$ini->app->name;
+            $pageTitle .= ' | ' . $ini->app->name;
         }
 
         $this->view->imagesCdn = $this->view->assetUrl('') . $ini->cdn->path->upload->image . '/';
@@ -143,7 +143,7 @@ class G_ContentController extends Garp_Controller_Action {
                 $response = clone $server->handle();
                 $responses[] = $response;
             }
-            $response = $batch ? '['.implode(',', $responses).']' : $responses[0];
+            $response = $batch ? '[' . implode(',', $responses) . ']' : $responses[0];
         } else {
             $response = $server->getServiceMap();
         }
@@ -455,8 +455,14 @@ class G_ContentController extends Garp_Controller_Action {
      */
     public function infoAction() {
         phpinfo();
-        $this->_helper->viewRenderer->setNoRender(true);
-        $this->_helper->layout->disableLayout();
+        // This might be the only time `exit()` is appropriate...
+        // If only there was a pure function that *returned* this information instead of vomiting it
+        // on screen. Alas!
+        // In the future someone might opt to go all ob_start() on this bitch but for now it's just
+        // not worth the trouble.
+        // @codingStandardsIgnoreStart
+        exit;
+        // @codingStandardsIgnoreEnd
     }
 
     /**
