@@ -2,22 +2,25 @@
 /**
  * G_View_Helper_Snippet
  * Render snippets.
- * @author Harmen Janssen, David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Db
- * @lastmodified $Date: $
+ *
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
+    const EXCEPTION_MISSING_FIELD = 'Snippet %s does not have a %s field.';
+
     /**
      * Render a snippet.
-     * If no arguments are given, $this is returned 
+     * If no arguments are given, $this is returned
      * so there can be some chaining.
-     * @param String $identifier
-     * @param String $partial Path to the partial that renders this snippet.
-     * @param Array $params Optional extra parameters to pass to the partial. Set 'render' to false to return only the data, without any Snippet functionality.
-     * @return String
+     *
+     * @param string $identifier
+     * @param string $partial Path to the partial that renders this snippet.
+     * @param array $params Optional extra parameters to pass to the partial.
+     *                      Set 'render' to false to return only the data,
+     *                      without any Snippet functionality.
+     * @return string
      */
     public function snippet($identifier = false, $partial = false, array $params = array()) {
         if (!func_num_args()) {
@@ -26,50 +29,53 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
 
         $snippetModel = $this->_getSnippetModel();
         $snippet = $snippetModel->fetchByIdentifier($identifier);
-        
-        if (
-            array_key_exists('render', $params) &&
-            !$params['render']
-        ) {
+
+        if (array_key_exists('render', $params) && !$params['render']) {
             return $snippet;
         }
         return $this->render($snippet, $partial, $params);
     }
-    
+
     /**
      * Returns a specific field without rendering any partials or magical Snippet data.
+     *
+     * @param string $identifier
+     * @param string $fieldName
+     * @return string
      */
     public function getField($identifier, $fieldName) {
         $snippetModel = $this->_getSnippetModel();
         $snippet = $snippetModel->fetchByIdentifier($identifier);
 
-        if (isset($snippet->{$fieldName})) {
-            return $snippet->{$fieldName};
+        if (!isset($snippet->{$fieldName})) {
+            throw new Exception(sprintf(self::EXCEPTION_MISSING_FIELD, $snippet->id, $fieldName);
         }
-        throw new Exception('Snippet '.$snippet->id." does not have a $fieldName field.");
+        return $snippet->{$fieldName};
     }
 
     /**
      * Render the snippet
-     * @param String $identifier
-     * @param String $partial Path to the partial that renders this snippet.
-     * @param Array $params Optional extra parameters to pass to the partial.
-     * @return String
+     *
+     * @param Zend_Db_Table_Row_Abstract $snippet
+     * @param string $partial Path to the partial that renders this snippet.
+     * @param array $params Optional extra parameters to pass to the partial.
+     * @return string
      */
-    public function render(Zend_Db_Table_Row_Abstract $snippet, $partial = false, array $params = array()) {
-        $module             = $partial ? 'default' : 'g';
-        $partial            = $partial ?: 'partials/snippet.phtml';
-        $params['snippet']  = $snippet;
+    public function render(
+        Zend_Db_Table_Row_Abstract $snippet, $partial = false, array $params = array()
+    ) {
+        $module = $partial ? 'default' : 'g';
+        $partial = $partial ?: 'partials/snippet.phtml';
+        $params['snippet'] = $snippet;
 
-        $output = (array_key_exists('comment', $params) && !$params['comment']) ? '' : "<!--//garp-snippet//".$snippet->id." -->";
-        $output .= $this->view->partial($partial, $module, $params);
-        return $output;
+        return $this->view->partial($partial, $module, $params);
     }
 
     /**
      * Return a snippet model.
      * If the Translatable behavior is registered, load the model thru the Garp_I18n_ModelFactory.
      * This returns the Snippet model based on a translated MySQL view.
+     *
      * @return Model_Snippet
      */
     protected function _getSnippetModel() {
@@ -78,9 +84,10 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
             $i18nModelFactory = new Garp_I18n_ModelFactory();
             $snippetModel = $i18nModelFactory->getModel($snippetModel);
         }
-        $snippetModel->bindModel('Image', array(
-            'modelClass' => 'Model_Image'
-        ));
+        $snippetModel->bindModel(
+            'Image',
+            array('modelClass' => 'Model_Image')
+        );
         return $snippetModel;
     }
 }
