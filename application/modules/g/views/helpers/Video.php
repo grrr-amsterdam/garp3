@@ -2,19 +2,17 @@
 /**
  * G_View_Helper_Video
  * Generic video helper. Can render YouTube and Vimeo.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Helper
- * @lastmodified $Date: $
+ *
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class G_View_Helper_Video extends Zend_View_Helper_Abstract {
     /**
      * Render a video player.
+     *
      * @param Garp_Db_Table_Row $video A record from a video table
-     * @param Array $options Various rendering options
-     * @return Mixed
+     * @param array $options Various rendering options
+     * @return mixed
      */
     public function video($video = null, array $options = array()) {
         if (!func_num_args()) {
@@ -22,16 +20,19 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
             return $this;
         }
         if (!$video) {
-            throw new InvalidArgumentException(__METHOD__.' expects parameter 1 to be Garp_Db_Table_Row');
+            throw new InvalidArgumentException(
+                __METHOD__ . ' expects parameter 1 to be Garp_Db_Table_Row'
+            );
         }
         return $this->render($video, $options);
     }
 
     /**
      * Render a video player.
+     *
      * @param Garp_Db_Table_Row $video A record from a video table
-     * @param Array $options Various rendering options
-     * @return Mixed
+     * @param array $options Various rendering options
+     * @return mixed
      */
     public function render($video, $options = array()) {
         $helper = $this->_getSpecializedHelper($video);
@@ -40,8 +41,10 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 
     /**
      * Get only a player URL. Some sensible default parameters will be applied.
+     *
      * @param Garp_Db_Table_Row $video A record from a video table
-     * @param Array $options Various rendering options
+     * @param array $options Various rendering options
+     * @return string
      */
     public function getPlayerUrl($video, $options = array()) {
         $helper = $this->_getSpecializedHelper($video);
@@ -50,6 +53,9 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 
     /**
      * Check if video is Vimeo
+     *
+     * @param Garp_Db_Table_Row|string|array $video
+     * @return bool
      */
     public function isVimeo($video) {
         $playerurl = (is_string($video) ? $video :
@@ -59,6 +65,9 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 
     /**
      * Check if video is Youtube
+     *
+     * @param Garp_Db_Table_Row|string|array $video
+     * @return bool
      */
     public function isYoutube($video) {
         $playerurl = (is_string($video) ? $video :
@@ -68,6 +77,8 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
 
     /**
      * Return either the Vimeo or YouTube helper
+     *
+     * @param Garp_Db_Table_Row|string|array $video
      * @return Zend_View_Helper_Abstract
      */
     protected function _getSpecializedHelper($video) {
