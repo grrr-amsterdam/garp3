@@ -3,12 +3,9 @@
  * G_View_Helper_AssetUrl
  * Generate URLs for assets (CSS, Javascript, Images, Flash)
  *
- * @package Garp
- * @subpackage Helper
- * @author Harmen Janssen <harmen@grrr.nl>
- * @author David Spreekmeester <david@grrr.nl>
- * @version $Revision: $
- * @lastmodified $Date: $
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
     protected $_useSemver = false;
@@ -17,10 +14,12 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
     /**
      * Create a versioned URL to a file
      *
-     * @param String $file The file path
-     * @param String $forced_extension Force to use an extension, even when extension 
-     * doesn't match or is missing (eg. '/' in 'ASSET_URL' when using a cdn, but 'js' is 'local')
-     * @return String
+     * @param string $file The file path
+     * @param string $forced_extension Force to use an extension, even when extension
+     *                                 doesn't match or is missing
+     *                                 (eg. '/' in 'ASSET_URL' when using a cdn,
+     *                                 but 'js' is 'local')
+     * @return string
      */
     public function assetUrl($file = null, $forced_extension = false) {
         if (is_null($file)) {
@@ -105,11 +104,9 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
         }
     }
 
-
     protected function _getS3Url($file, $domain, $ssl) {
         return 'http' . ($ssl ? 's' : '') . '://' . $domain . $file;
     }
-
 
     protected function _getLocalUrl($file) {
         if (!strlen($file)) {
@@ -126,10 +123,10 @@ class G_View_Helper_AssetUrl extends Zend_View_Helper_BaseUrl {
         }
 
         // for assets, chop the locale part of the URL.
-        if (array_key_exists('locale', $requestParams) && $requestParams['locale'] 
-            && preg_match('~^/('.$requestParams['locale'].')~', $baseUrl)
+        if (array_key_exists('locale', $requestParams) && $requestParams['locale']
+            && preg_match('~^/(' . $requestParams['locale'] . ')~', $baseUrl)
         ) {
-            $baseUrl = preg_replace('~^/('.$requestParams['locale'].')~', '/', $baseUrl);
+            $baseUrl = preg_replace('~^/(' . $requestParams['locale'] . ')~', '/', $baseUrl);
         }
 
         // Remove trailing slashes

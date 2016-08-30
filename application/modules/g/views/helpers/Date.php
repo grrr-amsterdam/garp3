@@ -1,12 +1,9 @@
 <?php
 /**
  * G_View_Helper_Date
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Helper
- * @lastmodified $Date: $
+ *
+ * @package G_View_Helper
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class G_View_Helper_Date extends Zend_View_Helper_BaseUrl {
     public function date() {
@@ -15,17 +12,21 @@ class G_View_Helper_Date extends Zend_View_Helper_BaseUrl {
 
     /**
      * Formats dates according to configuration settings in the ini file.
-     * @param String $type Name of the format, as defined in the ini file. The ini value can be in either format.
-     * @param String $date MySQL datetime string
-     * @return String
+     *
+     * @param string $type Name of the format, as defined in the ini file.
+     *                     The ini value can be in either format.
+     * @param string $date MySQL datetime string
+     * @return string
      */
     public function format($type, $date) {
         return Garp_DateTime::formatFromConfig($type, $date);
     }
 
     /**
-     * @param Int $minutes Minutes as an integer
-     * @return String Time, displayed as f.i. "2:50"
+     * Render human-readable time, displayed as f.i. "2:50".
+     *
+     * @param int $minutes Minutes as an integer
+     * @return string
      */
     public function displayMinutesAsTime($minutes) {
         $hours = floor($minutes / 60);

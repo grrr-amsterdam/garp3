@@ -1,10 +1,12 @@
 <?php
 /**
- * en_Us translation file.
- * English is considered the source language for all system messages, so this
- * file is only here for consistency.
+ * English (en_Us) translation file.
+ *
+ * @package Garp
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 $translationTable = array(
+    // @codingStandardsIgnoreStart
     'register page title' => 'Register',
     'register error' => 'Something went wrong while registering. Try again later.',
     'login page title' => 'Login',
@@ -43,4 +45,5 @@ $translationTable = array(
         Version: %s\n\n
         View here directly: %s\n\n",
     'gumball notification email subject' => '[%s] A new version is deployed'
+    // @codingStandardsIgnoreEnd
 );
