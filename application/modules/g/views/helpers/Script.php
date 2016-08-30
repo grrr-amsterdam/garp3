@@ -5,7 +5,6 @@
  *
  * @package G_View_Helper
  * @author  Harmen Janssen <harmen@grrr.nl>
- * @version 1.0.1
  */
 class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
     /**
@@ -52,16 +51,16 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
         $config = Zend_Registry::get('config');
         if (empty($config->assets->js->{$identifier})) {
             throw new Garp_Exception(
-                "JS configuration for identifier {$identifier} not found. ".
+                "JS configuration for identifier {$identifier} not found. " .
                 "Please configure assets.js.{$identifier}"
             );
         }
-        $jsRoot = rtrim($config->assets->js->basePath ?: '/js', '/').'/';
+        $jsRoot = rtrim($config->assets->js->basePath ?: '/js', '/') . '/';
         $config = $config->assets->js->{$identifier};
         if (!isset($config->disabled) || !$config->disabled) {
             // If minification is not disabled (for instance in a development environment),
             // return the path to the minified file.
-            return $this->src($jsRoot.$config->filename, $render);
+            return $this->src($jsRoot . $config->filename, $render);
         } else {
             // Otherwise, return all the script tags for all the individual source files
             if (!isset($config->sourcefiles)) {
@@ -69,7 +68,7 @@ class G_View_Helper_Script extends Zend_View_Helper_HtmlElement {
             }
             $out = '';
             foreach ($config->sourcefiles as $sourceFile) {
-                $response = $this->src($jsRoot.$sourceFile, $render);
+                $response = $this->src($jsRoot . $sourceFile, $render);
                 if ($render) {
                     $out .= $response;
                 }

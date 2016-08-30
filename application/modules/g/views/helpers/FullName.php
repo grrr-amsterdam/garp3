@@ -2,8 +2,9 @@
 /**
  * G_View_Helper_FullName
  * Returns a concatenation of first name, last name prefix and last name
- * @author David Spreekmeester | grrr.nl
- * @package Garp
+ *
+ * @package G_View_Helper
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class G_View_Helper_FullName extends Zend_View_Helper_Abstract {
     /**

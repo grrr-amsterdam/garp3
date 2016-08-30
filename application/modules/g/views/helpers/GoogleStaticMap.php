@@ -1,21 +1,21 @@
-<?php 
+<?php
 /**
  * Class GoogleStaticMapHelper
- * 
- * provides a static image of a map with the help of the static-google map
- * garp.front.js will then convert the map to a dynamic variant
- * 
- * @author Peter
  *
+ * Provides a static image of a map with the help of the static-google map
+ * garp.front.js will then convert the map to a dynamic variant
+ *
+ * @package G_View_Helper
+ * @author  Peter Schilleman <peter@eenengelswoord.nl>
  */
 class G_View_Helper_GoogleStaticMap extends Zend_View_Helper_Abstract {
 
     protected $_defaults = array(
         'location' => array(        // center location
-            'lat' => '52.090142', 
+            'lat' => '52.090142',
             'lng' => '5.109665'
         ),
-        'mapType' => 'roadmap',     // roadmap / satellite / terain / hybrid  
+        'mapType' => 'roadmap',     // roadmap / satellite / terain / hybrid
         'zoomLevel' => 11,          // 0 - 21 (earth - building)
         'width' => 320,
         'height' => 240,
@@ -23,9 +23,12 @@ class G_View_Helper_GoogleStaticMap extends Zend_View_Helper_Abstract {
         'sensor' => false,          // whether or not to get browser's location (prob. geoIP based)
         'markers' => array()        // array(array('lat' => '52.090142', 'lng' => '5.109665'))
     );
-    
+
     /**
-     * init
+     * Init
+     *
+     * @param array $config
+     * @return G_View_Helper_GoogleStaticMap|string
      */
     public function googleStaticMap(array $config = null) {
         if (!is_null($config)) {
@@ -33,30 +36,35 @@ class G_View_Helper_GoogleStaticMap extends Zend_View_Helper_Abstract {
         }
         return $this;
     }
-    
+
     /**
-     * walks through markers' array
-     * @TODO: implement other marker options
+     * Walks through markers' array
+     *
+     * @param array $options
+     * @return string
+     * @todo: implement other marker options
      */
     public function getMarkersAsString($options){
         $markers = '';
-        
-        foreach($options['markers'] as $marker){
+
+        foreach ($options['markers'] as $marker) {
             $markers .= $marker['lat'] . ',' . $marker['lng'] . '|';
-        }       
-        
+        }
+
         return $markers ? substr($markers, 0, -1) : '';
     }
-    
-    
+
     /**
-     * render
+     * Render the map
+     *
+     * @param array $options
+     * @return string
      */
     public function render($options = array()) {
         $options = array_merge($this->_defaults, $options);
         $markers = $this->getMarkersAsString($options);
         $img = '';
-        
+
         $img .= '<img src="http://maps.google.com/maps/api/staticmap';
         $img .= '?center=' . $options['location']['lat'] . ',' . $options['location']['lng'];
         $img .= '&amp;zoom=' . $options['zoomLevel'];
@@ -64,10 +72,13 @@ class G_View_Helper_GoogleStaticMap extends Zend_View_Helper_Abstract {
         $img .= '&amp;maptype=' . $options['mapType'];
         $img .= ($markers ? '&amp;markers=' . $markers : '');
         $img .= '&amp;sensor=' . ($options['sensor'] ? 'true' : 'false') . '" ';
-        $img .= 'width="' . $options['width'] . '" height="' . $options['height'] . '" alt="' . $options['altText']. '" class="g-googlemap" />';
-        
-        $this->view->script()->src('http://www.google.com/maps/api/js?sensor=' . ($options['sensor'] ? 'true' : 'false'));
+        $img .= 'width="' . $options['width'] . '" height="' . $options['height'] . '" alt="';
+        $img .= $options['altText'] . '" class="g-googlemap" />';
+
+        $this->view->script()->src(
+            'https://www.google.com/maps/api/js?sensor=' . ($options['sensor'] ? 'true' : 'false')
+        );
         return $img;
     }
-    
+
 }
