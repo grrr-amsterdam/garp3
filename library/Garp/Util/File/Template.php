@@ -2,57 +2,56 @@
 /**
  * Garp_Util_File_Template
  * Mini template-engine.
- * Used to generate files. Feed it a template, set some 
+ * Used to generate files. Feed it a template, set some
  * variables and save the output.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage File
- * @lastmodified $Date: $
+ *
+ * @package Garp_Util
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Util_File_Template {
     /**
      * The template contents.
-     * @var String
+     *
+     * @var string
      */
     protected $_content;
-    
-    
+
     /**
      * Class constructor
-     * @param String $path Path to the template file
-     * @return Void
+     *
+     * @param string $path Path to the template file
+     * @return void
      */
     public function __construct($path) {
         $this->_content = file_get_contents($path);
     }
-    
-    
+
     /**
      * Set variable.
-     * @param String $key The variable key (template must contain an "#$key")
-     * @param Mixed $value The variable value
+     *
+     * @param string $key The variable key (template must contain an "#$key")
+     * @param mixed $value The variable value
      * @return Garp_Util_File_Template $this
      */
     public function setVariable($key, $value) {
-        $this->_content = str_replace('#'.$key.'#', (string)$value, $this->_content);
+        $this->_content = str_replace('#' . $key . '#', (string)$value, $this->_content);
         return $this;
     }
-    
-    
+
     /**
      * Get output.
-     * @return String
+     *
+     * @return string
      */
     public function getOutput() {
         return $this->_content;
     }
-    
-    
+
     /**
      * Save output.
-     * @return String
+     *
+     * @param string $path
+     * @return string
      */
     public function saveOutput($path) {
         return file_put_contents($path, $this->_content);
