@@ -48,7 +48,7 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
         $snippet = $snippetModel->fetchByIdentifier($identifier);
 
         if (!isset($snippet->{$fieldName})) {
-            throw new Exception(sprintf(self::EXCEPTION_MISSING_FIELD, $snippet->id, $fieldName);
+            throw new Exception(sprintf(self::EXCEPTION_MISSING_FIELD, $snippet->id, $fieldName));
         }
         return $snippet->{$fieldName};
     }
