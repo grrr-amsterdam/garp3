@@ -1,12 +1,9 @@
 <?php
 /**
  * Garp_Cli_Command_Spawn_Filter
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli_Command_Spawn
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_Spawn_Filter {
     /**
@@ -18,22 +15,30 @@ class Garp_Cli_Command_Spawn_Filter {
     const FILTER_MODULE_JS      = 'js';
     const FILTER_MODULE_FILES   = 'files';
 
-    const ERROR_ILLEGAL_MODULE_FILTER = 
-        "Sorry, '%s' is not a valid value for the '--only' parameter. Try 'garp spawn help' for an overview of options.";
+    const ERROR_ILLEGAL_MODULE_FILTER
+        // @codingStandardsIgnoreStart
+        = "Sorry, '%s' is not a valid value for the '--only' parameter. Try 'garp spawn help' for an overview of options.";
+        // @codingStandardsIgnoreEnd
 
     /**
-     * @var Array $_allowedFilters
+     * @var array $_allowedFilters
      */
-    protected $_allowedFilters = array(self::FILTER_MODULE_FILES, self::FILTER_MODULE_DB, self::FILTER_MODULE_JS, self::FILTER_MODULE_PHP);
+    protected $_allowedFilters = array(
+        self::FILTER_MODULE_FILES,
+        self::FILTER_MODULE_DB,
+        self::FILTER_MODULE_JS,
+        self::FILTER_MODULE_PHP
+    );
 
     /**
-     * @var Array $_args
+     * @var array $_args
      */
     protected $_args;
 
 
     /**
-     * @param Array $args Array of commandline arguments provided
+     * @param array $args Array of commandline arguments provided
+     * @return void
      */
     public function __construct(Array $args) {
         $this->_validateModuleFilterArgument($args);
@@ -41,18 +46,19 @@ class Garp_Cli_Command_Spawn_Filter {
     }
 
     /**
-     * @return Array
+     * @return array
      */
     public function getAllowedFilters() {
         return $this->_allowedFilters;
     }
-    
+
     /**
-     * @param Array $allowedFilters
+     * @param array $allowedFilters
+     * @return void
      */
     public function setAllowedFilters($allowedFilters) {
         $this->_allowedFilters = $allowedFilters;
-    }   
+    }
 
     public function getArgs() {
         return $this->_args;
@@ -64,48 +70,45 @@ class Garp_Cli_Command_Spawn_Filter {
 
     public function shouldSpawnDb() {
         $filter = $this->_getModuleFilter();
-        
-        return 
-            $filter !== self::FILTER_MODULE_FILES &&
+
+        return $filter !== self::FILTER_MODULE_FILES &&
             $filter !== self::FILTER_MODULE_PHP &&
-            $filter !== self::FILTER_MODULE_JS
-        ;
+            $filter !== self::FILTER_MODULE_JS;
     }
 
     public function shouldSpawnPhp() {
         $filter = $this->_getModuleFilter();
 
-        return 
-            $filter !== self::FILTER_MODULE_DB &&
-            $filter !== self::FILTER_MODULE_JS
-        ;
+        return $filter !== self::FILTER_MODULE_DB && $filter !== self::FILTER_MODULE_JS;
     }
 
     public function shouldSpawnJs() {
         $filter = $this->_getModuleFilter();
 
-        return 
-            $filter !== self::FILTER_MODULE_DB &&
-            $filter !== self::FILTER_MODULE_PHP
-        ;
+        return $filter !== self::FILTER_MODULE_DB && $filter !== self::FILTER_MODULE_PHP;
     }
     /**
      * Returns the module that should be run, i.e. 'db' or 'files', or null if no filter is given.
+     *
+     * @return string
      */
     protected function _getModuleFilter() {
         $args   = $this->getArgs();
         $only   = self::FILTER_MODULE_COMMAND;
-        
+
         if (!array_key_exists($only, $args)) {
             return;
         }
 
-        $filter = $args[$only];     
+        $filter = $args[$only];
         return strtolower($filter);
     }
 
     /**
      *  Check if an allowed '--only=xx' command is called.
+     *
+     *  @param array $args
+     *  @return void
      */
     protected function _validateModuleFilterArgument(array $args) {
         $only           = self::FILTER_MODULE_COMMAND;
@@ -113,13 +116,12 @@ class Garp_Cli_Command_Spawn_Filter {
         $filter = array_key_exists($only, $args)
             ? strtolower($args[$only])
             : null
-        ;   
-        
+        ;
+
         if ($filter && !in_array($filter, $allowedFilters)) {
             $error = sprintf(self::ERROR_ILLEGAL_MODULE_FILTER, $args[$only]);
             $error .= "\nTry: " . implode(", ", $this->getAllowedFilters());
-            Garp_Cli::errorOut($error);
-            exit;
+            throw new Exception($error);
         }
     }
 }

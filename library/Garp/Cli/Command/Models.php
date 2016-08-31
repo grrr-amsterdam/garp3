@@ -1,9 +1,18 @@
 <?php
+/**
+ * Garp_Cli_Command_Models
+ * class description
+ *
+ * @package Garp_Cli_Command
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ */
 class Garp_Cli_Command_Models extends Garp_Cli_Command {
 
     /**
      * Garp models have moved from the G_Model namespace to the Garp_Model_Db_ namespace.
      * This command migrates extended models to the new namespace.
+     *
+     * @return bool
      */
     public function migrateGarpModels() {
         $modelDir = APPLICATION_PATH . '/modules/default/Model';
@@ -16,9 +25,14 @@ class Garp_Cli_Command_Models extends Garp_Cli_Command {
         }
 
         $this->_updateCropTemplateRefs();
+        return true;
     }
 
-    // Change references to G_Model_CropTemplate
+    /**
+     * Change references to G_Model_CropTemplate
+     *
+     * @return void
+     */
     protected function _updateCropTemplateRefs() {
         $iniPaths = ['/configs/content.ini', '/configs/acl.ini'];
         foreach ($iniPaths as $i => $path) {

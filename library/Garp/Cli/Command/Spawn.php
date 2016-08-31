@@ -1,17 +1,16 @@
 <?php
 /**
  * Garp_Cli_Command_Spawn
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli_Command
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
-    const ERROR_UNKNOWN_ARGUMENT =
-        "Sorry, I do not know the '%s' argument. Try 'garp spawn help' for an overview of options.";
+    const ERROR_UNKNOWN_ARGUMENT
+        // @codingStandardsIgnoreStart
+        = "Sorry, I do not know the '%s' argument. Try 'garp spawn help' for an overview of options.";
+        // @codingStandardsIgnoreEnd
 
     /**
      * @var Garp_Spawn_Model_Set $_modelSet
@@ -19,7 +18,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
     protected $_modelSet;
 
     /**
-     * @var Array $_args The arguments given when calling this command
+     * @var array $_args The arguments given when calling this command
      */
     protected $_args;
 
@@ -33,42 +32,48 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
      */
     protected $_feedback;
 
-
     /**
      * Central start method
-     * @return Void
+     *
+     * @param array $args
+     * @return bool
      */
     public function main(array $args = array()) {
         if ($this->_isHelpRequested($args)) {
             $this->_displayHelp();
-            exit;
+            return true;
         }
 
-        $this->setArgs($args);
+        if (!$this->setArgs($args)) {
+            return false;
+        }
         $this->setFilter(new Garp_Cli_Command_Spawn_Filter($args));
         $this->setFeedback(new Garp_Cli_Command_Spawn_Feedback($args));
         $this->setModelSet($this->_initModelSet());
 
         $feedback = $this->getFeedback();
-        $feedback->shouldSpawn()
-            ? $this->_spawn()
-            : $this->_showJsBaseModel($args[Garp_Cli_Command_Spawn_Feedback::JS_BASE_MODEL_COMMAND])
-        ;
+        $feedback->shouldSpawn() ? $this->_spawn() :
+            $this->_showJsBaseModel($args[Garp_Cli_Command_Spawn_Feedback::JS_BASE_MODEL_COMMAND]);
+        return true;
     }
 
     /**
-     * @return Array
+     * @return array
      */
     public function getArgs() {
         return $this->_args;
     }
 
     /**
-     * @param Array $args
+     * @param array $args
+     * @return bool
      */
     public function setArgs($args) {
-        $this->_validateArgs($args);
+        if (!$this->_validateArgs($args)) {
+            return false;
+        }
         $this->_args = $args;
+        return true;
     }
 
     public function setFilter(Garp_Cli_Command_Spawn_Filter $filter) {
@@ -102,6 +107,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
     /**
      * @param Garp_Spawn_Model_Set $modelSet
+     * @return void
      */
     public function setModelSet($modelSet) {
         $this->_modelSet = $modelSet;
@@ -115,14 +121,16 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
     /**
      * Spawn JS and PHP files and the database structure.
+     *
+     * @return void
      */
     protected function _spawn() {
         $filter = $this->getFilter();
 
-        $dbShouldSpawn          = $filter->shouldSpawnDb();
-        $jsShouldSpawn          = $filter->shouldSpawnJs();
-        $phpShouldSpawn         = $filter->shouldSpawnPhp();
-        $someFilesShouldSpawn   = $jsShouldSpawn || $phpShouldSpawn;
+        $dbShouldSpawn        = $filter->shouldSpawnDb();
+        $jsShouldSpawn        = $filter->shouldSpawnJs();
+        $phpShouldSpawn       = $filter->shouldSpawnPhp();
+        $someFilesShouldSpawn = $jsShouldSpawn || $phpShouldSpawn;
 
         if ($someFilesShouldSpawn) {
             $this->_spawnFiles();
@@ -158,12 +166,11 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
     protected function _spawnFiles() {
         $modelSet       = $this->getModelSet();
-
         $totalActions   = $this->_calculateTotalFileActions();
         $jsShouldSpawn  = $this->getFilter()->shouldSpawnJs();
         $phpShouldSpawn = $this->getFilter()->shouldSpawnPhp();
 
-        $progress       = $this->_getFeedbackInstance();
+        $progress = $this->_getFeedbackInstance();
         $progress->init($totalActions);
         $progress->displayHeader("Files");
 
@@ -195,26 +202,23 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
     }
 
     protected function _getFeedbackInstance() {
-        return $this->getFeedback()->isInteractive()
-            ? Garp_Cli_Ui_ProgressBar::getInstance()
-            : Garp_Cli_Ui_BatchOutput::getInstance()
-        ;
+        return $this->getFeedback()->isInteractive() ? Garp_Cli_Ui_ProgressBar::getInstance()
+            : Garp_Cli_Ui_BatchOutput::getInstance();
     }
 
     protected function _calculateTotalFileActions() {
-        $modelSet           = $this->getModelSet();
-        $jsShouldSpawn      = $this->getFilter()->shouldSpawnJs();
-        $phpShouldSpawn     = $this->getFilter()->shouldSpawnPhp();
+        $modelSet       = $this->getModelSet();
+        $jsShouldSpawn  = $this->getFilter()->shouldSpawnJs();
+        $phpShouldSpawn = $this->getFilter()->shouldSpawnPhp();
 
-        $modelCount         = count($modelSet);
-        $multiplier         = $jsShouldSpawn + $phpShouldSpawn;
-        $addition           = $jsShouldSpawn ? 2 : 0;
+        $modelCount = count($modelSet);
+        $multiplier = $jsShouldSpawn + $phpShouldSpawn;
+        $addition   = $jsShouldSpawn ? 2 : 0;
 
-        $totalActions       = ($modelCount * $multiplier) + $addition;
+        $totalActions = ($modelCount * $multiplier) + $addition;
 
         return $totalActions;
     }
-
 
     protected function _showJsBaseModel($modelId) {
         $modelSet = $this->getModelSet();
@@ -222,7 +226,8 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
         if (array_key_exists($modelId, $modelSet)) {
             $model = $modelSet[$modelId];
             $minBaseModel = $model->renderJsBaseModel($modelSet);
-            require_once(GARP_APPLICATION_PATH.'/../library/Garp/3rdParty/JsBeautifier/jsbeautifier.php');
+            include_once GARP_APPLICATION_PATH .
+                '/../library/Garp/3rdParty/JsBeautifier/jsbeautifier.php';
             echo js_beautify($minBaseModel) . "\n";
         } else {
             Garp_Cli::errorOut("I don't know the model {$modelId}.");
@@ -237,12 +242,15 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
     /**
      * Detects whether the CLI user was asking for help.
+     *
+     * @param array $args
+     * @return bool
      */
     protected function _isHelpRequested($args) {
         if (array_key_exists('help', $args)) {
             return true;
         }
-    
+
         if (!$this->_isFirstArgumentGiven($args)) {
             return false;
         }
@@ -253,14 +261,13 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
     protected function _validateArgs(array $args) {
         if (!$this->_isFirstArgumentGiven($args)) {
-            return;
+            return true;
         }
 
         $error = sprintf(self::ERROR_UNKNOWN_ARGUMENT, $args[0]);
         Garp_Cli::errorOut($error);
-        exit;
+        return false;
     }
-
 
     protected function _displayHelp() {
         $lines = array(
