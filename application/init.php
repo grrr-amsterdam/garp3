@@ -43,24 +43,9 @@ $isCli = false;
 if (array_key_exists('HTTP_HOST', $_SERVER) && $_SERVER['HTTP_HOST']) {
     //  h t t p   c o n t e x t
     define('HTTP_HOST', $_SERVER['HTTP_HOST']);
-
-    //set_include_path(
-        //realpath(APPLICATION_PATH.'/../library')
-        //. PATH_SEPARATOR . realpath(GARP_APPLICATION_PATH.'/../library')
-        //. PATH_SEPARATOR . '.'
-    //);
-
 } else {
     //  c l i   c o n t e x t
     define('HTTP_HOST', gethostname());
-
-    //set_include_path(
-        //'.'
-        //. PATH_SEPARATOR . BASE_PATH . '/library'
-        //. PATH_SEPARATOR . realpath(GARP_APPLICATION_PATH.'/../library')
-        //. PATH_SEPARATOR . get_include_path()
-    //);
-
     $isCli = true;
 }
 
@@ -92,19 +77,14 @@ $filePrefix = preg_replace('/[^a-zA-A0-9_]/', '_', $filePrefix) . '_';
 
 $frontendName = 'Core';
 
-$memcacheAvailable = extension_loaded('memcache');
-if ($memcacheAvailable) {
-    $memcache = new Memcache;
-    $memcacheAvailable = @$memcache->connect(MEMCACHE_HOST, MEMCACHE_PORT);
-}
-if (!$memcacheAvailable) {
-    $backendName       = 'Black-Hole';
-    $cacheStoreEnabled = false;
-    $useWriteControl   = false;
-} else {
+if (MEMCACHE_PORT && MEMCACHE_HOST) {
     $backendName       = 'Memcached';
     $cacheStoreEnabled = true;
     $useWriteControl   = true;
+} else {
+    $backendName       = 'Black-Hole';
+    $cacheStoreEnabled = false;
+    $useWriteControl   = false;
 }
 
 $frontendOptions = array(
