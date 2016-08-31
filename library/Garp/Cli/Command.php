@@ -3,25 +3,25 @@
  * Garp_Cli_Command
  * Blueprint for command line commands (usually triggered
  * from /garp/scripts/garp.php).
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Db
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 abstract class Garp_Cli_Command {
     /**
      * Restrict arguments
-     * @var Array
+     *
+     * @var array
      */
     protected $_allowedArguments = array();
 
     /**
      * Central start method
      * By default expects the first parameter (index 1 in $args) to be the requested method.
-     * @param Array $args Various options. Must contain at least a method name as the first parameter.
-     * @return Boolean
+     *
+     * @param array $args Various options.
+     *                    Must contain at least a method name as the first parameter.
+     * @return bool
      */
     public function main(array $args = array()) {
         $publicMethods = $this->getPublicMethods();
@@ -29,14 +29,17 @@ abstract class Garp_Cli_Command {
             if (in_array('help', $publicMethods)) {
                 $args[0] = 'help';
             } else {
-                Garp_Cli::errorOut("No method selected. Available methods: \n ".implode("\n ", $publicMethods));
+                Garp_Cli::errorOut(
+                    "No method selected. Available methods: \n " .
+                    implode("\n ", $publicMethods)
+                );
                 return false;
             }
         }
 
         $methodName = $args[0];
         if (!in_array($methodName, $publicMethods)) {
-            Garp_Cli::errorOut('Unknown command \''.$methodName.'\'');
+            Garp_Cli::errorOut('Unknown command \'' . $methodName . '\'');
             return false;
         }
         unset($args[0]);
@@ -51,7 +54,9 @@ abstract class Garp_Cli_Command {
 
     /**
      * Assists in bash completion
-     * @return Boolean
+     *
+     * @param array $args
+     * @return bool
      */
     public function complete(array $args = array()) {
         $publicMethods = $this->getPublicMethods();
@@ -63,18 +68,25 @@ abstract class Garp_Cli_Command {
 
     /**
      * Return a list of all public methods available on this command.
-     * @return Array
+     *
+     * @return array
      */
     public function getPublicMethods() {
         $reflect = new ReflectionClass($this);
         $publicMethods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
-        $publicMethods = array_map(function($m) {
-            return $m->name;
-        }, $publicMethods);
-        $publicMethods = array_filter($publicMethods, function($m) {
-            $ignoreMethods = array('__construct', 'main', 'getPublicMethods');
-            return !in_array($m, $ignoreMethods);
-        });
+        $publicMethods = array_map(
+            function ($m) {
+                return $m->name;
+            },
+            $publicMethods
+        );
+        $publicMethods = array_filter(
+            $publicMethods,
+            function ($m) {
+                $ignoreMethods = array('__construct', 'main', 'getPublicMethods');
+                return !in_array($m, $ignoreMethods);
+            }
+        );
         return $publicMethods;
     }
 
@@ -92,8 +104,8 @@ abstract class Garp_Cli_Command {
      * When this abstract class passes along the call to a specific command, in this case
      * Garp_Cli_Command_Db::replace(), it's better to start the array at index 0 being "monkeys".
      *
-     * @param Array $args
-     * @return Array
+     * @param array $args
+     * @return array
      *
      * @todo I'm guessing array_splice() would be a better choice here...
      */
@@ -114,13 +126,15 @@ abstract class Garp_Cli_Command {
      * Make sure the method is not inadvertently called with the
      * wrong arguments. This might indicate the user made a mistake
      * in calling it.
-     * @param String $methodName
-     * @param Array $args
-     * @return Boolean
+     *
+     * @param string $methodName
+     * @param array $args
+     * @return bool
      */
     protected function _validateArguments($methodName, $args) {
-        if (!array_key_exists($methodName, $this->_allowedArguments) ||
-            $this->_allowedArguments[$methodName] === '*') {
+        if (!array_key_exists($methodName, $this->_allowedArguments)
+            || $this->_allowedArguments[$methodName] === '*'
+        ) {
             return true;
         }
 

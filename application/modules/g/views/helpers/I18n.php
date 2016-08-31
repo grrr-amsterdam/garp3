@@ -3,14 +3,15 @@
  * G_View_Helper_I18n
  * I18n helper functions
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      G_View_Helper
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
+
     /**
      * Chain method.
-     * @return G_View_Helper_String
+     *
+     * @return G_View_Helper_I18n
      */
     public function i18n() {
         return $this;
@@ -18,13 +19,16 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 
     /**
      * Get a route in a different language.
-     * @param String $language
-     * @param Array $routeParams Parameters used in assembling the alternate route
-     * @param String $route Which route to use. Defaults to current route.
-     * @return String
+     *
+     * @param string $language
+     * @param array $routeParams  Parameters used in assembling the alternate route
+     * @param string $route       Which route to use. Defaults to current route.
+     * @param bool $defaultToHome Wether to use home as a fallback alt route
+     * @return string
      */
-    public function getAlternateUrl($language, array $routeParams = array(), $route = null,
-        $defaultToHome = true) {
+    public function getAlternateUrl(
+        $language, array $routeParams = array(), $route = null, $defaultToHome = true
+    ) {
         if (!$route) {
             $router = Zend_Controller_Front::getInstance()->getRouter();
             $route  = $router->getCurrentRouteName();
@@ -52,8 +56,9 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
             return $this->_constructHomeFallbackUrl($language);
         }
         // Remove the baseURl because it contains the current language
-        $alternateRoute =
-            $this->view->string()->strReplaceOnce($this->view->baseUrl(), '', $alternateRoute);
+        $alternateRoute = $this->view->string()->strReplaceOnce(
+            $this->view->baseUrl(), '', $alternateRoute
+        );
 
         // Always use explicit localization
         if ($alternateRoute == '/') {
@@ -64,9 +69,10 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
 
     /**
      * Maps methods to Garp_Util_String
-     * @param String $method
-     * @param Array $args
-     * @return Mixed
+     *
+     * @param string $method
+     * @param array $args
+     * @return mixed
      */
     public function __call($method, $args) {
         return call_user_func_array(array('Garp_I18n', $method), $args);
@@ -76,6 +82,9 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
      * Crude fallback for routes that are not found in the alternate language
      * This assumes your homepage exists at "/<language>".
      * Probably good to refactor at some point when this becomes a problem.
+     *
+     * @param string $altLang
+     * @return string
      */
     protected function _constructHomeFallbackUrl($altLang) {
         // Default to the homepage

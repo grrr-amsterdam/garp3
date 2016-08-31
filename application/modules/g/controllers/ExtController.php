@@ -6,9 +6,8 @@ require 'ContentController.php';
  * This controller handles Ext.Direct requests and sends 'em off to either the appropriate
  * models or the ContentController, which acts as a wrapper around crud functionality.
  *
- * @package Garp
- * @subpackage Controllers
- * @author Harmen Janssen <harmen@grrr.nl>
+ * @package G_Controllers
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class G_ExtController extends G_ContentController {
     /**
@@ -102,7 +101,7 @@ class G_ExtController extends G_ContentController {
                     $methodParts = explode('.', $request['method']);
                     $method = array_pop($methodParts);
                     if (in_array($method, array('create', 'update', 'destroy'))) {
-                        $modifyMethod = '_modifyBefore'.ucfirst($method);
+                        $modifyMethod = '_modifyBefore' . ucfirst($method);
                         $request = $this->{$modifyMethod}($request);
                     }
                 }
@@ -143,7 +142,7 @@ class G_ExtController extends G_ContentController {
              */
             foreach ($this->_postModifyMethods as $i => $postMethod) {
                 if (!empty($response[$i]) && !empty($this->_originalRequests[$i])) {
-                    $modifyMethod = '_modifyAfter'.ucfirst($postMethod);
+                    $modifyMethod = '_modifyAfter' . ucfirst($postMethod);
                     $response[$i] = $this->{$modifyMethod}(
                         $response[$i],
                         $this->_originalRequests[$i]

@@ -3,9 +3,8 @@
  * Garp_Util_Configuration
  * A configuration array with some convenience methods built-in
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.5
- * @package      Garp_Util
+ * @package Garp_Util
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Util_Configuration extends ArrayIterator {
     /**#@+
@@ -29,8 +28,9 @@ class Garp_Util_Configuration extends ArrayIterator {
      * Convenience method for requiring a certain key.
      * (note; this method is not called "require" as would be
      * more obvious since that is a PHP reserved keyword)
-     * @param String|Int $key The key that's required
-     * @param String $msg Optional error message
+     *
+     * @param string|int $key The key that's required
+     * @param string $msg Optional error message
      * @return Garp_Util_Configuration $this
      * @throws Garp_Util_Configuration_Exception
      */
@@ -46,15 +46,17 @@ class Garp_Util_Configuration extends ArrayIterator {
      * Convenience method for setting default values.
      * The value gets set if the key does not exist or
      * when it's empty (if $ifEmpty is true).
-     * @param String|Int $key The key of the value
-     * @param Mixed $default The default value
-     * @param Boolean $ifEmpty Wether to set even if the key already
+     *
+     * @param string|int $key The key of the value
+     * @param mixed $default The default value
+     * @param bool $ifEmpty Wether to set even if the key already
      *                         exists but is empty.
      * @return Garp_Util_Configuration $this
      */
     public function setDefault($key, $default, $ifEmpty = false) {
-        if (($ifEmpty && $this->offsetExists($key) && !$this->offsetGet($key)) ||
-            !$this->offsetExists($key)) {
+        if (($ifEmpty && $this->offsetExists($key) && !$this->offsetGet($key))
+            || !$this->offsetExists($key)
+        ) {
             $this->offsetSet($key, $default);
         }
         return $this;
@@ -62,9 +64,10 @@ class Garp_Util_Configuration extends ArrayIterator {
 
     /**
      * Validate a value's type
-     * @param String $key
-     * @param String $type
-     * @param String $msg Optional error message
+     *
+     * @param string $key
+     * @param string $type
+     * @param string $msg Optional error message
      * @return Garp_Util_Configuration $this
      * @throws Garp_Util_Configuration_Exception_IncorrectType
      */
@@ -93,7 +96,8 @@ class Garp_Util_Configuration extends ArrayIterator {
 
     /**
      * Convert to simple array
-     * @return Array
+     *
+     * @return array
      */
     public function toArray() {
         return $this->getArrayCopy();

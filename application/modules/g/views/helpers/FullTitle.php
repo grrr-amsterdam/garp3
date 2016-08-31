@@ -4,9 +4,8 @@
  * Generates a title fit for printing in a <title> tag.
  * The body of the fullTitle method would usually be literally embedded in the layout template.
  *
- * @package Garp_View_Helper
+ * @package G_View_Helper
  * @author  Harmen Janssen <harmen@grrr.nl>
- * @version 0.1.0
  */
 class G_View_Helper_FullTitle extends Zend_View_Helper_Abstract {
 

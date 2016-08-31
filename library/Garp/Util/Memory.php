@@ -3,18 +3,15 @@
  * Garp_Util_Memory
  * Shortcut to toggling memory.
  *
- * @author       $Author: harmen $
- * @modifiedby   $LastChangedBy: harmen $
- * @version      $LastChangedRevision: 6262 $
- * @package      Garp
- * @subpackage   Util
- * @lastmodified $LastChangedDate: 2012-09-12 15:17:49 +0200 (Wed, 12 Sep 2012) $
+ * @package Garp_Util
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Util_Memory {
     /**
      * Raises PHP's RAM limit for extensive operations.
      * Takes its value from application.ini if not provided.
-     * @param Int $mem In MBs.
+     *
+     * @param int $mem In MBs.
      * @return Void
      */
     public function useHighMemory($mem = null) {
@@ -27,17 +24,18 @@ class Garp_Util_Memory {
         if (!empty($currentMemoryLimit)) {
             $megs = (int)substr($currentMemoryLimit, 0, -1);
             if ($megs < $highMemory) {
-                ini_set('memory_limit', $highMemory.'M');
+                ini_set('memory_limit', $highMemory . 'M');
             }
         } else {
-            ini_set('memory_limit', $highMemory.'M');
+            ini_set('memory_limit', $highMemory . 'M');
         }
     }
 
 
     /**
      * Return current ini setting memory_limit
-     * @return Int
+     *
+     * @return int
      */
     public function getCurrentMemoryLimit() {
         return ini_get('memory_limit');

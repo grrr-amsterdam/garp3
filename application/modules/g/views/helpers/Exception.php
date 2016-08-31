@@ -1,11 +1,9 @@
 <?php
 /**
  * G_View_Helper_Exception
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Auth
- * @lastmodified $Date: $
+ *
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
-class G_View_Helper_Exception extends Exception {}
+class G_View_Helper_Exception extends Exception {
+}

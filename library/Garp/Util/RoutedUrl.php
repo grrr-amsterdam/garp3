@@ -3,24 +3,26 @@
  * Garp_Util_RoutedUrl
  * Represents a URL, assembled from a route definition.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      Garp_Util
+ * @package Garp_Util
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Util_RoutedUrl {
     /**
-     * @var String
+     * @var string
      */
     protected $_url;
 
     /**
      * Class constructor
-     * @param String $routeName
-     * @param Array $params
+     *
+     * @param string $routeName
+     * @param array $params
      * @param Zend_Controller_Router_Interface $router
-     * @return Void
+     * @return void
      */
-    public function __construct($routeName, $params = array(), Zend_Controller_Router_Interface $router = null) {
+    public function __construct(
+        $routeName, $params = array(), Zend_Controller_Router_Interface $router = null
+    ) {
         $router = $router ?: Zend_Controller_Front::getInstance()->getRouter();
         if (!$router) {
             throw new Exception('Router not found.');
@@ -30,7 +32,7 @@ class Garp_Util_RoutedUrl {
     }
 
     /**
-     * @return String
+     * @return string
      */
     public function __toString() {
         return $this->_url;

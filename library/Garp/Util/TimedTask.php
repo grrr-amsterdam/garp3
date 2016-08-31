@@ -3,9 +3,8 @@
  * Garp_Util_TimedTask
  * Execute a task, record its execution time, done.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
- * @package      Garp_Util
+ * @package Garp_Util
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Util_TimedTask {
     const FORMAT_SECONDS = 0;
@@ -18,16 +17,24 @@ class Garp_Util_TimedTask {
         self::FORMAT_HOURS   => 3600,
     );
 
-    /** @var Anything that gets accepted by call_user_func */
+    /**
+     * @var mixed Anything that gets accepted by call_user_func
+     */
     protected $_executable;
 
-    /** @var Array */
+    /**
+     * @var array
+     */
     protected $_args;
 
-    /** @var Bool */
+    /**
+     * @var bool
+     */
     protected $_hasRun = false;
 
-    /** @var Int */
+    /**
+     * @var int
+     */
     protected $_timeTaken = 0;
 
     public function __construct($executable, array $args = array()) {

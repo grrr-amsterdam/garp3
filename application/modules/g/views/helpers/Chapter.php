@@ -3,14 +3,13 @@
  * Garp_View_Helper_Chapter
  * Helper for rendering Chapters (as used in Garp's "magazine layout").
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      Garp
- * @subpackage   View
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class G_View_Helper_Chapter extends Zend_View_Helper_Abstract {
     /**
      * For a fluent interface.
+     *
      * @return G_View_Helper_Chapter $this
      */
     public function chapter() {
@@ -19,21 +18,23 @@ class G_View_Helper_Chapter extends Zend_View_Helper_Abstract {
 
     /**
      * Render the chapter
-     * @param Array $chapter
-     * @param Array $params Additional parameters for the partial.
-     * @return String
+     *
+     * @param array $chapter
+     * @param array $params Additional parameters for the partial.
+     * @return string
      */
     public function render(array $chapter, array $params = array()) {
-        $partial = 'partials/chapters/'.($chapter['type'] ?: 'default').'.phtml';
+        $partial = 'partials/chapters/' . ($chapter['type'] ?: 'default') . '.phtml';
         $params['content'] = $chapter['content'];
         return $this->view->partial($partial, 'default', $params);
     }
 
     /**
      * Render a content node
-     * @param Array $contentNode
-     * @param Array $params Additional parameters for the partial
-     * @return String
+     *
+     * @param array $contentNode
+     * @param array $params Additional parameters for the partial
+     * @return string
      */
     public function renderContentNode(array $contentNode, array $params = array()) {
         if (empty($contentNode)) {

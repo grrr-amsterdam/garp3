@@ -3,9 +3,8 @@
  * G_View_Helper_NormalizeUrl
  * Make sure a URL string has a protocol
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
- * @package      G_View_Helper
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class G_View_Helper_NormalizeUrl extends Zend_View_Helper_Abstract {
 

@@ -2,21 +2,21 @@
 /**
  * G_View_Helper_Html
  * Renders any HTML
- * @author Harmen Janssen | grrr.nl
- * @version 1
- * @package Garp
- * @subpackage Helper
+ *
+ * @package G_View_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
  *
  * @todo Allow self-closing tags
  */
 class G_View_Helper_Html extends Zend_View_Helper_HtmlElement {
-    
+
     /**
      * Render the HTML.
-     * @param String $tag
-     * @param Array $attributes
-     * @param String $value
-     * @return String
+     *
+     * @param string $tag
+     * @param string $value
+     * @param array $attributes
+     * @return string
      */
     public function html($tag, $value = null, array $attributes = array()) {
         // This happens when used from a Garp_Form context
@@ -33,15 +33,15 @@ class G_View_Helper_Html extends Zend_View_Helper_HtmlElement {
             unset($attributes['escape']);
         }
 
-        $html  = '<'.$tag;
-        $html .= $this->_htmlAttribs($attributes).'>';
+        $html  = '<' . $tag;
+        $html .= $this->_htmlAttribs($attributes) . '>';
         if ($value) {
             if ($escape) {
                 $value = $this->view->escape($value);
             }
             $html .= $value;
         }
-        $html .= '</'.$tag.'>';
+        $html .= '</' . $tag . '>';
         return $html;
     }
 
