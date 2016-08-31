@@ -1,6 +1,8 @@
 <?php
 date_default_timezone_set('Europe/Amsterdam');
 define('APPLICATION_ENV', 'testing');
+define('MEMCACHE_HOST', null);
+define('MEMCACHE_PORT', null);
 $garpRoot = dirname(__FILE__) . '/..';
 
 error_reporting(-1);
