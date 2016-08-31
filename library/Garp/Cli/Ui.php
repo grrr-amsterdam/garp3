@@ -1,7 +1,9 @@
 <?php
 /**
  * Generic extendable singleton class to deal with Cli output and input.
- * @author David Spreekmeester | Grrr.nl
+ *
+ * @package Garp_Cli
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 abstract class Garp_Cli_Ui implements Garp_Cli_Ui_Protocol {
     protected $_totalValue = null;
@@ -16,12 +18,13 @@ abstract class Garp_Cli_Ui implements Garp_Cli_Ui_Protocol {
         }
         return $ui;
     }
-    
 
-    protected function __construct() {}
+    protected function __construct() {
+    }
 
     /**
-     * @param Int $totalValue   The total value of this process.
+     * @param int $totalValue The total value of this process.
+     * @return void
      */
     public function init($totalValue) {
         $this->_totalValue = $totalValue;
@@ -31,8 +34,10 @@ abstract class Garp_Cli_Ui implements Garp_Cli_Ui_Protocol {
     /**
      * Advances the progress bar by 1 step, if no argument is provided.
      * Otherwise, the progress bar is set to the provided value.
-     * 
-     * @param Int $newValue The new value. Leave empty to advance 1 step. This will be compared to $this->_totalValue.
+     *
+     * @param int $newValue The new value. Leave empty to advance 1 step.
+     *                      This will be compared to $this->_totalValue.
+     * @return void
      */
     public function advance($newValue = null) {
         if (!is_null($newValue)) {

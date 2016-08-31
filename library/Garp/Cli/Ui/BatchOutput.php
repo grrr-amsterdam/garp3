@@ -1,7 +1,9 @@
 <?php
 /**
  * Provides methods to display progress in a batch (non-interactive) context.
- * @author David Spreekmeester | Grrr.nl
+ *
+ * @package Garp_Cli
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Ui_BatchOutput extends Garp_Cli_Ui {
     protected $_isInteractive = false;

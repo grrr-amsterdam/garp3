@@ -1,11 +1,9 @@
 <?php
 /**
  * Garp_Cli_Crontab_Exception
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Crontab
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
-class Garp_Cli_Crontab_Exception extends Exception { }
+class Garp_Cli_Crontab_Exception extends Exception {
+}

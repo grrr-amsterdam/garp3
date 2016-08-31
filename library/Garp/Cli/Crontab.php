@@ -2,25 +2,23 @@
 /**
  * Garp_Cli_Crontab
  * Manages crontab files
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cli_Crontab {
     /**
      * Class constructor
-     * @return Void
+     *
+     * @return void
      */
     public function __construct() {
     }
 
-
     /**
      * Fetch current jobs
-     * @return Array
+     *
+     * @return array
      */
     public function fetchAll() {
         $crontab = $this->_exec('crontab -l');
@@ -33,11 +31,11 @@ class Garp_Cli_Crontab {
         }
     }
 
-
     /**
      * Execute command lines
-     * @param String $command
-     * @return String
+     *
+     * @param string $command
+     * @return string
      */
     protected function _exec($command) {
         return shell_exec($command);
