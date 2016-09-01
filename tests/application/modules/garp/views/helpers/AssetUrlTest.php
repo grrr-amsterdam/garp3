@@ -12,14 +12,16 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
     public function testShouldRenderLocalAssetUrl() {
         $this->_helper->injectConfigValues(
             array(
-            'cdn' => array(
-                'type' => 'local',
-                'css' => array('location' => 'local'),
-            ),
+                'cdn' => array(
+                    'type' => 'local',
+                    'css' => array('location' => 'local'),
+                    'domain' => 'bananas.com',
+                    'ssl' => false
+                ),
             )
         );
         $this->assertEquals(
-            '/css/base.css?' . new Garp_Semver,
+            'http://bananas.com/css/base.css?' . new Garp_Semver,
             $this->_getHelper()->assetUrl('/css/base.css')
         );
     }
@@ -65,8 +67,9 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         );
         $removeSemver = $this->_createTmpSemver();
         $this->assertEquals(
-            $this->_getHelper()->assetUrl('main.css'),
-            '/css/build/prod/' . new Garp_Semver . '/main.css'
+            (string)$this->_getHelper()->assetUrl('main.css'),
+            'http://static.loc.melkweg.nl.s3-website-us-east-1.amazonaws.com/css/build/prod/' .
+                new Garp_Semver . '/main.css'
         );
 
         if ($removeSemver) {
@@ -91,8 +94,9 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         );
         $removeSemver = $this->_createTmpSemver();
         $this->assertEquals(
-            $this->_getHelper()->assetUrl('main.js'),
-            '/js/build/prod/' . new Garp_Semver . '/main.js'
+            (string)$this->_getHelper()->assetUrl('main.js'),
+            'http://static.loc.melkweg.nl.s3-website-us-east-1.amazonaws.com/js/build/prod/' .
+                new Garp_Semver . '/main.js'
         );
 
         if ($removeSemver) {
@@ -117,7 +121,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
 
         $this->assertEquals(
             'foo/bar/lorem/ipsum/' . new Garp_Semver . '/main.js',
-            $this->_getHelper()->assetUrl()->getVersionedBuildPath('main.js')
+            (string)$this->_getHelper()->assetUrl()->getVersionedBuildPath('main.js')
         );
 
         if ($removeSemver) {
@@ -143,7 +147,10 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         $removeSemver = $this->_createTmpSemver();
         $expectedUrl = 'http://static.sesamestreet.co.uk/css/build/prod/' .
             new Garp_Semver . '/main.css';
-        $this->assertEquals($expectedUrl, $this->_getHelper()->assetUrl('main.css'));
+        $this->assertEquals(
+            $expectedUrl,
+            (string)$this->_getHelper()->assetUrl('main.css')
+        );
 
         if ($removeSemver) {
             $this->_removeTmpSemver();
@@ -153,10 +160,47 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
     public function testShouldReturnBasenameIfAssetRootIsUnknown() {
         $this->_helper->injectConfigValues(
             array(
-            'cdn' => array('type' => 'local')
+                'cdn' => array(
+                    'type' => 'local',
+                    'domain' => 'myprettythings.com'
+                )
             )
         );
-        $this->assertEquals('/foo.pdf', $this->_getHelper()->assetUrl('foo.pdf'));
+        $this->assertEquals(
+            'http://myprettythings.com/foo.pdf',
+            (string)$this->_getHelper()->assetUrl('foo.pdf')
+        );
+    }
+
+    public function testShouldRenderInHttpWhenSslIsTrue() {
+        $this->_helper->injectConfigValues(
+            array(
+            'cdn' => array(
+                'type' => 's3',
+                'ssl' => true,
+                's3' => array(
+                    'region' => 'eu-west',
+                    'bucket' => 'doodoobucket'
+                ),
+                'css' => array('location' => 's3'),
+                'domain' => 'my-custom-cdn.com'
+            ),
+            'assets' => array(
+                'css' => array(
+                    'location' => 's3'
+                )
+            )
+            )
+        );
+        $removeSemver = $this->_createTmpSemver();
+        $this->assertEquals(
+            $this->_getHelper()->assetUrl('/main.css'),
+            'https://my-custom-cdn.com/main.css?' . new Garp_Semver
+        );
+
+        if ($removeSemver) {
+            $this->_removeTmpSemver();
+        }
     }
 
     public function testShouldRenderProperS3UrlForHttps() {
@@ -170,6 +214,8 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
                     'bucket' => 'doodoobucket'
                 ),
                 'css' => array('location' => 's3'),
+                // Note: default S3 Amazonaws scheme is used when domain is not set
+                'domain' => null
             ),
             'assets' => array(
                 'css' => array(

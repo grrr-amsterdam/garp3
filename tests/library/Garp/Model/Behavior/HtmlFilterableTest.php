@@ -10,6 +10,13 @@ class Garp_Model_Behavior_HtmlFilterableTest extends Garp_Test_PHPUnit_TestCase 
      * @test
      */
     public function should_filter_non_existent_tags() {
+        $this->_helper->injectConfigValues(
+            array(
+            'app' => array(
+                'domain' => 'grrr.nl'
+            )
+            )
+        );
         $filterable = new Garp_Model_Behavior_HtmlFilterable(array());
 
         $test = '<banana>This tag does not exist</banana>';
