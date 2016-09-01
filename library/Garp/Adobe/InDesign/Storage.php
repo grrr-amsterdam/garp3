@@ -2,18 +2,15 @@
 /**
  * Garp_Adobe_InDesign_Storage
  * Wrapper around various InDesign related functionality.
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: david $
- * @version $Revision: 6526 $
- * @package Garp
- * @subpackage InDesign
- * @lastmodified $Date: 2012-10-04 06:20:22 +0200 (Thu, 04 Oct 2012) $
+ *
+ * @package Garp_Adobe_InDesign
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Adobe_InDesign_Storage {
     protected $_workingDir;
-    
+
     protected $_sourcePath;
-    
+
     protected $_targetPath;
 
 
@@ -23,10 +20,10 @@ class Garp_Adobe_InDesign_Storage {
         $this->_targetPath = $targetPath;
     }
 
-
     /**
      * Creates a temporary directory for .idml construction.
-     * @return  String  The path to this dir, including trailing slash.
+     *
+     * @return  string  The path to this dir, including trailing slash.
      */
     public static function createTmpDir() {
         $tmpDir = sys_get_temp_dir();
@@ -34,13 +31,15 @@ class Garp_Adobe_InDesign_Storage {
         $tmpDir .= uniqid() . '/';
         if (mkdir($tmpDir)) {
             return $tmpDir;
-        } else throw new Exception('Could not create directory ' . $tmpDir);
+        } else {
+            throw new Exception('Could not create directory ' . $tmpDir);
+        }
     }
-    
-    
-    
+
     /**
      * Extract .idml file and place it in the working directory.
+     *
+     * @return void
      */
     public function extract() {
         $zip = new ZipArchive();
@@ -49,12 +48,15 @@ class Garp_Adobe_InDesign_Storage {
         if ($res === true) {
             $zip->extractTo($this->_workingDir);
             $zip->close();
-        } else throw new Exception('Could not open archive ' . $this->_sourcePath);
+        } else {
+            throw new Exception('Could not open archive ' . $this->_sourcePath);
+        }
     }
 
 
     /**
      * @param int $destination Target path of the zip, if you do not want to use $this->_targetPath
+     * @return void
      */
     public function zip($destination = null) {
         $source             = $this->_workingDir;
@@ -72,21 +74,28 @@ class Garp_Adobe_InDesign_Storage {
         $source = str_replace('\\', '/', realpath($source));
 
         if (is_dir($source) === true) {
-            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::LEAVES_ONLY);
+            $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($source),
+                RecursiveIteratorIterator::LEAVES_ONLY
+            );
 
             foreach ($files as $file) {
                 $file = str_replace('\\', '/', $file);
 
                 // Ignore "." and ".." folders
-                if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) )
+                if (in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) ) {
                     continue;
+                }
 
                 $file = realpath($file);
 
                 if (is_dir($file) === true) {
                     $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
                 } elseif (is_file($file) === true) {
-                    $zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
+                    $zip->addFromString(
+                        str_replace($source . '/', '', $file),
+                        file_get_contents($file)
+                    );
                 }
             }
         } elseif (is_file($source) === true) {
@@ -95,33 +104,35 @@ class Garp_Adobe_InDesign_Storage {
 
         $zip->close();
     }
-    
-    
+
+
     protected function _preZipChecks() {
         if (!extension_loaded('zip')) {
             throw new Exception('Zip PHP extension is not installed :(');
         }
-        
+
         if (!file_exists($this->_workingDir)) {
             throw new Exception("Specified source file {$this->_workingDir} does not exist.");
         }
     }
-    
-    
+
+
     public function removeWorkingDir() {
         $this->_recursiveRmDir($this->_workingDir);
     }
-    
-    
+
+
     /**
      * @param   String  $dir    Trailing slash is mandatory.
+     * @return void
      */
     protected function _recursiveRmDir($dir) {
-        foreach(glob($dir . '*') as $file) {
-            if(is_dir($file))
+        foreach (glob($dir . '*') as $file) {
+            if (is_dir($file)) {
                 $this->_recursiveRmDir($file . '/');
-            else
+            } else {
                 unlink($file);
+            }
         }
         rmdir($dir);
     }

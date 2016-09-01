@@ -4,9 +4,8 @@
  * Central mail singleton that you don't have to configure every time you want to send a little
  * message.
  *
- * @package      Garp
- * @author       Harmen Janssen <harmen@grrr.nl>
- * @version      0.1.0
+ * @package Garp
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Mailer {
     const EXCEPTION_CANNOT_RESOLVE_FROM_ADDRESS = 'Unable to find from address.';

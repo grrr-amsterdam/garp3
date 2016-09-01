@@ -2,12 +2,9 @@
 /**
  * Garp_Adobe_InDesign
  * Handling boring InDesign functionality so you don't have to.
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: david $
- * @version $Revision: 6526 $
- * @package Garp
- * @subpackage InDesign
- * @lastmodified $Date: 2012-10-04 06:20:22 +0200 (Thu, 04 Oct 2012) $
+ *
+ * @package Garp_Adobe
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Adobe_InDesign {
     /**
@@ -19,24 +16,30 @@ class Garp_Adobe_InDesign {
      * @var Garp_Adobe_InDesign_SpreadSet $_spreadSet The full collection of existing spreads.
      */
     protected $_spreadSet;
-    
+
     /**
      * @var Garp_Adobe_InDesign_Storage $_storage
      */
     protected $_storage;
-    
+
     /**
-     * @param   String  $sourcePath     Name of the .idml file that will serve as a template for the dynamic .idml files
+     * @param   String  $sourcePath     Name of the .idml file that will serve as a template
+     *                                  for the dynamic .idml files
      * @param   String  $targetPath     Location of the target .idml file.
      * @param   Array   $newContent     Content parameters in the following format:
      *                                  array (
      *                                      [0] =>
      *                                          'my_field_1' => 'contentNodeValue1',
-     *                                          'my_field_2' => array('contentNodeValue1', 'contentNodeValue2')
+     *                                          'my_field_2' => array(
+     *                                                              'contentNodeValue1',
+     *                                                              'contentNodeValue2'
+     *                                                          )
      *                                  )
-     *                                  The story ID is derived from the .xml file in the .idml's Stories directory.
-     * @param   Array   [$newAttribs]   New attribute values to be changed for tagged TextFrames. Key name should be the
-     *                                  attribute that is to be changed. Can for now only be 'FillColor'.
+     *                                  The story ID is derived from the .xml file
+     *                                  in the .idml's Stories directory.
+     * @param   Array   $newAttribs     New attribute values to be changed for tagged TextFrames.
+     *                                  Key name should be the attribute that is to be changed.
+     *                                  Can for now only be 'FillColor'.
      *                                  array(
      *                                      'FillColor' =>
      *                                          array(
@@ -44,10 +47,15 @@ class Garp_Adobe_InDesign {
      *                                                  'my_field_3' => 'MyColorName'
      *                                          )
      *                                  )
+     * @return void
      */
     public function inject($sourcePath, $targetPath, array $newContent, $newAttribs = null) {
         $this->_workingDir  = Garp_Adobe_InDesign_Storage::createTmpDir();
-        $this->_storage     = new Garp_Adobe_InDesign_Storage($this->_workingDir, $sourcePath, $targetPath);
+        $this->_storage     = new Garp_Adobe_InDesign_Storage(
+            $this->_workingDir,
+            $sourcePath,
+            $targetPath
+        );
         $this->_storage->extract();
 
 
@@ -67,20 +75,29 @@ class Garp_Adobe_InDesign {
                     - there are 25 slots in the InDesign source file
                     - this will result in 4 output files that should be linked into a mother file.
             */
-                
+
             $numberOfClusters   = (int) ceil($newContentCount / $dynamicPageCount);
             for ($c = 0; $c < $numberOfClusters; $c++) {
-                $clusteredTargetPath    = $this->_getClusteredPath($targetPath, $c, $numberOfClusters);
-                $clusterOffset          = $c * $dynamicPageCount;
-                $clusteredContent       = array_slice($newContent, $clusterOffset, $dynamicPageCount);
+                $clusteredTargetPath = $this->_getClusteredPath($targetPath, $c, $numberOfClusters);
+                $clusterOffset       = $c * $dynamicPageCount;
+                $clusteredContent    = array_slice($newContent, $clusterOffset, $dynamicPageCount);
                 if ($newAttribs) {
-                    $clusteredAttribs   = array();
+                    $clusteredAttribs = array();
                     foreach ($newAttribs as $propName => $attribRows) {
-                        $clusteredAttribs[$propName] = array_slice($attribRows, $clusterOffset, $dynamicPageCount);
+                        $clusteredAttribs[$propName] = array_slice(
+                            $attribRows,
+                            $clusterOffset,
+                            $dynamicPageCount
+                        );
                     }
                 }
 
-                $this->_injectSingleFile($storyIdsPerPage, $clusteredContent, $clusteredAttribs, $clusteredTargetPath);
+                $this->_injectSingleFile(
+                    $storyIdsPerPage,
+                    $clusteredContent,
+                    $clusteredAttribs,
+                    $clusteredTargetPath
+                );
             }
         } else {
             $this->_injectSingleFile($storyIdsPerPage, $newContent, $newAttribs);
@@ -88,27 +105,27 @@ class Garp_Adobe_InDesign {
 
         $this->_storage->removeWorkingDir();
     }
-    
-    
+
+
     /**
-     * @param   String  $path       Full path to file
-     * @param   Int     $iterator   Zero based iteration
-     * @param   Int     $total      Total number of rows in the cluster
+     * @param   string  $path       Full path to file
+     * @param   int     $iterator   Zero based iteration
+     * @param   int     $total      Total number of rows in the cluster
+     * @return string
      */
     protected function _getClusteredPath($path, $iterator, $total) {
-        $pathinfo           = pathinfo($path);
-        $extension          = $pathinfo['extension'];
-        $pathMinusExt       = substr($path, 0, -(strlen($extension) + 1));
-        $clusterLabel       = ($iterator + 1) . 'of' . $total;
-        $output             = $pathMinusExt . '-' . $clusterLabel . '.' . $extension;
+        $pathinfo     = pathinfo($path);
+        $extension    = $pathinfo['extension'];
+        $pathMinusExt = substr($path, 0, -(strlen($extension) + 1));
+        $clusterLabel = ($iterator + 1) . 'of' . $total;
+        $output       = $pathMinusExt . '-' . $clusterLabel . '.' . $extension;
         return $output;
     }
-    
-    
-    /**
-     * @param int $iterator In case of a clustered (multipart) file, provide the (zero based) current position.
-     */
-    protected function _injectSingleFile($storyIdsPerPage, $newContent, $newAttribs, $targetPath = null) {
+
+
+    protected function _injectSingleFile(
+        $storyIdsPerPage, $newContent, $newAttribs, $targetPath = null
+    ) {
         $row = 0;
         foreach ($storyIdsPerPage as $pageStories) {
             foreach ($pageStories as $storyId) {
@@ -117,11 +134,11 @@ class Garp_Adobe_InDesign {
             }
             $row++;
         }
-        
+
         if ($newAttribs) {
             $this->_spreadSet->replaceAttribsInSpread($newAttribs, $storyIdsPerPage);
         }
-        
+
         $this->_storage->zip($targetPath);
     }
 }

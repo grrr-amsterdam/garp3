@@ -2,67 +2,71 @@
 /**
  * Garp_Form
  * class description
- * @author Harmen Janssen | grrr.nl
- * @version 1
- * @package Garp
- * @subpackage Form
  *
- * @todo Add setters and getters for _addHoneypotValidation and
- * _addTimestampValidation
+ * @package Garp
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @todo Add setters and getters for _addHoneypotValidation and _addTimestampValidation
  */
 class Garp_Form extends Zend_Form {
     /**
      * Name used for timestamp-based anti-spam field
-     * @var String
+     *
+     * @var string
      */
     const TIMESTAMP_FIELD_KEY = 'ts';
 
     /**
      * Name used for honeypot
-     * @var String
+     *
+     * @var string
      */
     const HONEYPOT_FIELD_KEY = 'hp';
 
     /**
      * Parent form.
+     *
      * @var Garp_Form
      */
     protected $_parent;
 
     /**
      * Wether to set a default suffix on labels of required elements
-     * @var Boolean
+     *
+     * @var string
      */
     protected $_defaultRequiredLabelSuffix = ' <i>*</i>';
 
     /**
      * Wether to add a honeypot
-     * @var Boolean
+     *
+     * @var bool
      */
     protected $_addHoneypotValidation = true;
 
     /**
      * Wether to add timestamp validation
-     * @var Boolean
+     *
+     * @var bool
      */
     protected $_addTimestampValidation = true;
 
     /**
      * Wether to hijack this form using ajax
-     * @var Boolean
+     *
+     * @var bool
      */
     protected $_ajax = false;
 
     /**
      * Initalize!
+     *
      * @return void
      */
     public function init() {
         $this->addPrefixPath('Garp_Form', 'Garp/Form')
             ->addElementPrefixPath('Garp_Form', 'Garp/Form/')
             ->addDecorator('FormElements')
-            ->addDecorator('Form')
-            ;
+            ->addDecorator('Form');
 
         if (!$this->getAttrib('class')) {
             $this->setAttrib('class', 'garp-form');
@@ -79,6 +83,9 @@ class Garp_Form extends Zend_Form {
 
     /**
      * Override to unset automatically added security fields
+     *
+     * @param bool $suppressArrayNotation
+     * @return array
      */
     public function getValues($suppressArrayNotation = false) {
         $values = parent::getValues($suppressArrayNotation);
@@ -142,9 +149,10 @@ class Garp_Form extends Zend_Form {
 
     /**
      * Check if an element needs required attribute
+     *
      * @param Zend_Form_Element $element
-     * @param Array $options
-     * @return Boolean
+     * @param array $options
+     * @return bool
      */
     protected function _elementNeedsRequiredAttribute(Zend_Form_Element $element, array $options) {
         return isset($options['required']) &&
@@ -195,7 +203,8 @@ class Garp_Form extends Zend_Form {
 
     /**
      * Set required label suffix
-     * @param String $suffix
+     *
+     * @param string $suffix
      * @return $this
      */
     public function setDefaultRequiredLabelSuffix($suffix) {
@@ -205,7 +214,8 @@ class Garp_Form extends Zend_Form {
 
     /**
      * Get required label suffix
-     * @return String
+     *
+     * @return string
      */
     public function getDefaultRequiredLabelSuffix() {
         return $this->_defaultRequiredLabelSuffix;
@@ -213,7 +223,8 @@ class Garp_Form extends Zend_Form {
 
     /**
      * Set wether to hijack the form using AJAX
-     * @param Boolean $flag
+     *
+     * @param bool $flag
      * @return $this
      */
     public function setAjax($flag) {
@@ -229,7 +240,7 @@ class Garp_Form extends Zend_Form {
     }
 
     /**
-     * @return Boolean
+     * @return bool
      */
     public function getAjax() {
         return $this->_ajax;
@@ -239,13 +250,16 @@ class Garp_Form extends Zend_Form {
      * Add field that records how long it took to submit the form.
      * This should be longer than 1 second, otherwise we suspect spammy
      * behavior.
-     * @return Void
+     *
+     * @return void
      */
     public function addTimestampValidation() {
         // Add timestamp-based spam counter-measure
-        $this->addElement('hidden', self::TIMESTAMP_FIELD_KEY, array(
+        $this->addElement(
+            'hidden', self::TIMESTAMP_FIELD_KEY, array(
             'validators' => array(new Garp_Validate_Duration)
-        ));
+            )
+        );
         // If the form is submitted, do not set the value.
         if (!$this->getValue(self::TIMESTAMP_FIELD_KEY)) {
             $now = time();
@@ -257,7 +271,8 @@ class Garp_Form extends Zend_Form {
      * Add field that acts as a honeypot for spambots. It should be left blank
      * in order to be valid.
      * Use CSS to visually hide this field from humans.
-     * @return Void
+     *
+     * @return void
      */
     public function addHoneypotValidation() {
         $this->addElement('honeypot', self::HONEYPOT_FIELD_KEY);
@@ -265,6 +280,7 @@ class Garp_Form extends Zend_Form {
 
     /**
      * Register a parent.
+     *
      * @param Garp_Form $parent
      * @return $this
      */
@@ -275,6 +291,7 @@ class Garp_Form extends Zend_Form {
 
     /**
      * Get parent
+     *
      * @return Garp_Form
      */
     public function getParent() {
@@ -284,9 +301,10 @@ class Garp_Form extends Zend_Form {
     /**
      * Add id attribute to the options array.
      * Called from Garp_Form::createElement()
-     * @param String $name Name-attribute of the element
-     * @param Array $options
-     * @return Void
+     *
+     * @param string $name Name-attribute of the element
+     * @param array $options
+     * @return void
      */
     protected function _addIdAttribute($name, array &$options) {
         $names = array(
@@ -303,14 +321,15 @@ class Garp_Form extends Zend_Form {
         $name = implode('-', $names);
         // if the root form has no name, the id will start with "-"
         $name = ltrim($name, '-');
-        $options['id'] = strtolower($name).'-field';
+        $options['id'] = strtolower($name) . '-field';
     }
 
     /**
      * Retrieve default decorators
-     * @param String $type Type of element
-     * @param Array $options Options given with the element
-     * @return Void
+     *
+     * @param string $type Type of element
+     * @param array $options Options given with the element
+     * @return void
      */
     protected function _addDefaultDecorators($type, array &$options) {
         // Set default required label suffix
@@ -345,7 +364,8 @@ class Garp_Form extends Zend_Form {
 
     /**
      * Extend __clone to also clone attached validators, decorators and filters.
-     * @return Void
+     *
+     * @return void
      */
     public function __clone() {
         parent::__clone();

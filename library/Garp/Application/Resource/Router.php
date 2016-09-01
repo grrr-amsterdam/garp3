@@ -10,21 +10,21 @@
  * /en/blog/:slug
  * /nl/blog/:slug
  *
- * @author Harmen Janssen, David Spreekmeester | grrr.nl
+ * @package Garp_Application_Resource
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @author  David Spreekmeester <david@grrr.nl>
  * @inspiration Joe Gornick | joegornick.com
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Resource
- * @lastmodified $Date: $
  */
 class Garp_Application_Resource_Router extends Zend_Application_Resource_Router {
-    const ERROR_NO_ROUTE_DEFINED =
-        'There was no routes file defined. Please fill resources.router.routesFile or resources.router.routesFile.generic in core.ini';
+    const ERROR_NO_ROUTE_DEFINED
+        // @codingStandardsIgnoreStart
+        = 'There was no routes file defined. Please fill resources.router.routesFile or resources.router.routesFile.generic in core.ini';
+        // @codingStandardsIgnoreEnd
 
     /**
      * This property lets this Resource override the existing Resource
-     * @var String
+     *
+     * @var string
      */
     public $_explicitType = 'router';
 
@@ -35,6 +35,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 
     /**
      * Retrieve router object
+     *
      * @return Zend_Controller_Router_Rewrite
      */
     public function getRouter() {
@@ -67,6 +68,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 
     /**
      * Retrieve a routes.ini file containing routes
+     *
      * @return Zend_Config_Ini
      */
     protected function _getRoutesConfig() {
@@ -94,6 +96,7 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 
         /**
          * Fix for Turkish language lowercasing issues.
+         *
          * @see: http://www.sobstel.org/blog/php-call-to-undefined-method-on-tr-tr-locale/
          * @see: https://bugs.php.net/bug.php?id=18556
          */
@@ -117,7 +120,8 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 
     /**
      * Fetch all possible locales from the front controller parameters.
-     * @return Array
+     *
+     * @return array
      */
     protected function _getPossibleLocales() {
         $bootstrap = $this->getBootstrap();
@@ -129,7 +133,8 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 
     /**
      * Check if locale is enabled
-     * @return Boolean
+     *
+     * @return bool
      */
     protected function _localeIsEnabled() {
         $options = $this->getOptions();
@@ -138,7 +143,8 @@ class Garp_Application_Resource_Router extends Zend_Application_Resource_Router 
 
     /**
      * Get current language from URL
-     * @return String
+     *
+     * @return string
      */
     protected function _getCurrentLanguage() {
         if (!isset($_SERVER['REQUEST_URI'])) {

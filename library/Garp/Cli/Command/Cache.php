@@ -2,12 +2,8 @@
 /**
  * Garp_Cli_Command_Cache
  *
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ * @package Garp_Cli_Command
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cli_Command_Cache extends Garp_Cli_Command {
     protected $_allowedArguments = array(
@@ -17,8 +13,9 @@ class Garp_Cli_Command_Cache extends Garp_Cli_Command {
 
     /**
      * Clear all the cache
-     * @param Array $args Tags.
-     * @return Boolean
+     *
+     * @param array $args Tags.
+     * @return bool
      */
     public function clear(array $args = array()) {
         $app = Zend_Registry::get('application');
@@ -42,9 +39,10 @@ class Garp_Cli_Command_Cache extends Garp_Cli_Command {
         Garp_Cli::lineOut($out);
     }
 
-
     /**
      * Help
+     *
+     * @return bool
      */
     public function help() {
         Garp_Cli::lineOut('Usage:');

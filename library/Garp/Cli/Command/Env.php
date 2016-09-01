@@ -4,9 +4,8 @@
  * Sets up the environment after deploying.
  * Override this command in the App namespace to do project-specific setup.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      Garp_Cli_Command
+ * @package Garp_Cli_Command
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cli_Command_Env extends Garp_Cli_Command {
 
@@ -21,12 +20,16 @@ class Garp_Cli_Command_Env extends Garp_Cli_Command {
 
     /**
      * Toggle wether the app is under construction
-     * @param Array $args Accept "false", "0", 0, and false as disablers.
+     *
+     * @param array $args Accept "false", "0", 0, and false as disablers.
+     * @return bool
      */
     public function setUnderConstruction(array $args = array()) {
         $enabled = empty($args) ? true : !in_array(current($args), array(0, false, 'false', '0'));
-        Garp_Cli::lineOut(Zend_Registry::get('config')->app->name .
-            ' is' . ($enabled ? '' : ' no longer') . ' under construction');
+        Garp_Cli::lineOut(
+            Zend_Registry::get('config')->app->name .
+            ' is' . ($enabled ? '' : ' no longer') . ' under construction'
+        );
         return Garp_Application::setUnderConstruction($enabled);
     }
 
@@ -36,6 +39,8 @@ class Garp_Cli_Command_Env extends Garp_Cli_Command {
 
     /**
      * Help
+     *
+     * @return bool
      */
     public function help() {
         Garp_Cli::lineOut('Usage:');
@@ -47,6 +52,7 @@ class Garp_Cli_Command_Env extends Garp_Cli_Command {
         Garp_Cli::lineOut('To disable under construction:');
         Garp_Cli::lineOut(' g Env setUnderConstruction false', Garp_Cli::BLUE);
         Garp_Cli::lineOut('');
+        return true;
     }
 }
 

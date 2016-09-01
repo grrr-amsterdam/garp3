@@ -3,9 +3,8 @@
  * Garp_Google
  * Wrapper around Google functionality
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
- * @package      Garp
+ * @package Garp
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Google {
     const INVALID_CREDENTIALS_EXCEPTION = 'Invalid credentials: apiKey and appName are required';
