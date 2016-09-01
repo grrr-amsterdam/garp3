@@ -73,13 +73,13 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
             $this->_getSingleRelationParams(0),
             $this->_getSingleRelationParams(1)
         );
+        $this->_postFixAliases($rels);
 
         $sortByAlias = function ($rel1, $rel2) {
             return strcmp($rel1['alias'], $rel2['alias']);
         };
 
         usort($rels, $sortByAlias);
-        $this->_postFixAliases($rels);
 
         return $rels;
     }
