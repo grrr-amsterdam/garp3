@@ -2,18 +2,16 @@
 /**
  * Garp_Cli_Command_Slugs
  * Generate slugs for a given table
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli_Command
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cli_Command_Slugs extends Garp_Cli_Command {
     /**
      * Generate the slugs
-     * @param Array $args
-     * @return Void
+     *
+     * @param array $args
+     * @return bool
      */
     public function generate(array $args = array()) {
         if (empty($args)) {
@@ -22,7 +20,7 @@ class Garp_Cli_Command_Slugs extends Garp_Cli_Command {
         }
         $modelName = $args[0];
         if (strpos($modelName, '_') === false) {
-            $modelName = 'Model_'.$modelName;
+            $modelName = 'Model_' . $modelName;
         }
         $overwrite = !empty($args[1]) ? $args[1] : false;
 
@@ -65,20 +63,27 @@ class Garp_Cli_Command_Slugs extends Garp_Cli_Command {
 
         Garp_Cli::lineOut('Done.');
         if (count($fails)) {
-            Garp_Cli::errorOut('There were some failures. Please perform a manual check on records with the following primary keys:');
+            Garp_Cli::errorOut(
+                'There were some failures. ' .
+                'Please perform a manual check on records with the following primary keys:'
+            );
             Garp_Cli::lineOut(implode("\n-", $fails));
         }
+        return true;
     }
 
 
     /**
      * Help
+     *
+     * @return bool
      */
     public function help() {
         Garp_Cli::lineOut('Generate slugs for existing records');
         Garp_Cli::lineOut('Usage:');
         Garp_Cli::lineOut('  g Slugs generate <model name> <overwrite>');
         Garp_Cli::lineOut('');
+        return true;
     }
 
     protected function _resolveSluggableBehavior(Garp_Model_Db $model) {

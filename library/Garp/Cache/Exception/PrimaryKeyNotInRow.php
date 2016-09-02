@@ -3,11 +3,8 @@
  * Garp_Cache_Exception_PrimaryKeyNotInRow
  * Indicates a primary key is not available from a row object.
  *
- * @author       $Author: harmen $
- * @modifiedby   $LastChangedBy: harmen $
- * @version      $LastChangedRevision: 6218 $
- * @package      Garp
- * @subpackage   Db
- * @lastmodified $LastChangedDate: 2012-09-10 11:04:38 +0200 (Mon, 10 Sep 2012) $
+ * @package Garp_Cache
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
-class Garp_Cache_Exception_PrimaryKeyNotInRow extends Exception {}
+class Garp_Cache_Exception_PrimaryKeyNotInRow extends Exception {
+}

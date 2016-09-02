@@ -3,46 +3,42 @@
  * Garp_Config_Ini_String
  * Object used to trick Garp_Config_Ini::__construct into taking another path.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      Garp_Config_Ini
+ * @package Garp_Config_Ini
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Config_Ini_String {
     /**
-     * @var String
+     * @var string
      */
     protected $_value = '';
 
-
     /**
      * Class constructor
-     * @param String $value
-     * @return Void
+     *
+     * @param string $value
+     * @return void
      */
     public function __construct($value) {
         $this->setValue($value);
     }
 
-
     /**
-     * @return String
+     * @return string
      */
     public function getValue() {
         return $this->_value;
     }
 
-
     /**
-     * @param String $value
-     * @return Void
+     * @param string $value
+     * @return void
      */
     public function setValue($value) {
         $this->_value = (string)$value;
     }
 
-
     /**
-     * @return String
+     * @return string
      */
     public function __toString() {
         return $this->_value;

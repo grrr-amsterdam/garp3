@@ -3,9 +3,8 @@
  * Garp_Cli_Command_Exception_InvalidParameter
  * class description
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      Garp_Cli_Command_Exception
+ * @package Garp_Cli_Command_Exception
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cli_Command_Exception_InvalidParameter extends Exception {
 }

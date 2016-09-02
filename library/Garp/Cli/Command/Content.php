@@ -1,29 +1,28 @@
 <?php
 /**
  * Garp_Cli_Command_Content
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli_Command
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_Content extends Garp_Cli_Command {
     protected $_environments = array('development', 'integration', 'staging', 'production');
 
     /**
-     * @param String $_sourceEnv The id of the source environment
+     * @param string $_sourceEnv The id of the source environment
      */
     protected $_sourceEnv;
 
     /**
-     * @param String $_targetEnv The id of the target environment
+     * @param string $_targetEnv The id of the target environment
      */
     protected $_targetEnv;
 
 
     public function sync(array $args) {
-        $this->_validateSyncArguments($args);
+        if (!$this->_validateSyncArguments($args)) {
+            return false;
+        }
         $this->_setSourceEnv($args);
         $this->_setTargetEnv($args);
 
@@ -33,9 +32,8 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
             Garp_Cli::lineOut('');
         }
 
-        if (
-            !$this->_parameterIsSetTo($args, 'skip', 'database') &&
-            !$this->_parameterIsSetTo($args, 'skip', 'db')
+        if (!$this->_parameterIsSetTo($args, 'skip', 'database')
+            && !$this->_parameterIsSetTo($args, 'skip', 'db')
         ) {
             Garp_Cli::lineOut("\nSyncing database");
             $this->_syncDb();
@@ -43,6 +41,7 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
         }
 
         Garp_Cli::lineOut('');
+        return true;
     }
 
 
@@ -61,6 +60,7 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
         Garp_Cli::lineOut("  --skip=database");
 
         Garp_Cli::lineOut('');
+        return true;
     }
 
 
@@ -125,17 +125,24 @@ class Garp_Cli_Command_Content extends Garp_Cli_Command {
         } elseif (!array_key_exists(1, $args)) {
             Garp_Cli::errorOut("No target environment provided.");
         } elseif (!in_array($args[0], $this->_environments)) {
-            Garp_Cli::errorOut("Source environment is invalid. Try: " . Garp_Util_String::humanList($this->_environments, null, 'or') . '.');
+            Garp_Cli::errorOut(
+                "Source environment is invalid. Try: " .
+                Garp_Util_String::humanList($this->_environments, null, 'or') . '.'
+            );
         } elseif (!in_array($args[1], $this->_environments)) {
-            Garp_Cli::errorOut("Target environment is invalid. Try: " . Garp_Util_String::humanList($this->_environments, null, 'or') . '.');
+            Garp_Cli::errorOut(
+                "Target environment is invalid. Try: " .
+                Garp_Util_String::humanList($this->_environments, null, 'or') . '.'
+            );
         } else {
             $valid = true;
         }
 
         if (!$valid) {
             $this->help();
-            exit;
+            return false;
         }
+        return true;
     }
 
 

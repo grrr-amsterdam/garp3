@@ -3,27 +3,25 @@
  * Garp_Adobe_InDesign_Spread
  * Wrapper around various InDesign related functionality.
  * Note: currently only works with pages that are horizontally laid out on the spread.
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: david $
- * @version $Revision: 6498 $
- * @package Garp
- * @subpackage InDesign
- * @lastmodified $Date: 2012-10-01 17:07:46 +0200 (Mon, 01 Oct 2012) $
+ *
+ * @package Garp_Adobe_InDesign
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Adobe_InDesign_Spread {
-    
+
     const PATH = 'Spreads/Spread_%s.xml';
 
     /**
-     * @param Array $pages  The pages within this spread. Values are Garp_Adobe_InDesign_Page objects.
-     *                      These are ordered by x-coordinate, where the most left page comes first.
+     * @var array The pages within this spread. Values are Garp_Adobe_InDesign_Page objects.
+     *            These are ordered by x-coordinate, where the most left page comes first.
      */
     public $pages = array();
-    
+
     public $textFrames = array();
-    
+
     /**
-     * @var Array $stories  An array of Story IDs, where the key is the Page index (number, not Page ID) where this Story is placed upon.
+     * @var array An array of Story IDs, where the key is the Page index (number, not Page ID)
+     *            where this Story is placed upon.
      *                      array(
      *                          2 => array('eu3f', 'p3fe'),
      *                          3 => array('3ri2')
@@ -31,10 +29,10 @@ class Garp_Adobe_InDesign_Spread {
      */
     public $stories = array();
 
-    protected $_id; 
-    
+    protected $_id;
+
     protected $_path;
-    
+
     /**
      * @var SimpleXMLElement $_xml
      */
@@ -44,51 +42,48 @@ class Garp_Adobe_InDesign_Spread {
      * @var SimpleXMLElement $_spreadNodes
      */
     protected $_spreadNodes;
-    
+
     protected $_workingDir;
 
-
-
-    /**
-     * @param String    $this->_xml     The contents of an InDesign Spread xml configuration, as found in an .idml file.
-     */
     public function __construct($spreadId, $workingDir) {
-        $this->_id              = $spreadId;
-        $this->_workingDir      = $workingDir;
-        $this->_path            = $this->_buildPath($spreadId);
-        $spreadContent          = file_get_contents($this->_path);
-        $this->_xml             = new SimpleXMLElement($spreadContent);
-        $this->_spreadNodes     = $this->_xml->Spread->children();
+        $this->_id          = $spreadId;
+        $this->_workingDir  = $workingDir;
+        $this->_path        = $this->_buildPath($spreadId);
+        $spreadContent      = file_get_contents($this->_path);
+        $this->_xml         = new SimpleXMLElement($spreadContent);
+        $this->_spreadNodes = $this->_xml->Spread->children();
 
-        $this->pages            = $this->_buildPages();
-        $this->textFrames       = $this->_buildTextFrames();
-        $this->stories          = $this->_buildStories();
+        $this->pages      = $this->_buildPages();
+        $this->textFrames = $this->_buildTextFrames();
+        $this->stories    = $this->_buildStories();
     }
-    
 
     public static function getSpreadIdFromPath($path) {
         $spreadId = preg_replace('/.+Spread_(\w+)\.xml/', '$1', $path);
         return $spreadId;
     }
-    
-    
+
+
     public function setTextFrameAttribute($storyId, $attribute, $newValue) {
         switch ($attribute) {
-            case 'FillColor':
-                $newValue = 'Color/' . $newValue;
+        case 'FillColor':
+            $newValue = 'Color/' . $newValue;
             break;
-            default:
-                throw new Exception('Setting other Spread TextFrame attributes than FillColor is not supported at the time.');
+        default:
+            throw new Exception(
+                'Setting other Spread TextFrame attributes than ' .
+                'FillColor is not supported at the time.'
+            );
         }
-        
+
         $node = $this->_xml->xpath("//TextFrame[@ParentStory='{$storyId}']");
         if ($node) {
             $node[0]->attributes()->$attribute = $newValue;
         }
         $this->save();
     }
-    
-    
+
+
     public function save() {
         if (file_put_contents($this->_path, $this->_xml->asXml()) === false) {
             throw new Exception('Could not write to ' . $this->_path);
@@ -99,6 +94,8 @@ class Garp_Adobe_InDesign_Spread {
     /**
      * Returns a list of stories with the same structure as $this->stories,
      * but only including the stories that have an InDesign tag appended.
+     *
+     * @return array
      */
     public function getStoriesWithTaggedTextFrames() {
         $filteredStories = array();
@@ -110,7 +107,7 @@ class Garp_Adobe_InDesign_Spread {
                     $pageStories[$storyIndex] = $storyId;
                 }
             }
-            
+
             if ($pageStories) {
                 $filteredStories[$pageIndex] = $pageStories;
             }
@@ -118,8 +115,8 @@ class Garp_Adobe_InDesign_Spread {
 
         return $filteredStories;
     }
-    
-    
+
+
     public function usesStory($storyId) {
         foreach ($this->stories as $pageIndex => $stories) {
             if (in_array($storyId, $stories)) {
@@ -136,23 +133,27 @@ class Garp_Adobe_InDesign_Spread {
         $xml            = new SimpleXMLElement($storyContent);
         return (bool)$xml->xpath('//XMLElement');
     }
-    
-    
+
+
     protected function _buildPath($spreadId) {
         return $this->_workingDir . sprintf(self::PATH, $spreadId);
     }
 
 
     /**
-     * This method retrieves the Stories referenced by TextFrame entries on the current Spread, that geometrically map to this page.
-     * This has be calculated by geometry, since a TextFrame is not directly linked to a Page, but to a Spread.
+     * This method retrieves the Stories referenced by TextFrame entries on the current Spread,
+     * that geometrically map to this page.
+     * This has be calculated by geometry, since a TextFrame is not directly linked to a Page,
+     * but to a Spread.
+     *
+     * @return array
      */
     protected function _buildStories() {
         $storiesByPageNumber    = array();
         $storiesByTag           = array();
         $pagesCount             = count($this->pages);
 
-        //  build an array with all textframe positions, divided into the accompanying story XML tags
+        // Build an array with all textframe positions, divided into the accompanying story XML tags
         foreach ($this->textFrames as $textFrame) {
             $story = new Garp_Adobe_InDesign_Story($textFrame->storyId, $this->_workingDir);
             if ($tag = $story->getTag()) {
@@ -164,7 +165,7 @@ class Garp_Adobe_InDesign_Spread {
         }
 
         //  sort the stories by horizontal position
-        $sortFunction = function($storyA, $storyB) {
+        $sortFunction = function ($storyA, $storyB) {
             if ($storyA['x'] == $storyB['x']) {
                 return 0;
             }
@@ -179,7 +180,7 @@ class Garp_Adobe_InDesign_Spread {
         foreach ($storiesByTag as $tagStories) {
             $tagStoriesCount    = count($tagStories);
             $tagStoriesPerPage  = $tagStoriesCount / $pagesCount;
-            
+
             foreach ($tagStories as $s => $tagStory) {
                 $page           = floor($s / $tagStoriesPerPage);
                 $pageNumber     = $this->pages[$page]->index;
@@ -189,29 +190,31 @@ class Garp_Adobe_InDesign_Spread {
 
         return $storiesByPageNumber;
     }
-    
-    
+
     protected function _buildTextFrames() {
         $textFrames = array();
 
         foreach ($this->_spreadNodes as $tag => $nodeConfig) {
             switch ($tag) {
-                case 'TextFrame':
-                    $textFrames[] = new Garp_Adobe_InDesign_TextFrame($this->_xml, $nodeConfig);
+            case 'TextFrame':
+                $textFrames[] = new Garp_Adobe_InDesign_TextFrame($this->_xml, $nodeConfig);
                 break;
-                case 'Group':
-                    foreach ($nodeConfig as $groupNodeTag => $groupNodeValue) {
-                        if ($groupNodeTag === 'TextFrame') {
-                            $textFrames[] = new Garp_Adobe_InDesign_TextFrame($this->_xml, $groupNodeValue);
-                        }
+            case 'Group':
+                foreach ($nodeConfig as $groupNodeTag => $groupNodeValue) {
+                    if ($groupNodeTag === 'TextFrame') {
+                        $textFrames[] = new Garp_Adobe_InDesign_TextFrame(
+                            $this->_xml,
+                            $groupNodeValue
+                        );
                     }
+                }
                 break;
             }
         }
-        
+
         return $textFrames;
     }
-    
+
 
     protected function _buildPages() {
         $pages = array();
@@ -223,10 +226,14 @@ class Garp_Adobe_InDesign_Spread {
         }
 
         //  sort by x-coordinate
-        usort($pages, function($a, $b) {
-            if ($a->x === $b->x) return 0;
-            return $a->x < $b->x ? -1 : 1;
-        });
+        usort(
+            $pages, function ($a, $b) {
+                if ($a->x === $b->x) {
+                    return 0;
+                }
+                return $a->x < $b->x ? -1 : 1;
+            }
+        );
 
         return $pages;
     }

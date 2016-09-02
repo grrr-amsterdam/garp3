@@ -2,11 +2,10 @@
 /**
  * Garp_Semver
  * Wrapper around semver. For now it's read-only, and cannot yet compare versions.
- * @see https://github.com/flazz/semver
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
- * @package      Garp
+ * @package Garp
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @see https://github.com/flazz/semver
  */
 class Garp_Semver {
     protected $_path;

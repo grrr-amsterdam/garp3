@@ -1,12 +1,9 @@
 <?php
 /**
  * Garp_Cli_Command_Cluster
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli_Command
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 
@@ -17,6 +14,7 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
         $this->_runCacheClearJobs($serverId, $lastCheckIn);
         $this->_runScheduledJobs($serverId, $lastCheckIn);
         $this->_runRecurringJobs($serverId, $lastCheckIn);
+        return true;
     }
 
     public function clean() {
@@ -24,6 +22,7 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
         $amount = $jobModel->deleteOld();
         Garp_Cli::lineOut('Done.');
         Garp_Cli::lineOut('Removed ' . number_format($amount, 0) . ' records.');
+        return true;
     }
 
     public function help() {
@@ -36,25 +35,31 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
         Garp_Cli::lineOut('From a cronjob, APPLICATION_ENV needs to be set explicitly:');
         Garp_Cli::lineOut(' g Cluster run --APPLICATION_ENV=development', Garp_Cli::BLUE);
         Garp_Cli::lineOut('');
+        return true;
     }
 
     /**
      * @param Int $serverId Database id of the current server in the cluster
-     * @param String $lastCheckIn MySQL datetime that represents the last check-in time of this server
+     * @param String $lastCheckIn MySQL datetime that represents
+     *                            the last check-in time of this server
+     * @return void
      */
     protected function _runCacheClearJobs($serverId, $lastCheckIn) {
         try {
             $cluster = new Garp_Cache_Store_Cluster();
             $cluster->executeDueJobs($serverId, $lastCheckIn);
         } catch (Exception $e) {
-            throw new Exception('Error during execution of cluster clear job. '.$e->getMessage());
+            throw new Exception('Error during execution of cluster clear job. ' . $e->getMessage());
         }
 
         if (is_array($cluster->clearedTags)) {
             if (empty($cluster->clearedTags)) {
                 Garp_Cli::lineOut('Clustered cache purged for all models.');
             } else {
-                Garp_Cli::lineOut('Clustered cache purged for models '.implode(', ', $cluster->clearedTags));
+                Garp_Cli::lineOut(
+                    'Clustered cache purged for models ' .
+                    implode(', ', $cluster->clearedTags)
+                );
             }
         } elseif (is_bool($cluster->clearedTags) && !$cluster->clearedTags) {
             Garp_Cli::lineOut('No clustered cache purge jobs to run.');
@@ -66,7 +71,9 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 
     /**
      * @param Int $serverId Database id of the current server in the cluster
-     * @param String $lastCheckIn MySQL datetime that represents the last check-in time of this server
+     * @param String $lastCheckIn MySQL datetime that
+     *                            represents the last check-in time of this server
+     * @return void
      */
     protected function _runRecurringJobs($serverId, $lastCheckIn) {
         $recurringJobModel = new Model_ClusterRecurringJob();
@@ -131,7 +138,8 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
 
         $acceptMsg = 'Accepting job: ' . $className . '.' . $method;
         if ($argumentsOut) {
-            $acceptMsg .= ' with arguments: ' . str_replace(array("\n", "\t", "  "), '', print_r($argumentsOut, true));
+            $acceptMsg .= ' with arguments: ' .
+                str_replace(array("\n", "\t", "  "), '', print_r($argumentsOut, true));
         }
         Garp_Cli::lineOut($acceptMsg);
 
@@ -145,8 +153,4 @@ class Garp_Cli_Command_Cluster extends Garp_Cli_Command {
         $class->{$method}($argumentsOut);
     }
 
-    protected function _exit($msg) {
-        Garp_Cli::lineOut($msg);
-        exit;
-    }
 }

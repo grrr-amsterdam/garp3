@@ -2,37 +2,34 @@
 /**
  * Garp_Application_Resource_Acl
  * Resource for initializing ACL
- * @author Harmen Janssen | grrr.nl
  * Adapted from @author Joe Gornick, @see https://gist.github.com/249442
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Resource
- * @lastmodified $Date: $
+ *
+ * @package Garp_Application_Resource
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAbstract {
     /**
      * Key to store Zend_Acl under
-     * @var String
+     *
+     * @var string
      */
     const DEFAULT_REGISTRY_KEY = 'Zend_Acl';
 
-
     /**
      * Error message template
-     * @var String
+     *
+     * @var string
      */
     private $_missingPropertyMessage = 'Missing property %s for %s in %s.';
-
 
     /**
      * @var Zend_Acl
      */
     protected $_acl;
 
-
     /**
      * Defined by Zend_Application_Resource_Resource
+     *
      * @return Zend_Acl
      */
     public function init() {
@@ -44,10 +41,10 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
         return $this->_acl;
     }
 
-
     /**
      * Overwrite cause we want to store the options elsewhere
-     * @return Array
+     *
+     * @return array
      */
     public function getOptions() {
         $options = parent::getOptions();
@@ -55,16 +52,16 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
             $options['enabled'] = true;
         }
         if ($options['enabled']) {
-            $config = Garp_Config_Ini::getCached(APPLICATION_PATH.'/configs/acl.ini');
+            $config = Garp_Config_Ini::getCached(APPLICATION_PATH . '/configs/acl.ini');
             $aclOptions = $config->acl->toArray();
             $options = array_merge($options, $aclOptions);
         }
         return $options;
     }
 
-
     /**
      * Retrieve ACL object
+     *
      * @return Zend_Acl
      */
     public function getAcl() {
@@ -92,25 +89,29 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
         return $this->_acl;
     }
 
-
     /**
      * Stores ACL in registry
+     *
      * @return void
      */
     public function store() {
         $options = $this->getOptions();
         $key = self::DEFAULT_REGISTRY_KEY;
 
-        if (isset($options['storage']['registry']['key']) && !empty($options['storage']['registry']['key'])) {
+        if (isset($options['storage']['registry']['key'])
+            && !empty($options['storage']['registry']['key'])
+        ) {
             $key = $options['storage']['registry']['key'];
         }
 
         Zend_Registry::set($key, $this->_acl);
     }
 
-
     /**
      * Method used to add our specified roles to our ACL instance.
+     *
+     * @param array $roles
+     * @return void
      */
     protected function _addRoles(array $roles) {
         foreach ($roles as $roleName => $properties) {
@@ -123,14 +124,15 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
             $id = $properties['id'];
 
             if (is_null($id) || empty($id)) {
-                throw new Zend_Application_Resource_Exception(sprintf(
-                    $this->_missingPropertyMessage, 'ID', 'role', $roleName
-                ));
+                throw new Zend_Application_Resource_Exception(
+                    sprintf(
+                        $this->_missingPropertyMessage, 'ID', 'role', $roleName
+                    )
+                );
             }
             $this->_addRoleById($roles, $id);
         }
     }
-
 
     private function _addRoleById(array $roles, $roleId) {
         foreach ($roles as $roleName => $properties) {
@@ -144,9 +146,11 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
             $parents = array();
 
             if (is_null($id) || empty($id)) {
-                throw new Zend_Application_Resource_Exception(sprintf(
-                  $this->_missingPropertyMessage, 'ID', 'role', $roleName
-                ));
+                throw new Zend_Application_Resource_Exception(
+                    sprintf(
+                        $this->_missingPropertyMessage, 'ID', 'role', $roleName
+                    )
+                );
             }
 
             if (isset($properties['parents']) && !empty($properties['parents'])) {
@@ -154,7 +158,9 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
             }
 
             if ($id == $roleId) {
-                if ($this->_acl->hasRole($roleId)) return;
+                if ($this->_acl->hasRole($roleId)) {
+                    return;
+                }
 
                 foreach ($parents as $parent) {
                     if (!$this->_acl->hasRole($parent)) {
@@ -171,10 +177,12 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
         }
     }
 
-
     /**
      * Method used to add our specified resources to our ACL instance and create
      * any rules if specified.
+     *
+     * @param array $resources
+     * @return void
      */
     protected function _addResources(array $resources) {
         foreach ($resources as $resourceName => $properties) {
@@ -192,9 +200,11 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
             }
 
             if (is_null($id) || empty($id)) {
-                throw new Zend_Application_Resource_Exception(sprintf(
-                    $this->_missingPropertyMessage, 'ID', 'resource', $resourceName
-                ));
+                throw new Zend_Application_Resource_Exception(
+                    sprintf(
+                        $this->_missingPropertyMessage, 'ID', 'resource', $resourceName
+                    )
+                );
             }
 
             $this->_addResourceById($resources, $id);
@@ -223,9 +233,11 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
             }
 
             if (is_null($id) || empty($id)) {
-                throw new Zend_Application_Resource_Exception(sprintf(
-                    $this->_missingPropertyMessage, 'ID', 'resource', $resourceName
-                ));
+                throw new Zend_Application_Resource_Exception(
+                    sprintf(
+                        $this->_missingPropertyMessage, 'ID', 'resource', $resourceName
+                    )
+                );
             }
 
             if (isset($properties['parent']) && !empty($properties['parent'])) {
@@ -241,7 +253,9 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
             }
 
             if ($id == $resourceId) {
-                if ($this->_acl->has($resourceId)) return;
+                if ($this->_acl->has($resourceId)) {
+                    return;
+                }
 
                 if (!is_null($parent)) {
                     if (!$this->_acl->has($parent)) {
@@ -267,8 +281,17 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
 
     /**
      * Method used to add rules to the specified resource.
+     *
+     * @param string $type
+     * @param array $rules
+     * @param string $resource
+     * @param string $resourceName
+     * @return void
      */
-    protected function _addRules($type = Zend_Acl::TYPE_ALLOW, array $rules, $resource, $resourceName) {
+    protected function _addRules($type, array $rules, $resource, $resourceName) {
+        if (!$type) {
+            $type = Zend_Acl::TYPE_ALLOW;
+        }
         foreach ($rules as $privilege => $ruleProperties) {
             // If the user sets the privilege value to a string, we will consider
             // this as the list of roles.
@@ -290,9 +313,14 @@ class Garp_Application_Resource_Acl extends Zend_Application_Resource_ResourceAb
                     $section = 'deny ' . $section;
                 }
 
-                throw new Zend_Application_Resource_Exception(sprintf(
-                    $this->_missingPropertyMessage, 'roles', $section, 'resource ' . $resourceName
-                ));
+                throw new Zend_Application_Resource_Exception(
+                    sprintf(
+                        $this->_missingPropertyMessage,
+                        'roles',
+                        $section,
+                        'resource ' . $resourceName
+                    )
+                );
             }
 
             $roles = explode(',', $roles);

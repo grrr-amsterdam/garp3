@@ -1,55 +1,54 @@
 <?php
 /**
  * Garp_Cli_Command_Elasticsearch
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli_Command
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
-    const BEHAVIOR_NAME = 
-        'Elasticsearchable';
-    const MSG_INDEX_EXISTS =
-        'Index already exists';
-    const MSG_INDEX_CREATED =
-        'Index created';
-    const MSG_INDEX_CREATION_FAILURE =
-        'Could not create index';
+    const BEHAVIOR_NAME = 'Elasticsearchable';
+    const MSG_INDEX_EXISTS = 'Index already exists';
+    const MSG_INDEX_CREATED = 'Index created';
+    const MSG_INDEX_CREATION_FAILURE = 'Could not create index';
 
     /**
      * @var Garp_Service_Elasticsearch $_service
      */
     protected $_service;
-    
+
 
     public function main(array $args = array()) {
         $this->setService($this->_initService());
-        parent::main($args);
+        return parent::main($args);
     }
 
     /**
      * Prepares an index for storing and searching.
+     *
+     * @return bool
      */
     public function prepare() {
         Garp_Cli::lineOut('Preparing Elasticsearch index...');
         $report = $this->_createIndexIfNotExists();
         Garp_Cli::lineOut($report, Garp_Cli::BLUE);
+        return true;
     }
 
     public function remap() {
         $service = $this->getService();
         $status = $service->remap();
 
-        $status 
+        $status
             ? Garp_Cli::lineOut('Index remapped.', Garp_Cli::BLUE)
             : Garp_Cli::errorOut('Could not remap index.');
         ;
+        return true;
     }
 
     /**
      * Pushes all appropriate existing database content to the indexer.
+     *
+     * @return bool
      */
     public function index() {
         Garp_Cli::lineOut('Building up index. Hang on to your knickers...');
@@ -58,6 +57,7 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
         foreach ($modelSet as $model) {
             $this->_indexModel($model);
         }
+        return true;
     }
 
     public function help() {
@@ -65,6 +65,7 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
         Garp_Cli::lineOut('Create a new index:');
         Garp_Cli::lineOut('  g elasticsearch prepare', Garp_Cli::BLUE);
         Garp_Cli::lineOut('');
+        return true;
     }
 
     /**
@@ -73,9 +74,10 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
     public function getService() {
         return $this->_service;
     }
-    
+
     /**
      * @param Garp_Service_Elasticsearch $service
+     * @return Garp_Cli_Command_Elasticsearch
      */
     public function setService(Garp_Service_Elasticsearch $service) {
         $this->_service = $service;
@@ -84,6 +86,7 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
 
     /**
      * Makes sure the service can be used; creates a primary index.
+     *
      * @return String Log message
      */
     protected function _createIndexIfNotExists() {
@@ -131,24 +134,26 @@ class Garp_Cli_Command_Elasticsearch extends Garp_Cli_Command {
     }
 
     protected function _getPhpModel(Garp_Spawn_Model_Abstract $model) {
-        $modelClass     = 'Model_' . $model->id;
-        $phpModel       = new $modelClass();
-        return $phpModel;       
+        $modelClass = 'Model_' . $model->id;
+        $phpModel   = new $modelClass();
+        return $phpModel;
     }
 
     protected function _getPhpBehavior(Garp_Model_Db $model) {
-        $phpBehavior    = $model->getObserver(self::BEHAVIOR_NAME);
+        $phpBehavior = $model->getObserver(self::BEHAVIOR_NAME);
         return $phpBehavior;
     }
 
     protected function _fetchAllIds(Garp_Model_Db $model) {
-        $fields         = array('id');
-        $select         = $model->select()->from($model->getName(), $fields);
-        $records        = $model->fetchAll($select);
+        $fields  = array('id');
+        $select  = $model->select()->from($model->getName(), $fields);
+        $records = $model->fetchAll($select);
         return $records;
     }
 
-    protected function _pushRecord(Garp_Model_Db $model, Garp_Model_Behavior_Abstract $phpBehavior, Garp_Db_Table_Row $record) {
+    protected function _pushRecord(
+        Garp_Model_Db $model, Garp_Model_Behavior_Abstract $phpBehavior, Garp_Db_Table_Row $record
+    ) {
         $primaryKey = current($record->toArray());
         $phpBehavior->afterSave($model, $primaryKey);
     }

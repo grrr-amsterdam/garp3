@@ -1,4 +1,11 @@
 <?php
+/**
+ * Garp_ErrorHandler
+ * class description
+ *
+ * @package Garp
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ */
 class Garp_ErrorHandler {
     const ERROR_REPORT_MAIL_ADDRESS_FALLBACK = 'garp@grrr.nl';
 
@@ -7,6 +14,9 @@ class Garp_ErrorHandler {
      * Exceptions of that kind will result in a blank page if displayErrors is off, instead of
      * redirected to an error page (which would be the case for exceptions thrown by a controller,
      * for instance).
+     *
+     * @param Exception $e
+     * @return void
      */
     public static function handlePrematureException(Exception $e) {
         $error = new Zend_Controller_Plugin_ErrorHandler();
@@ -27,13 +37,14 @@ class Garp_ErrorHandler {
 
     /**
      * Log that pesky error to a file
-     * @param String $message
-     * @return Void
+     *
+     * @param ArrayObject $errors
+     * @return void
      */
     public static function logErrorToFile(ArrayObject $errors) {
         $errorMessage = self::_composeFullErrorMessage($errors);
 
-        $stream = fopen(APPLICATION_PATH.'/data/logs/errors.log', 'a');
+        $stream = fopen(APPLICATION_PATH . '/data/logs/errors.log', 'a');
         $writer = new Zend_Log_Writer_Stream($stream);
         $logger = new Zend_Log($writer);
         $logger->log($errorMessage, Zend_Log::ALERT);
@@ -43,6 +54,9 @@ class Garp_ErrorHandler {
      * Log error to Slack.
      * Parameter is expected to be an ArrayObject as formatted by
      * Zend_Controller_Plugin_ErrorHandler::_handleError
+     *
+     * @param ArrayObject $errors
+     * @return bool
      */
     public static function logErrorToSlack(ArrayObject $errors) {
         try {
@@ -87,13 +101,15 @@ class Garp_ErrorHandler {
 
     /**
      * Mail an error to an admin
-     * @return Void
+     *
+     * @param ArrayObject $errors
+     * @return void
      */
     public static function mailErrorToAdmin(ArrayObject $errors) {
         $errorMessage = self::_composeFullErrorMessage($errors);
         $subjectPrefix = '';
         if (isset($_SERVER) && !empty($_SERVER['HTTP_HOST'])) {
-            $subjectPrefix = '['.$_SERVER['HTTP_HOST'].'] ';
+            $subjectPrefix = '[' . $_SERVER['HTTP_HOST'] . '] ';
         }
 
         $ini = Zend_Registry::get('config');
@@ -107,11 +123,13 @@ class Garp_ErrorHandler {
         ;
 
         $mailer = new Garp_Mailer();
-        return $mailer->send(array(
+        return $mailer->send(
+            array(
             'to' => $to,
             'subject' => $subjectPrefix . 'An application error occurred',
             'message' => $errorMessage
-        ));
+            )
+        );
     }
 
     protected static function _composeShortErrorMessage(ArrayObject $errors) {
@@ -153,6 +171,9 @@ class Garp_ErrorHandler {
 
     /**
      *  Rewrites full paths to relative paths (in StackTrace)
+     *
+     *  @param string $stringWithFullPaths
+     *  @return string
      */
     protected static function _filterBasePath($stringWithFullPaths) {
         return str_replace(BASE_PATH, '', $stringWithFullPaths);
@@ -206,7 +227,8 @@ class Garp_ErrorHandler {
             $errorMessage .= "User agent: n/a\n\n";
         }
         // Request params
-        $errorMessage .= 'Request parameters: '.print_r($errors->request->getParams(), true)."\n\n";
+        $errorMessage .= 'Request parameters: ' .
+            print_r($errors->request->getParams(), true) . "\n\n";
         // User data
         $errorMessage .= 'User data: ';
 

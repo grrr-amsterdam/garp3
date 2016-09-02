@@ -3,10 +3,8 @@
  * Garp_Cli_Command_Ses
  * Perform administrative SES functions.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      Garp
- * @subpackage   Cli
+ * @package Garp_Cli_Command
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cli_Command_Ses extends Garp_Cli_Command {
     public function verify(array $args = array()) {
@@ -18,7 +16,7 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command {
         $email = $args[0];
         $ses = new Garp_Service_Amazon_Ses();
         $ses->verifyEmailAddress($email);
-        Garp_Cli::lineOut('Done. A confirmation email has been sent to '.$email);
+        Garp_Cli::lineOut('Done. A confirmation email has been sent to ' . $email);
         return true;
     }
 
@@ -42,7 +40,7 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command {
             Garp_Cli::lineOut('No verified email addresses found.');
         } else {
             foreach ($list as $addr) {
-                Garp_Cli::lineOut(' - '.$addr);
+                Garp_Cli::lineOut(' - ' . $addr);
             }
         }
         return true;

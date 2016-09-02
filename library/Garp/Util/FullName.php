@@ -44,7 +44,7 @@ class Garp_Util_FullName {
             && array_key_exists('last_name', $person)
         ) {
             $first = $person['first_name'];
-            $middle = $person['last_name_prefix'] ? ' ' . $person['last_name_prefix'];
+            $middle = $person['last_name_prefix'] ? ' ' . $person['last_name_prefix'] : '';
             $last = $person['last_name'] ? ' ' . $person['last_name'] : '';
             return $first . $middle . $last;
         } elseif (array_key_exists('name', $person)) {

@@ -1,12 +1,9 @@
 <?php
 /**
  * Garp_Cli_Command_Spawn_Feedback
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli_Command_Spawn
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_Spawn_Feedback {
 
@@ -34,6 +31,8 @@ class Garp_Cli_Command_Spawn_Feedback {
 
     /**
      * Whether the current setting should spawn any output, or just do a dry-run.
+     *
+     * @return bool
      */
     public function shouldSpawn() {
         return !array_key_exists(self::JS_BASE_MODEL_COMMAND, $this->getArgs());
@@ -44,7 +43,7 @@ class Garp_Cli_Command_Spawn_Feedback {
      * Interactive mode displays progress and asks questions.
      * Batch mode does not ask questions, is not careful with changes and displays minimal feedback.
      *
-     * @return Boolean
+     * @return bool
      */
     public function isInteractive() {
         return !array_key_exists(self::BATCH_MODE_COMMAND, $this->getArgs());

@@ -2,20 +2,18 @@
 /**
  * Garp_Application_Bootstrap_Bootstrap
  * Common Bootstrap functionality
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Bootstrap
- * @lastmodified $Date: $
+ *
+ * @package Garp_Application_Bootstrap
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
     /**
      * Init plugin loader cache
-     * @return Void
+     *
+     * @return void
      */
     protected function _initPluginLoaderCache() {
-        $classFileIncCache = APPLICATION_PATH.'/data/cache/pluginLoaderCache.php';
+        $classFileIncCache = APPLICATION_PATH . '/data/cache/pluginLoaderCache.php';
         /**
          * Suppress include error, to save file_exists check.
          * If it's not there, it's no problem, so a simple "@" will do.
@@ -26,26 +24,37 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
 
     /**
      * Load essential Garp Helpers
-     * @return Void
+     *
+     * @return void
      */
     protected function _initEssentialGarpHelpers() {
         // Action helpers
-        Zend_Controller_Action_HelperBroker::addPath(GARP_APPLICATION_PATH .
-            '/../library/Garp/Controller/Helper', 'Garp_Controller_Helper');
-        Zend_Controller_Action_HelperBroker::addPath(APPLICATION_PATH .
-            '/../library/App/Controller/Helper', 'App_Controller_Helper');
+        Zend_Controller_Action_HelperBroker::addPath(
+            GARP_APPLICATION_PATH .
+            '/../library/Garp/Controller/Helper', 'Garp_Controller_Helper'
+        );
+        Zend_Controller_Action_HelperBroker::addPath(
+            APPLICATION_PATH .
+            '/../library/App/Controller/Helper', 'App_Controller_Helper'
+        );
 
         // View helpers
         $this->bootstrap('View');
-        $this->getResource('View')->addHelperPath(GARP_APPLICATION_PATH .
-            '/modules/g/views/helpers', 'G_View_Helper');
-        $this->getResource('View')->addHelperPath(APPLICATION_PATH .
-            '/modules/default/views/helpers', 'App_View_Helper');
+        $this->getResource('View')->addHelperPath(
+            GARP_APPLICATION_PATH .
+            '/modules/g/views/helpers', 'G_View_Helper'
+        );
+        $this->getResource('View')->addHelperPath(
+            APPLICATION_PATH .
+            '/modules/default/views/helpers', 'App_View_Helper'
+        );
     }
 
     /**
-     * Combine the static info found in application.ini with the dynamic info found in the Info table.
-     * @return Void
+     * Combine the static info found in application.ini with the
+     * dynamic info found in the Info table.
+     *
+     * @return void
      */
     protected function _initConfig() {
         $this->bootstrap('db');
@@ -68,9 +77,8 @@ class Garp_Application_Bootstrap_Bootstrap extends Zend_Application_Bootstrap_Bo
             Zend_Registry::set('config', $staticConfig);
         } catch(Exception $e) {
             $msg = $e->getMessage();
-            if (
-                strpos($msg, 'Unknown database') === false &&
-                strpos($msg, "doesn't exist") === false
+            if (strpos($msg, 'Unknown database') === false
+                && strpos($msg, "doesn't exist") === false
             ) {
                 throw $e;
             }

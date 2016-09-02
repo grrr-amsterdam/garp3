@@ -5,21 +5,23 @@
  * Creates an ini file from a string instead of a file.
  * I've stolen some methods from Zend_Config_Ini for parsing ini-style configuration strings.
  *
- * @author       David Spreekmeester, Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      Garp_Config
+ * @package Garp_Config
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Config_Ini extends Zend_Config_Ini {
 
     /**
      * Keep track of loaded ini files within a single request
-     * @var Array
+     *
+     * @var array
      */
     protected static $_store = array();
 
     /**
      * Receive a config ini file from cache
-     * @param String $filename
+     *
+     * @param string $filename
      * @return Garp_Config_Ini
      */
     public static function getCached($filename) {
@@ -31,10 +33,10 @@ class Garp_Config_Ini extends Zend_Config_Ini {
             return static::$_store[$key];
         }
 
-        $config = $cache->load('Ini_Config_'.$key);
+        $config = $cache->load('Ini_Config_' . $key);
         if (!$config) {
             $config = new Garp_Config_Ini($filename, APPLICATION_ENV);
-            $cache->save($config, 'Ini_Config_'.$key);
+            $cache->save($config, 'Ini_Config_' . $key);
         }
         static::$_store[$key] = $config;
         return $config;
@@ -70,8 +72,10 @@ class Garp_Config_Ini extends Zend_Config_Ini {
 
     /**
      * Hacked to allow ini strings as well as ini files.
-     * @param String|Garp_Config_Ini_String $filename If this is a Garp_Config_Ini_String, an ini string is assumed instead of an ini file.
-     * @return Array
+     *
+     * @param string|Garp_Config_Ini_String $filename If this is a Garp_Config_Ini_String, an ini
+     *                                                string is assumed instead of an ini file.
+     * @return array
      */
     protected function _parseIniFile($filename) {
         if ($filename instanceof Garp_Config_Ini_String) {
@@ -83,9 +87,10 @@ class Garp_Config_Ini extends Zend_Config_Ini {
 
     /**
      * Take an ini string to populate the config object.
-     * @param String $iniString
-     * @param String $section
-     * @param Array $options
+     *
+     * @param string $iniString
+     * @param string $section
+     * @param array $options
      * @return Garp_Config_Ini
      * @see Zend_Config_Ini::__construct for an explanation of the second and third arguments.
      */

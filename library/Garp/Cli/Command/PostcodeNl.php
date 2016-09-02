@@ -1,23 +1,20 @@
 <?php
 /**
  * Garp_Cli_Command_PostcodeNl
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ *
+ * @package Garp_Cli_Command
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
-    const ERROR_NO_FILE_PROVIDED =
-        "No path provided to the 6PP CSV file from postcode.nl";
-    const SOURCE_LABEL =
-        'Postcode.nl';
+    const ERROR_NO_FILE_PROVIDED
+        = "No path provided to the 6PP CSV file from postcode.nl";
+    const SOURCE_LABEL
+        = 'Postcode.nl';
 
     protected $_args;
 
     /**
-     * @var Int $_storedZips Number of inserted / updated zips this session
+     * @var int $_storedZips Number of inserted / updated zips this session
      */
     protected $_storedZips = 0;
 
@@ -33,6 +30,8 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 
     /**
      * Central start method
+     *
+     * @param array $args
      * @return Void
      */
     public function main(array $args = array()) {
@@ -50,7 +49,9 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
     }
 
     protected function _import() {
-        $this->_obligateFileParam();
+        if (!$this->_obligateFileParam()) {
+            return;
+        }
 
         $path = $this->_args[1];
         $content = file_get_contents($path);
@@ -77,7 +78,8 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
 
     /**
      * @param Garp_Service_PostcodeNl_Zipcode_Set $zipSet
-     * @param Boolean $overwrite Whether to overwrite existing location entries matching these zipcodes.
+     * @param bool $overwrite Whether to overwrite existing location entries matching these zipcodes
+     * @return void
      */
     protected function _storeZipSet(Garp_Service_PostcodeNl_Zipcode_Set &$zipSet, $overwrite) {
         $this->_progress = Garp_Cli_Ui_ProgressBar::getInstance();
@@ -95,7 +97,6 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
         $model = new Model_Location();
         $select = $model->select()->where('zip = ? AND number IS NULL', $zip->zipcode);
         $existingRow = $model->fetchRow($select);
-
 
         if ($existingRow && $overwrite) {
             $model->delete('id = ' . $existingRow->id);
@@ -126,8 +127,9 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
         if (!array_key_exists(1, $this->_args)) {
             $this->_printError(self::ERROR_NO_FILE_PROVIDED);
             $this->_displayHelp();
-            exit;
+            return false;
         }
+        return true;
     }
 
     protected function _printError($message) {
@@ -138,7 +140,9 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
     protected function _displayHelp() {
         Garp_Cli::lineOut("Commands");
         Garp_Cli::lineOut("g postcodenl import ~/pcdata.csv", Garp_Cli::BLUE);
-        Garp_Cli::lineOut("Where the last argument is the path to the 6PP CSV file from postcode.nl.");
+        Garp_Cli::lineOut(
+            "Where the last argument is the path to the 6PP CSV file from postcode.nl."
+        );
 
     }
 }

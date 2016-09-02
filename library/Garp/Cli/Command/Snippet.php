@@ -3,14 +3,17 @@
  * Garp_Cli_Command_Snippet
  * Create snippets from the commandline
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.3
- * @package      Garp_Cli_Command
+ * @package Garp_Cli_Command
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
     const DEFAULT_SNIPPET_CONFIG_FILE = 'snippets.ini';
 
-    /** Wether to overwrite snippets */
+    /**
+     * Wether to overwrite snippets
+     *
+     * @var bool
+     */
     protected $_overwrite = false;
 
     protected $_allowedArguments = array(
@@ -19,11 +22,16 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
 
     /**
      * Wether the Snippet model can be autoloaded
+     *
+     * @var bool
      */
     protected $_loadable;
 
     /**
      * Create new snippet
+     *
+     * @param array $args
+     * @return bool
      */
     public function create(array $args = array()) {
         $this->_overwrite = isset($args['overwrite']) && $args['overwrite'];
@@ -33,10 +41,14 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
         $file = $this->_parseFileFromArguments($args);
         $file = APPLICATION_PATH . '/configs/' . $file;
         $this->_createFromFile($file);
+        return true;
     }
 
     /**
      * Import i18n string files (ex. data/i18n/nl.php) as snippets
+     *
+     * @param array $args
+     * @return bool
      */
     public function storeI18nStrings(array $args = array()) {
         // @todo Adapt for multiple languages
@@ -66,10 +78,15 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
             }
             $this->_insertOrUpdate($snippet, $existing);
         }
+
+        return true;
     }
 
     /**
      * Create a bunch of snippets from a file
+     *
+     * @param string $file
+     * @return bool
      */
     protected function _createFromFile($file) {
         if (!file_exists($file)) {
@@ -92,6 +109,7 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
         $this->_createSnippets($config->snippets);
         Garp_Cli::lineOut('Done.');
         Garp_Cli::lineOut('');
+        return true;
     }
 
     protected function _createSnippets($snippets) {
@@ -102,7 +120,9 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
                 $snippetData['identifier'] : $identifier;
             $existing = $this->_fetchExisting($snippetData['identifier']);
             if (!$this->_overwrite && $existing) {
-                Garp_Cli::lineOut('Skipping "' . $snippetData['identifier'] . '". Snippet already exists.');
+                Garp_Cli::lineOut(
+                    'Skipping "' . $snippetData['identifier'] . '". Snippet already exists.'
+                );
                 continue;
             }
             $this->_insertOrUpdate($snippetData, $existing);
@@ -116,11 +136,16 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
             return;
         }
         $snippet = $this->_create($snippetData);
-        Garp_Cli::lineOut('New snippet inserted. Id: #'.$snippet->id.', Identifier: "'.$snippet->identifier.'"');
+        Garp_Cli::lineOut(
+            'New snippet inserted. Id: #' . $snippet->id . ', Identifier: "' .
+            $snippet->identifier . '"'
+        );
     }
 
     /**
      * Create snippet interactively
+     *
+     * @return bool
      */
     protected function _createInteractive() {
         Garp_Cli::lineOut('Please provide the following values');
@@ -128,7 +153,7 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
             'identifier' => Garp_Cli::prompt('Identifier')
         );
         if ($snippet = $this->_fetchExisting($data['identifier'])) {
-            Garp_Cli::lineOut('Snippet already exists. Id: #'.$snippet->id, Garp_Cli::GREEN);
+            Garp_Cli::lineOut('Snippet already exists. Id: #' . $snippet->id, Garp_Cli::GREEN);
             return true;
         }
 
@@ -160,19 +185,27 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
         }
 
         $snippet = $this->_create($data);
-        Garp_Cli::lineOut('New snippet inserted. Id: #'.$snippet->id.', Identifier: "'.$snippet->identifier.'"');
+        Garp_Cli::lineOut(
+            'New snippet inserted. Id: #' . $snippet->id . ', Identifier: "' .
+            $snippet->identifier . '"'
+        );
+        return true;
     }
 
     /**
      * Insert new snippet
-     * @param Array $data Snippet data
+     *
+     * @param array $data Snippet data
+     * @return Garp_Db_Table_Row
      */
     protected function _create(array $data) {
         $this->_validateLoadable();
         $snippetModel = new Model_Snippet();
         try {
             $snippetID = $snippetModel->insert($data);
-            $snippet = $snippetModel->fetchRow($snippetModel->select()->where('id = ?', $snippetID));
+            $snippet = $snippetModel->fetchRow(
+                $snippetModel->select()->where('id = ?', $snippetID)
+            );
             return $snippet;
         } catch (Garp_Model_Validator_Exception $e) {
             Garp_Cli::errorOut($e->getMessage());
@@ -184,7 +217,9 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
         $snippetModel = new Model_Snippet();
         try {
             $snippetModel->update($snippetData, "id = {$snippetID}");
-            $snippet = $snippetModel->fetchRow($snippetModel->select()->where('id = ?', $snippetID));
+            $snippet = $snippetModel->fetchRow(
+                $snippetModel->select()->where('id = ?', $snippetID)
+            );
             return $snippet;
         } catch (Garp_Model_Validator_Exception $e) {
             Garp_Cli::errorOut($e->getMessage());
@@ -193,42 +228,50 @@ class Garp_Cli_Command_Snippet extends Garp_Cli_Command {
 
     /**
      * Fetch existing snippet by identifier
+     *
+     * @param string $identifier
+     * @return Garp_Db_Table_Row
      */
     protected function _fetchExisting($identifier) {
         $this->_validateLoadable();
         $snippetModel = new Model_Snippet();
         $select = $snippetModel->select()
-            ->where('identifier = ?', $identifier)
-        ;
+            ->where('identifier = ?', $identifier);
         $row = $snippetModel->fetchRow($select);
         return $row;
     }
 
     /**
      * Make sure the snippet model is loadable
+     *
+     * @return bool
      */
     protected function _validateLoadable() {
         if ($this->_loadable) {
             return true;
         }
         if (!class_exists('Model_Snippet')) {
-            throw new Exception('The Snippet model could not be autoloaded. Spawn it first, dumbass!');
+            throw new Exception(
+                'The Snippet model could not be autoloaded. Spawn it first, dumbass!'
+            );
         }
         $this->_loadable = true;
+        return $this->_loadable;
     }
 
     /**
      * Load i18n strings
-     * @param String $locale
-     * @return Array
+     *
+     * @param string $locale
+     * @return array
      */
     protected function _loadI18nStrings($locale) {
         $file = APPLICATION_PATH . '/data/i18n/' . $locale . '.php';
         if (!file_exists($file)) {
-            throw new Exception('File not found: '.$file);
+            throw new Exception('File not found: ' . $file);
         }
         ob_start();
-        $data = include($file);
+        $data = include $file;
         ob_end_clean();
         return $data;
     }

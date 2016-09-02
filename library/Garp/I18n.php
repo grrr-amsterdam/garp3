@@ -2,17 +2,15 @@
 /**
  * Garp_I18n
  * Wrapper around various i18n related functionality.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
- * @subpackage I18n
- * @lastmodified $Date: $
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_I18n {
     /**
      * Return the current locale
-     * @return String
+     *
+     * @return string
      */
     public static function getCurrentLocale() {
         if (!Zend_Registry::isRegistered('Zend_Locale')) {
@@ -23,7 +21,8 @@ class Garp_I18n {
 
     /**
      * Return the default locale (as defined in application.ini)
-     * @return String
+     *
+     * @return string
      */
     public static function getDefaultLocale() {
         // Try configured default first
@@ -45,7 +44,8 @@ class Garp_I18n {
 
     /**
      * Return a list of all possible locales
-     * @return Array
+     *
+     * @return array
      */
     public static function getLocales() {
         return Zend_Controller_Front::getInstance()->getParam('locales');
@@ -53,14 +53,15 @@ class Garp_I18n {
 
     /**
      * Generate localized versions of routes
-     * @param Array $routes The originals
-     * @param Array $locales
-     * @return Array
+     *
+     * @param array $routes The originals
+     * @param array $locales
+     * @return array
      */
     public static function getLocalizedRoutes(array $routes, array $locales) {
         $localizedRoutes = array();
         $defaultLocale = self::getDefaultLocale();
-        $requiredLocalesRegex = '^('.join('|', $locales).')$';
+        $requiredLocalesRegex = '^(' . join('|', $locales) . ')$';
 
         foreach ($routes as $key => $value) {
             // First let's add the default locale to this routes defaults.
@@ -80,11 +81,11 @@ class Garp_I18n {
 
             // Modify our normal route to have the locale parameter.
             if (!isset($value['type']) || $value['type'] === 'Zend_Controller_Router_Route') {
-                $value['route'] = ':locale/'.$routeString;
+                $value['route'] = ':locale/' . $routeString;
                 $value['reqs']['locale'] = $requiredLocalesRegex;
-                $localizedRoutes['locale_'.$key] = $value;
+                $localizedRoutes['locale_' . $key] = $value;
             } else if ($value['type'] === 'Zend_Controller_Router_Route_Regex') {
-                $value['route'] = '('.join('|', $locales).')\/'.$routeString;
+                $value['route'] = '(' . join('|', $locales) . ')\/' . $routeString;
 
                 // Since we added the local regex match, we need to bump the existing
                 // match numbers plus one.
@@ -100,12 +101,12 @@ class Garp_I18n {
 
                 $value['map'] = $map;
 
-                $localizedRoutes['locale_'.$key] = $value;
+                $localizedRoutes['locale_' . $key] = $value;
             } elseif ($value['type'] === 'Zend_Controller_Router_Route_Static') {
                 foreach ($locales as $locale) {
-                    $value['route'] = $locale.'/'.$routeString;
+                    $value['route'] = $locale . '/' . $routeString;
                     $value['defaults']['locale'] = $locale;
-                    $routes['locale_'.$locale.'_'.$key] = $value;
+                    $routes['locale_' . $locale . '_' . $key] = $value;
                 }
             }
         }
@@ -114,17 +115,21 @@ class Garp_I18n {
 
     /**
      * Go from language to territory
-     * @param String $lang
-     * @return String
+     *
+     * @param string $lang
+     * @return string
      */
     public static function languageToTerritory($lang) {
         $config = Zend_Registry::get('config');
-        $territory = isset($config->resources->locale->territories->{$lang}) ? $config->resources->locale->territories->{$lang} : Zend_Locale::getLocaleToTerritory($lang);
+        $territory = isset($config->resources->locale->territories->{$lang}) ?
+            $config->resources->locale->territories->{$lang} :
+            Zend_Locale::getLocaleToTerritory($lang);
         return $territory;
     }
 
     /**
      * Create a Zend_Translate instance for the given locale.
+     *
      * @param Zend_Locale $locale
      * @return Zend_Translate
      */
@@ -150,7 +155,7 @@ class Garp_I18n {
         if ($translateAdapter == 'array') {
             $language = $locale->getLanguage();
             // @todo Move this to applciation.ini?
-            $adapterParams['content'] = APPLICATION_PATH.'/data/i18n/'.$language.'.php';
+            $adapterParams['content'] = APPLICATION_PATH . '/data/i18n/' . $language . '.php';
 
             // Turn on caching
             if (Zend_Registry::isRegistered('CacheFrontend')) {

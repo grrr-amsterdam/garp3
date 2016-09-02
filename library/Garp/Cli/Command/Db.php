@@ -3,16 +3,15 @@
  * Garp_Cli_Command_Db
  * Contains various database related methods.
  *
- * @author Harmen Janssen, David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Cli
- * @lastmodified $Date: $
+ * @package Garp_Cli_Command
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_Db extends Garp_Cli_Command {
     /**
      * Help
+     *
+     * @return bool
      */
     public function help() {
         Garp_Cli::lineOut('Usage:');
@@ -25,13 +24,14 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
         Garp_Cli::lineOut('Replace a string in the database, across tables and columns:');
         Garp_Cli::lineOut('  g Db replace');
         Garp_Cli::lineOut('');
+        return true;
     }
-
 
     /**
      * Show table info (DESCRIBE query) for given table
-     * @param Array $args
-     * @return Void
+     *
+     * @param array $args
+     * @return void
      */
     public function info(array $args = array()) {
         if (empty($args)) {
@@ -46,12 +46,10 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
         Garp_Cli::lineOut('');
     }
 
-
     public function sync(array $args = array()) {
         $sourceEnv = $args ? current($args) : null;
         new Garp_Db_Synchronizer($sourceEnv);
     }
-
 
     /**
      * Walks over every text column of every record of every table
@@ -60,12 +58,14 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
      * referenced with absolute paths including the domain. This method
      * can be used to replace "old domain" with "new domain" in one go.
      *
-     * @param Array $args
-     * @return Void
+     * @param array $args
+     * @return bool
      */
     public function replace(array $args = array()) {
-        $subject = !empty($args[0]) ? $args[0] : Garp_Cli::prompt('What is the string you wish to replace?');
-        $replacement = !empty($args[1]) ? $args[1] : Garp_Cli::prompt('What is the new string you wish to insert?');
+        $subject = !empty($args[0]) ? $args[0] :
+            Garp_Cli::prompt('What is the string you wish to replace?');
+        $replacement = !empty($args[1]) ? $args[1] :
+            Garp_Cli::prompt('What is the new string you wish to insert?');
         $subject = trim($subject);
         $replacement = trim($replacement);
 
@@ -75,25 +75,26 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
                 $this->_replaceString($model->class, $subject, $replacement);
             }
         }
+        return true;
     }
-
 
     /**
      * Replace $subject with $replacement in all textual columns of the table.
-     * @param  String  $modelClass  The model classname
-     * @param  String  $subject     The string that is to be replaced
-     * @param  String  $replacement The string that will take its place
-     * @return Void
+     *
+     * @param  string  $modelClass  The model classname
+     * @param  string  $subject     The string that is to be replaced
+     * @param  string  $replacement The string that will take its place
+     * @return void
      */
     protected function _replaceString($modelClass, $subject, $replacement) {
         $model = new $modelClass();
         $columns = $this->_getTextualColumns($model);
         if ($columns) {
             $adapter = $model->getAdapter();
-            $updateQuery = 'UPDATE '.$adapter->quoteIdentifier($model->getName()).' SET ';
+            $updateQuery = 'UPDATE ' . $adapter->quoteIdentifier($model->getName()) . ' SET ';
             foreach ($columns as $i => $column) {
-                $updateQuery .= $adapter->quoteIdentifier($column).' = REPLACE(';
-                $updateQuery .= $adapter->quoteIdentifier($column).', ';
+                $updateQuery .= $adapter->quoteIdentifier($column) . ' = REPLACE(';
+                $updateQuery .= $adapter->quoteIdentifier($column) . ', ';
                 $updateQuery .= $adapter->quoteInto('?, ', $subject);
                 $updateQuery .= $adapter->quoteInto('?)', $replacement);
                 if ($i < (count($columns)-1)) {
@@ -102,25 +103,26 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
             }
             if ($response = $adapter->query($updateQuery)) {
                 $affectedRows = $response->rowCount();
-                Garp_Cli::lineOut('Model: '.$model->getName());
-                Garp_Cli::lineOut('Affected rows: '.$affectedRows);
-                Garp_Cli::lineOut('Involved columns: '.implode(', ', $columns)."\n");
+                Garp_Cli::lineOut('Model: ' . $model->getName());
+                Garp_Cli::lineOut('Affected rows: ' . $affectedRows);
+                Garp_Cli::lineOut('Involved columns: ' . implode(', ', $columns) . "\n");
             } else {
-                Garp_Cli::errorOut('Error: update for table `'.$model->getName().'` failed.');
+                Garp_Cli::errorOut('Error: update for table `' . $model->getName() . '` failed.');
             }
         }
     }
 
-
     /**
      * Get all textual columns from a table
+     *
      * @param  Garp_Model_Db  $model  The model
-     * @return Array
+     * @return array
      */
     protected function _getTextualColumns(Garp_Model_Db $model) {
         $columns = $model->info(Zend_Db_Table::METADATA);
+        $textTypes = array('varchar', 'text', 'mediumtext', 'longtext', 'tinytext');
         foreach ($columns as $column => $meta) {
-            if (!in_array($meta['DATA_TYPE'], array('varchar', 'text', 'mediumtext', 'longtext', 'tinytext'))) {
+            if (!in_array($meta['DATA_TYPE'], $textTypes)) {
                 unset($columns[$column]);
             }
         }
