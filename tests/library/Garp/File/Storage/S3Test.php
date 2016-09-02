@@ -37,9 +37,10 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
             return;
         }
 
-        if (!($cdnConfig = $this->_findFirstS3Config())) {
-            return;
-        }
+        $cdnConfig = Zend_Registry::get('config')->cdn;
+        //if (!($cdnConfig = $this->_findFirstS3Config())) {
+            //return;
+        //}
 
         $s3         = new Garp_File_Storage_S3($cdnConfig, $cdnConfig->path->upload->image);
         $list       = $s3->getList();

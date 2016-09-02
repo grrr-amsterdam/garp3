@@ -52,7 +52,11 @@ class G_View_Helper_Image_Test extends Garp_Test_PHPUnit_TestCase {
             array(
             'cdn' => array(
                 'domain' => 'amazonaws.com',
-                'type' => 'local',
+                's3' => array(
+                    'apikey' => '12345',
+                    'secret' => '67890'
+                ),
+                'type' => 's3',
                 'ssl' => true,
                 'path' => array(
                     'upload' => array(

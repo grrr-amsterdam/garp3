@@ -49,17 +49,22 @@ class Garp_Util_AssetUrl {
         // For backwards compatibility: deprecated param assetType
         if ($ini->cdn->assetType) {
             $this->_url = $this->_getUrl(
-                $file, $ini->cdn->assetType,
-                $this->_getAssetDomain($ini, $ini->cdn->assetType), $ini->cdn->ssl
+                $file,
+                $ini->cdn->assetType,
+                $this->_getAssetDomain($ini, $ini->cdn->assetType),
+                $ini->cdn->ssl
             );
+            return;
         }
 
         $extension = $forced_extension ? $forced_extension : $this->_getExtension($file);
         if (!empty($ini->cdn->{$extension}->location)) {
-            $this->_url = $this->_getUrl(
-                $file, $ini->cdn->{$extension}->location,
-                $this->_getAssetDomain($ini, $ini->cdn->{$extension}->location), $ini->cdn->ssl
-            );
+            $location = $ini->cdn->{$extension}->location;
+            $domain = $location !== 'local' ?
+                $this->_getAssetDomain($ini, $ini->cdn->{$extension}->location) :
+                null;
+            $this->_url = $this->_getUrl($file, $location, $domain, $ini->cdn->ssl);
+            return;
         }
 
         $this->_url = $this->_getUrl(
@@ -142,6 +147,7 @@ class Garp_Util_AssetUrl {
             $file = ltrim($file, '/\\');
         }
 
+        return rtrim($baseUrl, '/') . '/' . $file;
         return 'http' . ($ssl ? 's' : '') . '://' . $domain . rtrim($baseUrl, '/') . '/' . $file;
     }
 
