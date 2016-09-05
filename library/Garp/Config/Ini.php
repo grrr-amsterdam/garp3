@@ -22,11 +22,14 @@ class Garp_Config_Ini extends Zend_Config_Ini {
      * Receive a config ini file from cache
      *
      * @param string $filename
+     * @param string $environment
      * @return Garp_Config_Ini
      */
-    public static function getCached($filename) {
+    public static function getCached($filename, $environment = null) {
+        $environment = $environment ?: APPLICATION_ENV;
         $cache = Zend_Registry::get('CacheFrontend');
         $key = preg_replace('/[^0-9a-zA-Z_]/', '_', basename($filename));
+        $key .= '_' . $environment;
 
         // Check the store first to see if the ini file is already loaded within this session
         if (array_key_exists($key, static::$_store)) {
@@ -35,7 +38,7 @@ class Garp_Config_Ini extends Zend_Config_Ini {
 
         $config = $cache->load('Ini_Config_' . $key);
         if (!$config) {
-            $config = new Garp_Config_Ini($filename, APPLICATION_ENV);
+            $config = new Garp_Config_Ini($filename, $environment);
             $cache->save($config, 'Ini_Config_' . $key);
         }
         static::$_store[$key] = $config;
@@ -98,3 +101,4 @@ class Garp_Config_Ini extends Zend_Config_Ini {
         return new Garp_Config_Ini(new Garp_Config_Ini_String($iniString), $section, $options);
     }
 }
+
