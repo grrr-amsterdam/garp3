@@ -1,24 +1,25 @@
 <?php
 /**
  * Storage and retrieval of user uploads, from the local web server.
- * @author David Spreekmeester | Grrr.nl
- * @package Garp
+ *
+ * @package Garp_File_Storage
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
     protected $_docRoot;
 
     protected $_domain;
-    
+
     protected $_path;
-    
+
     protected $_ssl;
-    
+
     protected $_gzip;
 
     const PERMISSIONS = 0774;
 
     public function __construct(Zend_Config $config, $path) {
-        $this->_docRoot = APPLICATION_PATH."/../public";
+        $this->_docRoot = APPLICATION_PATH . "/../public";
         $this->_path = $path;
         $this->_domain = $config->domain;
         $this->_ssl = $config->ssl ? true : false;
@@ -43,16 +44,23 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
     }
 
 
-    /** Fetches the url to the file, suitable for public access on the web. */
+    /**
+     * Fetches the url to the file, suitable for public access on the web.
+     *
+     * @param string $filename
+     * @return string
+     */
     public function getUrl($filename) {
-        if ($this->_ssl) {
-            return 'https://'.$this->_domain.$this->_path.'/'.$filename;
-        }   
-        return 'http://'.$this->_domain.$this->_path.'/'.$filename;
+        return new Garp_Util_AssetUrl($this->_path . '/' . $filename);
     }
-    
 
-    /** Fetches the file data. */
+
+    /**
+     * Fetches the file data.
+     *
+     * @param string $filename
+     * @return string
+     */
     public function fetch($filename) {
         $data = file_get_contents($this->_getFilePath($filename));
         if ($this->_gzip) {
@@ -62,58 +70,76 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
         return $data;
     }
 
-    /** Lists all valid files in the upload directory. */
+    /**
+     * Lists all valid files in the upload directory.
+     *
+     * @return array
+     */
     public function getList() {
         $list = array();
-        $dir = $this->_docRoot.$this->_path;
+        $dir = $this->_docRoot . $this->_path;
         if (is_dir($dir)) {
             if ($dh = opendir($dir)) {
                 while (($file = readdir($dh)) !== false) {
-                    if (
-                        substr($file, 0, 1) !== '.' &&
-                        strpos($file, '.') !== false
+                    if (substr($file, 0, 1) !== '.'
+                        && strpos($file, '.') !== false
                     ) {
                         $list[] = $file;
                     }
                 }
                 closedir($dh);
             }
-        } else throw new Exception($dir.' is not a directory.');
+        } else {
+            throw new Exception($dir . ' is not a directory.');
+        }
 
         return $list;
     }
 
-    /** Returns mime type of given file. */
+    /**
+     * Returns mime type of given file.
+     *
+     * @param string $filename
+     * @return string
+     */
     public function getMime($filename) {
         $imageInfo = @getimagesize($this->_getFilePath($filename));
-        if (is_array($imageInfo))
+        if (is_array($imageInfo)) {
             return $imageInfo['mime'];
-        else throw new Exception("Could not retrieve the mime type for ".$this->_getFilePath($filename));
+        }
+        throw new Exception(
+            "Could not retrieve the mime type for " .
+            $this->_getFilePath($filename)
+        );
     }
-
 
     public function getSize($filename) {
         return filesize($this->_getFilePath($filename));
     }
 
-
-    /** Returns last modified time of file, as a Unix timestamp. */
+    /**
+     * Returns last modified time of file, as a Unix timestamp.
+     *
+     * @param string $filename
+     * @return int
+     */
     public function getTimestamp($filename) {
         return filemtime($this->_getFilePath($filemtime));
     }
-
 
     /**
     * @param String $filename
     * @param String $data Binary file data
     * @param Boolean $overwrite Whether to overwrite this file, or create a unique name
-    * @param Boolean $formatFilename Whether to correct the filename, f.i. ensuring lowercase characters.
+    * @param Boolean $formatFilename Whether to correct the filename,
+    *                                f.i. ensuring lowercase characters.
     * @return String Destination filename.
     */
     public function store($filename, $data, $overwrite = false, $formatFilename = true) {
         $this->_verifyDirectory($filename);
-        if ($formatFilename)
+        if ($formatFilename) {
             $filename = Garp_File::formatFilename($filename);
+        }
 
         if (!$overwrite) {
             while ($this->exists($filename)) {
@@ -128,40 +154,45 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
         if (file_put_contents($this->_getFilePath($filename), $data) !== false) {
             chmod($this->_getFilePath($filename), self::PERMISSIONS);
             return $filename;
-        } else return false;
+        } else {
+            return false;
+        }
     }
-    
+
     public function remove($filename) {
         return unlink($this->_getFilePath($filename));
     }
-    
 
-    /** Fetches the path to the file, suitable for storage and retrieval commands on disk. */   
+    /**
+     * Fetches the path to the file, suitable for storage and retrieval commands on disk.
+     *
+     * @param string $filename
+     * @return string
+     */
     protected function _getFilePath($filename) {
-        return $this->_docRoot.$this->_path.'/'.$filename;
+        return $this->_docRoot . $this->_path . '/' . $filename;
     }
-    
-    
+
     protected function _verifyDirectory($filename) {
-        if (!file_exists($this->_docRoot.$this->_path)) {
-            if (!mkdir($this->_docRoot.$this->_path, self::PERMISSIONS, true)) {
-                throw new Exception("Could not create directory ".$this->_docRoot.$this->_path);
+        if (!file_exists($this->_docRoot . $this->_path)) {
+            if (!mkdir($this->_docRoot . $this->_path, self::PERMISSIONS, true)) {
+                throw new Exception("Could not create directory " . $this->_docRoot . $this->_path);
             }
         }
-        if (!is_writable($this->_docRoot.$this->_path)) {
-            throw new Exception("Could not write to ".$this->_docRoot.$this->_path);
+        if (!is_writable($this->_docRoot . $this->_path)) {
+            throw new Exception("Could not write to " . $this->_docRoot . $this->_path);
         }
 
         if (strpos($filename, '/') !== false) {
-            $subdir = $this->_docRoot.$this->_path.'/'.dirname($filename);
+            $subdir = $this->_docRoot . $this->_path . '/' . dirname($filename);
             if (!file_exists($subdir)) {
                 if (!mkdir($subdir, self::PERMISSIONS, true)) {
-                    throw new Exception("Could not create directory ".$subdir);
+                    throw new Exception("Could not create directory " . $subdir);
                 }
             }
-                
+
             if (!is_writable($subdir)) {
-                throw new Exception("Could not write to ".$subdir);
+                throw new Exception("Could not write to " . $subdir);
             }
         }
     }
