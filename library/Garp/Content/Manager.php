@@ -3,13 +3,10 @@
  * Garp_Content_Manager
  * Handles various crud methods
  *
- * @package Garp
- * @subpackage Content
+ * @package Garp_Content
  * @author Harmen Janssen <harmen@grrr.nl>
  * @author David Spreekmeester <david@grrr.nl>
- * @modifiedby Ramiro Hammen <ramiro@grr.nl>
- * @version $Revision: $
- * @lastmodified $Date: $
+ * @author Ramiro Hammen <ramiro@grr.nl>
  */
 class Garp_Content_Manager {
     /**
@@ -19,15 +16,17 @@ class Garp_Content_Manager {
      */
     protected $_model;
 
-
     /**
      * Class constructor
      *
-     * @param Garp_Model|String $model The model to execute methods on
-     * @return Void
+     * @param Garp_Model|string $model The model to execute methods on
+     * @return void
      */
     public function __construct($model) {
         if (is_string($model)) {
+            $model = strpos($model, 'Model_') !== 0 ?
+                Garp_Content_Api::modelAliasToClass($model) :
+                $model;
             $model = new $model();
         }
         $this->_model = $model;
@@ -35,7 +34,6 @@ class Garp_Content_Manager {
             throw new Garp_Content_Exception('The selected model must be a Garp_Model.');
         }
     }
-
 
     /**
      * Return the model
@@ -46,12 +44,11 @@ class Garp_Content_Manager {
         return $this->_model;
     }
 
-
     /**
      * Fetch results from a model
      *
-     * @param Array $options Various fetching options (e.g. limit, sorting, etc.)
-     * @return Array
+     * @param array $options Various fetching options (e.g. limit, sorting, etc.)
+     * @return array
      */
     public function fetch(array $options = null) {
         try {
@@ -73,6 +70,7 @@ class Garp_Content_Manager {
                 ->setDefault('group', array())
                 ->setDefault('rule', null)
                 ->setDefault('bindingModel', null)
+                ->setDefault('bidirectional', false)
                 ->setDefault('filterForeignKeys', false);
             $options['sort']   = (array)$options['sort'];
             $options['fields'] = (array)$options['fields'];
@@ -80,7 +78,6 @@ class Garp_Content_Manager {
             $options           = (array)$options;
             $modelInfo         = $this->_model->info();
             $referenceMap      = $modelInfo['referenceMap'];
-
             // SELECT
             // ============================================================
             $select = $this->_model->select();
@@ -170,7 +167,7 @@ class Garp_Content_Manager {
                         $nativeColTest = trim($nativeColTest);
 
                         if (in_array($nativeColTest, $nativeColumns) && strpos($s, '.') === false) {
-                            $s = $tableName.'.'.$s;
+                            $s = $tableName . '.' . $s;
                         }
                         return $s;
                     }, $options['sort']
@@ -237,12 +234,11 @@ class Garp_Content_Manager {
         }
     }
 
-
     /**
      * Create new record
      *
-     * @param Array $data The new record's data as key => value pairs.
-     * @return Mixed The primary key of the new record
+     * @param array $data The new record's data as key => value pairs.
+     * @return mixed The primary key of the new record
      */
     public function create(array $data) {
         $this->_checkAcl('create');
@@ -250,12 +246,11 @@ class Garp_Content_Manager {
         return $pk;
     }
 
-
     /**
      * Update existing record
      *
-     * @param Array $data The record's new data
-     * @return Int The amount of updated rows
+     * @param array $data The record's new data
+     * @return int The amount of updated rows
      */
     public function update(array $data) {
         // check if primary key is available
@@ -267,9 +262,9 @@ class Garp_Content_Manager {
         $where = array();
         foreach ($prim as $key) {
             if (!array_key_exists($key, $data)) {
-                throw new Garp_Content_Exception('Primary key '.$key.' not available in data');
+                throw new Garp_Content_Exception('Primary key ' . $key . ' not available in data');
             }
-            $where[] = $this->_model->getAdapter()->quoteInto($key.' = ?', $data[$key]);
+            $where[] = $this->_model->getAdapter()->quoteInto($key . ' = ?', $data[$key]);
             unset($data[$key]);
         }
         $where = implode(' AND ', $where);
@@ -297,12 +292,11 @@ class Garp_Content_Manager {
         return $this->_model->update($data, $where);
     }
 
-
     /**
      * Delete (a) record(s)
      *
-     * @param Array $where WHERE clause, specifying which records to delete
-     * @return Boolean
+     * @param array $where WHERE clause, specifying which records to delete
+     * @return bool
      */
     public function destroy(array $where) {
         $where = $this->_createWhereClause($where, 'AND', false);
@@ -335,12 +329,11 @@ class Garp_Content_Manager {
         }
     }
 
-
     /**
      * Relate entities to each other, optionally removing previous existing relations.
      *
-     * @param Array $options
-     * @return Boolean
+     * @param array $options
+     * @return bool
      */
     public function relate(array $options) {
         $this->_checkAcl('relate');
@@ -362,13 +355,13 @@ class Garp_Content_Manager {
         if (array_key_exists('unrelateExisting', $options) && $options['unrelateExisting']) {
             Garp_Content_Relation_Manager::unrelate(
                 array(
-                'modelA'        => $this->_model,
-                'modelB'        => $model,
-                'keyA'          => $primaryKey,
-                'rule'          => $rule,
-                'ruleB'         => $rule2,
-                'bindingModel'  => $bindingModel,
-                'bidirectional' => $bidirectional,
+                    'modelA'        => $this->_model,
+                    'modelB'        => $model,
+                    'keyA'          => $primaryKey,
+                    'rule'          => $rule,
+                    'ruleB'         => $rule2,
+                    'bindingModel'  => $bindingModel,
+                    'bidirectional' => $bidirectional,
                 )
             );
         }
@@ -405,26 +398,50 @@ class Garp_Content_Manager {
         return $success == $attempts;
     }
 
+    /**
+     * Unrelate entities from each other
+     *
+     * @param array $options
+     * @return bool
+     */
+    public function unrelate(array $options) {
+        $this->_checkAcl('relate');
 
-    public function unrelate() {
-        throw new Exception('This method is not yet implemented.');
-        //  TODO
+        extract($options);
+        if (!isset($primaryKey) || !isset($model) || !isset($foreignKeys)) {
+            throw new Garp_Content_Exception(
+                'Not enough options. "primaryKey", "model" and "foreignKeys" are required.'
+            );
+        }
+        $model         = Garp_Content_Api::modelAliasToClass($model);
+        $primaryKey    = (array)$primaryKey;
+        $foreignKeys   = (array)$foreignKeys;
+        $rule          = isset($rule) ? $rule : null;
+        $rule2         = isset($rule2) ? $rule2 : null;
+        $bindingModel  = isset($bindingModel) ? 'Model_' . $bindingModel : null;
+        $bidirectional = isset($bidirectional) ? $bidirectional : null;
+
+        Garp_Content_Relation_Manager::unrelate(
+            array(
+                'modelA'        => $this->_model,
+                'modelB'        => $model,
+                'keyA'          => $primaryKey,
+                'keyB'          => $foreignKeys,
+                'rule'          => $rule,
+                'ruleB'         => $rule2,
+                'bindingModel'  => $bindingModel,
+                'bidirectional' => $bidirectional,
+            )
+        );
     }
-
-
-    public function unrelateAll() {
-        throw new Exception('This method is not yet implemented.');
-        //  TODO
-    }
-
 
     /**
      * Create a WHERE clause for use with Zend_Db_Select
      *
-     * @param Array $query WHERE options
-     * @param String $separator AND/OR
-     * @param Boolean $useJointView Wether to use the *_joint view or the table.
-     * @return String WHERE clause
+     * @param array $query WHERE options
+     * @param string $separator AND/OR
+     * @param bool $useJointView Wether to use the *_joint view or the table.
+     * @return string WHERE clause
      */
     protected function _createWhereClause(array $query, $separator = 'AND', $useJointView = true) {
         $where = array();
@@ -458,15 +475,15 @@ class Garp_Content_Manager {
                 $where[] = $this->_createWhereClause($value, 'OR');
             } elseif (is_array($value)) {
                 $where[] = $adapter->quoteInto(
-                    $adapter->quoteIdentifier($tableName) .'.'.$column.' IN(?)',
+                    $adapter->quoteIdentifier($tableName) . '.' . $column . ' IN(?)',
                     $value
                 );
             } elseif (is_null($value)) {
                 if (substr($column, -2) == '<>') {
                     $column = preg_replace('/<>$/', '', $column);
-                    $where[] = $column.' IS NOT NULL';
+                    $where[] = $column . ' IS NOT NULL';
                 } else {
-                    $where[] = $column.' IS NULL';
+                    $where[] = $column . ' IS NULL';
                 }
             } elseif (is_scalar($value)) {
                 // Use $refColumn to see if this column is native to the current
@@ -474,33 +491,32 @@ class Garp_Content_Manager {
                 $refColumn = null;
                 if (!preg_match('/(>=?|<=?|like|<>)/i', $column, $matches)) {
                     $refColumn = $column;
-                    $column = $adapter->quoteIdentifier($column).' =';
+                    $column = $adapter->quoteIdentifier($column) . ' =';
                 } else {
                     // explode column so the actual column name can be quoted
                     $parts = explode(' ', $column);
                     $refColumn = $parts[0];
-                    $column = $adapter->quoteIdentifier($parts[0]).' '.$parts[1];
+                    $column = $adapter->quoteIdentifier($parts[0]) . ' ' . $parts[1];
                 }
 
                 if (strpos($refColumn, '.') === false && in_array($refColumn, $nativeColumns)) {
-                    $column = $adapter->quoteIdentifier($tableName).'.'.$column;
+                    $column = $adapter->quoteIdentifier($tableName) . '.' . $column;
                 }
-                $where[] = $adapter->quoteInto($column.' ?', $value);
+                $where[] = $adapter->quoteInto($column . ' ?', $value);
             }
         }
-        return '('.implode(" $separator ", $where).')';
+        return '(' . implode(" $separator ", $where) . ')';
     }
-
 
     /**
      * Add a JOIN clause to a Zend_Db_Select object
      *
      * @param Zend_Db_Select $select The select object
-     * @param Array $related Collection of related models
-     * @param String $rule Used to figure out the relationship metadata from the referencemap
-     * @param String $bindingModel Binding model used in HABTM relations
-     * @param Boolean $bidirectional
-     * @return Void
+     * @param array $related Collection of related models
+     * @param string $rule Used to figure out the relationship metadata from the referencemap
+     * @param string $bindingModel Binding model used in HABTM relations
+     * @param bool $bidirectional
+     * @return void
      */
     protected function _addJoinClause(Zend_Db_Select $select, array $related, $rule = null,
         $bindingModel = null, $bidirectional = true
@@ -525,7 +541,7 @@ class Garp_Content_Manager {
                     current record, because a record cannot be related to itself.
                 */
                 $select->where(
-                    $filterModel->getJointView().'.'.$filterColumn.' != ?',
+                    $filterModel->getJointView() . '.' . $filterColumn . ' != ?',
                     $filterValue
                 );
             }
@@ -578,7 +594,6 @@ class Garp_Content_Manager {
         }
     }
 
-
     /**
      * Add a hasMany/hasOne filter to a Zend_Db_Select object.
      * Example query:
@@ -589,12 +604,12 @@ class Garp_Content_Manager {
      * @param Array $options Collection of options containing;
      * ['select']       Zend_Db_Select  The select object
      * ['filterModel']  Garp_Model_Db   The filtering model
-     * ['filterColumn'] String          The column used as the query filter
-     * ['filterValue']  Mixed           The value used as the query filter
-     * ['reference']    Array           The relation as in the reference map of the model
-     * ['negation']     Boolean         Wether the query should include or exclude
+     * ['filterColumn'] string          The column used as the query filter
+     * ['filterValue']  mixed           The value used as the query filter
+     * ['reference']    array           The relation as in the reference map of the model
+     * ['negation']     bool            Wether the query should include or exclude
      *                                  matches found by $filterValue
-     * @return Void
+     * @return void
      */
     protected function _addHasManyClause(array $options) {
         // keys of $options available in the local space as variables
@@ -605,32 +620,32 @@ class Garp_Content_Manager {
         $thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
         // in the case of homophile relationships...
         if ($filterModelName == $thisTableName) {
-            $filterModelName = $filterModelName.'_2';
+            $filterModelName = $filterModelName . '_2';
         }
 
         foreach ($reference['refColumns'] as $i => $column) {
             if ($column === $filterColumn) {
-                $joinColumn = $thisTableName.'.'.$column;
+                $joinColumn = $thisTableName . '.' . $column;
                 /**
                  * Map the index of the found column to the foreign key column.
                  * Note that these columns are paired by index,
                  * so the order in the reference map must be the same.
                  */
-                $foreignKeyColumn = $filterModelName.'.'.$reference['columns'][$i];
+                $foreignKeyColumn = $filterModelName . '.' . $reference['columns'][$i];
                 break;
             }
         }
         if (!isset($joinColumn)) {
             throw new Garp_Content_Exception(
-                'The relationship between '.get_class($this->_model).' and '.
-                get_class($filterModel).' cannot be determined from the '.
+                'The relationship between ' . get_class($this->_model) . ' and ' .
+                get_class($filterModel) . ' cannot be determined from the ' .
                 'reference map.'
             );
         }
 
-        $bindingCondition = $foreignKeyColumn.' = '.$joinColumn;
+        $bindingCondition = $foreignKeyColumn . ' = ' . $joinColumn;
         $bindingCondition .= $filterModel->getAdapter()->quoteInto(
-            ' AND '.$filterModelName.'.'.$filterColumn.' = ?',
+            ' AND ' . $filterModelName . '.' . $filterColumn . ' = ?',
             $filterValue
         );
 
@@ -646,9 +661,11 @@ class Garp_Content_Manager {
          */
         $nullFix = $negation ? " OR $foreignKeyColumn IS NULL" : '';
         $operator = $negation ? '!=' : '=';
-        $select->where("({$filterModelName}.$filterColumn $operator ?".$nullFix.")", $filterValue);
+        $select->where(
+            "({$filterModelName}.$filterColumn $operator ?" . $nullFix . ")",
+            $filterValue
+        );
     }
-
 
     /**
      * Add a belongsto filter to a Zend_Db_Select object.
@@ -656,14 +673,14 @@ class Garp_Content_Manager {
      * SELECT * FROM comments
      * WHERE comments.user_id = 35
      *
-     * @param Array $options Collection of options containing;
+     * @param array $options Collection of options containing;
      * ['select']       Zend_Db_Select  The select object
-     * ['filterColumn'] String          The column used as the query filter
-     * ['filterValue']  Mixed           The value used as the query filter
-     * ['reference']    Array           The relation as in the reference map of the model
-     * ['negation']     Boolean         Wether the query should include or exclude
+     * ['filterColumn'] string          The column used as the query filter
+     * ['filterValue']  mixed           The value used as the query filter
+     * ['reference']    array           The relation as in the reference map of the model
+     * ['negation']     bool            Wether the query should include or exclude
      *                                  matches found by $filterValue
-     * @return Void
+     * @return void
      */
     protected function _addBelongsToClause(array $options) {
         $thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
@@ -676,7 +693,7 @@ class Garp_Content_Manager {
                  * Note that these columns are paired by index,
                  * so the order in the reference map must be the same.
                  */
-                $filterColumn = $thisTableName.'.'.$reference['columns'][$i];
+                $filterColumn = $thisTableName . '.' . $reference['columns'][$i];
                 break;
             }
         }
@@ -690,7 +707,6 @@ class Garp_Content_Manager {
         $select->where("($filterColumn $operator ?$nullFix)", $filterValue);
     }
 
-
     /**
      * Add a hasAndBelongsToMany filter to a Zend_Db_Select object.
      * Example query:
@@ -700,16 +716,16 @@ class Garp_Content_Manager {
      * INNER JOIN `users` ON users.id = tags_users.user_id
      * WHERE user_id 35 // in the case of negation, this'll be "WHERE user_id IS NULL"
      *
-     * @param Array $options Collection of options containing;
+     * @param array $options Collection of options containing;
      * ['select']       Zend_Db_Select  The select object
      * ['filterModel']  Garp_Model_Db   The filtering model
-     * ['filterColumn'] String          The column used as the query filter
-     * ['filterValue']  Mixed           The value used as the query filter
-     * ['negation']     Boolean         Wether the query should include or exclude
+     * ['filterColumn'] string          The column used as the query filter
+     * ['filterValue']  mixed           The value used as the query filter
+     * ['negation']     bool            Wether the query should include or exclude
      *                                  matches found by $filterValue
-     * ['bidirectional'] Boolean        Wether homophile relationships should be queried
+     * ['bidirectional'] bool           Wether homophile relationships should be queried
      *                                  bidirectionally
-     * @return Void
+     * @return void
      */
     protected function _addHasAndBelongsToManyClause(array $options) {
         if (!isset($options['bindingModel'])) {
@@ -718,7 +734,7 @@ class Garp_Content_Manager {
                 $options['filterModel']->getNameWithoutNamespace()
             );
             sort($modelNames);
-            $bindingModelName = 'Model_'.implode('', $modelNames);
+            $bindingModelName = 'Model_' . implode('', $modelNames);
         } else {
             $bindingModelName = 'Model_' . $options['bindingModel'];
         }
@@ -753,10 +769,10 @@ class Garp_Content_Manager {
             $options['filterValue']
         );
         if ($this->_isHomophile($options['filterModel']) && array_get($options, 'bidirectional')) {
-            $bindingCondition .= ' OR '.$bindingModelTable.'.'
-                .$filterField.' = '.$thisTableName.'.'.$foreignKeyField;
+            $bindingCondition .= ' OR ' . $bindingModelTable . '.'
+                . $filterField . ' = ' . $thisTableName . '.' . $foreignKeyField;
             $bindingCondition .= $bindingModel->getAdapter()->quoteInto(
-                ' AND '.$bindingModelTable.'.'.$bindingModelForeignKeyField.' = ?',
+                ' AND ' . $bindingModelTable . '.' . $bindingModelForeignKeyField . ' = ?',
                 $options['filterValue']
             );
         }
@@ -777,13 +793,13 @@ class Garp_Content_Manager {
             if (in_array($bc, $weighableColumns)) {
                 continue;
             }
-            $bindingColumns[$bindingModel->getNameWithoutNamespace().'.'.$bc] = $bc;
+            $bindingColumns[$bindingModel->getNameWithoutNamespace() . '.' . $bc] = $bc;
         }
 
         $options['select']->joinLeft($bindingModelTable, $bindingCondition, $bindingColumns);
 
         if ($options['negation']) {
-            $options['select']->where($bindingModelTable.'.'.$filterField.' IS NULL');
+            $options['select']->where($bindingModelTable . '.' . $filterField . ' IS NULL');
         } else {
             $options['select']->where(
                 $bindingModelTable . '.' . $filterField . ' = ?',
@@ -793,7 +809,7 @@ class Garp_Content_Manager {
                 && array_get($options, 'bidirectional')
             ) {
                 $options['select']->orWhere(
-                    $bindingModelTable.'.'.$bindingModelForeignKeyField.' = ?',
+                    $bindingModelTable . '.' . $bindingModelForeignKeyField . ' = ?',
                     $options['filterValue']
                 );
                 $options['select']->group('id');
@@ -804,13 +820,12 @@ class Garp_Content_Manager {
         $bindingModel->notifyObservers('beforeFetch', array($bindingModel, $options['select']));
     }
 
-
     /**
      * Filter columns that are foreign keys.
      *
-     * @param Array $fields All columns
-     * @param Array $referenceMap The model's referenceMap
-     * @return Array
+     * @param array $fields All columns
+     * @param array $referenceMap The model's referenceMap
+     * @return array
      */
     protected function _filterForeignKeyColumns($fields, $referenceMap) {
         $out = array();
@@ -823,28 +838,26 @@ class Garp_Content_Manager {
         return array_diff($fields, $foreignKeys);
     }
 
-
     /**
      * Checks if this is a homophile relation: an association between records of the same model.
      *
      * @param Garp_Model_Db $filterModel
-     * @return Boolean
+     * @return bool
      */
     protected function _isHomophile(Garp_Model_Db $filterModel) {
         return get_class($this->_model) === get_class($filterModel);
     }
 
-
     /**
-    * In case of a homophile relation, this function returns the key to the second rule,
-    * to prevent the same rule being returned twice, because both rules in
-    * a homophile binding model point to the same related model.
-    *
-    * @param Garp_Model_Db $filterModel
-    * @param String $bindingModel
-    * @return StringOrNull Returns the name of the second rule key in the reference map,
-    * if this is a homophile relation. Otherwise, null is returned.
-    */
+     * In case of a homophile relation, this function returns the key to the second rule,
+     * to prevent the same rule being returned twice, because both rules in
+     * a homophile binding model point to the same related model.
+     *
+     * @param Garp_Model_Db $filterModel
+     * @param string $bindingModel
+     * @return string|null Returns the name of the second rule key in the reference map,
+     * if this is a homophile relation. Otherwise, null is returned.
+     */
     protected function _findSecondRuleKeyForHomophiles($filterModel, $bindingModel) {
         $homophileSecondRuleKey = null;
 
@@ -865,12 +878,11 @@ class Garp_Content_Manager {
         return $homophileSecondRuleKey;
     }
 
-
     /**
      * Check to see if the current model supports the requested method
      *
-     * @param String $method The method
-     * @return Boolean
+     * @param string $method The method
+     * @return bool
      * @throws Garp_Content_Exception If the method is not supported
      */
     protected function _checkAcl($method) {
@@ -879,14 +891,13 @@ class Garp_Content_Manager {
         }
     }
 
-
     /**
      * Check a record belongs to the currently logged in user.
      * This check is based on the author_id column.
      *
-     * @param Array $data The record data. Primary key must be present here.
-     * @param String $where A WHERE clause to find the record
-     * @return Boolean
+     * @param array $data The record data. Primary key must be present here.
+     * @param string $where A WHERE clause to find the record
+     * @return bool
      */
     protected function _itemBelongsToUser($data, $where = false) {
         $userData = Garp_Auth::getInstance()->getUserData();

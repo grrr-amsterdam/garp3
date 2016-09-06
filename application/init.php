@@ -271,6 +271,42 @@ function array_get_subset(array $a, array $allowed) {
 }
 // @codingStandardsIgnoreEnd
 
+/**
+ * Returns a property from an object or NULL if unavailable.
+ * Is curried to ease use with array_map and array_filter and the like.
+ *
+ * Usage:
+ * // returns $object->name or NULL
+ * $name = getProperty('name', $object);
+ *
+ * // returns list of objects that have a truthy name property
+ * $objectsWithName = array_filter($objects, getProperty('name'));
+ *
+ * @param string $key The property
+ * @param object $obj
+ * @return mixed
+ */
+function getProperty($key, $obj = null) {
+    $getter = function ($obj) use ($key) {
+        return property_exists($obj, $key) ? $obj->{$key} : null;
+    };
+
+    if (is_null($obj)) {
+        return $getter;
+    }
+    return $getter($obj);
+}
+
+function propertyEquals($key, $value, $obj = null) {
+    $checker = function ($obj) use ($key, $value) {
+        return getProperty($key, $obj) === $value;
+    };
+    if (is_null($obj)) {
+        return $checker;
+    }
+    return $checker($obj);
+}
+
 // Ignoring coding standards because the following is all third party code
 // @codingStandardsIgnoreStart
 if (!function_exists('gzdecode')) {
