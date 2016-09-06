@@ -3,10 +3,9 @@ Ext.ns('Garp.dataTypes');
 	if (!('Image' in Garp.dataTypes)) {
 		return;
 	}
-	Garp.dataTypes.Image.on('init', function(){
-
+	Garp.dataTypes.Image.on('init', function() {
 		this.iconCls = 'icon-img';
-		
+
 		// Thumbnail column:
 		this.insertColumn(0, {
 			header: '<span class="hidden">' + __('Image') + '</span>',
@@ -17,9 +16,16 @@ Ext.ns('Garp.dataTypes');
 			hidden: false
 		});
 
-		this.addListener('loaddata', function(rec, formPanel){
-			
-			function updateUI(){
+		this.addListener('loaddata', function(rec, formPanel) {
+      // Prevent images from being updated after creation.
+      // This allows us to cache the files forever
+      if (rec.data.id && rec.data.filename) {
+        formPanel.getForm().findField('filename').disable();
+      } else {
+        formPanel.getForm().findField('filename').enable();
+      }
+
+			function updateUI() {
 
 				// Upload callback does not contain a filename; it renderers the image itself. Do not overwrite:
 				if (rec.get('filename')) {
@@ -27,7 +33,10 @@ Ext.ns('Garp.dataTypes');
 					formPanel.download.update({
 						filename: rec.get('filename')
 					});
-				}
+				} else {
+          formPanel.preview.update('');
+          formPanel.download.update({ filename: null });
+        }
 				// if we're in a relateCreateWindow, set height again, otherwise it might not fit. We choose a safe 440px height
 				if (typeof formPanel.center == 'function') {
 					var i = new Image();
@@ -40,7 +49,7 @@ Ext.ns('Garp.dataTypes');
 					i.src  = formPanel.preview.getEl().child('img') ? formPanel.preview.getEl().child('img').dom.src : '';
 				}
 			}
-			
+
 			if (formPanel.rendered) {
 				updateUI();
 			} else {
@@ -48,10 +57,10 @@ Ext.ns('Garp.dataTypes');
 					single: true
 				});
 			}
-			
+
 		}, true);
-		
-		// Remove these fields, cause we are about to change the order and appearance of them... 
+
+		// Remove these fields, cause we are about to change the order and appearance of them...
 		this.removeField('filename');
 		this.removeField('id');
 
@@ -340,3 +349,4 @@ Ext.ns('Garp.dataTypes');
 		});
 	});
 })();
+

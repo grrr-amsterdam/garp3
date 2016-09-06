@@ -109,12 +109,15 @@ if ($plugin)
 	$props[] = "plugins: [{$plugin}]";
 
 if ($field->type === 'document' || $field->type === 'imagefile'):
+    /*
+     * New strategy: documents should be able to be cached forever.
+     * Therefore, the filename should be unique. Overwriting is moot.
 	echo $this->partial('partials/spawn/js/upload-overwrite-checkbox.phtml', 'g', array(
 		'fieldName' => $field->getNameKey($this->language)
 	));
 ?>
 			}, {
-<?php endif; ?>
+<?php */ endif; ?>
 				<?php echo implode(",\n\t\t\t\t", $props); ?>
 				<?php if ($field->info): ?>
 			}, {
