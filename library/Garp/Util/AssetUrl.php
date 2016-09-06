@@ -8,8 +8,13 @@
  * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Util_AssetUrl {
-    protected $_useSemver = false;
-    protected $_revManifest;
+    /**
+     * Statically stored rev-manifest json file
+     *
+     * @var array
+     */
+    protected static $_revManifest = null;
+
     protected $_url;
 
     /**
@@ -23,14 +28,16 @@ class Garp_Util_AssetUrl {
      * @return void
      */
     public function __construct($file = null, $forced_extension = false) {
-        if (is_null($file)) {
+        $config = Zend_Registry::get('config');
+        $baseUrl = $config->cdn->baseUrl;
+        if (!$file) {
+            $this->_url = $baseUrl;
             return;
         }
 
-        $ini = Zend_Registry::get('config');
         // If using manifest, gulp-rev is used to generate versioned filenames.
         // Look 'em up in the manifest file
-        if ($ini->cdn->useRevManifest) {
+        if ($config->cdn->useRevManifest) {
             $file = $this->_processRevManifest($file);
             // If only basename is given, we assume "modern" approach.
             // AssetUrl will:
@@ -46,45 +53,17 @@ class Garp_Util_AssetUrl {
             $file = $this->getVersionedQuery($file);
         }
 
-        // For backwards compatibility: deprecated param assetType
-        if ($ini->cdn->assetType) {
-            $this->_url = $this->_getUrl(
-                $file,
-                $ini->cdn->assetType,
-                $this->_getAssetDomain($ini, $ini->cdn->assetType),
-                $ini->cdn->ssl
-            );
-            return;
-        }
-
         $extension = $forced_extension ? $forced_extension : $this->_getExtension($file);
-        if (!empty($ini->cdn->{$extension}->location)) {
-            $location = $ini->cdn->{$extension}->location;
-            $domain = $location !== 'local' ?
-                $this->_getAssetDomain($ini, $ini->cdn->{$extension}->location) :
-                null;
-            $this->_url = $this->_getUrl($file, $location, $domain, $ini->cdn->ssl);
+        if (!empty($config->cdn->{$extension}->location)
+            && $config->cdn->{$extension}->location === 'local'
+        ) {
+            // Skip the baseUrl if a file is explicitly configured as local
+            // (ends up as a relative "/css/base.css" path.
+            $this->_url = $file;
             return;
         }
 
-        $this->_url = $this->_getUrl(
-            $file, $ini->cdn->type,
-            $this->_getAssetDomain($ini, $ini->cdn->type), $ini->cdn->ssl
-        );
-    }
-
-    protected function _getAssetDomain(Zend_Config $ini, $cdnType) {
-        if ($ini->cdn->domain) {
-            return $ini->cdn->domain;
-        }
-        if ($cdnType === 's3' && $ini->cdn->s3->region) {
-            // Technically not a domain since there's a path containing the bucket
-            return 's3-' . $ini->cdn->s3->region . '.amazonaws.com/' . $ini->cdn->s3->bucket;
-        }
-        throw new Exception(
-            'Unable to get asset domain. Either specify cdn.domain or configure ' .
-            'cdn.s3.region to use a generic amazonaws.com domain.'
-        );
+        $this->_url = rtrim($baseUrl, '/') . '/' . ltrim($file, '/');
     }
 
     protected function _getExtension($file) {
@@ -103,61 +82,17 @@ class Garp_Util_AssetUrl {
         return $lastPart;
     }
 
-    protected function _getUrl($file, $cdnType, $domain, $ssl) {
-        switch ($cdnType) {
-        case 's3':
-            return $this->_getS3Url($file, $domain, $ssl);
-            break;
-        case 'local':
-            return $this->_getLocalUrl($file, $domain, $ssl);
-            break;
-        default:
-            throw new Exception("Unknown CDN specified.");
-        }
-    }
-
-    protected function _getS3Url($file, $domain, $ssl) {
-        return 'http' . ($ssl ? 's' : '') . '://' . $domain . $file;
-    }
-
-    protected function _getLocalUrl($file, $domain, $ssl) {
-        if (!strlen($file)) {
-            return '';
-        }
-
-        $baseUrlHelper = new Zend_View_Helper_BaseUrl();
-        $baseUrl = $baseUrlHelper->getBaseUrl();
-        $baseUrl = '/' . ltrim($baseUrl, '/\\');
-
-        $front = Zend_Controller_Front::getInstance();
-        $requestParams = array();
-        if ($front->getRequest()) {
-            $requestParams = $front->getRequest()->getParams();
-        }
-
-        // for assets, chop the locale part of the URL.
-        if (array_key_exists('locale', $requestParams) && $requestParams['locale']
-            && preg_match('~^/(' . $requestParams['locale'] . ')~', $baseUrl)
-        ) {
-            $baseUrl = preg_replace('~^/(' . $requestParams['locale'] . ')~', '/', $baseUrl);
-        }
-
-        // Remove trailing slashes
-        if (null !== $file) {
-            $file = ltrim($file, '/\\');
-        }
-
-        return rtrim($baseUrl, '/') . '/' . $file;
-        return 'http' . ($ssl ? 's' : '') . '://' . $domain . rtrim($baseUrl, '/') . '/' . $file;
-    }
-
     public function getVersionedQuery($file) {
         return $file . '?' . new Garp_Semver();
     }
 
     public function getVersionedBuildPath($file) {
         $buildConfig = 'build';
-        $assetsConfig = Zend_Registry::get('config')->assets->{$this->_getExtension($file)};
+        $assetsConfig = Zend_Registry::get('config')->assets;
+        if (!$assetsConfig) {
+            return $file;
+        }
+        $assetsConfig = $assetsConfig->{$this->_getExtension($file)};
         if (empty($assetsConfig->$buildConfig)) {
             $buildConfig = 'root';
         }
@@ -186,12 +121,21 @@ class Garp_Util_AssetUrl {
         return dirname($file) . DIRECTORY_SEPARATOR . $base;
     }
 
+    /**
+     * Read rev-manifest file, generated by a process like gulp-rev.
+     * It maps original filenames to hashes ones.
+     * Note that it is cached statically to be saved during the runtime of the script.
+     *
+     * @return string
+     */
     public function getRevManifest() {
-        if (!$this->_revManifest) {
+        if (is_null(self::$_revManifest)) {
             $manifestPath = APPLICATION_PATH . '/../rev-manifest-' . APPLICATION_ENV . '.json';
-            $this->_revManifest = json_decode(@file_get_contents($manifestPath), true);
+            self::$_revManifest = file_exists($manifestPath) ?
+                json_decode(file_get_contents($manifestPath), true) :
+                array();
         }
-        return $this->_revManifest;
+        return self::$_revManifest;
     }
 
     public function __toString() {

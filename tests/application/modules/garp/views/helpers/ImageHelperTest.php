@@ -51,7 +51,7 @@ class G_View_Helper_Image_Test extends Garp_Test_PHPUnit_TestCase {
         $this->_helper->injectConfigValues(
             array(
             'cdn' => array(
-                'domain' => 'amazonaws.com',
+                'baseUrl' => 'https://s3-eu-west-1.amazonaws.com/static.melkweg.nl',
                 's3' => array(
                     'apikey' => '12345',
                     'secret' => '67890'
