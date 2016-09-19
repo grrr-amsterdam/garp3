@@ -139,6 +139,6 @@ class Garp_Util_AssetUrl {
     }
 
     public function __toString() {
-        return $this->_url;
+        return is_null($this->_url) ? '' : $this->_url;
     }
 }
