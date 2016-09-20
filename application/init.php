@@ -76,8 +76,17 @@ $filePrefix = $rootFolder . '_' . APPLICATION_ENV;
 $filePrefix = preg_replace('/[^a-zA-A0-9_]/', '_', $filePrefix) . '_';
 
 $frontendName = 'Core';
+$memcacheIsConfigured = MEMCACHE_PORT && MEMCACHE_HOST;
+$memcacheAvailable = extension_loaded('memcache');
+if ($memcacheAvailable) {
+    // Attempt a connection to memcache, to see if we can use it
+    $memcache = new Memcache;
+    $memcacheAvailable = @$memcache->connect(MEMCACHE_HOST, MEMCACHE_PORT);
+}
 
-if (MEMCACHE_PORT && MEMCACHE_HOST) {
+// Only use 'Memcached' if we can reasonably connect. Otherwise it's not worth it to crash on,
+// we can just fall back to BlackHole
+if ($memcacheIsConfigured && $memcacheAvailable) {
     $backendName       = 'Memcached';
     $cacheStoreEnabled = true;
     $useWriteControl   = true;
