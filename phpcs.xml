@@ -75,4 +75,7 @@
 <rule ref="PEAR.Commenting.ClassComment.MissingPackageTag">
     <exclude-pattern>*/tests/*</exclude-pattern>
 </rule>
+<rule ref="PEAR.NamingConventions.ValidClassName.Invalid">
+    <exclude-pattern>application/modules/default/Model/*</exclude-pattern>
+</rule>
 </ruleset>
