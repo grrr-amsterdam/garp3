@@ -36,7 +36,7 @@ if (!defined('APPLICATION_ENV')) {
     }
 }
 
-$basePath = realpath(dirname(__FILE__) . '/..');
+$basePath = realpath(dirname(__FILE__) . '/../../melkweg');
 if (basename(realpath($basePath . '/../../')) === 'vendor') {
     // Set BASE_PATH to be the root of the host project
     $basePath = realpath(dirname(__FILE__) . '/../../../../');

@@ -4,9 +4,58 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "86d31f08d1d6b79c4fd122afd88ae172",
-    "content-hash": "38dd8017708f8c0b1d092acb5044eb7c",
+    "hash": "cd3e45798f9ffe73a002d395a5e85ba9",
+    "content-hash": "b3bc41a7b6e8b7f0ea9b1230d12a3bb5",
     "packages": [
+        {
+            "name": "bshaffer/oauth2-server-php",
+            "version": "v1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bshaffer/oauth2-server-php.git",
+                "reference": "058c98f73209f9c49495e1799d32c035196fe8b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/058c98f73209f9c49495e1799d32c035196fe8b8",
+                "reference": "058c98f73209f9c49495e1799d32c035196fe8b8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.9"
+            },
+            "suggest": {
+                "aws/aws-sdk-php": "~2.8 is required to use the DynamoDB storage engine",
+                "firebase/php-jwt": "~2.2 is required to use JWT features",
+                "predis/predis": "Required to use the Redis storage engine",
+                "thobbs/phpcassa": "Required to use the Cassandra storage engine"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "OAuth2": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brent Shaffer",
+                    "email": "bshafs@gmail.com",
+                    "homepage": "http://brentertainment.com"
+                }
+            ],
+            "description": "OAuth2 Server for PHP",
+            "homepage": "http://github.com/bshaffer/oauth2-server-php",
+            "keywords": [
+                "auth",
+                "oauth",
+                "oauth2"
+            ],
+            "time": "2015-09-18 18:05:10"
+        },
         {
             "name": "ezyang/htmlpurifier",
             "version": "v4.8.0",
@@ -287,12 +336,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "e0bb401bc32822cecd08c12de2c67dce5ba2bdf3"
+                "reference": "25651da63b8b8f04dc13d82066e2bd9f67ff43b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/e0bb401bc32822cecd08c12de2c67dce5ba2bdf3",
-                "reference": "e0bb401bc32822cecd08c12de2c67dce5ba2bdf3",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/25651da63b8b8f04dc13d82066e2bd9f67ff43b4",
+                "reference": "25651da63b8b8f04dc13d82066e2bd9f67ff43b4",
                 "shasum": ""
             },
             "require": {
@@ -337,7 +386,7 @@
                 "log",
                 "logging"
             ],
-            "time": "2016-08-16 17:46:11"
+            "time": "2016-08-26 23:38:40"
         },
         {
             "name": "zendframework/zendframework1",
