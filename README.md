@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/grrr-amsterdam/garp3.svg?branch=develop)](https://travis-ci.org/grrr-amsterdam/garp3)
+
 # Garp 3
 
 Garp is a flexible opensource PHP and frontend framework and CMS.   
