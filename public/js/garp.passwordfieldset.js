@@ -15,13 +15,9 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 	},
 
 	collapseAndHide: function(){
-		this.showpassword.hide();
 		this.password.hide();
-		this.plaintext.hide();
 		this.password.setValue('');
 		this.password.originalValue = '';
-		this.plaintext.setValue('');
-		this.plaintext.originalValue = '';
 	},
 
 	initComponent: function(ct){
@@ -34,12 +30,10 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 			boxMaxWidth: 64,
 			handler: function(){
 				var r = this.refOwner;
-				if (r.showpassword.isVisible()) {
+				if (r.password.isVisible()) {
 					r.collapseAndHide();
 				} else {
-					r.showpassword.show();
 					r.password.show();
-					r.plaintext.hide();
 					r.password.focus(20);
 				}
 			}
@@ -49,53 +43,17 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 			inputType: 'text',
 			hidden: true,
 			listeners: {
-				/**
-				 * This render callback tricks Google Chrome. It normally tries to auto-populate
-				 * forms with a password field. In our case it fails horribly and clears the form,
-				 * leaving the administrator with blank fields.
-				 * This callback swaps the "text" type for an actual "password" type. Chrome will
-				 * leave the form alone thinking it does not contain a password field.
-				 */
-				'render': function() {
-					var dom = this.el.dom;
-					setTimeout(function() {
-						dom.setAttribute('type', 'password');
-					}, 100);
-				},
 				'change': this.callback
-			}
-		}, {
-			ref: 'plaintext',
-			fieldLabel : __('Password'),
-			inputType: 'text',
-			hidden: true,
-			listeners: {
-				'change': this.callback
-			}
-		}, {
-			ref: 'showpassword',
-			fieldLabel: __('Show Password'),
-			xtype: 'checkbox',
-			allowBlank: true,
-			hidden: true,
-			handler: function(){
-				var r = this.refOwner, c = this.checked;
-				r.password.setVisible(!c);
-				r.plaintext.setVisible(c);
-				r[c ? 'plaintext' : 'password'].setValue(r[c ? 'password' : 'plaintext'].getValue());
 			}
 		}];
 
 		var scope = this;
 		this._interval = setInterval(function(){
 			if (scope.password) {
-				if (scope.password.isVisible() || scope.plaintext.isVisible()) {
+				if (scope.password.isVisible() ) {
 					if (scope.password.isVisible() && scope.password.isDirty()) {
 						scope.callback(scope.password, scope.password.getValue());
 						scope.password.originalValue = scope.password.getValue();
-					} else if (scope.plaintext.isDirty()) {
-						scope.callback(scope.plaintext, scope.plaintext.getValue());
-						scope.plaintext.originalValue = scope.plaintext.getValue();
 					}
 				}
 			} else {
@@ -104,7 +62,6 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 		}, 100);
 
 		Garp.PasswordFieldset.superclass.initComponent.call(this, ct);
-
 
 	}
 
