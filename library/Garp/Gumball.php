@@ -25,7 +25,13 @@ class Garp_Gumball {
     protected $_gumballConfig;
 
     // Paths that are not copied into the gumball
-    protected $_ignoredPaths = array('.DS_Store', 'node_modules', 'bower_components', 'gumballs');
+    protected $_ignoredPaths = array(
+        '.DS_Store',
+        'node_modules',
+        'bower_components',
+        'gumballs',
+        'sql'
+    );
 
     /**
      * Class constructor

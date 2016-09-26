@@ -47,6 +47,7 @@ namespace :deploy do
 
 	task :finished do
 		invoke :disable_under_construction
+		invoke :notify_slack
 	end
 end
 

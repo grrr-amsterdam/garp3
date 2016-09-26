@@ -18,6 +18,13 @@ task :disable_under_construction do
 	end
 end
 
+desc "Notify Slack"
+task :notify_slack do
+    on roles(:app) do
+        execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Slack sendDeployNotification --branch=#{fetch(:branch)} --user=#{fetch(:local_user)} --e=#{fetch(:stage)}"
+    end
+end
+
 desc "Spawn models"
 task :spawn do
 	# Since there is often a shared database server for multiple web servers,
