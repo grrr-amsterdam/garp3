@@ -41,7 +41,7 @@ class Garp_ErrorHandler {
      * @param ArrayObject $errors
      * @return void
      */
-    public static function logErrorToFile(ArrayObject $errors) {
+    public static function logErrorToFile($errors) {
         $errorMessage = self::_composeFullErrorMessage($errors);
 
         $stream = fopen(APPLICATION_PATH . '/data/logs/errors.log', 'a');
