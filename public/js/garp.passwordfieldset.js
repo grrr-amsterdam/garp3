@@ -50,11 +50,9 @@ Garp.PasswordFieldset = Ext.extend(Ext.form.FieldSet, {
 		var scope = this;
 		this._interval = setInterval(function(){
 			if (scope.password) {
-				if (scope.password.isVisible() ) {
-					if (scope.password.isVisible() && scope.password.isDirty()) {
-						scope.callback(scope.password, scope.password.getValue());
-						scope.password.originalValue = scope.password.getValue();
-					}
+				if (scope.password.isVisible() && scope.password.isDirty()) {
+					scope.callback(scope.password, scope.password.getValue());
+					scope.password.originalValue = scope.password.getValue();
 				}
 			} else {
 				clearInterval(this._interval);
