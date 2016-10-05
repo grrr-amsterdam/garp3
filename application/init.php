@@ -280,6 +280,122 @@ function array_get_subset(array $a, array $allowed) {
 }
 // @codingStandardsIgnoreEnd
 
+/**
+ * Returns a property from an object or NULL if unavailable.
+ * Is curried to ease use with array_map and array_filter and the like.
+ *
+ * Usage:
+ * // returns $object->name or NULL
+ * $name = getProperty('name', $object);
+ *
+ * // returns list of objects that have a truthy name property
+ * $objectsWithName = array_filter($objects, getProperty('name'));
+ *
+ * @param string $key The property
+ * @param object $obj
+ * @return mixed
+ */
+function getProperty($key, $obj = null) {
+    $getter = function ($obj) use ($key) {
+        return property_exists($obj, $key) ? $obj->{$key} : null;
+    };
+
+    if (is_null($obj)) {
+        return $getter;
+    }
+    return $getter($obj);
+}
+
+/**
+ * Returns true if a property on an object equals the given value.
+ * Is curried to ease use with array_map and array_filter and the like.
+ *
+ * Usage:
+ * // returns TRUE if $object contains a property 'name' with value 'John'
+ * $isNamedJohn = propertyEquals('name', 'John', $object);
+ *
+ * // returns list of object that have a property 'name' with value 'John'
+ * $objectsNamesJohn = array_filter($objects, propertyEquals('name', 'John'));
+ *
+ * @param string $key The property
+ * @param mixed $value
+ * @param object $obj
+ * @return bool
+ */
+function propertyEquals($key, $value, $obj = null) {
+    $checker = function ($obj) use ($key, $value) {
+        return getProperty($key, $obj) === $value;
+    };
+    if (is_null($obj)) {
+        return $checker;
+    }
+    return $checker($obj);
+}
+
+/**
+ * Partially apply a function where initial arguments form the 'left' arguments of the function, and
+ * the new function will accept the rest arguments on the right side of the signature.
+ *
+ * Example:
+ * function sayHello($to, $from, $message) {
+ *   return "Hello {$to}, {$from} says '{$message}'";
+ * }
+ *
+ * $sayHelloToJohn = callLeft('sayHello', 'John');
+ * $sayHelloToJohn('Hank', "How's it going?"); // Hello John, Hank says 'How's it going?'
+ *
+ * Note: the function signature doesn't show the rest parameters. This is confusing, but
+ * unfortunately we have to support PHP5.3. In PHP5.6 the signature would have been
+ *
+ * ```
+ * function callLeft($fn, ...$args)
+ * ```
+ *
+ * @param callable $fn The partially applied function
+ * @return callable
+ */
+function callLeft($fn) {
+    $args = array_slice(func_get_args(), 1);
+    return function () use ($fn, $args) {
+        $remainingArgs = func_get_args();
+        return call_user_func_array($fn, array_merge($args, $remainingArgs));
+    };
+}
+
+/**
+ * Partially apply a function where initial arguments form the 'right' arguments of the function,
+ * and the new function will accept the rest arguments on the left side of the signature.
+ *
+ * Example:
+ * function sayHello($to, $from, $message) {
+ *   return "Hello {$to}, {$from} says '{$message}'";
+ * }
+ *
+ * $askDirections = callRight('sayHello', "Where's the supermarket?");
+ * $askDirections('John', 'Hank'); // Hello John, Hank says 'Where's the supermarket?'
+ *
+ * We can it further by saying:
+ * $lindaAsksDirections = callRight('sayHello', 'Linda', "Where's the supermarket?");
+ * $lindaAsksDirections('John'); // Hello John, Linda says 'Where's the supermarket?'
+ *
+ * Note: the function signature doesn't show the rest parameters. This is confusing, but
+ * unfortunately we have to support PHP5.3. In PHP5.6 the signature would have been
+ *
+ * ```
+ * function callRight($fn, ...$args)
+ * ```
+ *
+ * @param callable $fn The partially applied function
+ * @return callable
+ */
+function callRight($fn) {
+    $args = array_slice(func_get_args(), 1);
+    return function () use ($fn, $args) {
+        $remainingArgs = func_get_args();
+        return call_user_func_array($fn, array_merge($remainingArgs, $args));
+    };
+}
+
 // Ignoring coding standards because the following is all third party code
 // @codingStandardsIgnoreStart
 if (!function_exists('gzdecode')) {

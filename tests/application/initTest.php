@@ -22,6 +22,48 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 
+    public function testCallRight() {
+        $sayHello = function ($to, $from, $message) {
+            return "Hello {$to}, {$from} says '{$message}'";
+        };
+        $askDirections = callRight($sayHello, "Where's the supermarket?");
+        $expected = 'Hello John, Hank says \'Where\'s the supermarket?\'';
+        $this->assertEquals($expected, $askDirections('John', 'Hank'));
+
+        $lindaAsksDirections = callRight($sayHello, 'Linda', "Where's the drugstore?");
+        $expected = 'Hello John, Linda says \'Where\'s the drugstore?\'';
+        $this->assertEquals($expected, $lindaAsksDirections('John'));
+
+        $lindaGreetsJohnComplete = callRight($sayHello, 'John', 'Linda', 'Hi there!');
+        $expected = 'Hello John, Linda says \'Hi there!\'';
+        $this->assertEquals($expected, $lindaGreetsJohnComplete());
+
+        $helloCopy = callRight($sayHello);
+        $expected = 'Hello John, Linda says \'Hi there!\'';
+        $this->assertEquals($expected, $helloCopy('John', 'Linda', 'Hi there!'));
+    }
+
+    public function testCallLeft() {
+        $sayHello = function ($to, $from, $message) {
+            return "Hello {$to}, {$from} says '{$message}'";
+        };
+        $sayHelloToJohn = callLeft($sayHello, 'John');
+        $expected = 'Hello John, Hank says \'How\'s it going?\'';
+        $this->assertEquals($expected, $sayHelloToJohn('Hank', 'How\'s it going?'));
+
+        $hankGreetsJohn = callLeft($sayHello, 'John', 'Hank');
+        $expected = 'Hello John, Hank says \'How\'s it going?\'';
+        $this->assertEquals($expected, $hankGreetsJohn('How\'s it going?'));
+
+        $hankGreetsJohnComplete = callLeft($sayHello, 'John', 'Hank', 'Hi there!');
+        $expected = 'Hello John, Hank says \'Hi there!\'';
+        $this->assertEquals($expected, $hankGreetsJohnComplete());
+
+        $helloCopy = callLeft($sayHello);
+        $expected = 'Hello John, Hank says \'Hi there!\'';
+        $this->assertEquals($expected, $helloCopy('John', 'Hank', 'Hi there!'));
+    }
+
     public function testShouldHaveSuccessfullyClonedGzdecode() {
         if (version_compare(PHP_VERSION, '5.4.0') === -1) {
             // gzdecode() is not available, so we can't compare the clone to the native function.
