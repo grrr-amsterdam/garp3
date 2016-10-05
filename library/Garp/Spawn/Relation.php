@@ -1,8 +1,13 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
+ * Garp_Spawn_Relation
+ * class description
+ *
+ * @package Garp_Spawn
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Relation {
+    // @codingStandardsIgnoreStart
     const ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_PLURAL =
         "Relation::type is not available yet, so you cannot use isPlural() at this point in your code.";
     const ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_SINGULAR =
@@ -17,11 +22,15 @@ class Garp_Spawn_Relation {
         "'%s' is not a valid parameter for the %s > %s relation field configuration. Try: %s";
     const ERROR_INVALID_RELATION_TYPE_FOR_MULTILINGUAL =
         "'multilingual' is not a valid parameter for the %s > %s relation field configuration. It's only allowed on hasOne relations.";
+    // @codingStandardsIgnoreEnd
 
     /**
-     * @var String $model The remote model which is referenced in this relation.
+     * The remote model which is referenced in this relation.
+     *
+     * @var string
      */
     public $model;
+
     public $name;
     public $type;
     public $label;
@@ -35,62 +44,107 @@ class Garp_Spawn_Relation {
     public $info;
     public $visible = true;
 
-    /** Whether this relation field is editable in the cms. For instance, hasMany relations of which the opposite side is belongsTo (instead of hasOne), are not editable. */
+    /**
+     * Whether this relation field is editable in the cms.
+     * For instance, hasMany relations of which the opposite side is belongsTo (instead of hasOne),
+     * are not editable.
+     *
+     * @var bool
+     */
     public $editable;
 
-    /** Whether a singular relation (hasOne / belongsTo) also implicates a hasMany relation from the remote to the local model. */
+    /**
+     * Whether a singular relation (hasOne / belongsTo) also implicates a hasMany relation
+     * from the remote to the local model.
+     *
+     * @var bool
+     */
     public $inverse;
 
-    /** In case of a plural relation, the rule name of the opposite (hasOne / belongsTo) side of the relation. */
+    /**
+     * In case of a plural relation, the rule name of the opposite (hasOne / belongsTo)
+     * side of the relation.
+     *
+     * @var string
+     */
     public $oppositeRule = null;
 
     public $inverseLabel = null;
 
-    /** hasAndBelongsToMany and hasMany relations can be weighable, i.e. their relational order is defined by an end user. */
+    /**
+     * Wether the hasAndBelongsToMany or hasMany relation can be weighable,
+     * i.e. their relational order is defined by an end user.
+     *
+     * @var bool
+     */
     public $weighable = false;
 
-    /** Normally, the relation type sets whether a relation is required. A belongsTo relation makes it required, all other types do not.
-    *   However, this is overridable, so that belongsTo relations are not required. Deletion of parents will still delete this record as well, as with normal belongsTo relations,
-    *   but the association field will not be required.
-    */
+    /**
+     * Normally, the relation type sets whether a relation is required.
+     * A belongsTo relation makes it required, all other types do not.
+     * However, this is overridable, so that belongsTo relations are not required.
+     * Deletion of parents will still delete this record as well,
+     * as with normal belongsTo relations, but the association field will not be required.
+     *
+     * @var bool
+     */
     public $required;
 
     /**
      * In case of a hasAndBelongsToMany relation, extra columns can be added to the binding model.
+     *
+     * @var array
      */
     public $inputs;
 
     /**
-     * Multiple relations that are defined as inline (not default behavior) do not appear as a separate
-     * tab in the cms, but as a set of fields on the form.
+     * Multiple relations that are defined as inline (not default behavior)
+     * do not appear as a separate tab in the cms, but as a set of fields on the form.
+     *
+     * @var bool
      */
     public $inline;
 
     /**
      * Whether this relation was created by mirroring, i.e. a configured relation that lead to
      * this relation from the opposite model.
+     *
+     * @var bool
      */
     public $mirrored = false;
 
     /**
      * Contains the ID (string) of the bindingModel if this is a Habtm relation
+     *
+     * @var string
      */
     public $bindingModel = false;
 
-    /** @var Garp_Spawn_Model_Base $_model The local model in which this relation is defined. */
+    /**
+     * The local model in which this relation is defined.
+     *
+     * @var Garp_Spawn_Model_Base
+     */
     protected $_localModel;
 
-    /** @var Array $_types Allowed relation types. */
+    /**
+     * Allowed relation types.
+     *
+     * @var Array
+     */
     protected $_types = array('hasOne', 'belongsTo', 'hasMany', 'hasAndBelongsToMany');
 
     /**
-     * @var Garp_Spawn_Model_Binding $_bindingModel
+     * @var Garp_Spawn_Model_Binding
      */
     protected $_bindingModel;
 
 
     /**
-     * @param   String $name    Name of the relation, such as 'User' or 'Author'
+     * @param Garp_Spawn_Model_Abstract $localModel
+     * @param string $name Name of the relation, such as 'User' or 'Author'
+     * @param array $params
+     * @return void
      */
     public function __construct(Garp_Spawn_Model_Abstract $localModel, $name, array $params) {
         $this->_setLocalModel($localModel);
@@ -118,18 +172,17 @@ class Garp_Spawn_Relation {
     }
 
     public function isPlural() {
-        if ($this->type) {
-            return $this->type === 'hasAndBelongsToMany' || $this->type === 'hasMany';
+        if (!$this->type) {
+            throw new Exception(self::ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_PLURAL);
         }
-
-        throw new Exception(self::ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_PLURAL);
+        return $this->type === 'hasAndBelongsToMany' || $this->type === 'hasMany';
     }
 
     public function isSingular() {
-        if ($this->type) {
-            return $this->_isSingularByArg($this->type);
+        if (!$this->type) {
+            throw new Exception(self::ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_SINGULAR);
         }
-        else throw new Exception(self::ERROR_RELATION_TYPE_NOT_AVAILABLE_YET_FOR_SINGULAR);
+        return $this->_isSingularByArg($this->type);
     }
 
     public function getParams() {
@@ -144,9 +197,10 @@ class Garp_Spawn_Relation {
     }
 
     /**
-     * @param   Array   $propNames      Numeric array of property names
-     * @param   Array   $propValues     Corresponding numeric array of property values.
-     *                                  Can be nested to support multiple values by an OR operator.
+     * @param array $propNames  Numeric array of property names
+     * @param array $propValues Corresponding numeric array of property values.
+     *                          Can be nested to support multiple values by an OR operator.
+     * @return bool
      */
     public function hasProperties(array $propNames, array $propValues) {
         foreach ($propNames as $propIndex => $propName) {
@@ -209,8 +263,70 @@ class Garp_Spawn_Relation {
         return $new;
     }
 
+    public function getNameKey($language) {
+        return $this->multilingual ?
+            '_' . $this->column . '_' . $language :
+            $this->column
+        ;
+    }
+
+    /**
+     * Return the rules that make up this relation, as used in the referenceMap.
+     *
+     * @param string $subjectModel Name of the model you're viewing from. Determines the direction
+     *                             in some cases.
+     * @return array In case of 'hasMany', an array containing a single rule, in case of
+     *               'hasAndBelongsToMany', an array containing two rules referencing two models.
+     */
+    public function getRules($subjectModel) {
+        if ($this->type === 'hasMany') {
+            return array($this->oppositeRule);
+        }
+        if ($this->type === 'hasAndBelongsToMany') {
+            $bindingModel = $this->getBindingModel();
+            $relations = $bindingModel->relations->getRelations();
+            $rules = array_keys($relations);
+
+            /* 	Now sort egocentrically, because current sorting is alphabetical
+            (since $relations is an associative array) */
+            $firstRel = current($relations);
+            if ($firstRel->model !== $subjectModel) {
+                $rules = array_reverse($rules);
+            }
+
+            if ($this->isHomo()
+                && ($rules[0] !== $subjectModel && $rules[1] === $subjectModel)
+            ) {
+                // Make sure that the custom named relation always comes second.
+                // This is part of egocentrism.
+                $rules = array_reverse($rules);
+            }
+            return $rules;
+        }
+        return array($this->name);
+    }
+
+    /**
+     * Wether a habtm relation between two identical models exists in both ways.
+     *
+     * @return bool
+     */
+    public function isBidirectional() {
+        return !$this->isHomo() || $this->inverse;
+    }
+
+    /**
+     * Wether a habtm relation is between two identical models.
+     *
+     * @return bool
+     */
+    public function isHomo() {
+        return $this->model === $this->_localModel->id;
+    }
+
     /**
      * @param Garp_Spawn_Model_Base $localModel
+     * @return Garp_Spawn_Relation
      */
     protected function _setLocalModel($localModel) {
         $this->_localModel = $localModel;
@@ -219,7 +335,10 @@ class Garp_Spawn_Relation {
 
     /**
      * Check the provided relation type to see if this is a singular relation.
-     * @param String $relationType Type of the relation, i.e. hasOne, belongsTo, hasMany or hasAndBelongsToMany.
+     *
+     * @param string $relationType Type of the relation,
+     *                             i.e. hasOne, belongsTo, hasMany or hasAndBelongsToMany.
+     * @return bool
      */
     protected function _isSingularByArg($relationType) {
         return $relationType === 'hasOne' || $relationType === 'belongsTo';
@@ -243,14 +362,14 @@ class Garp_Spawn_Relation {
 
     protected function _validateParam($paramName, $paramValue, $relName) {
         switch ($paramName) {
-            case 'type':
-                $this->_validateType($paramValue, $relName);
+        case 'type':
+            $this->_validateType($paramValue, $relName);
             break;
-            case 'name':
-                $this->_validateName($paramValue, $relName);
+        case 'name':
+            $this->_validateName($paramValue, $relName);
             break;
-            default:
-                $this->_validateProp($paramName, $paramValue, $relName);
+        default:
+            $this->_validateProp($paramName, $paramValue, $relName);
         }
     }
 
@@ -280,8 +399,9 @@ class Garp_Spawn_Relation {
         $reflProps = $refl->getProperties(ReflectionProperty::IS_PUBLIC);
         $publicProps = array();
         foreach ($reflProps as $reflProp) {
-            if ($reflProp->name !== 'name')
+            if ($reflProp->name !== 'name') {
                 $publicProps[] = $reflProp->name;
+            }
         }
 
         $error = sprintf(
@@ -295,50 +415,65 @@ class Garp_Spawn_Relation {
     }
 
     protected function _validateMultilingual($params, $relName) {
-        if (isset($params['multilingual']) && $params['multilingual'] &&
-            $params['type'] !== 'hasOne') {
-            throw new Exception(sprintf(self::ERROR_INVALID_RELATION_TYPE_FOR_MULTILINGUAL,
-                $this->_localModel->id, $relName));
+        if (isset($params['multilingual']) && $params['multilingual']
+            && $params['type'] !== 'hasOne'
+        ) {
+            throw new Exception(
+                sprintf(
+                    self::ERROR_INVALID_RELATION_TYPE_FOR_MULTILINGUAL,
+                    $this->_localModel->id, $relName
+                )
+            );
         }
     }
 
     protected function _appendDefaults($name, array &$params) {
         //  during execution of this method, self::isSingular() is not yet available.
-        if (!array_key_exists('model', $params) || !$params['model'])
+        if (!array_key_exists('model', $params) || !$params['model']) {
             $params['model'] = $name;
+        }
 
-        if (!array_key_exists('label', $params) || !$params['label'])
+        if (!array_key_exists('label', $params) || !$params['label']) {
             $params['label'] = $name;
+        }
 
-        if (!array_key_exists('inverseLabel', $params) || !$params['inverseLabel'])
+        if (!array_key_exists('inverseLabel', $params) || !$params['inverseLabel']) {
             $params['inverseLabel'] = $this->getLocalModel()->id;
+        }
 
-        if (!array_key_exists('limit', $params) && $this->_isSingularByArg($params['type']))
+        if (!array_key_exists('limit', $params) && $this->_isSingularByArg($params['type'])) {
             $params['limit'] = 1;
+        }
 
         if (!array_key_exists('inverse', $params)) {
             $params['inverse'] = true;
             // $params['inverse'] = $this->_isSingularByArg($params['type']);
         }
 
-        if (!array_key_exists('editable', $params))
+        if (!array_key_exists('editable', $params)) {
             $params['editable'] = true;
+        }
 
-        if (!array_key_exists('required', $params))
+        if (!array_key_exists('required', $params)) {
             $params['required'] = $params['type'] === 'belongsTo';
+        }
 
-        if (!array_key_exists('inline', $params))
+        if (!array_key_exists('inline', $params)) {
             $params['inline'] = false;
+        }
     }
 
     protected function _addRelationColumn() {
         $this->column = $this->isSingular() ?
             Garp_Spawn_Relation_Set::getRelationColumn($this->name) :
-            Garp_Spawn_Relation_Set::getRelationColumn($this->_localModel->id)
-        ;
+            Garp_Spawn_Relation_Set::getRelationColumn($this->_localModel->id);
     }
 
-    /** Registers this relation as a Field in the Model. */
+    /**
+     * Registers this relation as a Field in the Model.
+     *
+     * @return void
+     */
     protected function _addRelationFieldInLocalModel() {
         if (!$this->isSingular()) {
             return;
@@ -361,7 +496,9 @@ class Garp_Spawn_Relation {
     }
 
     protected function _addOppositeRule() {
-        if ($this->oppositeRule) return;
+        if ($this->oppositeRule) {
+            return;
+        }
 
         $this->oppositeRule = $this->name !== $this->model
             ? $this->name
@@ -381,13 +518,6 @@ class Garp_Spawn_Relation {
 
         $bindingModel = $this->getBindingModel();
         $this->bindingModel = $bindingModel->id;
-    }
-
-    public function getNameKey($language) {
-        return $this->multilingual ?
-            '_' . $this->column . '_' . $language :
-            $this->column
-        ;
     }
 
 }
