@@ -32,7 +32,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         $this->_helper->injectConfigValues(
             array(
                 'cdn' => array(
-                    'baseUrl' => 'ftp://stuff.grrr.nl:8888'
+                    'baseUrl' => 'ftp://stuff.grrr.nl:8888',
                     'css' => array('location' => 's3')
                 )
             )
