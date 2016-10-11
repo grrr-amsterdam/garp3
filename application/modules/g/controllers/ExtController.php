@@ -346,7 +346,7 @@ class G_ExtController extends G_ContentController {
     }
 
     protected function _renderJs() {
-        $this->getResponse()->setHeader('Content-Type', 'text/javascript; charset=UTF-8');
+        $this->getResponse()->setHeader('Content-Type', 'text/javascript; charset=UTF-8', true);
         $this->_helper->layout->setLayout('json');
     }
 }
