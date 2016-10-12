@@ -15,7 +15,6 @@ class Garp_Content_Api_Rest {
     const EXCEPTION_PUT_WITHOUT_ID = 'Do not use method PUT to create a new record. Use POST.';
     const EXCEPTION_MISSING_ID = 'Missing required id';
     const EXCEPTION_MISSING_RELATED_ID = 'Missing required related id';
-    const EXCEPTION_OPTIONS_WITH_ID = 'The only valid parameter for OPTIONS is \'datatype\'';
     const EXCEPTION_NO_DICTIONARY = 'There is no dictionary for this app';
 
     const DEFAULT_PAGE_LIMIT = 20;
@@ -204,9 +203,7 @@ class Garp_Content_Api_Rest {
             return $this->_formatResponse($out, 200);
         }
         if (array_get($params, 'id') || array_get($params, 'relatedType')) {
-            throw new Garp_Content_Api_Rest_Exception(
-                self::EXCEPTION_OPTIONS_WITH_ID
-            );
+            return $this->_formatResponse(null, 200, false);
         }
         return $this->_formatResponse($schema->getModelDetails($params['datatype']), 200);
     }
