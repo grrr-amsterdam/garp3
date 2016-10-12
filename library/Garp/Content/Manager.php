@@ -213,6 +213,7 @@ class Garp_Content_Manager {
      */
     public function count(array $options = null) {
         if ($this->_model instanceof Garp_Model_Db) {
+            unset($options['sort']);
             $options['fields'] = 'COUNT(*)';
             try {
                 $result = $this->fetch($options);
