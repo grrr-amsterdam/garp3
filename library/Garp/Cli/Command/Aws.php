@@ -109,7 +109,7 @@ class Garp_Cli_Command_Aws extends Garp_Cli_Command {
      * @return void
      */
     protected function _setProfile() {
-        $projectName = basename(dirname(APPLICATION_PATH . '/../'));
+        $projectName = basename(dirname(realpath(APPLICATION_PATH)));
         $profileName = $projectName . '_' . APPLICATION_ENV;
 
         $this->_profile = $profileName;
