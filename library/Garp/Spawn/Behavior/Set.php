@@ -1,17 +1,23 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
+ * Garp_Spawn_Behavior_Set
+ * Represents a collection of spawn behaviors
+ *
+ * @package Garp_Spawn_Behavior
+ * @author David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Behavior_Set {
     const ERROR_BEHAVIOR_NOT_FOUND = "Behavior '%s' could not be found in model '%s'.";
 
     /**
-     * @var Array $_behaviors Associative array of Garp_Spawn_Behavior objects, where the key is the behavior name.
+     * Associative array of Garp_Spawn_Behavior objects, where the key is the behavior name.
+     *
+     * @var Array
      */
     protected $_behaviors = array();
 
     /**
-     * @var Garp_Spawn_Model_Abstract $_model
+     * @var Garp_Spawn_Model_Abstract
      */
     protected $_model;
 
@@ -20,7 +26,8 @@ class Garp_Spawn_Behavior_Set {
         'NotEmpty',
         'Email',
         'Translatable',
-        'Truncatable'
+        'Truncatable',
+        'Checkboxable'
     );
 
     protected $_validatorBehaviors = array(
@@ -65,6 +72,7 @@ class Garp_Spawn_Behavior_Set {
 
     /**
      * @param Garp_Spawn_Model_Abstract $model
+     * @return void
      */
     public function setModel($model) {
         $this->_model = $model;
@@ -75,13 +83,22 @@ class Garp_Spawn_Behavior_Set {
         $behaviorModule = 'Garp';
         if ($behaviorConfig) {
             $behaviorConfig = (array)$behaviorConfig;
-            $behaviorModule = array_key_exists('module', $behaviorConfig) ? $behaviorConfig['module'] : $behaviorModule;
+            $hasModule = array_key_exists('module', $behaviorConfig);
+            $behaviorModule = $hasModule ? $behaviorConfig['module'] : $behaviorModule;
             unset($behaviorConfig['module']);
         }
 
         if (!array_key_exists($behaviorName, $this->_behaviors)) {
-            $factory    = new Garp_Spawn_Behavior_Factory();
-            $behavior   = $factory->produce($this->_model, $origin, $behaviorName, $behaviorConfig, $behaviorType, $behaviorModule);
+            $factory  = new Garp_Spawn_Behavior_Factory();
+            $behavior = $factory->produce(
+                $this->_model,
+                $origin,
+                $behaviorName,
+                $behaviorConfig,
+                $behaviorType,
+                $behaviorModule
+            );
+
             $this->_behaviors[$behaviorName] = $behavior;
 
             //  generate fields which are necessary for this behavior in the accompanying Model
@@ -90,7 +107,9 @@ class Garp_Spawn_Behavior_Set {
                 $this->_model->fields->add('behavior', $fieldName, $fieldParams);
             }
 
-        } else throw new Exception("The {$behaviorName} behavior is already registered.");
+            return;
+        }
+        throw new Exception("The {$behaviorName} behavior is already registered.");
     }
 
     protected function _isValidatorBehavior($behaviorName) {
@@ -104,9 +123,9 @@ class Garp_Spawn_Behavior_Set {
     }
 
     protected function _loadDefaultConditionalBehaviors() {
-        $model              = $this->getModel();
-        $behaviorConfig     = null;
-        $behaviorType       = null;
+        $model          = $this->getModel();
+        $behaviorConfig = null;
+        $behaviorType   = null;
 
         foreach ($this->_defaultConditionalBehaviorNames as $behaviorName) {
             if (!$this->_needsConditionalBehavior($behaviorName)) {
@@ -127,6 +146,8 @@ class Garp_Spawn_Behavior_Set {
     /**
      * Adds the weighable behavior, for user defined sorting of related objects.
      * Can only be initialized after the relations for this model are set.
+     *
+     * @return void
      */
     protected function _addWeighableBehavior() {
         $model = $this->getModel();
@@ -141,8 +162,8 @@ class Garp_Spawn_Behavior_Set {
         foreach ($weighableRels as $relName => $rel) {
             $weightColumn = Garp_Spawn_Util::camelcased2underscored($relName) . '_weight';
             $weighableConfig[$relName] = array(
-                'foreignKeyColumn'  => $rel->column,
-                'weightColumn'      => $weightColumn
+                'foreignKeyColumn' => $rel->column,
+                'weightColumn'     => $weightColumn
             );
         }
 
