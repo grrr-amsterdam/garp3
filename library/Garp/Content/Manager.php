@@ -24,7 +24,7 @@ class Garp_Content_Manager {
      */
     public function __construct($model) {
         if (is_string($model)) {
-            $model = strpos($model, 'Model_') !== 0 ?
+            $model = !$this->_modelNameIsPrefixed($model) ?
                 Garp_Content_Api::modelAliasToClass($model) :
                 $model;
             $model = new $model();
@@ -915,5 +915,18 @@ class Garp_Content_Manager {
             $data = $row->toArray();
         }
         return $userId == $data['author_id'];
+    }
+
+    /**
+     * Check wether a full modelname is given.
+     * TODO It might be a good idea to extend this with other prefixes?
+     * TODO Or actually just remove the whole aliasing bullshit if we
+     * TODO have to do arbitrary checks like this...
+     *
+     * @param string $modelName
+     * @return bool
+     */
+    protected function _modelNameIsPrefixed($modelName) {
+        return strpos($modelName, 'Model_') === 0 || strpos($modelName, 'Garp_Model_Db_') === 0;
     }
 }
