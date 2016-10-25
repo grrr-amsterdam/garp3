@@ -197,6 +197,17 @@ class Garp_Content_Api_Rest {
             'default' => Garp_I18n::getDefaultLocale()
         );
 
+        $config = Zend_Registry::get('config');
+        $out['web_url'] = (string)new Garp_Util_FullUrl(array(array(), 'home'));
+        $out['documents_upload_url'] = (string)new Garp_Util_FullUrl(
+            array(array('type' => Garp_File::TYPE_DOCUMENTS), 'upload')
+        );
+        $out['images_upload_url'] = (string)new Garp_Util_FullUrl(
+            array(array('type' => Garp_File::TYPE_IMAGES), 'upload')
+        );
+        $out['images_cdn'] = new Garp_Util_AssetUrl('') . $config->cdn->path->upload->image;
+        $out['documents_cdn'] = new Garp_Util_AssetUrl('') . $config->cdn->path->upload->document;
+
         $schema = new Garp_Content_Api_Rest_Schema('rest');
         if (!array_get($params, 'datatype')) {
             $out['models'] = $schema->getModelPaths();
