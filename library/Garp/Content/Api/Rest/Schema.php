@@ -26,7 +26,8 @@ class Garp_Content_Api_Rest_Schema {
         $config = $this->getModelConfig($model);
         $config['order'] = $model->order;
         $config['name'] = $modelName;
-        $config['listFields'] = array_values($model->fields->getListFieldNames());
+        // getListFieldNames());
+        $config['listFields'] = array_values($model->fields->listFieldNames);
         $config['label'] = $model->label;
         $config['description'] = $model->description;
         $config['creatable'] = $model->creatable;
@@ -34,6 +35,7 @@ class Garp_Content_Api_Rest_Schema {
         $config['route'] = $model->route;
         $config['fields'] = $this->_getFieldSchema($model);
         $config['relations'] = $this->_getRelationSchema($model);
+        $config['quickAddable'] = $model->quickAddable;
         return $config;
     }
 
@@ -104,7 +106,6 @@ class Garp_Content_Api_Rest_Schema {
         $hasOneRelations = $model->relations->getRelations('type', 'hasOne');
         $hasOneForeignKeyTemplate = array(
             'type' => 'numeric',
-            'todo' => 'property om duidelijk te maken dat dit een relatie is'
         );
         $hasOneColumns = array_map(
             function ($relation) use ($hasOneForeignKeyTemplate) {
@@ -114,6 +115,7 @@ class Garp_Content_Api_Rest_Schema {
                         'name' => $relation->column,
                         'label' => $relation->label,
                         'required' => $relation->required,
+                        'model' => $relation->model
                     )
                 );
             },
