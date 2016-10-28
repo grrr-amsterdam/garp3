@@ -37,23 +37,26 @@ class Garp_Model_Db_Image extends Model_Base_Image {
         $scaler = new Garp_Image_Scaler();
         $templateUrl = (string)$scaler->getScaledUrl('%d', '%s');
         $templates = array_keys(Zend_Registry::get('config')->image->template->toArray());
-        foreach ($results as $result) {
-            if (!isset($result->id)) {
-                continue;
+        $iterator = new Garp_Db_Table_Rowset_Iterator(
+            $results,
+            function ($result) use ($templates, $templateUrl) {
+                if (!isset($result->id)) {
+                    return;
+                }
+                $result->setVirtual(
+                    'urls',
+                    array_reduce(
+                        $templates,
+                        function ($acc, $cur) use ($templateUrl, $result) {
+                            $acc[$cur] = sprintf($templateUrl, $cur, $result->id);
+                            return $acc;
+                        },
+                        array()
+                    )
+                );
             }
-            $result->setVirtual(
-                'urls',
-                array_reduce(
-                    $templates,
-                    function ($acc, $cur) use ($templateUrl, $result) {
-                        $acc[$cur] = sprintf($templateUrl, $cur, $result->id);
-                        return $acc;
-                    },
-                    array()
-                )
-            );
-        };
-        rewind($results);
+        );
+        $iterator->walk();
     }
 
     public function fetchFilenameById($id) {
@@ -111,3 +114,4 @@ class Garp_Model_Db_Image extends Model_Base_Image {
         return $filename;
     }
 }
+
