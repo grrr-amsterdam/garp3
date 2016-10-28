@@ -199,17 +199,7 @@ class Garp_Content_Api_Rest {
                 'default' => Garp_I18n::getDefaultLocale()
             );
 
-            $config = Zend_Registry::get('config');
-            $out['web_url'] = (string)new Garp_Util_FullUrl(array(array(), 'home'));
-            $out['documents_upload_url'] = (string)new Garp_Util_FullUrl(
-                array(array('type' => Garp_File::TYPE_DOCUMENTS), 'upload')
-            );
-            $out['images_upload_url'] = (string)new Garp_Util_FullUrl(
-                array(array('type' => Garp_File::TYPE_IMAGES), 'upload')
-            );
-            $out['images_cdn'] = new Garp_Util_AssetUrl('') . $config->cdn->path->upload->image;
-            $out['documents_cdn'] = new Garp_Util_AssetUrl('') .
-                $config->cdn->path->upload->document;
+            $out['urls'] = $this->_getUrlsForOptions();
 
             $out['models'] = $schema->getModelPaths();
             return $this->_formatResponse($out, 200);
@@ -447,6 +437,21 @@ class Garp_Content_Api_Rest {
             'primaryKey' => $id,
             'model' => $relation->model,
             'bidirectional' => $relation->isBidirectional()
+        );
+    }
+
+    protected function _getUrlsForOptions() {
+        $config = Zend_Registry::get('config');
+        return array(
+            'web' => (string)new Garp_Util_FullUrl(array(array(), 'home')),
+            'documents_upload' => (string)new Garp_Util_FullUrl(
+                array(array('type' => Garp_File::TYPE_DOCUMENTS), 'upload')
+            ),
+            'images_upload' => (string)new Garp_Util_FullUrl(
+                array(array('type' => Garp_File::TYPE_IMAGES), 'upload')
+            ),
+            'images_cdn' => new Garp_Util_AssetUrl('') . $config->cdn->path->upload->image,
+            'documents_cdn' => new Garp_Util_AssetUrl('') . $config->cdn->path->upload->document
         );
     }
 }
