@@ -538,8 +538,9 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
      */
     protected function _cleanClause($clause) {
         $clause = trim($clause);
-        $clause = preg_replace('/^\(+/', '', $clause);
-        $clause = preg_replace('/\)+$/', '', $clause);
+        while ($clause[0] === '(' && $clause[strlen($clause)-1] === ')') {
+            $clause = substr($clause, 1, -1);
+        }
         return $clause;
     }
 
