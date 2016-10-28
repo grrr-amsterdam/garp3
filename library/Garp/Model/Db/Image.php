@@ -2,28 +2,57 @@
 /**
  * Garp_Model_Db_Image
  * Generic image model.
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Db
- * @lastmodified $Date: $
+ *
+ * @package Garp_Model_Db
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Db_Image extends Model_Base_Image {
     protected $_name = 'image';
 
     public function init() {
-        $this->registerObserver(new Garp_Model_Behavior_Timestampable())
-            ->registerObserver(new Garp_Model_Behavior_ImageScalable(array(
+        $scalableBehavior = new Garp_Model_Behavior_ImageScalable(
+            array(
                 'synchronouslyScaledTemplates' => array(
                     // @todo Make configurable? Or sensible defaults?
                     // Local model can always override.
                     'cms_list', 'cms_preview'
                 )
-            )))
-            ->registerObserver(new Garp_Model_Validator_NotEmpty(array('filename')))
-         ;
+            )
+        );
+        $this->registerObserver(new Garp_Model_Behavior_Timestampable())
+            ->registerObserver($scalableBehavior)
+            ->registerObserver(new Garp_Model_Validator_NotEmpty(array('filename')));
         parent::init();
+    }
+
+    /**
+     * Include preview URLs in the resultset
+     *
+     * @param array $args
+     * @return void
+     */
+    public function afterFetch(&$args) {
+        $results = &$args[1];
+        $scaler = new Garp_Image_Scaler();
+        $templateUrl = (string)$scaler->getScaledUrl('%d', '%s');
+        $templates = array_keys(Zend_Registry::get('config')->image->template->toArray());
+        foreach ($results as $result) {
+            if (!isset($result->id)) {
+                continue;
+            }
+            $result->setVirtual(
+                'urls',
+                array_reduce(
+                    $templates,
+                    function ($acc, $cur) use ($templateUrl, $result) {
+                        $acc[$cur] = sprintf($templateUrl, $cur, $result->id);
+                        return $acc;
+                    },
+                    array()
+                )
+            );
+        };
     }
 
     public function fetchFilenameById($id) {
@@ -46,9 +75,7 @@ class Garp_Model_Db_Image extends Model_Base_Image {
             return null;
         }
 
-        return $this->insert(array(
-            'filename' => $response[$filename]
-        ));
+        return $this->insert(array('filename' => $response[$filename]));
     }
 
     protected function _getImageMime($bytes) {
@@ -62,9 +89,10 @@ class Garp_Model_Db_Image extends Model_Base_Image {
     protected function _createFilenameFromUrl($imageUrl, $bytes) {
         $filename = basename($imageUrl);
         // Strip possible query parameters
-        if (strpos($filename, '?') !== false &&
-            strpos($filename, '.') !== false &&
-            strpos($filename, '?') > strrpos($filename, '.')) {
+        if (strpos($filename, '?') !== false
+            && strpos($filename, '.') !== false
+            && strpos($filename, '?') > strrpos($filename, '.')
+        ) {
             // Extract everything up until the "?"
             $filename = substr($filename, 0, strrpos($filename, '?'));
         }
