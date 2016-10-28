@@ -53,6 +53,7 @@ class Garp_Model_Db_Image extends Model_Base_Image {
                 )
             );
         };
+        rewind($results);
     }
 
     public function fetchFilenameById($id) {
