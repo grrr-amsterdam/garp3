@@ -105,13 +105,14 @@ class Garp_Content_Api_Rest_Schema {
     protected function _getHasOneColumns($model) {
         $hasOneRelations = $model->relations->getRelations('type', 'hasOne');
         $hasOneForeignKeyTemplate = array(
-            'type' => 'numeric',
+            'type' => 'relation',
         );
         $hasOneColumns = array_map(
             function ($relation) use ($hasOneForeignKeyTemplate) {
                 return array_merge(
                     $hasOneForeignKeyTemplate,
                     array(
+                        'relation' => $relation->name,
                         'name' => $relation->column,
                         'label' => $relation->label,
                         'required' => $relation->required,

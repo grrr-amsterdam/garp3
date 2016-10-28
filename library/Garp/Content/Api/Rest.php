@@ -53,7 +53,7 @@ class Garp_Content_Api_Rest {
     public function post(array $params, array $postData) {
         $this->_validatePostParams($params, $postData);
         $model = $this->_normalizeModelName($params['datatype']);
-        $contentManager = new Garp_Content_Manager($model);
+        $contentManager = $this->_getContentManager($model);
         $primaryKey = $contentManager->create($postData);
         $record = array_get(
             array_get(
@@ -165,7 +165,7 @@ class Garp_Content_Api_Rest {
             $this->_removeRelation($params);
             return $this->_formatResponse(null, 204, false);
         }
-        $contentManager = new Garp_Content_Manager($params['datatype']);
+        $contentManager = $this->_getContentManager($params['datatype']);
         $contentManager->destroy(array('id' => $params['id']));
         return $this->_formatResponse(null, 204, false);
     }
@@ -249,10 +249,12 @@ class Garp_Content_Api_Rest {
      */
     protected function _extractOptionsForFetch(array $params) {
         if (!isset($params['options'])) {
-            $params['options'] = '[]';
+            $params['options'] = array();
         }
         try {
-            $options = Zend_Json::decode(urldecode($params['options']));
+            $options = is_string($params['options']) ?
+                Zend_Json::decode(urldecode($params['options'])) :
+                $params['options'];
         } catch (Zend_Json_Exception $e) {
             throw new Garp_Content_Api_Rest_Exception(
                 sprintf(self::EXCEPTION_INVALID_JSON, $e->getMessage())
@@ -262,11 +264,15 @@ class Garp_Content_Api_Rest {
         $options = array_get_subset(
             $options,
             array(
-                'sort', 'start', 'limit', 'fields', 'query', 'group'
+                'sort', 'start', 'limit', 'fields', 'query', 'group', 'with'
             )
         );
         if (!isset($options['limit'])) {
             $options['limit'] = self::DEFAULT_PAGE_LIMIT;
+        }
+        if (isset($options['with'])) {
+            // Normalize into an array
+            $options['with'] = (array)$options['with'];
         }
         return $options;
     }
@@ -279,11 +285,15 @@ class Garp_Content_Api_Rest {
      * @return array
      */
     protected function _getIndex(array $params) {
+        xdebug_break();
         $model = $this->_normalizeModelName($params['datatype']);
-        $contentManager = new Garp_Content_Manager($model);
+        $contentManager = $this->_getContentManager($model);
         $options = $this->_extractOptionsForFetch($params);
 
         $records = $contentManager->fetch($options);
+        if (isset($options['with'])) {
+            $records = $this->_combineRecords($params['datatype'], $records, $options['with']);
+        }
         return array(
             array(
                 'success' => true,
@@ -302,7 +312,7 @@ class Garp_Content_Api_Rest {
                 'id' => $params['id']
             )
         );
-        $contentManager = new Garp_Content_Manager($model);
+        $contentManager = $this->_getContentManager($model);
         $result = $contentManager->fetch($options);
         $result = count($result) ? $result[0] : null;
         return array(
@@ -337,7 +347,7 @@ class Garp_Content_Api_Rest {
         $relation = $schema->getRelation($params['datatype'], $params['relatedType']);
         list($rule1, $rule2) = $relation->getRules($params['datatype']);
 
-        $contentManager = new Garp_Content_Manager($relation->model);
+        $contentManager = $this->_getContentManager($relation->model);
         $options = $this->_extractOptionsForFetch($params);
         $options['query'][ucfirst($params['datatype']) . '.id'] = $params['id'];
         $options['bindingModel'] = $relation->getBindingModel()->id;
@@ -388,7 +398,7 @@ class Garp_Content_Api_Rest {
             );
         }
         $model = $this->_normalizeModelName($params['datatype']);
-        $contentManager = new Garp_Content_Manager($model);
+        $contentManager = $this->_getContentManager($model);
         $contentManager->update(array_merge($postData, array('id' => $params['id'])));
     }
 
@@ -404,7 +414,7 @@ class Garp_Content_Api_Rest {
                 'relationMetadata' => $postData
             )
         );
-        $contentManager = new Garp_Content_Manager($params['datatype']);
+        $contentManager = $this->_getContentManager($params['datatype']);
         $contentManager->relate($options);
     }
 
@@ -422,7 +432,7 @@ class Garp_Content_Api_Rest {
         $options['foreignKeys'] = array(
             $params['relatedId']
         );
-        $contentManager = new Garp_Content_Manager($params['datatype']);
+        $contentManager = $this->_getContentManager($params['datatype']);
         $contentManager->unrelate($options);
     }
 
@@ -440,6 +450,67 @@ class Garp_Content_Api_Rest {
         );
     }
 
+    /**
+     * Get related hasOne records and combine into a single response
+     *
+     * @param string $datatype
+     * @param array $records
+     * @param array $with
+     * @return array The combined resultsets
+     */
+    protected function _combineRecords($datatype, array $records, $with) {
+        $modelName = $this->_normalizeModelName($datatype);
+        $rootModel = new $modelName;
+        $schema = instance(new Garp_Content_Api_Rest_Schema('rest'))->getModelDetails($datatype);
+        $hasOneRelations = array_filter(
+            array_map(array_get('relation'), $schema['fields'])
+        );
+        // Check validity of 'with'
+        $unknowns = array_filter($with, callRight(not('in_array'), $hasOneRelations));
+        if (count($unknowns)) {
+            $err = sprintf(
+                Garp_Content_Api_Rest_Schema::EXCEPTION_RELATION_NOT_FOUND, $modelName,
+                current($unknowns)
+            );
+            throw new Garp_Content_Api_Rest_Exception($err);
+        }
+
+        $self = $this;
+        return array_reduce(
+            $with,
+            function ($acc, $cur) use ($rootModel, $records, $schema, $self) {
+                // grab foreign key names from the relation
+                $foreignKey = current(
+                    array_filter(
+                        $schema['fields'],
+                        propertyEquals('relation', $cur)
+                    )
+                );
+
+                // Grab foreign key values
+                $foreignKeyValues = array_map(array_get($foreignKey['name']), $records);
+                // No values to filter on? Bail.
+                if (!count(array_filter($foreignKeyValues))) {
+                    $acc[$cur] = array();
+                    return $acc;
+                }
+                $foreignKeyValues = array_values(array_unique($foreignKeyValues));
+
+                // Construct options object for manager
+                $options = array(
+                    'options'  => array('query' => array('id' => $foreignKeyValues)),
+                    'datatype' => $foreignKey['model']
+                );
+
+                // fetch with options
+                $acc[$cur] = array_get(current($self->_getIndex($options)), 'result');
+                return $acc;
+            },
+            array($modelName => $records)
+        );
+
+    }
+
     protected function _getUrlsForOptions() {
         $config = Zend_Registry::get('config');
         return array(
@@ -453,5 +524,11 @@ class Garp_Content_Api_Rest {
             'images_cdn' => new Garp_Util_AssetUrl('') . $config->cdn->path->upload->image,
             'documents_cdn' => new Garp_Util_AssetUrl('') . $config->cdn->path->upload->document
         );
+    }
+
+    protected function _getContentManager($model) {
+        $contentManager = new Garp_Content_Manager($model);
+        $contentManager->useJointView(false);
+        return $contentManager;
     }
 }

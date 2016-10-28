@@ -58,9 +58,8 @@ class G_RestController extends Garp_Controller_Action {
             // @todo Is this wise? I don't want to give a 500 error since it's not the server's
             // fault. But this might end up a big list of exceptions...
             // How to choose status 400 or 500 at runtime?
-            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
-                $this->_respondToError($e->getMessage(), 400);
-            }
+            $status = strpos($e->getMessage(), 'Duplicate entry') !== false ? 400 : 500;
+            $this->_respondToError($e->getMessage(), $status);
         } catch (Garp_Content_Api_Rest_Exception $e) {
             $this->_respondToError($e->getMessage(), $e->getHttpStatusCode());
         } catch (Exception $e) {

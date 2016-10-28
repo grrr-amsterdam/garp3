@@ -17,6 +17,17 @@ class Garp_Content_Manager {
     protected $_model;
 
     /**
+     * Note: with the coming of the REST API and transitioning into new Garp CMS territory, we want
+     * to eventually shed the MySQL joint views (and any views for that matter).
+     *
+     * The `useJointView()` method is the first step in phasing it out. The REST api will make sure
+     * it's set to FALSE, and when the old CMS is deprecated, we can remove it altogether.
+     *
+     * @var bool
+     */
+    protected $_usesJointView = true;
+
+    /**
      * Class constructor
      *
      * @param Garp_Model|string $model The model to execute methods on
@@ -74,7 +85,7 @@ class Garp_Content_Manager {
                 ->setDefault('filterForeignKeys', false);
             $options['sort']   = (array)$options['sort'];
             $options['fields'] = (array)$options['fields'];
-            $tableName         = $this->_model->getJointView() ?: $this->_model->getName();
+            $tableName         = $this->_getTableName($this->_model);
             $options           = (array)$options;
             $modelInfo         = $this->_model->info();
             $referenceMap      = $modelInfo['referenceMap'];
@@ -437,6 +448,26 @@ class Garp_Content_Manager {
     }
 
     /**
+     * Check wether the joint view should be used.
+     *
+     * @return bool
+     */
+    public function usesJointView() {
+        return $this->_usesJointView;
+    }
+
+    /**
+     * Restrict usage of joint view altogether
+     *
+     * @param bool $yepnope Wether to use it
+     * @return Garp_Content_Manager
+     */
+    public function useJointView($yepnope) {
+        $this->_usesJointView = $yepnope;
+        return $this;
+    }
+
+    /**
      * Create a WHERE clause for use with Zend_Db_Select
      *
      * @param array $query WHERE options
@@ -449,7 +480,7 @@ class Garp_Content_Manager {
         $adapter = $this->_model->getAdapter();
         $nativeColumns = $this->_model->info(Zend_Db_Table_Abstract::COLS);
         if ($useJointView) {
-            $tableName = $this->_model->getJointView() ?: $this->_model->getName();
+            $tableName = $this->_getTableName($this->_model);
             $mockTable = new Zend_Db_Table(
                 array(
                 Zend_Db_Table_Abstract::NAME => $tableName,
@@ -542,7 +573,7 @@ class Garp_Content_Manager {
                     current record, because a record cannot be related to itself.
                 */
                 $select->where(
-                    $filterModel->getJointView() . '.' . $filterColumn . ' != ?',
+                    $this->_getTableName($filterModel) . '.' . $filterColumn . ' != ?',
                     $filterValue
                 );
             }
@@ -618,7 +649,7 @@ class Garp_Content_Manager {
         $select->distinct();
 
         $filterModelName = $filterModel->getName();
-        $thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
+        $thisTableName = $this->_getTableName($this->_model);
         // in the case of homophile relationships...
         if ($filterModelName == $thisTableName) {
             $filterModelName = $filterModelName . '_2';
@@ -684,7 +715,7 @@ class Garp_Content_Manager {
      * @return void
      */
     protected function _addBelongsToClause(array $options) {
-        $thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
+        $thisTableName = $this->_getTableName($this->_model);
         // keys of $options available in the local space as variables
         extract($options);
         foreach ($reference['refColumns'] as $i => $column) {
@@ -740,7 +771,7 @@ class Garp_Content_Manager {
             $bindingModelName = 'Model_' . $options['bindingModel'];
         }
         $bindingModel = new $bindingModelName();
-        $thisTableName = $this->_model->getJointView() ?: $this->_model->getName();
+        $thisTableName = $this->_getTableName($this->_model);
         $bindingModelTable = $bindingModel->getName();
 
         $reference = $bindingModel->getReference(get_class($this->_model));
@@ -928,5 +959,18 @@ class Garp_Content_Manager {
      */
     protected function _modelNameIsPrefixed($modelName) {
         return strpos($modelName, 'Model_') === 0 || strpos($modelName, 'Garp_Model_Db_') === 0;
+    }
+
+    /**
+     * Negotiate between joint view and actual table name.
+     *
+     * @param Garp_Model_Db $model
+     * @return string
+     */
+    protected function _getTableName($model) {
+        if (!$this->usesJointView()) {
+            return $model->getName();
+        }
+        return $model->getJointView() ?: $model->getName();
     }
 }
