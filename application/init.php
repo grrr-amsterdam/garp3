@@ -242,6 +242,14 @@ function concatAll($array) {
  * array_get($a, 'baz'); // null
  * array_get($a, 'baz', 'abc'); // 'abc'
  *
+ * Overloaded to accept a single argument, in which case it'll return a curried function waiting for
+ * the array.
+ * In that case the default value will always be NULL.
+ * Example:
+ * $a = array('foo' => 123, 'bar' => 456);
+ * array_get('foo')($a); // 123
+ * array_get('baz')($a); // null
+ *
  * @param array $a
  * @param string $key
  * @param mixed $default
@@ -250,7 +258,13 @@ function concatAll($array) {
 // Note: coding standards are ignored here because "array_" in "array_get" is perceived as package
 // name but it's instead chosen to be in line with existing php functions.
 // @codingStandardsIgnoreStart
-function array_get(array $a, $key, $default = null) {
+function array_get($a, $key = null, $default = null) {
+    if (func_num_args() === 1) {
+        $key = $a;
+        return function ($a) use ($key) {
+            return array_get($a, $key);
+        };
+    }
     return isset($a[$key]) ? $a[$key] : $default;
 }
 // @codingStandardsIgnoreEnd
@@ -319,11 +333,14 @@ function getProperty($key, $obj = null) {
  *
  * @param string $key The property
  * @param mixed $value
- * @param object $obj
+ * @param object|array $obj
  * @return bool
  */
 function propertyEquals($key, $value, $obj = null) {
     $checker = function ($obj) use ($key, $value) {
+        if (is_array($obj)) {
+            return array_get($obj, $key) === $value;
+        }
         return getProperty($key, $obj) === $value;
     };
     if (is_null($obj)) {
@@ -393,6 +410,26 @@ function callRight($fn) {
     return function () use ($fn, $args) {
         $remainingArgs = func_get_args();
         return call_user_func_array($fn, array_merge($remainingArgs, $args));
+    };
+}
+
+/**
+ * Creates a negative version of an existing function.
+ *
+ * Example:
+ * $a = ['a', 'b', 'c'];
+ * in_array('a', $a); // true
+ *
+ * not('in_array')('a'); // false
+ * not('in_array')('d'); // true
+ *
+ * @param callable $fn Anything that call_user_func_array accepts
+ * @return callable
+ */
+function not($fn) {
+    return function () use ($fn) {
+        $args = func_get_args();
+        return !call_user_func_array($fn, $args);
     };
 }
 

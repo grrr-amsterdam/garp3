@@ -2,26 +2,27 @@
 /**
  * Garp_Content_Export_Abstract
  * Blueprint for content exporters
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Content
- * @lastmodified $Date: $
+ *
+ * @package Garp_Content_Export
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 abstract class Garp_Content_Export_Abstract {
+    const EXCEPTION_INVALID_CONFIG
+        = 'Invalid paging configuration given. Possible options: "page", "from", "to".';
+
     /**
      * File extension
-     * @var String
+     *
+     * @var string
      */
     protected $_extension = '';
-
 
     /**
      * Return the bytes representing the export format (for instance, binary code
      * describing a PDF or Excel file). These will be offered to download.
+     *
      * @param Garp_Util_Configuration $params Various parameters describing which content to export
-     * @return String
+     * @return string
      */
     public function getOutput(Garp_Util_Configuration $params) {
         $mem = new Garp_Util_Memory();
@@ -48,29 +49,29 @@ abstract class Garp_Content_Export_Abstract {
         }
 
         if (isset($params['sortField']) && isset($params['sortDir'])) {
-            $fetchOptions['sort'] = array($params['sortField'].' '.$params['sortDir']);
+            $fetchOptions['sort'] = array($params['sortField'] . ' ' . $params['sortDir']);
         }
 
         switch ($params['selection']) {
-            case 'id':
-                // specific record
-                $params->obligate('id');
-                $fetchOptions['query']['id'] = Zend_Json::decode($params['id']);
+        case 'id':
+            // specific record
+            $params->obligate('id');
+            $fetchOptions['query']['id'] = Zend_Json::decode($params['id']);
             break;
-            case 'page':
-                $params->obligate('pageSize');
-                // specific page
-                if (isset($params['page'])) {
-                    $fetchOptions['start'] = (($params['page']-1)*$params['pageSize']);
-                    $fetchOptions['limit'] = $params['pageSize'];
+        case 'page':
+            $params->obligate('pageSize');
+            // specific page
+            if (isset($params['page'])) {
+                $fetchOptions['start'] = (($params['page']-1)*$params['pageSize']);
+                $fetchOptions['limit'] = $params['pageSize'];
                 // specific selection of pages
-                } elseif (isset($params['from']) && isset($params['to'])) {
-                    $pages = ($params['to'] - $params['from'])+1;
-                    $fetchOptions['start'] = (($params['from']-1)*$params['pageSize']);
-                    $fetchOptions['limit'] = ($pages*$params['pageSize']);
-                } else {
-                    throw new Garp_Content_Exception('Invalid paging configuration given. Possible options: "page", "from", "to".');
-                }
+            } elseif (isset($params['from']) && isset($params['to'])) {
+                $pages = ($params['to'] - $params['from'])+1;
+                $fetchOptions['start'] = (($params['from']-1)*$params['pageSize']);
+                $fetchOptions['limit'] = ($pages*$params['pageSize']);
+            } else {
+                throw new Garp_Content_Exception(self::EXCEPTION_INVALID_CONFIG);
+            }
             break;
         }
 
@@ -103,15 +104,16 @@ abstract class Garp_Content_Export_Abstract {
 
     /**
      * Generate a filename for the exported text file
+     *
      * @param Garp_Util_Configuration $params
-     * @return String
+     * @return string
      */
     public function getFilename(Garp_Util_Configuration $params) {
         $className = Garp_Content_Api::modelAliasToClass($params['model']);
         $model = new $className();
         $filename  = 'export_';
         $filename .= $model->getName();
-        $filename .= '_'.date('Y_m_d');
+        $filename .= '_' . date('Y_m_d');
         $filename .= '.';
         $filename .= $this->_extension;
         return $filename;
@@ -120,9 +122,10 @@ abstract class Garp_Content_Export_Abstract {
 
     /**
      * Format a recordset
-     * @param String $model The exported model. Formatters may want additional metadata from this.
-     * @param Array $rowset
-     * @return String
+     *
+     * @param string $model The exported model. Formatters may want additional metadata from this.
+     * @param array $rowset
+     * @return string
      */
     abstract public function format(Garp_Model $model, array $rowset);
 
@@ -130,13 +133,18 @@ abstract class Garp_Content_Export_Abstract {
     /**
      * Translate the columns of a record into the human-friendly versions used
      * in the CMS
-     * @param Array $data
+     *
+     * @param array $data
      * @param Garp_Model_Db $model
-     * @return Array
+     * @return array
      */
     protected function _humanizeData($data, Garp_Model_Db $model) {
         $humanizedData = array();
         foreach ($data as $i => $datum) {
+            if (!is_array($datum)) {
+                $humanizedData[$i] = $datum;
+                continue;
+            }
             foreach ($datum as $column => $value) {
                 $field = $model->getFieldConfiguration($column);
                 if ($field['type'] === 'checkbox') {
@@ -168,8 +176,9 @@ abstract class Garp_Content_Export_Abstract {
 
     /**
      * Humanize a multilingual data array
-     * @param Array $value
-     * @return String
+     *
+     * @param array $value
+     * @return string
      */
     protected function _humanizeMultilingualData(array $value) {
         $out = array();
@@ -181,8 +190,9 @@ abstract class Garp_Content_Export_Abstract {
 
     /**
      * Check if value is a multilingual array.
-     * @param Mixed $value
-     * @return Boolean
+     *
+     * @param mixed $value
+     * @return bool
      */
     protected function _isMultilingualArray($value) {
         if (!is_array($value)) {
@@ -198,8 +208,9 @@ abstract class Garp_Content_Export_Abstract {
 
     /**
      * Bind all HABTM related models so they, too, get exported
+     *
      * @param Garp_Model_Db $model
-     * @return Void
+     * @return void
      */
     protected function _bindModels(Garp_Model_Db $model) {
         // Add HABTM related records
@@ -208,7 +219,7 @@ abstract class Garp_Content_Export_Abstract {
             if ($config['type'] !== 'hasAndBelongsToMany' && $config['type'] !== 'hasMany') {
                 continue;
             }
-            $otherModelName = 'Model_'.$config['model'];
+            $otherModelName = 'Model_' . $config['model'];
             $otherModel = new $otherModelName();
             $multilingual = false;
             $modelFactory = new Garp_I18n_ModelFactory();

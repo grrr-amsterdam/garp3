@@ -8,6 +8,22 @@
  */
 class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
 
+    public function testArrayGet() {
+        $a = array('foo' => 123, 'bar' => 456);
+        $this->assertEquals(123, array_get($a, 'foo'));
+        $this->assertEquals(456, array_get($a, 'bar'));
+        $this->assertNull(array_get($a, 'baz'));
+
+        $this->assertEquals('banana', array_get($a, 'baz', 'banana'));
+    }
+
+    public function testCurriedArrayGet() {
+        $a = array('foo' => 123, 'bar' => 456);
+        $this->assertEquals(123, array_get('foo')($a));
+        $this->assertEquals(456, array_get('bar')($a));
+        $this->assertNull(array_get('baz')($a));
+    }
+
     public function testShouldGetSubsetOfArray() {
         $my_array = array(
             'name' => 'Henk',
