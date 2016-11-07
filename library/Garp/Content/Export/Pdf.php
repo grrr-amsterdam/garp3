@@ -2,30 +2,26 @@
 /**
  * Garp_Content_Export_Pdf
  * Export content in PDF format
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Content
- * @lastmodified $Date: $
+ *
+ * @package Garp_Content_Export
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Content_Export_Pdf extends Garp_Content_Export_Html {
     /**
      * File extension
-     * @var String
+     *
+     * @var string
      */
     protected $_extension = 'pdf';
 
-
     /**
      * Format a recordset
+     *
      * @param Garp_Model $model
-     * @param Array $rowset
-     * @return String
+     * @param array $rowset
+     * @return string
      */
     public function format(Garp_Model $model, array $rowset) {
-        include_once APPLICATION_PATH.'/../garp/library/Garp/3rdParty/dompdf/dompdf_config.inc.php';
-
         /**
          * FIXME: Dompdf fails when the locale is set to 'nl_NL' (which is the Garp default).
          * This issue is known (see http://code.google.com/p/dompdf/issues/detail?id=20), so
@@ -35,17 +31,8 @@ class Garp_Content_Export_Pdf extends Garp_Content_Export_Html {
         $prevLocale = setlocale(LC_ALL, 0);
         setlocale(LC_ALL, null); // <-- return to system default
 
-        /**
-         * DOMPDF has its own autoloader. checkIfFileExists(true) allows our
-         * loader to be chainable. That way the DOMPDF autoloader will take over
-         * when our loader cannot find the class.
-         * @deprecated We don't use our loader anymore, in favor of Composer's autoloader
-         */
-        //$loader = Garp_Loader::getInstance();
-        //$loader->checkIfFileExists(true);
-
         $html = parent::format($model, $rowset);
-        $dompdf = new DOMPDF();
+        $dompdf = new Dompdf\Dompdf();
         $dompdf->load_html($html);
         $dompdf->set_paper('a4', 'portrait');
         $dompdf->render();
