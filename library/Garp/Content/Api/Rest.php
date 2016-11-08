@@ -461,14 +461,14 @@ class Garp_Content_Api_Rest {
         $modelName = $this->_normalizeModelName($datatype);
         $rootModel = new $modelName;
         $schema = instance(new Garp_Content_Api_Rest_Schema('rest'))->getModelDetails($datatype);
-        $hasOneRelations = array_filter(
-            array_map(array_get('relation'), $schema['fields'])
-        );
+        $hasOneRelations = array_filter($schema['fields'], propertyEquals('origin', 'relation'));
+        $hasOneRelations = array_map(array_get('relationAlias'), $hasOneRelations);
+
         // Check validity of 'with'
         $unknowns = array_filter($with, callRight(not('in_array'), $hasOneRelations));
         if (count($unknowns)) {
             $err = sprintf(
-                Garp_Content_Api_Rest_Schema::EXCEPTION_RELATION_NOT_FOUND, $modelName,
+                Garp_Content_Api_Rest_Schema::EXCEPTION_RELATION_NOT_FOUND, $datatype,
                 current($unknowns)
             );
             throw new Garp_Content_Api_Rest_Exception($err);
@@ -482,7 +482,7 @@ class Garp_Content_Api_Rest {
                 $foreignKey = current(
                     array_filter(
                         $schema['fields'],
-                        propertyEquals('relation', $cur)
+                        propertyEquals('relationAlias', $cur)
                     )
                 );
 
@@ -505,7 +505,7 @@ class Garp_Content_Api_Rest {
                 $acc[$cur] = array_get(current($self->_getIndex($options)), 'result');
                 return $acc;
             },
-            array($modelName => $records)
+            array($datatype => $records)
         );
 
     }
