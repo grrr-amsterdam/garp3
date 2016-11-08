@@ -7,6 +7,8 @@
  * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Field {
+    const TEXTFIELD_MAX_LENGTH = 124;
+
     /**
      * Lowercase, underscored name of the field, as it appears in the database.
      *
@@ -29,9 +31,20 @@ class Garp_Spawn_Field {
     public $multilingual = false;
     public $comment;
     public $wysiwyg = false;
+
+    /**
+     * Used for relation foreign key fields. Defines the model related thru this foreign key field.
+     *
+     * @var string
+     */
     public $model = false;
 
-    const TEXTFIELD_MAX_LENGTH = 124;
+    /**
+     * Used for relation foreign key fields. Defines the alias for this relation
+     *
+     * @var string
+     */
+    public $relationAlias = false;
 
     /**
      * Optional values for an enum field
@@ -210,7 +223,7 @@ class Garp_Spawn_Field {
             $this->required = false;
         }
 
-        if (!array_key_exists('label', $config) 
+        if (!array_key_exists('label', $config)
             || !$config['label']
         ) {
             $this->label = Garp_Spawn_Util::underscored2readable(

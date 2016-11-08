@@ -487,6 +487,7 @@ class Garp_Spawn_Relation {
             'visible' => true,
             'primary' => $this->primary,
             'required' => $this->required,
+            'relationAlias' => $this->name,
             'relationType' => $this->type
         );
         if ($this->multilingual && $this->_localModel->isMultilingual()) {
