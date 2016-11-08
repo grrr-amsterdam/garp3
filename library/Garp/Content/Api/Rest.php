@@ -285,7 +285,6 @@ class Garp_Content_Api_Rest {
      * @return array
      */
     protected function _getIndex(array $params) {
-        xdebug_break();
         $model = $this->_normalizeModelName($params['datatype']);
         $contentManager = $this->_getContentManager($model);
         $options = $this->_extractOptionsForFetch($params);
