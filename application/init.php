@@ -433,6 +433,28 @@ function not($fn) {
     };
 }
 
+/**
+ * A functional programming classic.
+ * Compose functions $g and $f into a new function $gf
+ *
+ * Note that evaluation is from right to left.
+ * Usage:
+ * $reverseAndToUpper = compose('ucfirst', 'strrev');
+ *
+ * @param callable $f
+ * @param callable $g
+ * @return callable
+ */
+function compose($f, $g) {
+    return function () use ($f, $g) {
+        $args = func_get_args();
+        return call_user_func_array(
+            $f,
+            array(call_user_func_array($g, $args))
+        );
+    };
+}
+
 // Ignoring coding standards because the following is all third party code
 // @codingStandardsIgnoreStart
 if (!function_exists('gzdecode')) {
