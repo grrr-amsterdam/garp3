@@ -481,9 +481,10 @@ class Garp_Spawn_Relation {
 
         $column = Garp_Spawn_Relation_Set::getRelationColumn($this->name);
         $fieldParams = array(
+            'model' => $this->model,
             'type' => 'numeric',
-            'editable' => false,
-            'visible' => false,
+            'editable' => true,
+            'visible' => true,
             'primary' => $this->primary,
             'required' => $this->required,
             'relationType' => $this->type

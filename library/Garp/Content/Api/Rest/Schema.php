@@ -33,7 +33,7 @@ class Garp_Content_Api_Rest_Schema {
         $config['creatable'] = $model->creatable;
         $config['deletable'] = $model->deletable;
         $config['route'] = $model->route;
-        $config['fields'] = $this->_getFieldSchema($model);
+        $config['fields'] = array_values($this->_getFields($model));
         $config['relations'] = $this->_getRelationSchema($model);
         $config['quickAddable'] = $model->quickAddable;
         return $config;
@@ -57,15 +57,6 @@ class Garp_Content_Api_Rest_Schema {
             );
         }
         return $model->relations->getRelation($relatedModel);
-    }
-
-    protected function _getFieldSchema($model) {
-        return array_values(
-            array_merge(
-                $this->_getEditableColumns($model),
-                $this->_getHasOneColumns($model)
-            )
-        );
     }
 
     protected function _getRelationSchema($model) {
@@ -93,12 +84,12 @@ class Garp_Content_Api_Rest_Schema {
         return current($modelsWithName);
     }
 
-    protected function _getEditableColumns($model) {
+    protected function _getFields($model) {
         return array_map(
             function ($field) {
                 return get_object_vars($field);
             },
-            $model->fields->getFields('editable', true)
+            $model->fields->getFields() //('editable', true)
         );
     }
 

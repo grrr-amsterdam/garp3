@@ -2,7 +2,7 @@
 	$model				= $this->model;
 	$fields 			= $model->fields->getFields();
 	$relFields 			= $model->fields->getFields('origin', 'relation');
-	$editableFields 	= $model->fields->getFields('editable', true);
+	$editableFields 	= array_filter($model->fields->getFields('editable', true), not(propertyEquals('origin', 'relation')));
 	$excludedFormFields	= $this->spawnJs()->getExcludedFormFields();
 	$singularRelations 	= $model->relations->getRelations('type', array('hasOne', 'belongsTo'));
 	$multipleRelations 	= $model->relations->getRelations(
