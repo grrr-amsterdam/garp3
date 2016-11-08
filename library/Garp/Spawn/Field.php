@@ -1,10 +1,19 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
+ * Garp_Spawn_Field
+ * Represents a single field in a model
+ *
+ * @package Garp_Spawn
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Field {
-    /** Lowercase, underscored name of the field, as it appears in the database. */
+    /**
+     * Lowercase, underscored name of the field, as it appears in the database.
+     *
+     * @var string
+     */
     public $name;
+
     public $required = true;
     public $type = 'text';
     public $maxLength;
@@ -20,31 +29,58 @@ class Garp_Spawn_Field {
     public $multilingual = false;
     public $comment;
     public $wysiwyg = false;
-
+    public $model = false;
 
     const TEXTFIELD_MAX_LENGTH = 124;
 
-    /** @var Array $options Optional values for an enum field */
+    /**
+     * Optional values for an enum field
+     *
+     * @var array
+     */
     public $options = array();
 
-    /** @var Boolean $float Whether this is a floating point value, in case of a numeric field. */
+    /**
+     * Whether this is a floating point value, in case of a numeric field.
+     *
+     * @var bool
+     */
     public $float = false;
 
-    /** @var Boolean $unsigned Whether this is an unsigned value, in case of a numeric field. */
+    /**
+     * Whether this is an unsigned value, in case of a numeric field.
+     *
+     * @var bool
+     */
     public $unsigned = true;
 
-    /** @var Boolean $rich Optional flag for an html field, allowing lists and media. */
+    /**
+     * Optional flag for an html field, allowing lists and media.
+     *
+     * @var bool
+     */
     public $rich = false;
 
-    /** @var String $origin Context in which this field is added. Can be 'config', 'default', 'relation' or 'behavior'. */
+    /**
+     * Context in which this field is added. Can be 'config', 'default', 'relation' or 'behavior'.
+     *
+     * @var string
+     */
     public $origin;
 
-    /** @var String $relationType Type of singular relation that this field references.
-     * Only set in case of singular relation fields. Can be 'hasOne' or 'belongsTo'. */
+    /**
+     * Type of singular relation that this field references.
+     * Only set in case of singular relation fields. Can be 'hasOne' or 'belongsTo'.
+     *
+     * @var string
+     */
     public $relationType;
 
+    protected $_types = array(
+        'text', 'html', 'email', 'url', 'numeric', 'checkbox',
+        'datetime', 'date', 'time', 'enum', 'document', 'imagefile'
+    );
 
-    protected $_types = array('text', 'html', 'email', 'url', 'numeric', 'checkbox', 'datetime', 'date', 'time', 'enum', 'document', 'imagefile');
     protected $_defaultTypeByNameEnding = array(
         'email' => 'email',
         'url' => 'url',
@@ -54,17 +90,19 @@ class Garp_Spawn_Field {
         'time' => 'time'
     );
 
-
     /**
-    * @param String $origin Context in which this field is added. Can be 'config', 'default', 'relation' or 'behavior'.
-    */
+     * @param string $origin Context in which this field is added.
+     *                       Can be 'config', 'default', 'relation' or 'behavior'.
+     * @param string $name
+     * @param array  $config
+     * @return void
+     */
     public function __construct($origin, $name, array $config) {
         $this->origin = $origin;
         $this->name = $name;
         $this->_loadParams($config);
         $this->_setConditionalDefaults($config);
     }
-
 
     public function isTextual() {
         $textualTypes = array('text', 'html', 'email', 'url', 'document');
@@ -80,9 +118,9 @@ class Garp_Spawn_Field {
     }
 
     public function isSuitableAsLabel() {
-        $nonLabelFieldTypes     = array('html', 'checkbox');
-        $isSuitableType         = !in_array($this->type, $nonLabelFieldTypes);
-        $isSuitableField        = $isSuitableType && !$this->isRelationField();
+        $nonLabelFieldTypes = array('html', 'checkbox');
+        $isSuitableType     = !in_array($this->type, $nonLabelFieldTypes);
+        $isSuitableField    = $isSuitableType && !$this->isRelationField();
 
         return $isSuitableField;
     }
@@ -95,29 +133,39 @@ class Garp_Spawn_Field {
                 $publicProps = array();
                 foreach ($reflProps as $reflProp) {
                     switch ($reflProp->name) {
-                        case 'origin':
-                        case 'name':
+                    case 'origin':
+                    case 'name':
                         break;
-                        default:
-                            $publicProps[] = $reflProp->name;
+                    default:
+                        $publicProps[] = $reflProp->name;
                     }
                 }
+                // @codingStandardsIgnoreStart
                 throw new Exception("'{$paramName}' is not a valid parameter for the '{$this->name}' field configuration. Try: ".implode($publicProps, ", "));
+                // @codingStandardsIgnoreEnd
             } else {
                 switch ($paramName) {
-                    case 'type':
-                        if (!in_array($paramValue, $this->_types))
-                            throw new Exception("'{$paramValue}' is not a valid field type for the '{$this->name}' field. Try: ".implode($this->_types, ", "));
+                case 'type':
+                    if (!in_array($paramValue, $this->_types)) {
+                        // @codingStandardsIgnoreStart
+                        throw new Exception("'{$paramValue}' is not a valid field type for the '{$this->name}' field. Try: ".implode($this->_types, ", "));
+                        // @codingStandardsIgnoreEnd
+                    }
                     break;
-                    case 'options':
-                        if ($config['type'] === 'enum') {
-                            if (
-                                (!is_array($config['options']) && !is_object($config['options'])) ||
-                                !($config['options'])
-                            ) {
-                                throw new Exception("The 'options' parameter should contain an array with db enum values, or an object with db enum values as object keys, and labels as object values.");
-                            }
-                        } else throw new Exception("The 'options' parameter is only valid for the 'enum' fields.");
+                case 'options':
+                    if ($config['type'] === 'enum') {
+                        if ((!is_array($config['options']) && !is_object($config['options']))
+                            || !($config['options'])
+                        ) {
+                            // @codingStandardsIgnoreStart
+                            throw new Exception("The 'options' parameter should contain an array with db enum values, or an object with db enum values as object keys, and labels as object values.");
+                            // @codingStandardsIgnoreEnd
+                        }
+                    } else {
+                        throw new Exception(
+                            "The 'options' parameter is only valid for the 'enum' fields."
+                        );
+                    }
                     break;
                 }
             }
@@ -125,7 +173,6 @@ class Garp_Spawn_Field {
             $this->{$paramName} = $paramValue;
         }
     }
-
 
     protected function _setConditionalDefaults(array $config) {
         if (!array_key_exists('type', $config)) {
@@ -138,20 +185,20 @@ class Garp_Spawn_Field {
 
         if (!array_key_exists('maxLength', $config)) {
             switch ($this->name) {
-                case 'name':
-                case 'subtitle':
+            case 'name':
+            case 'subtitle':
+                $this->maxLength = self::TEXTFIELD_MAX_LENGTH;
+                break;
+            case 'id':
+                $this->maxLength = 8;
+                break;
+            case 'email':
+                $this->maxLength = 50;
+                break;
+            default:
+                if (Garp_Spawn_Util::stringEndsIn('name', $this->name)) {
                     $this->maxLength = self::TEXTFIELD_MAX_LENGTH;
-                break;
-                case 'id':
-                    $this->maxLength = 8;
-                break;
-                case 'email':
-                    $this->maxLength = 50;
-                break;
-                default:
-                    if (Garp_Spawn_Util::stringEndsIn('name', $this->name)) {
-                        $this->maxLength = self::TEXTFIELD_MAX_LENGTH;
-                    }
+                }
             }
         }
 
@@ -163,9 +210,8 @@ class Garp_Spawn_Field {
             $this->required = false;
         }
 
-        if (
-            !array_key_exists('label', $config) ||
-            !$config['label']
+        if (!array_key_exists('label', $config) 
+            || !$config['label']
         ) {
             $this->label = Garp_Spawn_Util::underscored2readable(
                 Garp_Spawn_Util::stringEndsIn('_id', $this->name) ?

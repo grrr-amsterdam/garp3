@@ -3,7 +3,7 @@
 # Garp 3
 
 Garp is a flexible opensource PHP and frontend framework and CMS.   
-Developed with ❤️ by Grrr, from Amsterdam.
+Developed with ❤️ by [Grrr](https://grrr.nl), from Amsterdam.
 
 ## Getting started
 
