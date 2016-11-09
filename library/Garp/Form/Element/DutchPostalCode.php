@@ -1,11 +1,10 @@
 <?php
 /**
  * Garp_Form_Element_DutchPostalCode
- * class description
- * @author Harmen Janssen | grrr.nl
- * @version 1
- * @package Garp
- * @subpackage Form
+ * Represents input for a Dutch postal code.
+ *
+ * @package Garp_Form_Element
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Form_Element_DutchPostalCode extends Zend_Form_Element_Text {
 
