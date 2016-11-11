@@ -1,12 +1,10 @@
 <?php
 /**
  * Garp_Model_Behavior_Youtubeable
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Behavior
- * @lastmodified $Date: $
+ *
+ * @package Garp_Model_Behavior
+ * @author  David Spreekmeester <david@grrr.nl>
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
     const EXCEPTION_VIDEO_NOT_FOUND = 'Could not retrieve YouTube data for %s';
@@ -17,7 +15,8 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Field translation table. Keys are internal names, values are the indexes of the output array.
-     * @var Array
+     *
+     * @var array
      */
     protected $_fields = array(
         //  internal name   => database / form name
@@ -44,8 +43,9 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
     /**
      * Setup fields. If certain fields are not provided,
      * the defaults in $this->_fields are used.
-     * @param Array $config
-     * @return Void
+     *
+     * @param array $config
+     * @return void
      */
     protected function _setup($config) {
         if (!empty($config)) {
@@ -55,39 +55,49 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Before insert callback. Manipulate the new data here. Set $data to FALSE to stop the insert.
-     * @param Array $options The new data is in $args[1]
+     *
+     * @param array $args The new data is in $args[1]
+     * @return void
      */
     public function beforeInsert(Array &$args) {
         $data = &$args[1];
         if (!$output = $this->_fillFields($data)) {
             throw new Garp_Model_Behavior_YouTubeable_Exception_NoApiResponse(
-                self::EXCEPTION_NO_API_RESPONSE);
+                self::EXCEPTION_NO_API_RESPONSE
+            );
         }
         $data = $output + $data;
     }
 
     /**
      * Before update callback. Manipulate the new data here.
-     * @param Array $data The new data is in $args[1]
-     * @return Void
+     *
+     * @param array $args The new data is in $args[1]
+     * @return void
      */
     public function beforeUpdate(Array &$args) {
         $data = &$args[1];
 
         if (!$output = $this->_fillFields($data)) {
             throw new Garp_Model_Behavior_YouTubeable_Exception_NoApiResponse(
-                self::EXCEPTION_NO_API_RESPONSE);
+                self::EXCEPTION_NO_API_RESPONSE
+            );
         }
         $data = $output + $data;
     }
 
     /**
-     * Retrieves additional data about the video corresponding with given input url from YouTube, and returns new data structure.
+     * Retrieves additional data about the video corresponding with given input url from YouTube,
+     * and returns new data structure.
+     *
+     * @param array $input
+     * @return array
      */
     protected function _fillFields(Array $input) {
         if (!array_key_exists($this->_fields['watch_url'], $input)) {
             throw new Garp_Model_Behavior_YouTubeable_Exception_MissingField(
-                sprintf(self::EXCEPTION_MISSING_FIELD, $this->_fields['watch_url']));
+                sprintf(self::EXCEPTION_MISSING_FIELD, $this->_fields['watch_url'])
+            );
         }
         $url = $input[$this->_fields['watch_url']];
         if (empty($url)) {
@@ -116,10 +126,11 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Populate record with new data
-     * @param Array $output
-     * @param String $key
-     * @param String $value
-     * @return Void
+     *
+     * @param array $output
+     * @param string $key
+     * @param string $value
+     * @return void
      */
     protected function _populateOutput(array &$output, $key, $value) {
         if (strpos($key, '.') === false) {
@@ -137,12 +148,15 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
     protected function _fetchEntryByUrl($watchUrl) {
         $yt = Garp_Google::getGoogleService('YouTube');
         $youTubeId = $this->_getId($watchUrl);
-        $entries = $yt->videos->listVideos('id,snippet,contentDetails', array(
+        $entries = $yt->videos->listVideos(
+            'id,snippet,contentDetails', array(
             'id' => $youTubeId
-        ));
+            )
+        );
         if (empty($entries['items'])) {
-            throw new Garp_Model_Behavior_Youtubeable_Exception_VideoNotFound(
-                sprintf(self::EXCEPTION_VIDEO_NOT_FOUND, $watchUrl));
+            throw new Garp_Model_Behavior_YouTubeable_Exception_VideoNotFound(
+                sprintf(self::EXCEPTION_VIDEO_NOT_FOUND, $watchUrl)
+            );
         }
 
         return $entries['items'][0];
@@ -151,13 +165,13 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
     /**
      * Retrieves the id value of a YouTube url.
      *
-     * @param String $youTubeUrl
-     * @return String
+     * @param string $watchUrl
+     * @return string
      */
     protected function _getId($watchUrl) {
         $query = array();
         if (!$watchUrl) {
-            throw new Garp_Model_Behavior_Youtubeable_Exception_NoUrl(self::EXCEPTION_NO_URL);
+            throw new Garp_Model_Behavior_YouTubeable_Exception_NoUrl(self::EXCEPTION_NO_URL);
         }
 
         $url = parse_url($watchUrl);
@@ -171,8 +185,9 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
         }
 
         if (!isset($videoId)) {
-            throw new Garp_Model_Behavior_Youtubeable_Exception_InvalidUrl(
-                sprintf(self::EXCEPTION_INVALID_YOUTUBE_URL, $watchUrl));
+            throw new Garp_Model_Behavior_YouTubeable_Exception_InvalidUrl(
+                sprintf(self::EXCEPTION_INVALID_YOUTUBE_URL, $watchUrl)
+            );
         }
         return $videoId;
     }
