@@ -9,6 +9,35 @@
 class Garp_Cli_Command_Models extends Garp_Cli_Command {
 
     /**
+     * Interactively insert a new record
+     *
+     * @param array $args
+     * @return bool
+     */
+    public function insert($args) {
+        if (empty($args)) {
+            Garp_Cli::errorOut('Please provide a model');
+            return false;
+        }
+        $className = "Model_{$args[0]}";
+        $model = new $className();
+        $fields = $model->getConfiguration('fields');
+        $fields = array_filter($fields, not(propertyEquals('name', 'id')));
+        $newData = array_reduce(
+            $fields,
+            function ($acc, $cur) {
+                $acc[$cur['name']] = Garp_Cli::prompt($cur['name']) ?: null;
+                return $acc;
+            },
+            array()
+        );
+
+        $id = $model->insert($newData);
+        Garp_Cli::lineOut("Record created: #{$id}");
+        return true;
+    }
+
+    /**
      * Garp models have moved from the G_Model namespace to the Garp_Model_Db_ namespace.
      * This command migrates extended models to the new namespace.
      *
