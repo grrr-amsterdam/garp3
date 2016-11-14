@@ -42,7 +42,7 @@ class Garp_Model_Validator_MinLength extends Garp_Model_Validator_Abstract {
         $tooShortFields = array_filter(
             $applicableFields,
             function ($field) use ($theFields, $data) {
-                return strlen($data[$field]) < $theFields[$field];
+                return !is_null($data[$field]) && strlen($data[$field]) < $theFields[$field];
             }
         );
 
