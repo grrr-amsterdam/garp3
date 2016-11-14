@@ -10,9 +10,19 @@
 class Garp_Validate_Date extends Zend_Validate_Abstract {
 
     const FORMAT_MISMATCH = 'formatMismatch';
+    const INVALID_DATE    = 'dateInvalidDate';
+
+    /**
+     * Wether to validate the actual date, or only its format.
+     * e.g. This checks wether a user for instance submitted 31 February.
+     *
+     * @var bool
+     */
+    protected $_validateParsedDate = false;
 
     protected $_messageTemplates = array(
         self::FORMAT_MISMATCH => "'%value%' does not fit the date format '%readableFormat%'",
+        self::INVALID_DATE => "'%value%' does not appear to be a valid date"
     );
 
     protected $_messageVariables = array(
@@ -69,9 +79,9 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
     /**
      * Class constructor
      *
-     * @param String $format date() compatible format
-     * @param String $humanReadableFormat Something to show the user
-     * @return Void
+     * @param string $format date() compatible format
+     * @param string $humanReadableFormat Something to show the user
+     * @return void
      */
     public function __construct($format, $humanReadableFormat = null) {
         $this->setFormat($format);
@@ -80,7 +90,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
 
     public function getRegexp() {
         // construct regexp
-        $regexp = '~';
+        $regexp = '~^';
         $escape = false;
         for ($i = 0; $i < strlen($this->_format); ++$i) {
             $char = $this->_format[$i];
@@ -99,7 +109,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
             // reset escape
             $escape = false;
         }
-        $regexp .= '~';
+        $regexp .= '$~';
         return $regexp;
     }
 
@@ -110,13 +120,20 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
             $this->_error(self::FORMAT_MISMATCH);
             return false;
         }
+        if (!$this->_validateParsedDate) {
+            return true;
+        }
+        if (!$this->_validateDate($value)) {
+            $this->_error(self::INVALID_DATE);
+            return false;
+        }
         return true;
     }
 
     /**
      * Get format
      *
-     * @return String
+     * @return string
      */
     public function getFormat() {
         return $this->_format;
@@ -125,7 +142,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
     /**
      * Set format
      *
-     * @param String $format
+     * @param string $format
      * @return $this
      */
     public function setFormat($format) {
@@ -136,7 +153,7 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
     /**
      * Get readableFormat
      *
-     * @return String
+     * @return string
      */
     public function getReadableFormat() {
         return $this->_readableFormat;
@@ -145,11 +162,29 @@ class Garp_Validate_Date extends Zend_Validate_Abstract {
     /**
      * Set readableFormat
      *
-     * @param String $readableFormat
+     * @param string $readableFormat
      * @return $this
      */
     public function setReadableFormat($readableFormat) {
         $this->_readableFormat = $readableFormat;
         return $this;
     }
+
+    /**
+     * Set wether to validate the parsed date.
+     *
+     * @param bool $wetherToValidate
+     * @return $this
+     */
+    public function validateParsedDate($wetherToValidate) {
+        $this->_validateParsedDate = $wetherToValidate;
+        return $this;
+    }
+
+    protected function _validateDate($date) {
+        $d = DateTime::createFromFormat($this->_format, $date);
+        return $d && $d->format($this->_format) === $date;
+    }
+
 }
+
