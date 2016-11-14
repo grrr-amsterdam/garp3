@@ -98,6 +98,9 @@ switch ($field->type) {
 if ($field->maxLength && $field->type !== 'enum') {
 	$props[] = "maxLength: {$field->maxLength}";
 }
+if ($field->minLength) {
+    $props[] = "minLength: {$field->minLength}";
+}
 
 $required = isset($this->required) ? $this->required : $field->required;
 $props[] = "allowBlank: ".($required ? 'false' : 'true');
