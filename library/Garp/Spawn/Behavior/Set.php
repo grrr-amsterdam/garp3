@@ -27,12 +27,14 @@ class Garp_Spawn_Behavior_Set {
         'Email',
         'Translatable',
         'Truncatable',
-        'Checkboxable'
+        'Checkboxable',
+        'MinLength'
     );
 
     protected $_validatorBehaviors = array(
         'Email',
-        'NotEmpty'
+        'NotEmpty',
+        'MinLength'
     );
 
 
