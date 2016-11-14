@@ -19,6 +19,7 @@ class Garp_Spawn_Field {
     public $required = true;
     public $type = 'text';
     public $maxLength;
+    public $minLength;
     public $multiline;
     public $label;
     public $editable = true;
