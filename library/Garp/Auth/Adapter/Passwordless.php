@@ -8,23 +8,30 @@
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
+    /**
+     * Default token expiration time
+     *
+     * @var string
+     */
     const DEFAULT_TOKEN_EXPIRATION_TIME = '+30 minutes';
 
     /**
      * Config key
      *
-     * @var String
+     * @var string
      */
     protected $_configKey = 'passwordless';
 
     /**
      * Authenticate a user.
      *
-     * @param Zend_Controller_Request_Abstract $request The current request
+     * @param Zend_Controller_Request_Abstract $request   The current request
      * @param Zend_Controller_Response_Abstract $response The current response
-     * @return Array|Boolean User data, or FALSE when no user is logged in yet
+     * @return array|bool                                 User data,
+     *                                                    or FALSE when no user is logged in yet
      */
-    public function authenticate(Zend_Controller_Request_Abstract $request,
+    public function authenticate(
+        Zend_Controller_Request_Abstract $request,
         Zend_Controller_Response_Abstract $response
     ) {
         if (!$request->isPost()) {
@@ -58,15 +65,14 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
         $token  = $this->_createOrUpdateAuthRecord($userId);
 
         $this->_sendTokenEmail($userData['email'], $userId, $token);
-
         $this->setRedirect($this->_getRedirectUrl());
     }
 
     /**
      * Accept a user token
      *
-     * @param String $token
-     * @param Int $uid User id
+     * @param string $token
+     * @param int $uid User id
      * @return Garp_Model_Db Logged in user
      */
     public function acceptToken($token, $uid) {
@@ -74,18 +80,7 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
             $this->_addError(__('Insufficient data received'));
             return false;
         }
-        $authPwlessModel = new Model_AuthPasswordless();
-        $userModel = new Model_User();
-        $userConditions = $userModel->select()->from(
-            $userModel->getName(),
-            Garp_Auth::getInstance()->getSessionColumns()
-        );
-        $authPwlessModel->bindModel(
-            'Model_User', array(
-            'conditions' => $userConditions,
-            'rule' => 'User'
-            )
-        );
+        $authPwlessModel = $this->_getPasswordlessModel();
         $select = $authPwlessModel->select()
             ->where('`token` = ?', $token)
             ->where('user_id = ?', $uid);
@@ -98,32 +93,41 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 
         // Check wether the user is already logged in. Let's not inconvenience them
         // with security when it's not that important
-        $currentUserData = $this->_getCurrentUserData();
-        if (isset($currentUserData['id'])
-            && (int)$currentUserData['id'] === (int)$row->Model_User->id
-        ) {
+        if ($this->_userIsAlreadyLoggedIn($row)) {
             return $row->Model_User;
         }
 
-        // Check expiration
-        if (time() > strtotime($row->token_expiration_date)) {
-            $this->_addError(__('passwordless token expired'));
-            return false;
-        }
-
-        // Check wether it was already used to log in
-        if ((int)$row->claimed === 1) {
-            $this->_addError(__('passwordless token claimed'));
+        if (!$this->_tokenIsValid($row)) {
             return false;
         }
 
         $authPwlessModel->getObserver('Authenticatable')->updateLoginStats(
             $row->Model_User->id, array(
-            'claimed' => 1
+                'claimed' => 1
             )
         );
 
         return $row->Model_User;
+    }
+
+    protected function _tokenIsValid(Garp_Db_Table_Row $row) {
+        // If token stays valid forever, the checks below are unnecessary
+        if ($this->_tokenNeverExpires()) {
+            return true;
+        }
+
+        // Check expiration
+        if ($this->_tokenIsExpired($row)) {
+            $this->_addError(__('passwordless token expired'));
+            return false;
+        }
+
+        // Check wether it was already used to log in
+        if ($this->_tokenIsClaimed($row)) {
+            $this->_addError(__('passwordless token claimed'));
+            return false;
+        }
+        return true;
     }
 
     protected function _createOrFetchUserRecord(array $userData) {
@@ -143,18 +147,18 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
         if ($authRecord = $authPwlessModel->fetchRow($select)) {
             $authPwlessModel->update(
                 array(
-                'token' => $token,
-                'token_expiration_date' => $this->_getExpirationDate(),
-                'claimed' => 0
+                    'token' => $token,
+                    'token_expiration_date' => $this->_getExpirationDate(),
+                    'claimed' => 0
                 ), 'id = ' . $authRecord->id
             );
             return $token;
         }
         $authPwlessModel->insert(
             array(
-            'user_id' => $userId,
-            'token' => $token,
-            'token_expiration_date' => $this->_getExpirationDate()
+                'user_id' => $userId,
+                'token' => $token,
+                'token_expiration_date' => $this->_getExpirationDate()
             )
         );
 
@@ -166,6 +170,19 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
             return bin2hex(openssl_random_pseudo_bytes(32));
         }
         return mt_rand();
+    }
+
+    protected function _tokenNeverExpires() {
+        return $this->_getAuthVars()
+            && array_get($this->_getAuthVars()->toArray(), 'token_never_expires');
+    }
+
+    protected function _tokenIsClaimed(Garp_Db_Table_Row $row) {
+        return intval($row->claimed) === 1;
+    }
+
+    protected function _tokenIsExpired(Garp_Db_Table_Row $row) {
+        return time() > strtotime($row->token_expiration_date);
     }
 
     protected function _getExpirationDate() {
@@ -180,9 +197,9 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
         $mailer = new Garp_Mailer();
         return $mailer->send(
             array(
-            'to' => $email,
-            'subject' => $this->_getEmailSubject(),
-            'message' => $this->_getEmailBody($userId, $token)
+                'to' => $email,
+                'subject' => $this->_getEmailSubject(),
+                'message' => $this->_getEmailBody($userId, $token)
             )
         );
     }
@@ -227,7 +244,7 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
     protected function _interpolateEmailBody($body, $userId, $token) {
         return Garp_Util_String::interpolate(
             $body, array(
-            'LOGIN_URL' => $this->_getLoginUrl($userId, $token)
+                'LOGIN_URL' => $this->_getLoginUrl($userId, $token)
             )
         );
     }
@@ -260,5 +277,27 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
             return $auth->getUserData();
         }
         return null;
+    }
+
+    protected function _userIsAlreadyLoggedIn(Garp_Db_Table_Row $row) {
+        $currentUserData = $this->_getCurrentUserData();
+        return isset($currentUserData['id'])
+            && intval($currentUserData['id']) === intval($row->Model_User->id);
+    }
+
+    protected function _getPasswordlessModel() {
+        $authPwlessModel = new Model_AuthPasswordless();
+        $userModel = new Model_User();
+        $userConditions = $userModel->select()->from(
+            $userModel->getName(),
+            Garp_Auth::getInstance()->getSessionColumns()
+        );
+        $authPwlessModel->bindModel(
+            'Model_User', array(
+                'conditions' => $userConditions,
+                'rule' => 'User'
+            )
+        );
+        return $authPwlessModel;
     }
 }
