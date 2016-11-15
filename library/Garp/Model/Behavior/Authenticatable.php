@@ -3,9 +3,8 @@
  * Garp_Model_Behavior_Authenticatable
  * Behavior for shared behavior between auth models
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
- * @package      Garp_Model_Behavior
+ * @package Garp_Model_Behavior
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Behavior_Authenticatable extends Garp_Model_Behavior_Abstract {
 
@@ -15,9 +14,10 @@ class Garp_Model_Behavior_Authenticatable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Update login statistics, like IP address and the current date
-     * @param Int $userId The user_id value
-     * @param Array $columns Extra columns, variable
-     * @return Int The number of rows updated.
+     *
+     * @param int $userId The user_id value
+     * @param array $columns Extra columns, variable
+     * @return int The number of rows updated.
      */
     public function updateLoginStats($userId, $columns = array()) {
         if (isset($_SERVER['REMOTE_ADDR'])) {
