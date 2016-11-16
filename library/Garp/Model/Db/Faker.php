@@ -53,7 +53,7 @@ class Garp_Model_Db_Faker {
             }
         }
 
-        if ($config['origin'] === 'relation') {
+        if (array_get($config, 'origin') === 'relation') {
             // TODO Do something intelligent here?
             // I don't want to tightly couple this class to a database or model, but a random
             // integer for a foreign key will most definitely result in an
