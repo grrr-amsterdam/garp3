@@ -9,7 +9,8 @@
         "ezyang/htmlpurifier": "^4.8",
         "sentry/sentry": "^1.1",
         "monolog/monolog": "^1.0",
-        "dompdf/dompdf": "^0.7.0"
+        "dompdf/dompdf": "^0.7.0",
+        "fzaninotto/faker": "^1.6"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.6",

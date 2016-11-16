@@ -1,0 +1,125 @@
+<?php
+/**
+ * Garp_Model_Db_Faker
+ * Faker implementation that interprets our Spawner specific field configuration and provides
+ * sensible default data
+ *
+ * @package Garp_Model_Db
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ */
+class Garp_Model_Db_Faker {
+
+    /**
+     * @var Faker\Generator
+     */
+    protected $_faker;
+
+    public function __construct() {
+        $this->_faker = Faker\Factory::create();
+    }
+
+    /**
+     * Create a row with fake values
+     *
+     * @param array $fieldConfiguration As taken from Garp_Model_Db::getConfiguration()
+     * @param array $defaultValues      Any values you want to provide yourself
+     * @return array
+     */
+    public function createFakeRow(array $fieldConfiguration, array $defaultValues = array()) {
+        $out = array();
+        foreach ($fieldConfiguration as $field) {
+            $fieldName = $field['name'];
+            if (array_key_exists($fieldName, $defaultValues)) {
+                $out[$fieldName] = $defaultValues[$fieldName];
+                continue;
+            }
+            $out[$fieldName] = $this->getFakeValueForField($field);
+        }
+        return $out;
+    }
+
+    /**
+     * Get single fake value for a field configuration.
+     *
+     * @param array $config Configuration as taken from Garp_Model_Db::getFieldConfiguration()
+     * @return mixed
+     */
+    public function getFakeValueForField(array $config) {
+        if (!array_get($config, 'required')) {
+            // Give optional fields a 10% chance (more or less) to be NULL
+            $diceRoll = $this->_faker->numberBetween(1, 100);
+            if ($diceRoll < 10) {
+                return null;
+            }
+        }
+
+        if ($config['type'] === 'text') {
+            return $this->_getFakeText($config);
+        }
+
+        if ($config['type'] === 'html') {
+            $value = $this->_faker->randomHtml(2, 3);
+            $htmlFilterable = new Garp_Model_Behavior_HtmlFilterable();
+            return $htmlFilterable->filter($value);
+        }
+
+        if ($config['type'] === 'enum') {
+            return $this->_faker->randomElement($config['options']);
+        }
+
+        if ($config['type'] === 'email') {
+            return $this->_faker->email;
+        }
+
+        if ($config['type'] === 'url') {
+            return $this->_faker->url;
+        }
+
+        if ($config['type'] === 'checkbox') {
+            return $this->_faker->randomElement(array(0, 1));
+        }
+
+        if ($config['type'] === 'date' || $config['type'] === 'datetime') {
+            $value = $this->_faker->dateTimeBetween('-1 year', '+1 year');
+            $format = $config['type'] === 'date' ? 'Y-m-d' : 'Y-m-d H:i:s';
+            return $value->format($format);
+        }
+
+        if ($config['type'] === 'time') {
+            return $this->_faker->time;
+        }
+
+        if ($config['type'] === 'imagefile') {
+            return 'image.jpg';
+        }
+
+        if ($config['type'] === 'document') {
+            return 'document.txt';
+        }
+
+        if ($config['type'] === 'numeric') {
+            return $this->_faker->randomDigit;
+        }
+
+        throw new InvalidArgumentException("Unknown type encountered: {$field['type']}");
+    }
+
+    protected function _getFakeText(array $config) {
+        $name = $config['name'];
+        if ($name === 'name') {
+            return $this->_faker->sentence;
+        }
+        if ($name === 'first_name') {
+            return $this->_faker->firstName;
+        }
+        if ($name === 'last_name') {
+            return $this->_faker->lastName;
+        }
+        return $this->_faker->realText(
+            $this->_faker->numberBetween(
+                array_get($config, 'minLength', 5),
+                array_get($config, 'maxLength', 255)
+            )
+        );
+    }
+}

@@ -19,18 +19,25 @@ class Garp_Cli_Command_Models extends Garp_Cli_Command {
             Garp_Cli::errorOut('Please provide a model');
             return false;
         }
+
         $className = "Model_{$args[0]}";
         $model = new $className();
         $fields = $model->getConfiguration('fields');
         $fields = array_filter($fields, not(propertyEquals('name', 'id')));
-        $newData = array_reduce(
-            $fields,
-            function ($acc, $cur) {
-                $acc[$cur['name']] = Garp_Cli::prompt($cur['name']) ?: null;
-                return $acc;
-            },
-            array()
-        );
+
+        $mode = $this->_getInsertionMode();
+        if ($mode === 'g') {
+            $newData = $this->_createGibberish($fields);
+        } else {
+            $newData = array_reduce(
+                $fields,
+                function ($acc, $cur) {
+                    $acc[$cur['name']] = Garp_Cli::prompt($cur['name']) ?: null;
+                    return $acc;
+                },
+                array()
+            );
+        }
 
         $id = $model->insert($newData);
         Garp_Cli::lineOut("Record created: #{$id}");
@@ -79,5 +86,21 @@ class Garp_Cli_Command_Models extends Garp_Cli_Command {
         }
         $contents = str_replace('extends G_Model_', 'extends Garp_Model_Db_', $contents);
         return file_put_contents($path, $contents);
+    }
+
+    protected function _createGibberish($fields) {
+        $faker = new Garp_Model_Db_Faker();
+        return $faker->createFakeRow($fields);
+    }
+
+    protected function _getInsertionMode() {
+        $query = 'Want to create a record (i)nteractively or shall I just ' .
+            'insert a bunch of (g)ibberish?';
+        $response = Garp_Cli::prompt($query);
+        if (in_array($response, array('i', 'g'))) {
+            return $response;
+        }
+        Garp_Cli::lineOut('Please answer "i" or "g"');
+        return _getInsertionMode();
     }
 }
