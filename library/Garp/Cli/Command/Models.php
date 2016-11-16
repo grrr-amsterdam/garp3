@@ -101,6 +101,6 @@ class Garp_Cli_Command_Models extends Garp_Cli_Command {
             return $response;
         }
         Garp_Cli::lineOut('Please answer "i" or "g"');
-        return _getInsertionMode();
+        return $this->_getInsertionMode();
     }
 }
