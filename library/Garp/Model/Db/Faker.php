@@ -53,6 +53,14 @@ class Garp_Model_Db_Faker {
             }
         }
 
+        if ($config['origin'] === 'relation') {
+            // TODO Do something intelligent here?
+            // I don't want to tightly couple this class to a database or model, but a random
+            // integer for a foreign key will most definitely result in an
+            // Integrity constraint violation when there's no seed data.
+            return null;
+        }
+
         if ($config['type'] === 'text') {
             return $this->_getFakeText($config);
         }
@@ -117,9 +125,10 @@ class Garp_Model_Db_Faker {
         }
         return $this->_faker->realText(
             $this->_faker->numberBetween(
-                array_get($config, 'minLength', 5),
+                array_get($config, 'minLength', 10),
                 array_get($config, 'maxLength', 255)
             )
         );
     }
 }
+
