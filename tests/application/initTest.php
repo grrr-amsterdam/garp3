@@ -41,6 +41,56 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 
+    public function testId() {
+        $this->assertTrue(is_callable(id()));
+        $obj = new stdClass();
+        $obj->hello = 'world';
+        $this->assertEquals(
+            $obj,
+            id($obj)
+        );
+        $this->assertEquals(
+            'banaan',
+            id('banaan')
+        );
+        $this->assertEquals(
+            $this,
+            id($this)
+        );
+    }
+
+    public function testWhen() {
+        $this->assertEquals(
+            'banana',
+            when(true, 'banana', 'pineapple')
+        );
+        $this->assertEquals(
+            'BANANA',
+            when('is_string', 'strtoupper', 'id', 'baNaNa')
+        );
+
+        // Test with array_map
+        $a = array(
+            array('id' => 1, 'name' => 'Joe', 'type' => 'user'),
+            array('id' => 2, 'name' => 'Hank', 'type' => 'admin'),
+            array('id' => 3, 'name' => 'Alice', 'type' => 'user')
+        );
+        $mapped = array_map(
+            when(
+                propertyEquals('type', 'admin'),
+                array_set('name', 'Superadmin'),
+                array_set('name', 'Regular Joe')
+            ),
+            $a
+        );
+        $expected = array(
+            array('id' => 1, 'name' => 'Regular Joe', 'type' => 'user'),
+            array('id' => 2, 'name' => 'Superadmin', 'type' => 'admin'),
+            array('id' => 3, 'name' => 'Regular Joe', 'type' => 'user')
+        );
+        $this->assertEquals($expected, $mapped);
+    }
+
     public function testCallRight() {
         $sayHello = function ($to, $from, $message) {
             return "Hello {$to}, {$from} says '{$message}'";
