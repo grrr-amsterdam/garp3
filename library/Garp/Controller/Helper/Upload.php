@@ -2,48 +2,54 @@
 /**
  * Garp_Controller_Helper_Upload
  * Bundles file upload functionality
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Db
- * @lastmodified $Date: $
+ *
+ * @package Garp_Controller_Helper
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Controller_Helper_Upload extends Zend_Controller_Action_Helper_Abstract {
     /**
      * For optimalization purposes, we store file handlers, using
      * the uploadType (f.i. Garp_File::TYPE_IMAGES) as array key.
+     *
+     * @var array
      */
     protected $_fileHandlers = array();
-
 
     /**
      * Shortcut to self::uploadFromFiles().
      * Call from controller $this->_helper->upload()
-     * @param String $uploadType The type of file being uploaded, either
-     * 'images' or 'documents'
-     * @param String $singleFormKey Upload one specific file, or all available
-     * in $_FILES
-     * @param Boolean $allowBlank Wether blank filenames are supported
-     * @param Boolean $overwrite Wether to overwrite existing files
+     *
+     * @param string $uploadType    The type of file being uploaded, either
+     *                              'images' or 'documents'
+     * @param string $singleFormKey Upload one specific file, or all available in $_FILES
+     * @param bool   $allowBlank    Wether blank filenames are supported
+     * @param bool   $overwrite     Wether to overwrite existing files
+     * @return array
      */
-    public function direct($uploadType = Garp_File::TYPE_IMAGES, $singleFormKey = null, $allowBlank = false, $overwrite = false) {
+    public function direct(
+        $uploadType = Garp_File::TYPE_IMAGES, $singleFormKey = null,
+        $allowBlank = false, $overwrite = false
+    ) {
         return $this->uploadFromFiles($uploadType, $singleFormKey, $allowBlank, $overwrite);
     }
 
-
     /**
      * Upload a file. Uses the $_FILES array.
-     * @param String $uploadType The type of file being uploaded, either
-     * 'images' or 'documents'
-     * @param String $singleFormKey Upload one specific file, or all available
-     * in $_FILES
-     * @param Boolean $allowBlank Wether blank filenames are supported
-     * @return Array Collection of new filenames
+     *
+     * @param string $uploadType    The type of file being uploaded, either
+     *                              'images' or 'documents'
+     * @param string $singleFormKey Upload one specific file, or all available in $_FILES
+     * @param bool   $allowBlank    Wether blank filenames are supported
+     * @param bool   $overwrite     Wether to overwrite existing files
+     * @return array Collection of new filenames
      */
-    public function uploadFromFiles($uploadType = Garp_File::TYPE_IMAGES,
-        $singleFormKey = null, $allowBlank = false, $overwrite = false) {
-        $filesToUpload = $singleFormKey ? array($singleFormKey => $_FILES[$singleFormKey]) : $_FILES;
+    public function uploadFromFiles(
+        $uploadType = Garp_File::TYPE_IMAGES, $singleFormKey = null,
+        $allowBlank = false, $overwrite = false
+    ) {
+        $filesToUpload = $singleFormKey ?
+            array($singleFormKey => $_FILES[$singleFormKey]) :
+            $_FILES;
         $newFilenames = array();
         foreach ($filesToUpload as $formKey => $fileParams) {
             $isArray = is_array($fileParams['tmp_name']);
@@ -58,25 +64,31 @@ class Garp_Controller_Helper_Upload extends Zend_Controller_Action_Helper_Abstra
             foreach ($keys as $i) {
                 $name    = !empty($fileParams['name'][$i])     ? $fileParams['name'][$i]     : null;
                 $tmpName = !empty($fileParams['tmp_name'][$i]) ? $fileParams['tmp_name'][$i] : null;
-                if (!empty($tmpName) || $allowBlank) {
-                    if (is_uploaded_file($tmpName)) {
-                        $newFilename = $this->_store($uploadType, $name, file_get_contents($tmpName), $overwrite);
-                        if ($newFilename) {
-                            if ($isArray) {
-                                $newFilenames[$formKey][$i] = $newFilename;
-                            } else {
-                                $newFilenames[$formKey] = $newFilename;
-                            }
-                        }
+                if (empty($tmpName) && !$allowBlank) {
+                    continue;
+                }
+                $tmpName = is_array($tmpName) ? current($tmpName) : $tmpName;
+                $name    = is_array($name) ? current($name) : $name;
+                if (!is_uploaded_file($tmpName)) {
+                    throw new Exception($formKey . '[' . $i . '] is not an uploaded file.');
+                }
+                $newFilename = $this->_store(
+                    $uploadType,
+                    $name,
+                    file_get_contents($tmpName),
+                    $overwrite
+                );
+                if ($newFilename) {
+                    if ($isArray) {
+                        $newFilenames[$formKey][$i] = $newFilename;
                     } else {
-                        throw new Exception($formKey.'['.$i.'] is not an uploaded file.');
+                        $newFilenames[$formKey] = $newFilename;
                     }
                 }
             }
         }
         return $newFilenames;
     }
-
 
     /**
      * Cast uploaded data to Array.
@@ -87,8 +99,9 @@ class Garp_Controller_Helper_Upload extends Zend_Controller_Action_Helper_Abstra
      * $_FILES['tmp_name'][1] = 'bar.jpg'
      * This method provides a generic interface to the $_FILES array by ensuring
      * the above structure even for single uploads.
-     * @param Array $fileParams The result of $_FILES['something']
-     * @return Void
+     *
+     * @param array $fileParams The result of $_FILES['something']
+     * @return void
      */
     protected function _castToArray(&$fileParams) {
         $fileParams['name']     = (array)$fileParams['name'];
@@ -98,38 +111,37 @@ class Garp_Controller_Helper_Upload extends Zend_Controller_Action_Helper_Abstra
         $fileParams['size']     = (array)$fileParams['size'];
     }
 
-
     /**
      * Upload raw POST data.
-     * @param String $uploadType The type of file being uploaded, either
-     * 'images' or 'documents'
-     * @param String $name The filename
-     * @param String $bytes
-     * @return Array Response is consistent with self::uploadFromFiles.
+     *
+     * @param string $uploadType The type of file being uploaded, either 'images' or 'documents'
+     * @param string $filename The filename
+     * @param string $bytes
+     * @return array Response is consistent with self::uploadFromFiles.
      */
-    public function uploadRaw($uploadType = Garp_File::TYPE_IMAGES, $filename, $bytes) {
+    public function uploadRaw($uploadType, $filename, $bytes) {
+        $uploadType = $uploadType ?: Garp_File::TYPE_IMAGES;
         return array(
             $filename => $this->_store($uploadType, $filename, $bytes)
         );
     }
 
-
     /**
      * Store the uploaded bytes in a file.
-     * @param String $uploadType The type of file being uploaded, either
-     * 'images' or 'documents'
-     * @param String $name The filename
-     * @param String $bytes
-     * @return String The new filename
+     *
+     * @param string $uploadType The type of file being uploaded, either 'images' or 'documents'
+     * @param string $name The filename
+     * @param string $bytes
+     * @param bool   $overwrite
+     * @return string The new filename
      */
     protected function _store($uploadType, $name, $bytes, $overwrite = false) {
         if (!array_key_exists($uploadType, $this->_fileHandlers)) {
             $this->_fileHandlers[$uploadType] = $uploadType === Garp_File::TYPE_IMAGES ?
                 new Garp_Image_File() :
-                new Garp_File($uploadType)
-            ;
+                new Garp_File($uploadType);
         }
-
         return $this->_fileHandlers[$uploadType]->store($name, $bytes, $overwrite);
     }
+
 }
