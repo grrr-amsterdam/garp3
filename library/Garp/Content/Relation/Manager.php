@@ -2,26 +2,28 @@
 /**
  * Garp_Content_Relation_Manager
  * Manages relationships between records.
- * @author Harmen Janssen | grrr.nl
- * @version 2.0.0
+ *
  * @package Garp_Content_Relation
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Content_Relation_Manager {
     const EXCEPTION_MISSING_VALUE = "Unable to fill %s because there is no value provided for it.";
     const EXCEPTION_MISSING_KEYS = 'Either keyA or keyB must be provided when unrelating.';
-    const EXCEPTION_ROW_NOT_FOUND_BY_PRIMARY_KEY = 'Row of type %s with primary key (%s) not found.';
+    const EXCEPTION_ROW_NOT_FOUND_BY_PRIMARY_KEY
+        = 'Row of type %s with primary key (%s) not found.';
 
     /**
      * Relate records.
-     * @param Array|Garp_Util_Configuration $options Lots o' options:
-     * 'modelA'    String|Garp_Model_Db    The first model or classname thereof
-     * 'modelB'    String|Garp_Model_Db    The second model or classname thereof
-     * 'keyA'      Mixed                   Primary key(s) of the first model
-     * 'keyB'      Mixed                   Primary key(s) of the second model
-     * 'rule'      String                  The rule that stores this relationship in one
+     *
+     * @param array|Garp_Util_Configuration $options Lots o' options:
+     * 'modelA'    string|Garp_Model_Db    The first model or classname thereof
+     * 'modelB'    string|Garp_Model_Db    The second model or classname thereof
+     * 'keyA'      mixed                   Primary key(s) of the first model
+     * 'keyB'      mixed                   Primary key(s) of the second model
+     * 'rule'      string                  The rule that stores this relationship in one
      *                                     of the reference maps
      * 'extraFields' Array                 Extra fields that can be saved with a HABTM record
-     * @return Boolean Success
+     * @return bool Success
      */
     public static function relate($options) {
         self::_normalizeOptionsForRelate($options);
@@ -75,8 +77,10 @@ class Garp_Content_Relation_Manager {
 
         $rowA = call_user_func_array(array($options['modelA'], 'find'), (array)$options['keyA']);
         if (!count($rowA)) {
-            $errorMsg = sprintf(self::EXCEPTION_ROW_NOT_FOUND_BY_PRIMARY_KEY,
-                $modelA->getName(), implode(',', (array)$options['keyA']));
+            $errorMsg = sprintf(
+                self::EXCEPTION_ROW_NOT_FOUND_BY_PRIMARY_KEY,
+                $modelA->getName(), implode(',', (array)$options['keyA'])
+            );
             throw new Garp_Content_Relation_Exception($errorMsg);
         }
         $rowA = $rowA->current();
@@ -87,8 +91,9 @@ class Garp_Content_Relation_Manager {
     /**
      * Since it's such a different case than the other two types,
      * hasAndBelongsToMany gets its own method.
+     *
      * @param Garp_Util_Configuration $options
-     * @return Boolean Success
+     * @return bool Success
      */
     protected static function _relateHasAndBelongsToMany($options) {
         $modelA = $options['modelA'];
@@ -131,8 +136,9 @@ class Garp_Content_Relation_Manager {
 
     /**
      * Provide a set of options with keys you can rely on.
-     * @param Array|Garp_Util_Configuration $options
-     * @return Void
+     *
+     * @param array|Garp_Util_Configuration $options
+     * @return void
      */
     protected static function _normalizeOptionsForRelate(&$options) {
         $options = ($options instanceof Garp_Util_Configuration) ? $options :
@@ -146,8 +152,7 @@ class Garp_Content_Relation_Manager {
             ->setDefault('ruleB', null)
             ->setDefault('extraFields', array())
             ->setDefault('bindingModel', null)
-            ->setDefault('bidirectional', true)
-            ;
+            ->setDefault('bidirectional', true);
         // use models, not class names
         if (is_string($options['modelA'])) {
             $options['modelA'] = new $options['modelA']();
@@ -168,7 +173,7 @@ class Garp_Content_Relation_Manager {
         // allow 'rule' key to be set when 'ruleA' is meant
         if ($options['rule'] && !$options['ruleA']) {
             $options['ruleA'] = $options['rule'];
-        // also allow it the other way around
+            // also allow it the other way around
         } else if ($options['ruleA'] && !$options['rule']) {
             $options['rule'] = $options['ruleA'];
         }
@@ -176,14 +181,15 @@ class Garp_Content_Relation_Manager {
 
     /**
      * Unrelate records.
-     * @param Array|Garp_Util_Configuration $options Lots o' options:
-     * 'modelA'    String|Garp_Model_Db  The first model or classname thereof
-     * 'modelB'    String|Garp_Model_Db  The second model or classname thereof
-     * 'keyA'      Mixed                 Primary key(s) of the first model
-     * 'keyB'      Mixed                 Primary key(s) of the second model
-     * 'rule'      String                The rule that stores this relationship in one of the
+     *
+     * @param array|Garp_Util_Configuration $options Lots o' options:
+     * 'modelA'    string|Garp_Model_Db  The first model or classname thereof
+     * 'modelB'    string|Garp_Model_Db  The second model or classname thereof
+     * 'keyA'      mixed                 Primary key(s) of the first model
+     * 'keyB'      mixed                 Primary key(s) of the second model
+     * 'rule'      string                The rule that stores this relationship in one of the
      *                                   reference maps
-     * @return Boolean Success
+     * @return bool Success
      */
     public static function unrelate($options) {
         self::_normalizeOptionsForUnrelate($options);
@@ -243,10 +249,10 @@ class Garp_Content_Relation_Manager {
          * When keyB is given however, the query goes something like this:
          * UPDATE modelA SET foreignkey = NULL WHERE foreignkey = keyB
          */
-        $query = 'UPDATE `'.$modelA->getName().'` SET ';
+        $query = 'UPDATE `' . $modelA->getName() . '` SET ';
         $columnsToValues = array();
         foreach ($reference['columns'] as $column) {
-            $columnsToValues[] = '`'.$column.'` = NULL';
+            $columnsToValues[] = '`' . $column . '` = NULL';
         }
         $columnsToValues = implode(' AND ', $columnsToValues);
         $query .= $columnsToValues;
@@ -259,7 +265,7 @@ class Garp_Content_Relation_Manager {
             $useKeys = 'keyB';
         }
         foreach ($reference[$useColumns] as $i => $column) {
-            $whereColumnsToValues[] = '`'.$column.'` = '.$options[$useKeys][$i];
+            $whereColumnsToValues[] = '`' . $column . '` = ' . $options[$useKeys][$i];
         }
         $whereColumnsToValues = implode(' AND ', $whereColumnsToValues);
         $query .= ' WHERE ';
@@ -271,8 +277,9 @@ class Garp_Content_Relation_Manager {
     /**
      * Since it's such a different case than the other two types,
      * hasAndBelongsToMany gets its own method.
+     *
      * @param Garp_Util_Configuration $options
-     * @return Boolean Success
+     * @return bool Success
      */
     protected static function _unrelateHasAndBelongsToMany($options) {
         $modelA = $options['modelA'];
@@ -297,13 +304,13 @@ class Garp_Content_Relation_Manager {
 
         // Construct WHERE clause
         $where = array();
-        $createWhereBit = function($reference, $values) {
+        $createWhereBit = function ($reference, $values) {
             $w = array();
             foreach ($reference['columns'] as $i => $column) {
-                $w[] = '`'.$column.'` = '.$values[$i];
+                $w[] = '`' . $column . '` = ' . $values[$i];
             }
             $w = implode(' AND ', $w);
-            return '('.$w.')';
+            return '(' . $w . ')';
         };
 
         if ($keyA) {
@@ -313,7 +320,7 @@ class Garp_Content_Relation_Manager {
             $where[] = $createWhereBit($referenceB, $keyB);
         }
 
-        $where = '('.implode(' AND ', $where).')';
+        $where = '(' . implode(' AND ', $where) . ')';
 
         // Homophyllic relations can be deleted bidirectionally
         if ($options['bidirectional'] && $modelA->getName() == $modelB->getName()) {
@@ -325,7 +332,7 @@ class Garp_Content_Relation_Manager {
                 $homoWhere[] = $createWhereBit($referenceA, $keyB);
             }
 
-            $where .= ' OR ('.implode(' AND ', $homoWhere).')';
+            $where .= ' OR (' . implode(' AND ', $homoWhere) . ')';
         }
 
         return $bindingModel->delete($where);
@@ -333,8 +340,9 @@ class Garp_Content_Relation_Manager {
 
     /**
      * Provide a set of options with keys you can rely on.
-     * @param Array|Garp_Util_Configuration $options
-     * @return Void
+     *
+     * @param array|Garp_Util_Configuration $options
+     * @return void
      */
     public static function _normalizeOptionsForUnrelate(&$options) {
         $options = ($options instanceof Garp_Util_Configuration) ? $options :
@@ -347,8 +355,7 @@ class Garp_Content_Relation_Manager {
             ->setDefault('ruleA', null)
             ->setDefault('ruleB', null)
             ->setDefault('bindingModel', null)
-            ->setDefault('bidirectional', true)
-            ;
+            ->setDefault('bidirectional', true);
         if (!$options['keyA'] && !$options['keyB']) {
             throw new Garp_Content_Relation_Exception(static::EXCEPTION_MISSING_KEYS);
         }
@@ -373,7 +380,7 @@ class Garp_Content_Relation_Manager {
         // allow 'rule' key to be set when 'ruleA' is meant
         if ($options['rule'] && !$options['ruleA']) {
             $options['ruleA'] = $options['rule'];
-        // also allow it the other way around
+            // also allow it the other way around
         } else if ($options['ruleA'] && !$options['rule']) {
             $options['rule'] = $options['ruleA'];
         }
@@ -381,19 +388,22 @@ class Garp_Content_Relation_Manager {
 
     /**
      * Fill foreign key columns in a row.
+     *
      * @param Zend_Db_Table_Row_Abstract $row The row object
-     * @param Array $reference The reference from the referencemap
-     * @param Array $values The foreign key values
-     * @return Void Edits the row by reference
+     * @param array $reference The reference from the referencemap
+     * @param array $values The foreign key values
+     * @return void Edits the row by reference
      */
     protected static function _addForeignKeysToRow(Zend_Db_Table_Row_Abstract &$row,
-        array $reference, array $values) {
+        array $reference, array $values
+    ) {
         // Normalize array keys
         $values = array_values($values);
         foreach ($reference['columns'] as $i => $column) {
             if (!isset($values[$i])) {
                 throw new Garp_Content_Relation_Exception(
-                    sprintf(static::EXCEPTION_MISSING_VALUE, $column));
+                    sprintf(static::EXCEPTION_MISSING_VALUE, $column)
+                );
             }
             $row->{$column} = $values[$i];
         }
@@ -404,12 +414,14 @@ class Garp_Content_Relation_Manager {
      * Zend_Db_Table_Exception, so we cannot check wether a query fails or wether there is no
      * binding possible.
      * This method checks wether the exception describes an invalid reference.
+     *
      * @param Exception $e
-     * @return Boolean
+     * @return bool
      */
     static public function isInvalidReferenceException(Exception $e) {
         return stripos($e->getMessage(), 'No reference') !== false ||
-            count(sscanf($e->getMessage(), 'Reference rule "%s" does not reference table %s')) == 2;
+            preg_match('/Reference rule "(.+)" does not reference table (.+)/', $e->getMessage());
     }
 }
+
 
