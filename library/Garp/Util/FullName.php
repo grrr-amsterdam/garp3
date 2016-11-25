@@ -29,7 +29,7 @@ class Garp_Util_FullName {
      * @return string
      */
     public function __toString() {
-        return $this->_fullName;
+        return (string)$this->_fullName;
     }
 
     /**
