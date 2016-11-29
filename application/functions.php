@@ -73,7 +73,7 @@ function array_pluck($array, $column) {
  * @param callable $callback
  * @return bool
  */
-function some($collection, callable $callback) {
+function some($collection, $callback) {
     foreach ($collection as $index => $item) {
         if (call_user_func($callback, $item, $index)) {
             return true;
