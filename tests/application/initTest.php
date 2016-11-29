@@ -133,6 +133,17 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertEquals($expected, $helloCopy('John', 'Hank', 'Hi there!'));
     }
 
+    public function testArraySome() {
+        $fn = function ($s) {
+            return strlen($s) > 5;
+        };
+        $a = array('foo', 'bar', 'baz');
+        $this->assertFalse(some($a, $fn));
+
+        $b = array('foo', 'bar', 'baaaaaz');
+        $this->assertTrue(some($b, $fn));
+    }
+
     public function testShouldHaveSuccessfullyClonedGzdecode() {
         if (version_compare(PHP_VERSION, '5.4.0') === -1) {
             // gzdecode() is not available, so we can't compare the clone to the native function.
