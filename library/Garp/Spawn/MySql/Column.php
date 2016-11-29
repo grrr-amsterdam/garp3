@@ -1,8 +1,7 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
- * @package Garp
- * @subpackage Model
+ * @package Garp_Spawn_MySql
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_MySql_Column {
     public $position;
@@ -15,7 +14,9 @@ class Garp_Spawn_MySql_Column {
     public $unsigned        = true;
     public $auto_increment  = false;
 
-    /** @var String $options Enum options */
+    /**
+     * @var string $options Enum
+     */
     public $options = null;
 
     protected $_statement;
@@ -23,15 +24,16 @@ class Garp_Spawn_MySql_Column {
     protected $_ignorableDiffProperties = array('position');
 
     protected $_columnOptions = array(
-        'not_nullable'      => 'NOT NULL',
-        'unsigned'          => 'UNSIGNED',
-        'auto_increment'    => 'AUTO_INCREMENT'
+        'not_nullable'   => 'NOT NULL',
+        'unsigned'       => 'UNSIGNED',
+        'auto_increment' => 'AUTO_INCREMENT'
     );
 
 
     /**
-    *
-     * @param String $line Line with a column definition statement in SQL
+     * @param int $position
+     * @param string $line Line with a column definition statement in SQL
+     * @return void
      */
     public function __construct($position, $line) {
         $this->position = $position;
@@ -45,17 +47,22 @@ class Garp_Spawn_MySql_Column {
                 $reflProps = $refl->getProperties(ReflectionProperty::IS_PUBLIC);
                 $publicProps = array();
                 foreach ($reflProps as $reflProp) {
-                    if ($reflProp->name !== 'position')
-                            $publicProps[] = $reflProp->name;
+                    if ($reflProp->name !== 'position') {
+                        $publicProps[] = $reflProp->name;
+                    }
                 }
-                throw new Exception("'{$pName}' is not a valid column property. Try: ".implode($publicProps, ", "));
+                throw new Exception(
+                    "'{$pName}' is not a valid column property. Try: " . implode($publicProps, ", ")
+                );
             }
         }
     }
 
 
     /**
-     * @return Array Numeric array containing the names of the properties that are different, compared to the provided column
+     * @param Garp_Spawn_MySql_Column $columnToCompareWith
+     * @return array Numeric array containing the names of the properties that are different,
+     *               compared to the provided column
      */
     public function getDiffProperties(Garp_Spawn_MySql_Column $columnToCompareWith) {
         $diffPropertyNames = array();
@@ -66,17 +73,10 @@ class Garp_Spawn_MySql_Column {
         foreach ($reflProps as $reflProp) {
             $thisProp = $this->{$reflProp->name};
             $thatProp = $columnToCompareWith->{$reflProp->name};
+            $isDifferent = ($reflProp->name === 'default' && $thisProp !== $thatProp)
+                || $thisProp != $thatProp;
 
-            if (
-                !$this->_isIgnorableDiffProperty($reflProp->name) &&
-                (
-                    (
-                        $reflProp->name === 'default' &&
-                        $thisProp !== $thatProp
-                    ) ||
-                    $thisProp != $thatProp
-                )
-            ) {
+            if (!$this->_isIgnorableDiffProperty($reflProp->name) && $isDifferent) {
                 $diffPropertyNames[] = $reflProp->name;
             }
         }
@@ -89,21 +89,21 @@ class Garp_Spawn_MySql_Column {
     }
 
     /**
-     * @return String   Renders a MySQL definition to use in a CREATE or ALTER statement,
-     *                  f.i.: col1 BIGINT UNSIGNED DEFAULT 1
+     * @return string Renders a MySQL definition to use in a CREATE or ALTER statement,
+     *                f.i.: col1 BIGINT UNSIGNED DEFAULT 1
      */
     public function renderSqlDefinition() {
         $nodes = array();
-        $nodes[] = '`'.$this->name.'`';
+        $nodes[] = '`' . $this->name . '`';
 
         $typeStatement = $this->type;
         if ($this->length || $this->decimals) {
             $typeStatement.= '('
-                .($this->length ?: $this->decimals)
-                .($this->decimals ? (','.$this->decimals) : '')
-            .')';
+                . ($this->length ?: $this->decimals)
+                . ($this->decimals ? (',' . $this->decimals) : '')
+                . ')';
         } elseif ($this->type === 'enum') {
-            $typeStatement.= '('.$this->options.')';
+            $typeStatement.= '(' . $this->options . ')';
         }
         $nodes[] = $typeStatement;
 
@@ -136,8 +136,9 @@ class Garp_Spawn_MySql_Column {
     static public function renderFieldSql(Garp_Spawn_Field $field) {
         $type = Garp_Spawn_MySql_Column::getFieldType($field);
         $reqAndDef = Garp_Spawn_MySql_Column::getRequiredAndDefault($field);
-        if ($reqAndDef)
-            $reqAndDef = ' '.$reqAndDef;
+        if ($reqAndDef) {
+            $reqAndDef = ' ' . $reqAndDef;
+        }
         $autoIncr = $field->name === 'id' ? ' AUTO_INCREMENT' : '';
         return "  `{$field->name}` {$type}{$reqAndDef}{$autoIncr}";
     }
@@ -145,58 +146,64 @@ class Garp_Spawn_MySql_Column {
 
     static public function getFieldType(Garp_Spawn_Field $field) {
         switch ($field->type) {
-            case 'numeric':
-                if ($field->float) {
-                    $type = 'double(19,16)';
-                } else {
-                    $type = 'int(11)';
-                }
+        case 'numeric':
+            if ($field->float) {
+                $type = 'double';
+            } else {
+                $type = 'int(11)';
+            }
 
-                if ($field->unsigned) {
-                    $type .= ' UNSIGNED';
-                }
-                return $type;
+            if ($field->unsigned) {
+                $type .= ' UNSIGNED';
+            }
+            return $type;
 
-            case 'text':
-            case 'html':
-                if (empty($field->maxLength) || $field->maxLength > 255) {
-                    return 'text';
-                }
-                if ($field->maxLength <= 10) {
-                    return "char({$field->maxLength})";
-                }
-                return "varchar({$field->maxLength})";
+        case 'text':
+        case 'html':
+            if (empty($field->maxLength) || $field->maxLength > 255) {
+                return 'text';
+            }
+            if ($field->maxLength <= 10) {
+                return "char({$field->maxLength})";
+            }
+            return "varchar({$field->maxLength})";
 
-            case 'email':
-            case 'url':
-            case 'document':
-            case 'imagefile':
-                return 'varchar(255)';
+        case 'email':
+        case 'url':
+        case 'document':
+        case 'imagefile':
+            return 'varchar(255)';
 
-            case 'checkbox':
-                return 'tinyint(1)';
+        case 'checkbox':
+            return 'tinyint(1)';
 
-            case 'datetime':
-            case 'date':
-            case 'time':
-                return $field->type;
+        case 'datetime':
+        case 'date':
+        case 'time':
+            return $field->type;
 
-            case 'enum':
-                $options = $field->options;
-                if (is_object($options) || (is_array($options) && key($options) !== 0)) {
-                    //  this enum field has labels attached to it, but only the values are stored in the database.
-                    $options = array_keys((array)$options);
-                }
-                return "enum('".implode($options, "','")."')";
+        case 'enum':
+            $options = $field->options;
+            if (is_object($options) || (is_array($options) && key($options) !== 0)) {
+                //  this enum field has labels attached to it,
+                //  but only the values are stored in the database.
+                $options = array_keys((array)$options);
+            }
+            return "enum('" . implode($options, "','") . "')";
 
-            default:
-                throw new Exception("The '{$field->type}' field type can't be translated to a MySQL field type as of yet.");
+        default:
+            throw new Exception(
+                "The '{$field->type}' field type can't be translated to " .
+                "a MySQL field type as of yet."
+            );
         }
     }
 
     static public function getRequiredAndDefault(Garp_Spawn_Field $field) {
         $out = array();
-        if ($field->type === 'checkbox' || ($field->required && $field->relationType !== 'hasOne')) {
+        if ($field->type === 'checkbox'
+            || ($field->required && $field->relationType !== 'hasOne')
+        ) {
             $out[] = 'NOT NULL';
         }
 
@@ -213,35 +220,41 @@ class Garp_Spawn_MySql_Column {
 
     static public function quoteIfNecessary($fieldType, $value) {
         $decorator = null;
+        $isStringLike = !is_numeric($value) && !is_bool($value) && !is_null($value);
 
-        if (
-            $fieldType === 'enum' ||
-            (
-                !is_numeric($value) &&
-                !is_bool($value) &&
-                !is_null($value)
-            )
-        ) $decorator = "'";
-        return $decorator.$value.$decorator;
+        if ($fieldType === 'enum' || $isStringLike) {
+            $decorator = "'";
+        }
+        return $decorator . $value . $decorator;
     }
 
     /**
-     * @todo: Deze onderstaande functies samenvoegen, en sowieso alle statische functies eruit schrijven.
+     * @todo: Deze onderstaande functies samenvoegen,
+     *        en sowieso alle statische functies eruit schrijven.
+     */
+
+    /**
+     * @param string $default
+     * @param Garp_Spawn_Field $field
+     * @return mixed
      */
     static public function convertDefaultIfNecessary($default, Garp_Spawn_Field $field) {
-        if (! (is_bool($default) && !$default)) {
+        if (!(is_bool($default) && !$default)) {
             return $default;
         }
 
         if ($field->type !== 'checkbox') {
-            throw new Exception("Field {$field->name} (type: {$field->type}) cannot have false (boolean) as default.");
+            throw new Exception(
+                "Field {$field->name} (type: {$field->type}) cannot have " .
+                "false (boolean) as default."
+            );
         }
 
         return 0;
     }
 
     protected function _convertDefaultIfNecessary($default) {
-        if (! (is_bool($default) && !$default)) {
+        if (!(is_bool($default) && !$default)) {
             return $default;
         }
 
@@ -255,13 +268,13 @@ class Garp_Spawn_MySql_Column {
 
     static public function isNumeric($sqlType) {
         switch ($sqlType) {
-            case 'numeric':
-            case 'timestamp':
-            case 'bigint':
-            case 'tinyint':
-            case 'int':
-            case 'float':
-                return true;
+        case 'numeric':
+        case 'timestamp':
+        case 'bigint':
+        case 'tinyint':
+        case 'int':
+        case 'float':
+            return true;
         }
         return false;
     }
@@ -269,22 +282,27 @@ class Garp_Spawn_MySql_Column {
 
     protected function _parseColumnStatement($line) {
         $matches = array();
+        // @codingStandardsIgnoreStart
         $pattern = '/`(?P<name>\w+)` (?P<type>[\w]*)(\(((?P<length>\d*),?\s*(?P<decimals>\d*))(?P<options>[^\)]*)\))? ?(?P<unsigned>UNSIGNED)? ?(?P<not_nullable>NOT NULL)? ?(?P<auto_increment>AUTO_INCREMENT)? ?(DEFAULT \'?(?P<default>[^\',]*)\'?)?/i';
+        // @codingStandardsIgnoreEnd
         preg_match($pattern, trim($line), $matches);
         $matches['_statement'] = $matches[0];
 
         foreach ($matches as $key => $match) {
-            if (is_numeric($key))
+            if (is_numeric($key)) {
                 unset($matches[$key]);
+            }
         }
 
         if (array_key_exists('default', $matches)) {
-            if ($matches['default'] === 'NULL')
+            if ($matches['default'] === 'NULL') {
                 $matches['default'] = null;
-            elseif ($this->isNumeric($matches['type'])) {
-                if (strpos($matches['default'], '.') !== false)
+            } elseif ($this->isNumeric($matches['type'])) {
+                if (strpos($matches['default'], '.') !== false) {
                     $matches['default'] = (float)$matches['default'];
-                else $matches['default'] = (int)$matches['default'];
+                } else {
+                    $matches['default'] = (int)$matches['default'];
+                }
             }
         }
 
@@ -298,15 +316,15 @@ class Garp_Spawn_MySql_Column {
     }
 
     /**
-     * @param   Array   $matches    Result of preg_match on sql statement
-     * @param   String  $prop       Matched property in sql statement, i.e. nullable | unsigned | auto_increment
+     * @param array   $matches Result of preg_match on sql statement
+     * @param string  $prop    Matched property in sql statement,
+     *                         i.e. nullable | unsigned | auto_increment
+     * @return bool
      */
     protected function _propExistsAndMatches(array $matches, $prop) {
-        $existsAndMatches =
-            array_key_exists($prop, $matches) &&
-            strcasecmp($matches[$prop], $this->_columnOptions[$prop]) === 0
-        ;
-
+        $existsAndMatches = array_key_exists($prop, $matches) &&
+            strcasecmp($matches[$prop], $this->_columnOptions[$prop]) === 0;
         return $existsAndMatches;
     }
+
 }
