@@ -83,6 +83,18 @@ function some($collection, $callback) {
 }
 
 /**
+ * Changes the number of arguments accepted by the given function into 1.
+ *
+ * @param callable $fn
+ * @return callable
+ */
+function unary($fn) {
+    return function ($arg) use ($fn) {
+        return call_user_func($fn, $arg);
+    };
+}
+
+/**
  * Flatten an array of arrays.
  * The cornerstone of functional programming.
  *
