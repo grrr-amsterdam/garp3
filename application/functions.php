@@ -67,6 +67,22 @@ function array_pluck($array, $column) {
 // @codingStandardsIgnoreEnd
 
 /**
+ * Returns TRUE if $callback returns true for one of the items in the collection.
+ *
+ * @param array $collection
+ * @param callable $callback
+ * @return bool
+ */
+function some($collection, callable $callback) {
+    foreach ($collection as $index => $item) {
+        if (call_user_func($callback, $item, $index)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Flatten an array of arrays.
  * The cornerstone of functional programming.
  *
