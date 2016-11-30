@@ -27,12 +27,12 @@ class Garp_Mailer {
     /**
      * Send an email.
      *
-     * @param Array $params Config object.
+     * @param array $params Config object.
      *  Required keys: to, subject, message
      *  Optional keys: replyTo
-     * @param Array $viewParams Any values you wish to send to the HTML mail template
-     * @param Array $attachments
-     * @return Boolean
+     * @param array $viewParams Any values you wish to send to the HTML mail template
+     * @param array $attachments
+     * @return bool
      */
     public function send(array $params, array $viewParams = array(), $attachments = array()) {
         $this->_validateParams($params);
@@ -42,6 +42,8 @@ class Garp_Mailer {
         $mail->setBodyText($this->_getPlainBodyText($params));
         $mail->setFrom($this->getFromAddress(), $this->getFromName());
         $mail->addTo($params['to']);
+
+        $viewParams['subject'] = $params['subject'];
 
         if ($this->getHtmlTemplate()) {
             $viewParams['message'] = isset($params['message']) ? $params['message'] : '';
@@ -134,7 +136,7 @@ class Garp_Mailer {
     /**
      * Set character encoding
      *
-     * @param String $characterEncoding
+     * @param string $characterEncoding
      * @return $this
      */
     public function setCharacterEncoding($characterEncoding) {
@@ -145,7 +147,7 @@ class Garp_Mailer {
     /**
      * Get character encoding
      *
-     * @return String
+     * @return string
      */
     public function getCharacterEncoding() {
         return $this->_characterEncoding;
@@ -155,7 +157,7 @@ class Garp_Mailer {
      * Read default attachments from config. Handy if you use images in your HTML template that are
      * in every mail.
      *
-     * @return Array
+     * @return array
      */
     public function getDefaultAttachments() {
         $config = Zend_Registry::get('config');
