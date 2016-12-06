@@ -20,27 +20,27 @@ Garp.innerShiv = (function() {
 			r = document.createDocumentFragment();
 			/*@cc_on d.style.display = 'none';@*/
 		}
-		
+
 		var e = d.cloneNode(true);
 		/*@cc_on document.body.appendChild(e);@*/
 		e.innerHTML = h.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 		/*@cc_on document.body.removeChild(e);@*/
-		
+
 		if (u === false) {
 			return e.childNodes;
 		}
-		
+
 		var f = r.cloneNode(true), i = e.childNodes.length;
 		while (i--) {
 			f.appendChild(e.firstChild);
 		}
-		
+
 		return f;
 	};
 }());
 
 /**
- * Utility function. Binds receiverObj's properties to senderObj's properties 
+ * Utility function. Binds receiverObj's properties to senderObj's properties
  * @param {Object} receiverObj
  * @param {Object} senderObj
  * @return {Object} receiverObj
@@ -69,10 +69,10 @@ Garp.applyIf = function(receiverObj, senderObj){
 
 /**
  * Utility string function: use a simple tpl string to format multiple arguments
- * 
+ *
  * example:
  * var html = Garp.format('<a href="${1}">${2}</a>"', 'http://www.grrr.nl/', 'Grrr Homepage');
- * 
+ *
  * @param {String} tpl  template
  * @param {String} ...n input string(s)
  * @return {String}
@@ -95,7 +95,7 @@ Garp.format = function(tpl, o){
 /**
  * Utility function each
  * Calls fn for each ownProperty of obj. fn(property, iterator, obj)
- * 
+ *
  * @param {Object} obj to iterate
  * @param {Function} fn to call with each property of obj, the property name and the object from within 'scope'
  * @param {Object} [scope] to execute within
@@ -124,7 +124,7 @@ Garp.createDelegate = function(fn, scope){
 };
 
 /**
- * 
+ *
  */
 Garp.parseQueryString = function(str, decode) {
     str = str || window.location.search;
@@ -145,9 +145,9 @@ Garp.parseQueryString = function(str, decode) {
  * @class Observable
  */
 Garp.Observable = function(cfg){
-	
+
 	Garp.apply(this, cfg);
-	
+
 	/**
 	* Creates a global event handler
 	*
@@ -159,19 +159,19 @@ Garp.Observable = function(cfg){
 	*/
 	this.on = function(event, handler, scope){
 		scope = typeof scope == 'undefined' ? this : scope;
-		
+
 		this.on.events = typeof this.on.events == 'undefined' ? {} : this.on.events;
 		this.on.events[event] = typeof this.on.events[event] == 'undefined' ? [] : this.on.events[event];
-		
+
 		this.on.events[event].push({
 			'eventName': event,
 			handler: handler,
 			scope: scope
 		});
 	};
-	
+
 	/**
-	* Util to add listeners in bulk. Usefull when extending Garp.Observable  
+	* Util to add listeners in bulk. Usefull when extending Garp.Observable
 	* @param {Object} eventsConfig
 	*/
 	this.addListeners = function(eventsConfig){
@@ -186,12 +186,12 @@ Garp.Observable = function(cfg){
 			this.on(i, fn, scope);
 		}, this);
 	};
-	
+
 	/**
 	* Removes an event handler
-	* 
+	*
 	* TODO: check / test this
-	* 
+	*
 	* @param {String} event
 	* @param {Function} handler
 	* @param {Object} scope
@@ -204,7 +204,7 @@ Garp.Observable = function(cfg){
 			scope: scope
 		});
 	};
-	
+
 	/**
 	* Fires a global event
 	* @param {String} eventName
@@ -218,7 +218,7 @@ Garp.Observable = function(cfg){
 			}
 		});
 	};
-	
+
 	this.init = function(){
 		if (this.listeners) {
 			this.addListeners(this.listeners);
@@ -234,21 +234,21 @@ Garp.Observable = function(cfg){
  * @param {String} Transition name (internal function reference)
  */
 Garp.Transition = function(bb, transitionName){
-	
+
 	this.append = function(){
 		bb.on('beforeload', function(){}, this);
 		bb.on('afterload', function(){}, this);
 	};
-	
+
 	this.crossFade = function(){
 		bb.on('beforeload', function(){
-			
+
 			this.copy = this.elm.clone().addClass('crossfade');
 			this.shim = this.elm.clone().addClass('shim');
-			
+
 			this.copy.insertAfter(this.elm);
 			this.shim.insertAfter(this.elm);
-			
+
 			var pos = this.elm.position();
 			this.copy.css({
 				top: pos.top,
@@ -267,7 +267,7 @@ Garp.Transition = function(bb, transitionName){
 			});
 		}, this);
 	};
-	
+
 	this.fade = function(){
 		bb.on('beforeload', function(){
 			this.copy = this.elm.animate({
@@ -280,7 +280,7 @@ Garp.Transition = function(bb, transitionName){
 			});
 		}, this);
 	};
-	
+
 	this.slideUp = function(){
 		bb.on('beforeload', function(){
 			this.elm.slideUp(this.speed);
@@ -289,7 +289,7 @@ Garp.Transition = function(bb, transitionName){
 			this.elm.slideDown(this.speed);
 		}, this);
 	};
-	
+
 	this.slideLeft = function(){
 		bb.on('beforeload', function(options){
 			this.elm.wrap('<div class="x-wrap" />');
@@ -310,7 +310,7 @@ Garp.Transition = function(bb, transitionName){
 			});
 		}, this);
 	};
-	
+
 	this.init = function(){
 		//$('#' + bb.id).children().wrap('<div />');
 		//this.elm = $('#' + bb.id, ' div');
@@ -320,12 +320,12 @@ Garp.Transition = function(bb, transitionName){
 	};
 	this.init();
 };
-	
+
 
 /**
  * @class Browsebox.
  * The browsebox is a simple interface to paging content.
- * 
+ *
  * @inherits Observable
  * @param {Object} config
  */
@@ -339,14 +339,14 @@ Garp.Browsebox = function(config){
 	this.PRELOAD_DELAY = 850;
 	this.BROWSEBOX_URL = 'g/browsebox/';
 	this.append = false;
-	
+
 	// Apply config
 	Garp.apply(this, config);
-	
+
 	// private
 	this.timer = null;
 	this.cacheArr = [];
-	
+
 	/**
 	* Puts the processed data in the BB, sets up the links and fires afterload event
 	* @param {String} data
@@ -361,7 +361,7 @@ Garp.Browsebox = function(config){
 		this.fireEvent('afterload', options);
 		this.preloadNext();
 	};
-		
+
 	/**
 	* Searches for images, and waits for them to load first
 	* @param {String} data
@@ -372,7 +372,7 @@ Garp.Browsebox = function(config){
 		var imgs = $('img', data);
 		var count = imgs.length;
 		var scope = this;
-		
+
 		function checkStack(){
 			count--;
 			if (count <= 0 && !preloadOnly) {
@@ -399,26 +399,26 @@ Garp.Browsebox = function(config){
 				});
 			}
 		}
-		
+
 	};
-	
+
 	/**
 	* Loads a page. Fires beforeload and afterload events
 	* @param {String} chunk
-	* @param {String} [optionally] filters 
+	* @param {String} [optionally] filters
 	* @param {Number} direction
 	*/
 	this.loadPage = function(chunk, filters, dir){
 		var url = BASE + this.BROWSEBOX_URL;
-		url += this.id + '/' + chunk + '/' + 
-			(filters ? filters : 
+		url += this.id + '/' + chunk + '/' +
+			(filters ? filters :
 				(this.filters  ? this.filters : '')
 			) + (this.options ? this.options : '');
-		
+
 		this.fireEvent('beforeload', {
 			direction: dir
 		});
-		
+
 		var scope = this;
 		setTimeout(function(){
 			if (scope.cacheArr[url]) {
@@ -435,17 +435,17 @@ Garp.Browsebox = function(config){
 			}
 		}, 800);
 	};
-	
+
 	this.preloadNext = function(){
 		var url = $('.bb-next a', '#' + this.id).attr('href');
-		
+
 		if (url) {
 			var queryComponents = Garp.parseQueryString(url, true);
 			var chunk = queryComponents['bb[' + this.id + ']'];
 			url = BASE + this.BROWSEBOX_URL + this.id + '/' + chunk + '/' +
 			(this.filters ? this.filters : '');
-			
-			
+
+
 			if (this.cacheArr[url]) {
 				this.processData(this.cacheArr[url], true);
 			} else {
@@ -463,7 +463,7 @@ Garp.Browsebox = function(config){
 			}
 		}
 	};
-	
+
 	/**
 	* Sets up previous & next buttons
 	*/
@@ -485,7 +485,7 @@ Garp.Browsebox = function(config){
 			return false;
 		});
 	};
-	
+
 	/**
 	* Sets up a new location.hash
 	* @param {String} hash
@@ -494,7 +494,7 @@ Garp.Browsebox = function(config){
 		hash = hash.substr(hash.indexOf('?') + 1, hash.length);
 		window.location.hash = hash;
 	};
-	
+
 	/**
 	* Tries to find a previous location.hash state. Loads the according page
 	* @TODO: expand this to find if we do not already have this state (location.hash v.s. loaction.search)
@@ -503,10 +503,10 @@ Garp.Browsebox = function(config){
 		var hashComponents = Garp.parseQueryString(window.location.hash.replace(/#/g,''), true);
 		if(hashComponents['bb[' + this.id +']']){
 			var chunk = hashComponents['bb[' + this.id + ']'];
-			this.loadPage(chunk, null, null);		
+			this.loadPage(chunk, null, null);
 		}
 	};
-	
+
 	/**
 	* Init
 	*/
@@ -515,14 +515,14 @@ Garp.Browsebox = function(config){
 		this.hijackLinks();
 		this.getDejaVu();
 		var elm = $('#' + this.id);
-		this.spinner = $('<div class="spinner"></div>').insertAfter('#' + this.id).css({			
+		this.spinner = $('<div class="spinner"></div>').insertAfter('#' + this.id).css({
 			left: elm.position() ? elm.position().left : 0,
 			top: elm.position() ? elm.position().top : 0,
 			width: elm.width(),
 			height: elm.height()
 		});
 		this.spinner.css({display:'none'});
-		
+
 		if (!this.hideSpinner) {
 			this.on('beforeload', function(){
 				var elm = $('#' + this.id);
@@ -534,7 +534,7 @@ Garp.Browsebox = function(config){
 					height: elm.height()
 				});
 			}, this);
-			
+
 			this.on('afterload', function(){
 				this.spinner.css({display:'none'});
 			}, this);
@@ -569,7 +569,7 @@ Garp.inlineLabels = {
 			}).blur(function() {
 				self.blur.call(input, thisLabel);
 			});
-			
+
 			// 'cause browsers remember certain form values, there needs to be a manual check.
 			function check(){
 				if ($(input).val()) {
@@ -599,7 +599,7 @@ Garp.inlineLabels.init();
 
 /**
  * Validator object
- * 
+ *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * !!                                                       !!
  * !!            THIS IS GOING TO BE PHASED OUT             !!
@@ -607,7 +607,7 @@ Garp.inlineLabels.init();
  * !! We are going to use Garp.FormHelper instead           !!
  * !! @see https://projects.grrr.nl/projects/10/tickets/713 !!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * 
+ *
  * @version 1.1
  */
 Garp.Validator = (function() {
@@ -648,8 +648,8 @@ Garp.Validator = (function() {
 			}
 		},
 		/**
-		 * Okay, this is really dumb: this method is only here to avoid the 
-		 * oddly specific error message in the above repeatPassword rule. 
+		 * Okay, this is really dumb: this method is only here to avoid the
+		 * oddly specific error message in the above repeatPassword rule.
 		 * I'd rather phase out that one, but we'll keep it for backward compatibility.
 		 */
 		repeat: function(elm) {
@@ -679,7 +679,7 @@ Garp.Validator = (function() {
 			}
 		}
 	};
-	
+
 	/**
 	* Public methods
 	*/
@@ -753,8 +753,8 @@ Garp.equalizeHeight = function(collection) {
  * @param {Array} array of objects
  * @param {String} key
  * @param {String} val [optional]
- * 
- * @return {Array | Object} 
+ *
+ * @return {Array | Object}
  */
 Garp.getBy = function(arr, key, val){
 	var out = [];
@@ -772,48 +772,48 @@ Garp.getBy = function(arr, key, val){
 /**
  * Garp Flash Messenger. Provides a method to show a 'popup' style message to the user.
  * Convenient for auto-fade out and such.
- * 
+ *
  * @param {Object} Config properties. See below for @cfg details:
- * 
- * @example usage: 
+ *
+ * @example usage:
  *	var fm = new Garp.FlashMessage({
  *		msg: "Your Message might go here, or you can use... ",
  *		parseCookie: true // ... this option to grab the message from the server
  *	});
- * 
+ *
  */
 Garp.FlashMessage = function(cfg){
 
 	// Apply defaults:
 	Garp.apply(this, {
-	
+
 		/**
 		* @cfg: {String} Message to show
 		*/
 		msg: '',
-		
+
 		/**
 		* @cfg: {Boolean} Whether or not too parse (and show) the Garp.FlashMessage cookie
 		*/
 		parseCookie: false,
-		
+
 		/**
 		* @cfg: {String} Cookie name
 		*/
 		cookieName: 'FlashMessenger',
-		
+
 		/**
-		* @cfg {Function} Callback, get's called with scope/this set to FlashMessage  
+		* @cfg {Function} Callback, get's called with scope/this set to FlashMessage
 		*/
 		afterShow: function(){
 		},
-		
+
 		/**
 		* @cfg {Function} Callback, get's called with scope/this set to FlashMessage
 		*/
 		afterClose: function(){
 		},
-		
+
 		/**
 		* @cfg {jQuery element}: Provide the element to use
 		*/
@@ -823,17 +823,17 @@ Garp.FlashMessage = function(cfg){
 			this.elm = $('#' + id).length ? $('#' + id) : $('body').append('<div id="' + id + '"></div>').find('#' + id);
 			return this.elm;
 		},
-		
+
 		/**
 		* @cfg {Boolean} Automatically hide?
 		*/
 		autoHide: true,
-		
+
 		/**
 		* @cfg {Number} Delay for auto hide
 		*/
 		hideDelay: 6000,
-		
+
 		/**
 		* @cfg {Function} Animation to use. Override to do someting else than just a simple fade:
 		*/
@@ -845,13 +845,13 @@ Garp.FlashMessage = function(cfg){
 			}
 		}
 	});
-	
+
 	// Override with given config:
 	Garp.apply(this, cfg);
-	
+
 	// Private functions:
 	Garp.apply(this, {
-	
+
 		/**
 		* Shows (the hidden) flashMessage. Should generally not be needed.
 		*/
@@ -859,7 +859,7 @@ Garp.FlashMessage = function(cfg){
 			this.elm.show();
 			return this;
 		},
-		
+
 		/**
 		* Hides the flashMessage element by using the possible animation
 		*/
@@ -871,7 +871,7 @@ Garp.FlashMessage = function(cfg){
 			}
 			return this;
 		},
-		
+
 		/**
 		* Closes the flashMessage immediately
 		*/
@@ -884,7 +884,7 @@ Garp.FlashMessage = function(cfg){
 			}
 			return this;
 		},
-		
+
 		/**
 		* Parses a cookie. Nom,nom,nom.
 		* note; a global COOKIEDOMAIN constant can be set for this function.
@@ -900,12 +900,12 @@ Garp.FlashMessage = function(cfg){
 				}
 				var exp = new Date();
 				exp.setHours(exp.getHours() - 1);
-				Garp.setCookie(this.cookieName, '', exp, (typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : document.location.host);
+				Garp.setCookie(this.cookieName, '', exp, (typeof COOKIEDOMAIN !== 'undefined') ? COOKIEDOMAIN : undefined);
 				return out;
 			}
 			return '';
 		},
-		
+
 		/**
 		* Init
 		*/
@@ -930,7 +930,7 @@ Garp.FlashMessage = function(cfg){
 			return this;
 		}
 	});
-		
+
 	return this.init();
 };
 
@@ -953,18 +953,18 @@ Garp.buildGoogleMap = function(elm, config){
 		center: new google.maps.LatLng(parseFloat(config.center.lat), parseFloat(config.center.lng)),
 		zoom: parseInt(config.zoom, 10)
 	});
-	
+
 	if(config.markers){
 		for (var i in config.markers) {
 			var marker = config.markers[i];
-			
+
 			new google.maps.Marker({
 				map: map,
 				title: marker.title,
 				position: new google.maps.LatLng(parseFloat(marker.lat), parseFloat(marker.lng))
 			});
-			
-		}		
+
+		}
 	}
 };
 
@@ -974,7 +974,7 @@ $(function(){
 		if ($(this).parent('a').length) {
 			$(this).unwrap();
 		}
-		
+
 		var mapProperties = Garp.parseQueryString($(this).attr('src'));
 		var center = mapProperties.center.split(',');
 		Garp.apply(mapProperties,{
@@ -994,10 +994,10 @@ $(function(){
 				title: m[2] ? m[2] : ''
 			};
 		}
-		
+
 		$(this).wrap('<div class="g-googlemap-wrap"></div>');
 		var wrap = $(this).parent('.g-googlemap-wrap').width(mapProperties.width).height(mapProperties.height);
-		Garp.buildGoogleMap(wrap[0], mapProperties);	
+		Garp.buildGoogleMap(wrap[0], mapProperties);
 	});
 });
 
@@ -1024,9 +1024,9 @@ Garp.getCookie = function(name) {
  * Give a Cookie
  * @param {Object} name
  * @param {Object} value
- * @param {Date} expiration date 
+ * @param {Date} expiration date
  */
-Garp.setCookie = function(name, value, date) {
+Garp.setCookie = function(name, value, date, domain) {
 	value = escape(value) + "; path=/";
 	value += (!date ? "" : "; expires=" + date.toGMTString());
 	document.cookie = name + "=" + value;
@@ -1103,7 +1103,7 @@ $(function(){
 				}
 			};
 			// Time-out for snippetlinks: we don't want the browser to go and search for all snippets at load:
-			// It's quite a performance hit. Delay until all else finishes.			
+			// It's quite a performance hit. Delay until all else finishes.
 			setTimeout(addSnippetLinks, 1000);
 		}
 	}
@@ -1150,7 +1150,7 @@ Garp.relativeDate = function(oldest, newest, resolution) {
 	if (isNaN(elapsed)) {
 		return '';
 	}
-	
+
 	elapsed = elapsed / 60000; // minutes
 	var result = '';
 	// Date constants for readability
@@ -1180,7 +1180,7 @@ Garp.relativeDate = function(oldest, newest, resolution) {
 		result = months + ' ' + (months == 1 ? __('month') : __('months'));
 	} else if (elapsed >= WEEK && resolution >= WEEK) {
 		/**
-		 * Here we use Math.ceil because the scope is so small. It makes no sense when 
+		 * Here we use Math.ceil because the scope is so small. It makes no sense when
 		 * it's 1 week and 2 days to say "1 week". It's more correct to say 2 weeks.
 		 */
 		var weeks = Math.ceil(elapsed / WEEK);
@@ -1194,7 +1194,7 @@ Garp.relativeDate = function(oldest, newest, resolution) {
 		} else {
 			days = Math.round(elapsed / DAY);
 			result = days + ' ' + (days == 1 ? __('day') : __('days'));
-		}		
+		}
 	} else if (elapsed >= DAY && resolution >= DAY) {
 		days = Math.round(elapsed / DAY);
 		result = days + ' ' + (days == 1 ? __('day') : __('days'));
@@ -1214,7 +1214,7 @@ Garp.relativeDate = function(oldest, newest, resolution) {
 /***
  * Class Twitter
  * @param {Object} config
- * 
+ *
  * example usage:
  * var twitter = new Garp.Twitter({
  *		elm: $('#tweets'),
@@ -1244,10 +1244,10 @@ Garp.Twitter = function(config){
 		//afterFetch: jQuery.noop,
 		//onError: jQuery.noop // Gets called when no results found or an error occurred
 	//});
-	
+
 	//// Override config: //
 	//Garp.apply(this, config);
-	
+
 	/**
 	* Searches Twitter for query and caches the query string for later re-use
 	* @param {query} (optional) query
@@ -1265,8 +1265,8 @@ Garp.Twitter = function(config){
 			//scope.parseResponse.call(scope, response);
 		//});
 	//};
-	
-	
+
+
 	/**
 	* Gets Twitter Lists
 	* @param {String} user
@@ -1279,7 +1279,7 @@ Garp.Twitter = function(config){
 			//scope.parseResponse.call(scope, response);
 		//});
 	//};
-	
+
 	//// private //
 	//this.parseResponse = function(response){
 		//var item, result = [];
@@ -1311,7 +1311,7 @@ Garp.Twitter = function(config){
 			//this.onError(response);
 		//}
 	//};
-	
+
 	//return this;
 };
 
@@ -1334,19 +1334,19 @@ Garp.constrain = function(i){
 	if (i > max) {
 		i = min;
 	}
-	return i;	
+	return i;
 };
 
 Garp.playerBox = function(config){
 
 	$player = config.$player;
 	$navigation = config.$navigation;
-	
+
 	var activeClass = config.activeClass || '';
 	var width = config.width || 480;
 	var height = config.height || 320;
 	var navActiveClass = config.navActiveClass || '';
-	
+
 	$navigation.bind('click', function(e){
 		if (e && e.target) {
 			e.preventDefault();
@@ -1361,7 +1361,7 @@ Garp.playerBox = function(config){
 				if ($a.hasClass('video')) {
 					video = true;
 				}
-				
+
 				var cb = function(){
 					if (video) {
 						$player.html('<iframe src="' + src + '" width="' + width + '" height="' + height + '" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>');
@@ -1396,9 +1396,9 @@ Garp.CountDownArea = function(fieldSelector, counterSelector, maxCharacters, all
 	if (!maxCharacters) {
 		maxCharacters = 140;
 	}
-	
+
 	allowBlank = allowBlank || false;
-	
+
 	function updateCounter(){
 		var val = maxCharacters - textarea.val().length;
 		if(textarea.hasClass('placeholder')){
@@ -1409,13 +1409,13 @@ Garp.CountDownArea = function(fieldSelector, counterSelector, maxCharacters, all
 			callback(val);
 		}
 	}
-	
+
 	function checkLength(){
 		if (typeof textarea.val() === 'undefined') {
 			return;
 		}
 		// timeout construct: buffer this check. It might get called very often; that might cause slugish behavior:
-		
+
 		if (this.buffer) {
 			clearTimeout(this.buffer);
 		}
@@ -1440,9 +1440,9 @@ Garp.CountDownArea = function(fieldSelector, counterSelector, maxCharacters, all
 			updateCounter();
 		}, 50);
 	}
-	
+
 	textarea.keyup(checkLength).keypress(checkLength).blur(checkLength).click(checkLength);
-	
+
 	checkLength();
 
 	this.isValid = function() {
@@ -1454,7 +1454,7 @@ Garp.scrollHandler = (function(){
 
 	var scrollBinded = false;
 	var elms = [];
-	
+
 	function checkInView($elm){
 		var et = $elm.offset().top - 200;
 		if (et < 0) {
@@ -1464,7 +1464,7 @@ Garp.scrollHandler = (function(){
 		var wt = $(window).height() + w;
 		return (et >= w) && et <= wt;
 	}
-	
+
 	function handler(){
 		if (elms.length) {
 			$.each(elms, function(i, elm){
@@ -1481,7 +1481,7 @@ Garp.scrollHandler = (function(){
 			$(window).unbind('scroll', handler);
 		}
 	}
-	
+
 	return {
 		elms: elms,
 		register: function($elm, fn){
@@ -1507,7 +1507,7 @@ Garp.lazyLoader = {
 	* @param {Object} cfg
 	* @cfg id {String} id of the element
 	* @cfg before {Function} beforeFetch fn. Gets called with scope &amp; fetch arguments
-	* @cfg after {Function} afterFetch fn. Gets called with scope, respone &amp; fetch arguments 
+	* @cfg after {Function} afterFetch fn. Gets called with scope, respone &amp; fetch arguments
 	*/
 	reg: function(cfg){
 		if (cfg.id && !Garp.lazyLoader[cfg.id]) {
@@ -1520,7 +1520,7 @@ Garp.lazyLoader = {
 			throw "Can't register lazyLoader. No id property or duplicate entry.";
 		}
 	},
-	
+
 	/**
 	* Deletes a lazyLoad callback
 	* @param {Object} id
@@ -1534,12 +1534,12 @@ Garp.lazyLoader = {
 	* Collect all lazy-load elements and fetch!
 	*/
 	init: function(){
-	
+
 		var $elm = $('.lazy-load');
 		if (!$elm.length) {
 			return;
 		}
-		
+
 		function fetch(e){
 			if (e && e.preventDefault) {
 				e.preventDefault();
@@ -1555,7 +1555,7 @@ Garp.lazyLoader = {
 			}
 			var before = $.noop;
 			var after = $.noop;
-			
+
 			if (Garp.lazyLoader[id]) {
 				if (Garp.lazyLoader[id].before) {
 					before = Garp.lazyLoader[id].before;
@@ -1564,19 +1564,19 @@ Garp.lazyLoader = {
 					after = Garp.lazyLoader[id].after;
 				}
 			}
-			
+
 			var fetchCB = Garp.createDelegate(fetch, this);
 			before(this, fetchCB);
-			
+
 			var url = $(this).attr('data-href') + con + attributes;
 			var scope = this;
 			var isJson = $(this).hasClass('json');
-			
+
 			var replace = false;
 			if ($(this).attr('data-replace-selector') && $($(this).attr('data-replace-selector')).length) {
 				replace = true;
 			}
-			
+
 			$.get(url, function(resp){
 				if (isJson) {
 					resp = resp.html;
@@ -1589,7 +1589,7 @@ Garp.lazyLoader = {
 				after.call(scope, scope, resp, fetchCB);
 			}, isJson ? 'json' : 'html');
 		}
-		
+
 		$elm.each(function(i, el){
 			Garp.scrollHandler.register($(el), function(){
 				fetch.call(el);
@@ -1693,7 +1693,7 @@ Garp.asyncLoad = function(url, type, cb, scope){
  *  - validation
  *  - file upload
  *  - submit button disable to prevent duplicate entries
- *  - possible ajaxify (form element needs class 'ajax') 
+ *  - possible ajaxify (form element needs class 'ajax')
  */
 Garp.FormHelper = Garp.FormHelper || {};
 Garp.apply(Garp.FormHelper, {
@@ -1702,12 +1702,12 @@ Garp.apply(Garp.FormHelper, {
 	 * @cfg {jQuery} The form(s) reference(s)
 	 */
 	form: $('.garp-form'),
-	
+
 	/**
 	 * @cfg {String} class to put on the @cfg form element(s) when ajax calls are being made.
 	 */
 	ajaxBusyCls: 'loading',
-	
+
 	/**
 	 * @cfg {Function} onAjaxComplete. Get's called on error, success or timeout. Passes: @param {Object} jqXhr @param {Object} status
 	 */
@@ -1725,25 +1725,25 @@ Garp.apply(Garp.FormHelper, {
 			console.log('Garp formHelper: server status ' + status);
 		}
 	},
-	
+
 	/**
 	 * @cfg {Function} onBeforeAjax Possible to prevent ajax submission here; just return false.
 	 */
 	onBeforeAjax: function(){
 		return true;
 	},
-	
+
 	/**
 	 * @cfg {Number} ajaxTimeout
 	 */
 	ajaxTimeout: 30000,
-	
+
 	/**
 	 * @cfg {String} response type of the server
 	 */
 	ajaxDataType: 'json',
-	
-	
+
+
 	// private
 	/**
 	 * Hijacks upload fields into nice AJAX things. Uses qq.FileUploader for this, but only includes it if necessary
@@ -1752,7 +1752,7 @@ Garp.apply(Garp.FormHelper, {
 	 */
 	hijackUploadFields: function(cb, fh){
 		var fields = $('.hijack-upload', this.form);
-		
+
 		if (fields.length) {
 			var loadSuccess = function(){
 				fields.each(function() {
@@ -1764,7 +1764,7 @@ Garp.apply(Garp.FormHelper, {
 					var uploadType = $target.data('type') || 'image',
 						url = BASE + 'g/content/upload/insert/1/mode/raw/type/' + uploadType,
 						urlNonRaw = BASE + 'g/content/upload/insert/1/type/' + uploadType;
-					
+
 					$target = $target.parent();
 					if (!$target[0]) {
 						return;
@@ -1814,7 +1814,7 @@ Garp.apply(Garp.FormHelper, {
 						onComplete: function(id, filename, responseJSON){
 							var element = this.element;
 							$(element).parent().removeClass('uploading').addClass('done-uploading');
-							
+
 							function checkCount(){
 								var maxItems = $(element).data('max-items');
 								var count = $('ul.qq-upload-list li', element).length;
@@ -1825,26 +1825,26 @@ Garp.apply(Garp.FormHelper, {
 								}
 							}
 							checkCount();
-							
+
 							var ref = filename;
-							
+
 							if (responseJSON && responseJSON.id) {
 								id = responseJSON.id;
 								filename = responseJSON.filename;
-								
+
 								$('a.remove', element).unbind().bind('click', function(){
 									var name = $(this).parent('li').find('span.qq-upload-file').text();
 									$('input[data-filename="' + name + '"]', element).remove();
 									$(this).parent('li').remove();
 									checkCount();
 								});
-								
+
 								$(element).append('<input type="hidden" value="' + id + '" name="' + name + '[]" data-filename="' + filename + '">');
-								
+
 								if(this.afterUpload){
 									this.afterUpload(responseJSON, $target, ref);
 								}
-								
+
 							} else {
 								$('a.remove:last', element).click();
 								Garp.FlashMessage({
@@ -1853,7 +1853,7 @@ Garp.apply(Garp.FormHelper, {
 							}
 						}
 					};
-					
+
 					var uploaderConfig = Garp.apply(cfg, fh.uploaderConfig);
 					var uploader = new qq.FileUploader(uploaderConfig);
 					$(uploader._element).data('max-items', maxItems);
@@ -1863,7 +1863,7 @@ Garp.apply(Garp.FormHelper, {
 					if (fh.uploaderConfig.afterInit) {
 						fh.uploaderConfig.afterInit(fh, $target);
 					}
-					
+
 					// Add existing files to the list
 					if (prepopulate) {
 						for (var j = 0; j < prepopulate.length; j++) {
@@ -1886,13 +1886,13 @@ Garp.apply(Garp.FormHelper, {
 					if (fh.uploaderConfig.initComplete) {
 						fh.uploaderConfig.initComplete(fh, $target);
 					}
-					
+
 				});
 			};
 			Garp.asyncLoad(BASE + 'js/fileuploader.js', 'js', loadSuccess, this);
 		}
 	},
-	
+
 	/**
 	 * Turns the form into an Ajaxable thing
 	 */
@@ -1919,7 +1919,7 @@ Garp.apply(Garp.FormHelper, {
 		});
 		return this;
 	},
-	
+
 	/**
 	 * Sets up duplicatable form elements
 	 */
@@ -1933,13 +1933,13 @@ Garp.apply(Garp.FormHelper, {
 
 	/**
 	 * Sets up validation
-	 */	
+	 */
 	setupValidation: function(){
-		
+
 		var disabler = function(){
 			this.disable(); // this == the submit button
 		};
-		
+
 		this.validator = new Garp.FormHelper.Validator({
 			form: this.form,
 			listeners: {
@@ -1957,11 +1957,11 @@ Garp.apply(Garp.FormHelper, {
 				}
 			}
 		}).bind();
-		
+
 	},
-	
+
 	/**
-	 * Placeholders aren't supported in older navigators 
+	 * Placeholders aren't supported in older navigators
 	 */
 	fixPlaceholdersIfNeeded: function(){
 		var i = document.createElement('input');
@@ -1993,7 +1993,7 @@ Garp.apply(Garp.FormHelper, {
 		}
 		return name;
 	},
-	
+
 	/**
 	 * Init a.k.a go!
 	 */
@@ -2003,13 +2003,13 @@ Garp.apply(Garp.FormHelper, {
 			// duplicatorConfig: {},  // not used at the moment.
 			// validationConfig: {} // not used at the moment.
 		});
-		
+
 		Garp.apply(this, cfg);
-		
+
 		this.setupDuplicators(this);
 		this.hijackUploadFields(null, this);
 		this.setupValidation(this);
-		
+
 		if(this.form.hasClass('ajax')){
 			this.ajaxify();
 		}
@@ -2028,17 +2028,17 @@ Garp.apply(Garp.FormHelper, {
 Garp.FormHelper.Duplicator = function(field, fh, cfg){
 
 	Garp.apply(this, {
-	
+
 		/**
 		 * @cfg {String} Text for the add button
 		 */
 		addText: __('Add'),
-		
+
 		/**
 		 * @cfg {String} Text for the remove button
 		 */
 		removeText: __('Remove'),
-		
+
 		/**
 		 * @cfg {String} extra ButtonClass
 		 */
@@ -2050,7 +2050,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 		 * @cfg {Function} Callback function
 		 */
 		afterDuplicate: null,
-		
+
 		// private:
 		wrap: $(field).closest('div'),
 		field: $(field),
@@ -2059,7 +2059,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 		maxItems: $(field).data('max-items') || false,
 		newId: ($(field).attr('id') || 'garpfield-' + new Date().getTime()) + '-',
 		skipElements: '',
-		
+
 		/**
 		 * updateUI:
 		 * Shows or hide add button based on data-max-items property of field
@@ -2073,13 +2073,13 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 				}
 			}
 		},
-		
+
 		/**
 		 * Now do some duplication
 		 * @param jQuery dupl This can be a DOM node acting as the duplicate
 		 */
 		duplicateField: function(dupl){
-		
+
 			if (this.field.attr('type') == 'file') {
 				return;
 			}
@@ -2090,7 +2090,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 			dupl.addClass('duplicate');
 			var scope = this;
 			var numOfFields = this.numOfFields;
-			
+
 			// name="aap" -> name="aap[1]"
 			function changeName(name){
 				if (name[name.length - 1] == ']') {
@@ -2098,8 +2098,8 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 				}
 				return name;
 			}
-			
-			// converts add button into remove button: 
+
+			// converts add button into remove button:
 			function setupRemoveBtn(dupl){
 				var buttonClass = scope.buttonRemoveClass || scope.buttonClass;
 				var removeBtn = $('<input class="remove ' + buttonClass + '" type="button" value="' + scope.removeText + '">');
@@ -2118,13 +2118,13 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 					}
 				});
 			}
-			
+
 			if (this.field.is('fieldset')) {
 				this.field.attr('id', newId);
 			} else {
 				dupl.find('[id]').attr('id', newId);
 			}
-			
+
 			// file uploads:
 			if (this.field.hasClass('file-input-wrapper')) {
 				dupl = $('<input type="file" />');
@@ -2133,7 +2133,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 				dupl.wrap('<div></div>');
 				newField = dupl;
 				this.fh.hijackUploadFields(setupRemoveBtn, this.fh);
-				
+
 			} else {
 				dupl.find('[for]').attr('for', newId);
 				if (isRuntimeDuplicate) {
@@ -2158,19 +2158,19 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 							}
 						}
 					});
-						
+
 				}
 				dupl.find('.invalid').removeClass('invalid');
 				newField = dupl.find('.duplicatable').val('');
-				
+
 				setupRemoveBtn(dupl);
-				
+
 				dupl.insertBefore(this.addButton);
 
 				if (this.fh.validator) {
 					this.fh.validator.init();
 				}
-				
+
 			}
 			this.numOfFields++;
 			this.updateUI();
@@ -2199,7 +2199,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 				newField.focus();
 			}
 		},
-		
+
 		/**
 		 * Create DOM & listeners
 		 */
@@ -2215,7 +2215,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 			});
 			return this;
 		},
-		
+
 		/**
 		 * Go !
 		 */
@@ -2223,7 +2223,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 			// check if we're not already initialized
 			if (this.field.attr('data-duplicator') == 'initialized') {
 				return; // nothing to do!
-			} 
+			}
 			this.field.attr('data-duplicator', 'initialized');
 
 			if (this.field.attr('data-button-class')) {
@@ -2258,7 +2258,7 @@ Garp.FormHelper.Duplicator = function(field, fh, cfg){
 						$(this).attr('name', name + '[' + scope.numOfFields + ']');
 					}
 				});
-				
+
 				// find duplicates added by the server
 				var classToLookFor = this.field.attr('class').split(' ')[0];
 				this.wrap = this.field.wrap('<div class="fieldset-wrap"></div>').parent();
@@ -2296,43 +2296,43 @@ Garp.FormHelper.Validator = function(cfg){
 		 * @cfg {jQuery} form, where to check for errors in:
 		 */
 		form: $('.garp-form'),
-		
+
 		/**
 		 * @cfg {Array} tags to check. Might choose a subset via selectors e.g. input[type="checkbox"]
 		 */
 		elms: ['input', 'select', 'textarea'],
-		
+
 		/**
 		 * @cfg {String}/{jQuery} msgTarget. "below" or jQuery selector where to put errors
 		 */
 		msgTarget: 'below',
-		
+
 		/**
 		 * @cfg {String} If 'name' attr not set, use this text:
 		 */
 		missingNameText: __('This field'),
-		
+
 		/**
 		 * @cfg {Bool} Whether or not to let the user know of validations error 'live'
 		 */
 		interactive: true
 	});
-	
-	// Custom config:	
+
+	// Custom config:
 	Garp.apply(this, cfg);
-	
+
 	// Validator extends Garp.Observable
 	Garp.apply(this, new Garp.Observable(this));
-	
+
 	// Internals:
 	Garp.apply(this, {
-	
+
 		// global flag
 		hasErrors: false,
-		
+
 		// Our collection of validation rules:
 		rules: {
-			
+
 		// Required field validation:
 			required: {
 				init: function(field){
@@ -2363,7 +2363,7 @@ Garp.FormHelper.Validator = function(cfg){
 				},
 				errorMsg: __("Value is required and can't be empty")
 			},
-			
+
 		// Simple email validation
 			email: {
 				fn: function(field){
@@ -2377,7 +2377,7 @@ Garp.FormHelper.Validator = function(cfg){
 				},
 				errorMsg: __("'${1}' is not a valid email address in the basic format local-part@hostname")
 			},
-			
+
 		// Simple number validation
 			number: {
 				fn: function(field){
@@ -2404,7 +2404,7 @@ Garp.FormHelper.Validator = function(cfg){
 				},
 				errorMsg: __("'${1}' is not a valid number for this field")
 			},
-			
+
 		// HTML5-pattern validation (RegExp)
 			pattern: {
 				RegExCache: {},
@@ -2415,13 +2415,13 @@ Garp.FormHelper.Validator = function(cfg){
 					var key = field.attr('pattern');
 					var cache = this.rules.pattern.RegExCache;
 					if(!cache[key]){ // compile regexes just once.
-						cache[key] = new RegExp('^' + field.attr('pattern') + '$'); 
+						cache[key] = new RegExp('^' + field.attr('pattern') + '$');
 					}
 					return cache[key].test(field.val());
 				},
 				errorMsg: __("'${1}' does not match against pattern '${2}'")
 			},
-		
+
 		// URL
 		url:{
 			mailtoOrUrlRe: /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|((((^https?)|(^ftp)):\/\/)?([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i,
@@ -2446,8 +2446,8 @@ Garp.FormHelper.Validator = function(cfg){
 			},
 			errorMsg: __("'${1}' is not a valid URL")
 		},
-		
-		
+
+
 		// Dutch postalcode and filter
 			dutchPostalCode: {
 				init: function(field){
@@ -2470,7 +2470,7 @@ Garp.FormHelper.Validator = function(cfg){
 				},
 				errorMsg: __("'${1}' is not a valid Dutch postcode")
 			},
-			
+
 			identicalTo: {
 				init: function(field){
 					if (field.attr('data-identical-to')) {
@@ -2489,13 +2489,13 @@ Garp.FormHelper.Validator = function(cfg){
 					var theOtherName = Garp.FormHelper.formatName(field.attr('data-identical-to'));
 					var theOtherField = $('[name="' + theOtherName + '"]');
 					var oVal = theOtherField.val();
-					
+
 					return field.val() === oVal;
 				},
 				errorMsg: __("Value doesn't match")
 			}
 		},
-		
+
 		/**
 		 * Rules might want to init; filter methods might be bound to various field events, for example
 		 */
@@ -2509,7 +2509,7 @@ Garp.FormHelper.Validator = function(cfg){
 				}
 			}, this);
 		},
-		
+
 		/**
 		 * Gives our rules a convenient number
 		 */
@@ -2519,7 +2519,7 @@ Garp.FormHelper.Validator = function(cfg){
 				rule.id = c = c + 1;
 			});
 		},
-		
+
 		/**
 		 * Returns the target element for error messages. It might create one first
 		 * Possible to override and use a single msgTarget. Use @cfg msgTarget for this
@@ -2539,7 +2539,7 @@ Garp.FormHelper.Validator = function(cfg){
 			}
 			return t;
 		},
-		
+
 		/**
 		 * Some fields need to be grouped: (One error for all 'related' fields)
 		 * @param {DOM Element} field
@@ -2555,7 +2555,7 @@ Garp.FormHelper.Validator = function(cfg){
 			// ...but don't group duplicatable ones:
 			return $field.attr('id') + rule.id;
 		},
-		
+
 		/**
 		 * Add an error message to a field
 		 * @param {DOM Element} field
@@ -2571,7 +2571,7 @@ Garp.FormHelper.Validator = function(cfg){
 				t.first().append('<li data-error-id="' + uf + '">' + errorMsg.replace(/\[\]/, '') + '</li>');
 			}
 		},
-		
+
 		/**
 		 * Clears errors
 		 * @param {DOM Element} field
@@ -2580,10 +2580,10 @@ Garp.FormHelper.Validator = function(cfg){
 		clearError: function(field, rule){
 			$('li[data-error-id="' + this.getUniqueField(field, rule) + '"]', this.form).remove();
 		},
-		
+
 		// private
 		_blurredElement: null,
-		
+
 		/**
 		 * Live Validation events handlers:
 		 */
@@ -2600,7 +2600,7 @@ Garp.FormHelper.Validator = function(cfg){
 				}
 			});
 		},
-		
+
 		/**
 		 * Util: Adds a rule. A rule needs a fn propery {Function} and an errorMsg {String}
 		 * @param {Object} ruleConfig
@@ -2610,7 +2610,7 @@ Garp.FormHelper.Validator = function(cfg){
 			this.setRuleIds();
 			return this;
 		},
-		
+
 		/**
 		 * Util: Set a different message for a rule
 		 * @param {Object} ruleName
@@ -2622,11 +2622,11 @@ Garp.FormHelper.Validator = function(cfg){
 			}
 			return this;
 		},
-		
+
 		/**
 		 * Validates a single field.
 		 * @param {jQuery selector string} field
-		 * @param {Validator Object} {optional} rule 
+		 * @param {Validator Object} {optional} rule
 		 * @return {Bool} valid or not
 		 */
 		validateField: function(field, ruleObj){
@@ -2654,7 +2654,7 @@ Garp.FormHelper.Validator = function(cfg){
 			this.fireEvent(valid ? 'fieldvalid' : 'fieldinvalid', field);
 			return valid;
 		},
-		
+
 		/**
 		 * Clear all error messages in bulk
 		 */
@@ -2663,7 +2663,7 @@ Garp.FormHelper.Validator = function(cfg){
 			this.hasErrors = false;
 			return this;
 		},
-		
+
 		/**
 		 * Validate the form!
 		 * @return {Bool} valid or not
@@ -2674,7 +2674,7 @@ Garp.FormHelper.Validator = function(cfg){
 			this.fireEvent(this.hasErrors ? 'forminvalid' : 'formvalid', this);
 			return !this.hasErrors;
 		},
-		
+
 		/**
 		 * Necessary for IE and placeholders:
 		 * values might otherwise be sent to the server. yuck!
@@ -2687,7 +2687,7 @@ Garp.FormHelper.Validator = function(cfg){
 				}
 			});
 		},
-		
+
 		/**
 		 * Necessary for IE and placeholders:
 		 * Re-add the placeholders we just removed.
@@ -2697,7 +2697,7 @@ Garp.FormHelper.Validator = function(cfg){
 				$(f).addPlaceholder();
 			});
 		},
-		
+
 		/**
 		 * Binds validateForm to submit or other event. Possible to bind this to a specific element
 		 * @param {jQuery} element, defaults to @cfg form
@@ -2721,14 +2721,14 @@ Garp.FormHelper.Validator = function(cfg){
 			});
 			return s;
 		},
-		
+
 		/**
 		 * INITIALISE!
 		 */
 		init: function(){
 			this.form.attr('novalidate', 'novalidate');
 			this.elements = $(this.elms.join(', '), this.form);
-			this.initRules();			
+			this.initRules();
 			this.setRuleIds();
 			if (this.interactive) {
 				this.bindInteractiveHandlers();
@@ -2740,7 +2740,7 @@ Garp.FormHelper.Validator = function(cfg){
 };
 
 /**
- * Defered SocialButtons 
+ * Defered SocialButtons
  */
 (function(){
 	$('.social-defer').on('mouseenter mouseleave click', function(){
@@ -2750,8 +2750,8 @@ Garp.FormHelper.Validator = function(cfg){
 		if(!$(this).get(0).nextSibling){
 			return;
 		}
-		
-		var domF = $(this).get(0).nextSibling.textContent || $(this).get(0).nextSibling.nodeValue;  
+
+		var domF = $(this).get(0).nextSibling.textContent || $(this).get(0).nextSibling.nodeValue;
 		domF = domF.split('//garp-defer//');
 		if(domF && domF[1]){
 			$(this).removeClass('social-defer').addClass('active').html($(domF[1]));
@@ -2770,7 +2770,7 @@ Garp.FormHelper.Validator = function(cfg){
  * __ Utility function
  * @param {String} s
  * @return {String} s translated
- */ 
+ */
 function __(s){ return Garp.locale[s] || s; }
 
 // LOCALES:
@@ -2808,7 +2808,7 @@ Garp.apply(Garp.locale, {
 	"'${1}' is not a valid URL" : "'${1}' is geen geldige URL",
 	"'${1}' is not a valid number for this field" : "'${1}' is geen geldig nummer",
 	"Value doesn't match": "Waarde komt niet overeen",
-	
+
 	//qq.FileUploader
 	"{file} has invalid extension. Only {extensions} are allowed.": "{file} heeft niet de juiste extensie. De volgende extensie(s) zijn toegestaan: {extensions}",
 	"{file} is too large, maximum file size is {sizeLimit}.": "{file} is te groot. Maximum grootte is {sizeLimit}",
