@@ -1,37 +1,40 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
- * @package Garp
- * @subpackage MySql
+ * Garp_Spawn_MySql_Table_Synchronizer
+ *
+ * @package Garp_Spawn_MySql_Table
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_MySql_Table_Synchronizer {
     /**
-     * @var Garp_Spawn_MySql_Table_Abstract $_source
+     * @var Garp_Spawn_MySql_Table_Abstract
      */
     protected $_source;
 
     /**
-     * @var Garp_Spawn_MySql_Table_Abstract $_target
+     * @var Garp_Spawn_MySql_Table_Abstract
      */
     protected $_target;
 
     /**
-     * @var Garp_Spawn_Model_Abstract $_model
+     * @var Garp_Spawn_Model_Abstract
      */
     protected $_model;
 
     /**
-     * @var Garp_Cli_Ui_Protocol $_feedback
+     * @var Garp_Cli_Ui_Protocol
      */
     protected $_feedback;
 
     /**
-     * @param   Garp_Spawn_Model_Abstract       $model
+     * @param Garp_Spawn_Model_Abstract $model
+     * @param Garp_Cli_Ui_Protocol $feedback
+     * @return void
      */
     public function __construct(Garp_Spawn_Model_Abstract $model, Garp_Cli_Ui_Protocol $feedback) {
-        $tableFactory   = new Garp_Spawn_MySql_Table_Factory($model);
-        $configTable    = $tableFactory->produceConfigTable();
-        $liveTable      = $tableFactory->produceLiveTable();
+        $tableFactory = new Garp_Spawn_MySql_Table_Factory($model);
+        $configTable  = $tableFactory->produceConfigTable();
+        $liveTable    = $tableFactory->produceLiveTable();
 
         $this->setSource($configTable);
         $this->setTarget($liveTable);
@@ -41,16 +44,21 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 
     /**
      * Syncs source and target tables with one another, trying to resolve any conflicts.
-     * @param   Bool    Whether to remove no longer configured columns. This can be triggered
-     *                  separately with the cleanUp() method.
-     * @return  Bool    In sync
+     *
+     * @param  bool $removeRedundantColumns Whether to remove no longer configured columns. This
+     *                                      can be triggered separately with the cleanUp() method.
+     * @return bool In sync
      */
     public function sync($removeRedundantColumns = true) {
-        $target         = $this->getTarget();
-        $keysInSync     = true;
+        $target = $this->getTarget();
+        $keysInSync = true;
 
         $configuredKeys = $this->_getConfiguredKeys();
-        $keySyncer      = new Garp_Spawn_MySql_Key_Set_Synchronizer($configuredKeys, $target->keys, $this->getFeedback());
+        $keySyncer = new Garp_Spawn_MySql_Key_Set_Synchronizer(
+            $configuredKeys,
+            $target->keys,
+            $this->getFeedback()
+        );
 
         if (!$keySyncer->removeKeys()) {
             $keysInSync = false;
@@ -69,18 +77,16 @@ class Garp_Spawn_MySql_Table_Synchronizer {
             $this->_deleteRedundantColumns();
         }
 
-        if (
-            !$keySyncer->addKeys() ||
-            !$keySyncer->modifyKeys()
-        ) {
+        if (!$keySyncer->addKeys() || !$keySyncer->modifyKeys()) {
             $keysInSync = false;
         }
-
         return $colsInSync && $keysInSync;
     }
 
     /**
+     * Remove redundant columns
      *
+     * @return void
      */
     public function cleanUp() {
         $this->_deleteRedundantColumns();
@@ -95,6 +101,7 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 
     /**
      * @param Garp_Spawn_MySql_Table_Abstract $source
+     * @return void
      */
     public function setSource($source) {
         $this->_source = $source;
@@ -109,6 +116,7 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 
     /**
      * @param Garp_Spawn_MySql_Table_Abstract $target
+     * @return void
      */
     public function setTarget($target) {
         $this->_target = $target;
@@ -123,6 +131,7 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 
     /**
      * @param Garp_Spawn_Model_Abstract $model
+     * @return void
      */
     public function setModel($model) {
         $this->_model = $model;
@@ -137,15 +146,16 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 
     /**
      * @param Garp_Cli_Protocol $feedback
+     * @return void
      */
     public function setFeedback(Garp_Cli_Ui_Protocol $feedback) {
         $this->_feedback = $feedback;
     }
 
     protected function _detectI18nTableFork() {
-        $source     = $this->getSource();
-        $target     = $this->getTarget();
-        $model      = $this->getModel();
+        $source = $this->getSource();
+        $target = $this->getTarget();
+        $model  = $this->getModel();
 
         if (!$model->isMultilingual()) {
             return false;
@@ -162,25 +172,21 @@ class Garp_Spawn_MySql_Table_Synchronizer {
     }
 
     protected function _getMultilingualFields() {
-        $model                  = $this->getModel();
-        $multilingualFields     = $model->fields->getFields('multilingual', true);
-
-        return $multilingualFields;
+        return $this->getModel()->fields->getFields('multilingual', true);
     }
 
     protected function _syncColumns() {
-        $source     = $this->getSource();
-        $target     = $this->getTarget();
-        $sync       = false;
+        $source = $this->getSource();
+        $target = $this->getTarget();
+        $sync   = false;
 
         if ($source === $target) {
             return true;
-        } else {
-            if ($source->columns != $target->columns) {
-                $this->_resolveColumnConflicts();
-            }
-            return true;
         }
+        if ($source->columns != $target->columns) {
+            $this->_resolveColumnConflicts();
+        }
+        return true;
     }
 
     protected function _resolveColumnConflicts() {
@@ -189,9 +195,8 @@ class Garp_Spawn_MySql_Table_Synchronizer {
 
         foreach ($source->columns as $sourceColumn) {
             $target->columnExists($sourceColumn) ?
-                $this->_alterColumn($sourceColumn, $target):
-                $target->addColumn($sourceColumn)
-            ;
+                $this->_alterColumn($sourceColumn, $target) :
+                $target->addColumn($sourceColumn);
         }
     }
 
@@ -210,7 +215,7 @@ class Garp_Spawn_MySql_Table_Synchronizer {
     }
 
     protected function _deleteRedundantColumns() {
-        $target     = $this->getTarget();
+        $target = $this->getTarget();
 
         foreach ($target->columns as $targetColumn) {
             $this->_deleteNoLongerConfiguredColumn($targetColumn);
@@ -218,9 +223,9 @@ class Garp_Spawn_MySql_Table_Synchronizer {
     }
 
     protected function _deleteNoLongerConfiguredColumn(Garp_Spawn_MySql_Column $targetColumn) {
-        $source     = $this->getSource();
-        $target     = $this->getTarget();
-        $progress   = Garp_Cli_Ui_ProgressBar::getInstance();
+        $source   = $this->getSource();
+        $target   = $this->getTarget();
+        $progress = Garp_Cli_Ui_ProgressBar::getInstance();
 
         if ($source->columnExists($targetColumn->name)) {
             return;
@@ -236,16 +241,19 @@ class Garp_Spawn_MySql_Table_Synchronizer {
         $target->deleteColumn($targetColumn);
     }
 
-    protected function _ifNullableChangesThenDeleteForeignKeys(Garp_Spawn_MySql_Column $sourceColumn, array $diffProperties) {
+    protected function _ifNullableChangesThenDeleteForeignKeys(
+        Garp_Spawn_MySql_Column $sourceColumn, array $diffProperties
+    ) {
         $source = $this->getSource();
 
-        if (in_array('nullable', $diffProperties)) {
-            foreach ($source->keys->foreignKeys as $fk) {
-                if ($fk->localColumn === $sourceColumn->name) {
-                    Garp_Spawn_MySql_ForeignKey::delete($source->name, $fk);
-                    $source->keys->droppedForeignKeyNamesDuringColumnSync[] = $fk->name;
-                    break;
-                }
+        if (!in_array('nullable', $diffProperties)) {
+            return;
+        }
+        foreach ($source->keys->foreignKeys as $fk) {
+            if ($fk->localColumn === $sourceColumn->name) {
+                Garp_Spawn_MySql_ForeignKey::delete($source->name, $fk);
+                $source->keys->droppedForeignKeyNamesDuringColumnSync[] = $fk->name;
+                break;
             }
         }
     }
@@ -262,9 +270,9 @@ class Garp_Spawn_MySql_Table_Synchronizer {
      * @return Garp_Spawn_MySql_Key_Set
      */
     protected function _getConfiguredKeys() {
-        $model                  = $this->getModel();
-        $source                 = $this->getSource();
-        $createStatementLines   = explode("\n", $source->getCreateStatement());
+        $model                = $this->getModel();
+        $source               = $this->getSource();
+        $createStatementLines = explode("\n", $source->getCreateStatement());
 
         $keys = $this->_isBindingModel($model) ?
             new Garp_Spawn_MySql_Key_Set(
@@ -272,8 +280,7 @@ class Garp_Spawn_MySql_Table_Synchronizer {
                 $source->name,
                 $model
             ) :
-            $source->keys
-        ;
+            $source->keys;
 
         return $keys;
     }
