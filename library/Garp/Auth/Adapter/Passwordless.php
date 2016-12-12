@@ -141,7 +141,7 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
     }
 
     protected function _createOrUpdateAuthRecord($userId) {
-        $token = $this->_getToken();
+        $token = $this->_getToken($userId);
         $authPwlessModel = new Model_AuthPasswordless();
         $select = $authPwlessModel->select()->where('user_id = ?', $userId);
         if ($authRecord = $authPwlessModel->fetchRow($select)) {
@@ -165,7 +165,20 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
         return $token;
     }
 
-    protected function _getToken() {
+    /**
+     * Generate a unique token.
+     * If `reuse_existing_token` is configured thus, we will check if a token is known already for
+     * the given userid.
+     *
+     * @param int $userId
+     * @return string
+     */
+    protected function _getToken($userId = null) {
+        if ($this->_getAuthVars()
+            && array_get($this->_getAuthVars()->toArray(), 'reuse_existing_token')
+        ) {
+            return $this->_fetchExistingToken($userId) ?: $this->_getToken();
+        }
         if (function_exists('openssl_random_pseudo_bytes')) {
             return bin2hex(openssl_random_pseudo_bytes(32));
         }
@@ -300,4 +313,11 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
         );
         return $authPwlessModel;
     }
+
+    protected function _fetchExistingToken($userId) {
+        $authPwlessModel = new Model_AuthPasswordless();
+        $existingRow = $authPwlessModel->fetchByUserId($userId);
+        return $existingRow ? $existingRow['token'] : null;
+    }
 }
+
