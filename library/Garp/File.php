@@ -287,37 +287,36 @@ class Garp_File {
     }
 
     protected function _validateConfig($ini) {
-        if (isset($ini->cdn)) {
-            foreach ($this->_requiredConfigParams as $param) {
-                if ((                    !isset($ini->cdn->{$param}) 
-                    || !$ini->cdn->{$param}) 
-                    && !(                    $param === 'domain' 
-                    && defined('HTTP_HOST'))
-                ) {
-                    throw new Exception("'cdn.{$param}' was not set in application.ini.");
-                }
+        if (!isset($ini->cdn)) {
+            throw new Exception("The 'cdn' variable is not set in application.ini.");
+        }
+
+        foreach ($this->_requiredConfigParams as $param) {
+            if ((!isset($ini->cdn->{$param}) || !$ini->cdn->{$param})
+                && !($param === 'domain' && defined('HTTP_HOST'))
+            ) {
+                throw new Exception("'cdn.{$param}' was not set in application.ini.");
             }
-            $configuredCdnType = strtolower($ini->cdn->type);
-            if (in_array($configuredCdnType, $this->_storageTypes)) {
-                foreach ($this->_requiredConfigPaths as $uploadOrStatic) {
-                    foreach ($this->_allowedTypes as $type) {
-                        if (!isset($ini->cdn->path->{$uploadOrStatic}->{$type}) 
-                            || !$ini->cdn->path->{$uploadOrStatic}->{$type}
-                        ) {
-                            throw new Exception(
-                                "The required cdn.path.{$uploadOrStatic}.{$type} " .
-                                "was not set in application.ini."
-                            );
-                        }
-                    }
-                }
-            }
+        }
+        $configuredCdnType = strtolower($ini->cdn->type);
+        if (!in_array($configuredCdnType, $this->_storageTypes)) {
             throw new Exception(
                 "'{$ini->cdn->type}' is not a valid CDN type. Try: " .
                 implode(" or ", $this->_storageTypes) . '.'
             );
         }
-        throw new Exception("The 'cdn' variable is not set in application.ini.");
+        foreach ($this->_requiredConfigPaths as $uploadOrStatic) {
+            foreach ($this->_allowedTypes as $type) {
+                if (!isset($ini->cdn->path->{$uploadOrStatic}->{$type})
+                    || !$ini->cdn->path->{$uploadOrStatic}->{$type}
+                ) {
+                    throw new Exception(
+                        "The required cdn.path.{$uploadOrStatic}.{$type} " .
+                        "was not set in application.ini."
+                    );
+                }
+            }
+        }
     }
 
     protected function _validateUploadOrStatic($uploadOrStatic) {
@@ -333,7 +332,7 @@ class Garp_File {
     }
 
     protected function _initStorage($ini) {
-        if (!empty(self::$_cachedStorage[$ini->cdn->type][$this->_path]) 
+        if (!empty(self::$_cachedStorage[$ini->cdn->type][$this->_path])
             && self::$_cachedStorage[$ini->cdn->type][$this->_path] instanceof Garp_File_Storage
         ) {
             $this->_storage = self::$_cachedStorage[$ini->cdn->type][$this->_path];
@@ -395,4 +394,5 @@ class Garp_File {
         }
     }
 }
+
 
