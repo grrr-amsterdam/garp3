@@ -174,7 +174,8 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
      * @return string
      */
     protected function _getToken($userId = null) {
-        if ($this->_getAuthVars()
+        if ($userId
+            && $this->_getAuthVars()
             && array_get($this->_getAuthVars()->toArray(), 'reuse_existing_token')
         ) {
             return $this->_fetchExistingToken($userId) ?: $this->_getToken();
