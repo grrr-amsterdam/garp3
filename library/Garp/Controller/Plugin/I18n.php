@@ -83,6 +83,9 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
             } elseif ($uiDefaultLanguage) {
                 $redirectUrl = '/' . $uiDefaultLanguage . $path;
             }
+            if ($request->getQuery()) {
+                $redirectUrl .= '?' . http_build_query($request->getQuery());
+            }
             $this->getResponse()
                 ->setRedirect($redirectUrl, 301);
         }
