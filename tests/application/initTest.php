@@ -144,6 +144,18 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertTrue(some($b, $fn));
     }
 
+    public function testCall() {
+        // See below for the mock class
+        $objects = array(
+            new Mock_InitTest_User('henk'), new Mock_InitTest_User('jaap'),
+            new Mock_InitTest_User('lars'));
+        $names = array_map(callMethod('getName', array()), $objects);
+        $this->assertEquals(
+            array('henk', 'jaap', 'lars'),
+            $names
+        );
+    }
+
     public function testShouldHaveSuccessfullyClonedGzdecode() {
         if (version_compare(PHP_VERSION, '5.4.0') === -1) {
             // gzdecode() is not available, so we can't compare the clone to the native function.
@@ -271,4 +283,21 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
 
     }
 
+}
+
+/**
+ * Mock_InitTest_User
+ *
+ * @package Tests
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ */
+class Mock_InitTest_User {
+    protected $_name;
+    public function __construct($name) {
+        $this->_name = $name;
+    }
+
+    public function getName() {
+        return $this->_name;
+    }
 }

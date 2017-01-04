@@ -252,6 +252,31 @@ function propertyEquals($key, $value, $obj = null) {
 }
 
 /**
+ * Curried method caller.
+ * Can be used by array_filter and the like.
+ *
+ * Usage:
+ * Image an array of User objects, all supporting a `getName()` method.
+ * Mapping the array of User objects to an array of names could be done as follows:
+ *
+ * $names = array_map(callMethod('getName', array()), $objects);
+ *
+ * @param string $method
+ * @param array  $args
+ * @param object $obj
+ * @return mixed
+ */
+function callMethod($method, array $args, $obj = null) {
+    $caller = function ($obj) use ($method, $args) {
+        return call_user_func_array(array($obj, $method), $args);
+    };
+    if (is_null($obj)) {
+        return $caller;
+    }
+    return $caller($obj);
+}
+
+/**
  * Partially apply a function where initial arguments form the 'left' arguments of the function, and
  * the new function will accept the rest arguments on the right side of the signature.
  *
