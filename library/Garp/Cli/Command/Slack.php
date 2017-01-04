@@ -60,11 +60,13 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
                         'title' => "{$version} was deployed to the {$env} server",
                         'color' => '#7CD197',
                         'fields' => array(
+                            /*
                             array(
                                 'title' => 'Git rev',
                                 'value' => $gitRev,
                                 'short' => true
                             ),
+                             */
                             array(
                                 'title' => 'User',
                                 'value' => ucfirst($user),
