@@ -37,6 +37,7 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
     public function sendDeployNotification(array $args = array()) {
         $branch = array_get($args, 'branch', 'unknown');
         $user = array_get($args, 'user', 'unknown');
+        $gitRev = array_get($args, 'rev', 'unknown');
 
         $config = Zend_Registry::get('config');
         $appName = $config->app->name;
@@ -49,39 +50,31 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
 
         $slackConfig = new Garp_Service_Slack_Config($slackParams);
         $slack = new Garp_Service_Slack($slackConfig);
+
         return $slack->postMessage(
             '',
             array(
                 'attachments' => array(
                     array(
-                        'pretext' => "{$appName} was deployed to the {$env} server",
+                        'title_link' => (string)new Garp_Util_FullUrl('/'),
+                        'title' => "{$version} was deployed to the {$env} server",
                         'color' => '#7CD197',
                         'fields' => array(
                             array(
+                                'title' => 'Git rev',
+                                'value' => $gitRev,
+                                'short' => true
+                            ),
+                            array(
                                 'title' => 'User',
                                 'value' => ucfirst($user),
-                                'short' => false
-                            ),
-                            array(
-                                'title' => 'Version',
-                                'value' => (string)$version,
-                                'short' => false
-                            ),
-                            array(
-                                'title' => 'Environment',
-                                'value' => $env,
-                                'short' => false
+                                'short' => true
                             ),
                             array(
                                 'title' => 'Branch',
                                 'value' => $branch,
-                                'short' => false
+                                'short' => true
                             ),
-                            array(
-                                'title' => 'Website',
-                                'value' => (string)new Garp_Util_FullUrl('/'),
-                                'short' => false
-                            )
                         )
                     )
                 )
@@ -102,3 +95,5 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
         return true;
     }
 }
+
+
