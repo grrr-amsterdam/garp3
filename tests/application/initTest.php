@@ -156,6 +156,47 @@ class Garp_Application_InitTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 
+    public function testPsort() {
+        $spices = array('cloves', 'coriander seed', 'cumin', 'chili', 'cinnamon');
+        $sortedSpices = psort(null, $spices);
+        $this->assertEquals(
+            array('chili', 'cinnamon', 'cloves', 'coriander seed', 'cumin'),
+            $sortedSpices,
+            'psort sorts the array'
+        );
+        $this->assertEquals(
+            array('cloves', 'coriander seed', 'cumin', 'chili', 'cinnamon'),
+            $spices,
+            'Original array is left untouched'
+        );
+
+        $sortByLength = function ($a, $b) {
+            return strlen($b) - strlen($a);
+        };
+        $sortedSpicesByLength = psort($sortByLength, $spices);
+        $this->assertEquals(
+            array('coriander seed', 'cinnamon', 'cloves', 'cumin', 'chili'),
+            $sortedSpicesByLength,
+            'psort sorts array using custom function (usort)'
+        );
+
+        $usersByGroup = array(
+            array('Henk', 'Bettie', 'Johan'),
+            array('Gijs', 'Frits', 'Bernard'),
+            array('Julia', 'Wilma', 'Zacharia')
+        );
+        $sortedUserGroups = array_map(psort(), $usersByGroup);
+        $this->assertEquals(
+            array(
+                array('Bettie', 'Henk', 'Johan'),
+                array('Bernard', 'Frits', 'Gijs'),
+                array('Julia', 'Wilma', 'Zacharia')
+            ),
+            $sortedUserGroups,
+            'psort will auto-curry itself when called without array'
+        );
+    }
+
     public function testShouldHaveSuccessfullyClonedGzdecode() {
         if (version_compare(PHP_VERSION, '5.4.0') === -1) {
             // gzdecode() is not available, so we can't compare the clone to the native function.
