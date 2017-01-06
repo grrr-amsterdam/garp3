@@ -197,6 +197,33 @@ function array_set($key, $value, $a = null) {
 // @codingStandardsIgnoreEnd
 
 /**
+ * Pure sort function. Returns a sorted copy.
+ *
+ * @param callable $fn
+ * @param array $a
+ * @return array
+ */
+function psort($fn = null, array $a = null) {
+    if ($fn && !is_callable($fn)) {
+        throw new InvalidArgumentException('psort expects parameter 1 to be a valid callback');
+    }
+    $sorter = function ($a) use ($fn) {
+        // make a copy of the array as to not disturb the original
+        $b = $a;
+        if (!$fn) {
+            sort($b);
+            return $b;
+        }
+        usort($b, $fn);
+        return $b;
+    };
+    if (is_null($a)) {
+        return $sorter;
+    }
+    return $sorter($a);
+}
+
+/**
  * Returns a property from an object or NULL if unavailable.
  * Is curried to ease use with array_map and array_filter and the like.
  *
