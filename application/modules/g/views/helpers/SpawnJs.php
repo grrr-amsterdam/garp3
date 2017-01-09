@@ -29,6 +29,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
         case 'numeric':
             return 'numberfield';
         case 'text':
+        case 'set':
             if ((!is_null($field->multiline) && !$field->multiline)
                 || ($field->maxLength <= Garp_Spawn_Field::TEXTFIELD_MAX_LENGTH
                 && !is_null($field->maxLength))
@@ -261,3 +262,4 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
         return 'null';
     }
 }
+

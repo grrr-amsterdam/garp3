@@ -9,6 +9,16 @@
 class Garp_Spawn_Field {
     const TEXTFIELD_MAX_LENGTH = 124;
 
+    const INVALID_FIELD_TYPE = "'%s' is not a valid field type for the '%s' field. Try: %s";
+    const INVALID_PARAMETER
+        = "'%s' is not a valid parameter for the '%s' field configuration. Try: %s";
+    // @codingStandardsIgnoreStart
+    const UNSUPPORTED_PARAM_OPTIONS
+        = "The 'options' parameter is only valid for the 'enum' fields.";
+    const MISSING_OPTIONS_PARAM
+        = "The 'options' parameter should contain an array with db enum values, or an object with db enum values as object keys, and labels as object values.";
+    // @codingStandardsIgnoreEnd
+
     /**
      * Lowercase, underscored name of the field, as it appears in the database.
      *
@@ -92,7 +102,7 @@ class Garp_Spawn_Field {
 
     protected $_types = array(
         'text', 'html', 'email', 'url', 'numeric', 'checkbox',
-        'datetime', 'date', 'time', 'enum', 'document', 'imagefile'
+        'datetime', 'date', 'time', 'enum', 'set', 'document', 'imagefile'
     );
 
     protected $_defaultTypeByNameEnding = array(
@@ -154,31 +164,37 @@ class Garp_Spawn_Field {
                         $publicProps[] = $reflProp->name;
                     }
                 }
-                // @codingStandardsIgnoreStart
-                throw new Exception("'{$paramName}' is not a valid parameter for the '{$this->name}' field configuration. Try: ".implode($publicProps, ", "));
-                // @codingStandardsIgnoreEnd
+                throw new Exception(
+                    sprintf(
+                        self::INVALID_PARAMETER,
+                        $paramName,
+                        $this->name,
+                        implode($publicProps, ', ')
+                    )
+                );
             } else {
                 switch ($paramName) {
                 case 'type':
                     if (!in_array($paramValue, $this->_types)) {
-                        // @codingStandardsIgnoreStart
-                        throw new Exception("'{$paramValue}' is not a valid field type for the '{$this->name}' field. Try: ".implode($this->_types, ", "));
-                        // @codingStandardsIgnoreEnd
+                        throw new Exception(
+                            sprintf(
+                                self::INVALID_FIELD_TYPE,
+                                $paramValue,
+                                $this->name,
+                                implode($this->_types, ', ')
+                            )
+                        );
                     }
                     break;
                 case 'options':
-                    if ($config['type'] === 'enum') {
+                    if ($config['type'] === 'enum' || $config['type'] === 'set') {
                         if ((!is_array($config['options']) && !is_object($config['options']))
                             || !($config['options'])
                         ) {
-                            // @codingStandardsIgnoreStart
-                            throw new Exception("The 'options' parameter should contain an array with db enum values, or an object with db enum values as object keys, and labels as object values.");
-                            // @codingStandardsIgnoreEnd
+                            throw new Exception(self::MISSING_OPTIONS_PARAM);
                         }
                     } else {
-                        throw new Exception(
-                            "The 'options' parameter is only valid for the 'enum' fields."
-                        );
+                        throw new Exception(self::UNSUPPORTED_PARAM_OPTIONS);
                     }
                     break;
                 }
@@ -249,3 +265,4 @@ class Garp_Spawn_Field {
     public function getNameProperty($name) {
     }
 }
+
