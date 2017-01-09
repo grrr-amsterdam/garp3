@@ -2,11 +2,12 @@
 /**
  * Garp_Controller_Plugin_I18n
  * This plugin loads the correct Zend_Translate for the current locale.
- * @author Joe Gornick | joegornick.com
+ *
+ * @package Garp
+ * @subpackage Controllerm>
+ * @author Joe Gornick <someguy@joegornick.com>
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
- * @package Garp
- * @subpackage Controller
  * @lastmodified $Date: $
  */
 class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
@@ -64,23 +65,29 @@ class Garp_Controller_Plugin_I18n extends Zend_Controller_Plugin_Abstract {
 
         if ($langIsInUrl || $uiDefaultLangIsInUrl) {
             if ($uiDefaultLangIsInUrl) {
-                $frontController->setBaseUrl($frontController->getBaseUrl() . '/' . $uiDefaultLanguage);
+                $frontController->setBaseUrl(
+                    $frontController->getBaseUrl() . '/' . $uiDefaultLanguage
+                );
             } else {
                 $frontController->setBaseUrl($frontController->getBaseUrl() . '/' . $language);
             }
-        } elseif (!empty($config->resources->router->locale->enabled) && $config->resources->router->locale->enabled) {
-            $redirectUrl = '/'.$language.$path;
-            if ($frontController->getRouter()->getCurrentRouteName() === 'admin' &&
-                !empty($config->resources->locale->adminDefault)) {
+        } elseif (!empty($config->resources->router->locale->enabled) 
+            && $config->resources->router->locale->enabled
+        ) {
+            $redirectUrl = '/' . $language . $path;
+            if ($frontController->getRouter()->getCurrentRouteName() === 'admin' 
+                && !empty($config->resources->locale->adminDefault)
+            ) {
                 $adminDefaultLanguage = $config->resources->locale->adminDefault;
                 $redirectUrl = '/' . $adminDefaultLanguage . $path;
             } elseif ($uiDefaultLanguage) {
-                $redirectUrl = '/'.$uiDefaultLanguage.$path;
+                $redirectUrl = '/' . $uiDefaultLanguage . $path;
+            }
+            if ($request->getQuery()) {
+                $redirectUrl .= '?' . http_build_query($request->getQuery());
             }
             $this->getResponse()
-                ->setRedirect($redirectUrl, 301)
-            ;
+                ->setRedirect($redirectUrl, 301);
         }
     }
-
 }
