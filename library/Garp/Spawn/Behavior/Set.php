@@ -28,7 +28,8 @@ class Garp_Spawn_Behavior_Set {
         'Translatable',
         'Truncatable',
         'Checkboxable',
-        'MinLength'
+        'MinLength',
+        'Set'
     );
 
     protected $_validatorBehaviors = array(
@@ -172,3 +173,4 @@ class Garp_Spawn_Behavior_Set {
         $this->_add('relation', 'Weighable', $weighableConfig);
     }
 }
+

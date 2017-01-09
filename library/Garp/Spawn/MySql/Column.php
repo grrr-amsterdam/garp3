@@ -1,5 +1,7 @@
 <?php
 /**
+ * Garp_Spawn_MySql_Column
+ *
  * @package Garp_Spawn_MySql
  * @author  David Spreekmeester <david@grrr.nl>
  */
@@ -102,7 +104,7 @@ class Garp_Spawn_MySql_Column {
                 . ($this->length ?: $this->decimals)
                 . ($this->decimals ? (',' . $this->decimals) : '')
                 . ')';
-        } elseif ($this->type === 'enum') {
+        } elseif ($this->type === 'enum' || $this->type === 'set') {
             $typeStatement.= '(' . $this->options . ')';
         }
         $nodes[] = $typeStatement;
@@ -140,7 +142,8 @@ class Garp_Spawn_MySql_Column {
             $reqAndDef = ' ' . $reqAndDef;
         }
         $autoIncr = $field->name === 'id' ? ' AUTO_INCREMENT' : '';
-        return "  `{$field->name}` {$type}{$reqAndDef}{$autoIncr}";
+        $out = "  `{$field->name}` {$type}{$reqAndDef}{$autoIncr}";
+        return $out;
     }
 
 
@@ -183,13 +186,14 @@ class Garp_Spawn_MySql_Column {
             return $field->type;
 
         case 'enum':
+        case 'set':
             $options = $field->options;
             if (is_object($options) || (is_array($options) && key($options) !== 0)) {
                 //  this enum field has labels attached to it,
                 //  but only the values are stored in the database.
                 $options = array_keys((array)$options);
             }
-            return "enum('" . implode($options, "','") . "')";
+            return "{$field->type}('" . implode($options, "','") . "')";
 
         default:
             throw new Exception(
@@ -328,3 +332,4 @@ class Garp_Spawn_MySql_Column {
     }
 
 }
+
