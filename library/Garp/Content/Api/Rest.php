@@ -274,6 +274,9 @@ class Garp_Content_Api_Rest {
             // Normalize into an array
             $options['with'] = (array)$options['with'];
         }
+        if (array_get($params, 'id')) {
+            $options['query']['id'] = $params['id'];
+        }
         return $options;
     }
 
@@ -293,6 +296,8 @@ class Garp_Content_Api_Rest {
         }
 
         $records = $contentManager->fetch($options);
+        $amount = count($records);
+        $records = array($params['datatype'] => $records);
         if (isset($options['with'])) {
             $records = $this->_combineRecords($params['datatype'], $records, $options['with']);
         }
@@ -300,7 +305,7 @@ class Garp_Content_Api_Rest {
             array(
                 'success' => true,
                 'result' => $records,
-                'amount' => count($records),
+                'amount' => $amount,
                 'total' => intval($contentManager->count($options))
             ),
             200
@@ -309,18 +314,19 @@ class Garp_Content_Api_Rest {
 
     protected function _getSingleResult(array $params) {
         $model = $this->_normalizeModelName($params['datatype']);
-        $options = array(
-            'query' => array(
-                'id' => $params['id']
-            )
-        );
+
+        $options = $this->_extractOptionsForFetch($params);
         $contentManager = $this->_getContentManager($model);
         $result = $contentManager->fetch($options);
-        $result = count($result) ? $result[0] : null;
+        // $result = count($result) ? $result[0] : null;
+        $result = array($params['datatype'] => $result);
+        if (isset($options['with'])) {
+            $result = $this->_combineRecords($params['datatype'], $result, $options['with']);
+        }
         return array(
             array(
                 'success' => !is_null($result),
-                'result' => $result
+                'result' => $result,
             ),
             !is_null($result) ? 200 : 404
         );
@@ -358,11 +364,16 @@ class Garp_Content_Api_Rest {
         $options['fields'] = Zend_Db_Select::SQL_WILDCARD;
 
         $records = $contentManager->fetch($options);
+        $amount = count($records);
+        $records = array($params['relatedType'] => $records);
+        if (isset($options['with'])) {
+            $records = $this->_combineRecords($params['relatedType'], $records, $options['with']);
+        }
         return array(
             array(
                 'success' => true,
                 'result' => $records,
-                'amount' => count($records),
+                'amount' => $amount,
                 'total' => intval($contentManager->count($options))
             ),
             200
@@ -481,8 +492,8 @@ class Garp_Content_Api_Rest {
         $self = $this;
         return array_reduce(
             $with,
-            function ($acc, $cur) use ($rootModel, $records, $schema, $self) {
-                // grab foreign key names from the relation
+            function ($acc, $cur) use ($datatype, $schema, $self) {
+                // Grab foreign key names from the relation
                 $foreignKey = current(
                     array_filter(
                         $schema['fields'],
@@ -490,11 +501,15 @@ class Garp_Content_Api_Rest {
                     )
                 );
 
+                // Prepare a place for the result
+                if (!isset($acc[$foreignKey['model']])) {
+                    $acc[$foreignKey['model']] = array();
+                }
+
                 // Grab foreign key values
-                $foreignKeyValues = array_map(array_get($foreignKey['name']), $records);
+                $foreignKeyValues = array_map(array_get($foreignKey['name']), $acc[$datatype]);
                 // No values to filter on? Bail.
                 if (!count(array_filter($foreignKeyValues))) {
-                    $acc[$cur] = array();
                     return $acc;
                 }
                 $foreignKeyValues = array_values(array_unique($foreignKeyValues));
@@ -505,11 +520,15 @@ class Garp_Content_Api_Rest {
                     'datatype' => $foreignKey['model']
                 );
 
-                // fetch with options
-                $acc[$cur] = array_get(current($self->_getIndex($options)), 'result');
+                // Fetch with options
+                $relatedRowset = current($self->_getIndex($options));
+                $acc[$foreignKey['model']] = array_merge(
+                    $acc[$foreignKey['model']],
+                    $relatedRowset['result'][$foreignKey['model']]
+                );
                 return $acc;
             },
-            array($datatype => $records)
+            $records
         );
 
     }

@@ -27,7 +27,7 @@ class Garp_Content_Api_Rest_Schema {
         $config['order'] = $model->order;
         $config['name'] = $modelName;
         // getListFieldNames());
-        $config['listFields'] = array_values($model->fields->listFieldNames);
+        $config['listFields'] = $this->_getListFields($model);
         $config['label'] = $model->label;
         $config['description'] = $model->description;
         $config['creatable'] = $model->creatable;
@@ -114,5 +114,12 @@ class Garp_Content_Api_Rest_Schema {
             $hasOneRelations
         );
         return $hasOneColumns;
+    }
+
+    protected function _getListFields($model) {
+        return array_merge(
+            array_values($model->fields->listFieldNames),
+            array('author_id')
+        );
     }
 }
