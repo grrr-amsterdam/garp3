@@ -16,7 +16,7 @@ detailed messages, consider squashing commits into 1 or 2 separate commits with 
 We use PHPCS to check coding standards. There's a custom set of rules in `phpcs.xml`. It's a lot
 more forgiving than other styles out there, so it shouldn't be that hard to comply. 
 
-See also (our PHP CodeSniffer wiki page)[https://github.com/grrr-amsterdam/garp3/wiki/PHP-CodeSniffer] 
+See also [our PHP CodeSniffer wiki page](https://github.com/grrr-amsterdam/garp3/wiki/PHP-CodeSniffer) 
 for a way to automatically check coding standards before committing your work.
 
 ## Tests
