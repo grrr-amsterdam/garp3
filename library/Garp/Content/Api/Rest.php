@@ -288,6 +288,9 @@ class Garp_Content_Api_Rest {
         $model = $this->_normalizeModelName($params['datatype']);
         $contentManager = $this->_getContentManager($model);
         $options = $this->_extractOptionsForFetch($params);
+        if (instance($model)->isMultilingual()) {
+            $options['joinMultilingualModel'] = true;
+        }
 
         $records = $contentManager->fetch($options);
         if (isset($options['with'])) {
@@ -352,6 +355,7 @@ class Garp_Content_Api_Rest {
         $options['bindingModel'] = $relation->getBindingModel()->id;
         $options['rule'] = $rule1;
         $options['rule2'] = $rule2;
+        $options['fields'] = Zend_Db_Select::SQL_WILDCARD;
 
         $records = $contentManager->fetch($options);
         return array(
