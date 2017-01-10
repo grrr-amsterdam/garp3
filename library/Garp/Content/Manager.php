@@ -143,6 +143,15 @@ class Garp_Content_Manager {
                 );
             }
 
+            if (array_get($options, 'joinMultilingualModel')) {
+                $i18nModel = $this->_model->getObserver('Translatable')
+                    ->getI18nModel($this->_model);
+                $select->join(
+                    $i18nModel->getName(),
+                    $i18nModel->refmapToOnClause(get_class($this->_model))
+                );
+            }
+
             // WHERE
             // Add WHERE clause if there still remains something after
             // filtering.
