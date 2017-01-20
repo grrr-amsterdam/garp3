@@ -116,7 +116,12 @@ class Garp_Model_Behavior_DefaultSortable extends Garp_Model_Behavior_Core {
     protected function _addColumnsToFrom($from) {
         return array_map(
             function ($fromPart) {
-                $tableCls = new Zend_Db_Table($fromPart['tableName']);
+                $tableCls = new Zend_Db_Table(
+                    array(
+                        Zend_Db_Table::NAME => $fromPart['tableName'],
+                        Zend_Db_Table::PRIMARY => 'id'
+                    )
+                );
                 return array_set(
                     'columns',
                     $tableCls->info(Zend_Db_Table::COLS),
@@ -128,4 +133,5 @@ class Garp_Model_Behavior_DefaultSortable extends Garp_Model_Behavior_Core {
     }
 
 }
+
 
