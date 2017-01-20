@@ -9,6 +9,7 @@
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Behavior_DefaultSortable extends Garp_Model_Behavior_Core {
+
     /**
      * Wether to execute before or after regular observers.
      *
@@ -39,7 +40,6 @@ class Garp_Model_Behavior_DefaultSortable extends Garp_Model_Behavior_Core {
     public function beforeFetch(&$args) {
         $model = &$args[0];
         $select = &$args[1];
-
         if ($select->getPart(Zend_Db_Select::ORDER)) {
             return;
         }
@@ -69,7 +69,6 @@ class Garp_Model_Behavior_DefaultSortable extends Garp_Model_Behavior_Core {
         }
         $tableName = $model->getName();
         $from = $this->_getFrom($select);
-
         $order = array_map(
             function ($orderBit) use ($from) {
                 $fromDefinition = array_filter(
@@ -115,7 +114,20 @@ class Garp_Model_Behavior_DefaultSortable extends Garp_Model_Behavior_Core {
      */
     protected function _addColumnsToFrom($from) {
         return array_map(
-            function ($fromPart) {
+            function ($fromPart) use ($from) {
+                /**
+                 * Oh dear, this is so fucking arbitrary... Passing the "id" as primary key to the
+                 * anonymous Zend_Db_Table a couple lines below will blow up in case of habtm
+                 * bindingModel. So we just... skip that if the name starts with an underscore?
+                 * This'll keep me up at night. We should nuke this entire shitty component.
+                 */
+                if ($fromPart['tableName'][0] === '_') {
+                    return array_set(
+                        'columns',
+                        array(),
+                        $fromPart
+                    );
+                }
                 $tableCls = new Zend_Db_Table(
                     array(
                         Zend_Db_Table::NAME => $fromPart['tableName'],
@@ -133,5 +145,6 @@ class Garp_Model_Behavior_DefaultSortable extends Garp_Model_Behavior_Core {
     }
 
 }
+
 
 
