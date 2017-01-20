@@ -148,7 +148,13 @@ class Garp_Content_Manager {
                     ->getI18nModel($this->_model);
                 $select->join(
                     $i18nModel->getName(),
-                    $i18nModel->refmapToOnClause(get_class($this->_model))
+                    $i18nModel->refmapToOnClause(get_class($this->_model)),
+                    array_map(
+                        array_get('name'),
+                        array_filter(
+                            $this->_model->getFieldConfiguration(), array_get('multilingual')
+                        )
+                    )
                 );
             }
 
