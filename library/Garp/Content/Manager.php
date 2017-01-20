@@ -144,11 +144,19 @@ class Garp_Content_Manager {
             }
 
             if (array_get($options, 'joinMultilingualModel')) {
+                /**
+                 * Note that this join is meant just to provide a table with its extended columns to
+                 * allow, for instance, sorting.
+                 * If you want to sort by `name`, which is often a multilingual field,
+                 * you're gonna need this. MySQL would otherwise complain about unknown columns.
+                 * Note that this replicates the behavior of the MySQL joint views.
+                 */
                 $i18nModel = $this->_model->getObserver('Translatable')
                     ->getI18nModel($this->_model);
+                $lang = Garp_I18n::getDefaultLocale();
                 $select->join(
                     $i18nModel->getName(),
-                    $i18nModel->refmapToOnClause(get_class($this->_model)),
+                    $i18nModel->refmapToOnClause(get_class($this->_model)) . " AND lang = '$lang'",
                     array_map(
                         array_get('name'),
                         array_filter(
@@ -989,3 +997,4 @@ class Garp_Content_Manager {
         return $model->getJointView() ?: $model->getName();
     }
 }
+
