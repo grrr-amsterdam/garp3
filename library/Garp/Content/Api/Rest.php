@@ -358,8 +358,10 @@ class Garp_Content_Api_Rest {
         list($rule1, $rule2) = $relation->getRules($params['datatype']);
 
         $contentManager = $this->_getContentManager($relation->model);
+        $subjectId = $params['id'];
+        unset($params['id']);
         $options = $this->_extractOptionsForFetch($params);
-        $options['query'][ucfirst($params['datatype']) . '.id'] = $params['id'];
+        $options['query'][ucfirst($params['datatype']) . '.id'] = $subjectId;
         $options['bindingModel'] = $relation->getBindingModel()->id;
         $options['rule'] = $rule1;
         $options['rule2'] = $rule2;
@@ -559,4 +561,5 @@ class Garp_Content_Api_Rest {
         return $contentManager;
     }
 }
+
 
