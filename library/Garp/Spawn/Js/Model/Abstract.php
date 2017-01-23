@@ -20,7 +20,7 @@ abstract class Garp_Spawn_Js_Model_Abstract {
         $view->model = $this->_modelSet[$this->_modelId];
         $view->modelSet = $this->_modelSet;
 
-        $view->setScriptPath(GARP_APPLICATION_PATH.'/modules/g/views/scripts/spawn/js/');
+        $view->setScriptPath(GARP_APPLICATION_PATH . '/modules/g/views/scripts/spawn/js/');
         return $view->render($this->_template);
     }
 
@@ -43,8 +43,7 @@ abstract class Garp_Spawn_Js_Model_Abstract {
      * @return string
      */
     protected function _minify($str) {
-        include_once GARP_APPLICATION_PATH . "/../library/Garp/3rdParty/minify/lib/JSMin.php";
-        return JSMin::minify($str);
+        return \JShrink\Minifier::minify($str);
     }
 
     /**
@@ -67,5 +66,10 @@ abstract class Garp_Spawn_Js_Model_Abstract {
             $view->setTemplateEngine('php');
         }
         return $view;
+    }
+
+    protected function _shouldMinifyModels() {
+        $config = Zend_Registry::get('config');
+        return isset($config->spawn) && $config->spawn->minifyJsModels;
     }
 }
