@@ -105,13 +105,13 @@ class Garp_Spawn_Field {
         'datetime', 'date', 'time', 'enum', 'set', 'document', 'imagefile'
     );
 
-    protected $_defaultTypeByNameEnding = array(
-        'email' => 'email',
-        'url' => 'url',
-        'description' => 'html',
-        'id' => 'numeric',
-        'date' => 'date',
-        'time' => 'time'
+    protected $_defaultTypeByNamePattern = array(
+        '/email$/'       => 'email',
+        '/url$/'         => 'url',
+        '/description$/' => 'html',
+        '/(^|_)id$/'     => 'numeric',
+        '/date$/'        => 'date',
+        '/time$/'        => 'time'
     );
 
     /**
@@ -206,8 +206,8 @@ class Garp_Spawn_Field {
 
     protected function _setConditionalDefaults(array $config) {
         if (!array_key_exists('type', $config)) {
-            foreach ($this->_defaultTypeByNameEnding as $ending => $type) {
-                if (Garp_Spawn_Util::stringEndsIn($ending, $this->name)) {
+            foreach ($this->_defaultTypeByNamePattern as $pattern => $type) {
+                if (preg_match($pattern, $this->name)) {
                     $this->type = $type;
                 }
             }
