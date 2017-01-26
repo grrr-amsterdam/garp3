@@ -21,6 +21,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
 
     const ERROR_SCALING_TEMPLATE_MISSING = 'You will need to provide a scaling template.';
     const ERROR_ARGUMENT_IS_NOT_FILENAME = 'The provided argument is not a filename.';
+    const ERROR_IMAGE_NOT_FOUND = 'Image not found';
 
     /**
      * Instance conveyer method to enable calling of the other methods in this class from the view.
@@ -107,6 +108,20 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
         }
         $file = new Garp_Image_File();
         return $file->getUrl($filename);
+    }
+
+    /**
+     * Returns the url to the source file of an upload by id
+     *
+     * @param int $id The id of the upload
+     * @return string
+     */
+    public function getSourceUrlById($id) {
+        $image = instance(new Model_Image)->fetchById($id);
+        if (!$image) {
+            throw new InvalidArgumentException(self::ERROR_IMAGE_NOT_FOUND);
+        }
+        return $this->getSourceUrl($image['filename']);
     }
 
     /**
