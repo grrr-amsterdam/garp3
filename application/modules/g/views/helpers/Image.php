@@ -113,13 +113,13 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
     /**
      * Returns the url to the source file of an upload by id
      *
-     * @param integer $id The id of the upload
+     * @param int $id The id of the upload
      * @return string
      */
     public function getSourceUrlById($id) {
         $image = instance(new Model_Image)->fetchById($id);
         if (!$image) {
-            throw new Exception(self::ERROR_IMAGE_NOT_FOUND);
+            throw new InvalidArgumentException(self::ERROR_IMAGE_NOT_FOUND);
         }
         return $this->getSourceUrl($image['filename']);
     }
