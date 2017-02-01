@@ -244,18 +244,19 @@ class Garp_File {
 
         if ($val) {
             $val = trim($val);
-            $last = strtolower($val[strlen($val)-1]);
-            switch($last) {
+            $unit = strtolower($val[strlen($val)-1]);
+            $num = filter_var($val, FILTER_SANITIZE_NUMBER_INT);
+            switch($unit) {
                 // The 'G' modifier is available since PHP 5.1.0
             case 'g':
-                $val *= 1024;
+                $num *= 1024;
             case 'm':
-                $val *= 1024;
+                $num *= 1024;
             case 'k':
-                $val *= 1024;
+                $num *= 1024;
             }
 
-            return $val / 1024 / 1024;
+            return $num / 1024 / 1024;
         }
         throw new Exception("Could not retrieve the maximum filesize for uploads.");
     }
