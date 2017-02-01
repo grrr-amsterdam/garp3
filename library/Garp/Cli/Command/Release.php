@@ -44,6 +44,7 @@ class Garp_Cli_Command_Release extends Garp_Cli_Command_Flow {
             return false;
         }
         passthru('git flow release finish -m "Release_' . $version . '" ' . $version);
+        passthru('git push origin --tags');
         return true;
     }
 
