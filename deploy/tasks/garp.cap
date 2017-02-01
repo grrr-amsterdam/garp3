@@ -22,10 +22,7 @@ desc "Notify Slack"
 task :notify_slack do
     on roles(:app) do
         within release_path do
-            # Work in progress: might be fun to add git message / revision at some point
-            # --git-msg=\"#{git log --format=oneline -n 1 HEAD#}\"
-            # --git-rev=#{capture("cd #{repo_path} && git rev-parse --short HEAD")}
-            execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Slack sendDeployNotification --branch=#{fetch(:branch)} --user=#{fetch(:local_user)} --e=#{fetch(:stage)}"
+            execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Slack sendDeployNotification --branch=#{fetch(:branch)} --user=#{fetch(:local_user)} --git-version=#{capture("cd #{repo_path} && git describe #{fetch(:branch)}")} --e=#{fetch(:stage)}"
         end
     end
 end
