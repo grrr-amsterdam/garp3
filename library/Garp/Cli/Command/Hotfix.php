@@ -55,6 +55,7 @@ class Garp_Cli_Command_Hotfix extends Garp_Cli_Command_Flow {
 
         $finish_hotfix_cmd = 'git flow hotfix finish -m "Hotfix_' . $version . '" ' . $version;
         passthru($finish_hotfix_cmd);
+        passthru('git push origin --tags');
         return true;
     }
 
