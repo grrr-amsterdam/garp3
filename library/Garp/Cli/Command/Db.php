@@ -8,24 +8,6 @@
  * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_Db extends Garp_Cli_Command {
-    /**
-     * Help
-     *
-     * @return bool
-     */
-    public function help() {
-        Garp_Cli::lineOut('Usage:');
-        Garp_Cli::lineOut('Show table info:');
-        Garp_Cli::lineOut('  g Db info <tablename>');
-        Garp_Cli::lineOut('');
-        Garp_Cli::lineOut('Sync database with database of different environment:');
-        Garp_Cli::lineOut('  g Db sync <environment>');
-        Garp_Cli::lineOut('');
-        Garp_Cli::lineOut('Replace a string in the database, across tables and columns:');
-        Garp_Cli::lineOut('  g Db replace');
-        Garp_Cli::lineOut('');
-        return true;
-    }
 
     /**
      * Show table info (DESCRIBE query) for given table
@@ -75,6 +57,53 @@ class Garp_Cli_Command_Db extends Garp_Cli_Command {
                 $this->_replaceString($model->class, $subject, $replacement);
             }
         }
+        return true;
+    }
+
+    /**
+     * Start the interactive mysql client
+     *
+     * @return bool
+     */
+    public function connect() {
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        if (!$adapter) {
+            Garp_Cli::errorOut('No database adapter found');
+            return false;
+        }
+        $config = $adapter->getConfig();
+        $params = array(
+            '-u' . escapeshellarg($config['username']),
+            '-p' . escapeshellarg($config['password']),
+            '-h' . escapeshellarg($config['host']),
+            ' ' . escapeshellarg($config['dbname'])
+        );
+        $cmd = 'mysql ' . implode(' ', $params);
+        $process = proc_open($cmd, array(0 => STDIN, 1 => STDOUT, 2 => STDERR), $pipes);
+        $proc_status = proc_get_status($process);
+        $exit_code = proc_close($process);
+        return ($proc_status["running"] ? $exit_code : $proc_status["exitcode"] ) == 0;
+    }
+
+    /**
+     * Help
+     *
+     * @return bool
+     */
+    public function help() {
+        Garp_Cli::lineOut('Usage:');
+        Garp_Cli::lineOut('Show table info:');
+        Garp_Cli::lineOut('  g Db info <tablename>');
+        Garp_Cli::lineOut('');
+        Garp_Cli::lineOut('Sync database with database of different environment:');
+        Garp_Cli::lineOut('  g Db sync <environment>');
+        Garp_Cli::lineOut('');
+        Garp_Cli::lineOut('Replace a string in the database, across tables and columns:');
+        Garp_Cli::lineOut('  g Db replace');
+        Garp_Cli::lineOut('');
+        Garp_Cli::lineOut('Connect to mysql interactively:');
+        Garp_Cli::lineOut('  g Db connect');
+        Garp_Cli::lineOut('');
         return true;
     }
 
