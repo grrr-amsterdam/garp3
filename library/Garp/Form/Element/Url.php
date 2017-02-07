@@ -1,10 +1,9 @@
 <?php
 /**
  * Garp_Form_Element_Url
- * @author Harmen Janssen | grrr.nl
- * @version 1
- * @package Garp
- * @subpackage Form
+ *
+ * @package Garp_Form_Element
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Form_Element_Url extends Garp_Form_Element_Text {
 
