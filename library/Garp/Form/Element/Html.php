@@ -9,7 +9,8 @@
 class Garp_Form_Element_Html extends Zend_Form_Element {
     /**
      * Helper used for rendering
-     * @var String
+     *
+     * @var string
      */
     public $helper = 'html';
 
@@ -21,9 +22,9 @@ class Garp_Form_Element_Html extends Zend_Form_Element {
         parent::__construct($spec, $options);
         if (!array_key_exists('decorators', $options)) {
             $this->clearDecorators();
-            $this->setDecorators(array(
-                'ViewHelper',
-            ));
+            $this->setDecorators(
+                array('ViewHelper')
+            );
         }
     }
 
