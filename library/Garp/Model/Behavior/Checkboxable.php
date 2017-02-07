@@ -31,6 +31,9 @@ class Garp_Model_Behavior_Checkboxable extends Garp_Model_Behavior_Core {
     }
 
     protected function _normalizeCheckboxValue($value) {
+        if ($value instanceof Zend_Db_Expr) {
+            return $value;
+        }
         if (is_int($value)) {
             // Accept only ones and zeroes. Consider any non-zero value to be one.
             return 0 === $value ? $value : 1;
