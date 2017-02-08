@@ -61,7 +61,7 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
                 'attachments' => array(
                     array(
                         'title_link' => (string)new Garp_Util_FullUrl('/'),
-                        'title' => "{$version} was deployed to the {$env} server",
+                        'title' => "{$appName} {$version} was deployed to the {$env} server",
                         'color' => '#7CD197',
                         'fields' => array(
                             array(
