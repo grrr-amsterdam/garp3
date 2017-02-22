@@ -1,3 +1,24 @@
+desc "Push built assets to the webserver"
+task :build_and_push_assets do
+    on roles(:web) do |host|
+        run_locally do
+            env = fetch(:stage)
+            execute "gulp --e=#{env}"
+            execute "scp rev-manifest-*.json #{host.user}@#{host.hostname}:#{release_path}"
+            execute "scp -r public/css/build/* #{host.user}@#{host.hostname}:#{release_path}"\
+                "/public/css/build/"
+        end
+    end
+end
+
+desc "Distributing assets to CDN"
+task :distribute_assets do
+    run_locally do
+        env = fetch(:stage)
+        execute "vendor/bin/g cdn distribute --to=#{env} --since=forever"
+    end
+end
+
 desc "Check if a grunt build is necessary"
 task :check_grunt_status do 
 	run_locally do
