@@ -1,18 +1,20 @@
 <?php
 /**
  * Garp_Content_Cdn_Distributor
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
  * @subpackage Content
+ * @author David Spreekmeester | grrr.nl
+ * @version $Revision: $
+ * @modifiedby $LastChangedBy: $
  * @lastmodified $Date: $
  */
 class Garp_Content_Cdn_Distributor {
     protected $_environments = array('development', 'integration', 'staging', 'production');
 
     /**
-     * Where the baseDir for assets is located, relative to APPLICATION_PATH. Without trailing slash.
+     * Where the baseDir for assets is located, relative to APPLICATION_PATH.
+     * Without trailing slash.
      */
     const RELATIVE_BASEDIR_AFTER_APPLICATION_PATH = '/../public';
 
