@@ -1,9 +1,15 @@
+desc "Build assets"
+task :build_assets do
+    run_locally do
+        env = fetch(:stage)
+        execute "gulp --e=#{env}"
+    end
+end
+
 desc "Push built assets to the webserver"
-task :build_and_push_assets do
+task :push_assets do
     on roles(:web) do |host|
         run_locally do
-            env = fetch(:stage)
-            execute "gulp --e=#{env}"
             execute "scp rev-manifest-*.json #{host.user}@#{host.hostname}:#{release_path}"
             execute "scp -r public/css/build/* #{host.user}@#{host.hostname}:#{release_path}"\
                 "/public/css/build/"

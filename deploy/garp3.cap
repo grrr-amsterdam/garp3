@@ -12,7 +12,9 @@ namespace :deploy do
         end
 
         invoke :verify_production_deploy
-        #invoke :check_grunt_status
+        invoke :build_assets
+        invoke :distribute_assets
+
         invoke :enable_under_construction
     end
 
@@ -27,7 +29,7 @@ namespace :deploy do
         invoke :garp_env_setup
 
         # Assets
-        invoke :build_and_push_assets
+        invoke :push_assets
 
         # Auth tasks
         invoke :set_webroot_permissions
@@ -50,7 +52,6 @@ namespace :deploy do
 
     task :finished do
         invoke :disable_under_construction
-        invoke :distribute_assets
         invoke :notify_slack
     end
 end
