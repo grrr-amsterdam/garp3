@@ -68,12 +68,6 @@ class Garp_Content_Cdn_Distributor {
         }
 
         Garp_Cli::lineOut(ucfirst($env));
-        $progressBar = Garp_Cli_Ui_ProgressBar::getInstance();
-        $progressBar->init($assetCount);
-        $firstFilename = basename($assetList[0]);
-        $fileOrFiles = $this->_printFileOrFiles($assetCount);
-        $progressBar->display("Processing {$firstFilename}. {$assetCount} {$fileOrFiles} left.");
-
         $s3 = new Garp_File_Storage_S3($ini->cdn, dirname(current($assetList)), true);
 
         foreach ($assetList as $i => $asset) {
@@ -81,17 +75,13 @@ class Garp_Content_Cdn_Distributor {
             $fileData = file_get_contents($this->_baseDir . $asset);
             $filename = basename($asset);
             if ($s3->store($filename, $fileData, true, false)) {
-                $progressBar->advance();
-                $fileOrFiles = $this->_printFileOrFiles($assetCount - $progressBar->getProgress());
-                $progressBar->display("Processing {$filename}. %d {$fileOrFiles} left.");
-            } else {
-                $progressBar->displayError("Could not upload {$asset} to {$env}.");
+                echo '.';
+            } else { 
+                Garp_Cli::errorOut("\nCould not upload {$asset} to {$env}.");
             }
         }
 
-        if ($progressBar->getProgress() === $assetCount) {
-            $progressBar->display("√ Done");
-        }
+        Garp_Cli::lineOut("\n√ Done");
 
         echo "\n\n";
     }
