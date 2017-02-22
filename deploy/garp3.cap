@@ -1,60 +1,60 @@
 namespace :deploy do
 
-	task :failed do
-		invoke :disable_under_construction
-	end
+    task :failed do
+        invoke :disable_under_construction
+    end
 
-	task :started do
-		on roles(:web) do
-			# Grab last release directory, if any
-			releases = capture("ls #{File.join(fetch(:deploy_to), 'releases')}")
-			set :this_host_last_release, releases.split("\n").sort.last
-		end
+    task :started do
+        on roles(:web) do
+            # Grab last release directory, if any
+            releases = capture("ls #{File.join(fetch(:deploy_to), 'releases')}")
+            set :this_host_last_release, releases.split("\n").sort.last
+        end
 
-		invoke :verify_production_deploy
-		#invoke :check_grunt_status
-		invoke :enable_under_construction
-	end
+        invoke :verify_production_deploy
+        #invoke :check_grunt_status
+        invoke :enable_under_construction
+    end
 
-	task :updated do
-		# Disk tasks
-		invoke :create_system_cache_dirs
-		invoke :create_static_cache_dir
+    task :updated do
+        # Disk tasks
+        invoke :create_system_cache_dirs
+        invoke :create_static_cache_dir
 
-		# Garp tasks
-		invoke :composer_install
-		invoke :spawn
-		invoke :garp_env_setup
+        # Garp tasks
+        invoke :composer_install
+        invoke :spawn
+        invoke :garp_env_setup
 
         # Assets
         invoke :build_and_push_assets
 
-		# Auth tasks
-		invoke :set_webroot_permissions
-	end
+        # Auth tasks
+        invoke :set_webroot_permissions
+    end
 
-	task :published do
-		#invoke :update_cluster_servers
-	end
+    task :published do
+        #invoke :update_cluster_servers
+    end
 
-	task :setup do
-		invoke :validate_app_name
-		invoke :add_public_ssh_keys
-		invoke :find_webroot
-		invoke :mark_git_server_safe
-		invoke :create_deploy_dirs
-		invoke :set_shared_dirs_permissions
-		invoke :create_webroot_reroute_htaccess
-		invoke :install_crontab
-	end
+    task :setup do
+        invoke :validate_app_name
+        invoke :add_public_ssh_keys
+        invoke :find_webroot
+        invoke :mark_git_server_safe
+        invoke :create_deploy_dirs
+        invoke :set_shared_dirs_permissions
+        invoke :create_webroot_reroute_htaccess
+        invoke :install_crontab
+    end
 
-	task :finished do
-		invoke :disable_under_construction
+    task :finished do
+        invoke :disable_under_construction
         invoke :distribute_assets
-		invoke :notify_slack
-	end
+        invoke :notify_slack
+    end
 end
 
 task :check do
-	invoke :check_ssh_forwarding
+    invoke :check_ssh_forwarding
 end
