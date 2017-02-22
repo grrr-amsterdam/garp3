@@ -32,6 +32,7 @@ class Garp_Content_Cdn_Distributor {
 
     /**
      * Returns the list of available environments.
+     * 
      * @return Array The list of environments.
      */
     public function getEnvironments() {
