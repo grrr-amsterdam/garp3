@@ -1,18 +1,20 @@
 <?php
 /**
  * Garp_Content_Cdn_Distributor
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
  * @subpackage Content
+ * @author David Spreekmeester <david@grrr.nl>
+ * @version $Revision: $
+ * @modifiedby $LastChangedBy: $
  * @lastmodified $Date: $
  */
 class Garp_Content_Cdn_Distributor {
     protected $_environments = array('development', 'integration', 'staging', 'production');
 
     /**
-     * Where the baseDir for assets is located, relative to APPLICATION_PATH. Without trailing slash.
+     * Where the baseDir for assets is located, relative to APPLICATION_PATH.
+     * Without trailing slash.
      */
     const RELATIVE_BASEDIR_AFTER_APPLICATION_PATH = '/../public';
 
@@ -22,12 +24,16 @@ class Garp_Content_Cdn_Distributor {
     protected $_baseDir;
 
     public function __construct($path = null) {
-        $this->_baseDir = realpath($path ?:
-            APPLICATION_PATH . self::RELATIVE_BASEDIR_AFTER_APPLICATION_PATH);
+        $this->_baseDir = realpath(
+            $path ?:
+            APPLICATION_PATH . self::RELATIVE_BASEDIR_AFTER_APPLICATION_PATH
+        );
     }
 
     /**
      * Returns the list of available environments.
+     * 
+     * @return Array The list of environments.
      */
     public function getEnvironments() {
         return $this->_environments;
@@ -42,6 +48,7 @@ class Garp_Content_Cdn_Distributor {
 
     /**
      * Select assets to be distributed.
+     *
      * @param   String  $filterString
      * @param   Mixed   $filterDate     Provide null for default date filter,
      *                                  false to disable filter, or a strtotime compatible
@@ -53,7 +60,10 @@ class Garp_Content_Cdn_Distributor {
     }
 
     /**
-     * @param String $env Name of the environment, f.i. 'development' or 'production'.
+     * @param String    $env        Name of the environment, f.i. 'development' or 'production'.
+     * @param Array     $assetList  List of asset file paths
+     * @param Int       $assetCount Number of assets
+     * @return Void
      */
     public function distribute($env, $assetList, $assetCount) {
         $this->_validateEnvironment($env);
@@ -68,12 +78,6 @@ class Garp_Content_Cdn_Distributor {
         }
 
         Garp_Cli::lineOut(ucfirst($env));
-        $progressBar = Garp_Cli_Ui_ProgressBar::getInstance();
-        $progressBar->init($assetCount);
-        $firstFilename = basename($assetList[0]);
-        $fileOrFiles = $this->_printFileOrFiles($assetCount);
-        $progressBar->display("Processing {$firstFilename}. {$assetCount} {$fileOrFiles} left.");
-
         $s3 = new Garp_File_Storage_S3($ini->cdn, dirname(current($assetList)), true);
 
         foreach ($assetList as $i => $asset) {
@@ -81,24 +85,23 @@ class Garp_Content_Cdn_Distributor {
             $fileData = file_get_contents($this->_baseDir . $asset);
             $filename = basename($asset);
             if ($s3->store($filename, $fileData, true, false)) {
-                $progressBar->advance();
-                $fileOrFiles = $this->_printFileOrFiles($assetCount - $progressBar->getProgress());
-                $progressBar->display("Processing {$filename}. %d {$fileOrFiles} left.");
-            } else {
-                $progressBar->displayError("Could not upload {$asset} to {$env}.");
+                echo '.';
+            } else { 
+                Garp_Cli::errorOut("\nCould not upload {$asset} to {$env}.");
             }
         }
 
-        if ($progressBar->getProgress() === $assetCount) {
-            $progressBar->display("√ Done");
-        }
+        Garp_Cli::lineOut("\n√ Done");
 
         echo "\n\n";
     }
 
     protected function _validateEnvironment($env) {
         if (!in_array($env, $this->_environments)) {
-            throw new Exception("'{$env}' is not a valid environment. Try: " . implode(', ', $this->_environments));
+            throw new Exception(
+                "'{$env}' is not a valid environment. Try: "
+                . implode(', ', $this->_environments)
+            );
         }
     }
 
