@@ -13,6 +13,8 @@ task :push_assets do
             execute "scp rev-manifest-*.json #{host.user}@#{host.hostname}:#{release_path}"
             execute "scp -r public/css/build/* #{host.user}@#{host.hostname}:#{release_path}"\
                 "/public/css/build/"
+            execute "scp -r public/js/build/* #{host.user}@#{host.hostname}:#{release_path}"\
+                "/public/js/build/"
         end
     end
 end
