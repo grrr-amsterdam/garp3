@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "317c24005ddf1a8dd619533c59d02048",
-    "content-hash": "02e7e6651b6f2f087d289aa80a050dd2",
+    "content-hash": "ad4f4ab2d86659e00a6ce78be907ea06",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -114,7 +113,7 @@
             "keywords": [
                 "html"
             ],
-            "time": "2017-01-13 12:31:37"
+            "time": "2017-01-13T12:31:37+00:00"
         },
         {
             "name": "fzaninotto/faker",
@@ -319,7 +318,7 @@
             ],
             "description": "A library to read, parse, export and make subsets of different types of font files.",
             "homepage": "https://github.com/PhenX/php-font-lib",
-            "time": "2015-05-06 20:02:39"
+            "time": "2015-05-06T20:02:39+00:00"
         },
         {
             "name": "phenx/php-svg-lib",
@@ -356,7 +355,7 @@
             ],
             "description": "A library to read, parse and export to PDF SVG files.",
             "homepage": "https://github.com/PhenX/php-svg-lib",
-            "time": "2016-12-13 20:25:45"
+            "time": "2016-12-13T20:25:45+00:00"
         },
         {
             "name": "phpoffice/phpexcel",
@@ -506,7 +505,7 @@
                 "parser",
                 "stylesheet"
             ],
-            "time": "2015-08-24 08:48:52"
+            "time": "2015-08-24T08:48:52+00:00"
         },
         {
             "name": "sentry/sentry",
@@ -613,7 +612,57 @@
                 "javascript",
                 "minifier"
             ],
-            "time": "2015-07-04 07:35:09"
+            "time": "2015-07-04T07:35:09+00:00"
+        },
+        {
+            "name": "vlucas/phpdotenv",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vlucas/phpdotenv.git",
+                "reference": "7ac2c1cef304f5bd5a8d40750fbcbdd49333b9e5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/7ac2c1cef304f5bd5a8d40750fbcbdd49333b9e5",
+                "reference": "7ac2c1cef304f5bd5a8d40750fbcbdd49333b9e5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.9"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8 || ^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dotenv\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause-Attribution"
+            ],
+            "authors": [
+                {
+                    "name": "Vance Lucas",
+                    "email": "vance@vancelucas.com",
+                    "homepage": "http://www.vancelucas.com"
+                }
+            ],
+            "description": "Loads environment variables from `.env` to `getenv()`, `$_ENV` and `$_SERVER` automagically.",
+            "keywords": [
+                "dotenv",
+                "env",
+                "environment"
+            ],
+            "time": "2017-02-03 22:05:04"
         },
         {
             "name": "zendframework/zendframework1",
@@ -811,7 +860,7 @@
             "keywords": [
                 "template"
             ],
-            "time": "2015-06-21 13:50:34"
+            "time": "2015-06-21T13:50:34+00:00"
         },
         {
             "name": "phpunit/php-timer",
@@ -855,7 +904,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2016-05-12 18:03:57"
+            "time": "2016-05-12T18:03:57+00:00"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -905,7 +954,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2014-03-03 05:10:30"
+            "time": "2014-03-03T05:10:30+00:00"
         },
         {
             "name": "phpunit/phpunit",
@@ -1113,7 +1162,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-01-22 21:58:02"
+            "time": "2017-01-22T21:58:02+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -1162,7 +1211,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-01-21 16:40:50"
+            "time": "2017-01-21T16:40:50+00:00"
         }
     ],
     "aliases": [],

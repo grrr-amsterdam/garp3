@@ -31,6 +31,11 @@ if (defined('SENTRY_API_URL') && APPLICATION_ENV !== 'development') {
     Zend_Registry::set('RavenClient', $ravenClient);
 }
 
+if (file_exists(APPLICATION_PATH . '/../.env')) {
+    $dotenv = new Dotenv\Dotenv(APPLICATION_PATH . '/..');
+    $dotenv->load();
+}
+
 $appSpecificInit = APPLICATION_PATH . '/configs/init.php';
 if (file_exists($appSpecificInit)) {
     include_once $appSpecificInit;
