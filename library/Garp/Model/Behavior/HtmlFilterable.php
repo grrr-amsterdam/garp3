@@ -79,7 +79,11 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
             )
         );
         $config->set('CSS.MaxImgLength', null);
-        $config->set('Cache.SerializerPath', $this->_getCachePath());
+        $cachePath = $this->_getCachePath();
+        $config->set('Cache.SerializerPath', $cachePath);
+        if (!$cachePath) {
+            $config->set('Cache.DefinitionImpl', null);
+        }
         $config->set('URI.MakeAbsolute', true);
         $config->set('URI.Base', (string)new Garp_Util_FullUrl('/'));
         $config->set(
