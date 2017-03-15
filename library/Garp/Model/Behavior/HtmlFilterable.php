@@ -58,6 +58,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         $config->set('HTML.DefinitionRev', 5);
         $config->set('HTML.Doctype', 'HTML 4.01 Transitional');
         $config->set('HTML.Trusted', true);
+        $config->set('HTML.TargetBlank', true);
         $config->set(
             'HTML.AllowedElements', array(
             'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'dd', 'del',
@@ -83,15 +84,14 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         $config->set('URI.Base', (string)new Garp_Util_FullUrl('/'));
         $config->set(
             'Filter.Custom', array(
-            new Garp_Service_HTMLPurifier_Filter_MyIframe(),
-            new Garp_Service_HTMLPurifier_Filter_MyEmbed(),
+                new Garp_Service_HTMLPurifier_Filter_MyIframe(),
+                new Garp_Service_HTMLPurifier_Filter_MyEmbed(),
             )
         );
 
         // add proprietary elements
         if ($def = $config->maybeGetRawHTMLDefinition()) {
-            $def->addAttribute('a', 'target', 'Enum#_blank,_self');
-
+            $this->_addHtml5Elements($def);
             $iframe = $def->addElement(
                 'iframe',   // name
                 'Inline',   // content set
@@ -118,22 +118,6 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
                     'height*' => 'Number',
                     'allowscriptaccess' => 'Text'
                 )
-            );
-            $figure = $def->addElement(
-                'figure',
-                'Inline',
-                'Flow',
-                'Common',
-                array(
-                    'class*' => 'Text'
-                )
-            );
-            $figcaption = $def->addElement(
-                'figcaption',
-                'Inline',
-                'Inline',
-                'Common',
-                array()
             );
         }
         return $config;
@@ -183,5 +167,73 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
             return $config->htmlFilterable->cachePath;
         }
         return null;
+    }
+
+    protected function _addHtml5Elements($def) {
+        $def->addElement('section', 'Block', 'Flow', 'Common');
+        $def->addElement('nav',     'Block', 'Flow', 'Common');
+        $def->addElement('article', 'Block', 'Flow', 'Common');
+        $def->addElement('aside',   'Block', 'Flow', 'Common');
+        $def->addElement('header',  'Block', 'Flow', 'Common');
+        $def->addElement('footer',  'Block', 'Flow', 'Common');
+
+        // Content model actually excludes several tags, not modelled here
+        $def->addElement('address', 'Block', 'Flow', 'Common');
+        $def->addElement('hgroup', 'Block', 'Required: h1 | h2 | h3 | h4 | h5 | h6', 'Common');
+
+        // http://developers.whatwg.org/grouping-content.html
+        $def->addElement(
+            'figure', 'Inline', 'Flow', 'Common'
+        );
+        $def->addElement('figcaption', 'Inline', 'Flow', 'Common');
+
+        // http://developers.whatwg.org/the-video-element.html#the-video-element
+        $def->addElement(
+            'video', 'Block', 'Optional: (source, Flow) | (Flow, source) | Flow', 'Common',
+            array(
+                'src' => 'URI',
+                'type' => 'Text',
+                'width' => 'Length',
+                'height' => 'Length',
+                'poster' => 'URI',
+                'preload' => 'Enum#auto,metadata,none',
+                'controls' => 'Bool',
+            )
+        );
+        $def->addElement(
+            'source', 'Block', 'Flow', 'Common', array(
+                'src' => 'URI',
+                'type' => 'Text',
+            )
+        );
+
+        // http://developers.whatwg.org/text-level-semantics.html
+        $def->addElement('s',    'Inline', 'Inline', 'Common');
+        $def->addElement('var',  'Inline', 'Inline', 'Common');
+        $def->addElement('sub',  'Inline', 'Inline', 'Common');
+        $def->addElement('sup',  'Inline', 'Inline', 'Common');
+        $def->addElement('mark', 'Inline', 'Inline', 'Common');
+        $def->addElement('wbr',  'Inline', 'Empty', 'Core');
+
+        // http://developers.whatwg.org/edits.html
+        $def->addElement(
+            'ins', 'Block', 'Flow', 'Common', array('cite' => 'URI', 'datetime' => 'CDATA')
+        );
+        $def->addElement(
+            'del', 'Block', 'Flow', 'Common', array('cite' => 'URI', 'datetime' => 'CDATA')
+        );
+
+        // TinyMCE
+        $def->addAttribute('img', 'data-mce-src', 'Text');
+        $def->addAttribute('img', 'data-mce-json', 'Text');
+
+        // Others
+        $def->addAttribute('iframe', 'allowfullscreen', 'Bool');
+        $def->addAttribute('table', 'height', 'Text');
+        $def->addAttribute('td', 'border', 'Text');
+        $def->addAttribute('th', 'border', 'Text');
+        $def->addAttribute('tr', 'width', 'Text');
+        $def->addAttribute('tr', 'height', 'Text');
+        $def->addAttribute('tr', 'border', 'Text');
     }
 }
