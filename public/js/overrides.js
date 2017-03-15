@@ -238,9 +238,21 @@ Ext.apply(Ext.grid.GridPanel.prototype, {
 });
 
 /**
- * Image Template for embeding images
+ * Image Template for embedding images
  */
-Garp.imageTpl = new Ext.XTemplate(['<tpl if="caption">', '<tpl if="align">', '<figure class="figure" style="float: {align};">', '</tpl>', '<tpl if="!align">', '<figure class="figure" style="float: none;">', '</tpl>', '<img src="{path}" draggable="false"> ', '<figcaption>{caption}</figcaption>', '</figure>', '</tpl>', '<tpl if="!caption">', '<tpl if="align">', '<img class="figure {align}" src="{path}">', '</tpl>', '<tpl if="!align">', '<img class="figure" src="{path}">', '</tpl>', '</tpl>']);
+Garp.imageTpl = new Ext.XTemplate([
+  '<tpl if="align">',
+  '<figure class="{align}">',
+  '</tpl>',
+  '<tpl if="!align">',
+  '<figure>',
+  '</tpl>',
+  '<img src="{path}" draggable="false"> ',
+  '<tpl if="caption">',
+  '<figcaption>{caption}</figcaption>',
+  '</tpl>',
+  '</figure>'
+]);
 
 /**
  * Video Template for embeding videos
@@ -689,4 +701,4 @@ Ext.override(Ext.grid.PropertyColumnModel, {
 	getRenderer : function(col) {
 		return (col === 0 ? this.requiredPropertyRenderer.createDelegate(this) : (this.renderCellDelegate || this.renderPropDelegate));
 	}
-}); 
+});
