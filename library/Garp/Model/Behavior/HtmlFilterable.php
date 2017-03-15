@@ -170,7 +170,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         if (isset($config->htmlFilterable->cachePath)) {
             return $config->htmlFilterable->cachePath;
         }
-        return null;
+        return sys_get_temp_dir();
     }
 
     protected function _addHtml5Elements($def) {
