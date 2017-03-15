@@ -183,7 +183,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 
         // http://developers.whatwg.org/grouping-content.html
         $def->addElement(
-            'figure', 'Inline', 'Flow', 'Common'
+            'figure', 'Block', 'Optional: (figcaption, Flow) | (Flow, figcaption) | Flow', 'Common'
         );
         $def->addElement('figcaption', 'Inline', 'Flow', 'Common');
 
