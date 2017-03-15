@@ -65,7 +65,7 @@ CKEDITOR.plugins.add('garpimages', {
 			var fileId = path[path.length - 1];
 			var tplName = path[path.length - 2];
 			var caption = element.findOne('figcaption') ? element.findOne('figcaption').getText() : null;
-			var align = element.getStyle("float");
+			var align = element.getStyle("float") || element.hasClass('right') ? 'right' : element.hasClass('left') ? 'left' : '';
 
 			// Exec with parameters from existing image
 			editor.getCommand('garpimageDialog').exec({
@@ -153,3 +153,4 @@ CKEDITOR.plugins.add('garpimages', {
 		});
 	}
 });
+
