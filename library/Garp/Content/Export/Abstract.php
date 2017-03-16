@@ -256,10 +256,13 @@ abstract class Garp_Content_Export_Abstract {
             $options = array(
                 'bindingModel' => $bindingModel,
                 'modelClass' => $otherModel,
-                'conditions' => $otherModel->select()->from(
-                    array($otherModelAlias => $otherModel->getName()),
-                    array($config['label'] => $labelFields)
-                )->order("$otherModelAlias.id")
+                'conditions' => $otherModel->select()
+                    ->setIntegrityCheck(false)
+                    ->from(
+                        array($otherModelAlias => $otherModel->getName()),
+                        array($config['label'] => $labelFields)
+                    )
+                    ->order("$otherModelAlias.id")
             );
             $model->bindModel($config['label'], $options);
         }

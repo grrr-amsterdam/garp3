@@ -79,7 +79,11 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
             )
         );
         $config->set('CSS.MaxImgLength', null);
-        $config->set('Cache.SerializerPath', $this->_getCachePath());
+        $cachePath = $this->_getCachePath();
+        $config->set('Cache.SerializerPath', $cachePath);
+        if (!$cachePath) {
+            $config->set('Cache.DefinitionImpl', null);
+        }
         $config->set('URI.MakeAbsolute', true);
         $config->set('URI.Base', (string)new Garp_Util_FullUrl('/'));
         $config->set(
@@ -166,7 +170,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         if (isset($config->htmlFilterable->cachePath)) {
             return $config->htmlFilterable->cachePath;
         }
-        return null;
+        return sys_get_temp_dir();
     }
 
     protected function _addHtml5Elements($def) {
@@ -183,7 +187,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 
         // http://developers.whatwg.org/grouping-content.html
         $def->addElement(
-            'figure', 'Inline', 'Flow', 'Common'
+            'figure', 'Block', 'Optional: (figcaption, Flow) | (Flow, figcaption) | Flow', 'Common'
         );
         $def->addElement('figcaption', 'Inline', 'Flow', 'Common');
 
