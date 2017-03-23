@@ -36,6 +36,6 @@ task :set_shared_dirs_permissions do
     	execute "chmod -R g+w,o+rx #{deploy_to}/shared/public/uploads/images"
     	execute "chmod -R g+w,o+rx #{deploy_to}/shared/application/data/logs"
         execute "chmod -R g+w,o+rx #{deploy_to}/shared/application/data/cache"
-    	execute "chmod -R g+w,o+rx #{release_path}/public/cached"
+    	execute "chmod -R 777 #{release_path}/public/cached"
 	end
 end
