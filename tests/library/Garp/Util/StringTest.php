@@ -329,4 +329,58 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 
+    public function testExcerptAround() {
+        $input = 'The quick brown fox jumps over the lazy dog. ' .
+            'Quick zephyrs blow, vexing daft Jim. ' .
+            'Sphinx of black quartz, judge my vow.';
+
+        $this->assertEquals(
+            'The quick brown fox jumps over the lazy…',
+            Garp_Util_String::excerptAround($input, 'banana', 40),
+            'It will return an excerpt from the front if `search` is not found.'
+        );
+        $this->assertEquals(
+            '…g. Quick zephyrs blow, vexing daft Jim…',
+            Garp_Util_String::excerptAround($input, 'blow', 40),
+            'It can extract an excerpt from the middle of a text.'
+        );
+        $this->assertEquals(
+            'The quick brown fox jumps over the lazy…',
+            Garp_Util_String::excerptAround($input, 'quick', 40),
+            'It can extract an excerpt from the beginning of the text.'
+        );
+        $this->assertEquals(
+            'The quick brown fox jumps over the lazy…',
+            Garp_Util_String::excerptAround($input, 'The', 40),
+            'It can extract an excerpt from exactly the start of a text.'
+        );
+        $this->assertEquals(
+            '…. Sphinx of black quartz, judge my vow.',
+            Garp_Util_String::excerptAround($input, 'my', 40),
+            'It can extract an excerpt from the end of a text.'
+        );
+        $this->assertEquals(
+            '…g. Quick zephyrs blow, vexing daft Ji…',
+            Garp_Util_String::excerptAround($input, 'blow', 39),
+            'It can deal with odd max lengths.'
+        );
+        $line = 'Sphinx of black quartz';
+        $this->assertEquals(
+            $line,
+            Garp_Util_String::excerptAround($line, 'of', 40),
+            'It can deal with max lengths larger than the length of the text.'
+        );
+        $this->assertEquals(
+            'og. Quick zephyrs blow, vexing daft Jim.',
+            Garp_Util_String::excerptAround($input, 'blow', 40, ''),
+            'Without delimiters the excerpt fills the given max length.'
+        );
+        $funky = 'Oh no, said the man, my 🐴 is on 🔥';
+        $this->assertEquals(
+            'my 🐴 is on 🔥',
+            Garp_Util_String::excerptAround($funky, 'on', 12, ''),
+            'It can handle utf-8 characters'
+        );
+    }
+
 }
