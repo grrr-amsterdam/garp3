@@ -33,7 +33,7 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
         if (array_key_exists('render', $params) && !$params['render']) {
             return $snippet;
         }
-        return $this->render($snippet, $partial, $params);
+        return trim($this->render($snippet, $partial, $params));
     }
 
     /**
