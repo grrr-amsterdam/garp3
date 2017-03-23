@@ -4,6 +4,7 @@ set :linked_dirs, %w{
 	public/uploads/images
 	application/data/logs
 	application/data/cache/tags
+    application/data/cache/htmlpurifier
 }
 set :keep_releases, 2
 
