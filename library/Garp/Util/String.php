@@ -646,6 +646,44 @@ class Garp_Util_String {
     }
 
     /**
+     * Extract a substring from $content centered around $search with a maximum of $radius chars.
+     *
+     * @param string $input
+     * @param string $search    The substring to search for.
+     * @param int    $maxLength Maxlength of the excerpt, including delimiters.
+     * @param string $delimiter Character used to denote a break at the front or end of the excerpt.
+     * @return string
+     */
+    static public function excerptAround($input, $search, $maxLength, $delimiter = '…') {
+        mb_internal_encoding('utf-8');
+        $searchLen = mb_strlen($search);
+        $textLen   = mb_strlen($input);
+        $radius    = round(($maxLength - $searchLen) / 2);
+
+        $matchPos = stripos($input, $search);
+        $startPos = max(0, $matchPos - $radius);
+
+        $excerptLen = $textLen - $startPos;
+        if ($excerptLen < $maxLength) {
+            $shortage = $maxLength - $excerptLen;
+            $startPos = max(0, $startPos - $shortage);
+        }
+
+        $excerpt = mb_substr($input, $startPos, $maxLength);
+
+        if (!$delimiter) {
+            return $excerpt;
+        }
+        if ($startPos > 0) {
+            $excerpt = $delimiter . mb_substr($excerpt, 1);
+        }
+        if ($startPos + $maxLength < strlen($input)) {
+            $excerpt = mb_substr($excerpt, 0, -1) . $delimiter;
+        }
+        return $excerpt;
+    }
+
+    /**
      * Automatically wrap URLs and email addresses in HTML <a> tags.
      *
      * @param string $text
