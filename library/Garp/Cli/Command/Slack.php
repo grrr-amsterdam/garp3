@@ -36,7 +36,7 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
      */
     public function sendDeployNotification(array $args = array()) {
         $branch = array_get($args, 'branch', 'unknown');
-        $user = array_get($args, 'user', 'unknown');
+        $user = ucfirst(array_get($args, 'user', 'unknown'));
         $gitVersion = array_get($args, 'git-version', 'unknown');
 
         $config = Zend_Registry::get('config');
@@ -56,28 +56,7 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
         }
 
         return $slack->postMessage(
-            '',
-            array(
-                'attachments' => array(
-                    array(
-                        'title_link' => (string)new Garp_Util_FullUrl('/'),
-                        'title' => "{$appName} {$version} was deployed to the {$env} server",
-                        'color' => '#7CD197',
-                        'fields' => array(
-                            array(
-                                'title' => 'User',
-                                'value' => ucfirst($user),
-                                'short' => true
-                            ),
-                            array(
-                                'title' => 'Branch',
-                                'value' => $branch,
-                                'short' => true
-                            ),
-                        )
-                    )
-                )
-            )
+            "*{$appName}* *{$version}* (*{$branch}*) was deployed to *{$env}* by *{$user}*"
         );
     }
 
