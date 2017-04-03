@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ad4f4ab2d86659e00a6ce78be907ea06",
+    "content-hash": "db1d45174558c44f8fef427ddca59220",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -121,12 +121,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "83b309872529472b4b6c92ca67ca6edbadfabb36"
+                "reference": "0e3e900e97a6f781dedc45ca8759dd84a1f2cfc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/83b309872529472b4b6c92ca67ca6edbadfabb36",
-                "reference": "83b309872529472b4b6c92ca67ca6edbadfabb36",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/0e3e900e97a6f781dedc45ca8759dd84a1f2cfc1",
+                "reference": "0e3e900e97a6f781dedc45ca8759dd84a1f2cfc1",
                 "shasum": ""
             },
             "require": {
@@ -134,7 +134,7 @@
             },
             "require-dev": {
                 "ext-intl": "*",
-                "phpunit/phpunit": "~4.0",
+                "phpunit/phpunit": "~4.0||~5.0",
                 "squizlabs/php_codesniffer": "~1.5"
             },
             "type": "library",
@@ -163,7 +163,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2017-03-13 13:37:38"
+            "time": "2017-03-29 09:42:14"
         },
         {
             "name": "google/apiclient",
@@ -214,12 +214,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "1e044bc4b34e91743943479f1be7a1d5eb93add0"
+                "reference": "3266b6e257992887035c8952918607f5b858aaf8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/1e044bc4b34e91743943479f1be7a1d5eb93add0",
-                "reference": "1e044bc4b34e91743943479f1be7a1d5eb93add0",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/3266b6e257992887035c8952918607f5b858aaf8",
+                "reference": "3266b6e257992887035c8952918607f5b858aaf8",
                 "shasum": ""
             },
             "require": {
@@ -284,7 +284,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2017-03-13 07:08:03"
+            "time": "2017-03-20 10:21:06"
         },
         {
             "name": "phenx/php-font-lib",
@@ -516,12 +516,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "c2f44eeabd3e77f78543fc8a6e9da2d1b971f175"
+                "reference": "116a8ce9c24aca6c062a0e93bd8fbd3ffd904e58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/c2f44eeabd3e77f78543fc8a6e9da2d1b971f175",
-                "reference": "c2f44eeabd3e77f78543fc8a6e9da2d1b971f175",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/116a8ce9c24aca6c062a0e93bd8fbd3ffd904e58",
+                "reference": "116a8ce9c24aca6c062a0e93bd8fbd3ffd904e58",
                 "shasum": ""
             },
             "require": {
@@ -572,7 +572,7 @@
                 "log",
                 "logging"
             ],
-            "time": "2017-03-13 16:29:30"
+            "time": "2017-03-27 17:42:37"
         },
         {
             "name": "tedivm/jshrink",
@@ -622,30 +622,25 @@
         },
         {
             "name": "vlucas/phpdotenv",
-            "version": "dev-master",
+            "version": "2.0.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vlucas/phpdotenv.git",
-                "reference": "7ac2c1cef304f5bd5a8d40750fbcbdd49333b9e5"
+                "reference": "f5ccb8156e1432cdaa13c9c42dfff308c8456124"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/7ac2c1cef304f5bd5a8d40750fbcbdd49333b9e5",
-                "reference": "7ac2c1cef304f5bd5a8d40750fbcbdd49333b9e5",
+                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/f5ccb8156e1432cdaa13c9c42dfff308c8456124",
+                "reference": "f5ccb8156e1432cdaa13c9c42dfff308c8456124",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.9"
+                "php": ">=5.3.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8 || ^5.0"
+                "phpunit/phpunit": "~4.0"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.4-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Dotenv\\": "src/"
@@ -653,7 +648,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "BSD-3-Clause-Attribution"
+                "BSD"
             ],
             "authors": [
                 {
@@ -663,12 +658,13 @@
                 }
             ],
             "description": "Loads environment variables from `.env` to `getenv()`, `$_ENV` and `$_SERVER` automagically.",
+            "homepage": "http://github.com/vlucas/phpdotenv",
             "keywords": [
                 "dotenv",
                 "env",
                 "environment"
             ],
-            "time": "2017-02-03 22:05:04"
+            "time": "2015-05-31 10:23:30"
         },
         {
             "name": "zendframework/zendframework1",
@@ -915,7 +911,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2017-03-07T15:42:04+00:00"
+            "time": "2017-03-07 15:42:04"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -1103,12 +1099,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "1280f49a291714944dbb450dff1ed70975c7dc90"
+                "reference": "db16df76c10d9d665c5e3188a67a400555331610"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/1280f49a291714944dbb450dff1ed70975c7dc90",
-                "reference": "1280f49a291714944dbb450dff1ed70975c7dc90",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/db16df76c10d9d665c5e3188a67a400555331610",
+                "reference": "db16df76c10d9d665c5e3188a67a400555331610",
                 "shasum": ""
             },
             "require": {
@@ -1173,7 +1169,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-03-14T01:25:19+00:00"
+            "time": "2017-04-03T05:23:47+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -1181,12 +1177,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "841f67594b6f6a0b1024569aab10623bf903f393"
+                "reference": "286d84891690b0e2515874717e49360d1c98a703"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/841f67594b6f6a0b1024569aab10623bf903f393",
-                "reference": "841f67594b6f6a0b1024569aab10623bf903f393",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/286d84891690b0e2515874717e49360d1c98a703",
+                "reference": "286d84891690b0e2515874717e49360d1c98a703",
                 "shasum": ""
             },
             "require": {
@@ -1222,12 +1218,14 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-03-07T16:19:54+00:00"
+            "time": "2017-03-20T09:41:44+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "vlucas/phpdotenv": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
