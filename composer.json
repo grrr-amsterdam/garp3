@@ -12,7 +12,7 @@
         "dompdf/dompdf": "^0.7.0",
         "fzaninotto/faker": "^1.6",
         "tedivm/jshrink": "~1.0",
-        "vlucas/phpdotenv": "^2.4"
+        "vlucas/phpdotenv": "2.0.x-dev"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.6",
