@@ -204,7 +204,7 @@ class Garp_Mailer {
     }
 
     protected function _renderView($viewParams) {
-        $viewObj = Zend_Controller_Front::getInstance()->getParam('bootstrap')
+        $viewObj = Zend_Registry::get('application')->getBootstrap()
             ->getResource('view');
 
         $module = $this->getHtmlTemplateModule();
