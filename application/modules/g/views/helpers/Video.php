@@ -7,6 +7,9 @@
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class G_View_Helper_Video extends Zend_View_Helper_Abstract {
+
+    protected $_videoModel;
+    
     /**
      * Render a video player.
      *
@@ -37,6 +40,11 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
     public function render($video, $options = array()) {
         $helper = $this->_getSpecializedHelper($video);
         return $helper->render($video, $options);
+    }
+
+    public function withId($id, $options = array()) {
+        $video = $this->_getVideoModel()->fetchById($id);
+        return $this->video($video, $options);
     }
 
     /**
@@ -89,5 +97,12 @@ class G_View_Helper_Video extends Zend_View_Helper_Abstract {
         }
         throw new Exception('Unsupported media type detected: ' . $video);
     }
+
+    protected function _getVideoModel() {
+        if (!$this->_videoModel) {
+            $this->_videoModel = new Model_Video;
+        }
+        return $this->_videoModel;
+    }       
 
 }
