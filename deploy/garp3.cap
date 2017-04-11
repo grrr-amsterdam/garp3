@@ -33,7 +33,7 @@ namespace :deploy do
 
         # Auth tasks
         invoke :set_webroot_permissions
-        invoke :set_public_cache_dir_permissions
+        invoke :set_release_path_cache_dir_permissions
     end
 
     task :published do
