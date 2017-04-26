@@ -56,6 +56,10 @@ class Garp_Model_Behavior_HtmlFilterableTest extends Garp_Test_PHPUnit_TestCase 
             array(
                 'app' => array(
                     'domain' => 'grrr.nl'
+                ),
+                'htmlFilterable' => array(
+                    'cachePath' => null,
+                    'allowedClasses' => null
                 )
             )
         );
