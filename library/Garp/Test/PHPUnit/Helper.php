@@ -3,15 +3,17 @@
  * Garp_Test_PHPUnit_Helper
  * Collection of handy unit testing helper methods.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
- * @package      Garp_Test_PHPUnit
+ * @package Garp_Test_PHPUnit
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Test_PHPUnit_Helper {
     /**
-     * setUp and tearDown are called by Garp_Test_PHPUnit_TestCase and
+     * The methods setUp and tearDown are called by Garp_Test_PHPUnit_TestCase and
      * Garp_Test_PHPUnit_ControllerTestCase.
      * First they reset the global state as much as possible.
+     *
+     * @param array $mockData
+     * @return void
      */
     public function setUp(array &$mockData) {
         Garp_Auth::getInstance()
@@ -49,10 +51,12 @@ class Garp_Test_PHPUnit_Helper {
             $model->getAdapter()->query('SET foreign_key_checks=0;');
             $model->getAdapter()->query('TRUNCATE TABLE ' . $model->getName());
             if (array_key_exists('i18n', $mockData)) {
-                $modelI18n = instance('Model_' . $datatype .
-                    Garp_Model_Behavior_Translatable::I18N_MODEL_SUFFIX);
+                $modelI18n = instance(
+                    'Model_' . $datatype . Garp_Model_Behavior_Translatable::I18N_MODEL_SUFFIX
+                );
                 $model->getAdapter()->query('TRUNCATE TABLE ' . $modelI18n->getName());
             }
+            $model->getAdapter()->query('SET foreign_key_checks=1;');
         }
     }
 
@@ -78,9 +82,10 @@ class Garp_Test_PHPUnit_Helper {
     }
 
     /**
-     * Force certain config values @ runtime
-     * @param Array $dynamicConfig
-     * @return Void
+     * Force certain config values at runtime
+     *
+     * @param array $dynamicConfig
+     * @return void
      */
     public function injectConfigValues(array $dynamicConfig) {
         $config = Zend_Registry::get('config');
@@ -96,7 +101,9 @@ class Garp_Test_PHPUnit_Helper {
 
     /**
      * Login the given user
-     * @param Array $userData
+     *
+     * @param array $userData
+     * @return void
      */
     public function login(array $userData) {
         Garp_Auth::getInstance()->store($userData);
