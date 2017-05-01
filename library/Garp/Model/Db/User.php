@@ -353,8 +353,9 @@ class Garp_Model_Db_User extends Model_Base_User {
         $activationUrl = '/g/auth/validateemail/c/' . $code . '/e/' . md5($user->email) . '/';
 
         if (!empty($authVars['email_partial'])) {
-            $bootstrap = Zend_Controller_Front::getInstance()->getParam('bootstrap');
-            $view = $bootstrap->getResource('View');
+            $viewObj = Zend_Registry::get('application')->getBootstrap()
+                ->getResource('view');
+
             $emailMessage = $view->partial(
                 $authVars['email_partial'], 'default', array(
                 'user' => $user,
