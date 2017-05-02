@@ -36,9 +36,7 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
         if (empty($this->view->config()->resources->router->routesFile->{$language})) {
             return null;
         }
-        $routesFile = $this->view->config()->resources->router->routesFile->{$language};
-        $config = new Garp_Config_Ini($routesFile, APPLICATION_ENV);
-        $routes = $config->routes->toArray();
+        $routes = $this->_getRoutesWithFallback($language);
         $localizedRoutes = Garp_I18n::getLocalizedRoutes($routes, array($language));
 
         $router = new Zend_Controller_Router_Rewrite();
@@ -94,5 +92,24 @@ class G_View_Helper_I18n extends Zend_View_Helper_Abstract {
         $homeUrl = str_replace($baseUrl, '', $homeUrl);
         $alternateUrl = '/' . $altLang . $homeUrl;
         return $alternateUrl;
+    }
+
+    /**
+     * Return generic routes if routes file from language is empty
+     * 
+     * @param string $language
+     * @return array
+     */
+    protected function _getRoutesWithFallback($language) {
+        $routesFile = $this->view->config()->resources->router->routesFile->{$language};
+        $config = new Garp_Config_Ini($routesFile, APPLICATION_ENV);
+        
+        if ($config->routes) {
+            return $config->routes->toArray();
+        } 
+        
+        $routesFile = $this->view->config()->resources->router->routesFile->generic;
+        $config = new Garp_Config_Ini($routesFile, APPLICATION_ENV);
+        return $config->routes->toArray();
     }
 }
