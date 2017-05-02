@@ -2,17 +2,18 @@
 /**
  * Garp_Model_Db_User
  * Standard implementation of a User model.
- * @author Harmen Janssen | grrr.nl
+ *
+ * @package Garp
+ * @author Harmen Janssen <harmen@grrr.nl>
  * @modifiedby $LastChangedBy: $
  * @version $Revision: $
- * @package Garp
  * @lastmodified $Date: $
  */
 class Garp_Model_Db_User extends Model_Base_User {
-    const EXCEPTION_CANNOT_ASSIGN_GREATER_ROLE =
-        'You are not allowed to assign a role greater than your own.';
-    const EXCEPTION_CANNOT_EDIT_GREATER_ROLE =
-        'You are not allowed to edit users with a role greater than your own.';
+    const EXCEPTION_CANNOT_ASSIGN_GREATER_ROLE 
+        = 'You are not allowed to assign a role greater than your own.';
+    const EXCEPTION_CANNOT_EDIT_GREATER_ROLE 
+        = 'You are not allowed to edit users with a role greater than your own.';
 
 
     const ROLE_COLUMN = 'role';
@@ -23,6 +24,7 @@ class Garp_Model_Db_User extends Model_Base_User {
      * A password might be passed, but that belongs in Model_AuthLocal.
      * Since no primary key exists yet beforeInsert, save the password beforeInsert here,
      * and read it again afterInsert.
+     *
      * @var String
      */
     protected $_password;
@@ -30,6 +32,7 @@ class Garp_Model_Db_User extends Model_Base_User {
     /**
      * Wether to validate email address afterUpdate. beforeUpdate there is a check
      * to see if the email address actually changes.
+     *
      * @var Boolean
      */
     protected $_validateEmail;
@@ -40,6 +43,9 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * Grab only session columns by userid
+     * 
+     * @param int $userId
+     * @return Garp_Db_Table_Row
      */
     public function fetchUserForSession($userId) {
         $select = $this->select()
@@ -51,6 +57,11 @@ class Garp_Model_Db_User extends Model_Base_User {
     /**
      * Update user with activation code and expire time.
      * Used when forgot password
+     * 
+     * @param int $userId
+     * @param string $activationCode
+     * @param string $activationExpiry
+     * @return int updated rows
      */
     public function updateUserWithActivationCode($userId, $activationCode, $activationExpiry) {
         $authVars = Garp_Auth::getInstance()->getConfigValues('forgotpassword');
@@ -58,22 +69,26 @@ class Garp_Model_Db_User extends Model_Base_User {
         $tokenColumn   = $authVars['activation_token_column'];
 
         $quotedUserId = $this->getAdapter()->quote($userId);
-        return $this->update(array(
+        return $this->update(
+            array(
             $expiresColumn => $activationExpiry,
             $tokenColumn => $activationCode
-        ), "id = $quotedUserId");
+            ), "id = $quotedUserId"
+        );
     }
 
     /**
      * BeforeInsert callback
+     *
      * @param Array $args
      * @return Void
      */
     public function beforeInsert(array &$args) {
         $data = &$args[1];
 
-        if (array_key_exists(self::IMAGE_URL_COLUMN, $data) &&
-            !is_null($data[self::IMAGE_URL_COLUMN])) {
+        if (array_key_exists(self::IMAGE_URL_COLUMN, $data) 
+            && !is_null($data[self::IMAGE_URL_COLUMN])
+        ) {
             // Allow passing in of image URLs. These are downloaded and added as image_id
             $data['image_id'] = $this->_grabRemoteImage($data[self::IMAGE_URL_COLUMN]);
         }
@@ -98,6 +113,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * AfterInsert callback
+     *
      * @param Array $args
      * @return Void
      */
@@ -124,6 +140,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * BeforeUpdate callback
+     *
      * @param Array $args
      * @return Void
      */
@@ -133,8 +150,9 @@ class Garp_Model_Db_User extends Model_Base_User {
         $authVars = Garp_Auth::getInstance()->getConfigValues('validateemail');
 
         // Check if the email address is about to be changed, and wether we should respond to it
-        if ((!empty($authVars['enabled']) && $authVars['enabled']) &&
-            array_key_exists('email', $data)) {
+        if ((!empty($authVars['enabled']) && $authVars['enabled']) 
+            && array_key_exists('email', $data)
+        ) {
             // Collect the current email addresses to see if they are to be changed
             // @todo For now we assume that email is a unique value. This means that
             // we use fetchRow instead of fetchAll.
@@ -173,10 +191,12 @@ class Garp_Model_Db_User extends Model_Base_User {
                 );
                 // If not, create a new one
                 if (!$authLocalRecord) {
-                    $authLocalModel->insert(array(
+                    $authLocalModel->insert(
+                        array(
                         'user_id' => $thePrimaryKey,
                         'password' => $data[self::PASSWORD_COLUMN]
-                    ));
+                        )
+                    );
                 } else {
                     $authLocalRecord->{self::PASSWORD_COLUMN} = $data[self::PASSWORD_COLUMN];
                     $authLocalRecord->save();
@@ -205,6 +225,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * AfterUpdate callback
+     *
      * @param Array $args
      * @return Void
      */
@@ -218,6 +239,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * BeforeDelete callback
+     *
      * @param Array $args
      * @return Void
      */
@@ -234,6 +256,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * Respond to change in email address
+     *
      * @param String $email The new email address
      * @param String $updateOrInsert Wether this was caused by an insert or an update
      * @return Void
@@ -250,9 +273,12 @@ class Garp_Model_Db_User extends Model_Base_User {
 
         // Fetch fresh user data by email
         $users = $this->fetchAll(
-            $this->select()->from($this->getName(),
-                array('id', 'email', $validationTokenColumn, $emailValidColumn))
-            ->where('email = ?', $email));
+            $this->select()->from(
+                $this->getName(),
+                array('id', 'email', $validationTokenColumn, $emailValidColumn)
+            )
+                ->where('email = ?', $email)
+        );
 
         // Generate validation token for all the found users
         foreach ($users as $user) {
@@ -262,6 +288,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * Start the email validation procedure
+     *
      * @param Garp_Db_Table_Row $user
      * @param String $updateOrInsert Wether this was caused by an insert or an update
      * @return Boolean Wether the procedure succeeded
@@ -292,6 +319,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * Generate unique email validation code for a user
+     *
      * @param Garp_Db_Table_Row $user
      * @param String $validationToken Unique random value
      * @return String
@@ -310,44 +338,54 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * Send validation email to the user
+     *
      * @param Garp_Db_Table_Row $user The user
      * @param String $code The validation code
      * @param String $updateOrInsert Wether this was caused by an insert or an update
      * @return Boolean
      */
-    public function sendEmailValidationEmail(Garp_Db_Table_Row $user, $code, $updateOrInsert = 'insert') {
+    public function sendEmailValidationEmail(
+        Garp_Db_Table_Row $user, $code, $updateOrInsert = 'insert'
+    ) {
         $authVars = Garp_Auth::getInstance()->getConfigValues('validateemail');
 
         // Render the email message
-        $activationUrl = '/g/auth/validateemail/c/'.$code.'/e/'.md5($user->email).'/';
+        $activationUrl = '/g/auth/validateemail/c/' . $code . '/e/' . md5($user->email) . '/';
 
         if (!empty($authVars['email_partial'])) {
-            $bootstrap = Zend_Controller_Front::getInstance()->getParam('bootstrap');
-            $view = $bootstrap->getResource('View');
-            $emailMessage = $view->partial($authVars['email_partial'], 'default', array(
+            $viewObj = Zend_Registry::get('application')->getBootstrap()
+                ->getResource('view');
+
+            $emailMessage = $view->partial(
+                $authVars['email_partial'], 'default', array(
                 'user' => $user,
                 'activationUrl' => $activationUrl,
                 'updateOrInsert' => $updateOrInsert
-            ));
+                )
+            );
             $messageParam = 'htmlMessage';
         } else {
             $snippetId = 'validate email ';
             $snippetId .= $updateOrInsert == 'insert' ? 'new user' : 'existing user';
             $snippetId .= ' email';
             $emailMessage = __($snippetId);
-            $emailMessage = Garp_Util_String::interpolate($emailMessage, array(
+            $emailMessage = Garp_Util_String::interpolate(
+                $emailMessage, array(
                 'USERNAME' => (string)new Garp_Util_FullName($user),
                 'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
-            ));
+                )
+            );
             $messageParam = 'message';
         }
 
         $mailer = new Garp_Mailer();
-        return $mailer->send(array(
+        return $mailer->send(
+            array(
             'to' => $user->email,
             'subject' => __($authVars['email_subject']),
             $messageParam => $emailMessage
-        ));
+            )
+        );
     }
 
     /**
@@ -356,6 +394,7 @@ class Garp_Model_Db_User extends Model_Base_User {
      * we sometimes have to manipulate roles from apis and cli commands
      * where no physical user session is present.
      * Will also return TRUE when ACL is not defined.
+     *
      * @param String $role The role that is about to be saved.
      * @return Boolean
      */
@@ -388,15 +427,18 @@ class Garp_Model_Db_User extends Model_Base_User {
     }
 
     public function getPrefilledData(array $data) {
-        if (!isset(Zend_Registry::get('config')->auth->users) ||
-            !array_key_exists('email', $data) ||
-            is_null($data['email'])) {
+        if (!isset(Zend_Registry::get('config')->auth->users) 
+            || !array_key_exists('email', $data) 
+            || is_null($data['email'])
+        ) {
             return $data;
         }
         $userData = Zend_Registry::get('config')->auth->users;
-        $prefilledRecordsForUser = array_filter($userData->toArray(), function($item) use ($data) {
-            return isset($item['email']) && $item['email'] == $data['email'];
-        });
+        $prefilledRecordsForUser = array_filter(
+            $userData->toArray(), function ($item) use ($data) {
+                return isset($item['email']) && $item['email'] == $data['email'];
+            }
+        );
         if (!count($prefilledRecordsForUser)) {
             return $data;
         }
@@ -410,6 +452,7 @@ class Garp_Model_Db_User extends Model_Base_User {
      * Strip an array of columns that are not part of this model.
      * This overrides Garp_Model_Db::filterColumns because the user model accepts some foreign
      * columns.
+     *
      * @param Array $data
      * @return Array
      */
