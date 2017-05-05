@@ -27,7 +27,8 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
             return $this;
         }
 
-        $snippetModel = $this->_getSnippetModel();
+        $locale = !empty($params['locale']) ? $params['locale'] : null;
+        $snippetModel = $this->_getSnippetModel($locale);
         $snippet = $snippetModel->fetchByIdentifier($identifier);
 
         if (array_key_exists('render', $params) && !$params['render']) {
@@ -75,13 +76,15 @@ class G_View_Helper_Snippet extends Zend_View_Helper_Abstract {
      * Return a snippet model.
      * If the Translatable behavior is registered, load the model thru the Garp_I18n_ModelFactory.
      * This returns the Snippet model based on a translated MySQL view.
-     *
+     * When a language (locale) is given, that specific language will be fetched.
+     * 
+     * @param string $locale
      * @return Model_Snippet
      */
-    protected function _getSnippetModel() {
+    protected function _getSnippetModel($locale = null) {
         $snippetModel = new Model_Snippet();
         if ($snippetModel->getObserver('Translatable')) {
-            $i18nModelFactory = new Garp_I18n_ModelFactory();
+            $i18nModelFactory = new Garp_I18n_ModelFactory($locale);
             $snippetModel = $i18nModelFactory->getModel($snippetModel);
         }
         $snippetModel->bindModel(
