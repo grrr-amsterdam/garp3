@@ -73,7 +73,7 @@ class Garp_Model_Db_Faker {
             return $htmlFilterable->filter($value);
         }
 
-        if ($config['type'] === 'enum') {
+        if ($config['type'] === 'enum' || $config['type'] === 'set') {
             return $this->_faker->randomElement($config['options']);
         }
 
@@ -111,7 +111,7 @@ class Garp_Model_Db_Faker {
             return $this->_faker->randomDigit;
         }
 
-        throw new InvalidArgumentException("Unknown type encountered: {$field['type']}");
+        throw new InvalidArgumentException("Unknown type encountered: {$config['type']}");
     }
 
     protected function _getFakeText(array $config) {
@@ -127,8 +127,8 @@ class Garp_Model_Db_Faker {
         }
         return $this->_faker->realText(
             $this->_faker->numberBetween(
-                array_get($config, 'minLength', 10),
-                array_get($config, 'maxLength', 255)
+                max(10, array_get($config, 'minLength', 10)),
+                max(10, array_get($config, 'maxLength', 255))
             )
         );
     }
