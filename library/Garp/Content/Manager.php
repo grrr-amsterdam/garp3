@@ -40,6 +40,7 @@ class Garp_Content_Manager {
                 $model;
             $model = new $model();
         }
+        $model->setCmsContext(true);
         $this->_model = $model;
         if (!$this->_model instanceof Garp_Model) {
             throw new Garp_Content_Exception('The selected model must be a Garp_Model.');
@@ -425,7 +426,8 @@ class Garp_Content_Manager {
                 'bindingModel'  => $bindingModel,
                 'bidirectional' => $bidirectional,
                 )
-            )) {
+            )
+            ) {
                 $success++;
             }
             $attempts++;
