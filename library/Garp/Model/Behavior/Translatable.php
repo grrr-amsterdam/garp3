@@ -312,7 +312,8 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
                 if (!$this->_translatedVersionHasBeenChanged(
                     $existingRows[$defaultLanguage],
                     $existingRows[$language], $column
-                )) {
+                )
+                ) {
                     $localizedData[$column][$language] = $val[$defaultLanguage];
                 }
             }

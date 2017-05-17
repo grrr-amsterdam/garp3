@@ -3,31 +3,30 @@
  * Garp_Model_Behavior_Article
  * Wrapper around "article" style functionality. Provides rich magazine-type layouts.
  *
- * @author       Harmen Janssen
- * @version      1.0
- * @package      Garp
- * @subpackage   Behavior
+ * @package Garp_Model_Behavior
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
     /**
      * Queue of chapters. These are queued beforeSave,
      * and popped from the queue afterSave.
-     * @var Array
+     *
+     * @var array
      */
     protected $_queuedChapters = array();
 
-
     /**
      * Config values
+     *
      * @var Garp_Util_Configuration
      */
     protected $_config;
 
-
     /**
      * Configure the behavior
-     * @param Array $config
-     * @return Void
+     *
+     * @param array $config
+     * @return void
      */
     protected function _setup($config) {
         $config = new Garp_Util_Configuration($config);
@@ -38,15 +37,16 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 
     /**
      * Bind all the Chapters and ContentNodes to fetch the complete Article.
+     *
      * @param Garp_Model_Db $model
-     * @return Void
+     * @return void
      */
     public function bindWithChapters(Garp_Model_Db &$model) {
         $chapterModel = new Model_Chapter();
         $contentNodeModel = new Model_ContentNode();
-        $chapterModel->bindModel('content', array(
-            'modelClass' => $contentNodeModel
-        ));
+        $chapterModel->bindModel(
+            'content', array('modelClass' => $contentNodeModel)
+        );
 
         foreach ($this->_config['contentTypes'] as $chapterType) {
             $chapterAlias = $this->_extractContentTypeAlias($chapterType);
@@ -54,17 +54,18 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
             $contentNodeModel->bindModel($chapterAlias, $options);
         }
 
-        $model->bindModel('chapters', array(
-            'modelClass' => $chapterModel
-        ));
+        $model->bindModel(
+            'chapters', array('modelClass' => $chapterModel)
+        );
     }
 
     /**
      * An article is nothing without its Chapters. Before every fetch
      * we make sure the chapters are fetched right along, at least in
      * the CMS.
-     * @param Array $args Event listener parameters
-     * @return Void
+     *
+     * @param array $args Event listener parameters
+     * @return void
      */
     public function beforeFetch(&$args) {
         if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
@@ -73,24 +74,27 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
         }
     }
 
-
     /**
      * AfterFetch callback, reforms the bound Chapters into a
      * more concise collection.
-     * @param Array $args Event listener parameters
-     * @return Void
+     *
+     * @param array $args Event listener parameters
+     * @return void
      */
     public function afterFetch(&$args) {
         $results = &$args[1];
-        $iterator = new Garp_Db_Table_Rowset_Iterator($results, array($this, 'convertArticleLayout'));
+        $iterator = new Garp_Db_Table_Rowset_Iterator(
+            $results,
+            array($this, 'convertArticleLayout')
+        );
         $iterator->walk();
         return true;
     }
 
-
     /**
      * BeforeInsert event listener.
-     * @param Array $args Event listener parameters
+     *
+     * @param array $args Event listener parameters
      * @return Void
      */
     public function beforeInsert(&$args) {
@@ -98,10 +102,10 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
         $this->_beforeSave($data);
     }
 
-
     /**
      * BeforeUpdate event listener.
-     * @param Array $args Event listener parameters
+     *
+     * @param array $args Event listener parameters
      * @return Void
      */
     public function beforeUpdate(&$args) {
@@ -109,11 +113,11 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
         $this->_beforeSave($data);
     }
 
-
     /**
      * AfterInsert event listener.
-     * @param Array $args Event listener parameters
-     * @return Void
+     *
+     * @param array $args Event listener parameters
+     * @return void
      */
     public function afterInsert(&$args) {
         $model      = &$args[0];
@@ -124,8 +128,9 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
 
     /**
      * AfterUpdate event listener.
-     * @param Array $args Event listener parameters
-     * @return Void
+     *
+     * @param array $args Event listener parameters
+     * @return void
      */
     public function afterUpdate(&$args) {
         $model = $args[0];
@@ -135,11 +140,11 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
         $this->_afterSave($model, $id);
     }
 
-
     /**
      * Generic beforeSave handler, called by beforeInsert and beforeUpdate
-     * @param Array $data
-     * @return Void
+     *
+     * @param array $data
+     * @return void
      */
     protected function _beforeSave(&$data) {
         // Make sure chapters are not saved.
@@ -153,12 +158,12 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
         unset($data['chapters']);
     }
 
-
     /**
      * Generic afterSave handler, called from afterInsert and afterUpdate
+     *
      * @param Garp_Model_Db $model The subject model
-     * @param Int $id The id of the involved record
-     * @return Void
+     * @param int $id The id of the involved record
+     * @return void
      */
     protected function _afterSave(Garp_Model_Db $model, $id) {
         if (!empty($this->_queuedChapters)) {
@@ -168,24 +173,27 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
         }
     }
 
-
     /**
      * Convert the article row to a more concise format.
      * Calls self::_convertChapterLayout().
+     *
      * @param Garp_Db_Table_Row $result
-     * @return Void
+     * @return void
      */
     public function convertArticleLayout($result) {
         if (isset($result->chapters)) {
-            $result->chapters = array_map(array($this, '_convertChapterLayout'), $result->chapters->toArray());
+            $result->chapters = array_map(
+                array($this, '_convertChapterLayout'),
+                $result->chapters->toArray()
+            );
         }
     }
 
-
     /**
      * Convert bound Chapters to a more concise format.
-     * @param Array $chapterRow
-     * @return Array
+     *
+     * @param array $chapterRow
+     * @return array
      */
     protected function _convertChapterLayout(array $chapterRow) {
         $chapter = array();
@@ -193,15 +201,18 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
         if (!isset($chapterRow['content'])) {
             return $chapter;
         }
-        $chapter['content'] = array_map(array($this, '_convertContentNodeLayout'), $chapterRow['content']);
+        $chapter['content'] = array_map(
+            array($this, '_convertContentNodeLayout'),
+            $chapterRow['content']
+        );
         return $chapter;
     }
 
-
     /**
      * Convert bound ContentNodes to a more concise format.
-     * @param Array $contentNodeRow
-     * @return Array
+     *
+     * @param array $contentNodeRow
+     * @return array
      */
     protected function _convertContentNodeLayout(array $contentNodeRow) {
         $contentTypes = $this->_config['contentTypes'];
@@ -226,18 +237,21 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
     /**
      * Relate Chapters.
      * Called after insert and after update.
-     * @param Array $chapters
+     *
+     * @param array $chapters
      * @param Garp_Model_Db $model The subject model
-     * @param Int $articleId The id of the involved article
-     * @return Void
+     * @param int $articleId The id of the involved article
+     * @return void
      */
     public function relateChapters(array $chapters, Garp_Model_Db $model, $articleId) {
         // Start by unrelating all chapters
-        Garp_Content_Relation_Manager::unrelate(array(
-            'modelA' => $model,
-            'modelB' => 'Model_Chapter',
-            'keyA'   => $articleId,
-        ));
+        Garp_Content_Relation_Manager::unrelate(
+            array(
+                'modelA' => $model,
+                'modelB' => 'Model_Chapter',
+                'keyA'   => $articleId,
+            )
+        );
         // Reverse order since the Weighable behavior sorts chapter by weight DESC,
         // giving each new chapter the highest weight.
         $chapters = array_reverse($chapters);
@@ -250,32 +264,36 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
              * content nodes.
              */
             $chapterModel = new Model_Chapter();
-            $chapterId = $chapterModel->insert(array(
-                'type'    => $chapterData['type'],
-                'content' => $chapterData['content'],
-            ));
+            $chapterId = $chapterModel->insert(
+                array(
+                    'type'    => $chapterData['type'],
+                    'content' => $chapterData['content'],
+                )
+            );
 
-            Garp_Content_Relation_Manager::relate(array(
-                'modelA' => $model,
-                'modelB' => 'Model_Chapter',
-                'keyA'   => $articleId,
-                'keyB'   => $chapterId,
-            ));
+            Garp_Content_Relation_Manager::relate(
+                array(
+                    'modelA' => $model,
+                    'modelB' => 'Model_Chapter',
+                    'keyA'   => $articleId,
+                    'keyB'   => $chapterId,
+                )
+            );
         }
     }
 
-
     /**
      * Convert chapter to Garp_Util_Configuration and validate its keys.
-     * @param Array|Garp_Util_Configuration $chapterData
+     *
+     * @param array|Garp_Util_Configuration $chapterData
      * @return Garp_Util_Configuration
      */
     protected function _getValidChapterData($chapterData) {
-        $chapterData = $chapterData instanceof Garp_Util_Configuration ? $chapterData : new Garp_Util_Configuration($chapterData);
+        $chapterData = $chapterData instanceof Garp_Util_Configuration ?
+            $chapterData : new Garp_Util_Configuration($chapterData);
         $chapterData
             ->obligate('content')
-            ->setDefault('type', '')
-        ;
+            ->setDefault('type', '');
         return $chapterData;
     }
 
@@ -301,7 +319,8 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
             if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
                 return array('modelClass' => 'Model_' . $chapterType['model']);
             }
-            $out['modelClass'] = instance(new Garp_I18n_ModelFactory())->getModel($chapterType['model']);
+            $out['modelClass'] = instance(new Garp_I18n_ModelFactory())
+                ->getModel($chapterType['model']);
             // Make sure the localised relation exists in the referenceMap
             $localiser = new Garp_Model_ReferenceMapLocalizer($model);
             $localiser->populate('Model_' . $chapterType['model']);

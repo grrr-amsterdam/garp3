@@ -10,54 +10,58 @@
  *
  * All this is not applicable in the CMS context.
  *
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Db
- * @lastmodified $Date: $
+ * @package Garp_Model_Behavior
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
     /**
      * Online status column
-     * @var String
+     *
+     * @var string
      */
     const STATUS_COLUMN = 'online_status';
 
     /**
      * Published date column
-     * @var String
+     *
+     * @var string
      */
     const PUBLISHED_COLUMN = 'published';
 
     /**
      * Human-readable status ints
-     * @var Int
+     *
+     * @var int
      */
     const OFFLINE = 0;
     const ONLINE = 1;
 
     /**
      * Wether to block offline items
-     * @var Boolean
+     *
+     * @var bool
      */
     protected $_blockOfflineItems = true;
 
     /**
      * Use this model alias
-     * @var String
+     *
+     * @var string
      */
     protected $_modelAlias = '';
 
     /**
      * Wether to force this behavior (AKA also act in CMS or preview mode)
-     * @var String
+     *
+     * @var string
      */
     protected $_force = false;
 
     /**
      * Configuration.
-     * @return Void
+     *
+     * @param array $config
+     * @return void
      */
     protected function _setup($config) {
         if (!array_key_exists('draft_only', $config)) {
@@ -69,8 +73,9 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
     /**
      * Before fetch callback.
      * Adds the WHERE clause.
-     * @param Array $args
-     * @return Void
+     *
+     * @param array $args
+     * @return void
      */
     public function beforeFetch(&$args) {
         $is_cms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
@@ -92,9 +97,10 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Add the WHERE clause that keeps offline items from appearing in the results
+     *
      * @param Garp_Model_Db $model
      * @param Zend_Db_Select $select
-     * @return Void
+     * @return void
      */
     public function addWhereClause(&$model, Zend_Db_Select &$select) {
         $statusColumn = $model->getAdapter()->quoteIdentifier(self::STATUS_COLUMN);
@@ -108,7 +114,7 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
         }
 
         // Add online_status check
-        $select->where($statusColumn.' = ?', self::ONLINE);
+        $select->where($statusColumn . ' = ?', self::ONLINE);
 
         // Add published check
         if ($this->_config['draft_only']) {
@@ -116,7 +122,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
         }
 
         $ini = Zend_Registry::get('config');
-        $timezone = !empty($ini->resources->db->params->timezone) ? $ini->resources->db->params->timezone : null;
+        $timezone = !empty($ini->resources->db->params->timezone) ?
+            $ini->resources->db->params->timezone : null;
         $timecalc = '';
         if ($timezone == 'GMT' || $timezone == 'UTC') {
             $dstStart = strtotime('Last Sunday of March');
@@ -131,13 +138,16 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
                 $timecalc .= ' 1 HOUR';
             }
         }
-        $select->where($publishedColumn.' IS NULL OR '.$publishedColumn.' <= NOW() '.$timecalc);
+        $select->where(
+            $publishedColumn . ' IS NULL OR ' . $publishedColumn . ' <= NOW() ' . $timecalc
+        );
     }
 
     /**
      * After insert callback.
-     * @param Array $args
-     * @return Void
+     *
+     * @param array $args
+     * @return void
      */
     public function afterInsert(&$args) {
         $model = $args[0];
@@ -147,8 +157,9 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
     /**
      * After update callback
-     * @param Array $args
-     * @return Void
+     *
+     * @param array $args
+     * @return void
      */
     public function afterUpdate(&$args) {
         $model = $args[0];
@@ -159,9 +170,10 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
     /**
      * After save callback, called by afterInsert and afterUpdate.
      * Sets an `at` job that clears the Static Page cache at the exact moment of the Published date.
+     *
      * @param Garp_Model_Db $model
-     * @param Array $data
-     * @return Void
+     * @param array $data
+     * @return void
      */
     public function afterSave($model, $data) {
         // Check if the 'published column' is filled...
@@ -183,8 +195,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Set blockOfflineItems
-     * @param Boolean blockOfflineItems
-     * @param Mixed $value
+     *
+     * @param bool $blockOfflineItems
      * @return $this
      */
     public function setBlockOfflineItems($blockOfflineItems) {
@@ -194,7 +206,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Get blockOfflineItems
-     * @return Boolean
+     *
+     * @return bool
      */
     public function getBlockOfflineItems() {
         return $this->_blockOfflineItems;
@@ -202,7 +215,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Set modelAlias
-     * @param String $modelAlias
+     *
+     * @param string $modelAlias
      * @return $this
      */
     public function setModelAlias($modelAlias) {
@@ -212,7 +226,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Get modelAlias
-     * @return String
+     *
+     * @return string
      */
     public function getModelAlias() {
         return $this->_modelAlias;
@@ -220,7 +235,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Set force
-     * @param Boolean $force
+     *
+     * @param bool $force
      * @return $this
      */
     public function setForce($force) {
@@ -230,7 +246,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Get force
-     * @return Boolean
+     *
+     * @return bool
      */
     public function getForce() {
         return $this->_force;
