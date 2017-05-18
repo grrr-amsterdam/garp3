@@ -30,9 +30,6 @@ class G_RestController extends Garp_Controller_Action {
             'Access-Control-Allow-Methods',
             implode(', ', $this->_validMethods)
         );
-
-        // My heart weeps for this disgusting global 😭
-        Zend_Registry::set('CMS', true);
     }
 
     public function apiAction() {

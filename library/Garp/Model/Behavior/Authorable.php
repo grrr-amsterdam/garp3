@@ -22,7 +22,7 @@ class Garp_Model_Behavior_Authorable extends Garp_Model_Behavior_Abstract {
     public function beforeFetch(array &$args) {
         $model = $args[0];
         $select = &$args[1];
-        if (!Zend_Registry::isRegistered('CMS') || !Zend_Registry::get('CMS')) {
+        if (!$model->isCmsContext()) {
             return;
         }
         if (!Garp_Auth::getInstance()->isAllowed(get_class($model), 'fetch')

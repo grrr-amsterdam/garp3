@@ -73,7 +73,6 @@ class G_ContentController extends Garp_Controller_Action {
      * @return Void
      */
     public function adminAction() {
-        Zend_Registry::set('CMS', true);
         $ini = Zend_Registry::get('config');
         $pageTitle = 'Garp CMS';
         if (!empty($ini->app->name)) {
@@ -106,7 +105,6 @@ class G_ContentController extends Garp_Controller_Action {
      * @return Void
      */
     public function apiAction() {
-        Zend_Registry::set('CMS', true);
         /**
          * Prepare the server. Zend_Json_Server cannot work with batched requests natively,
          * so that's taken care of customly here. Therefore, autoEmitResponse is set to false
@@ -159,8 +157,7 @@ class G_ContentController extends Garp_Controller_Action {
      * @return Void
      */
     public function uploadAction() {
-        Zend_Registry::set('CMS', true);
-        $request    = $this->getRequest();
+        $request = $this->getRequest();
         if (!$uploadType = $request->getParam('type')) {
             throw new Exception('When uploading files, \'type\' is a required parameter.');
         }
@@ -209,6 +206,7 @@ class G_ContentController extends Garp_Controller_Action {
                     'Model_Document';
                 // create new record here...
                 $model = new $modelClass();
+                $model->setCmsContext(true);
                 $_response = array();
                 foreach ($response as $key => $value) {
                     // @todo Add method that allows the other columns of $model
@@ -356,7 +354,6 @@ class G_ContentController extends Garp_Controller_Action {
         ini_set('memory_limit', '2G');
         set_time_limit(0); // No time limit
 
-        Zend_Registry::set('CMS', true);
         $params = new Garp_Util_Configuration($this->getRequest()->getParams());
         $params->obligate('datafile')
             ->obligate('model')
@@ -369,6 +366,7 @@ class G_ContentController extends Garp_Controller_Action {
 
             $className = Garp_Content_Api::modelAliasToClass($params['model']);
             $model = new $className();
+            $model->setCmsContext(true);
             $response = array();
             try {
                 $success    = !!$importer->save(
@@ -406,7 +404,6 @@ class G_ContentController extends Garp_Controller_Action {
      * @return Void
      */
     public function exportAction() {
-        Zend_Registry::set('CMS', true);
         $mem = new Garp_Util_Memory();
         $mem->useHighMemory();
 

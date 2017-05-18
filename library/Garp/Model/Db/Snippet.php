@@ -33,7 +33,7 @@ class Garp_Model_Db_Snippet extends Model_Base_Snippet {
     public function beforeFetch(&$args) {
         $model = &$args[0];
         $select = &$args[1];
-        if (!Zend_Registry::isRegistered('CMS') || !Zend_Registry::get('CMS')) {
+        if (!$model->isCmsContext()) {
             return;
         }
         // Sanity check: this project might be spawned without the is_editable column,
