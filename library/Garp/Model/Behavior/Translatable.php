@@ -128,7 +128,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
         $model = &$args[0];
         $select = &$args[1];
 
-        $isCms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
+        $isCms = $model->isCmsContext();
         if (!$isCms && !$this->_forceI18nOutput) {
             return;
         }
@@ -147,7 +147,7 @@ class Garp_Model_Behavior_Translatable extends Garp_Model_Behavior_Abstract {
         $results = &$args[1];
         $select  = &$args[2];
         // In the CMS environment, the translated data is merged into the parent data
-        $isCms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
+        $isCms = $model->isCmsContext();
         if (!$isCms && !$this->_forceI18nOutput) {
             return;
         }

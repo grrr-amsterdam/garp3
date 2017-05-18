@@ -134,6 +134,8 @@ class Garp_Model_Behavior_Bindable extends Garp_Model_Behavior_Core {
         if (!$otherModel instanceof Zend_Db_Table_Abstract) {
             $otherModel = new $otherModel();
         }
+        // Bound models should respect the CMS context settings of the root model
+        $otherModel->setCmsContext($model->isCmsContext());
         /**
          * Do not cache related queries. The "outside" query should be the only
          * query that's cached.

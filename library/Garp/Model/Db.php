@@ -90,6 +90,13 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
     protected $_unilingualModel;
 
     /**
+     * Wether we're currently in CMS context.
+     *
+     * @var bool
+     */
+    protected $_cmsContext = false;
+
+    /**
      * Initialize object
      * Called from {@link __construct()} as final step of object instantiation.
      *
@@ -569,6 +576,29 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
     public function setCacheQueries($flag) {
         self::$_cacheQueries = $flag;
         return $this;
+    }
+
+    /**
+     * Set wether we are in CMS context.
+     * This replaces the need for the global Zend_Registry::get('CMS') that's used in the past.
+     * The difference between the two methods is with this new method the context is set per
+     * instance as opposed to globally for every `new Model` anywhere in the current process.
+     *
+     * @param bool $isCmsContext
+     * @return $this
+     */
+    public function setCmsContext($isCmsContext) {
+        $this->_cmsContext = $isCmsContext;
+        return $this;
+    }
+
+    /**
+     * Grab wether we're in cms context.
+     *
+     * @return bool
+     */
+    public function isCmsContext() {
+        return $this->_cmsContext;
     }
 
     /**

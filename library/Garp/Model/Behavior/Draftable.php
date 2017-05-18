@@ -78,7 +78,8 @@ class Garp_Model_Behavior_Draftable extends Garp_Model_Behavior_Abstract {
      * @return void
      */
     public function beforeFetch(&$args) {
-        $is_cms = Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS');
+        $model = $args[0];
+        $is_cms = $model->isCmsContext();
         $is_preview = $this->_isPreview() && Garp_Auth::getInstance()->isLoggedIn();
 
         $force = $this->_force;

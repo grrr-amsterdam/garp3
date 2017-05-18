@@ -44,6 +44,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
     public function bindWithChapters(Garp_Model_Db &$model) {
         $chapterModel = new Model_Chapter();
         $contentNodeModel = new Model_ContentNode();
+        $contentNodeModel->setCmsContext($model->isCmsContext());
         $chapterModel->bindModel(
             'content', array('modelClass' => $contentNodeModel)
         );
@@ -68,7 +69,8 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
      * @return void
      */
     public function beforeFetch(&$args) {
-        if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
+        $model = $args[0];
+        if ($model->isCmsContext()) {
             $model = &$args[0];
             $this->bindWithChapters($model);
         }
@@ -316,7 +318,7 @@ class Garp_Model_Behavior_Article extends Garp_Model_Behavior_Abstract {
             if (!isset($chapterType['model'])) {
                 throw new Exception('Required key "model" not found');
             }
-            if (Zend_Registry::isRegistered('CMS') && Zend_Registry::get('CMS')) {
+            if ($model->isCmsContext()) {
                 return array('modelClass' => 'Model_' . $chapterType['model']);
             }
             $out['modelClass'] = instance(new Garp_I18n_ModelFactory())
