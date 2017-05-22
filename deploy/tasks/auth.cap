@@ -42,7 +42,7 @@ end
 desc "Set permissions on release path cache directory"
 task :set_release_path_cache_dir_permissions do
     on roles(:web) do
-        execute "chmod -R 777 #{release_path}/public/cached"
-        execute "chmod -R 777 #{release_path}/application/data/cache"
+        execute "chmod -R g+w,o+rx #{release_path}/public/cached"
+        execute "chmod -R g+w,o+rx #{release_path}/application/data/cache"
     end
 end
