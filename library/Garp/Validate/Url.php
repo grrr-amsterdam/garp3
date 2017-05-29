@@ -12,8 +12,8 @@ class Garp_Validate_Url extends Zend_Validate_Abstract {
     const INVALID_URL = 'invalidUrl';
 
     protected $_messageTemplates = array(
-        self::INVALID_INPUT => "'%value%' is not a string",
-        self::INVALID_URL   => "'%value%' is not a valid URL",
+        self::INVALID_INPUT => "url validator invalid input",
+        self::INVALID_URL   => "url validator invalid url",
     );
 
     public function isValid($value) {

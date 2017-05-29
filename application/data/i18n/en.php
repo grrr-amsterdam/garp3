@@ -44,6 +44,10 @@ $translationTable = array(
         Environment: %s\n
         Version: %s\n\n
         View here directly: %s\n\n",
-    'gumball notification email subject' => '[%s] A new version is deployed'
+    'gumball notification email subject' => '[%s] A new version is deployed',
+
+    'url validator invalid input' => "'%value%' is not a string",
+    'url validator invalid url' => "'%value%' is not a valid URL"
+
     // @codingStandardsIgnoreEnd
 );

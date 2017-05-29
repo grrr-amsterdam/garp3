@@ -368,6 +368,9 @@ $translationTable = array(
         "Omgeving: %s\n" .
         "Versie: %s\n\n" .
         "Bekijk hier: %s\n\n",
-    'gumball notification email subject' => '[%s] Een nieuwe versie staat live'
+    'gumball notification email subject' => '[%s] Een nieuwe versie staat live',
+
+    'url validator invalid input' => "'%value%' is geen geldige string",
+    'url validator invalid url' => "'%value%' is geen geldige URL"
     // @codingStandardsIgnoreEnd
 );
