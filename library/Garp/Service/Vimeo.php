@@ -14,9 +14,9 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
      * API Url
      * @var String
      */
-    const VIMEO_API_URL = 'http://vimeo.com/api/v2/';
-    
-    
+    const VIMEO_API_URL = 'https://vimeo.com/api/v2/';
+
+
     /**
      * Make a User request
      * @param String $username
@@ -35,8 +35,8 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
         }
         return $this->request($username.'/'.$request);
     }
-    
-    
+
+
     /**
      * Make a Video request
      * @param String $videoId Video id or Vimeo URL
@@ -50,8 +50,8 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
         }
         return $this->request('video/'.$videoId);
     }
-    
-    
+
+
     /**
      * Make an Activity request
      * @param String $username
@@ -67,8 +67,8 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
         }
         return $this->request('activity/'.$username.'/'.$request);
     }
-    
-    
+
+
     /**
      * Make a Group request
      * @param String $groupname
@@ -84,8 +84,8 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
         }
         return $this->request('group/'.$groupname.'/'.$request);
     }
-    
-    
+
+
     /**
      * Make a Channel request
      * @param String $channel
@@ -101,8 +101,8 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
         }
         return $this->request('channel/'.$channel.'/'.$request);
     }
-    
-    
+
+
     /**
      * Make a Album request
      * @param Int $albumId
@@ -118,7 +118,7 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
         }
         return $this->request('album/'.$albumId.'/'.$request);
     }
-    
+
 
     /**
      * Send a request
@@ -132,7 +132,7 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
                          ->setUri($url)
                          ->request()
         ;
-        
+
         if ($response->getStatus() != 200) {
             switch ($response->getStatus()) {
                 case 404:
@@ -141,15 +141,15 @@ class Garp_Service_Vimeo extends Zend_Service_Abstract {
                 case 500:
                     /**
                      * Hmm. Unfortunately, Vimeo is not very consistent when it comes to raising exception.
-                     * In the case of status 500, I've seen some responses that said "Method not found" in plain text, 
-                     * but I've also seen "We're experiencing trouble at the moment" messages containing a whole 
+                     * In the case of status 500, I've seen some responses that said "Method not found" in plain text,
+                     * but I've also seen "We're experiencing trouble at the moment" messages containing a whole
                      * bunch of HTML. Unfortunately this leaves me no choice but to throw a generic error message.
                      */
                     throw new Garp_Service_Vimeo_Exception('An error occurred when fetching data from Vimeo.');
                 break;
             }
         }
-        
+
         return Zend_Json::decode($response->getBody());
     }
 }

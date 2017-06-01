@@ -14,7 +14,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
      * API Url
      * @var String
      */
-    const VIMEO_API_URL = 'http://vimeo.com/api/rest/v2';
+    const VIMEO_API_URL = 'https://vimeo.com/api/rest/v2';
 
 
     /**
@@ -72,7 +72,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
     /**
      * Class constructor
      * @param String $consumerKey
-     * @param String $consumerSecret 
+     * @param String $consumerSecret
      * @param String $accessToken
      * @param String $accessTokeeSecret
      * @return Void
@@ -207,11 +207,11 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
             'oauth_signature_method' => 'HMAC-SHA1',
             'oauth_version'          => '1.0'
         );
-        
+
         if ($this->getAccessToken()) {
             $params['oauth_token'] = $this->getAccessToken();
         }
-        
+
         $params['oauth_signature'] = $oAuthHttpUtility->sign(
             array_merge($queryParams, $params),
             'HMAC-SHA1',
