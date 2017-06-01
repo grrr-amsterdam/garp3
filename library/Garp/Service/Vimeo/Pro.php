@@ -2,16 +2,14 @@
 /**
  * Garp_Service_Vimeo_Pro
  * Vimeo Pro API wrapper.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
- * @subpackage Vimeo
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
     /**
      * API Url
+     *
      * @var String
      */
     const VIMEO_API_URL = 'https://vimeo.com/api/rest/v2';
@@ -19,6 +17,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Response format (json/xml/php)
+     *
      * @var String
      */
     const RESPONSE_FORMAT = 'json';
@@ -26,6 +25,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * API methods
+     *
      * @var Array
      */
     protected static $_methods = array(
@@ -43,6 +43,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Consumer key
+     *
      * @var String
      */
     protected $_consumerKey;
@@ -50,6 +51,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Consumer secret
+     *
      * @var String
      */
     protected $_consumerSecret;
@@ -57,6 +59,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Access token, required for certain methods
+     *
      * @var String
      */
     protected $_accessToken;
@@ -64,6 +67,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Access token secret, required for certain methods
+     *
      * @var String
      */
     protected $_accessTokenSecret;
@@ -71,13 +75,19 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Class constructor
+     *
      * @param String $consumerKey
      * @param String $consumerSecret
      * @param String $accessToken
-     * @param String $accessTokeeSecret
+     * @param String $accessTokenSecret
      * @return Void
      */
-    public function __construct($consumerKey, $consumerSecret, $accessToken = null, $accessTokenSecret = null) {
+    public function __construct(
+        $consumerKey,
+        $consumerSecret,
+        $accessToken = null,
+        $accessTokenSecret = null
+    ) {
         $this->setConsumerKey($consumerKey);
         $this->setConsumerSecret($consumerSecret);
 
@@ -92,21 +102,23 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Get method group object
+     *
      * @param String $key
      * @return Garp_Service_Vimeo_Pro_Method
      */
     public function __get($key) {
         if (in_array($key, Garp_Service_Vimeo_Pro::$_methods)) {
-            $className = 'Garp_Service_Vimeo_Pro_Method_'.ucfirst($key);
+            $className = 'Garp_Service_Vimeo_Pro_Method_' . ucfirst($key);
             return new $className($this);
         }
-        throw new Garp_Service_Vimeo_Exception('Method group '.$key.' not found.');
+        throw new Garp_Service_Vimeo_Exception('Method group ' . $key . ' not found.');
     }
 
 
     /**
      * Set consumer key
-     * @param String $key
+     *
+     * @param String $consumerKey
      * @return $this
      */
     public function setConsumerKey($consumerKey) {
@@ -117,6 +129,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Get consumer key
+     *
      * @return String
      */
     public function getConsumerKey() {
@@ -126,7 +139,8 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Set consumer secret
-     * @param String $secret
+     *
+     * @param String $consumerSecret
      * @return $this
      */
     public function setConsumerSecret($consumerSecret) {
@@ -137,6 +151,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Get consumer secret
+     *
      * @return String
      */
     public function getConsumerSecret() {
@@ -146,6 +161,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Set access token
+     *
      * @param String $accessToken
      * @return $this
      */
@@ -157,6 +173,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Get access token
+     *
      * @return String
      */
     public function getAccessToken() {
@@ -166,6 +183,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Set access token secret
+     *
      * @param String $accessTokenSecret
      * @return $this
      */
@@ -177,6 +195,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Get access token secret
+     *
      * @return String
      */
     public function getAccessTokenSecret() {
@@ -186,6 +205,7 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
 
     /**
      * Send a request
+     *
      * @param String $method Methodname
      * @param Array $queryParams GET parameters
      * @return Array
@@ -193,11 +213,11 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
     public function request($method, array $queryParams) {
         $queryParams['format'] = self::RESPONSE_FORMAT;
         if (!substr($method, 0, 5) != 'vimeo') {
-            $method = 'vimeo.'.$method;
+            $method = 'vimeo.' . $method;
         }
         $queryParams['method'] = $method;
         $queryString = http_build_query($queryParams);
-        $url = self::VIMEO_API_URL.'?'.$queryString;
+        $url = self::VIMEO_API_URL . '?' . $queryString;
 
         $oAuthHttpUtility = new Zend_Oauth_Http_Utility();
         $params = array(
@@ -222,9 +242,9 @@ class Garp_Service_Vimeo_Pro extends Zend_Service_Abstract {
         );
 
         $httpClient = $this->getHttpClient()
-                           ->setHeaders('Authorization', $oAuthHttpUtility->toAuthorizationHeader($params))
-                           ->setMethod(Zend_Http_Client::GET)
-                           ->setUri($url);
+            ->setHeaders('Authorization', $oAuthHttpUtility->toAuthorizationHeader($params))
+            ->setMethod(Zend_Http_Client::GET)
+            ->setUri($url);
         $response = $httpClient->request()->getBody();
         $response = json_decode($response, true);
         if ($response['stat'] == 'fail') {
