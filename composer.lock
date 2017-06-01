@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "db1d45174558c44f8fef427ddca59220",
+    "content-hash": "7f64bb1e9e270bc8ab41be39ee36b2fd",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/dompdf/dompdf.git",
-                "reference": "d090f5eb9191c3a2fd7d304c85fc5a1c7e04bd95"
+                "reference": "63accc48e7a414e1d002154b08d28165c901ba26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/d090f5eb9191c3a2fd7d304c85fc5a1c7e04bd95",
-                "reference": "d090f5eb9191c3a2fd7d304c85fc5a1c7e04bd95",
+                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/63accc48e7a414e1d002154b08d28165c901ba26",
+                "reference": "63accc48e7a414e1d002154b08d28165c901ba26",
                 "shasum": ""
             },
             "require": {
@@ -66,7 +66,7 @@
             ],
             "description": "DOMPDF is a CSS 2.1 compliant HTML to PDF converter",
             "homepage": "https://github.com/dompdf/dompdf",
-            "time": "2017-02-15 04:22:22"
+            "time": "2017-05-31 23:12:25"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -121,12 +121,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "0e3e900e97a6f781dedc45ca8759dd84a1f2cfc1"
+                "reference": "dc7a4e051dcd566fcc53a61d685fdaebac9f670e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/0e3e900e97a6f781dedc45ca8759dd84a1f2cfc1",
-                "reference": "0e3e900e97a6f781dedc45ca8759dd84a1f2cfc1",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/dc7a4e051dcd566fcc53a61d685fdaebac9f670e",
+                "reference": "dc7a4e051dcd566fcc53a61d685fdaebac9f670e",
                 "shasum": ""
             },
             "require": {
@@ -163,7 +163,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2017-03-29 09:42:14"
+            "time": "2017-05-31 14:16:10"
         },
         {
             "name": "google/apiclient",
@@ -214,12 +214,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "3266b6e257992887035c8952918607f5b858aaf8"
+                "reference": "35c07a81de6200e5aa0629eacecd11fd925d19dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/3266b6e257992887035c8952918607f5b858aaf8",
-                "reference": "3266b6e257992887035c8952918607f5b858aaf8",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/35c07a81de6200e5aa0629eacecd11fd925d19dc",
+                "reference": "35c07a81de6200e5aa0629eacecd11fd925d19dc",
                 "shasum": ""
             },
             "require": {
@@ -284,7 +284,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2017-03-20 10:21:06"
+            "time": "2017-05-03 13:17:21"
         },
         {
             "name": "phenx/php-font-lib",
@@ -516,17 +516,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "116a8ce9c24aca6c062a0e93bd8fbd3ffd904e58"
+                "reference": "28a443fde0ac29a8519d35fe7144f9c6518119e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/116a8ce9c24aca6c062a0e93bd8fbd3ffd904e58",
-                "reference": "116a8ce9c24aca6c062a0e93bd8fbd3ffd904e58",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/28a443fde0ac29a8519d35fe7144f9c6518119e0",
+                "reference": "28a443fde0ac29a8519d35fe7144f9c6518119e0",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
-                "php": ">=5.2.4"
+                "php": "^5.3|^7.0"
             },
             "conflict": {
                 "raven/raven": "*"
@@ -540,6 +540,7 @@
                 "ext-hash": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
+                "immobiliare/sentry-php": "Fork that fixes support for PHP 5.2",
                 "monolog/monolog": "Automatically capture Monolog events as breadcrumbs"
             },
             "bin": [
@@ -572,7 +573,7 @@
                 "log",
                 "logging"
             ],
-            "time": "2017-03-27 17:42:37"
+            "time": "2017-05-31 19:54:40"
         },
         {
             "name": "tedivm/jshrink",
@@ -1111,7 +1112,7 @@
                 "ext-simplexml": "*",
                 "ext-tokenizer": "*",
                 "ext-xmlwriter": "*",
-                "php": ">=5.1.2"
+                "php": ">=5.4.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "~4.0"
@@ -1169,7 +1170,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-04-03T05:23:47+00:00"
+            "time": "2017-04-03 05:23:47"
         },
         {
             "name": "symfony/yaml",
@@ -1177,12 +1178,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "286d84891690b0e2515874717e49360d1c98a703"
+                "reference": "93ccdde79f4b079c7558da4656a3cb1c50c68e02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/286d84891690b0e2515874717e49360d1c98a703",
-                "reference": "286d84891690b0e2515874717e49360d1c98a703",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/93ccdde79f4b079c7558da4656a3cb1c50c68e02",
+                "reference": "93ccdde79f4b079c7558da4656a3cb1c50c68e02",
                 "shasum": ""
             },
             "require": {
@@ -1218,7 +1219,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-03-20T09:41:44+00:00"
+            "time": "2017-05-01 14:31:55"
         }
     ],
     "aliases": [],
