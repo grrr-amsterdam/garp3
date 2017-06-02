@@ -17,6 +17,33 @@ class Garp_Model_Behavior_HtmlFilterableTest extends Garp_Test_PHPUnit_TestCase 
     }
 
     /**
+     * @test
+     */
+    public function should_keep_iframe_inside_figure_tag() {
+        $filterable = new Garp_Model_Behavior_HtmlFilterable(array());
+        $test = '<figure class="video-embed"><iframe frameborder="0" height="315" '
+            . 'src="https://www.youtube.com/watch?v=sZ5nEuG-CRc" width="560"></iframe></figure>';
+        $this->assertEquals($test, $filterable->filter($test));
+    }
+
+    /**
+     * @test
+     */
+    public function should_keep_text_inside_figure_tag() {
+        $filterable = new Garp_Model_Behavior_HtmlFilterable(array());
+        $test = '<figure class="video-embed">Some text here</figure>';
+        $this->assertEquals($test, $filterable->filter($test));
+    }
+
+    /**
+     * @test
+     */
+    public function should_keep_figcaption_inside_figure_tag() {
+        $filterable = new Garp_Model_Behavior_HtmlFilterable(array());
+        $test = '<figure class="video-embed"><figcaption>Text goes here</figcaption></figure>';
+        $this->assertEquals($test, $filterable->filter($test));
+    }
+    /**
      * This tests wether you can add a figure in a couple forms, because it proved difficult in the
      * past.
      *
