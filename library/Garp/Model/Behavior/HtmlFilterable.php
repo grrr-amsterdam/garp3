@@ -94,6 +94,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         );
 
         // add proprietary elements
+
         if ($def = $config->maybeGetRawHTMLDefinition()) {
             $this->_addHtml5Elements($def);
             $iframe = $def->addElement(
@@ -187,7 +188,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 
         // http://developers.whatwg.org/grouping-content.html
         $def->addElement(
-            'figure', 'Block', 'Optional: (figcaption, Flow) | (Flow, figcaption) | Flow', 'Common'
+            'figure', 'Block', 'Flow', 'Common'
         );
         $def->addElement('figcaption', 'Inline', 'Flow', 'Common');
 
