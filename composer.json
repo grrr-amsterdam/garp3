@@ -6,7 +6,6 @@
         "google/apiclient": "^1.1",
         "phpoffice/phpexcel": "1.8.*",
         "zendframework/zendframework1": "^1",
-        "ezyang/htmlpurifier": "^4.8",
         "sentry/sentry": "^1.1",
         "monolog/monolog": "^1.0",
         "dompdf/dompdf": "^0.7.0",
@@ -22,8 +21,10 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
-            "Garp_": "library/"
-        }
+            "Garp_": "library/",
+            "HTMLPurifier": "htmlpurifier/library/"
+        },
+       "files": ["htmlpurifier/library/HTMLPurifier.composer.php"]
     },
     "include-path": [
     	"library/"

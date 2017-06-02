@@ -71,7 +71,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         $config->set('AutoFormat.RemoveEmpty', true);
         $config->set('AutoFormat.RemoveSpansWithoutAttributes', true);
         $config->set('AutoFormat.RemoveEmpty.RemoveNbsp', true);
-        $config->set('Output.TidyFormat', true);
+        $config->set('Output.TidyFormat', false);
         $config->set('Attr.AllowedClasses', $this->_getAllowedClasses());
         $config->set(
             'CSS.AllowedProperties', array(
@@ -94,7 +94,9 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         );
 
         // add proprietary elements
-        if ($def = $config->maybeGetRawHTMLDefinition()) {
+        $def = $config->maybeGetRawHTMLDefinition();
+        
+        if ($def) {
             $this->_addHtml5Elements($def);
             $iframe = $def->addElement(
                 'iframe',   // name
@@ -124,6 +126,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
                 )
             );
         }
+
         return $config;
     }
 

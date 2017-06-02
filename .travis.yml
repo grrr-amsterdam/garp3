@@ -8,6 +8,8 @@ before_script:
     - chmod -R +x vendor/bin/phpunit
     - chmod -R +x vendor/bin/phpcs
 before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install -y libxml2 libxml2-dev
     - composer install
 notifications:
     email: false
