@@ -71,7 +71,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         $config->set('AutoFormat.RemoveEmpty', true);
         $config->set('AutoFormat.RemoveSpansWithoutAttributes', true);
         $config->set('AutoFormat.RemoveEmpty.RemoveNbsp', true);
-        $config->set('Output.TidyFormat', true);
+        $config->set('Output.TidyFormat', false);
         $config->set('Attr.AllowedClasses', $this->_getAllowedClasses());
         $config->set(
             'CSS.AllowedProperties', array(
@@ -187,7 +187,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 
         // http://developers.whatwg.org/grouping-content.html
         $def->addElement(
-            'figure', 'Block', 'Optional: (figcaption, Flow) | (Flow, figcaption) | Flow', 'Common'
+            'figure', 'Block', 'Flow', 'Common'
         );
         $def->addElement('figcaption', 'Inline', 'Flow', 'Common');
 
