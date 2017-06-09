@@ -2,6 +2,11 @@
     "name": "grrr-amsterdam/garp3",
     "description": "Framework and CMS built on top of Zend Framework.",
     "type": "library",
+    "config": {
+        "platform": {
+            "php": "5.3.3"
+        }
+    },
     "require": {
         "google/apiclient": "^1.1",
         "phpoffice/phpexcel": "1.8.*",
