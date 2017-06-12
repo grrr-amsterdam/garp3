@@ -8,6 +8,13 @@
  */
 class Garp_Test_PHPUnit_Helper {
     /**
+     * Mockdata inserted at runtime thru $this->insertMockData
+     *
+     * @var array
+     */
+    protected $_dynamicallyInsertedMockData = array();
+
+    /**
      * The methods setUp and tearDown are called by Garp_Test_PHPUnit_TestCase and
      * Garp_Test_PHPUnit_ControllerTestCase.
      * First they reset the global state as much as possible.
@@ -27,6 +34,7 @@ class Garp_Test_PHPUnit_Helper {
 
     public function tearDown(array $mockData) {
         $this->_truncate($mockData);
+        $this->_truncate($this->_dynamicallyInsertedMockData);
     }
 
     /**
@@ -39,6 +47,12 @@ class Garp_Test_PHPUnit_Helper {
     public function insertMockData(Garp_Model_Db $model, array $defaultData = array()) {
         $faker = new Garp_Model_Db_Faker();
         $data = $faker->createFakeRow($model->getFieldConfiguration(), $defaultData);
+        $modelSuffix = $model->getNameWithoutNamespace();
+        if (!array_key_exists($modelSuffix, $this->_dynamicallyInsertedMockData)) {
+            $this->_dynamicallyInsertedMockData[$modelSuffix] = array(
+                'i18n' => $model->isMultilingual()
+            );
+        }
         return $model->insert($data);
     }
 
