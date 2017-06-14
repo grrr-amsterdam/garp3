@@ -47,6 +47,17 @@ Garp.mailtoOrUrlPlugin = {
 };
 
 /**
+ * Override email VType. It otherwise doesn't support .amsterdam domainnames
+ *
+ * @TODO: decide if we need to implement the real list
+ * @see: http://data.iana.org/TLD/tlds-alpha-by-domain.txt
+ */
+Ext.form.VTypes.email = function(val){
+    var emailRe = /^(\w+)([\-+.\'][\w]+)*@(\w[\-\w]*\.){1,5}([A-Za-z]){2,}$/;
+	return emailRe.test(val);
+};
+
+/**
  * Override  updateRecord. We don't want non-dirty values to get synced. It causes empty string instead of null values...
  */
 Ext.apply(Ext.form.BasicForm.prototype, {
