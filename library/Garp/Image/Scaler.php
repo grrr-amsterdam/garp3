@@ -2,13 +2,16 @@
 /**
  * Garp_Image_Scaler
  * Scales images
- * @author David Spreekmeester | Grrr.nl
+ *
  * @package Garp
- **/
+ * @author  David Spreekmeester <david@grrr.nl>
+ */
 class Garp_Image_Scaler {
     /**
-     * @var Array $args Scaling behavior parameters
-     **/
+     * Scaling behavior parameters
+     *
+     * @var array
+     */
     public $args = array(
         'w',
         'h',
@@ -18,17 +21,20 @@ class Garp_Image_Scaler {
         'grow'
     );
 
-
     /**
-     * @var String $name The scaled image's basename, including the correct extension
-     **/
+     * The scaled image's basename, including the correct extension
+     *
+     * @var string
+     */
     public $name = null;
 
-
     /**
-     * @var Array $params Parameters needed to render the scaled image, containing default settings, paths and overridable values.
-     **/
-    private $params = array(
+     * Parameters needed to render the scaled image, containing default settings,
+     * paths and overridable values.
+     *
+     * @var array
+     */
+    private $_params = array(
         'quality'       => 80,
         'grow'          => 1,
         'crop'          => 1,
@@ -43,48 +49,39 @@ class Garp_Image_Scaler {
         'filter'        => null
     );
 
-
     /**
-     * @var Array $_config  Array that represents the image config settings from an application specific ini file.
-     **/
+     * Array that represents the image config settings from an application specific ini file.
+     *
+     * @var array
+     */
     private static $_config = array();
 
-
     /**
-     * @var Array $inputParams Parameters that were provided during the request, i.e. without any defaults or complemented values.
-     **/
-    private $inputParams = array();
-
+     * Parameters that were provided during the request,
+     * i.e. without any defaults or complemented values.
+     *
+     * @var array
+     */
+    private $_inputParams = array();
 
     const SCALED_FOLDER = 'scaled';
 
-
-    /**
-     * @param   Array   $params         Optional parameters to describe the desired format of the scaled image.
-     * @param   Int         [w]         Width of the scaled image. If not provided, the original width will be maintained.
-     * @param   Int         [h]         Height of the  scaled image. If not provided, the original height will be maintained.
-     * @param   String      [bgcolor]   Hexadecimal code of the canvas' background color.
-     * @param   Int         [quality]   Quality indication, between 0 and 100.
-     * @param   Boolean     [grow]      Sets whether the scaled image should ever be able to grow larger than the original.
-     * @param   Boolean     [crop]      Sets whether the scaled image should ever be allowed to be cropped, if the canvas is smaller in any dimension than the original.
-     * @param   String      [cropfocus] Set to 'face' when a cropped picture should try to focus on the expected location of a face, or to 'center' to center the crop.
-     * @param   Boolean     [cache]     Sets whether a cached version of this image should be written, and if it should be used when it's available.
-     **/
     public function __construct() {
         $this->_loadIniDefaults();
     }
 
-
     /**
-     * Renders a scaled version of the image referenced by the provided filename, taken any (optional) manipulators into consideration.
-     * @param   String  $sourceData     The binary data of the original source image.
-     * @param   Array   $scaleParams
-     * @param   Int     $imageType      One of the PHP image type constants, such as IMAGETYPE_JPEG
-     * @return  Array
+     * Renders a scaled version of the image referenced by the provided filename,
+     * taken any (optional) manipulators into consideration.
+     *
+     * @param   string  $sourceData     The binary data of the original source image.
+     * @param   array   $scaleParams
+     * @param   int     $imageType      One of the PHP image type constants, such as IMAGETYPE_JPEG
+     * @return  array
      *                  ['resource']    The image file data string
      *                  ['mime']        Mime type of the generated cache file
      *                  ['timestamp']   Timestamp of the generated cache file
-     **/
+     */
     public function scale($sourceData, $scaleParams, $imageType) {
         $this->_setInputParams($scaleParams);
         $mem = new Garp_Util_Memory();
@@ -97,7 +94,10 @@ class Garp_Image_Scaler {
         if (!($source = imagecreatefromstring($sourceData))) {
             $finfo = new finfo(FILEINFO_MIME);
             $mime = $finfo->buffer($sourceData);
-            throw new Exception("This source image could not be scaled. It's probably not a valid file type. Instead, this file is of the following type: " . $mime);
+            throw new Exception(
+                "This source image could not be scaled. It's probably not a valid file type. " .
+                    "Instead, this file is of the following type: " . $mime
+            );
         }
 
         $this->_analyzeSourceImage($source, $imageType);
@@ -123,7 +123,7 @@ class Garp_Image_Scaler {
 
         $output = array(
             'resource' => $outputImage,
-            'mime' => $this->params['mime'],
+            'mime' => $this->_params['mime'],
             'timestamp' => time()
         );
         imagedestroy($source);
@@ -133,10 +133,9 @@ class Garp_Image_Scaler {
 
     protected function _isSourceEqualToTarget(array $scaleParams) {
         return
-            $this->params['w'] == $this->params['sourceWidth'] &&
-            $this->params['h'] == $this->params['sourceHeight'] &&
-            !$this->_isFilterDefined($scaleParams)
-        ;
+            $this->_params['w'] == $this->_params['sourceWidth'] &&
+            $this->_params['h'] == $this->_params['sourceHeight'] &&
+            !$this->_isFilterDefined($scaleParams);
     }
 
     protected function _isFilterDefined(array $scaleParams) {
@@ -148,92 +147,107 @@ class Garp_Image_Scaler {
 
     /**
      * Fetches the scaling parameters for this template.
-     * @param String $template Name of this template
-     **/
+     *
+     * @param string $template Name of this template
+     * @return array
+     */
     public function getTemplateParameters($template) {
         if (count(self::$_config->template->{$template})) {
             $tplConfig = self::$_config->template->{$template}->toArray();
             return $tplConfig;
-        } else throw new Exception('The template "'.$template.'" is not configured.');
+        }
+        throw new Exception('The template "' . $template . '" is not configured.');
     }
 
 
     /**
      * Fetches existing template names.
-     * @return Array Numeric array, containing existing template names.
-     **/
+     *
+     * @return array Numeric array, containing existing template names.
+     */
     public function getTemplateNames() {
         return array_keys(self::$_config->template->toArray());
     }
 
-
     /**
-    * Generate versions of an image file that are scaled according to the configured scaling templates.
-    * @param String $filename The filename of the image to be scaled
-    * @param Int $id The database ID of the image record
-    * @param Boolean $overwrite Whether to overwrite existing files
-    **/
+     * Generate versions of an image file that are scaled according to the
+     * configured scaling templates.
+     *
+     * @param string $filename  The filename of the image to be scaled
+     * @param int    $id        The database ID of the image record
+     * @param bool   $overwrite Whether to overwrite existing files
+     * @return void
+     */
     public function generateTemplateScaledImages($filename, $id, $overwrite = false) {
-        if ($filename && $id) {
-            $templates = $this->getTemplateNames();
+        if (!$filename || !$id) {
+            throw new Exception(
+                'A filename and id were not provided. Filename [' . $filename . '] Id [' . $id . ']'
+            );
+        }
+        $templates = $this->getTemplateNames();
 
-            foreach ($templates as $t) {
-                try {
-                    $this->scaleAndStore($filename, $id, $t, $overwrite);
-                } catch(Exception $e) {
-                    throw new Exception("Error scaling ".$filename." (#".$id."): ".$e->getMessage());
-                }
+        foreach ($templates as $t) {
+            try {
+                $this->scaleAndStore($filename, $id, $t, $overwrite);
+            } catch(Exception $e) {
+                throw new Exception(
+                    "Error scaling " . $filename . " (#" . $id . "): " . $e->getMessage()
+                );
             }
-        } else throw new Exception('A filename and id were not provided. Filename ['.$filename.'] Id ['.$id.']');
+        }
     }
 
-
-    /** @return String The filename (which is the id), preceded by the scaled/template folder. Does not include basepath, upload folder and such. **/
+    /**
+     * @param string|Garp_Db_Table_Row $imageIdOrRecord
+     * @param string $template
+     * @return string The filename (which is the id), preceded by the scaled/template folder.
+     *                Does not include basepath, upload folder and such.
+     */
     static public function getScaledPath($imageIdOrRecord, $template) {
         $id = $imageIdOrRecord instanceof Garp_Db_Table_Row ?
             $imageIdOrRecord->id :
-            $imageIdOrRecord
-        ;
-
-        return self::SCALED_FOLDER.'/'.$template.'/'.$id;
+            $imageIdOrRecord;
+        return self::SCALED_FOLDER . '/' . $template . '/' . $id;
     }
-
 
     static public function getScaledUrl($imageIdOrRecord, $template) {
         $file = new Garp_Image_File();
         return $file->getUrl(self::getScaledPath($imageIdOrRecord, $template));
     }
 
-
     /**
      * Scales an image according to an image template, and stores it.
      *
-     * @param String $filename Filename of the source image
-     * @param Int $id Id of the database record corresponding to this image file
-     * @param String $template Name of the template, if left empty, scaled versions for all templates will be generated.
-     **/
+     * @param string $filename Filename of the source image
+     * @param int    $id       Id of the database record corresponding to this image file
+     * @param string $template Name of the template, if left empty,
+     *                         scaled versions for all templates will be generated.
+     * @param bool   $overwrite
+     * @return void
+     */
     public function scaleAndStore($filename, $id, $template = null, $overwrite = false) {
         $templates = !is_null($template) ?
             (array)$template :
             //  template is left empty; scale source file along all configured templates
-            $templates = $this->getTemplateNames()
-        ;
+            $templates = $this->getTemplateNames();
 
         $file       = new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);
         $sourceData = $file->fetch($filename);
         $imageType  = $file->getImageType($filename);
-
 
         foreach ($templates as $template) {
             $this->_scaleAndStoreForTemplate($sourceData, $imageType, $id, $template, $overwrite);
         }
     }
 
-    protected function _scaleAndStoreForTemplate($sourceData, $imageType, $id, $template, $overwrite) {
-        $file           = new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);
-        $scaleParams    = $this->getTemplateParameters($template);
+    protected function _scaleAndStoreForTemplate(
+        $sourceData, $imageType, $id, $template, $overwrite
+    ) {
+        $file        = new Garp_Image_File(Garp_File::FILE_VARIANT_UPLOAD);
+        $scaleParams = $this->getTemplateParameters($template);
+
         // clone this scaler, since scaling parameters are stored as class properties
-        $clonedScaler   = clone($this);
+        $clonedScaler = clone($this);
 
         $scaledImageDataArray = $clonedScaler->scale(
             $sourceData,
@@ -250,111 +264,108 @@ class Garp_Image_Scaler {
 
     /**
      * Makes sure only allowed parameters are accepted, and merges them with the $params property.
-     * @param   Array   $params     Associative array containing image manipulation parameters
-     * @return  Void
-     **/
-    protected function _setInputParams(Array &$params) {
+     *
+     * @param  array $params Associative array containing image manipulation parameters
+     * @return void
+     */
+    protected function _setInputParams(array &$params) {
         foreach ($params as $paramKey => $paramValue) {
-            if (
-                in_array($paramKey, $this->args, true) &&
-                !is_null($paramValue)
+            if (in_array($paramKey, $this->args, true)
+                && !is_null($paramValue)
             ) {
-                $this->inputParams[$paramKey] = $paramValue;
+                $this->_inputParams[$paramKey] = $paramValue;
             }
         }
 
-        $this->params = array_merge($this->params, $this->inputParams);
+        $this->_params = array_merge($this->_params, $this->_inputParams);
     }
-
 
     protected function _loadIniDefaults() {
         if (!self::$_config) {
             $ini = Zend_Registry::get('config');
             self::$_config = $ini->image;
         }
-
-        $this->params['bgcolor'] = self::$_config->bgcolor;
+        $this->_params['bgcolor'] = self::$_config->bgcolor;
     }
 
-
     /**
-     * Analyzes the source image and stores gained information like mime type / image type, width and height.
-     * @return Void
-     **/
+     * Analyzes the source image and stores gained information like
+     * mime type / image type, width and height.
+     *
+     * @param string $imageResource
+     * @param string $imageType
+     * @return void
+     */
     protected function _analyzeSourceImage($imageResource, $imageType) {
-        $this->params['sourceWidth'] = imagesx($imageResource);
-        $this->params['sourceHeight'] = imagesy($imageResource);
-        $this->params['mime'] = image_type_to_mime_type($imageType);
-        $this->params['type'] = $imageType;
+        $this->_params['sourceWidth'] = imagesx($imageResource);
+        $this->_params['sourceHeight'] = imagesy($imageResource);
+        $this->_params['mime'] = image_type_to_mime_type($imageType);
+        $this->_params['type'] = $imageType;
     }
 
-
     /**
-     * If one of the canvas dimensions is omitted, calculate it and complement it in $this->params
-     * Requirement: Needs sourceWidth and sourceHeight to be present, so can only be called after analyzing the image.
-     * @return Void
-     **/
+     * If one of the canvas dimensions is omitted, calculate it and complement it in $this->_params
+     * Requirement: Needs sourceWidth and sourceHeight to be present, so can only be called after
+     * analyzing the image.
+     *
+     * @return void
+     */
     private function _addOmittedCanvasDimension() {
-        $sourceWidth = $this->params['sourceWidth'];
-        $sourceHeight = $this->params['sourceHeight'];
+        $sourceWidth = $this->_params['sourceWidth'];
+        $sourceHeight = $this->_params['sourceHeight'];
         $sourceRatio = $sourceWidth / $sourceHeight;
 
-        if (
-            empty($this->params['w']) &&
-            empty($this->params['h'])
+        if (empty($this->_params['w'])
+            && empty($this->_params['h'])
         ) {
-            $this->params['w'] = $sourceWidth;
-            $this->params['h'] = $sourceHeight;
-        } elseif (empty($this->params['h'])) {
-            if (
-                !$this->params['grow'] &&
-                $this->params['w'] > $sourceWidth
+            $this->_params['w'] = $sourceWidth;
+            $this->_params['h'] = $sourceHeight;
+        } elseif (empty($this->_params['h'])) {
+            if (!$this->_params['grow']
+                && $this->_params['w'] > $sourceWidth
             ) {
-                $this->params['h'] = $sourceHeight;
+                $this->_params['h'] = $sourceHeight;
             } else {
-                $this->params['h'] = $this->params['w'] / $sourceRatio;
+                $this->_params['h'] = $this->_params['w'] / $sourceRatio;
             }
-        } elseif (empty($this->params['w'])) {
-            if (
-                !$this->params['grow'] &&
-                $this->params['h'] > $sourceHeight
+        } elseif (empty($this->_params['w'])) {
+            if (!$this->_params['grow']
+                && $this->_params['h'] > $sourceHeight
             ) {
-                $this->params['w'] = $sourceWidth;
+                $this->_params['w'] = $sourceWidth;
             } else {
-                $this->params['w'] = $this->params['h'] * $sourceRatio;
+                $this->_params['w'] = $this->_params['h'] * $sourceRatio;
             }
         }
     }
 
-
     private function _createCanvasImage($imageType) {
         switch ($imageType) {
-            case IMAGETYPE_GIF:
-                $canvas = imageCreate($this->params['w'], $this->params['h']);
+        case IMAGETYPE_GIF:
+            $canvas = imageCreate($this->_params['w'], $this->_params['h']);
             break;
-            case IMAGETYPE_JPEG:
-            case IMAGETYPE_PNG:
-                $canvas = imageCreateTrueColor($this->params['w'], $this->params['h']);
+        case IMAGETYPE_JPEG:
+        case IMAGETYPE_PNG:
+            $canvas = imageCreateTrueColor($this->_params['w'], $this->_params['h']);
             break;
-            default:
-                throw new Exception('Sorry, this image type is not supported');
+        default:
+            throw new Exception('Sorry, this image type is not supported');
         }
 
         $this->_paintCanvas($canvas);
         return $canvas;
     }
 
-
     /**
      * Fills the canvas with the provided background color.
-     * @param Resource $image
-     * @return Void
-     **/
+     *
+     * @param resource $image
+     * @return void
+     */
     private function _paintCanvas(&$image) {
-        if ($this->params['type'] === IMAGETYPE_JPEG) {
-            if (
-                !$this->params['crop'] ||
-                !$this->params['grow']
+        if ($this->_params['type'] === IMAGETYPE_JPEG) {
+            if (!$this->_params['crop']
+                || !$this->_params['grow']
             ) {
                 $this->_paintCanvasOpaque($image);
             }
@@ -363,7 +374,6 @@ class Garp_Image_Scaler {
         }
     }
 
-
     protected function _paintCanvasTransparent(&$image) {
         $transparency_index = imagecolortransparent($image);
         // If we have a specific transparent color
@@ -371,13 +381,19 @@ class Garp_Image_Scaler {
             // Get the original image's transparent color's RGB values
             $transparency_color = imagecolorsforindex($image, $transparency_index);
             // Allocate the same color in the new image resource
-            $transparency_index = imagecolorallocate($image, $transparency_color['red'], $transparency_color['green'], $transparency_color['blue']);
+            $transparency_index = imagecolorallocate(
+                $image,
+                $transparency_color['red'],
+                $transparency_color['green'],
+                $transparency_color['blue']
+            );
             // Completely fill the background of the new image with allocated color.
             imagefill($image, 0, 0, $transparency_index);
             // Set the background color for new image to transparent
             imagecolortransparent($image, $transparency_index);
-        } elseif ($this->params['type'] === IMAGETYPE_PNG) {
-            // Always make a transparent background color for PNGs that don't have one allocated already
+        } elseif ($this->_params['type'] === IMAGETYPE_PNG) {
+            // Always make a transparent background color for PNGs that don't have one
+            // allocated already.
             // Turn off transparency blending (temporarily)
             imagealphablending($image, false);
             // Create a new transparent color for image
@@ -389,40 +405,40 @@ class Garp_Image_Scaler {
         }
     }
 
-
     protected function _paintCanvasOpaque(&$image) {
-        $red    = '00';
-        $green  = '00';
-        $blue   = '00';
-        sscanf($this->params['bgcolor'], "%2x%2x%2x", $red, $green, $blue);
+        $red   = '00';
+        $green = '00';
+        $blue  = '00';
+        sscanf($this->_params['bgcolor'], "%2x%2x%2x", $red, $green, $blue);
         $color = imageColorAllocate($image, $red, $green, $blue);
         imageFill($image, 0, 0, $color);
     }
 
-
     /**
      * Writes the graphical output to image file data.
-     * @param Resource  $canvas
-     * @return Resource                 Scaled image data
-     **/
+     *
+     * @param resource  $canvas
+     * @return resource Scaled image data
+     */
     private function _renderToImageData(&$canvas) {
         ob_start();
 
-        switch ($this->params['type']) {
-            case IMAGETYPE_GIF:
-                imagegif($canvas);
+        switch ($this->_params['type']) {
+        case IMAGETYPE_GIF:
+            imagegif($canvas);
             break;
-            case IMAGETYPE_JPEG:
-                imagejpeg($canvas, null, $this->params['quality']);
+        case IMAGETYPE_JPEG:
+            imagejpeg($canvas, null, $this->_params['quality']);
             break;
-            case IMAGETYPE_PNG:
-                //  calculate PNG quality, because it runs from 0 (uncompressed) to 9, instead of 0 - 100.
-                $pngQuality = ($this->params['quality'] - 100) / 11.111111;
-                $pngQuality = round(abs($pngQuality));
-                imagepng($canvas, null, $pngQuality, NULL);
+        case IMAGETYPE_PNG:
+            // Calculate PNG quality, because it runs from 0 (uncompressed) to 9,
+            // instead of 0 - 100.
+            $pngQuality = ($this->_params['quality'] - 100) / 11.111111;
+            $pngQuality = round(abs($pngQuality));
+            imagepng($canvas, null, $pngQuality, null);
             break;
-            default:
-                throw new Exception('Sorry, this image type is not supported');
+        default:
+            throw new Exception('Sorry, this image type is not supported');
         }
 
         $imgData = ob_get_contents();
@@ -430,98 +446,111 @@ class Garp_Image_Scaler {
         return $imgData;
     }
 
-
     /**
      * Performs the actual projection of the source onto the canvas.
-     * @param Resource $source
-     * @param Resource $canvas
-     * @param Int $projectionWidth Width of the projection in pixels
-     * @param Int $projectionHeight Height of the projection in pixels
-     * @return Void
+     *
+     * @param resource $source
+     * @param resource $canvas
+     * @return void
      **/
     private function _projectSourceOnCanvas(&$source, &$canvas) {
         $srcX = 0;
         $srcY = 0;
         list($projectionWidth, $projectionHeight) = $this->_getProjectionSize();
-        list($destX, $destY) = $this->_getLeftUpperCoordinateOnCanvas($projectionWidth, $projectionHeight);
-        imagecopyresampled($canvas, $source, $destX, $destY, $srcX, $srcY, $projectionWidth, $projectionHeight, $this->params['sourceWidth'], $this->params['sourceHeight']);
+        list($destX, $destY) = $this->_getLeftUpperCoordinateOnCanvas(
+            $projectionWidth,
+            $projectionHeight
+        );
+        imagecopyresampled(
+            $canvas,
+            $source,
+            $destX,
+            $destY,
+            $srcX,
+            $srcY,
+            $projectionWidth,
+            $projectionHeight,
+            $this->_params['sourceWidth'],
+            $this->_params['sourceHeight']
+        );
     }
 
 
     /**
      * Calculates the coordinates of the projection location on the canvas
-     * @param Int       $projectionWidth    Width of the projection
-     * @param Int       $projectionHeight   Height of the projection
-     * @return Array                        Numeric array, containing x- and y-coordinates of the upper left point of the projection on the canvas
-     **/
+     *
+     * @param int    $projectionWidth    Width of the projection
+     * @param int    $projectionHeight   Height of the projection
+     * @return array Numeric array, containing x- and y-coordinates of the upper left
+     *               point of the projection on the canvas
+     */
     private function _getLeftUpperCoordinateOnCanvas($projectionWidth, $projectionHeight) {
-        $projectionRatio = $projectionWidth / $projectionHeight;
-        $canvasWidth = $this->params['w'];
-        $canvasHeight = $this->params['h'];
-        $canvasRatio = $canvasWidth / $canvasHeight;
+        $canvasWidth = $this->_params['w'];
+        $canvasHeight = $this->_params['h'];
 
-        //  always center the projection horizontally
+        // Always center the projection horizontally.
         if ($projectionWidth > $canvasWidth) {
-            $x = - (($projectionWidth / 2) - ($this->params['w'] / 2));
+            $x = - (($projectionWidth / 2) - ($this->_params['w'] / 2));
         } else {
-            $x = ($this->params['w'] - $projectionWidth) / 2;
+            $x = ($this->_params['w'] - $projectionWidth) / 2;
         }
 
-        switch ($this->params['cropfocus']) {
-            case 'face':
-                //  if the image is taller than the canvas, move the starting point halfway up the center
-                if ($projectionHeight > $canvasHeight) {
-                    $y = - ((($projectionHeight / 2) - ($this->params['h'] / 2)) / 2);
-                } else {
-                    $y = ($this->params['h'] - $projectionHeight) / 2;
-                }
+        switch ($this->_params['cropfocus']) {
+        case 'face':
+            // If the image is taller than the canvas, move the starting point halfway up the center
+            if ($projectionHeight > $canvasHeight) {
+                $y = - ((($projectionHeight / 2) - ($this->_params['h'] / 2)) / 2);
+            } else {
+                $y = ($this->_params['h'] - $projectionHeight) / 2;
+            }
             break;
-            case 'center':
-            default:
-                //  center the projection vertically
-                if ($projectionHeight > $canvasHeight) {
-                    $y = - (($projectionHeight / 2) - ($this->params['h'] / 2));
-                } else {
-                    $y = ($this->params['h'] - $projectionHeight) / 2;
-                }
+        case 'center':
+        default:
+            //  center the projection vertically
+            if ($projectionHeight > $canvasHeight) {
+                $y = - (($projectionHeight / 2) - ($this->_params['h'] / 2));
+            } else {
+                $y = ($this->_params['h'] - $projectionHeight) / 2;
+            }
         }
-
         return array($x, $y);
     }
 
 
     /**
-     * Calculate projection size of source image on canvas. The resulting projection might be larger than the canvas; this function does not consider cutoff by means of cropping.
-     * @return Array $projectionSize Numeric array containing projection width and height in pixels.
-     **/
+     * Calculate projection size of source image on canvas.
+     * The resulting projection might be larger than the canvas; this function does
+     * not consider cutoff by means of cropping.
+     *
+     * @return array Numeric array containing projection width and height in pixels.
+     */
     private function _getProjectionSize() {
-        $sourceWidth = $this->params['sourceWidth'];
-        $sourceHeight = $this->params['sourceHeight'];
+        $sourceWidth = $this->_params['sourceWidth'];
+        $sourceHeight = $this->_params['sourceHeight'];
         $sourceRatio = $sourceWidth / $sourceHeight;
 
-        $canvasWidth = $this->params['w'];
-        $canvasHeight = $this->params['h'];
+        $canvasWidth = $this->_params['w'];
+        $canvasHeight = $this->_params['h'];
         $canvasRatio = $canvasWidth / $canvasHeight;
 
 
         //  the image is not allowed to be cut off in any dimension
         if ($sourceRatio < $canvasRatio) {
             //  source is less landscape-like than canvas
-            $leadDimension = !$this->params['crop'] ?
+            $leadDimension = !$this->_params['crop'] ?
                 'Height' : 'Width';
         } else {
             //  source is more landscape-like than canvas
-            $leadDimension = !$this->params['crop'] ?
+            $leadDimension = !$this->_params['crop'] ?
                 'Width' : 'Height';
         }
 
-        if (
-            !$this->params['grow'] &&
-            ${'source'.$leadDimension} < ${'canvas'.$leadDimension}
+        if (!$this->_params['grow']
+            && ${'source' . $leadDimension} < ${'canvas' . $leadDimension}
         ) {
-            ${'projection'.$leadDimension} = ${'source'.$leadDimension};
+            ${'projection' . $leadDimension} = ${'source' . $leadDimension};
         } else {
-            ${'projection'.$leadDimension} = ${'canvas'.$leadDimension};
+            ${'projection' . $leadDimension} = ${'canvas' . $leadDimension};
         }
 
         if (isset($projectionWidth)) {
@@ -532,6 +561,5 @@ class Garp_Image_Scaler {
 
         return array(round($projectionWidth), round($projectionHeight));
     }
-
 
 }
