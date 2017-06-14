@@ -4,42 +4,38 @@
  * Store elements in an array.
  * Note: this is not a persistent store. Use it only for Unit Tests.
  *
- * @author       $Author: harmen $
- * @modifiedby   $LastChangedBy: harmen $
- * @version      $LastChangedRevision: 6148 $
- * @package      Garp
- * @subpackage   Store
- * @lastmodified $LastChangedDate: 2012-09-03 10:52:37 +0200 (Mon, 03 Sep 2012) $
+ * @package Garp_Store
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Store_Array implements Garp_Store_Interface {
     /**
-     * @var Array
+     * @var array
      */
     protected $_data = array();
 
-
     /**
      * Namespace used to store data.
-     * @var String
+     *
+     * @var string
      */
     protected $_namespace;
 
-
     /**
      * Class constructor
-     * @param String $namespace Global namespace
-     * @return Void
+     *
+     * @param string $namespace Global namespace
+     * @return void
      */
     public function __construct($namespace) {
         $this->_namespace = $namespace;
         $this->_data[$this->_namespace] = array();
     }
 
-
     /**
      * Get value by key $key
-     * @param String $key
-     * @return Mixed
+     *
+     * @param string $key
+     * @return mixed
      */
     public function get($key) {
         return array_key_exists($key, $this->_data[$this->_namespace]) ?
@@ -48,63 +44,63 @@ class Garp_Store_Array implements Garp_Store_Interface {
         ;
     }
 
-
     /**
      * Store $value by key $key
-     * @param String $key
-     * @param Mixed $value
+     *
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
     public function set($key, $value) {
         $this->_data[$this->_namespace][$key] = $value;
         return $this;
-    }       
-
+    }
 
     /**
      * Magic getter
-     * @param String $key
-     * @return Mixed
+     *
+     * @param string $key
+     * @return mixed
      */
     public function __get($key) {
         return $this->get($key);
     }
 
-
     /**
      * Magic setter
-     * @param String $key
-     * @param Mixed $value
-     * @return Void
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
      */
     public function __set($key, $value) {
         return $this->set($key, $value);
     }
 
-
     /**
      * Magic isset
-     * @param String $key
-     * @return Boolean
+     *
+     * @param string $key
+     * @return bool
      */
     public function __isset($key) {
         return isset($this->_data[$this->_namespace][$key]);
     }
 
-
     /**
      * Magic unset
-     * @param String $key
-     * @return Void
+     *
+     * @param string $key
+     * @return void
      */
     public function __unset($key) {
         $this->destroy($key);
     }
 
-
     /**
      * Remove a certain key from the store
-     * @param String $key
+     *
+     * @param string $key
      * @return $this
      */
     public function destroy($key = false) {

@@ -1,24 +1,26 @@
 <?php
+ob_start();
+
 /**
  * Garp_Test_PHPUnit_ControllerTestCase
  * class description
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.4.0
- * @package      Garp_Test_PHPUnit
+ * @package Garp_Test_PHPUnit
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
-ob_start();
-
 abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_ControllerTestCase {
     /**
      * Fixtures
-     * @var Array
+     *
+     * @var array
      */
     protected $_mockData = array();
 
     public $application;
 
-    /** @var Garp_Test_PHPUnit_Helper */
+    /**
+     * @var Garp_Test_PHPUnit_Helper
+     */
     protected $_helper;
 
     public function __construct() {
@@ -37,7 +39,7 @@ abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_Co
         //$this->application = Zend_Registry::get('application');
         $this->application = new Garp_Application(
             APPLICATION_ENV,
-            APPLICATION_PATH.'/configs/application.ini'
+            APPLICATION_PATH . '/configs/application.ini'
         );
 
         $this->bootstrap = array($this, 'appBootstrap');
@@ -58,6 +60,9 @@ abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_Co
      * meaning to response. For instance, you can use them to adjust the HTTP status code, which is
      * actually a valid response to these exception.
      * This method should throw only unexpected exceptions that need fixing right away.
+     *
+     * @param string $url
+     * @return string
      */
     public function dispatch($url = null) {
         $response = parent::dispatch($url);
@@ -74,13 +79,22 @@ abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_Co
 
     /**
      * Convenience method for checking if a given route exists
+     *
+     * @param string $controller
+     * @param string $action
+     * @param string $module
+     * @return void
      */
     public function assertRouteIsAlive($controller, $action, $module = 'default') {
-        $url = $this->url($this->urlizeOptions(array(
-            'controller' => $controller,
-            'action'     => $action,
-            'module'     => $module
-        )));
+        $url = $this->url(
+            $this->urlizeOptions(
+                array(
+                    'controller' => $controller,
+                    'action'     => $action,
+                    'module'     => $module
+                )
+            )
+        );
         $this->dispatch($url);
 
         $this->assertController($controller);
@@ -91,14 +105,16 @@ abstract class Garp_Test_PHPUnit_ControllerTestCase extends Zend_Test_PHPUnit_Co
     public function getDatabaseAdapter() {
         $dbAdapter = $this->getFrontController()
             ->getParam('bootstrap')
-            ->getResource('db')
-        ;
+            ->getResource('db');
         return $dbAdapter;
     }
 
     public function appBootstrap() {
         $this->application->bootstrap();
-        Zend_Controller_Front::getInstance()->setParam('bootstrap', $this->application->getBootstrap());
+        Zend_Controller_Front::getInstance()->setParam(
+            'bootstrap',
+            $this->application->getBootstrap()
+        );
         Zend_Registry::set('application', $this->application);
     }
 

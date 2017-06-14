@@ -1,16 +1,16 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
+ * @package Garp_Spawn_Php
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Php_ModelsIncluder {
     const _MODELS_INCLUDE_FILE = '/configs/content.ini';
     const _ACL_FILE = '/configs/acl.ini';
 
     /**
-     * @var String $_modelId
+     * @var string $_modelId
      */
     protected $_modelId;
-
 
     public function __construct($modelId) {
         $this->_modelId = $modelId;
@@ -20,14 +20,15 @@ class Garp_Spawn_Php_ModelsIncluder {
     }
 
     /**
-     * @return String
+     * @return string
      */
     public function getModelId() {
         return $this->_modelId;
     }
 
     /**
-     * @param String $modelId
+     * @param string $modelId
+     * @return Garp_Spawn_Php_ModelsIncluder
      */
     public function setModelId($modelId) {
         $this->_modelId = $modelId;
@@ -41,14 +42,14 @@ class Garp_Spawn_Php_ModelsIncluder {
             return;
         }
 
-        $newLines =
-              "\n\nacl.resources.Model_{$this->_modelId}.id = Model_{$this->_modelId}\n"
-            . "acl.resources.Model_{$this->_modelId}.allow.all.roles = \"admin\""
-        ;
+        $newLines = "\n\nacl.resources.Model_{$this->_modelId}.id = Model_{$this->_modelId}\n"
+            . "acl.resources.Model_{$this->_modelId}.allow.all.roles = \"admin\"";
         $newContent = $this->_addToIni($ini, $newLines);
 
         if (!file_put_contents($this->_getAclIniPath(), $newContent)) {
-            throw new Exception("Could not append the '{$this->_modelId}' include to " . self::_ACL_FILE);
+            throw new Exception(
+                "Could not append the '{$this->_modelId}' include to " . self::_ACL_FILE
+            );
         }
     }
 
@@ -63,15 +64,16 @@ class Garp_Spawn_Php_ModelsIncluder {
         $newContent = $this->_addToIni($ini, $newLines);
 
         if (!file_put_contents($this->_getContentIniPath(), $newContent)) {
-            throw new Exception("Could not append the '{$this->_modelId}' include to " . self::_MODELS_INCLUDE_FILE);
+            throw new Exception(
+                "Could not append the '{$this->_modelId}' include to " . self::_MODELS_INCLUDE_FILE
+            );
         }
     }
 
-
     /**
-     * @param String $content The full content of the ini file
-     * @param String $env The targeted environment section
-     * @return Array The lines from the ini file's [production] section
+     * @param string $content The full content of the ini file
+     * @param string $env The targeted environment section
+     * @return array The lines from the ini file's [production] section
      */
     protected function _fetchLinesFromIniEnv($content, $env = 'production') {
         $contentEnvSections = $this->_splitIniIntoEnvSections($content);
@@ -88,12 +90,12 @@ class Garp_Spawn_Php_ModelsIncluder {
         }
     }
 
-
     /**
-     * @param String $content The full content of the ini file
-     * @param String $newContent The new content to be added to the targeted environment section
-     * @param String $env The targeted environment section
-     * @return String The full content of the ini file, including the new lines and all the environment sections
+     * @param string $content The full content of the ini file
+     * @param string $newContent The new content to be added to the targeted environment section
+     * @param string $env The targeted environment section
+     * @return string The full content of the ini file,
+     *                including the new lines and all the environment sections
      */
     protected function _addToIni($content, $newContent, $env = 'production') {
         $contentEnvSections = $this->_splitIniIntoEnvSections($content);
@@ -110,20 +112,20 @@ class Garp_Spawn_Php_ModelsIncluder {
         return implode("", $contentEnvSections);
     }
 
-
     /**
-     * @param String $content The full content of the ini file
-     * @return Array The content, split up in section labels and their content
+     * @param string $content The full content of the ini file
+     * @return array The content, split up in section labels and their content
      */
     protected function _splitIniIntoEnvSections($content) {
         return preg_split('/(\[[\w\s:]+\])/', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
     }
 
     /**
-     * @param   String  $ini
+     * @param string  $ini
+     * @return bool
      */
     protected function _modelIsIncludedInContentIni($ini) {
-        $path       = $this->_getContentIniPath();
+        $path = $this->_getContentIniPath();
         $ini = new Garp_Config_Ini($path, 'production');
         $modelId = $this->getModelId();
 
@@ -131,7 +133,8 @@ class Garp_Spawn_Php_ModelsIncluder {
     }
 
     /**
-     * @param   String  $ini
+     * @param string  $ini
+     * @return bool
      */
     protected function _modelIsIncludedInAclIni($ini) {
         $path       = $this->_getAclIniPath();

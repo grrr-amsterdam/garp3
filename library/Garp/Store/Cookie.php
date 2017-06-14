@@ -3,13 +3,13 @@
  * Garp_Store_Cookie
  * Store data in cookies
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.1.0
- * @package      Garp_Store
+ * @package Garp_Store
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Store_Cookie implements Garp_Store_Interface {
     /**
      * Expiration time
+     *
      * @var Int
      * @todo Make this configurable, right now it's set to 30 days
      */
@@ -17,32 +17,37 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Cookie save path
-     * @var String
+     *
+     * @var string
      * @todo Make this configurable
      */
     const DEFAULT_COOKIE_PATH = '/';
 
     /**
      * Cookie namespace
-     * @var String
+     *
+     * @var string
      */
     protected $_namespace = '';
 
     /**
      * Cookie data, associative array or scalar value.
-     * @var Mixed
+     *
+     * @var mixed
      */
     protected $_data = array();
 
     /**
      * Cookie duration
+     *
      * @var Int
      */
     protected $_cookieDuration;
 
     /**
      * Cookie path
-     * @var String
+     *
+     * @var string
      */
     protected $_cookiePath;
 
@@ -50,20 +55,23 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
      * Cookie domain.
      * Note: leave this empty to make the cookie only work on
      * the current domain.
-     * @var String
+     *
+     * @var string
      */
     protected $_cookieDomain = '';
 
     /**
      * Record wether changes are made to the cookie
-     * @var Boolean
+     *
+     * @var bool
      */
     protected $_modified = false;
 
     /**
      * Check if a cookie is available
-     * @param String $namespace
-     * @return Boolean
+     *
+     * @param string $namespace
+     * @return bool
      */
     public static function exists($namespace) {
         return isset($_COOKIE[$namespace]);
@@ -71,14 +79,16 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Class constructor
-     * @param String $namespace
-     * @param String $cookieDuration
-     * @param String $cookiePath
-     * @param String $cookieDomain
-     * @return Void
+     *
+     * @param string $namespace
+     * @param string $cookieDuration
+     * @param string $cookiePath
+     * @param string $cookieDomain
+     * @return void
      */
     public function __construct($namespace, $cookieDuration = false,
-        $cookiePath = self::DEFAULT_COOKIE_PATH, $cookieDomain = false) {
+        $cookiePath = self::DEFAULT_COOKIE_PATH, $cookieDomain = false
+    ) {
         $this->_namespace = $namespace;
         $this->_cookieDuration = $cookieDuration ?: self::DEFAULT_COOKIE_DURATION;
         $this->_cookiePath = $cookiePath;
@@ -92,7 +102,8 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Write internal array to actual cookie.
-     * @return Void
+     *
+     * @return void
      */
     public function __destruct() {
         if ($this->isModified()) {
@@ -102,7 +113,8 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Check if cookie is modified
-     * @return Void
+     *
+     * @return void
      */
     public function isModified() {
         return $this->_modified;
@@ -110,7 +122,8 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Write internal array to actual cookie.
-     * @return Void
+     *
+     * @return void
      */
     public function writeCookie() {
         /**
@@ -122,10 +135,14 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
         }
 
         if (headers_sent($file, $line)) {
-            throw new Garp_Store_Exception('Error: headers are already sent, cannot set cookie. '."\n".
-                'Output already started at: '.$file.'::'.$line);
+            throw new Garp_Store_Exception(
+                'Error: headers are already sent, cannot set cookie. ' . "\n" .
+                'Output already started at: ' . $file . '::' . $line
+            );
         }
-        $data = is_array($this->_data) ? json_encode($this->_data, JSON_FORCE_OBJECT) : $this->_data;
+        $data = is_array($this->_data) ?
+            json_encode($this->_data, JSON_FORCE_OBJECT) :
+            $this->_data;
         setcookie(
             $this->_namespace,
             $data,
@@ -139,8 +156,9 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Get value by key $key
-     * @param String $key
-     * @return Mixed
+     *
+     * @param string $key
+     * @return mixed
      */
     public function get($key) {
         if (is_array($this->_data) && array_key_exists($key, $this->_data)) {
@@ -151,11 +169,13 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Store $value by key $key
-     * @param String $key Key name of the cookie var, or leave null to make this a cookie with a scalar value.
-     * @param Mixed $value
+     *
+     * @param string $key  Key name of the cookie var, or leave null to
+     *                     make this a cookie with a scalar value.
+     * @param mixed $value
      * @return $this
      */
-    public function set($key = null, $value) {
+    public function set($key, $value) {
         if ($key) {
             $this->_data[$key] = $value;
         } else {
@@ -167,7 +187,8 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Store a bunch of values all at once
-     * @param Array $values
+     *
+     * @param array $values
      * @return $this
      */
     public function setFromArray(array $values) {
@@ -179,8 +200,9 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Magic getter
-     * @param String $key
-     * @return Mixed
+     *
+     * @param string $key
+     * @return mixed
      */
     public function __get($key) {
         return $this->get($key);
@@ -188,9 +210,10 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Magic setter
-     * @param String $key
-     * @param Mixed $value
-     * @return Void
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
      */
     public function __set($key, $value) {
         $this->set($key, $value);
@@ -198,8 +221,9 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Magic isset
-     * @param String $key
-     * @return Boolean
+     *
+     * @param string $key
+     * @return bool
      */
     public function __isset($key) {
         return isset($this->_data[$key]);
@@ -207,8 +231,9 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Magic unset
-     * @param String $key
-     * @return Void
+     *
+     * @param string $key
+     * @return void
      */
     public function __unset($key) {
         if (isset($this->_data[$key])) {
@@ -219,7 +244,8 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * Remove a certain key from the store
-     * @param String $key Leave out to clear the entire namespace.
+     *
+     * @param string $key Leave out to clear the entire namespace.
      * @return $this
      */
     public function destroy($key = false) {
@@ -242,7 +268,8 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
 
     /**
      * To array converter
-     * @return Array
+     *
+     * @return array
      */
     public function toArray() {
         return $this->_data;
@@ -252,7 +279,8 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
      * Read cookie domain from config.
      * If no cookie domain is present, return an empty string. The empty string will restrict the
      * cookie to the current domain.
-     * @return String
+     *
+     * @return string
      */
     protected function _getCookieDomain() {
         $config = Zend_Registry::get('config');
@@ -269,27 +297,27 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
         if (!empty($config->logging->enabled) && $config->logging->enabled) {
             $jsonErrorStr = '';
             switch ($jsonError) {
-                case JSON_ERROR_NONE:
-                    $jsonErrorStr = 'No error has occurred';
+            case JSON_ERROR_NONE:
+                $jsonErrorStr = 'No error has occurred';
                 break;
-                case JSON_ERROR_DEPTH:
-                    $jsonErrorStr = 'The maximum stack depth has been exceeded';
+            case JSON_ERROR_DEPTH:
+                $jsonErrorStr = 'The maximum stack depth has been exceeded';
                 break;
-                case JSON_ERROR_STATE_MISMATCH:
-                    $jsonErrorStr = 'Invalid or malformed JSON';
+            case JSON_ERROR_STATE_MISMATCH:
+                $jsonErrorStr = 'Invalid or malformed JSON';
                 break;
-                case JSON_ERROR_CTRL_CHAR:
-                    $jsonErrorStr = 'Control character error, possibly incorrectly encoded';
+            case JSON_ERROR_CTRL_CHAR:
+                $jsonErrorStr = 'Control character error, possibly incorrectly encoded';
                 break;
-                case JSON_ERROR_SYNTAX:
-                    $jsonErrorStr = 'Syntax error';
+            case JSON_ERROR_SYNTAX:
+                $jsonErrorStr = 'Syntax error';
                 break;
-                case JSON_ERROR_UTF8:
-                    $jsonErrorStr = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+            case JSON_ERROR_UTF8:
+                $jsonErrorStr = 'Malformed UTF-8 characters, possibly incorrectly encoded';
                 break;
             }
 
-            dump('cookie_faulty_json', $jsonErrorStr.': '.$_COOKIE[$namespace]);
+            dump('cookie_faulty_json', $jsonErrorStr . ': ' . $_COOKIE[$namespace]);
         }
     }
 

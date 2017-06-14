@@ -1,23 +1,22 @@
 <?php
 /**
  * A representation of a translated MySQL view.
- * @author David Spreekmeester | grrr.nl
- * @package Garp
- * @subpackage Model
- * @group Spawn
+ *
+ * @package Garp_Spawn_MySql_View
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
     const TRANSLATED_TABLE_POSTFIX = 'i18n';
 
     /**
-     * @var String $_locale
+     * @var string
      */
     protected $_locale;
 
-
     /**
-     * @param   Garp_Spawn_Model_Base       $model
-     * @param   String                          $locale
+     * @param Garp_Spawn_Model_Base $model
+     * @param string $locale
+     * @return void
      */
     public function __construct(Garp_Spawn_Model_Base $model, $locale) {
         $this->setLocale($locale);
@@ -26,27 +25,26 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
     }
 
     /**
-     * @return String
+     * @return string
      */
     public function getLocale() {
         return $this->_locale;
     }
 
     /**
-     * @param String $locale
+     * @param string $locale
+     * @return void
      */
     public function setLocale($locale) {
         $this->_locale = $locale;
     }
-
-
 
     public function getName() {
         return $this->getTableName() . '_' . $this->getLocale();
     }
 
     public static function deleteAll() {
-        $locales    = Garp_I18n::getLocales();
+        $locales = Garp_I18n::getLocales();
 
         foreach ($locales as $locale) {
             parent::deleteAllByPostfix('_' . $locale);
@@ -54,7 +52,7 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
     }
 
     public function renderSql() {
-        $model      = $this->getModel();
+        $model = $this->getModel();
 
         if (!$model->isMultiLingual()) {
             return;
@@ -84,7 +82,8 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
         //  Unilingual fields
         $unilingualFieldRefs = array();
         foreach ($unilingualFields as $field) {
-            $unilingualFieldRefs[] = '`' . $table . '`.`' . $field->name . '` AS `' . $field->name . '`';
+            $unilingualFieldRefs[] = '`' . $table . '`.`' . $field->name . '` AS `' .
+                $field->name . '`';
         }
         $sql .= implode(', ', $unilingualFieldRefs) . ', ';
 
@@ -95,7 +94,10 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
             /*
             $multilingualFieldRefs[] = $locale === $defaultLocale ?
                 "`{$modelId}_{$locale}`.{$field->name} AS `{$field->name}`" :
-                "IF(`{$modelId}_{$locale}`.`{$field->name}` <> '' AND `{$modelId}_{$locale}`.`{$field->name}` IS NOT NULL, `{$modelId}_{$locale}`.`{$field->name}`, `{$modelId}_{$defaultLocale}`.`{$field->name}`) AS `{$field->name}`"
+                "IF(`{$modelId}_{$locale}`.`{$field->name}` <> '' AND
+                `{$modelId}_{$locale}`.`{$field->name}` IS NOT NULL,
+                `{$modelId}_{$locale}`.`{$field->name}`,
+                `{$modelId}_{$defaultLocale}`.`{$field->name}`) AS `{$field->name}`"
             ;
              */
         }
@@ -116,14 +118,15 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
     }
 
     protected function _renderJoinForLocale($locale) {
-        $modelId            = $this->getModel()->id;
-        $tableName          = $this->getTableName();
-        $translatedTable    = $tableName . self::TRANSLATED_TABLE_POSTFIX;
-        $aliasForLocale     = $tableName . '_' . $locale;
-        $parentColumn       = Garp_Util_String::camelcasedToUnderscored($modelId) . '_id';
+        $modelId         = $this->getModel()->id;
+        $tableName       = $this->getTableName();
+        $translatedTable = $tableName . self::TRANSLATED_TABLE_POSTFIX;
+        $aliasForLocale  = $tableName . '_' . $locale;
+        $parentColumn    = Garp_Util_String::camelcasedToUnderscored($modelId) . '_id';
 
-        $sql                = "LEFT OUTER JOIN `{$translatedTable}` `{$aliasForLocale}` ON "
-                            . "`{$aliasForLocale}`.`{$parentColumn}` = `{$tableName}`.id AND `{$aliasForLocale}`.lang = '{$locale}' ";
+        $sql = "LEFT OUTER JOIN `{$translatedTable}` `{$aliasForLocale}` ON " .
+            "`{$aliasForLocale}`.`{$parentColumn}` = `{$tableName}`.id AND " .
+            "`{$aliasForLocale}`.lang = '{$locale}' ";
         return $sql;
     }
 
@@ -134,13 +137,15 @@ class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
             if ($rel->mirrored) {
                 continue;
             }
-            $multilingualFields[] = new Garp_Spawn_Field('relation', $rel->column, array(
+            $multilingualFields[] = new Garp_Spawn_Field(
+                'relation', $rel->column, array(
                 'type' => 'numeric',
                 'editable' => $rel->editable,
                 'visible' => false,
                 'required' => $rel->required,
                 'relationType' => $rel->type
-            ));
+                )
+            );
         }
         return $multilingualFields;
     }

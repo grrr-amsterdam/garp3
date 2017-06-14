@@ -3,20 +3,24 @@
  * Garp_Test_PHPUnit_TestCase
  * Adds some convenience methods to unit tests.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.3.0
- * @package      Garp_Test_PHPUnit
+ * @package Garp_Test_PHPUnit
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 abstract class Garp_Test_PHPUnit_TestCase extends PHPUnit_Framework_TestCase {
-    /** @var Zend_Db_Adapter_Abstract */
+    /**
+     * @var Zend_Db_Adapter_Abstract
+     */
     protected $_db;
 
-    /** @var Garp_Test_PHPUnit_Helper */
+    /**
+     * @var Garp_Test_PHPUnit_Helper
+     */
     protected $_helper;
 
     /**
      * Fixtures
-     * @var Array
+     *
+     * @var array
      */
     protected $_mockData = array();
 
@@ -28,6 +32,7 @@ abstract class Garp_Test_PHPUnit_TestCase extends PHPUnit_Framework_TestCase {
     /**
      * Get database adapter for executing queries quickly.
      * It will be configured as defined in application.ini.
+     *
      * @return Zend_Db_Adapter_Abstract
      */
     public function getDatabaseAdapter() {

@@ -1,8 +1,10 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
+ * @package Garp_Spawn_Relation
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Relation_Set {
+    // @codingStandardsIgnoreStart
     const ERROR_RELATION_ALREADY_REGISTERED =
         "You're trying to add the '%s' %s relation, but there already is a %s %s relation registered in the '%s' model.";
     const ERROR_UNKNOWN_RELATION_NAME =
@@ -13,11 +15,12 @@ class Garp_Spawn_Relation_Set {
         '%s needs a model name as a string.';
     const ERROR_RELATION_TO_NON_EXISTING_MODEL =
         "The '%s' model defines a %s relation to unexisting model '%s'.";
-
+    // @codingStandardsIgnoreEnd
 
     /**
      * @todo:   Deze default relations zouden beter naar Behavior/Type/Authorable kunnen.
      *          Maar tot nu toe worden in die laag alleen extra velden toegevoegd, geen relaties.
+     * @var array
      */
     protected $_defaultBaseRelations = array(
         'Author' => array(
@@ -36,16 +39,20 @@ class Garp_Spawn_Relation_Set {
     );
 
     /**
-     * @var Array $_fields  Associative array, where the key is the name of the relation, and the value a Garp_Spawn_Relation object.
+     * Associative array, where the key is the name of the relation,
+     * and the value a Garp_Spawn_Relation object.
+     *
+     * @var array
      */
     protected $_relations = array();
 
     /**
-     * @var Garp_Spawn_Model_Base $_model The model in which this relation set is defined.
+     * The model in which this relation set is defined.
+     *
+     * @var Garp_Spawn_Model_Base
      */
     protected $_model;
-    
-    
+
     public function __construct(Garp_Spawn_Model_Abstract $model, array $config) {
         $this->_setModel($model);
         $this->_addDefaultBaseRelations();
@@ -61,19 +68,21 @@ class Garp_Spawn_Relation_Set {
     public function getModel() {
         return $this->_model;
     }
-    
+
     /**
-     * @param String    $filterPropName     Garp_Spawn_Relation property to filter the request by
-     * @param Mixed     $filterPropValue    Value of the Garp_Spawn_Relation property the result should contain.
-     *                                      Can also be an array, in which it will be considered an OR query.
-     * @return Array                        Associative array, where the key is the name of the relation,
-     *                                      and the value a Garp_Spawn_Relation object.
+     * @param string $filterPropName  Garp_Spawn_Relation property to filter the request by
+     * @param mixed  $filterPropValue Value of the Garp_Spawn_Relation property the result
+     *                                should contain.
+     *                                Can also be an array, in which it will be considered an
+     *                                OR query.
+     * @return array                  Associative array, where the key is the name of the relation,
+     *                                and the value a Garp_Spawn_Relation object.
      */
     public function getRelations($filterPropName = null, $filterPropValue = null) {
         if (!$filterPropName) {
             return $this->_relations;
         }
-        
+
         if (count(func_get_args()) !== 2) {
             $error = sprintf(self::ERROR_WRONG_ARGUMENT_NUMBER, get_class($this));
             throw new Exception($error);
@@ -81,8 +90,9 @@ class Garp_Spawn_Relation_Set {
 
         $out = array();
         foreach ($this->_relations as $relName => $rel) {
-            $filterPropNames    = is_array($filterPropName) ? $filterPropName : array($filterPropName);
-            $filterPropValues   = is_array($filterPropName) ? $filterPropValue : array($filterPropValue);
+            $filterPropNames = is_array($filterPropName) ? $filterPropName : array($filterPropName);
+            $filterPropValues = is_array($filterPropName) ?
+                $filterPropValue : array($filterPropValue);
 
             if ($rel->hasProperties($filterPropNames, $filterPropValues)) {
                 $out[$relName] = $rel;
@@ -90,17 +100,17 @@ class Garp_Spawn_Relation_Set {
         }
         return $out;
     }
-    
+
     public function getSingularRelations() {
         $singularRels = array();
 
         foreach ($this->_relations as $relName => $relation) {
             $singularRels = $this->_addSingularRelation($singularRels, $relName, $relation);
         }
-        
+
         return $singularRels;
     }
-    
+
     public function getRelation($name) {
         if (array_key_exists($name, $this->_relations)) {
             return $this->_relations[$name];
@@ -129,6 +139,8 @@ class Garp_Spawn_Relation_Set {
      * Event hasOne Group results in Group hasMany Event.
      * Profile belongsTo User results in User hasMany Profile.
      * Event hasAndBelongsToMany Tag results in Tag hasAndBelongsToMany Event.
+     *
+     * @return void
      */
     public function addMirrored() {
         $this->_mirrorHabtmRelations();
@@ -139,19 +151,20 @@ class Garp_Spawn_Relation_Set {
         //$modelNames = array($modelAlias1, $modelAlias2);
         //sort($modelNames);
         //return $modelNames[0] . $modelNames[1];
-    //} 
+    //}
 
     /**
-     * @param String $modelName Name of the model.
-     * @param Int $index Optional index of this column, in case of a homosexual relation.
-     * @return String Database column / field name that corresponds to this model. E.g.: 'Users' -> 'users_id'
+     * @param string $modelName Name of the model.
+     * @param int $index Optional index of this column, in case of a homosexual relation.
+     * @return string Database column / field name that corresponds to this model.
+     *                E.g.: 'Users' -> 'users_id'
      */
     static public function getRelationColumn($modelName, $index = null) {
         if (!is_string($modelName)) {
             $error = sprintf(self::ERROR_MODELNAME_IS_NO_STRING, __METHOD__);
             throw new Exception($error);
         }
-        
+
         $modelNamespace = Garp_Spawn_Util::camelcased2underscored($modelName);
         $relationColumn = $modelNamespace . (is_null($index) ? '' : (string)$index) . '_id';
         return $relationColumn;
@@ -159,6 +172,7 @@ class Garp_Spawn_Relation_Set {
 
     /**
      * @param Garp_Spawn_Model_Base $model
+     * @return Garp_Spawn_Relation_Set
      */
     protected function _setModel($model) {
         $this->_model = $model;
@@ -173,7 +187,7 @@ class Garp_Spawn_Relation_Set {
             $this->_mirrorRelationsInModel($relation);
         }
     }
-    
+
     protected function _mirrorHabtmRelations() {
         $habtmRelations = $this->getRelations('type', array('hasAndBelongsToMany'));
         $habtmRelations = array_filter($habtmRelations, array($this, '_habtmShouldMirror'));
@@ -192,7 +206,7 @@ class Garp_Spawn_Relation_Set {
 
         return (!$isHomophile && !$relation->mirrored && $relation->inverse);
     }
-    
+
     protected function _mirrorRelationsInModel(Garp_Spawn_Relation $relation) {
         $this->_throwErrorIfRelatedModelDoesNotExist($relation);
 
@@ -201,10 +215,10 @@ class Garp_Spawn_Relation_Set {
         $mirroredRelation   = $relation->mirror($remoteModel);
         $remoteModel->relations->addRaw($mirroredRelation);
     }
-    
+
     protected function _throwErrorIfRelatedModelDoesNotExist(Garp_Spawn_Relation $relation) {
-        $model      = $this->getModel();
-        $modelSet   = Garp_Spawn_Model_Set::getInstance();
+        $model    = $this->getModel();
+        $modelSet = Garp_Spawn_Model_Set::getInstance();
 
         if (array_key_exists($relation->model, $modelSet)) {
             return;
@@ -219,12 +233,12 @@ class Garp_Spawn_Relation_Set {
 
         throw new Exception($error);
     }
-    
+
     protected function _throwErrorOnDuplicateRegistration($name, array $params) {
         if (!array_key_exists($name, $this->_relations)) {
             return;
         }
-    
+
         $error = sprintf(
             self::ERROR_RELATION_ALREADY_REGISTERED,
             $name,
@@ -236,19 +250,22 @@ class Garp_Spawn_Relation_Set {
 
         throw new Exception($error);
     }
-    
+
     /**
      * Adds the relation to the relation set, if it's singular.
-     * @param   Array                       $relationSet    The set to add the relation to
-     * @param   String                      $relName        The relation name
-     * @param   Garp_Spawn_Relation $relation       The relation instance, plural or singular
-     * @return  Array                                       The relation set with the added singular relation
+     *
+     * @param  array               $relationSet    The set to add the relation to
+     * @param  string              $relName        The relation name
+     * @param  Garp_Spawn_Relation $relation       The relation instance, plural or singular
+     * @return array                               The relation set with the added singular relation
      */
-    protected function _addSingularRelation(array $relationSet, $relName, Garp_Spawn_Relation $relation) {
+    protected function _addSingularRelation(
+        array $relationSet, $relName, Garp_Spawn_Relation $relation
+    ) {
         if ($relation->isSingular()) {
             $relationSet[$relName] = $relation;
         }
-        
+
         return $relationSet;
     }
 

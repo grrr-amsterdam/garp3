@@ -2,13 +2,9 @@
 /**
  * Garp_Store_Session
  * Store data in session.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Store
- * @lastmodified $Date: $
  *
+ * @package Garp_Store
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Store_Session implements Garp_Store_Interface {
     /**
@@ -16,21 +12,21 @@ class Garp_Store_Session implements Garp_Store_Interface {
      */
     protected $_session;
 
-
     /**
      * Class constructor
-     * @param String $namespace
-     * @return Void
+     *
+     * @param string $namespace
+     * @return void
      */
     public function __construct($namespace) {
         $this->_session = new Zend_Session_Namespace($namespace);
     }
 
-
     /**
      * Get value by key $key
-     * @param String $key
-     * @return Mixed
+     *
+     * @param string $key
+     * @return mixed
      */
     public function get($key) {
         if (isset($this->_session->{$key})) {
@@ -39,11 +35,11 @@ class Garp_Store_Session implements Garp_Store_Interface {
         return null;
     }
 
-
     /**
      * Store $value by key $key
-     * @param String $key
-     * @param Mixed $value
+     *
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
     public function set($key, $value) {
@@ -51,51 +47,51 @@ class Garp_Store_Session implements Garp_Store_Interface {
         return $this;
     }
 
-
     /**
      * Magic getter
-     * @param String $key
-     * @return Mixed
+     *
+     * @param string $key
+     * @return mixed
      */
     public function __get($key) {
         return $this->get($key);
     }
 
-
     /**
      * Magic setter
-     * @param String $key
-     * @param Mixed $value
-     * @return Void
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
      */
     public function __set($key, $value) {
         $this->set($key, $value);
     }
 
-
     /**
      * Magic isset
-     * @param String $key
-     * @return Boolean
+     *
+     * @param string $key
+     * @return bool
      */
     public function __isset($key) {
         return isset($this->_session->{$key});
     }
 
-
     /**
      * Magic unset
-     * @param String $key
-     * @return Void
+     *
+     * @param string $key
+     * @return void
      */
     public function __unset($key) {
         unset($this->_session->{$key});
     }
 
-
     /**
      * Remove a certain key from the store
-     * @param String $key
+     *
+     * @param string $key
      * @return $this
      */
     public function destroy($key = false) {

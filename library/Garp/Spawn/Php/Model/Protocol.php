@@ -1,14 +1,14 @@
 <?php
 /**
  * Generated PHP model
- * @author David Spreekmeester | grrr.nl
- * @package Garp
- * @subpackage Spawn
+ *
+ * @package Garp_Spawn_Php_Model
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 interface Garp_Spawn_Php_Model_Protocol {
     public function render();
-    
+
     public function getPath();
-    
+
     public function isOverwriteEnabled();
 }
