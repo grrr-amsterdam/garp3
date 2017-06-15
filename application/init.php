@@ -21,19 +21,20 @@ if (!defined('BASE_PATH')) {
 define('APPLICATION_PATH', BASE_PATH . '/application');
 define('GARP_APPLICATION_PATH', realpath(dirname(__FILE__)));
 
+if (file_exists(APPLICATION_PATH . '/../.env')) {
+    $dotenv = new Dotenv\Dotenv(APPLICATION_PATH . '/..');
+    $dotenv->load();
+}
+
 // Sentry integration
-if (defined('SENTRY_API_URL') && APPLICATION_ENV !== 'development') {
-    $ravenClient = new Raven_Client(SENTRY_API_URL);
+if (getenv('SENTRY_API_URL') || (defined('SENTRY_API_URL') && APPLICATION_ENV !== 'development')) {
+    $sentryApiUrl = getenv('SENTRY_API_URL') ?: SENTRY_API_URL;
+    $ravenClient = new Raven_Client($sentryApiUrl);
     $ravenErrorHandler = new Raven_ErrorHandler($ravenClient);
     $ravenErrorHandler->registerExceptionHandler();
     $ravenErrorHandler->registerErrorHandler();
     $ravenErrorHandler->registerShutdownFunction();
     Zend_Registry::set('RavenClient', $ravenClient);
-}
-
-if (file_exists(APPLICATION_PATH . '/../.env')) {
-    $dotenv = new Dotenv\Dotenv(APPLICATION_PATH . '/..');
-    $dotenv->load();
 }
 
 $appSpecificInit = APPLICATION_PATH . '/configs/init.php';
