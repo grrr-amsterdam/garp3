@@ -20,12 +20,12 @@
         "monolog/monolog": "^1.0",
         "dompdf/dompdf": "^0.7.0",
         "tedivm/jshrink": "1.1.0",
-        "vlucas/phpdotenv": "2.0.1"
+        "vlucas/phpdotenv": "2.0.1",
+        "fzaninotto/faker": "dev-master"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.6",
-        "phpunit/phpunit": "3.7.*",
-        "fzaninotto/faker": "dev-master"
+        "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
         "psr-0": {
