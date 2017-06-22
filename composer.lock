@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f25186ad17c06d87930f61e6a84a3b09",
+    "content-hash": "8751da4b1d576510a6a908c9e2935df2",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -1163,11 +1163,11 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
         "fzaninotto/faker": 20
     },
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.3.3"
