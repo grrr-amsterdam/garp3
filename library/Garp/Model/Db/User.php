@@ -298,7 +298,7 @@ class Garp_Model_Db_User extends Model_Base_User {
         $validationTokenColumn = $authVars['token_column'];
         $emailValidColumn = $authVars['email_valid_column'];
 
-        if ($updateOrInsert == 'insert' && array_get($user, $emailValidColumn) {
+        if ($updateOrInsert == 'insert' && array_get($user, $emailValidColumn)) {
             return true;
         } 
         
