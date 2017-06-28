@@ -1,8 +1,7 @@
 desc "Create backend cache directories"
 task :create_system_cache_dirs do
 	on roles(:web) do
-		path = "#{releases_path}/#{release_timestamp}"
-    	server_cache_dir = "#{path}/application/data/cache"
+    	server_cache_dir = "#{deploy_to}/shared/application/data/cache"
 
     	execute print_create_dir_if_nonexistent "#{server_cache_dir}"
     	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier"
@@ -16,7 +15,7 @@ end
 desc "Create static html cache directory"
 task :create_static_cache_dir do
 	on roles(:web) do
-		static_cache_dir = "#{release_path}/public/cached";
+		static_cache_dir = "#{deploy_to}/shared/public/cached";
     	execute print_create_dir_if_nonexistent static_cache_dir
 	end
 end
