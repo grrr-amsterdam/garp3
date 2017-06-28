@@ -5,6 +5,7 @@ set :linked_dirs, %w{
 	application/data/logs
 	application/data/cache/tags
     application/data/cache/htmlpurifier
+    public/cached
 }
 set :keep_releases, 2
 
