@@ -12,6 +12,8 @@ namespace :deploy do
         end
 
         invoke :verify_production_deploy
+        invoke :create_deploy_dirs
+        invoke :set_shared_dir_permissions
         invoke :build_assets
         invoke :distribute_assets
 
@@ -19,10 +21,6 @@ namespace :deploy do
     end
 
     task :updated do
-        # Disk tasks
-        invoke :create_system_cache_dirs
-        invoke :create_static_cache_dir
-
         # Garp tasks
         invoke :composer_install
         invoke :spawn
@@ -33,7 +31,6 @@ namespace :deploy do
 
         # Auth tasks
         invoke :set_webroot_permissions
-        invoke :set_release_path_cache_dir_permissions
     end
 
     task :published do
@@ -46,7 +43,7 @@ namespace :deploy do
         invoke :find_webroot
         invoke :mark_git_server_safe
         invoke :create_deploy_dirs
-        invoke :set_shared_dirs_permissions
+        invoke :set_shared_dir_permissions
         invoke :create_webroot_reroute_htaccess
         invoke :install_crontab
     end

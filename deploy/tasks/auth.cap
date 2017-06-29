@@ -29,20 +29,13 @@ task :mark_git_server_safe do
 end
 
 desc "Set permissions on essential deploy directories"
-task :set_shared_dirs_permissions do
+task :set_shared_dir_permissions do
 	on roles(:web) do
     	execute "chmod -R g+w #{deploy_to}/shared/backup/db"
     	execute "chmod -R g+w,o+rx #{deploy_to}/shared/public/uploads/documents"
     	execute "chmod -R g+w,o+rx #{deploy_to}/shared/public/uploads/images"
     	execute "chmod -R g+w,o+rx #{deploy_to}/shared/application/data/logs"
         execute "chmod -R g+w,o+rx #{deploy_to}/shared/application/data/cache"
+        execute "chmod -R g+w,o+rx #{deploy_to}/shared/public/cached"
 	end
-end
-
-desc "Set permissions on release path cache directory"
-task :set_release_path_cache_dir_permissions do
-    on roles(:web) do
-        execute "chmod -R g+w,o+rx #{release_path}/public/cached"
-        execute "chmod -R g+w,o+rx #{release_path}/application/data/cache"
-    end
 end
