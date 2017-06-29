@@ -1,34 +1,16 @@
-desc "Create backend cache directories"
-task :create_system_cache_dirs do
-	on roles(:web) do
-    	server_cache_dir = "#{deploy_to}/shared/application/data/cache"
-
-    	execute print_create_dir_if_nonexistent "#{server_cache_dir}"
-    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier"
-    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier/URI"
-    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier/HTML"
-    	execute print_create_dir_if_nonexistent "#{server_cache_dir}/htmlpurifier/CSS"
-    	# run "echo '<?php' > #{server_cache_dir}/pluginLoaderCache.php"
-    end
-end
-
-desc "Create static html cache directory"
-task :create_static_cache_dir do
-	on roles(:web) do
-		static_cache_dir = "#{deploy_to}/shared/public/cached";
-    	execute print_create_dir_if_nonexistent static_cache_dir
-	end
-end
-
 desc "Create essential deploy directories"
 task :create_deploy_dirs do
 	on roles(:web) do
-    	execute print_create_dir_if_nonexistent "#{deploy_to}/releases"
-    	execute print_create_dir_if_nonexistent "#{deploy_to}/shared/backup/db"
-    	execute print_create_dir_if_nonexistent "#{deploy_to}/shared/public/uploads/documents"
-    	execute print_create_dir_if_nonexistent "#{deploy_to}/shared/public/uploads/images"
-    	execute print_create_dir_if_nonexistent "#{deploy_to}/shared/application/data/logs"
-    	execute print_create_dir_if_nonexistent "#{deploy_to}/shared/application/data/cache/tags"
+    	execute print_create_dir "#{deploy_to}/releases"
+    	execute print_create_dir "#{deploy_to}/shared/backup/db"
+    	execute print_create_dir "#{deploy_to}/shared/public/uploads/documents"
+    	execute print_create_dir "#{deploy_to}/shared/public/uploads/images"
+    	execute print_create_dir "#{deploy_to}/shared/application/data/logs"
+    	execute print_create_dir "#{deploy_to}/shared/application/data/cache/tags"
+    	execute print_create_dir "#{deploy_to}/shared/application/data/cache/htmlpurifier/URI"
+    	execute print_create_dir "#{deploy_to}/shared/application/data/cache/htmlpurifier/HTML"
+    	execute print_create_dir "#{deploy_to}/shared/application/data/cache/htmlpurifier/CSS"
+    	execute print_create_dir "#{deploy_to}/shared/public/cached"
     end
 end
 
@@ -46,6 +28,6 @@ task :validate_app_name do
 	end
 end
 
-def print_create_dir_if_nonexistent dir
+def print_create_dir dir
 	"[ ! -d '#{dir}' ] && mkdir -p #{dir} || echo 0";
 end
