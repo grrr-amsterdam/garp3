@@ -81,6 +81,28 @@ class Garp_Model_Behavior_HtmlFilterableTest extends Garp_Test_PHPUnit_TestCase 
     }
 
     /**
+     * @test
+     */
+    public function you_can_add_elements_with_config() {
+        $filterable = new Garp_Model_Behavior_HtmlFilterable();
+        $this->_helper->injectConfigValues(
+            array(
+                'htmlFilterable' => array(
+                    'allowedElements' => array(
+                        'table', 'tr', 'td'
+                    )
+                )
+            )
+        );
+        $html = "<table><tr><td>cell #1</td><td>cell #2</td></tr></table>";
+
+        $this->assertEquals(
+            $html,
+            $filterable->filter($html)
+        );
+    }
+
+    /**
      * Run setup for this test
      *
      * @return void

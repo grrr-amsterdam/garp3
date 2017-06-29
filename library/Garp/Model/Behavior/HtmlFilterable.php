@@ -16,6 +16,13 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
 
     protected $_defaultAllowedClasses = array('figure', 'left', 'right', 'video-embed');
 
+    protected $_defaultAllowedElements = array(
+        'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'dd', 'del',
+        'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'figure', 'figcaption', 'h1', 'h2', 'h3', 'h4',
+        'h5', 'h6', 'hr', 'i', 'iframe', 'img', 'ins', 'kbd', 'li', 'object', 'ol', 'p',
+        'param', 'pre', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'ul', 'var'
+    );
+
     /**
      * Make sure the config array is at least filled with some default values to work with.
      *
@@ -59,14 +66,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         $config->set('HTML.Doctype', 'HTML 4.01 Transitional');
         $config->set('HTML.Trusted', true);
         $config->set('HTML.TargetBlank', true);
-        $config->set(
-            'HTML.AllowedElements', array(
-            'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'dd', 'del',
-            'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'figure', 'figcaption', 'h1', 'h2', 'h3', 'h4',
-            'h5', 'h6', 'hr', 'i', 'iframe', 'img', 'ins', 'kbd', 'li', 'object', 'ol', 'p',
-            'param', 'pre', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'ul', 'var'
-            )
-        );
+        $config->set('HTML.AllowedElements', $this->_getAllowedElements());
 
         $config->set('AutoFormat.RemoveEmpty', true);
         $config->set('AutoFormat.RemoveSpansWithoutAttributes', true);
@@ -163,6 +163,17 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
             return $config->htmlFilterable->allowedClasses->toArray();
         }
         return $this->_defaultAllowedClasses;
+    }
+
+    protected function _getAllowedElements() {
+        $config = Zend_Registry::get('config');
+        if (isset($config->htmlFilterable->allowedElements)) {
+            return array_merge(
+                $this->_defaultAllowedElements, 
+                $config->htmlFilterable->allowedElements->toArray()
+            );
+        }
+        return $this->_defaultAllowedElements;
     }
 
     protected function _getCachePath() {
