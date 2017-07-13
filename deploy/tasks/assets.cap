@@ -36,7 +36,7 @@ desc "Distributing assets to CDN"
 task :distribute_assets do
     run_locally do
         env = fetch(:stage)
-        execute "if [ $(vendor/bin/g config get cdn.readonly) != 'true' ]; then vendor/bin/g cdn distribute --to=#{env} --since=forever; fi "
+        execute "[ ! \"$(vendor/bin/g config get cdn.readonly)\" ]; vendor/bin/g cdn distribute --to=#{env} --since=forever"
     end
 end
 
