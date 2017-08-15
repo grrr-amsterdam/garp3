@@ -36,10 +36,29 @@ if (!defined('APPLICATION_ENV')) {
     }
 }
 
-$basePath = realpath(dirname(__FILE__) . '/..');
-if (basename(realpath($basePath . '/../../')) === 'vendor') {
-    // Set BASE_PATH to be the root of the host project
-    $basePath = realpath(dirname(__FILE__) . '/../../../../');
+/**
+ * Set BASE_PATH to the project root (the directory where garp is listed in the vendor
+ * dependencies).
+ *
+ * Note that this defaults to the current working directory, but it will be validated, since it's
+ * not necessarily the project folder.
+ * If the script is not executed from the root of the project (For instance if you do `php
+ * /from/somewhere/else/to/scripts/garp.php et cetera`), we change the path to be relative to the
+ * location of this script, because then the working directory would not be of value.
+ *
+ * This fixes a problem when using Garp as symlink to develop locally. In those cases the project
+ * root could no longer be found because the script would be technically located within the Garp
+ * directory and no longer be connected to the project root (or cwd).
+ */
+$cwd = getcwd();
+if (!file_exists($cwd . '/vendor/grrr-amsterdam/garp3/scripts/garp.php')) {
+    $basePath = realpath(dirname(__FILE__) . '/..');
+    if (basename(realpath($basePath . '/../../')) === 'vendor') {
+        // Set BASE_PATH to be the root of the host project
+        $basePath = realpath(dirname(__FILE__) . '/../../../../');
+    }
+} else {
+    $basePath = $cwd;
 }
 define('BASE_PATH', $basePath);
 
