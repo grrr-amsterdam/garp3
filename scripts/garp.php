@@ -115,6 +115,11 @@ if (empty($args[0])) {
     // @codingStandardsIgnoreEnd
 }
 
+/**
+ * Read STDIN
+ */
+$stdin = trim(stream_get_contents(STDIN));
+
 /* Construct command classname */
 $classArgument = ucfirst($args[0]);
 $namespaces = array('App', 'Garp');
@@ -141,7 +146,7 @@ if (!count($commandNames)) {
     // @codingStandardsIgnoreEnd
 }
 $commandName = current($commandNames);
-$command = new $commandName();
+$command = new $commandName($stdin);
 if (!$command instanceof Garp_Cli_Command) {
     Garp_Cli::errorOut(
         'Error: ' . $commandName . ' is not a valid Command. ' .

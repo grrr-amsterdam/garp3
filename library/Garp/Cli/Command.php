@@ -16,6 +16,23 @@ abstract class Garp_Cli_Command {
     protected $_allowedArguments = array();
 
     /**
+     * Data given thru STDIN
+     *
+     * @var string
+     */
+    protected $_stdin = '';
+
+    /**
+     * Class constructor
+     *
+     * @param string $stdin Data piped into the script using STDIN
+     * @return void
+     */
+    public function __construct($stdin = '') {
+        $this->_stdin = $stdin;
+    }
+
+    /**
      * Central start method
      * By default expects the first parameter (index 1 in $args) to be the requested method.
      *
@@ -153,3 +170,4 @@ abstract class Garp_Cli_Command {
     }
 
 }
+
