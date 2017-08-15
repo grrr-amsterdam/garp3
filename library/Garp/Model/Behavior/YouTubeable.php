@@ -105,6 +105,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
         }
         $entry = $this->_fetchEntryByUrl($url);
         $images = $entry->getSnippet()->getThumbnails();
+        $duration = $entry->getContentDetails()->getDuration();
 
         $data = array(
             'identifier'       => $entry->getId(),
@@ -112,7 +113,7 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
             'description'      => $this->_getVideoDescription($entry, $input),
             'flash_player_url' => $this->_getFlashPlayerUrl($entry),
             'watch_url'        => $url,
-            'duration'         => $entry->getContentDetails()->getDuration(),
+            'duration'         => $this->_getDurationInSeconds($duration),
             'image_url'        => $images['high']['url'],
             'thumbnail_url'    => $images['default']['url'],
         );
@@ -205,4 +206,19 @@ class Garp_Model_Behavior_YouTubeable extends Garp_Model_Behavior_Abstract {
         }
         return $entry->getSnippet()->getDescription();
     }
+
+    /**
+     * Convert ISO 8601 duration to seconds
+     *
+     * @param  string $duration
+     * @return integer
+     */
+    protected function _getDurationInSeconds($duration) {
+        $interval = new \DateInterval($duration);
+        return ($interval->d * 24 * 60 * 60) +
+            ($interval->h * 60 * 60) +
+            ($interval->i * 60) +
+            $interval->s;
+    }
+
 }
