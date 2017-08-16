@@ -42,8 +42,11 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
             //return;
         //}
 
-        $s3         = new Garp_File_Storage_S3($cdnConfig, $cdnConfig->path->upload->image);
-        $list       = $s3->getList();
+        $s3 = new Garp_File_Storage_S3(
+            $this->_getS3Configuration(),
+            $cdnConfig->path->upload->image
+        );
+        $list = $s3->getList();
 
         $this->assertTrue((bool)count($list));
     }
@@ -71,7 +74,7 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
         );
 
         if ($this->_isS3Configured()) {
-            $this->_storage = new Garp_File_Storage_S3(Zend_Registry::get('config')->cdn, '/');
+            $this->_storage = new Garp_File_Storage_S3($this->_getS3Configuration(), '/');
         }
     }
 
@@ -88,5 +91,17 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
             isset($config->cdn->s3->apikey) &&
             $config->cdn->s3->apikey
         ;
+    }
+
+    protected function _getS3Configuration() {
+        $cdn = Zend_Registry::get('config')->cdn;
+        return array(
+            'apikey'          => $cdn->s3->apikey,
+            'secret'          => $cdn->s3->secret,
+            'bucket'          => $cdn->s3->bucket,
+            'readonly'        => $cdn->readonly,
+            'gzip'            => $cdn->gzip,
+            'gzip_exceptions' => $cdn->gzip_exceptions
+        );
     }
 }

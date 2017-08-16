@@ -21,7 +21,8 @@
         "dompdf/dompdf": "^0.7.0",
         "tedivm/jshrink": "1.1.0",
         "vlucas/phpdotenv": "2.0.1",
-        "fzaninotto/faker": "dev-master"
+        "fzaninotto/faker": "dev-master",
+        "grrr-amsterdam/garp-functional": "^1.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.6",

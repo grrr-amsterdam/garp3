@@ -340,16 +340,37 @@ class Garp_File {
         } else {
             switch ($ini->cdn->type) {
             case 's3':
-                $this->_storage = new Garp_File_Storage_S3($ini->cdn, $this->_path);
+                $this->_storage = new Garp_File_Storage_S3(
+                    $this->_getS3Config($ini),
+                    $this->_path
+                );
                 break;
             case 'local':
-                $this->_storage = new Garp_File_Storage_Local($ini->cdn, $this->_path);
+                $this->_storage = new Garp_File_Storage_Local(
+                    array(
+                        'domain' => $ini->cdn->domain,
+                        'gzip' => $ini->cdn->gzip,
+                        'ssl' => $ini->cdn->ssl
+                    ),
+                    $this->_path
+                );
                 break;
             default:
                 throw new Exception("The '{$ini->cdn->type}' protocol is not yet implemented.");
             }
             self::$_cachedStorage[$ini->cdn->type][$this->_path] = $this->_storage;
         }
+    }
+
+    protected function _getS3Config(Zend_Config $ini) {
+        return array(
+            'apikey'          => $ini->cdn->s3->apikey,
+            'secret'          => $ini->cdn->s3->secret,
+            'bucket'          => $ini->cdn->s3->bucket,
+            'readonly'        => $ini->cdn->readonly,
+            'gzip'            => $ini->cdn->gzip,
+            'gzip_exceptions' => $ini->cdn->gzip_exceptions
+        );
     }
 
     protected function _restrictExtension($filename) {

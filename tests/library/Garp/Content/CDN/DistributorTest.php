@@ -35,6 +35,17 @@ class Garp_Content_Cdn_Distributor_Test extends PHPUnit_Framework_TestCase {
         $this->assertSame(count($assetList), 1);
     }
 
+    /**
+     * @expectedException Garp_File_Exception
+     */
+    public function test_should_throw_when_given_readonly_config() {
+        $distributor = $this->_getDistributor();
+        $distributor->distribute(
+            array('apikey' => 'abc', 'bucket' => 'bouquet', 'secret' => 'xxx', 'readonly' => '1'),
+            new Garp_Content_Cdn_AssetList(GARP_APPLICATION_PATH . '/../public')
+        );
+    }
+
     protected function _getDistributor() {
         return new Garp_Content_Cdn_Distributor(GARP_APPLICATION_PATH . '/../public');
     }

@@ -1,4 +1,6 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * Storage and retrieval of user uploads, from the local web server.
  *
@@ -18,12 +20,12 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
 
     const PERMISSIONS = 0774;
 
-    public function __construct(Zend_Config $config, $path) {
+    public function __construct(array $config, $path) {
         $this->_docRoot = APPLICATION_PATH . "/../public";
         $this->_path = $path;
-        $this->_domain = $config->domain;
-        $this->_ssl = $config->ssl ? true : false;
-        $this->_gzip = $config->gzip;
+        $this->_domain = f\prop('domain', $config);
+        $this->_ssl = !!f\prop('ssl', $config);
+        $this->_gzip = f\prop('gzip', $config);
     }
 
     public function setDocRoot($docRoot) {
@@ -38,11 +40,9 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
         $this->_path = $path;
     }
 
-
     public function exists($filename) {
         return file_exists($this->_getFilePath($filename));
     }
-
 
     /**
      * Fetches the url to the file, suitable for public access on the web.
@@ -53,7 +53,6 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
     public function getUrl($filename) {
         return new Garp_Util_AssetUrl($this->_path . '/' . $filename);
     }
-
 
     /**
      * Fetches the file data.
@@ -128,14 +127,16 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
     }
 
     /**
-    * @param String $filename
-    * @param String $data Binary file data
-    * @param Boolean $overwrite Whether to overwrite this file, or create a unique name
-    * @param Boolean $formatFilename Whether to correct the filename,
-    *                                f.i. ensuring lowercase characters.
-    * @return String Destination filename.
-    */
-    public function store($filename, $data, $overwrite = false, $formatFilename = true) {
+     * @param string $filename
+     * @param string $data Binary file data
+     * @param bool $overwrite Whether to overwrite this file, or create a unique name
+     * @param bool $formatFilename Whether to correct the filename,
+     *                             f.i. ensuring lowercase characters.
+     * @return string Destination filename.
+     */
+    public function store(
+        $filename, $data, $overwrite = false, $formatFilename = true
+    ) {
         $this->_verifyDirectory($filename);
         if ($formatFilename) {
             $filename = Garp_File::formatFilename($filename);

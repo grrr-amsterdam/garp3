@@ -1,23 +1,30 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * Garp_Cli_Command_Cdn
  * Distribute assets to the configured CDN.
  *
+ * Note: since we're moving to dotenv implementations, configuration of other environments is no
+ * longer shared in the codebase.
+ * Therefore, settings should be piped into this script, for instance using the 12g utility:
+ *
+ * ```
+ * $ 12g env list -e s -o json | g cdn distribute
+ * ```
+ *
+ * If STDIN is empty, assets are distributed to whatever is currently configured (most likely
+ * DEVELOPMENT).
+ *
  * @package Garp_Cli_Command
  * @author David Spreekmeester <david@grrr.nl>
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
     const FILTER_DATE_PARAM = 'since';
     const FILTER_DATE_VALUE_NEGATION = 'forever';
-    const FILTER_ENV_PARAM = 'to';
 
     const DRY_RUN_PARAM = 'dry';
-
-    protected $_distributor;
-
-    public function __construct() {
-        $this->_distributor = new Garp_Content_Cdn_Distributor();
-    }
 
     /**
      * Distributes the public assets on the local server to the configured CDN servers.
@@ -26,22 +33,20 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
      * @return void
      */
     public function distribute(array $args) {
-        $filterString       = $this->_getFilterString($args);
-        $filterDate         = $this->_getFilterDate($args);
-        $filterEnvironments = $this->_getFilterEnvironments($args);
-        $isDryRun           = $this->_getDryRunParam($args);
+        $filterString = $this->_getFilterString($args);
+        $filterDate = $this->_getFilterDate($args);
+        $cdnConfig = $this->_gatherConfigVars();
+        $isDryRun = $this->_getDryRunParam($args);
 
-        $assetList          = $this->_distributor->select($filterString, $filterDate);
+        $distributor = new Garp_Content_Cdn_Distributor();
+        $assetList = $distributor->select($filterString, $filterDate);
 
         if (!$assetList) {
             Garp_Cli::errorOut("No files to distribute.");
             return;
         }
 
-        $assetCount = count($assetList);
-        $summary = $assetCount === 1 ? $assetList[0] : $assetCount . ' assets';
-        $filterDateLabel = $this->_getFilterDateLabel($filterDate, $assetList);
-        $summary .= " since {$filterDateLabel}.";
+        $summary = $this->_getReportSummary($assetList, $filterDate);
         Garp_Cli::lineOut("Distributing {$summary}\n");
 
         if ($isDryRun) {
@@ -49,9 +54,19 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
             return;
         }
 
-        foreach ($filterEnvironments as $env) {
-            $this->_distributor->distribute($env, $assetList, $assetCount);
-        }
+        $distributor->distribute(
+            $cdnConfig,
+            $assetList,
+            function () {
+                echo '.';
+            },
+            function ($asset) {
+                Garp_Cli::errorOut("\nCould not upload {$asset}.");
+            }
+        );
+
+        Garp_Cli::lineOut("\n√ Done");
+        echo "\n\n";
     }
 
     public function help() {
@@ -93,6 +108,74 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 
     }
 
+    /**
+     * Take the required variables necessary for distributing assets.
+     *
+     * @return array
+     */
+    protected function _gatherConfigVars() {
+        $source = $this->_stdin ?
+            $this->_parseStdin($this->_stdin) :
+            Zend_Registry::get('config')->toArray();
+        $cdnConfig = f\prop('cdn', $source);
+        $s3Config = f\prop('s3', $cdnConfig);
+        return array(
+            'apikey'          => f\prop('apikey', $s3Config),
+            'secret'          => f\prop('secret', $s3Config),
+            'bucket'          => f\prop('bucket', $s3Config),
+            'readonly'        => f\prop('readonly', $cdnConfig),
+            'gzip'            => f\prop('gzip', $cdnConfig),
+            'gzip_exceptions' => f\prop('gzip_exceptions', $cdnConfig)
+        );
+    }
+
+    /**
+     * Parse STDIN as JSON.
+     * Output is formatted like the standard assets.ini.
+     *
+     * @param string $stdin
+     * @return array
+     */
+    protected function _parseStdin($stdin) {
+        try {
+            $values = Zend_Json::decode($stdin);
+            // Switch ENV vars to the given values.
+            $currentEnv = $this->_updateEnvVars($values);
+            // Note: we use "production" here because it's the highest level a config file can
+            // support, making sure all required parameters are probably present.
+            // Actual credentials will be provided from ENV.
+            $config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/assets.ini', 'production');
+            // Reset ENV vars.
+            $this->_updateEnvVars($currentEnv);
+            return $config->toArray();
+        } catch (Zend_Json_Exception $e) {
+            throw new Exception(
+                'Data passed thru STDIN needs to be in JSON-format'
+            );
+        }
+    }
+
+    /**
+     * Update ENV vars with the given values.
+     * Returns the _current_ values.
+     *
+     * @param  array $vars The new values
+     * @return array       The old values
+     */
+    protected function _updateEnvVars(array $vars) {
+        return f\reduce_assoc(
+            function ($o, $var, $key) {
+                // Store the current value
+                $o[$key] = getenv($key);
+                // Put the new value
+                putenv("{$key}={$var}");
+                return $o;
+            },
+            array(),
+            $vars
+        );
+    }
+
     protected function _getFilterDateLabel($filterDate, $assetList) {
         if ($filterDate === false) {
             return 'forever';
@@ -117,17 +200,13 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
         ;
     }
 
-    protected function _getFilterEnvironments(array $args) {
-        $allEnvironments = $this->_distributor->getEnvironments();
-        $environments    = array_key_exists(self::FILTER_ENV_PARAM, $args) ?
-            (array)$args[self::FILTER_ENV_PARAM] :
-            $allEnvironments
-        ;
-
-        return $environments;
-    }
-
     protected function _getDryRunParam(array $args) {
         return array_key_exists(self::DRY_RUN_PARAM, $args);
+    }
+
+    protected function _getReportSummary(Garp_Content_Cdn_AssetList $assetList, $filterDate) {
+        $assetCount = count($assetList);
+        $summary = $assetCount === 1 ? $assetList[0] : $assetCount . ' assets';
+        return $summary . ' since ' . $this->_getFilterDateLabel($filterDate, $assetList);
     }
 }

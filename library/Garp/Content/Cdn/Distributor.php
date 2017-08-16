@@ -1,25 +1,27 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * Garp_Content_Cdn_Distributor
  *
- * @package Garp
- * @subpackage Content
+ * @package Garp_Content_Cdn
  * @author David Spreekmeester <david@grrr.nl>
- * @version $Revision: $
- * @modifiedby $LastChangedBy: $
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Content_Cdn_Distributor {
-    protected $_environments = array('development', 'integration', 'staging', 'production');
 
     /**
      * Where the baseDir for assets is located, relative to APPLICATION_PATH.
      * Without trailing slash.
+     *
+     * @var string
      */
     const RELATIVE_BASEDIR_AFTER_APPLICATION_PATH = '/../public';
 
     /**
      * System path without trailing slash.
+     *
+     * @var string
      */
     protected $_baseDir;
 
@@ -31,16 +33,7 @@ class Garp_Content_Cdn_Distributor {
     }
 
     /**
-     * Returns the list of available environments.
-     * 
-     * @return Array The list of environments.
-     */
-    public function getEnvironments() {
-        return $this->_environments;
-    }
-
-    /**
-     * @return String This instance's baseDir, without trailing slash.
+     * @return string This instance's baseDir, without trailing slash.
      */
     public function getBaseDir() {
         return $this->_baseDir;
@@ -49,63 +42,60 @@ class Garp_Content_Cdn_Distributor {
     /**
      * Select assets to be distributed.
      *
-     * @param   String  $filterString
-     * @param   Mixed   $filterDate     Provide null for default date filter,
-     *                                  false to disable filter, or a strtotime compatible
-     *                                  value to set a specific date filter.
-     * @return  Array   $assetList      A cumulative list of relative paths to the assets.
+     * @param  string $filterString
+     * @param  mixed  $filterDate         Provide null for default date filter,
+     *                                    false to disable filter, or a strtotime compatible
+     *                                    value to set a specific date filter.
+     * @return Garp_Content_Cdn_AssetList A cumulative list of relative paths to the assets.
      */
     public function select($filterString, $filterDate = null) {
         return new Garp_Content_Cdn_AssetList($this->_baseDir, $filterString, $filterDate);
     }
 
     /**
-     * @param String    $env        Name of the environment, f.i. 'development' or 'production'.
-     * @param Array     $assetList  List of asset file paths
-     * @param Int       $assetCount Number of assets
-     * @return Void
+     * @param array                      $config    Cdn-related configuration
+     * @param Garp_Content_Cdn_AssetList $assetList List of asset file paths
+     * @param callable                   $successFn Function to execute after each successful
+     *                                              upload). Used to report progress.
+     * @param callable                   $failureFn Function to execute after each failed upload.
+     * @return array Contains successfully uploaded assets.
      */
-    public function distribute($env, $assetList, $assetCount) {
-        $this->_validateEnvironment($env);
+    public function distribute(
+        array $config, Garp_Content_Cdn_AssetList $assetList, $successFn = null, $failureFn = null
+    ) {
+        $assetCount = count($assetList);
 
-        $ini = new Garp_Config_Ini(APPLICATION_PATH . '/configs/application.ini', $env);
-        if ($ini->cdn->readonly) {
+        if (f\prop('readonly', $config)) {
             throw new Garp_File_Exception(Garp_File::EXCEPTION_CDN_READONLY);
         }
-
-        if (!$assetCount || $ini->cdn->type !== 's3') {
-            return;
+        if (!$assetCount) {
+            return array();
         }
 
-        Garp_Cli::lineOut(ucfirst($env));
-        $s3 = new Garp_File_Storage_S3($ini->cdn, dirname(current($assetList)), true);
+        $s3 = new Garp_File_Storage_S3(
+            $config,
+            dirname(current($assetList)),
+            true
+        );
 
-        foreach ($assetList as $i => $asset) {
-            $s3->setPath(dirname($asset));
-            $fileData = file_get_contents($this->_baseDir . $asset);
-            $filename = basename($asset);
-            if ($s3->store($filename, $fileData, true, false)) {
-                echo '.';
-            } else { 
-                Garp_Cli::errorOut("\nCould not upload {$asset} to {$env}.");
-            }
-        }
+        $successFn = $successFn ?: noop();
+        $failureFn = $failureFn ?: noop();
 
-        Garp_Cli::lineOut("\n√ Done");
-
-        echo "\n\n";
+        return f\reduce(
+            function ($successes, $asset) use ($s3, $successFn, $failureFn) {
+                $s3->setPath(dirname($asset));
+                $fileData = file_get_contents($this->_baseDir . $asset);
+                $filename = basename($asset);
+                if ($s3->store($filename, $fileData, true, false)) {
+                    $successFn($asset);
+                    return f\concat($successes, array($asset));
+                }
+                $failureFn($asset);
+                return $successes;
+            },
+            array(),
+            $assetList
+        );
     }
 
-    protected function _validateEnvironment($env) {
-        if (!in_array($env, $this->_environments)) {
-            throw new Exception(
-                "'{$env}' is not a valid environment. Try: "
-                . implode(', ', $this->_environments)
-            );
-        }
-    }
-
-    protected function _printFileOrFiles($count) {
-        return 'file' . ($count == 1 ? '' : 's');
-    }
 }

@@ -33,6 +33,16 @@ function __($str) {
 }
 
 /**
+ * Shortcut to a "no opereration" function.
+ *
+ * @return callable
+ */
+function noop() {
+    return function () {
+    };
+}
+
+/**
  * Make the PHP language a little more expressive.
  * PHP 5.4 allows chaining of new instances like so;
  * (new Instance())->doSomething();

@@ -35,7 +35,14 @@ class Garp_File_Storage_LocalTest extends Garp_Test_PHPUnit_TestCase {
                 )
             )
         );
-        $this->_storage = new Garp_File_Storage_Local(Zend_Registry::get('config')->cdn, 'tmp');
+        $this->_storage = new Garp_File_Storage_Local(
+            array(
+                'domain' => 'grrr.nl',
+                'gzip'   => true,
+                'ssl'    => true
+            ),
+            'tmp'
+        );
         $this->_storage->setDocRoot(GARP_APPLICATION_PATH . '/../tests/');
     }
 
