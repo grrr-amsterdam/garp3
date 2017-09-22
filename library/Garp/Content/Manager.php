@@ -388,6 +388,11 @@ class Garp_Content_Manager {
         $bindingModel  = isset($bindingModel) ? 'Model_' . $bindingModel : null;
         $bidirectional = isset($bidirectional) ? $bidirectional : null;
 
+        if (isset($bindingModel)) {
+            $bindingModel = new $bindingModel();
+            $bindingModel->setCmsContext(true);
+        }
+
         if (array_key_exists('unrelateExisting', $options) && $options['unrelateExisting']) {
             Garp_Content_Relation_Manager::unrelate(
                 array(
