@@ -15,19 +15,24 @@ namespace :deploy do
         invoke :create_deploy_dirs
         invoke :set_shared_dir_permissions
         invoke :build_assets
-        invoke :distribute_assets
-
-        invoke :enable_under_construction
     end
 
     task :updated do
-        # Garp tasks
+        # Composer
         invoke :composer_install
-        invoke :spawn
-        invoke :garp_env_setup
 
         # Assets
         invoke :push_assets
+        invoke :distribute_assets
+
+        # Set under construction
+        invoke :enable_under_construction
+    end
+
+    after :updated, :after_updated do
+        # Garp tasks
+        invoke :spawn
+        invoke :garp_env_setup
 
         # Auth tasks
         invoke :set_webroot_permissions
