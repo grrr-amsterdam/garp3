@@ -38,7 +38,7 @@ APP_TITLE = "{{ title }}";
 FB_APP_ID = "{{ app.config.auth.adapters.facebook.appId }}";
     {% endif %}
 DEBUG = window.location.hash.indexOf('debug') > -1;
-LANGUAGES = ['{{ zf.i18n().getLocales()|join(', ') }}'];
+LANGUAGES = ["{{ zf.i18n().getLocales()|join('", "')|raw }}"];
 DEFAULT_LANGUAGE = '{{ zf.i18n().getDefaultLocale() }}';
 CURRENT_LANGUAGE = '{{ zf.i18n().getCurrentLocale() }}';
 CKEDITOR_BASEPATH = ASSET_URL + "js/garp/ckeditor/";
