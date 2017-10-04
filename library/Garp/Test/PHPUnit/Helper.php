@@ -80,10 +80,11 @@ class Garp_Test_PHPUnit_Helper {
 
     protected function _truncate($mockData) {
         foreach ($mockData as $datatype => $mockData) {
+            $i18n = isset($data['i18n']) && $data['i18n'];
             $model = instance('Model_' . $datatype);
             $model->getAdapter()->query('SET foreign_key_checks=0;');
             $model->getAdapter()->query('TRUNCATE TABLE ' . $model->getName());
-            if (array_key_exists('i18n', $mockData)) {
+            if ($i18n) {
                 $modelI18n = instance(
                     'Model_' . $datatype . Garp_Model_Behavior_Translatable::I18N_MODEL_SUFFIX
                 );
