@@ -26,6 +26,8 @@ if (file_exists(APPLICATION_PATH . '/../.env')) {
     $dotenv->load();
 }
 
+Garp_ErrorHandler::registerErrorHandler();
+
 // Sentry integration
 if (getenv('SENTRY_API_URL') || (defined('SENTRY_API_URL') && APPLICATION_ENV !== 'development')) {
     $sentryApiUrl = getenv('SENTRY_API_URL') ?: SENTRY_API_URL;

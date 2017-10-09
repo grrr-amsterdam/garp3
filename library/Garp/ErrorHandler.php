@@ -1,4 +1,6 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * Garp_ErrorHandler
  * class description
@@ -8,6 +10,39 @@
  */
 class Garp_ErrorHandler {
     const ERROR_REPORT_MAIL_ADDRESS_FALLBACK = 'garp@grrr.nl';
+
+    public static $severityToExceptionMap = array(
+        E_WARNING           => 'Garp_Exception_RuntimeException_Warning',
+        E_NOTICE            => 'Garp_Exception_RuntimeException_Notice',
+        E_USER_ERROR        => 'Garp_Exception_RuntimeException_UserError',
+        E_USER_WARNING      => 'Garp_Exception_RuntimeException_UserWarning',
+        E_USER_NOTICE       => 'Garp_Exception_RuntimeException_UserNotice',
+        E_STRICT            => 'Garp_Exception_RuntimeException_Strict',
+        E_RECOVERABLE_ERROR => 'Garp_Exception_RuntimeException_RecoverableError',
+        E_DEPRECATED        => 'Garp_Exception_RuntimeException_Deprecated',
+        E_USER_DEPRECATED   => 'Garp_Exception_RuntimeException_UserDeprecated',
+    );
+
+    /**
+     * Handle all PHP errors and convert them to exceptions.
+     *
+     * @return void
+     */
+    public static function registerErrorHandler() {
+        set_error_handler(
+            function ($severity, $msg, $file, $line, array $context) {
+                // error was suppressed with the @-operator
+                //if (0 === error_reporting()) {
+                    //return false;
+                //}
+                $exceptionClass = f\either(
+                    f\prop($severity, Garp_ErrorHandler::$severityToExceptionMap),
+                    'ErrorException'
+                );
+                throw new $exceptionClass($msg, 0, $severity, $file, $line);
+            }
+        );
+    }
 
     /**
      * Handles premature exceptions thrown before the MVC ErrorHandler is initialized.
