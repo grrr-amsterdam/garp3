@@ -1,4 +1,5 @@
 <?php
+use Garp\Functional as f;
 /**
  * Garp_Cache_Manager
  * Provides various ways of purging the many caches Garp uses.
@@ -48,6 +49,7 @@ class Garp_Cache_Manager {
 
         self::purgeStaticCache($tags, $cacheDir);
         self::purgeMemcachedCache($tags);
+        self::purgeOpCache();
 
         $ini = Zend_Registry::get('config');
         if ($createClusterJob && $ini->app->clusteredHosting) {
@@ -152,6 +154,47 @@ class Garp_Cache_Manager {
                 $_purged[] = $filePath;
             }
         }
+    }
+
+    /**
+     * This clears the OpCache. This reset can only be done with an http request.
+     *
+     * @return Void
+     */
+    public static function purgeOpCache() {
+        // get deployment file
+        if (APPLICATION_ENV === 'development' || APPLICATION_ENV === 'testing') {
+            return;
+        }
+
+        $hostName = Zend_Registry::get('config')->app->domain;
+        foreach (self::_getServerNames() as $serverName) {
+            self::_resetOpcache($serverName, $hostName);
+        }
+    }
+
+    protected static function _getServerNames() {
+        $deployConfig = new Garp_Deploy_Config;
+        $params = $deployConfig->getParams(APPLICATION_ENV);
+
+        return f\map(
+            f\prop('server'),
+            $params['server']
+        );
+    }
+
+    protected static function _resetOpcache($serverName, $hostName) {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_URL, "{$serverName}/g/content/opcachereset");
+        curl_setopt(
+            $ch, CURLOPT_HTTPHEADER, array('Host: ' . $hostName)
+        );
+
+        curl_exec($ch);
+
+        curl_close($ch);
     }
 
     /**
