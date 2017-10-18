@@ -54,6 +54,21 @@ class G_ContentController extends Garp_Controller_Action {
     }
 
     /**
+     * Reset OpCache
+     *
+     * @return Void
+     */
+    public function opcacheresetAction() {
+        $this->_helper->viewRenderer->setNoRender(true);
+        if (function_exists('opcache_reset')) {
+            $result = opcache_reset();
+            echo $result ? 'opcache resetted' : 'opcache reset failed';
+            return;
+        }
+        echo 'no opcache installed';
+    }
+
+    /**
      * Display some information about cookies
      *
      * @return Void

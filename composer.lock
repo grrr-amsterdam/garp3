@@ -120,26 +120,26 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "596c62b01eec4ef437ab134a4389fe50365d7320"
+                "reference": "251ec160bcbb54141cb0d707fd56898fd01bdbdb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/596c62b01eec4ef437ab134a4389fe50365d7320",
-                "reference": "596c62b01eec4ef437ab134a4389fe50365d7320",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/251ec160bcbb54141cb0d707fd56898fd01bdbdb",
+                "reference": "251ec160bcbb54141cb0d707fd56898fd01bdbdb",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3.3|^7.0"
+                "php": "^5.3.3 || ^7.0"
             },
             "require-dev": {
                 "ext-intl": "*",
-                "phpunit/phpunit": "~4.0||~5.0",
-                "squizlabs/php_codesniffer": "~1.5"
+                "phpunit/phpunit": "^4.8.35 || ^5.7",
+                "squizlabs/php_codesniffer": "^1.5"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-master": "1.8-dev"
                 }
             },
             "autoload": {
@@ -162,7 +162,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2017-06-02 07:51:32"
+            "time": "2018-01-08T16:49:22+00:00"
         },
         {
             "name": "google/apiclient",
@@ -209,16 +209,16 @@
         },
         {
             "name": "grrr-amsterdam/garp-functional",
-            "version": "v1.0.7",
+            "version": "v1.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/grrr-amsterdam/garp-functional.git",
-                "reference": "9d33754bf644a85c8dd5bb4ce1d10a3045fc7d35"
+                "reference": "579f301baf23b49b8266f68bd4bc3ae6ef4607ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/grrr-amsterdam/garp-functional/zipball/9d33754bf644a85c8dd5bb4ce1d10a3045fc7d35",
-                "reference": "9d33754bf644a85c8dd5bb4ce1d10a3045fc7d35",
+                "url": "https://api.github.com/repos/grrr-amsterdam/garp-functional/zipball/579f301baf23b49b8266f68bd4bc3ae6ef4607ae",
+                "reference": "579f301baf23b49b8266f68bd4bc3ae6ef4607ae",
                 "shasum": ""
             },
             "require": {
@@ -259,9 +259,11 @@
                     "library/Garp/Functional/Gte.php",
                     "library/Garp/Functional/Head.php",
                     "library/Garp/Functional/Id.php",
+                    "library/Garp/Functional/IndexBy.php",
                     "library/Garp/Functional/Instance.php",
                     "library/Garp/Functional/Join.php",
                     "library/Garp/Functional/Keys.php",
+                    "library/Garp/Functional/KeysWhere.php",
                     "library/Garp/Functional/Lt.php",
                     "library/Garp/Functional/Lte.php",
                     "library/Garp/Functional/Map.php",
@@ -271,6 +273,7 @@
                     "library/Garp/Functional/None.php",
                     "library/Garp/Functional/Not.php",
                     "library/Garp/Functional/Omit.php",
+                    "library/Garp/Functional/Once.php",
                     "library/Garp/Functional/Partial.php",
                     "library/Garp/Functional/PartialRight.php",
                     "library/Garp/Functional/Pick.php",
@@ -292,6 +295,7 @@
                     "library/Garp/Functional/Tail.php",
                     "library/Garp/Functional/Take.php",
                     "library/Garp/Functional/TakeWhile.php",
+                    "library/Garp/Functional/Tap.php",
                     "library/Garp/Functional/Truthy.php",
                     "library/Garp/Functional/Unary.php",
                     "library/Garp/Functional/Unique.php",
@@ -311,7 +315,7 @@
                 }
             ],
             "description": "Utility library embracing functional programming paradigms.",
-            "time": "2017-08-21T17:52:30+00:00"
+            "time": "2017-11-14T21:22:16+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -565,16 +569,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "1.7.0",
+            "version": "1.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "f92d30467d9696606352aa06afeac0a60c4458ef"
+                "reference": "3241b135120c25d6522e46246386df0ab48e13c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/f92d30467d9696606352aa06afeac0a60c4458ef",
-                "reference": "f92d30467d9696606352aa06afeac0a60c4458ef",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/3241b135120c25d6522e46246386df0ab48e13c5",
+                "reference": "3241b135120c25d6522e46246386df0ab48e13c5",
                 "shasum": ""
             },
             "require": {
@@ -587,13 +591,12 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^1.8.0",
                 "monolog/monolog": "*",
-                "phpunit/phpunit": "^4.8 || ^5.0"
+                "phpunit/phpunit": "^4.8.35 || ^5.7"
             },
             "suggest": {
                 "ext-hash": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "immobiliare/sentry-php": "Fork that fixes support for PHP 5.2",
                 "monolog/monolog": "Automatically capture Monolog events as breadcrumbs"
             },
             "bin": [
@@ -602,7 +605,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.9.x-dev"
                 }
             },
             "autoload": {
@@ -626,7 +629,7 @@
                 "log",
                 "logging"
             ],
-            "time": "2017-06-07T18:13:17+00:00"
+            "time": "2017-12-21T16:05:46+00:00"
         },
         {
             "name": "tedivm/jshrink",
@@ -832,16 +835,16 @@
         },
         {
             "name": "phpunit/php-file-iterator",
-            "version": "1.4.2",
+            "version": "1.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-file-iterator.git",
-                "reference": "3cc8f69b3028d0f96a9078e6295d86e9bf019be5"
+                "reference": "730b01bc3e867237eaac355e06a36b85dd93a8b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/3cc8f69b3028d0f96a9078e6295d86e9bf019be5",
-                "reference": "3cc8f69b3028d0f96a9078e6295d86e9bf019be5",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/730b01bc3e867237eaac355e06a36b85dd93a8b4",
+                "reference": "730b01bc3e867237eaac355e06a36b85dd93a8b4",
                 "shasum": ""
             },
             "require": {
@@ -875,7 +878,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2016-10-03T07:40:28+00:00"
+            "time": "2017-11-27T13:52:08+00:00"
         },
         {
             "name": "phpunit/php-text-template",
