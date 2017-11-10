@@ -72,7 +72,7 @@ class G_View_Helper_SpawnJs extends Zend_View_Helper_Abstract {
     public function getFieldValidationType(Garp_Spawn_Field $field) {
         switch ($field->type) {
         case 'email':
-            return 'email';
+            return 'garpEmail';
             break;
         case 'url':
             return 'mailtoOrUrl';
