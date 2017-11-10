@@ -32,6 +32,17 @@ Ext.override(Ext.Element, {
 	});
 })();
 
+(function(){
+    // @see: http://emailregex.com/
+    var emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    Ext.apply(Ext.form.VTypes, {
+        garpEmail: function(val, field) {
+            return emailRegEx.test(val);
+        },
+        garpEmailText: 'Not a valid email'
+    });
+})();
+
 Garp.mailtoOrUrlPlugin = {
 	init: function(field){
 		var stricter = /(^mailto:(\w+)([\-+.][\w]+)*@(\w[\-\w]*))|(((^https?)|(^ftp)):\/\/([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)/i;
