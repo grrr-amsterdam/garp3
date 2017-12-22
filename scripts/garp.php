@@ -118,6 +118,7 @@ if (empty($args[0])) {
 /**
  * Read STDIN
  */
+stream_set_blocking(STDIN, false);
 $stdin = trim(stream_get_contents(STDIN));
 
 /* Construct command classname */
@@ -180,4 +181,3 @@ $command->main($args);
 // @codingStandardsIgnoreStart
 exit(0);
 // @codingStandardsIgnoreEnd
-
