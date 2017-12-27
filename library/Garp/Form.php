@@ -340,8 +340,6 @@ class Garp_Form extends Zend_Form {
             if (!empty($options['label']) && $escape) {
                 $options['label'] = htmlspecialchars($options['label'], ENT_COMPAT, 'UTF-8');
             }
-            $labelOptions['escape'] = false;
-            unset($options['escape']);
         }
         if (!isset($options['decorators'])) {
             $options['decorators'] = array(
