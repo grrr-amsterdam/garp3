@@ -38,6 +38,23 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 
+    /** @test */
+    public function should_leave_unknown_columns_intact() {
+        $fieldConfig = $this->_getFieldConfig();
+
+        $defaults = array(
+            'foo' => 'bar'
+        );
+
+        $faker = new Garp_Model_Db_Faker();
+        $fakeRow = $faker->createFakeRow($fieldConfig, $defaults);
+
+        $this->assertEquals(
+            'bar',
+            array_get($fakeRow, 'foo')
+        );
+    }
+
     protected function _getFieldConfig() {
         return array(
             array('name' => 'name', 'type' => 'text'),
@@ -52,6 +69,15 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
                     'draft'
                 )
             )
+        );
+    }
+
+    public function setUp() {
+        parent::setUp();
+        $this->_helper->injectConfigValues(
+            [
+                'app' => ['domain' => 'localhost.garp3.com']
+            ]
         );
     }
 }
