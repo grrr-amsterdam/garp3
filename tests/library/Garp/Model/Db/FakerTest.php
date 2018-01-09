@@ -75,9 +75,9 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
     public function setUp() {
         parent::setUp();
         $this->_helper->injectConfigValues(
-            [
-                'app' => ['domain' => 'localhost.garp3.com']
-            ]
+            array(
+                'app' => array('domain' => 'localhost.garp3.com')
+            )
         );
     }
 }
