@@ -163,10 +163,6 @@ class Garp_Cache_Manager {
      * @return Void
      */
     public static function purgeOpcache() {
-        self::_purgeOpcache();
-    }
-
-    protected static function _purgeOpcache() {
         // This only clears the Opcache on CLI,
         // which is often separate from the HTTP Opcache.
         if (function_exists('opcache_reset')) {
