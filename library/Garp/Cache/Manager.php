@@ -163,13 +163,17 @@ class Garp_Cache_Manager {
      */
     public static function purgeOpCache() {
         // get deployment file
-        if (APPLICATION_ENV === 'development' || APPLICATION_ENV === 'testing') {
+        if (!function_exists('opcache_reset')) {
             return;
         }
 
+        // This only clears the Opcache on CLI,
+        // which is often separate from the HTTP Opcache.
+        opcache_reset();
+
         $hostName = Zend_Registry::get('config')->app->domain;
         foreach (self::_getServerNames() as $serverName) {
-            self::_resetOpcache($serverName, $hostName);
+            self::_resetOpcacheHttp($serverName, $hostName);
         }
     }
 
@@ -183,7 +187,7 @@ class Garp_Cache_Manager {
         );
     }
 
-    protected static function _resetOpcache($serverName, $hostName) {
+    protected static function _resetOpcacheHttp($serverName, $hostName) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -193,7 +197,6 @@ class Garp_Cache_Manager {
         );
 
         curl_exec($ch);
-
         curl_close($ch);
     }
 
