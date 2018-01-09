@@ -64,13 +64,13 @@ class G_ContentController extends Garp_Controller_Action {
 
         if (function_exists('opcache_reset')) {
             $result = opcache_reset();
-            $output[] = $result ? 'opcache was reset' : 'opcache reset failed';
+            $output[] = $result ? 'Opcache was reset' : 'Opcache reset failed';
         }
 
         if (function_exists('apc_clear_cache')) {
             // Always returns true
             apc_clear_cache(); 
-            $output[] = 'APC opcache cleared';
+            $output[] = 'APC Opcache cleared';
         }
 
         if (!$output) {
