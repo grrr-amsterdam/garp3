@@ -49,7 +49,7 @@ class Garp_Cache_Manager {
 
         self::purgeStaticCache($tags, $cacheDir);
         self::purgeMemcachedCache($tags);
-        self::purgeOpCache();
+        self::purgeOpcache();
 
         $ini = Zend_Registry::get('config');
         if ($createClusterJob && $ini->app->clusteredHosting) {
@@ -157,20 +157,27 @@ class Garp_Cache_Manager {
     }
 
     /**
-     * This clears the OpCache. This reset can only be done with an http request.
+     * This clears the Opcache, and APC for legacy systems.
+     * This reset can only be done with an http request.
      *
      * @return Void
      */
-    public static function purgeOpCache() {
-        // get deployment file
-        if (!function_exists('opcache_reset')) {
-            return;
-        }
+    public static function purgeOpcache() {
+        self::_purgeOpcache();
+    }
 
+    protected static function _purgeOpcache() {
         // This only clears the Opcache on CLI,
         // which is often separate from the HTTP Opcache.
-        opcache_reset();
+        if (function_exists('opcache_reset')) {
+            opcache_reset();
+        }
 
+        if (function_exists('apc_clear_cache')) {
+            apc_clear_cache();
+        }
+
+        // Next, trigger the Opcache clear calls through HTTP.
         $hostName = Zend_Registry::get('config')->app->domain;
         foreach (self::_getServerNames() as $serverName) {
             self::_resetOpcacheHttp($serverName, $hostName);

@@ -60,12 +60,24 @@ class G_ContentController extends Garp_Controller_Action {
      */
     public function opcacheresetAction() {
         $this->_helper->viewRenderer->setNoRender(true);
+        $output = array();
+
         if (function_exists('opcache_reset')) {
             $result = opcache_reset();
-            echo $result ? 'opcache resetted' : 'opcache reset failed';
-            return;
+            $output[] = $result ? 'opcache was reset' : 'opcache reset failed';
         }
-        echo 'no opcache installed';
+
+        if (function_exists('apc_clear_cache')) {
+            // Always returns true
+            apc_clear_cache(); 
+            $output[] = 'APC opcache cleared';
+        }
+
+        if (!$output) {
+            'No Opcache or APC cache present.';
+        }
+
+        echo implode('<br>', $output);
     }
 
     /**
