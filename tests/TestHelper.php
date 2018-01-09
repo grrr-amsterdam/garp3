@@ -10,6 +10,7 @@ ini_set('log_errors', 0);
 ini_set('display_startup_errors', 1);
 ini_set('display_errors', 'stderr');
 
+define('BASE_PATH', $garpRoot);
 require_once $garpRoot . '/application/init.php';
 
 // Grab either the configuration of a host project, where garp3 is installed as dependency,
