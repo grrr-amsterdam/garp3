@@ -8,7 +8,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Cdn
  */
-class Garp_Content_Cdn_AssetList_Test extends PHPUnit_Framework_TestCase {
+class Garp_Content_Cdn_AssetList_Test extends Garp_Test_PHPUnit_TestCase {
     const FILTER_STRING_MATCHING_MULTIPLE = 'css';
     const FILTER_STRING_MATCHING_ONE_GARP = 'css/images/garp.png';
     const FILTER_STRING_MATCHING_ONE_APP  = 'cms.css';

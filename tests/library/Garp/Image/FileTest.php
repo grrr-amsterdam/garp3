@@ -5,7 +5,7 @@
  * @package Tests
  * @author  David Spreekmeester <david@grrr.nl>
  */
-class Garp_Image_FileTest extends PHPUnit_Framework_TestCase {
+class Garp_Image_FileTest extends Garp_Test_PHPUnit_TestCase {
     const RESOURCE_UNOPTIMIZED_PNG = '/../tests/files/images/unoptimized.png';
 
     protected $_bogusValidImageFilenames = array(

@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Elasticsearch
  */
-class Garp_Service_Elasticsearch_RequestTest extends PHPUnit_Framework_TestCase {
+class Garp_Service_Elasticsearch_RequestTest extends Garp_Test_PHPUnit_TestCase {
     const BOGUS_PATH = '/Bogus/666';
 
 

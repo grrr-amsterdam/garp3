@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Spawn
  */
-// class Garp_Spawn_MySql_KeysTest extends PHPUnit_Framework_TestCase {
+// class Garp_Spawn_MySql_KeysTest extends Garp_Test_PHPUnit_TestCase {
 //  protected $_mocks = array(
 //      'directory' => null,
 //      'modelName' => 'Bogus',
