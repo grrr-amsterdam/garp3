@@ -174,6 +174,11 @@ class Garp_Cache_Manager {
         }
 
         // Next, trigger the Opcache clear calls through HTTP.
+        $deployConfig = new Garp_Deploy_Config;
+        if (!$deployConfig->isConfigured(APPLICATION_ENV)) {
+            return;
+        }
+
         $hostName = Zend_Registry::get('config')->app->domain;
         foreach (self::_getServerNames() as $serverName) {
             self::_resetOpcacheHttp($serverName, $hostName);
