@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Spawn
  */
-// class Garp_Spawn_Config_HasAndBelongsToManyRelationSetTest extends PHPUnit_Framework_TestCase {
+// class Garp_Spawn_Config_HasAndBelongsToManyRelationSetTest extends Garp_Test_PHPUnit_TestCase {
 //  protected $_mockModelDir;
 
 

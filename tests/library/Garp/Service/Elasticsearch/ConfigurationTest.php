@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Elasticsearch
  */
-class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_TestCase {
+class Garp_Service_Elasticsearch_ConfigurationTest extends Garp_Test_PHPUnit_TestCase {
 
     /**
      * @var Garp_Service_Elasticsearch_Configuration $_config

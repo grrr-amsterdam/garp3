@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Spawn
  */
-// class Garp_Spawn_Config_Storage_FileTest extends PHPUnit_Framework_TestCase {
+// class Garp_Spawn_Config_Storage_FileTest extends Garp_Test_PHPUnit_TestCase {
 //  protected $_mocks = array(
 //      'directory' => null,
 //      'extension' => 'json',

@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Slack
  */
-class Garp_Service_Slack_ConfigTest extends PHPUnit_Framework_TestCase {
+class Garp_Service_Slack_ConfigTest extends Garp_Test_PHPUnit_TestCase {
 
     /**
      * @var Garp_Service_Slack_Config $_config
