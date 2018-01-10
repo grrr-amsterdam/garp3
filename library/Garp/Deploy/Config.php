@@ -3,12 +3,9 @@
  * Garp_Deploy_Config
  * Represents a (Capistrano) deploy configuration.
  *
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
  * @package Garp
- * @subpackage Content
- * @lastmodified $Date: $
+ * @subpackage Deploy
+ * @author David Spreekmeester <david@grrr.nl>
  */
 class Garp_Deploy_Config {
     const GENERIC_CONFIG_PATH = '/application/configs/deploy.rb';
@@ -62,6 +59,7 @@ class Garp_Deploy_Config {
      *
      * @param String $env The environment to get parameters for
      *                  (i.e. 'integration' or 'production').
+     * @param String $param The parameter name being requested.
      * @return String Name of deploy parameter:
      *                  f.i. 'application', 'server',
      *                  'deploy_to' or 'user'.
@@ -73,6 +71,7 @@ class Garp_Deploy_Config {
 
     /**
      * Parses the generic configuration.
+     *
      * @param String $content
      * @return Array
      */
@@ -80,8 +79,8 @@ class Garp_Deploy_Config {
         $output = array();
         $matches = array();
         $paramsString = implode('|', $this->_deployParams);
-        $pattern = '/:?(?P<paramName>'. $paramsString
-            .')[,:]? [\'"](?P<paramValue>[^\'"]*)[\'"]/';
+        $pattern = '/:?(?P<paramName>' . $paramsString
+            . ')[,:]? [\'"](?P<paramValue>[^\'"]*)[\'"]/';
 
         if (!preg_match_all($pattern, $content, $matches)) {
             throw new Exception(
@@ -91,9 +90,13 @@ class Garp_Deploy_Config {
         }
 
         foreach ($this->_deployParams as $p) {
-            $indices = array_keys(array_filter($matches['paramName'], function($pn) use ($p) {
-                return $pn === $p;
-            }));
+            $indices = array_keys(
+                array_filter(
+                    $matches['paramName'], function ($pn) use ($p) {
+                        return $pn === $p;
+                    }
+                )
+            );
             if (!count($indices)) {
                 continue;
             }
@@ -108,13 +111,15 @@ class Garp_Deploy_Config {
 
         // explode server into user and server parts
         if (!empty($output['server'])) {
-            $output['server'] = array_map(function($serverConfig) {
-                $bits = explode('@', $serverConfig, 2);
-                return array(
+            $output['server'] = array_map(
+                function ($serverConfig) {
+                    $bits = explode('@', $serverConfig, 2);
+                    return array(
                     'user' => $bits[0],
                     'server' => $bits[1]
-                );
-            }, $output['server']);
+                    );
+                }, $output['server']
+            );
         }
 
         return $output;
@@ -126,6 +131,8 @@ class Garp_Deploy_Config {
      *
      * @param String $env Environment (i.e. 'integration'
      * or 'production') of which to retrieve config params.
+     * @return String The raw contents of the Capistrano
+     * deploy configuration file.
      */
     protected function _fetchEnvContent($env) {
         $envPath = $this->_createPathFromEnv($env);
