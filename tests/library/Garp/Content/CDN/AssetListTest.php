@@ -44,14 +44,6 @@ class Garp_Content_Cdn_AssetList_Test extends Garp_Test_PHPUnit_TestCase {
         $this->assertSame(count($assetList), 1);
     }
 
-    public function test_One_App_Asset_Should_Be_Selected_If_Specific_Match() {
-        // This test is flawed: you cannot assume only 1 file is returned in this case (in fact,
-        // most projects will actually return 3 files)
-        //
-        //$assetList    = $this->_getListInstance(self::FILTER_STRING_MATCHING_ONE_APP, false);
-        //$this->assertSame(count($assetList), 1);
-    }
-
     public function test_Assets_Paths_Should_Be_Relative() {
         $this->_addTmpFile();
 
@@ -67,7 +59,8 @@ class Garp_Content_Cdn_AssetList_Test extends Garp_Test_PHPUnit_TestCase {
     }
 
     public function test_Assets_Should_Not_Be_Older_Than_Threshold_If_No_Params_Given() {
-        $assetList  = $this->_getListInstance(self::FILTER_STRING_MATCHING_MULTIPLE);
+        $assetList = $this->_getListInstance(self::FILTER_STRING_MATCHING_MULTIPLE);
+        $this->assertInstanceOf(Traversable::class, $assetList);
 
         foreach ($assetList as $assetPathRel) {
             $assetPathAbs   = $this->_getBaseDir() . $assetPathRel;

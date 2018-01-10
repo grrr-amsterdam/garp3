@@ -21,6 +21,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldFailWithoutEmail() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $pwless = new Garp_Auth_Adapter_Passwordless();
@@ -30,6 +31,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldCreateUserRecord() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $pwless = new Garp_Auth_Adapter_Passwordless();
@@ -43,6 +45,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldNotInsertDuplicateRecord() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $userModel = new Model_User();
@@ -58,6 +61,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldCreateAuthRecord() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $pwless = new Garp_Auth_Adapter_Passwordless();
@@ -79,6 +83,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldSendEmail() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $pwless = new Garp_Auth_Adapter_Passwordless();
@@ -118,6 +123,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldFailOnFalsyParams() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $pwless = new Garp_Auth_Adapter_Passwordless();
@@ -128,6 +134,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldFailOnInvalidToken() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $pwless = new Garp_Auth_Adapter_Passwordless();
@@ -138,6 +145,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldFailOnStrangersToken() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $userModel = new Model_User();
@@ -160,6 +168,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldFailOnExpiredToken() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         instance(new Model_User())->insert(
@@ -190,6 +199,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldAcceptValidToken() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $pwless = new Garp_Auth_Adapter_Passwordless();
@@ -204,6 +214,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldRejectClaimedToken() {
         if (!$this->_testsEnabled) {
+            $this->assertTrue(true);
             return;
         }
         $pwless = new Garp_Auth_Adapter_Passwordless();
