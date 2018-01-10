@@ -25,6 +25,21 @@ class Garp_Deploy_Config {
     }
 
     /**
+     * Returns whether the deployment setup is configured
+     * for this environmentparameters for a specific environment.
+     *
+     * @param String $env The environment to get parameters for
+     *                  (i.e. 'integration' or 'production').
+     * @return Bool Whether the deploy configuration is set.
+     */
+    public function isConfigured($env) {
+        if (!file_exists($this->_createPathFromEnv($env))) {
+            return false;
+        }
+        return !!$this->_fetchEnvContent($env);
+    }
+
+    /**
      * Returns the deploy parameters for a specific environment.
      *
      * @param String $env The environment to get parameters for
@@ -105,10 +120,6 @@ class Garp_Deploy_Config {
         return $output;
     }
 
-    public function isConfigured($environment) {
-        return !!$this->_fetchEnvContent($environment);
-    }
-
     /**
      * Returns the raw content of the Capistrano
      * deploy configuration (in Ruby) per environment.
@@ -117,7 +128,7 @@ class Garp_Deploy_Config {
      * or 'production') of which to retrieve config params.
      */
     protected function _fetchEnvContent($env) {
-        $envPath = BASE_PATH . self::ENV_CONFIG_PATH . $env . '.rb';
+        $envPath = $this->_createPathFromEnv($env);
         $envConfig = file_get_contents($envPath);
 
         if ($envConfig === false) {
@@ -128,6 +139,10 @@ class Garp_Deploy_Config {
         }
 
         return $envConfig;
+    }
+    
+    protected function _createPathFromEnv($env) {
+        return BASE_PATH . self::ENV_CONFIG_PATH . $env . '.rb';
     }
 
     protected function _fetchGenericContent() {
