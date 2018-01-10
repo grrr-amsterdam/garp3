@@ -8,7 +8,7 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
     protected $_storage;
     protected $_gzipTestFile = '19209ujr203r20rk409rk2093ir204r92r90.txt';
 
-    public function testShouldGzipOutput() {
+    //public function testShouldGzipOutput() {
         /*
         if (!$this->_isS3Configured()) {
             $this->assertTrue(true, "S3 is not configured");
@@ -29,8 +29,11 @@ class Garp_File_Storage_S3_Test extends Garp_Test_PHPUnit_TestCase {
         // actually deflate to the right string.
         $this->assertEquals($testContent, $contents);
         */
-    }
+    //}
 
+    /**
+     * @test
+     */
     public function testGetList() {
         if (!$this->_isS3Configured()) {
             $this->assertTrue(true, "S3 is not configured");
