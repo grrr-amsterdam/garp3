@@ -120,6 +120,7 @@ if (empty($args[0])) {
  */
 stream_set_blocking(STDIN, false);
 $stdin = trim(stream_get_contents(STDIN));
+stream_set_blocking(STDIN, true);
 
 /* Construct command classname */
 $classArgument = ucfirst($args[0]);
