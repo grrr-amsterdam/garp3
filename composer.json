@@ -22,11 +22,11 @@
         "tedivm/jshrink": "1.1.0",
         "vlucas/phpdotenv": "2.0.1",
         "fzaninotto/faker": "dev-master",
-        "grrr-amsterdam/garp-functional": "^1.0"
+        "grrr-amsterdam/garp-functional": "^1.0",
+        "phpunit/phpunit": "^6.0"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^2.6",
-        "phpunit/phpunit": "^6.0"
+        "squizlabs/php_codesniffer": "^2.6"
     },
     "autoload": {
         "psr-0": {
