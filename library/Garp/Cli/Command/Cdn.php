@@ -32,7 +32,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
      * @param array $args
      * @return void
      */
-    public function distribute(array $args) {
+    public function distribute(array $args): bool {
         if (f\prop('to', $args)) {
             Garp_Cli::errorOut('"to" is a deprecated parameter.');
             Garp_Cli::lineOut(
@@ -54,7 +54,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 
         if (!$assetList) {
             Garp_Cli::errorOut("No files to distribute.");
-            return;
+            return false;
         }
 
         $summary = $this->_getReportSummary($assetList, $filterDate);
@@ -62,7 +62,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 
         if ($isDryRun) {
             Garp_Cli::lineOut(implode("\n", (array)$assetList));
-            return;
+            return true;
         }
 
         $distributor->distribute(
@@ -78,6 +78,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
 
         Garp_Cli::lineOut("\n√ Done");
         echo "\n\n";
+        return true;
     }
 
     public function help() {
