@@ -79,7 +79,10 @@ class Garp_Model_Db_Faker {
         }
 
         if ($config['type'] === 'enum' || $config['type'] === 'set') {
-            return $this->_faker->randomElement($config['options']);
+            $options = $config['options'];
+            $isAssoc = f\every('is_string', array_keys($options));
+            $randomPool = $isAssoc ? array_keys($options) : array_values($options);
+            return $this->_faker->randomElement($randomPool);
         }
 
         if ($config['type'] === 'email') {
