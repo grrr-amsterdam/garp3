@@ -16,6 +16,7 @@ class Garp_Cli_Command_Env extends Garp_Cli_Command {
         // This one's free: inserting required snippets
         $snippetCmd = new Garp_Cli_Command_Snippet();
         $snippetCmd->create(array('from', 'file'));
+        return true;
     }
 
     /**
