@@ -25,6 +25,21 @@ function afterFetch($args) {
 ```
 If your app uses `Zend_Registry::get('CMS')` it will need to refactor that bit.
 
+### Version 3.11.19
+
+Since credentials for CDNs moved to `.env` files, `g cdn distribute` is no longer able to distribute to the right environment, since the credentials are not known across envs anymore.
+[12g](https://github.com/grrr-amsterdam/12g) is developed to fix this. It can read configuration from other environments, among other things.  
+Its output can be piped into Garp to distribute to the right environment, like this:
+
+```
+12g env list -e staging -o json | g cdn distribute
+```
+
+### Version 3.11.30
+
+A little late to the party, but as of this version `12g` is a requirement for Garp deployment using Capistrano. The `--to` parameter of `g cdn distribute` is officially deprecated and will trigger a warning.
+
+
 ## Version 3.10
 
 Asset URL generation has changed once more.

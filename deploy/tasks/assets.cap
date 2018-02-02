@@ -32,7 +32,17 @@ task :distribute_assets do
     run_locally do
         env = fetch(:stage)
         since_argument = ENV['distribute_since'] ? "--since=#{ENV['distribute_since']}" : ''
-        execute "[ ! \"$(vendor/bin/g config get cdn.readonly)\" ]; vendor/bin/g cdn distribute --to=#{env} #{since_argument}"
+        has_12g = capture('[ -z `which "12g"` ] && echo 0 || echo 1').strip == '1'
+        if not has_12g
+            abort "The command 12g should be executable in order to distribute assets."
+            return false
+        end
+        if capture("12g env get -e #{env} --var=CDN_READONLY").empty?
+            env_list_json = capture("12g env list -e #{env} -o json ")
+            execute "echo '#{env_list_json}' | vendor/bin/g cdn distribute #{since_argument}"
+        else
+            puts 'CDN is read-only. Not distributing.'
+        end
     end
 end
 

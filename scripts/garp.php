@@ -177,8 +177,8 @@ if (!in_array($classArgument, $commandsWithoutTranslation)) {
     }
 }
 
-$command->main($args);
+$response = $command->main($args);
 
 // @codingStandardsIgnoreStart
-exit(0);
+exit(!!$response ? 0 : 1);
 // @codingStandardsIgnoreEnd
