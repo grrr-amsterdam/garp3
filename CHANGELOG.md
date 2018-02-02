@@ -5,6 +5,13 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.12
+
+In order to update the phpunit dependency to a modern version, we finally dropped support for php 5.3 and jumped all the way up to php 7.
+
+Most importantly for implementors: `Garp_Test_PHPUnit_ControllerTestCase` has been removed from Garp. It extended `Zend_Test_PHPUnit_ControllerTestCase`, which was the reason we couldn't upgrade phpunit.
+
+
 ## Version 3.11
 
 Previously, we used a boolean in `Zend_Registry` to indicate CMS context:
