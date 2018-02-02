@@ -37,6 +37,7 @@ class Garp_Cli_Command_Cache extends Garp_Cli_Command {
         Garp_Cli::lineOut('# Server cache backend');
         $out = $backend ? 'Backend type: ' . get_class($backend) : 'No cache backend found';
         Garp_Cli::lineOut($out);
+        return true;
     }
 
     /**
