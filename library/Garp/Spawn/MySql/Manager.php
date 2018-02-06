@@ -1,37 +1,35 @@
 <?php
 /**
  * Generate and alter tables to reflect base models and association models
- * @author David Spreekmeester | grrr.nl
- * @package Garp
- * @subpackage MySql
+ *
+ * @package Garp_Spawn_MySql
+ * @author David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_MySql_Manager {
-    const ERROR_CANT_CREATE_TABLE =
-        "Unable to create the %s table.";
-    const CUSTOM_SQL_PATH =
-        '/data/sql/spawn.sql';
-    const CUSTOM_SQL_SHELL_COMMAND =
-        "mysql -u'%s' %s -D'%s' --host='%s' < %s";
-    const CUSTOM_SQL_PASSWORD_ARG =
-        "-p'%s'";
-    const MSG_INITIALIZING =
-        "Initializing database...";
-    const MSG_FINALIZING =
-        "√ Done";
+    const ERROR_CANT_CREATE_TABLE = "Unable to create the %s table.";
+    const CUSTOM_SQL_PATH = '/data/sql/spawn.sql';
+    const CUSTOM_SQL_SHELL_COMMAND = "mysql -u'%s' %s -D'%s' --host='%s' < %s";
+    const CUSTOM_SQL_PASSWORD_ARG = "-p'%s'";
+    const MSG_INITIALIZING = "Initializing database...";
+    const MSG_FINALIZING = "√ Done";
 
     /**
      * Singleton instance
+     *
      * @var Garp_Spawn_MySql_Manager
      */
     private static $_instance = null;
 
     /**
-     * @var Boolean $_interactive Whether the feedback mode is interactive (progress bar) or not (batch mode).
+     * @var bool Whether the feedback mode is interactive (progress bar) or not (batch mode).
      */
     protected $_interactive = true;
 
-    /** @param Array $_models Array of Garp_Spawn_Model_Base objects */
+    /**
+     * @var array Array of Garp_Spawn_Model_Base objects
+     */
     protected $_modelSet;
+
     protected $_adapter;
 
     protected $_priorityModel = 'User';
@@ -43,7 +41,9 @@ class Garp_Spawn_MySql_Manager {
 
     /**
      * Private constructor. Here be Singletons.
-     * @return Void
+     *
+     * @param Garp_Cli_Ui_Protocol $feedback
+     * @return void
      */
     private function __construct(Garp_Cli_Ui_Protocol $feedback) {
         $this->setFeedback($feedback);
@@ -51,19 +51,21 @@ class Garp_Spawn_MySql_Manager {
 
     /**
      * Get Garp_Auth instance
+     *
+     * @param Garp_Cli_Ui_Protocol $feedback
      * @return Garp_Auth
      */
     public static function getInstance(Garp_Cli_Ui_Protocol $feedback = null) {
-         if (!Garp_Spawn_MySql_Manager::$_instance) {
-             Garp_Spawn_MySql_Manager::$_instance = new Garp_Spawn_MySql_Manager($feedback);
-         }
+        if (!Garp_Spawn_MySql_Manager::$_instance) {
+            Garp_Spawn_MySql_Manager::$_instance = new Garp_Spawn_MySql_Manager($feedback);
+        }
 
          return Garp_Spawn_MySql_Manager::$_instance;
     }
 
     /**
-     * @param Garp_Spawn_Model_Set  $modelSet       The model set to model the database after.
-     * @param Array                         &$changelist    An array of strings, describing the changes made to the database in this Spawn session.
+     * @param Garp_Spawn_Model_Set $modelSet The model set to model the database after.
+     * @return void
      */
     public function run(Garp_Spawn_Model_Set $modelSet) {
         $totalActions = count($modelSet) * 5;
@@ -154,20 +156,24 @@ class Garp_Spawn_MySql_Manager {
      * When multilingual columns are spawned, either in a new table or an existing one,
      * content from the unilingual table should be moved to the multilingual leaf records.
      * This method is called by Garp_Spawn_MySql_Table_Base when that happens.
+     *
+     * @param Garp_Spawn_Model_Base $model
+     * @return void
      */
     public function onI18nTableFork(Garp_Spawn_Model_Base $model) {
         new Garp_Spawn_MySql_I18nForker($model, $this->_feedback);
     }
 
     /**
-     * @param Boolean $interactive Whether interactive feedback mode should be enabled.
+     * @param bool $interactive Whether interactive feedback mode should be enabled.
+     * @return void
      */
     public function setInteractive($interactive) {
         $this->_interactive = $interactive;
     }
 
     /**
-     * @return Boolean
+     * @return bool
      */
     public function getInteractive() {
         return $this->_interactive;
@@ -175,6 +181,7 @@ class Garp_Spawn_MySql_Manager {
 
     /**
      * @param Garp_Cli_Ui_Protocol $feedback
+     * @return void
      */
     public function setFeedback(Garp_Cli_Ui_Protocol $feedback) {
         $this->_feedback = $feedback;
@@ -190,8 +197,7 @@ class Garp_Spawn_MySql_Manager {
     protected function _getFeedbackInstance() {
         return $this->getInteractive()
             ? Garp_Cli_Ui_ProgressBar::getInstance()
-            : Garp_Cli_Ui_BatchOutput::getInstance()
-        ;
+            : Garp_Cli_Ui_BatchOutput::getInstance();
     }
 
     protected function _createBaseModelTableAndAdvance(Garp_Spawn_Model_Base $model) {
@@ -219,6 +225,9 @@ class Garp_Spawn_MySql_Manager {
 
     /**
      * Creates a MySQL view for every base model, that also fetches the labels of related hasOne / belongsTo records.
+     *
+     * @param Garp_Spawn_Model_Base $model
+     * @return void
      */
     protected function _createJointView(Garp_Spawn_Model_Base $model) {
         $view = new Garp_Spawn_MySql_View_Joint($model);
@@ -271,7 +280,8 @@ class Garp_Spawn_MySql_Manager {
 
         try {
             $this->onI18nTableFork($model);
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
     }
 
     protected function _syncBindingModel(Garp_Spawn_Relation $relation) {
