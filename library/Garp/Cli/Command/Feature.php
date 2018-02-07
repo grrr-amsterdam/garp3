@@ -2,7 +2,7 @@
 /**
  * Garp_Cli_Command_Feature
  * Start and finish a new feature.
- * Basically a wrapper around git flow and semver.
+ * Basically a wrapper around git flow.
  *
  * @package Garp_Cli_Command
  * @author  Harmen Janssen <harmen@grrr.nl>
@@ -84,7 +84,7 @@ class Garp_Cli_Command_Feature extends Garp_Cli_Command_Flow {
         Garp_Cli::lineOut(' g feature finish', Garp_Cli::BLUE);
         Garp_Cli::lineOut(' g feature publish', Garp_Cli::BLUE);
         Garp_Cli::lineOut(' g feature track discombobulator', Garp_Cli::BLUE);
-        Garp_Cli::lineOut('Note: this requires the git flow and semver commandline utilities.');
+        Garp_Cli::lineOut('Note: this requires the git flow commandline utility.');
     }
 
 }

@@ -12,7 +12,7 @@ class Garp_Gumball {
     const COPY_SOURCEFILE_CMD = 'cp -R %s %s 2>&1';
 
     /**
-     * @var Garp_Semver
+     * @var Garp_Version
      */
     protected $_version;
     protected $_dbEnv;
@@ -36,11 +36,11 @@ class Garp_Gumball {
     /**
      * Class constructor
      *
-     * @param Garp_Semver $version
+     * @param Garp_Version $version
      * @param array $options
      * @return void
      */
-    public function __construct(Garp_Semver $version, array $options = array()) {
+    public function __construct(Garp_Version $version, array $options = array()) {
         $this->_version = $version;
         $this->_useDatabase = array_get($options, 'useDatabase', false);
         $this->_dbEnv = array_get($options, 'databaseSourceEnvironment');
@@ -70,6 +70,9 @@ class Garp_Gumball {
         if (!$this->createDataDump()) {
             throw new Garp_Gumball_Exception_DatadumpFailed();
         }
+
+        // Create VERSION file
+        $this->addVersionFile();
 
         // Create Under Construction index.html in public that's used when unpacking the gumball
         $this->addUnderConstructionLock();
@@ -178,6 +181,18 @@ class Garp_Gumball {
 
         $dump = $dbServer->fetchDump();
         return file_put_contents($this->_getDataDumpLocation(), $dump);
+    }
+
+    /**
+     * Make sure the gumball will have a VERSION file in the target environment.
+     *
+     * @return void
+     */
+    public function addVersionFile() {
+        file_put_contents(
+            $this->_getTargetDirectoryPath() . '/' . Garp_Version::VERSION_FILENAME,
+            $this->_version->getVersion()
+        );
     }
 
     /**
