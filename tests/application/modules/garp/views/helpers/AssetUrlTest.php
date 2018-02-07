@@ -38,7 +38,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             )
         );
         $this->assertEquals(
-            'ftp://stuff.grrr.nl:8888/css/main.css?' . new Garp_Semver,
+            'ftp://stuff.grrr.nl:8888/css/main.css?' . new Garp_Version,
             (string)$this->_getHelper()->assetUrl('/css/main.css')
         );
     }
@@ -82,12 +82,12 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         // Known exception: css has been overwritten to be local
         $this->assertEquals(
             (string)$this->_getHelper()->assetUrl('/css/base.css'),
-            '/css/base.css?' . new Garp_Semver
+            '/css/base.css?' . new Garp_Version
         );
         // Regular file, should get cdn.baseUrl
         $this->assertEquals(
             (string)$this->_getHelper()->assetUrl('/uploads/foo.pdf'),
-            'http://s3-eu-west.amazonaws.com/my-bucket/uploads/foo.pdf?' . new Garp_Semver
+            'http://s3-eu-west.amazonaws.com/my-bucket/uploads/foo.pdf?' . new Garp_Version
         );
     }
 
@@ -106,15 +106,15 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             ),
             )
         );
-        $removeSemver = $this->_createTmpSemver();
+        $removeVersion = $this->_createTmpVersion();
         $this->assertEquals(
             'http://static.loc.melkweg.nl.s3-website-us-east-1.amazonaws.com/css/base.css?'
-            . new Garp_Semver,
+            . new Garp_Version,
             $this->_getHelper()->assetUrl('/css/base.css')
         );
 
-        if ($removeSemver) {
-            $this->_removeTmpSemver();
+        if ($removeVersion) {
+            $this->_removeTmpVersion();
         }
     }
 
@@ -136,15 +136,15 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             )
             )
         );
-        $removeSemver = $this->_createTmpSemver();
+        $removeVersion = $this->_createTmpVersion();
         $this->assertEquals(
             (string)$this->_getHelper()->assetUrl('main.css'),
             '/css/build/prod/' .
-                new Garp_Semver . '/main.css'
+                new Garp_Version . '/main.css'
         );
 
-        if ($removeSemver) {
-            $this->_removeTmpSemver();
+        if ($removeVersion) {
+            $this->_removeTmpVersion();
         }
     }
 
@@ -168,14 +168,14 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             )
             )
         );
-        $removeSemver = $this->_createTmpSemver();
+        $removeVersion = $this->_createTmpVersion();
         $this->assertEquals(
             (string)$this->_getHelper()->assetUrl('main.js'),
-            '/js/build/prod/' . new Garp_Semver . '/main.js'
+            '/js/build/prod/' . new Garp_Version . '/main.js'
         );
 
-        if ($removeSemver) {
-            $this->_removeTmpSemver();
+        if ($removeVersion) {
+            $this->_removeTmpVersion();
         }
     }
 
@@ -195,15 +195,15 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             )
             )
         );
-        $removeSemver = $this->_createTmpSemver();
+        $removeVersion = $this->_createTmpVersion();
 
         $this->assertEquals(
-            'foo/bar/lorem/ipsum/' . new Garp_Semver . '/main.js',
+            'foo/bar/lorem/ipsum/' . new Garp_Version . '/main.js',
             (string)$this->_getHelper()->assetUrl()->getVersionedBuildPath('main.js')
         );
 
-        if ($removeSemver) {
-            $this->_removeTmpSemver();
+        if ($removeVersion) {
+            $this->_removeTmpVersion();
         }
     }
 
@@ -225,43 +225,39 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             )
             )
         );
-        $removeSemver = $this->_createTmpSemver();
+        $removeVersion = $this->_createTmpVersion();
         $expectedUrl = 'http://static.sesamestreet.co.uk/css/build/prod/' .
-            new Garp_Semver . '/main.css';
+            new Garp_Version . '/main.css';
         $this->assertEquals(
             $expectedUrl,
             (string)$this->_getHelper()->assetUrl('main.css')
         );
 
-        if ($removeSemver) {
-            $this->_removeTmpSemver();
+        if ($removeVersion) {
+            $this->_removeTmpVersion();
         }
     }
 
-    protected function _getSemverPath() {
-        return APPLICATION_PATH . '/../.semver';
+    protected function _getVersionPath() {
+        return APPLICATION_PATH . '/../VERSION';
     }
 
-    protected function _doesSemverExist() {
-        return file_exists($this->_getSemverPath());
+    protected function _doesVersionExist() {
+        return file_exists($this->_getVersionPath());
     }
 
-    protected function _createTmpSemver() {
-        if (!$this->_doesSemverExist()) {
+    protected function _createTmpVersion() {
+        if (!$this->_doesVersionExist()) {
             return file_put_contents(
-                $this->_getSemverPath(),
-                "---
-                :major: 34
-                :minor: 9
-                :patch: 10
-                :special: ''"
+                $this->_getVersionPath(),
+                'v1.0.23-g4390291'
             );
         }
     }
 
-    protected function _removeTmpSemver() {
-        if ($this->_doesSemverExist()) {
-            unlink($this->_getSemverPath());
+    protected function _removeTmpVersion() {
+        if ($this->_doesVersionExist()) {
+            unlink($this->_getVersionPath());
         }
     }
 

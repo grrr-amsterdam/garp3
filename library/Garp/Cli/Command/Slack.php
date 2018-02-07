@@ -41,7 +41,7 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
 
         $config = Zend_Registry::get('config');
         $appName = $config->app->name;
-        $version = new Garp_Semver();
+        $version = new Garp_Version();
 
         $env = APPLICATION_ENV;
 

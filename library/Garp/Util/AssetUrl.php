@@ -42,13 +42,13 @@ class Garp_Util_AssetUrl {
             // If only basename is given, we assume "modern" approach.
             // AssetUrl will:
             // - prepend assets.<extension>.root to the file
-            // - add the current semver to the path
+            // - add the current version to the path
         } else if (strpos($file, '/') === false) {
             $file = $this->getVersionedBuildPath($file);
 
             // Else we will use the old (but actually more "modern") approach.
             // AssetUrl will:
-            // - append semver as query string (main.js?v0.0.1)
+            // - append version as query string (main.js?v0.0.1)
         } else if (!empty($file) && substr($file, -1) !== '/') {
             $file = $this->getVersionedQuery($file);
         }
@@ -83,7 +83,7 @@ class Garp_Util_AssetUrl {
     }
 
     public function getVersionedQuery($file) {
-        return $file . '?' . new Garp_Semver();
+        return $file . '?' . new Garp_Version();
     }
 
     public function getVersionedBuildPath($file) {
@@ -100,7 +100,7 @@ class Garp_Util_AssetUrl {
             return $file;
         }
         return rtrim($assetsConfig->$buildConfig, '/') .
-            '/' . new Garp_Semver() . '/' . $file;
+            '/' . new Garp_Version() . '/' . $file;
     }
 
     protected function _processRevManifest($file) {
