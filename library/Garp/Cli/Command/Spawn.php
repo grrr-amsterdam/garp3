@@ -151,7 +151,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
         $progress = $this->_getFeedbackInstance();
         $progress->displayHeader("Database");
 
-        $dbManager = Garp_Spawn_MySql_Manager::getInstance($progress);
+        $dbManager = $this->_getDbManager($progress);
         $dbManager->setInteractive($this->getFeedback()->isInteractive());
         $dbManager->run($modelSet);
 
@@ -317,5 +317,10 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
             $cacheDir = $cache->getBackend()->getOption('public_dir');
         }
         return $cacheDir;
+    }
+
+    protected function _getDbManager(Garp_Cli_Ui $progress): Garp_Spawn_Db_Manager_Abstract {
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        return Garp_Spawn_Db_ManagerFactory::getInstance($adapter, $progress);
     }
 }
