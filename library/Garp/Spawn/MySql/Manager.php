@@ -11,7 +11,9 @@ class Garp_Spawn_MySql_Manager {
     const CUSTOM_SQL_PATH =
         '/data/sql/spawn.sql';
     const CUSTOM_SQL_SHELL_COMMAND =
-        "mysql -u'%s' -p'%s' -D'%s' --host='%s' < %s";
+        "mysql -u'%s' %s -D'%s' --host='%s' < %s";
+    const CUSTOM_SQL_PASSWORD_ARG =
+        "-p'%s'";
     const MSG_INITIALIZING =
         "Initializing database...";
     const MSG_FINALIZING =
@@ -304,7 +306,7 @@ class Garp_Spawn_MySql_Manager {
         $readSqlCommand = sprintf(
             self::CUSTOM_SQL_SHELL_COMMAND,
             $db->username,
-            $db->password,
+            !empty($db->password) ? sprintf(SELF::CUSTOM_SQL_PASSWORD_ARG, $db->password) : '',
             $db->dbname,
             $db->host,
             $path
