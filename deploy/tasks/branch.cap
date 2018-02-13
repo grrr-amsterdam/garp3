@@ -1,0 +1,16 @@
+desc 'Set the deploy target (mandatory for production)'
+task :set_deploy_branch do
+  on roles(:web) do
+    env = fetch(:stage)
+    target = ENV['branch'] ? ENV['branch'] : ENV['tag']
+    if target
+      set :branch, target
+    end
+    if (fetch(:stage) == :production && target.nil?)
+      abort "\n" \
+        "Deploy aborted: no tag was specified ⚠️\n\n" \
+        "A target tag is mandatory when deploying to production. \n" \
+        "$ git checkout <tag> && cap #{fetch(:stage)} deploy tag=<tag>` \n\n" \
+    end
+  end
+end

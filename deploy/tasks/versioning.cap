@@ -1,0 +1,16 @@
+desc 'Create a `VERSION` file with the current tag or branch'
+task :create_versioning_file do
+  on roles(:web) do
+    version = ''
+    if "#{fetch(:branch)}" == 'master'
+      within fetch(:repo_path) do
+        version = capture(:git, 'describe master --tags')
+      end
+    else
+      version = fetch(:branch)
+    end
+    within fetch(:release_path) do
+      execute :echo, "\"#{version}\" > VERSION"
+    end
+  end
+end

@@ -11,6 +11,9 @@ namespace :deploy do
             set :this_host_last_release, releases.split("\n").sort.last
         end
 
+        invoke :set_deploy_branch
+        invoke :verify_git_branch
+
         invoke :verify_production_deploy
         invoke :create_deploy_dirs
         invoke :set_shared_dir_permissions
@@ -36,6 +39,8 @@ namespace :deploy do
 
         # Auth tasks
         invoke :set_webroot_permissions
+
+        invoke :create_versioning_file
     end
 
     task :published do
