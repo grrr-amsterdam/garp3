@@ -16,7 +16,7 @@ class Garp_Spawn_FieldTest extends Garp_Test_PHPUnit_TestCase {
                 'required' => true
             )
         );
-        $sql = Garp_Spawn_MySql_Column::renderFieldSql($field);
+        $sql = Garp_Spawn_Db_Column::renderFieldSql($field);
         $this->assertEquals(
             '  `is_highlighted` tinyint(1) NOT NULL DEFAULT 0',
             $sql

@@ -1,9 +1,9 @@
 <?php
 /**
- * @package Garp_Spawn_MySql_Table
+ * @package Garp_Spawn_Db_Table
  * @author  David Spreekmeester <david@grrr.nl>
  */
-abstract class Garp_Spawn_MySql_Table_Abstract {
+abstract class Garp_Spawn_Db_Table_Abstract {
     /**
      * The table name
      *
@@ -12,14 +12,14 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
     public $name;
 
     /**
-     * Numeric array of Garp_Spawn_MySql_Column objects
+     * Numeric array of Garp_Spawn_Db_Column objects
      *
      * @var array
      */
     public $columns = array();
 
     /**
-     * @var Garp_Spawn_MySql_Keys
+     * @var Garp_Spawn_Db_Keys
      */
     public $keys;
 
@@ -107,12 +107,12 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 
     /**
      * @param mixed $columnNameOrColumn Column name (String) or column itself
-     *                                  (Garp_Spawn_MySql_Column), in which case its name will be
+     *                                  (Garp_Spawn_Db_Column), in which case its name will be
      *                                  used to check the existence.
      * @return bool
      */
     public function columnExists($columnNameOrColumn) {
-        $columnName = $columnNameOrColumn instanceof Garp_Spawn_MySql_Column ?
+        $columnName = $columnNameOrColumn instanceof Garp_Spawn_Db_Column ?
             $columnNameOrColumn->name :
             $columnNameOrColumn
         ;
@@ -120,7 +120,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
         if (!is_string($columnName)) {
             throw new Exception(
                 'Please feed this method either the column name as a string, or a
-                Garp_Spawn_MySql_Column instance.'
+                Garp_Spawn_Db_Column instance.'
             );
         }
 
@@ -136,7 +136,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
         return false;
     }
 
-    public function addColumn(Garp_Spawn_MySql_Column $newColumn) {
+    public function addColumn(Garp_Spawn_Db_Column $newColumn) {
         $addQuery = "ALTER TABLE `{$this->name}` ADD " . $newColumn->renderSqlDefinition();
 
         if (!$this->_query($addQuery)) {
@@ -146,7 +146,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
         }
     }
 
-    public function alterColumn(Garp_Spawn_MySql_Column $newColumn) {
+    public function alterColumn(Garp_Spawn_Db_Column $newColumn) {
         $alterQuery = "ALTER TABLE `{$this->name}` MODIFY " . $newColumn->renderSqlDefinition();
 
         if (!$this->_query($alterQuery)) {
@@ -157,7 +157,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
         }
     }
 
-    public function deleteColumn(Garp_Spawn_MySql_Column $liveColumn) {
+    public function deleteColumn(Garp_Spawn_Db_Column $liveColumn) {
         $alterQuery = "ALTER TABLE `{$this->name}` DROP COLUMN `{$liveColumn->name}`;";
         $this->_query($alterQuery);
     }
@@ -172,7 +172,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
 
     protected function _getConfirmationMessage(
         array $diffProperties,
-        Garp_Spawn_MySql_Column $newColumn
+        Garp_Spawn_Db_Column $newColumn
     ) {
         if (count($diffProperties) === 1
             && $diffProperties[0] === 'nullable'
@@ -199,9 +199,9 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
         $columnStatements = array();
 
         foreach ($createStatementLines as $line) {
-            if (Garp_Spawn_MySql_Statement::isColumnStatement($line)) {
-                $this->columns[] = new Garp_Spawn_MySql_Column(count($this->columns), $line);
-            } elseif (Garp_Spawn_MySql_Statement::isCreateStatement($line)) {
+            if (Garp_Spawn_Db_Statement::isColumnStatement($line)) {
+                $this->columns[] = new Garp_Spawn_Db_Column(count($this->columns), $line);
+            } elseif (Garp_Spawn_Db_Statement::isCreateStatement($line)) {
                 $createStatementLine = $line;
             }
         }
@@ -215,7 +215,7 @@ abstract class Garp_Spawn_MySql_Table_Abstract {
         }
 
         $this->name = $this->_getTableNameFromCreateStatement($createStatementLine);
-        $this->keys = new Garp_Spawn_MySql_Key_Set($createStatementLines, $this->name, $model);
+        $this->keys = new Garp_Spawn_Db_Key_Set($createStatementLines, $this->name, $model);
     }
 
     protected function _getTableNameFromCreateStatement($line) {

@@ -56,7 +56,7 @@ abstract class Garp_Spawn_Php_Model_Abstract implements Garp_Spawn_Php_Model_Pro
 
     public function getTableName() {
         $model          = $this->getModel();
-        $tableFactory   = new Garp_Spawn_MySql_Table_Factory($model);
+        $tableFactory   = new Garp_Spawn_Db_Table_Factory($model);
         $table          = $tableFactory->produceConfigTable();
 
         return $table->name;

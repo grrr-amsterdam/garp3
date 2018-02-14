@@ -1,10 +1,9 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
- * @package Garp
- * @subpackage Model
+ * @package Garp_Spawn_Db
+ * @author  David Spreekmeester <david@grrr.nl>
  */
-class Garp_Spawn_MySql_Statement {
+class Garp_Spawn_Db_Statement {
     static public function isCreateStatement($line) {
         return preg_match('/CREATE TABLE/i', $line);
     }

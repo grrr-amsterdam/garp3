@@ -3,10 +3,10 @@
  * A representation of a MySQL view that includes the labels of related hasOne
  * and belongsTo records.
  *
- * @package Garp_Spawn_MySql_View
+ * @package Garp_Spawn_Db_View
  * @author  David Spreekmeester <david@grrr.nl>
  */
-class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
+class Garp_Spawn_Db_View_Joint extends Garp_Spawn_Db_View_Abstract {
     const POSTFIX = '_joint';
 
     public function getName() {
@@ -69,7 +69,7 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
             return $this->_getTranslatedViewName($model);
         }
 
-        $factory = new Garp_Spawn_MySql_Table_Factory($model);
+        $factory = new Garp_Spawn_Db_Table_Factory($model);
         $table = $factory->produceConfigTable();
 
         return $table->name;
@@ -90,7 +90,7 @@ class Garp_Spawn_MySql_View_Joint extends Garp_Spawn_MySql_View_Abstract {
         }
 
         $locale   = Garp_I18n::getDefaultLocale();
-        $i18nView = new Garp_Spawn_MySql_View_I18n($model, $locale);
+        $i18nView = new Garp_Spawn_Db_View_I18n($model, $locale);
         $viewName = $i18nView->getName();
 
         return $viewName;

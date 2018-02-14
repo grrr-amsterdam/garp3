@@ -1,12 +1,12 @@
 <?php
 /**
- * Garp_Spawn_MySql_Key_Set_Synchronizer
+ * Garp_Spawn_Db_Key_Set_Synchronizer
  * class description
  *
- * @package Garp_Spawn_MySql_Key_Set
+ * @package Garp_Spawn_Db_Key_Set
  * @author  David Spreekmeester <david@grrr.nl>
  */
-class Garp_Spawn_MySql_Key_Set_Synchronizer {
+class Garp_Spawn_Db_Key_Set_Synchronizer {
     const ERROR_SET_UNIQUE_NOT_POSSIBLE
         // @codingStandardsIgnoreStart
         = "Could not set column '%s' to unique. Remember: the existing values in this column have to already be unique to be able to do this.";
@@ -28,12 +28,12 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
     protected $_types = array('foreign', 'unique', 'index');
 
     /**
-     * @var Garp_Spawn_MySql_Key_Set
+     * @var Garp_Spawn_Db_Key_Set
      */
     protected $_source;
 
     /**
-     * @var Garp_Spawn_MySql_Key_Set
+     * @var Garp_Spawn_Db_Key_Set
      */
     protected $_target;
 
@@ -48,7 +48,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
     protected $_model;
 
     public function __construct(
-        Garp_Spawn_MySql_Key_Set $source, Garp_Spawn_MySql_Key_Set $target,
+        Garp_Spawn_Db_Key_Set $source, Garp_Spawn_Db_Key_Set $target,
         Garp_Cli_Ui_Protocol $feedback
     ) {
         $this->setSource($source);
@@ -90,7 +90,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
         }
     }
 
-    public function setSource(Garp_Spawn_MySql_Key_Set $configKeys) {
+    public function setSource(Garp_Spawn_Db_Key_Set $configKeys) {
         $this->_source = $configKeys;
     }
 
@@ -98,7 +98,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
         return $this->_source;
     }
 
-    public function setTarget(Garp_Spawn_MySql_Key_Set $liveKeys) {
+    public function setTarget(Garp_Spawn_Db_Key_Set $liveKeys) {
         $this->_target = $liveKeys;
     }
 
@@ -133,7 +133,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
                 }
             }
 
-            if (!Garp_Spawn_MySql_UniqueKey::add($tableName, $key)) {
+            if (!Garp_Spawn_Db_UniqueKey::add($tableName, $key)) {
                 $error = sprintf(self::ERROR_SET_UNIQUE_NOT_POSSIBLE, $column);
                 throw new Exception($error);
             }
@@ -146,7 +146,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
         foreach ($keysToAdd as $key) {
             $this->_addIndexForForeignKey($key);
 
-            if (!Garp_Spawn_MySql_ForeignKey::add($tableName, $key)) {
+            if (!Garp_Spawn_Db_ForeignKey::add($tableName, $key)) {
                 throw new Exception("Could not create '{$key->localColumn}' foreign key.");
             }
         }
@@ -156,7 +156,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
         $tableName = $this->getSource()->getTableName();
 
         foreach ($keysToAdd as $key) {
-            if (!Garp_Spawn_MySql_IndexKey::add($tableName, $key)) {
+            if (!Garp_Spawn_Db_IndexKey::add($tableName, $key)) {
                 throw new Exception("Could not make column '{$key->column}' indexable.");
             }
         }
@@ -211,8 +211,8 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
                         $this->droppedForeignKeyNamesDuringColumnSync
                     );
                     $keyAction = $keyIsDropped ?
-                        Garp_Spawn_MySql_ForeignKey::add($tableName, $key) :
-                        Garp_Spawn_MySql_ForeignKey::modify($tableName, $key);
+                        Garp_Spawn_Db_ForeignKey::add($tableName, $key) :
+                        Garp_Spawn_Db_ForeignKey::modify($tableName, $key);
                     if (!$keyAction) {
                         throw new Exception("Could not modify foreign key '{$key->name}'.");
                     }
@@ -247,7 +247,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
                 }
             }
 
-            if (!Garp_Spawn_MySql_UniqueKey::delete($tableName, $key)) {
+            if (!Garp_Spawn_Db_UniqueKey::delete($tableName, $key)) {
                 throw new Exception("Could not set column '{$columnsOutput}' to non-unique.");
             }
         }
@@ -258,7 +258,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
 
         foreach ($keysToRemove as $key) {
             if (!(in_array($key->name, $this->droppedForeignKeyNamesDuringColumnSync)
-                || Garp_Spawn_MySql_ForeignKey::delete($tableName, $key)                )
+                || Garp_Spawn_Db_ForeignKey::delete($tableName, $key)                )
             ) {
                 throw new Exception("Could not delete '{$key->localColumn}' foreign key.");
             }
@@ -269,7 +269,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
         $tableName = $this->getSource()->getTableName();
 
         foreach ($keysToRemove as $key) {
-            if (!Garp_Spawn_MySql_IndexKey::delete($tableName, $key)) {
+            if (!Garp_Spawn_Db_IndexKey::delete($tableName, $key)) {
                 throw new Exception("Could not set column '{$key->column}' to non-indexable.");
             }
         }
@@ -323,7 +323,7 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
         }
 
         if (!$livePkPresent || $this->primaryKey->columns != $liveKeys->primaryKey->columns) {
-            if (!Garp_Spawn_MySql_PrimaryKey::modify($tableName, $this->primaryKey)) {
+            if (!Garp_Spawn_Db_PrimaryKey::modify($tableName, $this->primaryKey)) {
                 throw new Exception("Could not alter {$tableName}'s primary key.");
             }
         }
@@ -457,12 +457,12 @@ class Garp_Spawn_MySql_Key_Set_Synchronizer {
     }
 
 
-    protected function _addIndexForForeignKey(Garp_Spawn_MySql_ForeignKey $key) {
-        $indexKeySql = Garp_Spawn_MySql_IndexKey::renderSqlDefinition($key->localColumn);
-        $indexKey    = new Garp_Spawn_MySql_IndexKey($indexKeySql);
+    protected function _addIndexForForeignKey(Garp_Spawn_Db_ForeignKey $key) {
+        $indexKeySql = Garp_Spawn_Db_IndexKey::renderSqlDefinition($key->localColumn);
+        $indexKey    = new Garp_Spawn_Db_IndexKey($indexKeySql);
         $tableName   = $this->getSource()->getTableName();
 
-        if (!Garp_Spawn_MySql_IndexKey::add($tableName, $indexKey)) {
+        if (!Garp_Spawn_Db_IndexKey::add($tableName, $indexKey)) {
             throw new Exception("Could not create '{$key->localColumn}' index key.");
         }
     }

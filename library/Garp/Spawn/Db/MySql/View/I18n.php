@@ -2,10 +2,10 @@
 /**
  * A representation of a translated MySQL view.
  *
- * @package Garp_Spawn_MySql_View
+ * @package Garp_Spawn_Db_View
  * @author  David Spreekmeester <david@grrr.nl>
  */
-class Garp_Spawn_MySql_View_I18n extends Garp_Spawn_MySql_View_Abstract {
+class Garp_Spawn_Db_View_I18n extends Garp_Spawn_Db_View_Abstract {
     const TRANSLATED_TABLE_POSTFIX = 'i18n';
 
     /**

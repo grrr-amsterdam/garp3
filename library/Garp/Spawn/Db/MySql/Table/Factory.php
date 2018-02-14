@@ -1,25 +1,28 @@
 <?php
 /**
  * Produces a Table instance from a model.
- * @author David Spreekmeester | grrr.nl
- * @package Garp
- * @subpackage Spawn
+ *
+ * @package Garp_Spawn_Db_Table
+ * @author  David Spreekmeester <david@grrr.nl>
  */
-class Garp_Spawn_MySql_Table_Factory {
+class Garp_Spawn_Db_Table_Factory {
     /**
-     * @var Garp_Spawn_Model_Abstract $_model
+     * @var Garp_Spawn_Model_Abstract
      */
     protected $_model;
 
     /**
-     * @param   Garp_Spawn_Model_Abstract   $model
+     * @param Garp_Spawn_Model_Abstract $model
+     * @return void
      */
     public function __construct(Garp_Spawn_Model_Abstract $model) {
         $this->setModel($model);
     }
 
     /**
-     * Produces a Garp_Spawn_MySql_Table_Abstract instance, based on the spawn configuration.
+     * Produces a Garp_Spawn_Db_Table_Abstract instance, based on the spawn configuration.
+     *
+     * @return Garp_Spawn_Db_Table_Abstract
      */
     public function produceConfigTable() {
         $model = $this->getModel();
@@ -28,7 +31,9 @@ class Garp_Spawn_MySql_Table_Factory {
     }
 
     /**
-     * Produces a Garp_Spawn_MySql_Table_Abstract instance, based on the live database.
+     * Produces a Garp_Spawn_Db_Table_Abstract instance, based on the live database.
+     *
+     * @return Garp_Spawn_Db_Table_Abstract
      */
     public function produceLiveTable() {
         $model = $this->getModel();
@@ -45,6 +50,7 @@ class Garp_Spawn_MySql_Table_Factory {
 
     /**
      * @param Garp_Spawn_Model_Abstract $model
+     * @return Garp_Spawn_Db_MySql_Table_Factory
      */
     public function setModel($model) {
         $this->_model = $model;
@@ -75,8 +81,7 @@ class Garp_Spawn_MySql_Table_Factory {
 
         $fields = $model->isMultilingual() ?
             $fields = $model->fields->getFields('multilingual', false) :
-            $model->fields->getFields()
-        ;
+            $model->fields->getFields();
 
         return $fields;
     }
@@ -95,11 +100,11 @@ class Garp_Spawn_MySql_Table_Factory {
         $model = $this->getModel();
 
         switch (get_class($model)) {
-            case 'Garp_Spawn_Model_Binding':
-                return '_' . strtolower($model->id);
+        case 'Garp_Spawn_Model_Binding':
+            return '_' . strtolower($model->id);
             break;
-            default:
-                return strtolower($model->id);
+        default:
+            return strtolower($model->id);
         }
     }
 
@@ -110,35 +115,37 @@ class Garp_Spawn_MySql_Table_Factory {
         $model = $this->getModel();
 
         switch (get_class($model)) {
-            case 'Garp_Spawn_Model_Binding':
-                return 'Garp_Spawn_MySql_Table_Binding';
+        case 'Garp_Spawn_Model_Binding':
+            return 'Garp_Spawn_Db_Table_Binding';
             break;
-            case 'Garp_Spawn_Model_I18n':
-                return 'Garp_Spawn_MySql_Table_I18n';
+        case 'Garp_Spawn_Model_I18n':
+            return 'Garp_Spawn_Db_Table_I18n';
             break;
-            case 'Garp_Spawn_Model_Base':
-                return 'Garp_Spawn_MySql_Table_Base';
+        case 'Garp_Spawn_Model_Base':
+            return 'Garp_Spawn_Db_Table_Base';
             break;
-            default:
-                throw new Exception('I do not know which table type should be returned for ' . get_class($model));
+        default:
+            throw new Exception('I do not know which table type should be returned for ' . get_class($model));
         }
     }
 
     /**
      * Abstract method to render a CREATE TABLE statement.
-     * @param String $modelId   The table name, usually the Model ID.
-     * @param Array $fields     Numeric array of Garp_Spawn_Field objects.
-     * @param Array $relations  Associative array, where the key is the name
+     *
+     * @param string $tableName
+     * @param array $fields     Numeric array of Garp_Spawn_Field objects.
+     * @param array $relations  Associative array, where the key is the name
      *                          of the relation, and the value a Garp_Spawn_Relation object,
      *                          or at least an object with properties column, model, type.
-     * @param Array $unique     (optional) List of column names to be combined into a unique id.
+     * @param array $unique     (optional) List of column names to be combined into a unique id.
      *                          This is model-wide and supersedes the 'unique' property per field.
+     * @return string
      */
     protected function _renderCreateAbstract($tableName, array $fields, array $relations, $unique) {
-        $lines      = array();
+        $lines = array();
 
         foreach ($fields as $field) {
-            $lines[] = Garp_Spawn_MySql_Column::renderFieldSql($field);
+            $lines[] = Garp_Spawn_Db_Column::renderFieldSql($field);
         }
 
         $primKeys = array();
@@ -154,35 +161,37 @@ class Garp_Spawn_MySql_Table_Factory {
         }
 
         foreach ($fields as $field) {
-            if ($field->primary)
+            if ($field->primary) {
                 $primKeys[] = $field->name;
-            if ($field->unique)
+            }
+            if ($field->unique) {
                 $uniqueKeys[] = $field->name;
+            }
         }
         if ($primKeys) {
-            $lines[] = Garp_Spawn_MySql_PrimaryKey::renderSqlDefinition($primKeys);
+            $lines[] = Garp_Spawn_Db_PrimaryKey::renderSqlDefinition($primKeys);
         }
         foreach ($uniqueKeys as $fieldName) {
-            $lines[] = Garp_Spawn_MySql_UniqueKey::renderSqlDefinition($fieldName);
+            $lines[] = Garp_Spawn_Db_UniqueKey::renderSqlDefinition($fieldName);
         }
 
         foreach ($relations as $rel) {
             if (($rel->type === 'hasOne' || $rel->type === 'belongsTo') && !$rel->multilingual) {
-                $lines[] = Garp_Spawn_MySql_IndexKey::renderSqlDefinition($rel->column);
+                $lines[] = Garp_Spawn_Db_IndexKey::renderSqlDefinition($rel->column);
             }
         }
 
         //  set indices that were configured in the Spawn model config
         foreach ($fields as $field) {
             if ($field->index) {
-                $lines[] = Garp_Spawn_MySql_IndexKey::renderSqlDefinition($field->name);
+                $lines[] = Garp_Spawn_Db_IndexKey::renderSqlDefinition($field->name);
             }
         }
 
         foreach ($relations as $relName => $rel) {
             if (($rel->type === 'hasOne' || $rel->type === 'belongsTo') && !$rel->multilingual) {
-                $fkName = Garp_Spawn_MySql_ForeignKey::generateForeignKeyName($tableName, $relName);
-                $lines[] = Garp_Spawn_MySql_ForeignKey::renderSqlDefinition(
+                $fkName = Garp_Spawn_Db_ForeignKey::generateForeignKeyName($tableName, $relName);
+                $lines[] = Garp_Spawn_Db_ForeignKey::renderSqlDefinition(
                     $fkName, $rel->column, $rel->model, $rel->type
                 );
             }

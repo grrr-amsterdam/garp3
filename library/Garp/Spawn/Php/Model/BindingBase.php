@@ -142,7 +142,7 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 
     /**
      * @param Garp_Spawn_Relation $relation
-     * 
+     *
      * @return void
      */
     public function setRelation($relation) {
@@ -207,7 +207,7 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 
     /**
      * @param String $modelId   Model identifier
-     * @param Integer $iterator 
+     * @param Integer $iterator
      * @return String   In case of a similar named relation, returns '1' for the base model,
      * and '2' for the remote model.
      */
@@ -221,7 +221,7 @@ class Garp_Spawn_Php_Model_BindingBase extends Garp_Spawn_Php_Model_Abstract {
 
     protected function _getBindingModelTable() {
         $bindingModel   = $this->getRelation()->getBindingModel();
-        $tableFactory   = new Garp_Spawn_MySql_Table_Factory($bindingModel);
+        $tableFactory   = new Garp_Spawn_Db_Table_Factory($bindingModel);
         $table          = $tableFactory->produceConfigTable();
 
         return $table;

@@ -56,7 +56,7 @@ class Garp_Spawn_Php_Model_Localized extends Garp_Spawn_Php_Model_Abstract {
         $parentClass = 'Model_' . $model->id;
         $className = $parentClass . ucfirst($locale);
 
-        $view = new Garp_Spawn_MySql_View_I18n($model, $locale);
+        $view = new Garp_Spawn_Db_View_I18n($model, $locale);
         $viewName = $view->getName();
 
         $out = $this->_rl("<?php")

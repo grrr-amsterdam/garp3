@@ -1,11 +1,11 @@
 <?php
 /**
- * Garp_Spawn_MySql_Column
+ * Garp_Spawn_Db_Column
  *
- * @package Garp_Spawn_MySql
+ * @package Garp_Spawn_Db
  * @author  David Spreekmeester <david@grrr.nl>
  */
-class Garp_Spawn_MySql_Column {
+class Garp_Spawn_Db_Column {
     public $position;
     public $name;
     public $type;
@@ -62,11 +62,11 @@ class Garp_Spawn_MySql_Column {
 
 
     /**
-     * @param Garp_Spawn_MySql_Column $columnToCompareWith
+     * @param Garp_Spawn_Db_Column $columnToCompareWith
      * @return array Numeric array containing the names of the properties that are different,
      *               compared to the provided column
      */
-    public function getDiffProperties(Garp_Spawn_MySql_Column $columnToCompareWith) {
+    public function getDiffProperties(Garp_Spawn_Db_Column $columnToCompareWith) {
         $diffPropertyNames = array();
 
         $refl = new ReflectionObject($this);
@@ -136,8 +136,8 @@ class Garp_Spawn_MySql_Column {
 
 
     static public function renderFieldSql(Garp_Spawn_Field $field) {
-        $type = Garp_Spawn_MySql_Column::getFieldType($field);
-        $reqAndDef = Garp_Spawn_MySql_Column::getRequiredAndDefault($field);
+        $type = Garp_Spawn_Db_Column::getFieldType($field);
+        $reqAndDef = Garp_Spawn_Db_Column::getRequiredAndDefault($field);
         if ($reqAndDef) {
             $reqAndDef = ' ' . $reqAndDef;
         }

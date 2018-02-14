@@ -1,12 +1,12 @@
 <?php
 /**
- * This class tests Garp_Spawn_MySql_Table.
+ * This class tests Garp_Spawn_Db_Table.
  *
  * @package Tests
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Spawn
  */
-class Garp_Spawn_MySql_TableTest extends Garp_Test_PHPUnit_TestCase {
+class Garp_Spawn_Db_TableTest extends Garp_Test_PHPUnit_TestCase {
     protected $_mocks = array(
         'directory' => null,
         'modelName' => 'Bogus',
@@ -23,7 +23,7 @@ class Garp_Spawn_MySql_TableTest extends Garp_Test_PHPUnit_TestCase {
     }
 
     function testTableShouldContainColumns() {
-        $table = new Garp_Spawn_MySql_Table_Base(
+        $table = new Garp_Spawn_Db_Table_Base(
             $this->_mocks['sql'],
             $this->_constructMockModel()
         );
@@ -31,7 +31,7 @@ class Garp_Spawn_MySql_TableTest extends Garp_Test_PHPUnit_TestCase {
     }
 
     function testTableShouldHaveValidName() {
-        $table = new Garp_Spawn_MySql_Table_Base(
+        $table = new Garp_Spawn_Db_Table_Base(
             $this->_mocks['sql'],
             $this->_constructMockModel()
         );
