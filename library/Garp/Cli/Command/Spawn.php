@@ -321,6 +321,7 @@ class Garp_Cli_Command_Spawn extends Garp_Cli_Command {
 
     protected function _getDbManager(Garp_Cli_Ui $progress): Garp_Spawn_Db_Manager_Abstract {
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        return Garp_Spawn_Db_ManagerFactory::getInstance($adapter, $progress);
+        $schema = Garp_Spawn_Db_Schema_Factory::getSchemaByAdapter($adapter);
+        return Garp_Spawn_Db_Manager::getInstance($schema, $progress);
     }
 }
