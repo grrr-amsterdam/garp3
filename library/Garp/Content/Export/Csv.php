@@ -44,10 +44,14 @@ class Garp_Content_Export_Csv extends Garp_Content_Export_Abstract {
                     $values = array();
                     foreach ($rowset as $row) {
                         $rowVals = array();
-                        foreach ($row as $key => $value) {
-                            $rowVals[] = $value;
+                        if (is_array($row)) {
+                            foreach ($row as $key => $value) {
+                                $rowVals[] = $value;
+                            }
+                            $rowVals = implode(', ', $rowVals);
+                        } else {
+                            $rowVals = $row;
                         }
-                        $rowVals = implode(', ', $rowVals);
                         $values[] = $rowVals;
                     }
                     $value = implode($values, "\n");

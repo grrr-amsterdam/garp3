@@ -62,9 +62,13 @@ class Garp_Content_Export_Txt extends Garp_Content_Export_Abstract {
     protected function _formatRelatedRowset($rowset) {
         $out = array();
         foreach ($rowset as $row) {
-            $values = array_values($row);
-            $values = implode(' : ', $values);
-            $out[] = $values;
+            if (is_array($row)) {
+                $values = array_values($row);
+                $values = implode(' : ', $values);
+                $out[] = $values;
+                continue;
+            }
+            $out[] = $row;
         }
         $out = implode(' | ', $out);
         return $out;
