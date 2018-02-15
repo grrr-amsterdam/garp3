@@ -79,8 +79,8 @@ class Garp_Spawn_Db_Manager {
         $this->_schema->enforceUtf8();
 
         //  Stage 0: Remove all generated views________
-        Garp_Spawn_Db_View_Joint::deleteAll();
-        Garp_Spawn_Db_View_I18n::deleteAll();
+        Garp_Spawn_Db_View_Joint::deleteAll($this->_schema);
+        Garp_Spawn_Db_View_I18n::deleteAll($this->_schema);
 
         //  Stage 1: Spawn the prioritized table first________
         if (array_key_exists($this->_priorityModel, $modelSet)) {
@@ -228,14 +228,14 @@ class Garp_Spawn_Db_Manager {
      * @return void
      */
     protected function _createJointView(Garp_Spawn_Model_Base $model) {
-        $view = new Garp_Spawn_Db_View_Joint($model);
+        $view = new Garp_Spawn_Db_View_Joint($model, $this->_schema);
         $view->create();
     }
 
     protected function _createI18nViews(Garp_Spawn_Model_Base $model) {
         $locales = Garp_I18n::getLocales();
         foreach ($locales as $locale) {
-            $view = new Garp_Spawn_Db_View_I18n($model, $locale);
+            $view = new Garp_Spawn_Db_View_I18n($model, $this->_schema, $locale);
             $view->create();
         }
     }

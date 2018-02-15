@@ -14,14 +14,19 @@ class Garp_Spawn_Db_View_I18n extends Garp_Spawn_Db_View_Abstract {
     protected $_locale;
 
     /**
-     * @param Garp_Spawn_Model_Base $model
-     * @param string $locale
+     * @param  Garp_Spawn_Model_Base $model
+     * @param  Garp_Spawn_Db_Schema_Interface $schema
+     * @param  string $locale
      * @return void
      */
-    public function __construct(Garp_Spawn_Model_Base $model, $locale) {
+    public function __construct(
+        Garp_Spawn_Model_Base $model,
+        Garp_Spawn_Db_Schema_Interface $schema,
+        string $locale
+    ) {
         $this->setLocale($locale);
 
-        return parent::__construct($model);
+        return parent::__construct($model, $schema);
     }
 
     /**
@@ -43,11 +48,11 @@ class Garp_Spawn_Db_View_I18n extends Garp_Spawn_Db_View_Abstract {
         return $this->getTableName() . '_' . $this->getLocale();
     }
 
-    public static function deleteAll() {
+    public static function deleteAll(Garp_Spawn_Db_Schema_Interface $schema) {
         $locales = Garp_I18n::getLocales();
 
         foreach ($locales as $locale) {
-            parent::deleteAllByPostfix('_' . $locale);
+            parent::deleteAllByPostfix('_' . $locale, $schema);
         }
     }
 
@@ -55,13 +60,11 @@ class Garp_Spawn_Db_View_I18n extends Garp_Spawn_Db_View_Abstract {
         $model = $this->getModel();
 
         if (!$model->isMultiLingual()) {
-            return;
+            return '';
         }
 
         $sql = $this->_renderSqlForLang();
-        $sql = $this->_renderCreateView($sql);
-
-        return $sql;
+        return $this->_renderCreateView($sql);
     }
 
     protected function _renderSqlForLang() {
@@ -75,7 +78,6 @@ class Garp_Spawn_Db_View_I18n extends Garp_Spawn_Db_View_Abstract {
         $table              = $modelId;
         $localeTable        = $table . '_' . $locale;
         $defaultLocaleTable = $table . '_' . $defaultLocale;
-
 
         $sql = 'SELECT ';
 
@@ -91,15 +93,6 @@ class Garp_Spawn_Db_View_I18n extends Garp_Spawn_Db_View_Abstract {
         $multilingualFieldRefs = array();
         foreach ($multilingualFields as $field) {
             $multilingualFieldRefs[] =  "`{$modelId}_{$locale}`.{$field->name} AS `{$field->name}`";
-            /*
-            $multilingualFieldRefs[] = $locale === $defaultLocale ?
-                "`{$modelId}_{$locale}`.{$field->name} AS `{$field->name}`" :
-                "IF(`{$modelId}_{$locale}`.`{$field->name}` <> '' AND
-                `{$modelId}_{$locale}`.`{$field->name}` IS NOT NULL,
-                `{$modelId}_{$locale}`.`{$field->name}`,
-                `{$modelId}_{$defaultLocale}`.`{$field->name}`) AS `{$field->name}`"
-            ;
-             */
         }
         $sql .= implode(', ', $multilingualFieldRefs) . ' ';
 
@@ -107,9 +100,6 @@ class Garp_Spawn_Db_View_I18n extends Garp_Spawn_Db_View_Abstract {
         $sql .= 'FROM `' . $modelId . '`';
         $sql .= $this->_renderJoinForLocale($locale);
 
-        //if ($locale !== $defaultLocale) {
-            //$sql .= $this->_renderJoinForLocale($defaultLocale);
-        //}
         return $sql;
     }
 

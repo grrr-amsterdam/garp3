@@ -11,32 +11,32 @@ abstract class Garp_Spawn_Db_View_Abstract implements Garp_Spawn_Db_View_Protoco
      */
     protected $_model;
 
-    protected $_adapter;
+    protected $_schema;
 
-    public function __construct(Garp_Spawn_Model_Base $model) {
+    public function __construct(
+        Garp_Spawn_Model_Base $model,
+        Garp_Spawn_Db_Schema_Interface $schema
+    ) {
         $this->setModel($model);
-        $this->_adapter = Zend_Db_Table::getDefaultAdapter();
+        $this->_schema = $schema;
     }
 
     /**
      * Deletes all views in the database with given postfix.
      *
-     * @param  string $postfix The postfix for this type of view, f.i. '_joint'
+     * @param  string                         $postfix The postfix for this type of view,
+     *                                                 f.i. '_joint'
+     * @param  Garp_Spawn_Db_Schema_Interface $schema
      * @return void
      */
-    public static function deleteAllByPostfix($postfix) {
-        $adapter = Zend_Db_Table::getDefaultAdapter();
-        $config  = Zend_Registry::get('config');
-        $dbName  = $config->resources->db->params->dbname;
+    public static function deleteAllByPostfix($postfix, Garp_Spawn_Db_Schema_Interface $schema) {
+        $config = Zend_Registry::get('config');
+        $dbName = $config->resources->db->params->dbname;
 
-        $queryTpl  = "SELECT table_name FROM information_schema.views WHERE table_schema = '%s' and table_name like '%%%s';";
-        $statement = sprintf($queryTpl, $dbName, $postfix);
-
-        $views = $adapter->fetchAll($statement);
+        $views = $schema->fetchViewsByPostfix($dbName, $postfix);
         foreach ($views as $view) {
             $viewName = $view['table_name'];
-            $dropStatement = "DROP VIEW IF EXISTS `{$viewName}`;";
-            $adapter->query($dropStatement);
+            $schema->dropView($viewName);
         }
     }
 
@@ -45,12 +45,10 @@ abstract class Garp_Spawn_Db_View_Abstract implements Garp_Spawn_Db_View_Protoco
      */
     public function create() {
         $sql = $this->renderSql();
-
         if (!$sql) {
             return false;
         }
-
-        return $this->_adapter->query($sql);
+        return $this->_schema->query($sql);
     }
 
     public function getTableName() {

@@ -20,7 +20,8 @@ interface Garp_Spawn_Db_View_Protocol {
     /**
      * Do a direct query on the database, removing all views of this type
      *
+     * @param  Garp_Spawn_Db_Schema_Interface $schema
      * @return void
      */
-    public static function deleteAll();
+    public static function deleteAll(Garp_Spawn_Db_Schema_Interface $schema);
 }

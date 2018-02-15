@@ -14,21 +14,21 @@ class Garp_Spawn_Db_View_Joint extends Garp_Spawn_Db_View_Abstract {
     }
 
     public function getTableName($localized = true) {
-        return (!$localized || !$this->getModel()->isMultilingual()) ?
-            parent::getTableName() :
-            $this->_getTranslatedViewName();
+        return (!$localized || !$this->getModel()->isMultilingual())
+            ? parent::getTableName()
+            : $this->_getTranslatedViewName();
     }
 
-    public static function deleteAll() {
-        parent::deleteAllByPostfix(self::POSTFIX);
+    public static function deleteAll(Garp_Spawn_Db_Schema_Interface $schema) {
+        parent::deleteAllByPostfix(self::POSTFIX, $schema);
     }
 
     public function renderSql() {
-        $statements = array();
+        $statements = [];
 
         $singularRelations = $this->_model->relations->getRelations(
             'type',
-            array('hasOne', 'belongsTo')
+            ['hasOne', 'belongsTo']
         );
         if (count($singularRelations) || $this->_model->isMultilingual()) {
             $statements[] = $this->_renderSelect($singularRelations);
@@ -47,7 +47,7 @@ class Garp_Spawn_Db_View_Joint extends Garp_Spawn_Db_View_Abstract {
      * @return string
      */
     protected function _renderJoinsToLocalizedSelf() {
-        $out = array();
+        $out = [];
         $otherLocales = array_filter(
             Garp_I18n::getLocales(),
             function ($locale) {
@@ -90,7 +90,7 @@ class Garp_Spawn_Db_View_Joint extends Garp_Spawn_Db_View_Abstract {
         }
 
         $locale   = Garp_I18n::getDefaultLocale();
-        $i18nView = new Garp_Spawn_Db_View_I18n($model, $locale);
+        $i18nView = new Garp_Spawn_Db_View_I18n($model, $this->_schema, $locale);
         $viewName = $i18nView->getName();
 
         return $viewName;
@@ -102,7 +102,7 @@ class Garp_Spawn_Db_View_Joint extends Garp_Spawn_Db_View_Abstract {
 
         $select = "SELECT `{$tableName}`.*,\n";
 
-        $relNodes = array();
+        $relNodes = [];
         foreach ($singularRelations as $relName => $rel) {
             if ($rel->multilingual) {
                 // Generate entry per language

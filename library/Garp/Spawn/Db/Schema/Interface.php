@@ -9,4 +9,8 @@ interface Garp_Spawn_Db_Schema_Interface {
 
     public function enforceUtf8();
 
+    public function fetchViewsByPostfix(string $dbName, string $postfix): array;
+
+    public function dropView(string $viewName);
+
 }
