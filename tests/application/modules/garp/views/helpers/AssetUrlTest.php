@@ -1,9 +1,21 @@
 <?php
 /**
+ * @package Tests
+ * @author  Harmen Janssen <harmen@grrr.nl>
  * @group AssetUrlHelper
- * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
+
+    const MOCK_VERSION = 'v1.0.23-g4390291';
+
+    protected $_usedVersion;
+
+    /**
+     * Wether to remove VERSION file on tearDown
+     *
+     * @var bool
+     */
+    protected $_clearVersion = false;
 
     /**
      * @test
@@ -24,7 +36,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             )
         );
         $this->assertEquals(
-            'http://grrr-cdn.com/foo.pdf',
+            'http://grrr-cdn.com/foo.pdf?' . $this->_usedVersion,
             (string)$this->_getHelper()->assetUrl('foo.pdf')
         );
 
@@ -38,7 +50,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             )
         );
         $this->assertEquals(
-            'ftp://stuff.grrr.nl:8888/css/main.css?' . new Garp_Version,
+            'ftp://stuff.grrr.nl:8888/css/main.css?' . $this->_usedVersion,
             (string)$this->_getHelper()->assetUrl('/css/main.css')
         );
     }
@@ -81,13 +93,13 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         );
         // Known exception: css has been overwritten to be local
         $this->assertEquals(
-            (string)$this->_getHelper()->assetUrl('/css/base.css'),
-            '/css/base.css?' . new Garp_Version
+            '/css/base.css?' . $this->_usedVersion,
+            (string)$this->_getHelper()->assetUrl('/css/base.css')
         );
         // Regular file, should get cdn.baseUrl
         $this->assertEquals(
-            (string)$this->_getHelper()->assetUrl('/uploads/foo.pdf'),
-            'http://s3-eu-west.amazonaws.com/my-bucket/uploads/foo.pdf?' . new Garp_Version
+            'http://s3-eu-west.amazonaws.com/my-bucket/uploads/foo.pdf?' . $this->_usedVersion,
+            (string)$this->_getHelper()->assetUrl('/uploads/foo.pdf')
         );
     }
 
@@ -106,159 +118,36 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
             ),
             )
         );
-        $removeVersion = $this->_createTmpVersion();
         $this->assertEquals(
-            'http://static.loc.melkweg.nl.s3-website-us-east-1.amazonaws.com/css/base.css?'
-            . new Garp_Version,
+            'http://static.loc.melkweg.nl.s3-website-us-east-1.amazonaws.com/css/base.css?' . $this->_usedVersion,
             $this->_getHelper()->assetUrl('/css/base.css')
         );
-
-        if ($removeVersion) {
-            $this->_removeTmpVersion();
-        }
     }
 
     /**
      * @test
      */
-    public function should_render_local_versioned_asset_url() {
+    public function should_use_microtime_in_the_absence_of_version() {
+        $versionSrc = $this->_getVersionPath();
+        $tmpTarget = dirname($versionSrc) . '/VERSION_TMP';
+        // Move VERSION file to ensure its absence.
+        rename($versionSrc, $tmpTarget);
         $this->_helper->injectConfigValues(
             array(
-            'cdn' => array(
-                'type' => 'local',
-                'css' => array('location' => 'local'),
-            ),
-            'assets' => array(
-                'css' => array(
-                    'root' => '/css/build/prod',
-                    'build' => '' // empty build config value to check backwards comptability
+                'cdn' => array(
+                    'css' => array('location' => 'local')
                 )
             )
-            )
         );
-        $removeVersion = $this->_createTmpVersion();
-        $this->assertEquals(
-            (string)$this->_getHelper()->assetUrl('main.css'),
-            '/css/build/prod/' .
-                new Garp_Version . '/main.css'
-        );
+        $cssUrl = $this->_getHelper()->assetUrl('/css/base.css');
+        $urlBits = parse_url($cssUrl);
+        $this->assertArrayNotHasKey('host', $urlBits);
+        $this->assertArrayHasKey('path', $urlBits);
+        $this->assertArrayHasKey('query', $urlBits);
+        $this->assertTrue(is_numeric($urlBits['query']));
 
-        if ($removeVersion) {
-            $this->_removeTmpVersion();
-        }
-    }
-
-    /**
-     * @test
-     */
-    public function should_render_local_versioned_asset_url_the_new_way() {
-        $this->_helper->injectConfigValues(
-            array(
-            'cdn' => array(
-                'type' => 'local',
-                'js' => array(
-                    'location' => 'local'
-                ),
-            ),
-            'assets' => array(
-                'js' => array(
-                    'build' => '/js/build/prod',
-                    'root' => '/js/src'
-                )
-            )
-            )
-        );
-        $removeVersion = $this->_createTmpVersion();
-        $this->assertEquals(
-            (string)$this->_getHelper()->assetUrl('main.js'),
-            '/js/build/prod/' . new Garp_Version . '/main.js'
-        );
-
-        if ($removeVersion) {
-            $this->_removeTmpVersion();
-        }
-    }
-
-    /**
-     * @test
-     */
-    public function should_figure_out_asset_root() {
-        $this->_helper->injectConfigValues(
-            array(
-            'cdn' => array(
-                'type' => 's3',
-                'domain' => 'mystuff.com',
-                'js' => array('location' => 's3'),
-            ),
-            'assets' => array(
-                'js' => array('build' => 'foo/bar/lorem/ipsum')
-            )
-            )
-        );
-        $removeVersion = $this->_createTmpVersion();
-
-        $this->assertEquals(
-            'foo/bar/lorem/ipsum/' . new Garp_Version . '/main.js',
-            (string)$this->_getHelper()->assetUrl()->getVersionedBuildPath('main.js')
-        );
-
-        if ($removeVersion) {
-            $this->_removeTmpVersion();
-        }
-    }
-
-    /**
-     * @test
-     */
-    public function should_render_versioned_asset_url() {
-        $this->_helper->injectConfigValues(
-            array(
-            'cdn' => array(
-                'type' => 's3',
-                'baseUrl' => 'http://static.sesamestreet.co.uk',
-                'css' => array('location' => 's3'),
-            ),
-            'assets' => array(
-                'css' => array(
-                    'root' => '/css/build/prod'
-                )
-            )
-            )
-        );
-        $removeVersion = $this->_createTmpVersion();
-        $expectedUrl = 'http://static.sesamestreet.co.uk/css/build/prod/' .
-            new Garp_Version . '/main.css';
-        $this->assertEquals(
-            $expectedUrl,
-            (string)$this->_getHelper()->assetUrl('main.css')
-        );
-
-        if ($removeVersion) {
-            $this->_removeTmpVersion();
-        }
-    }
-
-    protected function _getVersionPath() {
-        return APPLICATION_PATH . '/../VERSION';
-    }
-
-    protected function _doesVersionExist() {
-        return file_exists($this->_getVersionPath());
-    }
-
-    protected function _createTmpVersion() {
-        if (!$this->_doesVersionExist()) {
-            return file_put_contents(
-                $this->_getVersionPath(),
-                'v1.0.23-g4390291'
-            );
-        }
-    }
-
-    protected function _removeTmpVersion() {
-        if ($this->_doesVersionExist()) {
-            unlink($this->_getVersionPath());
-        }
+        // Reset VERSION file.
+        rename($tmpTarget, $versionSrc);
     }
 
     protected function _getHelper() {
@@ -269,25 +158,52 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         return Zend_Registry::get('application')->getBootstrap()->getResource('View');
     }
 
+    protected function _getVersionPath() {
+        return APPLICATION_PATH . '/../VERSION';
+    }
+
+    protected function _removeVersion() {
+        return unlink($this->_getVersionPath());
+    }
+
+    protected function _doesVersionExist() {
+        return file_exists($this->_getVersionPath());
+    }
+
     public function setUp() {
         parent::setUp();
         $this->_helper->injectConfigValues(
             array(
-            'cdn' => array(
-                'ssl' => false
-            ),
-            'resources' => array(
-                'view' => array(
-                    'doctype' => 'html5'
+                'cdn' => array(
+                    'ssl' => false
+                ),
+                'resources' => array(
+                    'view' => array(
+                        'doctype' => 'html5'
+                    )
                 )
             )
-            )
         );
+
+        if (!$this->_doesVersionExist()) {
+            $this->_usedVersion = static::MOCK_VERSION;
+            $this->_clearVersion = true;
+            return file_put_contents(
+                $this->_getVersionPath(),
+                static::MOCK_VERSION
+            );
+        } else {
+            $this->_usedVersion = (new Garp_Version())->__toString();
+        }
     }
 
     public function tearDown() {
         parent::tearDown();
         $this->_getView()->clearVars();
+        if ($this->_clearVersion) {
+            $this->_removeVersion();
+        }
+        Garp_Version::bustCache();
     }
 
 }
