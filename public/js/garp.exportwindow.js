@@ -1,3 +1,4 @@
+/* eslint-disable */
 Ext.ns('Garp');
 
 Garp.ExportWindow = Ext.extend(Ext.Window, {
@@ -84,11 +85,13 @@ Garp.ExportWindow = Ext.extend(Ext.Window, {
 				};
 				break;
 			case 'relation':
+				var relationModelName = form0.findField('model').getValue();
+				var relationModel = Garp.formPanel.getTab(relationModelName);
 				parameters = {
 					selection: 'all',
 					filter: '{"' +  Garp.currentModel + '.id":' + ids[0] + '}',
-					rule: Garp.formPanel.items.get(0).getLayout().activeItem.rule,
-					rule2: Garp.formPanel.items.get(0).getLayout().activeItem.rule2,
+					rule: relationModel.rule,
+					rule2: relationModel.rule2,
 					exportType: exportType
 				};
 				break;
