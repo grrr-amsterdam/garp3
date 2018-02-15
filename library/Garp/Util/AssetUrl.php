@@ -18,16 +18,14 @@ class Garp_Util_AssetUrl {
     protected $_url;
 
     /**
-     * Create a versioned URL to a file
+     * Create a versioned URL to a file.
      *
-     * @param string $file The file path
-     * @param string $forced_extension Force to use an extension, even when extension
-     *                                 doesn't match or is missing
-     *                                 (eg. '/' in 'ASSET_URL' when using a cdn,
-     *                                 but 'js' is 'local')
+     * @param  string $file            The file path
+     * @param  string $forcedExtension Force to use an extension, even when extension
+     *                                 doesn't match or is missing.
      * @return void
      */
-    public function __construct($file = null, $forced_extension = false) {
+    public function __construct($file = null, string $forcedExtension = '') {
         $config = Zend_Registry::get('config');
         $baseUrl = $config->cdn->baseUrl;
         if (!$file) {
@@ -35,40 +33,48 @@ class Garp_Util_AssetUrl {
             return;
         }
 
-        // If using manifest, gulp-rev is used to generate versioned filenames.
-        // Look 'em up in the manifest file
-        if ($config->cdn->useRevManifest) {
-            $file = $this->_processRevManifest($file);
-            // If only basename is given, we assume "modern" approach.
-            // AssetUrl will:
-            // - prepend assets.<extension>.root to the file
-            // - add the current version to the path
-        } else if (strpos($file, '/') === false) {
-            $file = $this->getVersionedBuildPath($file);
+        /**
+         * If using manifest, gulp-rev is used to generate versioned filenames.
+         * Look 'em up in the manifest file and continue using the revisioned filename.
+         */
+        $file = $config->cdn->useRevManifest
+            ? $this->_processRevManifest($file)
+            : $this->getVersionedQuery($file);
 
-            // Else we will use the old (but actually more "modern") approach.
-            // AssetUrl will:
-            // - append version as query string (main.js?v0.0.1)
-        } else if (!empty($file) && substr($file, -1) !== '/') {
-            $file = $this->getVersionedQuery($file);
-        }
-
-        $extension = $forced_extension ? $forced_extension : $this->_getExtension($file);
-        if (!empty($config->cdn->{$extension}->location)
-            && $config->cdn->{$extension}->location === 'local'
-        ) {
-            // Skip the baseUrl if a file is explicitly configured as local
-            // (ends up as a relative "/css/base.css" path.
-            $this->_url = $file;
-            return;
-        }
-
-        $this->_url = rtrim($baseUrl, '/') . '/' . ltrim($file, '/');
+        $extension = $forcedExtension ?: $this->_getExtension($file);
+        $this->_url = $this->_cdnIsLocal($config, $extension)
+            ? $file
+            : $this->_prependBaseUrl($baseUrl, $file);
     }
 
-    protected function _getExtension($file) {
+    /**
+     * Append a versioned query string to the given file path.
+     * For example: main.js?v1.2.3
+     *
+     * Note, in the absence of a Garp_Version, microtime() will be used.
+     *
+     * @param  string $file
+     * @return string
+     */
+    public function getVersionedQuery(string $file): string {
+        $versionAppendix = (new Garp_Version())->__toString() ?: intval(microtime(true));
+        return !empty($file) && substr($file, -1) !== '/'
+            ? $file . '?' . $versionAppendix
+            : $file;
+    }
+
+    protected function _cdnIsLocal(Zend_Config $config, string $extension): bool {
+        $location = $config->cdn->{$extension}->location ?? '';
+        return $location === 'local';
+    }
+
+    protected function _prependBaseUrl(string $baseUrl, string $file): string {
+        return rtrim($baseUrl, '/') . '/' . ltrim($file, '/');
+    }
+
+    protected function _getExtension($file): string {
         if (!$file) {
-            return;
+            return '';
         }
 
         // Strip appended query string
@@ -82,28 +88,7 @@ class Garp_Util_AssetUrl {
         return $lastPart;
     }
 
-    public function getVersionedQuery($file) {
-        return $file . '?' . new Garp_Version();
-    }
-
-    public function getVersionedBuildPath($file) {
-        $buildConfig = 'build';
-        $assetsConfig = Zend_Registry::get('config')->assets;
-        if (!$assetsConfig) {
-            return $file;
-        }
-        $assetsConfig = $assetsConfig->{$this->_getExtension($file)};
-        if (empty($assetsConfig->$buildConfig)) {
-            $buildConfig = 'root';
-        }
-        if (empty($assetsConfig->$buildConfig)) {
-            return $file;
-        }
-        return rtrim($assetsConfig->$buildConfig, '/') .
-            '/' . new Garp_Version() . '/' . $file;
-    }
-
-    protected function _processRevManifest($file) {
+    protected function _processRevManifest($file): string {
         // If argument is the root and not a file, return early
         if ($file === '/' || !$file) {
             return $file;
@@ -128,17 +113,19 @@ class Garp_Util_AssetUrl {
      *
      * @return string
      */
-    public function getRevManifest() {
+    public function getRevManifest(): array {
         if (is_null(self::$_revManifest)) {
             $manifestPath = APPLICATION_PATH . '/../rev-manifest-' . APPLICATION_ENV . '.json';
-            self::$_revManifest = file_exists($manifestPath) ?
-                json_decode(file_get_contents($manifestPath), true) :
-                array();
+            self::$_revManifest = file_exists($manifestPath)
+                ? json_decode(file_get_contents($manifestPath), true)
+                : [];
         }
         return self::$_revManifest;
     }
 
     public function __toString() {
-        return is_null($this->_url) ? '' : $this->_url;
+        return strval($this->_url);
     }
+
 }
+

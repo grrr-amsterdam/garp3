@@ -5,6 +5,18 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.13
+
+Using Capistrano, we write a `VERSION` file in the root of the project. An accompanying `Garp_Version` class is created to lookup the current version.
+Note that this file will usually *not* exist in `development` environments, so don't write code which relies on it.
+This deprecates the use of `Garp_Semver`. Since this is mostly used to aid the `git flow` helper commands, this version of Garp will be most compatible with a `One Flow` setup. See [OneFlow - a Git branching model and workflow
+](http://endoflineblog.com/oneflow-a-git-branching-model-and-workflow) for more information.
+
+In addition, some spring cleaning has been done:
+
+- `Garp_Util_AssetUrl` has been greatly simplified. Either you use a `rev-manifest` file or you get a versioned query string added to the file (containing the version stored in `VERSION`). All code related to using versioned build paths has been removed.
+
+
 ## Version 3.12
 
 In order to update the phpunit dependency to a modern version, we finally dropped support for php 5.3 and jumped all the way up to php 7.
