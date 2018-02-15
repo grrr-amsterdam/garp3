@@ -21,6 +21,7 @@ module.exports = {
 		paths.js_extux + 'ext.ux.form.searchfield.js',
 		paths.js_extux + 'ext.ux.form.richtexteditor.js',
 		paths.js_extux + 'ext.ux.form.ckeditor.js',
+		paths.js_extux + 'ext.ux.form.xset.js',
 		paths.js_garp + 'garp.i18n.js',
 		paths.js_garp + 'garp.wysiwygct.js',
 		paths.js_garp + 'garp.wysiwygabstract.js',

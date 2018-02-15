@@ -93,6 +93,9 @@ switch ($field->type) {
 		$allowedExtensionString = "'" . implode('\',\'', $allowedExtensions) . "'";
 		$props[] = 	"supportedExtensions: [{$allowedExtensionString}]";
 	break;
+	case 'set':
+		$props[] = 'options: '. json_encode($field->options);
+	break;
 }
 
 if ($field->maxLength && $field->type !== 'enum') {
