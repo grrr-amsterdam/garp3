@@ -15,7 +15,8 @@ This deprecates the use of `Garp_Semver`. Since this is mostly used to aid the `
 In addition, some spring cleaning has been done:
 
 - `Garp_Util_AssetUrl` has been greatly simplified. Either you use a `rev-manifest` file or you get a versioned query string added to the file (containing the version stored in `VERSION`). All code related to using versioned build paths has been removed.
-
+- `git flow`-related code has been deprecated. This means `g feature`, `g hotfix` and `g release` are no longer valid Garp CLI Commands.
+- `Garp_Semver` has been removed.
 
 ## Version 3.12
 
