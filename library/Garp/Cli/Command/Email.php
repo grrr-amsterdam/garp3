@@ -6,7 +6,7 @@
  * @package Garp_Cli_Command
  * @author  Floris S. Koch <floris@grrr.nl>
  */
-class Garp_Cli_Command_Email extends Garp_Cli_Command_Flow {
+class Garp_Cli_Command_Email extends Garp_Cli_Command {
 
     const REQUIRED_FLAGS = array('to', 'subject', 'message');
 

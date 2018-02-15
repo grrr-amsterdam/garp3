@@ -162,9 +162,8 @@ if (!$command instanceof Garp_Cli_Command) {
 // Since localisation is based on a URL, and URLs are not part of a commandline, no
 // translatation is loaded. But we might need it to convert system messages.
 $commandsWithoutTranslation = array(
-    'Spawn', 'Config', 'Gumball', 'Feature', 'Hotfix', 'Release', 'Flow',
-    'Cdn', 'Ssh', 'Aws', 'Config', 'Figlet', 'Folders', 'Git', 'Open', 'S3', 'Ses', 'Shell',
-    'Slack'
+    'Spawn', 'Config', 'Gumball', 'Cdn', 'Ssh', 'Aws', 'Config', 'Figlet', 'Folders',
+    'Git', 'Open', 'S3', 'Ses', 'Shell', 'Slack'
 );
 if (!in_array($classArgument, $commandsWithoutTranslation)) {
     if (!Zend_Registry::isRegistered('Zend_Translate')
