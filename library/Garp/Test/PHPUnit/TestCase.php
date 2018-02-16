@@ -1,4 +1,5 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -26,11 +27,6 @@ abstract class Garp_Test_PHPUnit_TestCase extends TestCase {
      */
     protected $_mockData = array();
 
-    public function __construct() {
-        $this->_helper = new Garp_Test_PHPUnit_Helper();
-        parent::__construct();
-    }
-
     /**
      * Get database adapter for executing queries quickly.
      * It will be configured as defined in application.ini.
@@ -46,12 +42,15 @@ abstract class Garp_Test_PHPUnit_TestCase extends TestCase {
     }
 
     public function setUp() {
+        $this->_helper = new Garp_Test_PHPUnit_Helper();
         $this->_helper->setUp($this->_mockData);
         parent::setUp();
     }
 
     public function tearDown() {
-        $this->_helper->tearDown($this->_mockData);
+        if ($this->_helper) {
+            $this->_helper->tearDown($this->_mockData);
+        }
         parent::tearDown();
     }
 }

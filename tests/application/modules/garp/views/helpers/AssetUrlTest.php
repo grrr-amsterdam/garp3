@@ -274,6 +274,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
     }
 
     public function setUp() {
+        parent::setUp();
         $this->_helper->injectConfigValues(
             array(
             'cdn' => array(

@@ -28,6 +28,7 @@ class Garp_File_Storage_LocalTest extends Garp_Test_PHPUnit_TestCase {
     }
 
     public function setUp() {
+        parent::setUp();
         $this->_helper->injectConfigValues(
             array(
                 'cdn' => array(
