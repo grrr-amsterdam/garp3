@@ -9,8 +9,11 @@ interface Garp_Spawn_Db_Schema_Interface {
 
     public function enforceUtf8();
 
-    public function fetchViewsByPostfix(string $dbName, string $postfix): array;
+    public function views(): Garp_Spawn_Db_Schema_Views_Interface;
 
-    public function dropView(string $viewName);
+    public function tables(): Garp_Spawn_Db_Schema_Tables_Interface;
 
+    public function fetchAll(string $sql, $bind = array(), $fetchMode = null): array;
+
+    public function getAdapter(): Zend_Db_Adapter_Abstract;
 }

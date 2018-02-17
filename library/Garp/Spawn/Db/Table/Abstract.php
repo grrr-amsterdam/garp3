@@ -1,4 +1,6 @@
 <?php
+use Garp_Spawn_Db_Schema_Interface as SchemaInterface;
+
 /**
  * @package Garp_Spawn_Db_Table
  * @author  David Spreekmeester <david@grrr.nl>
@@ -30,25 +32,32 @@ abstract class Garp_Spawn_Db_Table_Abstract {
      */
     protected $_createStatement;
 
-    protected $_adapter;
+    /**
+     * @var Garp_Spawn_Db_Schema_Interface
+     */
+    protected $_schema;
 
     /**
      * @var Garp_Spawn_Model_Abstract
      */
     protected $_model;
 
-
     /**
-     * @param string                    $createStatement
-     * @param Garp_Spawn_Model_Abstract $model
+     * @param  string                         $createStatement
+     * @param  Garp_Spawn_Db_Schema_Interface $schema
+     * @param  Garp_Spawn_Model_Abstract      $model
+     * @return void
      */
-    public function __construct($createStatement, Garp_Spawn_Model_Abstract $model) {
+    public function __construct(
+        string $createStatement,
+        SchemaInterface $schema,
+        Garp_Spawn_Model_Abstract $model
+    ) {
+        $this->_schema = $schema;
         $this->setModel($model);
 
         $this->_validateCreateStatement($createStatement);
         $this->setCreateStatement($createStatement);
-
-        $this->_adapter = Zend_Db_Table::getDefaultAdapter();
 
         // set name, keys and columns
         $this->_setPropsByCreateStatement($model);
@@ -77,31 +86,36 @@ abstract class Garp_Spawn_Db_Table_Abstract {
     }
 
     /**
-     * @param string $createStatement
+     * Set MySQL CREATE statement
+     *
+     * @param  string $createStatement
      * @return void
      */
-    public function setCreateStatement($createStatement) {
+    public function setCreateStatement(string $createStatement) {
         $this->_createStatement = $createStatement;
     }
 
-    static public function exists($tableName) {
+    /**
+     * Check if the table exists
+     *
+     * @param  Garp_Spawn_Db_Schema_Interface $schema
+     * @param  string $tableName
+     * @return bool
+     */
+    static public function exists(Garp_Spawn_Db_Schema_Interface $schema, string $tableName): bool {
         $tableName = strtolower($tableName);
-        $adapter   = Zend_Db_Table::getDefaultAdapter();
-        $dbConfig  = $adapter->getConfig();
-        return (bool)$adapter->query(
-            'SELECT * '
-            . 'FROM information_schema.tables '
-            . "WHERE table_schema = '{$dbConfig['dbname']}' "
-            . "AND table_name = '{$tableName}'"
-        )->fetch();
+        return $schema->tables()->exists($tableName);
     }
 
-    public function create() {
-        $success = false;
-        $this->_query('SET FOREIGN_KEY_CHECKS = 0;');
+    /**
+     * Create the table
+     *
+     * @return bool
+     */
+    public function create(): bool {
+        $this->_schema->tables()->disableForeignKeyChecks();
         $success = $this->_query($this->_createStatement);
-        $this->_query('SET FOREIGN_KEY_CHECKS = 1;');
-
+        $this->_schema->tables()->enableForeignKeyChecks();
         return $success;
     }
 
@@ -111,11 +125,10 @@ abstract class Garp_Spawn_Db_Table_Abstract {
      *                                  used to check the existence.
      * @return bool
      */
-    public function columnExists($columnNameOrColumn) {
-        $columnName = $columnNameOrColumn instanceof Garp_Spawn_Db_Column ?
-            $columnNameOrColumn->name :
-            $columnNameOrColumn
-        ;
+    public function columnExists($columnNameOrColumn): bool {
+        $columnName = $columnNameOrColumn instanceof Garp_Spawn_Db_Column
+            ? $columnNameOrColumn->name
+            : $columnNameOrColumn;
 
         if (!is_string($columnName)) {
             throw new Exception(
@@ -160,14 +173,6 @@ abstract class Garp_Spawn_Db_Table_Abstract {
     public function deleteColumn(Garp_Spawn_Db_Column $liveColumn) {
         $alterQuery = "ALTER TABLE `{$this->name}` DROP COLUMN `{$liveColumn->name}`;";
         $this->_query($alterQuery);
-    }
-
-    public function enableFkChecks() {
-        $this->_query('SET FOREIGN_KEY_CHECKS = 1;');
-    }
-
-    public function disableFkChecks() {
-        $this->_query('SET FOREIGN_KEY_CHECKS = 0;');
     }
 
     protected function _getConfirmationMessage(
@@ -235,16 +240,14 @@ abstract class Garp_Spawn_Db_Table_Abstract {
         }
     }
 
-    protected function _query($statement) {
+    protected function _query(string $statement) {
         try {
-            $response = $this->_adapter->query($statement);
+            return $this->_schema->query($statement);
         } catch (Exception $e) {
             $msg = $e->getMessage()
                 . "\n\n-- You were trying to execute this query: --\n\n"
                 . $statement;
             throw new Exception($msg);
         }
-
-        return $response;
     }
 }

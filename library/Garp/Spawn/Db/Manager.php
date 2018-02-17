@@ -161,7 +161,7 @@ class Garp_Spawn_Db_Manager {
      * @return void
      */
     public function onI18nTableFork(Garp_Spawn_Model_Base $model) {
-        new Garp_Spawn_Db_I18nForker($model, $this->_feedback);
+        new Garp_Spawn_Db_I18nForker($this->_schema, $model, $this->_feedback);
     }
 
     /**
@@ -208,8 +208,8 @@ class Garp_Spawn_Db_Manager {
         $progress = $this->_getFeedbackInstance();
         $progress->display($model->id . " SQL render.");
 
-        $tableFactory   = new Garp_Spawn_Db_Table_Factory($model);
-        $configTable    = $tableFactory->produceConfigTable();
+        $tableFactory = new Garp_Spawn_Db_Table_Factory($model, $this->_schema);
+        $configTable  = $tableFactory->produceConfigTable();
         $this->_createTableIfNotExists($configTable);
 
         if ($model->isMultilingual()) {
@@ -242,7 +242,7 @@ class Garp_Spawn_Db_Manager {
 
     protected function _createBindingModelTableIfNotExists(Garp_Spawn_Relation $relation) {
         $bindingModel = $relation->getBindingModel();
-        $tableFactory = new Garp_Spawn_Db_Table_Factory($bindingModel);
+        $tableFactory = new Garp_Spawn_Db_Table_Factory($bindingModel, $this->_schema);
         $configTable  = $tableFactory->produceConfigTable();
         $this->_createTableIfNotExists($configTable);
     }
@@ -251,7 +251,7 @@ class Garp_Spawn_Db_Manager {
         $progress = $this->_getFeedbackInstance();
         $progress->display($model->id . " table comparison");
 
-        $baseSynchronizer = new Garp_Spawn_Db_Table_Synchronizer($model, $progress);
+        $baseSynchronizer = new Garp_Spawn_Db_Table_Synchronizer($model, $this->_schema, $progress);
         $baseSynchronizer->sync(false);
     }
 
@@ -259,7 +259,7 @@ class Garp_Spawn_Db_Manager {
         $progress = $this->_getFeedbackInstance();
         $progress->display($model->id . " table comparison");
 
-        $baseSynchronizer = new Garp_Spawn_Db_Table_Synchronizer($model, $progress);
+        $baseSynchronizer = new Garp_Spawn_Db_Table_Synchronizer($model, $this->_schema, $progress);
         $baseSynchronizer->cleanUp();
     }
 
@@ -272,7 +272,7 @@ class Garp_Spawn_Db_Manager {
         $progress->display($model->id . " i18n comparison");
 
         $i18nModel    = $model->getI18nModel();
-        $synchronizer = new Garp_Spawn_Db_Table_Synchronizer($i18nModel, $progress);
+        $synchronizer = new Garp_Spawn_Db_Table_Synchronizer($i18nModel, $this->_schema, $progress);
         $synchronizer->sync();
 
         try {
@@ -286,12 +286,16 @@ class Garp_Spawn_Db_Manager {
         $bindingModel = $relation->getBindingModel();
         $progress->display($bindingModel->id . " table comparison");
 
-        $synchronizer = new Garp_Spawn_Db_Table_Synchronizer($bindingModel, $progress);
+        $synchronizer = new Garp_Spawn_Db_Table_Synchronizer(
+            $bindingModel,
+            $this->_schema,
+            $progress
+        );
         $synchronizer->sync();
     }
 
     protected function _createTableIfNotExists(Garp_Spawn_Db_Table_Abstract $table) {
-        if (Garp_Spawn_Db_Table_Base::exists($table->name)) {
+        if (Garp_Spawn_Db_Table_Base::exists($this->_schema, $table->name)) {
             return;
         }
         $progress = $this->_getFeedbackInstance();

@@ -1,6 +1,7 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
+ * @package Garp_Spawn_Model
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 abstract class Garp_Spawn_Model_Abstract {
     public $id;
@@ -13,31 +14,49 @@ abstract class Garp_Spawn_Model_Abstract {
     public $quickAddable;
     public $comment;
 
-    /** @var Boolean $visible Whether this model shows up in the cms index. */
+    /**
+     * $visible Whether this model shows up in the cms index.
+     *
+     * @var bool
+     */
     public $visible;
 
-    /** @var String $module Module for this model. */
+    /**
+     * Module for this model.
+     *
+     * @var string
+     */
     public $module;
 
-    /** @var Garp_Spawn_Fields $fields */
+    /**
+     * @var Garp_Spawn_Fields
+     */
     public $fields;
 
-    /** @var Garp_Spawn_Behaviors $behaviors */
+    /**
+     * @var Garp_Spawn_Behaviors
+     */
     public $behaviors;
 
-    /** @var Garp_Spawn_Relation_Set $relations */
+    /**
+     * @var Garp_Spawn_Relation_Set
+     */
     public $relations;
 
     /**
-     * @var Array   $unique     Column names that should jointly compose a unique key (optional)
+     * Column names that should jointly compose a unique key (optional)
+     *
+     * @var array
      */
     public $unique;
 
-
     /**
-     * These properties cannot be configured directly from the configuration because of their complexity.
+     * These properties cannot be configured directly from the configuration
+     * because of their complexity.
+     *
+     * @var array
      */
-    protected $_indirectlyConfigurableProperties = array('fields', 'listFields', 'behaviors', 'relations');
+    protected $_indirectlyConfigurableProperties = ['fields', 'listFields', 'behaviors', 'relations'];
 
 
     public function __construct(ArrayObject $config) {
@@ -49,25 +68,28 @@ abstract class Garp_Spawn_Model_Abstract {
 
     /**
      * Creates php models.
+     *
+     * @param  Garp_Spawn_Model_Abstract $model
+     * @return void
      */
     public function materializePhpModels(Garp_Spawn_Model_Abstract $model) {
         $phpModel = new Garp_Spawn_Php_Renderer($model);
         $phpModel->save();
     }
 
-    /**
-     * @return  Bool    Whether this is a base model containing one or more multilingual columns
-     */
-    public function isMultilingual() {
+    public function isMultilingual(): bool {
         return false;
     }
 
-    /**
-     * @return  Bool    Whether this is a i18n leaf model, derived from a multilingual base model
-     */
-    public function isTranslated() {
+    public function isTranslated(): bool {
         return false;
     }
+
+    public function getTableName(): string {
+        return $this->id;
+    }
+
+    abstract public function getTableClassName(): string;
 
     protected function _loadPropertiesFromConfig(ArrayObject $config) {
         foreach ($config as $propName => $propValue) {
@@ -75,9 +97,13 @@ abstract class Garp_Spawn_Model_Abstract {
         }
 
         //  complex types
-        $this->fields       = new Garp_Spawn_Fields($this, $config['inputs'], (array)$config['listFields']);
-        $this->behaviors    = new Garp_Spawn_Behavior_Set($this, $config['behaviors']);
-        $this->relations    = new Garp_Spawn_Relation_Set($this, $config['relations']);
+        $this->fields = new Garp_Spawn_Fields(
+            $this,
+            $config['inputs'],
+            (array)$config['listFields']
+        );
+        $this->behaviors = new Garp_Spawn_Behavior_Set($this, $config['behaviors']);
+        $this->relations = new Garp_Spawn_Relation_Set($this, $config['relations']);
     }
 
     protected function _loadProperty($name, $value) {

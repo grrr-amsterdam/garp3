@@ -1,15 +1,14 @@
 <?php
 /**
- * @author David Spreekmeester | grrr.nl
+ * @package Garp_Spawn_Model
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Model_Base extends Garp_Spawn_Model_Abstract {
 
     /**
-     * @var Garp_Spawn_Model_I18n $_i18nModel
+     * @var Garp_Spawn_Model_I18n
      */
     protected $_i18nModel;
-
-
 
     public function __construct(Garp_Spawn_Config_Model_Abstract $config) {
         if ($config->isMultilingual()) {
@@ -28,7 +27,8 @@ class Garp_Spawn_Model_Base extends Garp_Spawn_Model_Abstract {
     }
 
     /**
-     * @param Garp_Spawn_Model_I18n $i18nModel
+     * @param  Garp_Spawn_Model_I18n $i18nModel
+     * @return void
      */
     public function setI18nModel($i18nModel) {
         $this->_i18nModel = $i18nModel;
@@ -45,6 +45,9 @@ class Garp_Spawn_Model_Base extends Garp_Spawn_Model_Abstract {
 
     /**
      * Creates extended model files, if necessary.
+     *
+     * @param  Garp_Spawn_Model_Set $modelSet
+     * @return void
      */
     public function materializeExtendedJsModels(Garp_Spawn_Model_Set $modelSet) {
         $jsExtendedModel = new Garp_Spawn_Js_Model_Extended($this->id, $modelSet);
@@ -61,6 +64,9 @@ class Garp_Spawn_Model_Base extends Garp_Spawn_Model_Abstract {
 
     /**
      * Creates JS base model file.
+     *
+     * @param  Garp_Spawn_Model_Set $modelSet
+     * @return string
      */
     public function renderJsBaseModel(Garp_Spawn_Model_Set $modelSet) {
         $jsBaseModel = new Garp_Spawn_Js_Model_Base($this->id, $modelSet);
@@ -68,13 +74,15 @@ class Garp_Spawn_Model_Base extends Garp_Spawn_Model_Abstract {
         return $jsBaseModel->render();
     }
 
-    /**
-     * @return  Bool    Whether this is a base model containing one or more multilingual columns
-     */
-    public function isMultilingual() {
+    public function isMultilingual(): bool {
         $fields = $this->fields->getFields('multilingual', true);
         $isMultilingual = (bool)$fields;
 
         return $isMultilingual;
     }
+
+    public function getTableClassName(): string {
+        return 'Garp_Spawn_Db_Table_Base';
+    }
+
 }

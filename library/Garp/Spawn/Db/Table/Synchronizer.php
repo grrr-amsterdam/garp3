@@ -27,14 +27,25 @@ class Garp_Spawn_Db_Table_Synchronizer {
     protected $_feedback;
 
     /**
-     * @param Garp_Spawn_Model_Abstract $model
-     * @param Garp_Cli_Ui_Protocol $feedback
+     * @var Garp_Spawn_Db_Schema_Interface
+     */
+    protected $_schema;
+
+    /**
+     * @param  Garp_Spawn_Model_Abstract      $model
+     * @param  Garp_Spawn_Db_Schema_Interface $schema
+     * @param  Garp_Cli_Ui_Protocol           $feedback
      * @return void
      */
-    public function __construct(Garp_Spawn_Model_Abstract $model, Garp_Cli_Ui_Protocol $feedback) {
-        $tableFactory = new Garp_Spawn_Db_Table_Factory($model);
-        $configTable  = $tableFactory->produceConfigTable();
-        $liveTable    = $tableFactory->produceLiveTable();
+    public function __construct(
+        Garp_Spawn_Model_Abstract $model,
+        Garp_Spawn_Db_Schema_Interface $schema,
+        Garp_Cli_Ui_Protocol $feedback
+    ) {
+        $this->_schema = $schema;
+        $tableFactory  = new Garp_Spawn_Db_Table_Factory($model, $this->_schema);
+        $configTable   = $tableFactory->produceConfigTable();
+        $liveTable     = $tableFactory->produceLiveTable();
 
         $this->setSource($configTable);
         $this->setTarget($liveTable);

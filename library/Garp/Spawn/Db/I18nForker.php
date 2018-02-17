@@ -9,6 +9,11 @@ class Garp_Spawn_Db_I18nForker {
     const ERROR_CANT_CREATE_TABLE = "Unable to create the %s table.";
 
     /**
+     * @var Garp_Spawn_Db_Schema_Interface
+     */
+    protected $_schema;
+
+    /**
      * @var Garp_Spawn_Model_Base
      */
     protected $_model;
@@ -29,12 +34,15 @@ class Garp_Spawn_Db_I18nForker {
     protected $_feedback;
 
     public function __construct(
+        Garp_Spawn_Db_Schema_Interface $schema,
         Garp_Spawn_Model_Base $model,
         Garp_Cli_Ui_Protocol $feedback = null
     ) {
         $this->setFeedback($feedback);
 
-        $tableFactory = new Garp_Spawn_Db_Table_Factory($model);
+        $this->_schema = $schema;
+
+        $tableFactory = new Garp_Spawn_Db_Table_Factory($model, $schema);
 
         $this->setModel($model);
         $source = $tableFactory->produceConfigTable();
@@ -108,15 +116,18 @@ class Garp_Spawn_Db_I18nForker {
     }
 
     protected function _createTableIfNotExists() {
-        $tableFactory = new Garp_Spawn_Db_Table_Factory($this->getModel()->getI18nModel());
-        $table        = $tableFactory->produceConfigTable();
+        $tableFactory = new Garp_Spawn_Db_Table_Factory(
+            $this->getModel()->getI18nModel(),
+            $this->_schema
+        );
+        $table = $tableFactory->produceConfigTable();
 
-        if (!Garp_Spawn_Db_Table_Base::exists($table->name)) {
+        if (!Garp_Spawn_Db_Table_Base::exists($this->_schema, $table->name)) {
             $table->create();
         } else {
             // Make sure an existing table is updated
             $baseSynchronizer = new Garp_Spawn_Db_Table_Synchronizer(
-                $this->getModel()->getI18nModel(), $this->getFeedback()
+                $this->getModel()->getI18nModel(), $this->_schema, $this->getFeedback()
             );
             $baseSynchronizer->sync(false);
         }

@@ -18,20 +18,23 @@ class Garp_Spawn_Db_Schema_Mysql implements Garp_Spawn_Db_Schema_Interface {
         $this->_dbAdapter->query('SET NAMES utf8;');
     }
 
-    public function fetchViewsByPostfix(string $dbName, string $postfix): array {
-        $queryTpl = "SELECT table_name FROM information_schema.views
-                        WHERE table_schema = '%s' and table_name like '%%%s';";
-        $statement = sprintf($queryTpl, $dbName, $postfix);
-        return $this->_dbAdapter->fetchAll($statement);
+    public function views(): Garp_Spawn_Db_Schema_Views_Interface {
+        return new Garp_Spawn_Db_Schema_Views_MySql($this);
     }
 
-    public function dropView(string $viewName) {
-        $dropStatement = "DROP VIEW IF EXISTS `{$viewName}`;";
-        $this->query($dropStatement);
+    public function tables(): Garp_Spawn_Db_Schema_Tables_Interface {
+        return new Garp_Spawn_Db_Schema_Tables_MySql($this);
     }
 
     public function query(string $sql) {
         return $this->_dbAdapter->query($sql);
     }
 
+    public function fetchAll(string $sql, $bind = array(), $fetchMode = null): array {
+        return $this->_dbAdapter->fetchAll($sql, $bind, $fetchMode);
+    }
+
+    public function getAdapter(): Zend_Db_Adapter_Abstract {
+        return $this->_dbAdapter;
+    }
 }

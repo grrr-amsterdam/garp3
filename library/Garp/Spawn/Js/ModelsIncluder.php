@@ -6,7 +6,6 @@
  * @package Garp_Spawn
  * @author  David Spreekmeester <david@grrr.nl>
  * @author  Harmen Janssen <harmen@grrr.nl>
- * @version 0.2.0
  */
 class Garp_Spawn_Js_ModelsIncluder {
     const MODELS_INCLUDE_FILE_DEFAULT = '/modules/default/views/scripts/partials/models.phtml';

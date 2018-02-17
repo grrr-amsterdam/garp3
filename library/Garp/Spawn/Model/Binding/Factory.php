@@ -1,20 +1,25 @@
 <?php
 /**
  * Produces a Garp_Spawn_Model_Binding instance.
- * @author David Spreekmeester | grrr.nl
+ *
+ * @package Garp_Spawn_Model_Binding
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Model_Binding_Factory {
-    const ERROR_GET_BINDING_MODEL_WRONG_RELATION_TYPE =
-        "You can only produce Binding Models from hasAndBelongsToMany relations.";
+    const ERROR_GET_BINDING_MODEL_WRONG_RELATION_TYPE = "You can only produce Binding Models from hasAndBelongsToMany relations.";
 
-    /** 
-     * @var Garp_Spawn_Relation $_relation The direct relation to the end model, which hops over the HABTM relation.
+    /**
+     * The direct relation to the end model, which hops over the HABTM relation.
+     *
+     * @var Garp_Spawn_Relation
      */
     protected $_relation;
 
     /**
      * Create a Garp_Spawn_Model_Binding by providing a hasAndBelongsToMany $relation instance.
-     * @param Garp_Spawn_Relation $relation
+     *
+     * @param  Garp_Spawn_Relation $relation
+     * @return Garp_Spawn_Model_Binding
      */
     public function produceByRelation(Garp_Spawn_Relation $relation) {
         $this->setRelation($relation);
@@ -63,15 +68,18 @@ class Garp_Spawn_Model_Binding_Factory {
         return $bindingModelConfig;
     }
 
-    /**
-     * Order in such a way that the reference to the referring model comes before the referred model.
-     */
     protected function _areRulesEgocentricallySorted(array $ruleNames) {
         $relation = $this->getRelation();
         $localModel = $relation->getLocalModel();
         return $ruleNames[0] === $localModel->id;
     }
 
+    /**
+     * Order in such a way that the reference to the referring model comes before the referred model.
+     *
+     * @param  array $ruleNames
+     * @return bool
+     */
     protected function _sortRulesEgocentrically(array $ruleNames) {
         if (!$this->_areRulesEgocentricallySorted($ruleNames)) {
             $ruleNames = array_reverse($ruleNames);
@@ -82,7 +90,8 @@ class Garp_Spawn_Model_Binding_Factory {
 
     /**
      * Returns relation rules, sorted egocentrically.
-     * @return Array First rule refers to the model itself, second to the related model referenced in the $relation object.
+     *
+     * @return array First rule refers to the model itself, second to the related model referenced in the $relation object.
      */
     protected function _getRules() {
         $relation = $this->getRelation();
@@ -102,7 +111,10 @@ class Garp_Spawn_Model_Binding_Factory {
     }
 
     /**
-     * Displays second HABTM rule. The first rule is always the name of the direct relation to the end model.
+     * Displays second HABTM rule.
+     * The first rule is always the name of the direct relation to the end model.
+     *
+     * @return string
      */
     protected function _getSecondRule() {
         $relation = $this->getRelation();
@@ -116,8 +128,7 @@ class Garp_Spawn_Model_Binding_Factory {
 
         return $modelIds[0] !== $firstRule
             ? $modelIds[0]
-            : $modelIds[1]
-        ;
+            : $modelIds[1];
     }
 
     protected function _hasCustomRelName() {
@@ -156,7 +167,9 @@ class Garp_Spawn_Model_Binding_Factory {
 
     /**
      * Whether modelId sorting is coherent with the egocentric sorting of rules.
-     * @return Boolean
+     *
+     * @param  array $modelIds
+     * @return bool
      */
     protected function _areModelIdsSortedByRule(array $modelIds) {
         $rules = $this->_getRules();
@@ -167,18 +180,18 @@ class Garp_Spawn_Model_Binding_Factory {
                 return $rules[$ruleNumber] === $modelIds[$ruleNumber];
             }
         }
+        return false;
     }
 
     protected function _getBindingModelName() {
         $relation = $this->getRelation();
         $modelNames = $this->_getModelIdsAlphabetically();
 
-        $bindingModelName = !$this->_hasCustomRelName() 
+        $bindingModelName = !$this->_hasCustomRelName()
             // Rule name refers to one of the related models, so no custom relation key
             ? $modelNames[0] . $modelNames[1]
             // Custom relation key
-            : $modelNames[0] . $relation->name
-        ;
+            : $modelNames[0] . $relation->name;
 
         return $bindingModelName;
     }
@@ -189,7 +202,7 @@ class Garp_Spawn_Model_Binding_Factory {
         $relation = $this->getRelation();
         $localModel = $relation->getLocalModel();
         $models = $this->_getModelIdsByRuleSort();
-    
+
         $config = array(
             'listFields' => $relation->column,
             'inputs' => $relation->inputs ?: array(),

@@ -69,7 +69,7 @@ class Garp_Spawn_Db_View_Joint extends Garp_Spawn_Db_View_Abstract {
             return $this->_getTranslatedViewName($model);
         }
 
-        $factory = new Garp_Spawn_Db_Table_Factory($model);
+        $factory = new Garp_Spawn_Db_Table_Factory($model, $this->_schema);
         $table = $factory->produceConfigTable();
 
         return $table->name;

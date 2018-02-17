@@ -33,10 +33,10 @@ abstract class Garp_Spawn_Db_View_Abstract implements Garp_Spawn_Db_View_Protoco
         $config = Zend_Registry::get('config');
         $dbName = $config->resources->db->params->dbname;
 
-        $views = $schema->fetchViewsByPostfix($dbName, $postfix);
+        $views = $schema->views()->fetchByPostfix($dbName, $postfix);
         foreach ($views as $view) {
             $viewName = $view['table_name'];
-            $schema->dropView($viewName);
+            $schema->views()->drop($viewName);
         }
     }
 
@@ -53,7 +53,7 @@ abstract class Garp_Spawn_Db_View_Abstract implements Garp_Spawn_Db_View_Protoco
 
     public function getTableName() {
         $model        = $this->getModel();
-        $tableFactory = new Garp_Spawn_Db_Table_Factory($model);
+        $tableFactory = new Garp_Spawn_Db_Table_Factory($model, $this->_schema);
         $table        = $tableFactory->produceConfigTable();
 
         return $table->name;
