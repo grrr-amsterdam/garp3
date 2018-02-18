@@ -49,8 +49,13 @@ class Garp_Spawn_Db_Schema_Tables_Sqlite implements Garp_Spawn_Db_Schema_Tables_
      * @return string
      */
     public function renderCreateStatement(string $tableName, array $fields, array $relations, $unique): string {
-        throw new Exception('implrmenet me');
-        $out = "CREATE TABLE `{$tableName}`";
+        $lines = [];
+
+
+
+        $out = "CREATE TABLE `{$tableName}` (\n";
+        $out .= implode(",\n", $lines);
+        $out .= "\n)";
         return $out;
     }
 

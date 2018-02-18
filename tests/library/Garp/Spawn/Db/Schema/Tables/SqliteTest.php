@@ -3,7 +3,7 @@
  * @package Tests
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
-class Garp_Spawn_Db_Schema_Tables_MySqlTest extends Garp_Test_PHPUnit_TestCase {
+class Garp_Spawn_Db_Schema_Tables_SqliteTest extends Garp_Test_PHPUnit_TestCase {
 
     /**
      * @dataProvider renderCreateStatementProvider
@@ -12,7 +12,7 @@ class Garp_Spawn_Db_Schema_Tables_MySqlTest extends Garp_Test_PHPUnit_TestCase {
      * @return void
      */
     public function testRenderCreateStatement(array $args, string $expected) {
-        $schema = new Garp_Spawn_Db_Schema_MySql(
+        $schema = new Garp_Spawn_Db_Schema_Sqlite(
             $this->_getAdapter()
         );
         $this->assertEquals(
@@ -109,7 +109,7 @@ class Garp_Spawn_Db_Schema_Tables_MySqlTest extends Garp_Test_PHPUnit_TestCase {
     }
 
     protected function _getAdapter() {
-        return new Zend_Db_Adapter_Pdo_Mysql(
+        return new Zend_Db_Adapter_Pdo_Sqlite(
             [
                 'dbname' => 'foo',
                 'username' => 'foo',
@@ -130,3 +130,4 @@ class Garp_Spawn_Db_Schema_Tables_MySqlTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 }
+

@@ -10,14 +10,9 @@ class Garp_Spawn_Field {
     const TEXTFIELD_MAX_LENGTH = 124;
 
     const INVALID_FIELD_TYPE = "'%s' is not a valid field type for the '%s' field. Try: %s";
-    const INVALID_PARAMETER
-        = "'%s' is not a valid parameter for the '%s' field configuration. Try: %s";
-    // @codingStandardsIgnoreStart
-    const UNSUPPORTED_PARAM_OPTIONS
-        = "The 'options' parameter is only valid for the 'enum' fields.";
-    const MISSING_OPTIONS_PARAM
-        = "The 'options' parameter should contain an array with db enum values, or an object with db enum values as object keys, and labels as object values.";
-    // @codingStandardsIgnoreEnd
+    const INVALID_PARAMETER = "'%s' is not a valid parameter for the '%s' field configuration. Try: %s";
+    const UNSUPPORTED_PARAM_OPTIONS = "The 'options' parameter is only valid for the 'enum' fields.";
+    const MISSING_OPTIONS_PARAM = "The 'options' parameter should contain an array with db enum values, or an object with db enum values as object keys, and labels as object values.";
 
     /**
      * Lowercase, underscored name of the field, as it appears in the database.

@@ -1,38 +1,47 @@
 <?php
 /**
- * @author David Spreekmeester | Grrr.nl
+ * @package Garp_Spawn_Config_Storage
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Config_Storage_PhpArray implements Garp_Spawn_Config_Storage_Interface {
     /**
-     * @var Array $_config The provided configuration array
+     * The provided configuration array
+     *
+     * @var array
      */
     protected $_config;
 
-
     /**
-     * @param Array $config Associative array with model IDs as keys, and the model configuration as their value.
+     * @param  array $config Associative array with model IDs as keys, and the model configuration as their value.
+     * @return void
      */
     public function __construct(array $config) {
-        if ($config) {
-            $this->_config = $config;
-        } else {
-            throw new Exception("The configuration array is empty.");
+        if (!$config) {
+            throw new Exception('The configuration array is empty.');
         }
+        $this->_config = $config;
     }
-
 
     /**
-     * @param String $objectId The object ID.
-     * @return Array The configuration content
+     * Returns the configuration data for the provided object ID.
+     *
+     * @param  string $objectId The object ID.
+     * @return array            The configuration content
      */
-    public function load($objectId) {
-        if (array_key_exists($objectId, $this->_config)) {
-            return $this->_config[$objectId];
-        } else throw new Exception("Sorry, could not find the config for {$objectId} in the PhpArray.");
+    public function load(string $objectId) {
+        if (!array_key_exists($objectId, $this->_config)) {
+            throw new Exception("Sorry, could not find the config for {$objectId} in the PhpArray.");
+        }
+        return $this->_config[$objectId];
     }
 
-
-    public function listObjectIds() {
+    /**
+     * Returns a list of IDs referencing the configured objects
+     *
+     * @return array An array of strings, containing object ids.
+     */
+    public function listObjectIds(): array {
         return array_keys($this->_config);
     }
+
 }
