@@ -41,7 +41,7 @@ task :spawn do
 
 	on roles(:web) do
 		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Spawn --only=files -b --e=#{fetch(:stage)}"
-		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php cache clear --e=#{fetch(:stage)}"
+		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php cache clear --opcache --e=#{fetch(:stage)}"
 	end
 end
 

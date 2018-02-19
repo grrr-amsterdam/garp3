@@ -47,9 +47,15 @@ class Garp_Cache_Manager {
             $tags = self::getTagsFromModel($tags);
         }
 
+        $clearOpcache = !empty($tags['opcache']);
+        unset($tags['opcache']);
+
         self::purgeStaticCache($tags, $cacheDir);
         self::purgeMemcachedCache($tags);
-        self::purgeOpcache();
+
+        if ($clearOpcache) {
+            self::purgeOpcache();
+        }
 
         $ini = Zend_Registry::get('config');
         if ($createClusterJob && $ini->app->clusteredHosting) {
