@@ -22,7 +22,7 @@ desc "Notify Slack"
 task :notify_slack do
     on roles(:app) do
         within release_path do
-            execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Slack sendDeployNotification --branch=#{fetch(:branch)} --user=#{fetch(:local_user)} --git-version=#{capture("cd #{repo_path} && git describe #{fetch(:branch)}")} --e=#{fetch(:stage)}"
+            execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Slack sendDeployNotification --branch=#{fetch(:branch)} --user=#{fetch(:local_user)} --git-version=#{capture("cd #{repo_path} && git describe #{fetch(:branch)} --tags")} --e=#{fetch(:stage)}"
         end
     end
 end
@@ -59,4 +59,3 @@ task :composer_install do
         execute "if [ -f #{composerPharPath} ]; then php #{composerPharPath} install -d #{release_path} --no-dev; fi"
     end
 end
-
