@@ -7,7 +7,8 @@ task :create_versioning_file do
         version = capture(:git, 'describe master --tags')
       end
     else
-      version = fetch(:branch)
+      datetime = Time.now.strftime("%Y%m%d%H%M%S")
+      version = "#{fetch(:branch)}-#{datetime}"
     end
     within fetch(:release_path) do
       execute :echo, "\"#{version}\" > VERSION"
