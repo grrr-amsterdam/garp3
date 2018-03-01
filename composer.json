@@ -23,7 +23,8 @@
         "vlucas/phpdotenv": "2.0.1",
         "fzaninotto/faker": "dev-master",
         "grrr-amsterdam/garp-functional": "^1.0",
-        "phpunit/phpunit": "^6.0"
+        "phpunit/phpunit": "^6.0",
+        "greenlion/php-sql-parser": "^4.1"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.6"

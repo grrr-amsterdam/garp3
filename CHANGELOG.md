@@ -5,6 +5,26 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.14
+
+`teardown` on our unit test has been greatly optimized to allow for high-precision truncating. 
+The `teardown` method will truncate exactly the tables that received inserts during the tests, no more, no less.
+
+In order to use this functionality, you need to make sure your default database adapter has a profiler enabled:
+
+```
+[testing : development]
+
+resources.db.params.profiler.enabled = true
+resources.db.params.dbname = "my_test_database"
+```
+
+This way we can piggyback on the profiler to keep track of all `INSERT` queries. 
+When no profiler is configured, the old behavior will still work.
+
+One notable backward-compatible change is the removal of `getDatabaseAdapter()` from `Garp_Test_PHPUnit_TestCase`. 
+It has been moved to `Garp_Test_PHPUnit_Helper`, so if you still want to use it, do so thru `$this->_helper->getDatabaseAdapter()`.
+
 ## Version 3.13
 
 Using Capistrano, we write a `VERSION` file in the root of the project. An accompanying `Garp_Version` class is created to lookup the current version.
