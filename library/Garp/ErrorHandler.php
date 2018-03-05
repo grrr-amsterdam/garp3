@@ -200,7 +200,7 @@ class Garp_ErrorHandler {
         return in_array(strtolower($string[0]), $vowels);
     }
 
-    protected static function _composeFullErrorMessage(ArrayObject $errors) {
+    protected static function _composeFullErrorMessage($errors) {
         $appName = self::_getApplicationName();
         $errorMessage = "Application: {$appName}\n\n";
         $errorMessage .= "Exception: {$errors->exception->getMessage()}\n\n";
