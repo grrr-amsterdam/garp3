@@ -32,6 +32,8 @@
     <exclude name="PEAR.NamingConventions.ValidFunctionName.PublicUnderscore"/>
     <exclude name="PEAR.NamingConventions.ValidVariableName.PublicUnderscore"/>
     <exclude name="PEAR.Commenting.FunctionComment.MissingParamComment"/>
+    <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
+    <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
 </rule>
 
 <rule ref="Squiz.Strings.ConcatenationSpacing">
