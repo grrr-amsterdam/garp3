@@ -105,7 +105,9 @@ class Garp_Cache_Manager {
                 }
             }
         }
-        Garp_Cli::lineOut("Memcached purged.");
+        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+            Garp_Cli::lineOut('Memcached purged.');
+        }
     }
 
     /**
@@ -161,7 +163,9 @@ class Garp_Cache_Manager {
                 $_purged[] = $filePath;
             }
         }
-        Garp_Cli::lineOut("Static cache purged.");
+        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+            Garp_Cli::lineOut('Static cache purged.');
+        }
     }
 
     /**
@@ -174,15 +178,19 @@ class Garp_Cache_Manager {
         // This only clears the Opcache on CLI,
         // which is often separate from the HTTP Opcache.
         if (function_exists('opcache_reset')) {
-            Garp_Cli::lineOut("OPCache purged on the CLI.");
             opcache_reset();
+            if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+                Garp_Cli::lineOut('OPCache purged on the CLI.');
+            }
         }
 
         // This only clears the APC on CLI,
         // which is often separate from the HTTP APC.
         if (function_exists('apc_clear_cache')) {
-            Garp_Cli::lineOut("APC purged on the CLI.");
             apc_clear_cache();
+            if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+                    Garp_Cli::lineOut('APC purged on the CLI.');
+            }
         }
 
         // Next, trigger the Opcache clear calls through HTTP.
@@ -223,16 +231,17 @@ class Garp_Cache_Manager {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         curl_exec($ch);
-
         $responseCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        if ($responseCode === 200) {
-            Garp_Cli::lineOut("OPCache purged on `{$serverName}`.");
-        } else {
-            Garp_Cli::errorOut("OPCache purge failed on `{$serverName}` (code: {$responseCode}).");
+
+        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+            if ($responseCode === 200) {
+                Garp_Cli::lineOut("OPCache purged on `{$serverName}`.");
+            } else {
+                Garp_Cli::errorOut("OPCache purge failed on `{$serverName}` (code: {$responseCode}).");
+            }
         }
 
         curl_close($ch);
-
         return $responseCode === 200;
     }
 
