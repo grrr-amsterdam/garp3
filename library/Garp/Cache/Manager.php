@@ -105,6 +105,9 @@ class Garp_Cache_Manager {
                 }
             }
         }
+        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+            Garp_Cli::lineOut('Memcached purged.');
+        }
     }
 
     /**
@@ -160,6 +163,9 @@ class Garp_Cache_Manager {
                 $_purged[] = $filePath;
             }
         }
+        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+            Garp_Cli::lineOut('Static cache purged.');
+        }
     }
 
     /**
@@ -173,10 +179,16 @@ class Garp_Cache_Manager {
         // which is often separate from the HTTP Opcache.
         if (function_exists('opcache_reset')) {
             opcache_reset();
+            if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+                Garp_Cli::lineOut('OPCache purged on the CLI.');
+            }
         }
 
         if (function_exists('apc_clear_cache')) {
             apc_clear_cache();
+            if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+                    Garp_Cli::lineOut('APC purged on the CLI.');
+            }
         }
 
         // Next, trigger the Opcache clear calls through HTTP.
@@ -215,8 +227,17 @@ class Garp_Cache_Manager {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         curl_exec($ch);
-        curl_close($ch);
+        $responseCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 
+        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
+            if ($responseCode === 200) {
+                Garp_Cli::lineOut("OPCache purged on `{$serverName}`.");
+            } else {
+                Garp_Cli::errorOut("OPCache purge failed on `{$serverName}` (code: {$responseCode}).");
+            }
+        }
+
+        curl_close($ch);
         return $responseCode === 200;
     }
 
