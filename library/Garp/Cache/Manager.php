@@ -187,7 +187,10 @@ class Garp_Cache_Manager {
 
         $hostName = Zend_Registry::get('config')->app->domain;
         foreach (self::_getServerNames() as $serverName) {
-            self::_resetOpcacheHttp($serverName, $hostName);
+            $opcacheResetWithServerName = self::_resetOpcacheHttp($serverName, $hostName);
+            if (!$opcacheResetWithServerName) {
+                self::_resetOpcacheHttp($hostName, $hostName);
+            }
         }
     }
 
@@ -213,6 +216,8 @@ class Garp_Cache_Manager {
 
         curl_exec($ch);
         curl_close($ch);
+
+        return $responseCode === 200;
     }
 
     /**
