@@ -43,6 +43,8 @@ class Garp_Cache_Manager {
      * @return Void
      */
     public static function purge($tags = array(), $createClusterJob = true, $cacheDir = false) {
+        $messageBag = array();
+
         if ($tags instanceof Garp_Model_Db) {
             $tags = self::getTagsFromModel($tags);
         }
@@ -50,33 +52,38 @@ class Garp_Cache_Manager {
         $clearOpcache = !empty($tags['opcache']);
         unset($tags['opcache']);
 
-        self::purgeStaticCache($tags, $cacheDir);
-        self::purgeMemcachedCache($tags);
+        $messageBag = self::purgeStaticCache($tags, $cacheDir, $messageBag);
+        $messageBag = self::purgeMemcachedCache($tags, $messageBag);
 
         if ($clearOpcache) {
-            self::purgeOpcache();
+            $messageBag = self::purgeOpcache($messageBag);
         }
 
         $ini = Zend_Registry::get('config');
         if ($createClusterJob && $ini->app->clusteredHosting) {
             Garp_Cache_Store_Cluster::createJob($tags);
+            $messageBag[] = 'Cluster: created clear cache job for cluster';
         }
+
+        return $messageBag;
     }
 
     /**
      * Clear the Memcached cache that stores queries and ini files and whatnot.
      *
      * @param Array|Garp_Model_Db $modelNames
+     * @param Array $messageBag
      * @return Void
      */
-    public static function purgeMemcachedCache($modelNames = array()) {
+    public static function purgeMemcachedCache($modelNames = array(), $messageBag = array()) {
         if (!Zend_Registry::isRegistered('CacheFrontend')) {
-            return;
+            $messageBag[] = 'Memcached: No caching enabled';
+            return $messageBag;
         }
 
         if (!Zend_Registry::get('CacheFrontend')->getOption('caching')) {
-            // caching is disabled
-            return;
+            $messageBag[] = 'Memcached: No caching enabled';
+            return $messageBag;;
         }
 
         if ($modelNames instanceof Garp_Model_Db) {
@@ -85,8 +92,11 @@ class Garp_Cache_Manager {
 
         if (empty($modelNames)) {
             $cacheFront = Zend_Registry::get('CacheFrontend');
-            return $cacheFront->clean(Zend_Cache::CLEANING_MODE_ALL);
+            $cacheFront->clean(Zend_Cache::CLEANING_MODE_ALL);
+            $messageBag[] = 'Memcached: Purged All';
+            return $messageBag;
         }
+
         foreach ($modelNames as $modelName) {
             $model = new $modelName();
             self::_incrementMemcacheVersion($model);
@@ -108,6 +118,8 @@ class Garp_Cache_Manager {
         if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
             Garp_Cli::lineOut('Memcached purged.');
         }
+        $messageBag[] = 'Memcached: Purged all given models';
+        return $messageBag;
     }
 
     /**
@@ -115,14 +127,16 @@ class Garp_Cache_Manager {
      *
      * @param Array|Garp_Model_Db $modelNames Clear the cache of a specific bunch of models.
      * @param String $cacheDir Directory containing the cache files
+     * @param Array $messageBag
      * @return Void
      */
-    public static function purgeStaticCache($modelNames = array(), $cacheDir = false) {
+    public static function purgeStaticCache($modelNames = array(), $cacheDir = false, $messageBag = array()) {
         if (!Zend_Registry::get('CacheFrontend')->getOption('caching')) {
             // caching is disabled (yes, this particular frontend is not in charge of static
             // cache, but in practice this toggle is used to enable/disable caching globally, so
             // this matches developer expectations better, probably)
-            return;
+            $messageBag[] = ['Static cache: No caching enabled'];
+            return $messageBag;
         }
 
         if ($modelNames instanceof Garp_Model_Db) {
@@ -131,7 +145,8 @@ class Garp_Cache_Manager {
 
         $cacheDir = $cacheDir ?: self::_getStaticCacheDir();
         if (!$cacheDir) {
-            return;
+            $messageBag[] = 'Static cache: No cache directory configured';
+            return $messageBag;
         }
         $cacheDir = str_replace(' ', '\ ', $cacheDir);
         $cacheDir = rtrim($cacheDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
@@ -139,11 +154,16 @@ class Garp_Cache_Manager {
         // Destroy all if no model names are given
         if (empty($modelNames)) {
             $allPath = $cacheDir . '*';
-            return self::_deleteStaticCacheFile($allPath);
+            $response = self::_deleteStaticCacheFile($allPath);
+            $messageBag[] = $response
+                ? 'Static cache: Deleted all static cache files'
+                : 'Static cache: There was a problem with deleting the static cache files';
+            return $messageBag;
         }
         // Fetch model names from configuration
         if (!$tagList = self::_getTagList()) {
-            return;
+            $messageBag[] = 'Static cache: No cache tags found';
+            return $messageBag;
         }
         $_purged = array();
         foreach ($modelNames as $tag) {
@@ -163,49 +183,53 @@ class Garp_Cache_Manager {
                 $_purged[] = $filePath;
             }
         }
-        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
-            Garp_Cli::lineOut('Static cache purged.');
-        }
+        $messageBag[] = 'Static cache: purged';
+        return $messageBag;
     }
 
     /**
      * This clears the Opcache, and APC for legacy systems.
      * This reset can only be done with an http request.
      *
+     * @param Array $messageBag
+     *
      * @return Void
      */
-    public static function purgeOpcache() {
+    public static function purgeOpcache($messageBag = array()) {
         // This only clears the Opcache on CLI,
         // which is often separate from the HTTP Opcache.
         if (function_exists('opcache_reset')) {
             opcache_reset();
-            if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
-                Garp_Cli::lineOut('OPCache purged on the CLI.');
-            }
+            $messageBag[] = 'OPCache: purged on the CLI';
         }
 
         // This only clears the APC on CLI,
         // which is often separate from the HTTP APC.
         if (function_exists('apc_clear_cache')) {
             apc_clear_cache();
-            if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
-                    Garp_Cli::lineOut('APC purged on the CLI.');
-            }
+            $messageBag[] = 'APC: purged on the CLI';
         }
 
         // Next, trigger the Opcache clear calls through HTTP.
         $deployConfig = new Garp_Deploy_Config;
         if (!$deployConfig->isConfigured(APPLICATION_ENV)) {
-            return;
+            return $messageBag;
         }
 
         $hostName = Zend_Registry::get('config')->app->domain;
         foreach (self::_getServerNames() as $serverName) {
             $opcacheResetWithServerName = self::_resetOpcacheHttp($serverName, $hostName);
+            if ($opcacheResetWithServerName) {
+                $messageBag[] = "OPCache: http purged on `{$serverName}`";
+            }
             if (!$opcacheResetWithServerName) {
-                self::_resetOpcacheHttp($hostName, $hostName);
+                $opcacheResetWithHostName = self::_resetOpcacheHttp($hostName, $hostName);
+                $messageBag[] = $opcacheResetWithHostName
+                    ? "OPCache: http purged on `{$hostName}`"
+                    : "OPCache: failed purging OPCache in http context on `{$hostName}`";
             }
         }
+        return $messageBag;
     }
 
     protected static function _getServerNames() {
@@ -232,16 +256,8 @@ class Garp_Cache_Manager {
 
         curl_exec($ch);
         $responseCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-
-        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
-            if ($responseCode === 200) {
-                Garp_Cli::lineOut("OPCache purged on `{$serverName}`.");
-            } else {
-                Garp_Cli::errorOut("OPCache purge failed on `{$serverName}` (code: {$responseCode}).");
-            }
-        }
-
         curl_close($ch);
+
         return $responseCode === 200;
     }
 
