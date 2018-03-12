@@ -30,6 +30,8 @@ namespace :deploy do
 
         # Set under construction
         invoke :enable_under_construction
+
+        invoke :clear_cache
     end
 
     after :updated, :after_updated do
@@ -44,7 +46,7 @@ namespace :deploy do
     end
 
     task :published do
-        #invoke :update_cluster_servers
+        invoke :clear_cache
     end
 
     task :setup do
