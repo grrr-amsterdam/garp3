@@ -1,5 +1,15 @@
 <?php
 /**
+ * Instantiate a model.
+ *
+ * @param  string $modelSuffix
+ * @return Garp_Model_Db
+ */
+function model(string $modelSuffix) {
+    return instance("Model_{$modelSuffix}");
+}
+
+/**
  * Shortcut to logging messages.
  *
  * @param string $file Basename of a log file. Extension may be omitted.
