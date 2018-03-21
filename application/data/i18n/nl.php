@@ -345,6 +345,7 @@ $translationTable = array(
     'reset password user not found' => 'Er is geen gebruiker gevonden met de opgegeven gegevens.',
     'reset password link expired' => 'Deze link is verlopen.',
     '%s is a required field' => '%s is een verplicht veld',
+    '%s is not a valid email address' => '%s is geen geldig e-mailadres',
     'password' => 'wachtwoord',
     'activate email page title' => 'Activeer e-mailadres',
     'activate email error' => 'Er is een onbekende fout opgetreden, je e-mailadres kon niet worden geactiveerd. Probeer het later nog eens.',

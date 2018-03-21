@@ -61,6 +61,18 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
             );
             return false;
         }
+
+        $validator = new Zend_Validate_EmailAddress();
+        if (!$validator->isValid($userData['email'])) {
+            $this->_addError(
+                sprintf(
+                    __('%s is not a valid email address'),
+                    __('Email')
+                )
+            );
+            return false;
+        }
+
         $userId = $this->_createOrFetchUserRecord($userData);
         $token  = $this->createOrUpdateAuthRecord($userId);
 
