@@ -260,7 +260,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 					$columnModelNodes[] = $this->partial('partials/spawn/js/column-model-entry.phtml', 'g', array(
 						'dataIndex' => $lcRelModelName,
 						'header' => $relModelName,
-						'hidden' => true,
+						'hidden' => !$this->spawnJs()->isListField($lcRelModelName, $model),
 						'sortable' => true,
 						'searchable' => true
 					));

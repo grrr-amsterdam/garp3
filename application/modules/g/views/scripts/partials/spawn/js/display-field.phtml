@@ -3,28 +3,28 @@
 		throw new Exception('This partial requires a Garp_Spawn_Model_Base instance as $model parameter.');
 	endif;
 
-	$model 					= $this->model;
-
+	$model = $this->model;
 	$nameIsMandatory = function() use ($model) {
 		$nameFieldSet = $model->fields->getFields('name', 'name');
 		if (!$nameFieldSet) {
 			return false;
 		}
-
 		$nameField = current($nameFieldSet);
 		return $nameField->required;
 	};
 
 	$hasMandatoryName = $nameIsMandatory();
+	$hasFirstAndLastName = $this->spawnJs()->modelHasFirstAndLastName($model);
 
-	$hasFirstAndLastName	= $this->spawnJs()->modelHasFirstAndLastName($model);
-
-	$printFieldGetter		= function($fieldName) use ($model) {
-		$defaultLanguage	= Garp_I18n::getDefaultLocale();
-		$isMultilingual		= $model->fields->getField($fieldName)->isMultilingual();
-		$postfix			= $isMultilingual ? '.' . $defaultLanguage : '';
- 		$getter				= "rec.get('{$fieldName}') && rec.get('{$fieldName}')" . $postfix;
-
+	$printFieldGetter = function($fieldName) use ($model) {
+		$defaultLanguage = Garp_I18n::getDefaultLocale();
+        try {
+		    $isMultilingual	= $model->fields->getField($fieldName)->isMultilingual();
+        } catch (Exception $e) {
+            $isMultilingual = false;
+        }
+		$postfix = $isMultilingual ? '.' . $defaultLanguage : '';
+ 		$getter	= "rec.get('{$fieldName}') && rec.get('{$fieldName}')" . $postfix;
 		return $getter;
 	};
 
@@ -33,7 +33,6 @@
 		foreach ($model->fields->listFieldNames as $fieldName) {
 			$getters[] = $printFieldGetter($fieldName);
 		}
-
 		return implode(', ', $getters);
 	}
 
