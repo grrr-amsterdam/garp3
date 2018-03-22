@@ -65,3 +65,10 @@ task :clear_cache do
 		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php cache clear --opcache --e=#{fetch(:stage)}"
 	end
 end
+
+desc "Clear PHP OPcache on the CLI"
+task :clear_cli_opcache do
+	on roles(:web) do
+		execute "php -r \"if (function_exists('opcache_reset')) opcache_reset();\""
+	end
+end
