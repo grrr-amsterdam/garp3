@@ -6,10 +6,8 @@
  * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
-    const ERROR_NO_FILE_PROVIDED
-        = "No path provided to the 6PP CSV file from postcode.nl";
-    const SOURCE_LABEL
-        = 'Postcode.nl';
+    const ERROR_NO_FILE_PROVIDED = "No path provided to the 6PP CSV file from postcode.nl";
+    const SOURCE_LABEL = 'Postcode.nl';
 
     protected $_args;
 
@@ -94,33 +92,40 @@ class Garp_Cli_Command_PostcodeNl extends Garp_Cli_Command {
     }
 
     protected function _storeZip(Garp_Service_PostcodeNl_Zipcode &$zip, $key, $overwrite) {
+        $this->_progress->advance();
+        $this->_progress->display('Importing zip codes', '%s left');
+
         $model = new Model_Location();
         $select = $model->select()->where('zip = ? AND number IS NULL', $zip->zipcode);
         $existingRow = $model->fetchRow($select);
 
-        if ($existingRow && $overwrite) {
-            $model->delete('id = ' . $existingRow->id);
+        if (!$existingRow) {
+            return $this->_insertZip($zip, $model);
         }
 
-        if (!$existingRow || $overwrite) {
-            $this->_insertZip($zip, $model);
+        if ($overwrite && $existingRow->source === self::SOURCE_LABEL) {
+            $model->update(
+                $this->_zipToRow($zip),
+                'id = ' . $existingRow->id
+            );
+            $this->_storedZips++;
         }
 
-        $this->_progress->advance();
-        $this->_progress->display('Importing zip codes', '%s left');
     }
 
     protected function _insertZip(Garp_Service_PostcodeNl_Zipcode &$zip, Garp_Model_Db &$model) {
-        $newRow = array(
+        if ($model->insert($this->_zipToRow($zip))) {
+            $this->_storedZips++;
+        }
+    }
+
+    protected function _zipToRow(Garp_Service_PostcodeNl_Zipcode $zip) {
+        return array(
             'zip' => $zip->zipcode,
             'latitude' => $zip->latitude,
             'longitude' => $zip->longitude,
             'source' => self::SOURCE_LABEL
         );
-
-        if ($model->insert($newRow)) {
-            $this->_storedZips++;
-        }
     }
 
     protected function _obligateFileParam() {
