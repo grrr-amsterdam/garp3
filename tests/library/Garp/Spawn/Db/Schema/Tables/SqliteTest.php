@@ -51,13 +51,12 @@ class Garp_Spawn_Db_Schema_Tables_SqliteTest extends Garp_Test_PHPUnit_TestCase 
 
     protected function _createStatement1() {
         return "CREATE TABLE `items` (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(31) NOT NULL,
-  `options` enum('red','green','blue') NOT NULL DEFAULT 'green',
-  `description` text NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `first_name_unique` (`first_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+  `id` INTEGER NOT NULL AUTOINCREMENT,
+  `first_name` TEXT NOT NULL UNIQUE,
+  `options` TEXT NOT NULL DEFAULT 'green',
+  `description` TEXT NOT NULL,
+  PRIMARY KEY (`id`)
+)";
     }
 
     protected function _fieldsProvider2() {
@@ -98,14 +97,12 @@ class Garp_Spawn_Db_Schema_Tables_SqliteTest extends Garp_Test_PHPUnit_TestCase 
 
     protected function _createStatement2() {
         return "CREATE TABLE `_poststags` (
-  `post_id` int(11) UNSIGNED NOT NULL,
-  `tag_id` int(11) UNSIGNED NOT NULL,
+  `post_id` INTEGER NOT NULL,
+  `tag_id` INTEGER NOT NULL,
   PRIMARY KEY (`post_id`,`tag_id`),
-  KEY `post_id` (`post_id`),
-  KEY `tag_id` (`tag_id`),
-  CONSTRAINT `cae9e7bdfc60621e1daf9cfc9752c057` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `d798e3c6798810393c1f398b806a8800` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+  FOREIGN KEY (`post_id`) REFERENCES `post`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (`tag_id`) REFERENCES `tag`(`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)";
     }
 
     protected function _getAdapter() {

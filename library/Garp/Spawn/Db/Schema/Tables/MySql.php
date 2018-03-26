@@ -54,7 +54,7 @@ class Garp_Spawn_Db_Schema_Tables_MySql implements Garp_Spawn_Db_Schema_Tables_I
         $lines = [];
 
         foreach ($fields as $field) {
-            $lines[] = Garp_Spawn_Db_Column::renderFieldSql($field);
+            $lines[] = Garp_Spawn_Db_Column_MySql::renderFieldSql($field);
         }
 
         $primKeys = [];
