@@ -29,7 +29,8 @@ class Garp_Spawn_Behavior_Set {
         'Truncatable',
         'Checkboxable',
         'MinLength',
-        'Set'
+        'Set',
+        'Nullable'
     );
 
     protected $_validatorBehaviors = array(
