@@ -252,6 +252,11 @@ class Garp_Util_StringTest extends Garp_Test_PHPUnit_TestCase {
                 'This also works for secure connections like https://www.grrr.nl'
             )
         );
+
+        $this->assertEquals(
+            'Email addresses are also accepted: <a href="mailto:harmen+banana@grrr.nl">harmen+banana@grrr.nl</a>',
+            Garp_Util_String::linkify('Email addresses are also accepted: harmen+banana@grrr.nl')
+        );
     }
 
     public function testStrReplaceOnce() {
