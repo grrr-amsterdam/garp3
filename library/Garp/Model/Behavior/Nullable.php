@@ -15,7 +15,7 @@ class Garp_Model_Behavior_Nullable extends Garp_Model_Behavior_Abstract {
 
     protected function _setup($config) {
         $this->_validateConfig($config);
-        $this->_nullableFields = $config['nullableFields'] ?: [];
+        $this->_nullableFields = $config['nullableFields'] ?: array();
     }
 
     public function beforeInsert(&$args) {
