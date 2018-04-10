@@ -31,7 +31,7 @@ namespace :deploy do
         # Set under construction
         invoke :enable_under_construction
 
-        invoke :clear_cache
+        invoke :clear_cli_opcache
     end
 
     after :updated, :after_updated do
