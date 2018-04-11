@@ -244,6 +244,7 @@ class Garp_Cache_Manager {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // in case of multilingual sites
         curl_setopt($ch, CURLOPT_URL, "{$serverName}/g/content/opcachereset");
         curl_setopt(
             $ch, CURLOPT_HTTPHEADER, array('Host: ' . $hostName)
@@ -251,10 +252,10 @@ class Garp_Cache_Manager {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         curl_exec($ch);
-        $responseCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $curlInfo = curl_getinfo($ch);
         curl_close($ch);
 
-        return $responseCode === 200;
+        return $curlInfo['http_code'] == 200;
     }
 
     /**
