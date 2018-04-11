@@ -32,7 +32,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
      * @param array $args
      * @return void
      */
-    public function distribute(array $args): bool {
+    public function distribute(array $args) {
         if (f\prop('to', $args)) {
             Garp_Cli::errorOut('"to" is a deprecated parameter.');
             Garp_Cli::lineOut(
