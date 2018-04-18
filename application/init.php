@@ -29,7 +29,16 @@ if (file_exists(APPLICATION_PATH . '/../.env')) {
 // Sentry integration
 if (getenv('SENTRY_API_URL') || (defined('SENTRY_API_URL') && APPLICATION_ENV !== 'development')) {
     $sentryApiUrl = getenv('SENTRY_API_URL') ?: SENTRY_API_URL;
-    $ravenClient = new Raven_Client($sentryApiUrl);
+    $ravenClient = new Raven_Client(
+        $sentryApiUrl,
+        array(
+            'environment' => APPLICATION_ENV,
+            'release' => (string)new Garp_Version,
+            'tags' => array(
+                'php_version' => phpversion(),
+            ),
+        )
+    );
     $ravenErrorHandler = new Raven_ErrorHandler($ravenClient);
     $ravenErrorHandler->registerExceptionHandler();
     $ravenErrorHandler->registerErrorHandler();
