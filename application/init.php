@@ -99,7 +99,7 @@ if ($memcacheIsConfigured && $memcacheAvailable) {
     $useWriteControl   = true;
 } else {
     $backendName       = 'Black-Hole';
-    $cacheStoreEnabled = false;
+    $cacheStoreEnabled = true;
     $useWriteControl   = false;
 }
 
