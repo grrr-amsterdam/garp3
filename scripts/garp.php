@@ -118,9 +118,12 @@ if (empty($args[0])) {
 /**
  * Read STDIN
  */
-stream_set_blocking(STDIN, false);
-$stdin = trim(stream_get_contents(STDIN));
-stream_set_blocking(STDIN, true);
+$stdin = '';
+if (!posix_isatty(STDIN)) {
+    stream_set_blocking(STDIN, true);
+    stream_set_timeout(STDIN, 1);
+    $stdin = trim(stream_get_contents(STDIN));
+}
 
 /* Construct command classname */
 $classArgument = ucfirst($args[0]);
