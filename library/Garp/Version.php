@@ -34,7 +34,7 @@ class Garp_Version {
             return static::$_cached;
         }
         if (file_exists($this->_path)) {
-            static::$_cached = file_get_contents($this->_path);
+            static::$_cached = trim(file_get_contents($this->_path));
         }
         return static::$_cached;
     }
@@ -48,4 +48,3 @@ class Garp_Version {
     }
 
 }
-
