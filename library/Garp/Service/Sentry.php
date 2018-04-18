@@ -1,4 +1,6 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * Garp_Service_Sentry
  * Error Monitoring through https://getsentry.com
@@ -40,36 +42,28 @@ class Garp_Service_Sentry {
             return;
         }
 
-        $debugVars = $this->_getBasicVars();
-        $debugVars += $this->_getUserVars();
-
-        $varList = array('extra' => $debugVars);
-
         $ravenClient = Zend_Registry::get('RavenClient');
-        $ravenClient->setRelease((string)new Garp_Version);
         $event_id = $ravenClient->getIdent(
-            $ravenClient->captureException($exception, $varList)
+            $ravenClient->captureException(
+                $exception,
+                array(
+                    'extra' => $this->_getBasicVars(),
+                    'user' => $this->_getUserVars(),
+                )
+            )
         );
     }
 
     protected function _getBasicVars() {
         return array(
-            '_php_version' => phpversion(),
-            '_garp_version' => $this->_readGarpVersion(),
-            'extensions' => get_loaded_extensions()
+            'garp_version' => $this->_readGarpVersion(),
         );
     }
 
     protected function _getUserVars() {
         // Add logged in user data to log
         $auth = Garp_Auth::getInstance();
-        $output = array();
-
-        if ($auth->isLoggedIn()) {
-            $output['_user_data'] = $auth->getUserData();
-        };
-
-        return $output;
+        return $auth->isLoggedIn() ? $auth->getUserData() : array();
     }
 
     /**
