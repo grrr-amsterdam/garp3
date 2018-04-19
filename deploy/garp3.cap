@@ -2,6 +2,7 @@ namespace :deploy do
 
     task :failed do
         invoke :disable_under_construction
+        invoke :remove_failed_release
     end
 
     task :started do
