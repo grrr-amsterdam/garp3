@@ -118,12 +118,8 @@ if (empty($args[0])) {
 /**
  * Read STDIN
  */
-$stdin = '';
-if (!posix_isatty(STDIN)) {
-    stream_set_blocking(STDIN, true);
-    stream_set_timeout(STDIN, 1);
-    $stdin = trim(stream_get_contents(STDIN));
-}
+$stdin = isset($args['stdin']) ? Garp_Cli::readStream(STDIN) : '';
+unset($args['stdin']);
 
 /* Construct command classname */
 $classArgument = ucfirst($args[0]);
