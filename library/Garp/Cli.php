@@ -29,6 +29,44 @@ class Garp_Cli {
      */
     static protected $_quiet = false;
 
+    public static function isTty($stream) {
+        return posix_isatty($stream);
+    }
+
+    public static function readStream($stream, $timeoutSeconds = 1) {
+        $out = [];
+        stream_set_blocking($stream, 0);
+
+        $timeoutStarted = false;
+        $timeout = null;
+
+        while (1) {
+            while (false !== ($line = fgets($stream))) {
+                $out[] = $line;
+
+                if ($timeoutStarted) {
+                    $timeoutStarted = false;
+                    $timeout = null;
+                }
+            }
+
+            if (feof($stream)) {
+                break;
+            }
+
+            if (null === $timeout) {
+                $timeout = time();
+                $timeoutStarted = true;
+                continue;
+            }
+
+            if (time() > $timeout + $timeoutSeconds) {
+                break;
+            }
+        }
+        return implode(PHP_EOL, $out);
+    }
+
     /**
      * Print line.
      *
