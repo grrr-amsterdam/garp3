@@ -81,7 +81,7 @@ Ext.apply(Ext.form.BasicForm.prototype, {
                 value = field.getValue();
                 if (Ext.type(value) !== false && value.getGroupValue) {
                     value = value.getGroupValue();
-                } else if ( field.eachItem ) {
+                } else if ( field.eachItem && ! field.xtype == 'xset') {
                     value = [];
                     field.eachItem(function(item){
                         value.push(item.getValue());

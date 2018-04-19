@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Elasticsearch
  */
-class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_TestCase {
+class Garp_Service_Elasticsearch_ConfigurationTest extends Garp_Test_PHPUnit_TestCase {
 
     /**
      * @var Garp_Service_Elasticsearch_Configuration $_config
@@ -41,6 +41,7 @@ class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_Tes
     public function testShouldHaveBaseUrl() {
         // only test ElasticSearch in a project that uses ElasticSearch
         if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+            $this->assertTrue(true);
             return;
         }
 
@@ -53,6 +54,7 @@ class Garp_Service_Elasticsearch_ConfigurationTest extends PHPUnit_Framework_Tes
     public function testShouldHaveIndex() {
         // only test ElasticSearch in a project that uses ElasticSearch
         if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+            $this->assertTrue(true);
             return;
         }
         $config = $this->getConfig();

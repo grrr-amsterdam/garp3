@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   CDN
  */
-class Garp_Content_Cdn_Distributor_Test extends PHPUnit_Framework_TestCase {
+class Garp_Content_Cdn_Distributor_Test extends Garp_Test_PHPUnit_TestCase {
     const FILTER_STRING_MATCHING_MULTIPLE = 'css';
     const FILTER_STRING_MATCHING_ONE = 'css/images/garp.png';
     const FILTER_STRING_NOT_MATCHING = 'l3$#j@[hdv%@u2w2a9g08u.e3#d@c';

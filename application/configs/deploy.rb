@@ -1,14 +1,17 @@
-#set :log_level, :info
 set :linked_dirs, %w{
-	public/uploads/documents
-	public/uploads/images
-	application/data/logs
-	application/data/cache/tags
-    application/data/cache/htmlpurifier
-    public/cached
+  public/uploads/documents
+  public/uploads/images
+  application/data/logs
+  application/data/cache/tags
+  application/data/cache/htmlpurifier
+  public/cached
 }
-set :keep_releases, 2
 
+set :linked_files, %w{
+  .env
+}
+
+set :keep_releases, 2
 
 load "application/configs/deploy.rb"
 

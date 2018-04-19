@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Shell
  */
-class Garp_Shell_Command_RemoveFile_Test extends PHPUnit_Framework_TestCase {
+class Garp_Shell_Command_RemoveFile_Test extends Garp_Test_PHPUnit_TestCase {
     const BOGUS_FILE_NAME = 'foobar-file';
 
     public function test_Should_be_able_to_create_dir() {

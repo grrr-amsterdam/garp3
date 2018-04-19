@@ -32,10 +32,10 @@ class Garp_ZFTwig_GlobalVariables extends Ano_ZFTwig_GlobalVariables {
      * Access current version in Twig templates.
      * Usage: `app.version`
      *
-     * @return Garp_Semver
+     * @return Garp_Version
      */
     public function getVersion() {
-        return new Garp_Semver;
+        return new Garp_Version;
     }
 
 }

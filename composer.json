@@ -1,44 +1,46 @@
 {
-    "name": "grrr-amsterdam/garp3",
-    "description": "Framework and CMS built on top of Zend Framework.",
-    "license": "BSD-3-Clause",
-    "type": "library",
-    "config": {
-        "platform": {
-            "php": "5.3.3"
-        }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "require": {
-        "php": ">=5.3.3",
-        "google/apiclient": "^1.1",
-        "phpoffice/phpexcel": "1.8.*",
-        "zendframework/zendframework1": "^1.12.20",
-        "ezyang/htmlpurifier": "^4.8",
-        "sentry/sentry": "^1.1",
-        "monolog/monolog": "^1.0",
-        "dompdf/dompdf": "^0.7.0",
-        "tedivm/jshrink": "1.1.0",
-        "vlucas/phpdotenv": "2.0.1",
-        "fzaninotto/faker": "dev-master",
-        "grrr-amsterdam/garp-functional": "^1.0"
-    },
-    "require-dev": {
-        "squizlabs/php_codesniffer": "^2.6",
-        "phpunit/phpunit": "3.7.*"
-    },
-    "autoload": {
-        "psr-0": {
-            "Garp_": "library/"
-        }
-    },
-    "include-path": [
-    	"library/"
-    ],
-    "scripts": {
-    	"test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/",
-        "phpcs": "vendor/bin/phpcs --standard=./phpcs.xml --extensions=php --colors ."
-    },
-    "bin": ["scripts/g"]
+  "name": "grrr-amsterdam/garp3",
+  "description": "Framework and CMS built on top of Zend Framework.",
+  "license": "BSD-3-Clause",
+  "type": "library",
+  "config": {
+    "platform": {
+      "php": "7.0"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=7.0",
+    "google/apiclient": "^1.1",
+    "phpoffice/phpexcel": "1.8.*",
+    "zendframework/zendframework1": "^1.12.20",
+    "ezyang/htmlpurifier": "^4.8",
+    "sentry/sentry": "^1.1",
+    "monolog/monolog": "^1.0",
+    "dompdf/dompdf": "^0.7.0",
+    "tedivm/jshrink": "1.1.0",
+    "vlucas/phpdotenv": "2.0.1",
+    "fzaninotto/faker": "dev-master",
+    "grrr-amsterdam/garp-functional": "^1.0",
+    "phpunit/phpunit": "^6.0",
+    "greenlion/php-sql-parser": "^4.1",
+    "league/csv": "^8.0"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^2.6"
+  },
+  "autoload": {
+    "psr-0": {
+      "Garp_": "library/"
+    }
+  },
+  "include-path": [
+    "library/"
+  ],
+  "scripts": {
+    "test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/",
+    "phpcs": "vendor/bin/phpcs --standard=./phpcs.xml --extensions=php --colors ."
+  },
+  "bin": ["scripts/g"]
 }

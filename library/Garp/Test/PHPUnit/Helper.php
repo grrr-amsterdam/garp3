@@ -1,4 +1,6 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * Garp_Test_PHPUnit_Helper
  * Collection of handy unit testing helper methods.
@@ -7,6 +9,13 @@
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Test_PHPUnit_Helper {
+    /**
+     * @var Zend_Db_Adapter_Abstract
+     */
+    protected $_db;
+
+    protected $_profiler;
+
     /**
      * Mockdata inserted at runtime thru $this->insertMockData
      *
@@ -29,12 +38,31 @@ class Garp_Test_PHPUnit_Helper {
         Garp_Cache_Manager::purge();
         Garp_Model_Db_BindingManager::destroyAllBindings();
 
+        $this->_prepareDatabaseProfiler();
         $this->_insertPredefinedMockData($mockData);
     }
 
     public function tearDown(array $mockData) {
-        $this->_truncate($mockData);
-        $this->_truncate($this->_dynamicallyInsertedMockData);
+        if ($this->_profiler) {
+            $this->_truncateFromProfiler();
+            $this->_profiler->clear();
+        } else {
+            $this->_truncate($mockData);
+            $this->_truncate($this->_dynamicallyInsertedMockData);
+        }
+    }
+
+    /**
+     * Get database adapter for executing queries quickly.
+     * It will be configured as defined in application.ini.
+     *
+     * @return Zend_Db_Adapter_Abstract
+     */
+    public function getDatabaseAdapter() {
+        if (!$this->_db) {
+            $this->_db = Zend_Db_Table::getDefaultAdapter();
+        }
+        return $this->_db;
     }
 
     /**
@@ -76,6 +104,16 @@ class Garp_Test_PHPUnit_Helper {
                 $mockData[$datatype][$i] = $this->_fetchFreshData($readModel, $primary)->toArray();
             }
         }
+    }
+
+    protected function _truncateFromProfiler() {
+        $tables = $this->_getTablesFromProfiler();
+        $dbAdapter = $this->getDatabaseAdapter();
+        $dbAdapter->query('SET foreign_key_checks=0;');
+        foreach ($tables as $table) {
+            $dbAdapter->query("TRUNCATE TABLE {$table}");
+        }
+        $dbAdapter->query('SET foreign_key_checks=1;');
     }
 
     protected function _truncate($mockData) {
@@ -143,4 +181,39 @@ class Garp_Test_PHPUnit_Helper {
         Garp_Auth::getInstance()->store($userData);
     }
 
+    protected function _prepareDatabaseProfiler() {
+        $db = $this->getDatabaseAdapter();
+        if (!$db) {
+            return;
+        }
+        $profiler = $db->getProfiler();
+        if (!$profiler) {
+            return;
+        }
+        $this->_profiler = $profiler;
+        $this->_profiler->setFilterQueryType(Zend_Db_Profiler::INSERT);
+    }
+
+    protected function _getTablesFromProfiler(): array {
+        $profiles = $this->_profiler->getQueryProfiles();
+        if (!$profiles) {
+            return [];
+        }
+        $parser = new PHPSQLParser\PHPSQLParser();
+        return f\unique(
+            f\reduce(
+                function ($tableNames, $profile) use ($parser) {
+                    $parsed = $parser->parse($profile->getQuery());
+                    $insertParts = f\prop('INSERT', $parsed) ?: [];
+                    $tables = f\filter(f\prop_equals('expr_type', 'table'), $insertParts);
+                    return f\concat(
+                        $tableNames,
+                        f\map(f\prop('table'), $tables)
+                    );
+                },
+                [],
+                $profiles
+            )
+        );
+    }
 }

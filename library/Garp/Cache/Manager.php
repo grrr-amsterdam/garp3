@@ -115,9 +115,6 @@ class Garp_Cache_Manager {
                 }
             }
         }
-        if (!Zend_Controller_Front::getInstance()->getParam('bootstrap')) {
-            Garp_Cli::lineOut('Memcached purged.');
-        }
         $messageBag[] = 'Memcached: Purged all given models';
         return $messageBag;
     }

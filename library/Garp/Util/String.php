@@ -732,7 +732,7 @@ class Garp_Util_String {
         $htmlAttribs = implode(' ', $htmlAttribs);
         $htmlAttribs = $htmlAttribs ? ' ' . $htmlAttribs : '';
 
-        $regexp = '/[a-zA-Z0-9\.-_]+@[a-zA-Z0-9\.\-_]+\.([a-zA-Z]{2,})/';
+        $regexp = '/[a-zA-Z0-9\.-_+]+@[a-zA-Z0-9\.\-_]+\.([a-zA-Z]{2,})/';
         $text = preg_replace($regexp, "<a href=\"mailto:$0\"$htmlAttribs>$0</a>", $text);
         return $text;
     }

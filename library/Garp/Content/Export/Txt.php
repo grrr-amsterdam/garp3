@@ -2,26 +2,25 @@
 /**
  * Garp_Content_Export_Txt
  * Export content in simple txt format
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Content
- * @lastmodified $Date: $
+ *
+ * @package Garp_Content_Export
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Content_Export_Txt extends Garp_Content_Export_Abstract {
     /**
      * File extension
-     * @var String
+     *
+     * @var string
      */
     protected $_extension = 'txt';
 
 
     /**
      * Format a recordset
-     * @param Garp_Model $model
-     * @param Array $rowset
-     * @return String
+     *
+     * @param  Garp_Model $model
+     * @param  array $rowset
+     * @return string
      */
     public function format(Garp_Model $model, array $rowset) {
         $out = '';
@@ -37,8 +36,9 @@ class Garp_Content_Export_Txt extends Garp_Content_Export_Abstract {
 
     /**
      * Format a single row
-     * @param Array $row
-     * @return String
+     *
+     * @param  array $row
+     * @return string
      */
     protected function _formatRow(array $row) {
         $out = '';
@@ -56,15 +56,20 @@ class Garp_Content_Export_Txt extends Garp_Content_Export_Abstract {
 
     /**
      * Format a related rowset (hasMany or hasAndBelongsToMany)
-     * @param Array $rowset
-     * @return String
+     *
+     * @param array $rowset
+     * @return string
      */
     protected function _formatRelatedRowset($rowset) {
         $out = array();
         foreach ($rowset as $row) {
-            $values = array_values($row);
-            $values = implode(' : ', $values);
-            $out[] = $values;
+            if (is_array($row)) {
+                $values = array_values($row);
+                $values = implode(' : ', $values);
+                $out[] = $values;
+                continue;
+            }
+            $out[] = $row;
         }
         $out = implode(' | ', $out);
         return $out;

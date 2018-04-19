@@ -27,9 +27,10 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
         $mem->useHighMemory();
 
         // @todo Superduperbonusmode: would be cool if you could go back in time and generate a
-        // gumball for a given semver (using Git to grab the correct tag).
+        // gumball for a given version (using Git to grab the correct tag).
         // There would be no way to include that moment's data though.
-        $version = new Garp_Semver();
+        $version = new Garp_Version();
+        $version->setFromGitTags('master');
         Garp_Cli::lineOut('Creating gumball ' . $version, Garp_Cli::PURPLE);
 
         $fromEnv = null;
@@ -81,7 +82,7 @@ class Garp_Cli_Command_Gumball extends Garp_Cli_Command {
         $mem = new Garp_Util_Memory();
         $mem->useHighMemory();
 
-        $version = new Garp_Semver();
+        $version = new Garp_Version();
         Garp_Cli::lineOut('Restoring gumball ' . $version, Garp_Cli::PURPLE);
         $gumball = new Garp_Gumball($version);
         try {

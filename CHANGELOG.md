@@ -5,6 +5,46 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.14
+
+`teardown` on our unit test has been greatly optimized to allow for high-precision truncating. 
+The `teardown` method will truncate exactly the tables that received inserts during the tests, no more, no less.
+
+In order to use this functionality, you need to make sure your default database adapter has a profiler enabled:
+
+```
+[testing : development]
+
+resources.db.params.profiler.enabled = true
+resources.db.params.dbname = "my_test_database"
+```
+
+This way we can piggyback on the profiler to keep track of all `INSERT` queries. 
+When no profiler is configured, the old behavior will still work.
+
+One notable backward-compatible change is the removal of `getDatabaseAdapter()` from `Garp_Test_PHPUnit_TestCase`. 
+It has been moved to `Garp_Test_PHPUnit_Helper`, so if you still want to use it, do so thru `$this->_helper->getDatabaseAdapter()`.
+
+## Version 3.13
+
+Using Capistrano, we write a `VERSION` file in the root of the project. An accompanying `Garp_Version` class is created to lookup the current version.
+Note that this file will usually *not* exist in `development` environments, so don't write code which relies on it.
+This deprecates the use of `Garp_Semver`. Since this is mostly used to aid the `git flow` helper commands, this version of Garp will be most compatible with a `One Flow` setup. See [OneFlow - a Git branching model and workflow
+](http://endoflineblog.com/oneflow-a-git-branching-model-and-workflow) for more information.
+
+In addition, some spring cleaning has been done:
+
+- `Garp_Util_AssetUrl` has been greatly simplified. Either you use a `rev-manifest` file or you get a versioned query string added to the file (containing the version stored in `VERSION`). All code related to using versioned build paths has been removed.
+- `git flow`-related code has been deprecated. This means `g feature`, `g hotfix` and `g release` are no longer valid Garp CLI Commands.
+- `Garp_Semver` has been removed.
+
+## Version 3.12
+
+In order to update the phpunit dependency to a modern version, we finally dropped support for php 5.3 and jumped all the way up to php 7.
+
+Most importantly for implementors: `Garp_Test_PHPUnit_ControllerTestCase` has been removed from Garp. It extended `Zend_Test_PHPUnit_ControllerTestCase`, which was the reason we couldn't upgrade phpunit.
+
+
 ## Version 3.11
 
 Previously, we used a boolean in `Zend_Registry` to indicate CMS context:

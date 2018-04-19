@@ -2,35 +2,37 @@
 /**
  * Garp_Model_Validator_NotEmpty
  * Check if a value is not empty
- * @author Harmen Janssen, David spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Validator
- * @lastmodified $Date: $
+ *
+ * @package Garp_Model_Validator
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Model_Validator_NotEmpty extends Garp_Model_Validator_Abstract {
+
     /**
      * Columns to check for emptiness
-     * @var Array
+     *
+     * @var array
      */
-    protected $_fields = array(); 
+    protected $_fields = [];
 
     /**
      * Setup the validation environment
-     * @param Array $config Configuration options
-     * @return Void
+     *
+     * @param array $config Configuration options
+     * @return void
      */
     protected function _setup($config) {
         $this->_fields = $config;
     }
 
     /**
-     * Validate wether the given columns are not empty
-     * @param Array $data The data to validate
+     * Validate wether the given columns are not empty.
+     *
+     * @param array $data The data to validate
      * @param Garp_Model_Db $model The model
-     * @param Boolean $onlyIfAvailable Wether to skip validation on fields that are not in the array
-     * @return Void
+     * @param bool $onlyIfAvailable Wether to skip validation on fields that are not in the array
+     * @return void
      * @throws Garp_Model_Validator_Exception
      */
     public function validate(array $data, Garp_Model_Db $model, $onlyIfAvailable = false) {
@@ -40,10 +42,13 @@ class Garp_Model_Validator_NotEmpty extends Garp_Model_Validator_Abstract {
     }
 
     /**
-     * Pass value along to more specific validate functions
-     * Callback for array_walk call in self::validate()
-     * @param String $column Column value
-     * @param Array $params  Userdata passed to array_walk, containing $data and $onlyIfAvailable
+     * Pass value along to more specific validate functions.
+     *
+     * @param string        $column Column value
+     * @param Garp_Model_Db $model The model
+     * @param array         $data
+     * @param bool          $onlyIfAvailable
+     * @return void
      */
     protected function _validate($column, $model, $data, $onlyIfAvailable) {
         if ($onlyIfAvailable && !array_key_exists($column, $data)) {
@@ -57,19 +62,20 @@ class Garp_Model_Validator_NotEmpty extends Garp_Model_Validator_Abstract {
             return;
         }
 
-        // Default validation to string
         $this->_validateString($value, $column);
     }
 
     /**
-     * Validate the emptiness of a string
+     * Validate the emptiness of a string.
+     *
+     * @param mixed $value
+     * @param string $column
+     * @return void
+     * @throws Garp_Model_Validator_Exception
      */
     protected function _validateString($value, $column) {
-        $val = '';
-        if (!is_null($value)) {
-            $val = trim($value);
-        }
-        if (!strlen($val)) {
+        $value = is_string($value) ? trim($value) : $value;
+        if (empty($value)) {
             throw new Garp_Model_Validator_Exception(
                 sprintf(__('%s is a required field'), __(Garp_Util_String::underscoredToReadable($column)))
             );
@@ -77,7 +83,12 @@ class Garp_Model_Validator_NotEmpty extends Garp_Model_Validator_Abstract {
     }
 
     /**
-     * Validate the emptiness of a number
+     * Validate the emptiness of a number.
+     *
+     * @param mixed $value
+     * @param string $column
+     * @return void
+     * @throws Garp_Model_Validator_Exception
      */
     protected function _validateNumber($value, $column) {
         // Not much to check, since 0 is falsy but also a valid integer value.
@@ -89,7 +100,6 @@ class Garp_Model_Validator_NotEmpty extends Garp_Model_Validator_Abstract {
     }
 
     protected function _getColumnType($column, Garp_Model_Db $model) {
-        $colInfo = $model->getFieldConfiguration($column);
-        return $colInfo['type'];
+        return $model->getFieldConfiguration($column)['type'];
     }
 }

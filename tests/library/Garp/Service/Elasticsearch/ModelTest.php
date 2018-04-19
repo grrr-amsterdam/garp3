@@ -6,7 +6,7 @@
  * @author  David Spreekmeester <david@grrr.nl>
  * @group   Elasticsearch
  */
-class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
+class Garp_Service_Elasticsearch_ModelTest extends Garp_Test_PHPUnit_TestCase {
     const BOGUS_MODEL_NAME = 'ElasticsearchBogus';
     /**
      * @var Array $_bogusData
@@ -31,6 +31,7 @@ class Garp_Service_Elasticsearch_ModelTest extends PHPUnit_Framework_TestCase {
     public function testSavingRecordShouldBeFetchable() {
         // only test ElasticSearch in a project that uses ElasticSearch
         if (!isset(Zend_Registry::get('config')->elasticsearch)) {
+            $this->assertTrue(true);
             return;
         }
         $bogusData = $this->getBogusData();

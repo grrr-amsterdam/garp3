@@ -6,7 +6,7 @@
  * @author David Spreekmeester <david@grrr.nl>
  * @group Shell
  */
-class Garp_Shell_Command_CreateDir_Test extends PHPUnit_Framework_TestCase {
+class Garp_Shell_Command_CreateDir_Test extends Garp_Test_PHPUnit_TestCase {
     const BOGUS_DIR_NAME = 'foobar-dir';
 
     public function test_Should_be_able_to_create_dir() {

@@ -18,6 +18,7 @@ class Garp_Model_Db_Faker {
 
     public function __construct() {
         $this->_faker = Faker\Factory::create();
+        $this->_faker->addProvider(new Faker\Provider\Lorem($this->_faker));
     }
 
     /**
@@ -79,7 +80,10 @@ class Garp_Model_Db_Faker {
         }
 
         if ($config['type'] === 'enum' || $config['type'] === 'set') {
-            return $this->_faker->randomElement($config['options']);
+            $options = $config['options'];
+            $isAssoc = f\every('is_string', array_keys($options));
+            $randomPool = $isAssoc ? array_keys($options) : array_values($options);
+            return $this->_faker->randomElement($randomPool);
         }
 
         if ($config['type'] === 'email') {
@@ -130,7 +134,7 @@ class Garp_Model_Db_Faker {
         if ($name === 'last_name') {
             return $this->_faker->lastName;
         }
-        return $this->_faker->realText(
+        return $this->_faker->text(
             $this->_faker->numberBetween(
                 max(10, array_get($config, 'minLength', 10)),
                 max(10, array_get($config, 'maxLength', 255))

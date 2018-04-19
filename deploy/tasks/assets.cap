@@ -2,12 +2,8 @@ desc "Build assets"
 task :build_assets do
     run_locally do
         env = fetch(:stage)
-        has_grunt = capture('[ -e "Gruntfile.js" ] && echo 1 || echo 0').strip == '1'
-        if has_grunt
-            execute "grunt #{env}"
-        else
-            execute "gulp --e=#{env}"
-        end
+        execute "./vendor/bin/g spawn --only=js"
+        execute "yarn && gulp --e=#{env}"
     end
 end
 

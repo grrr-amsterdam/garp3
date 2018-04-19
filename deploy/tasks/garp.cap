@@ -1,54 +1,54 @@
 desc "Enable Under Construction status"
 task :enable_under_construction do
-	on roles(:web) do
-		if fetch(:this_host_last_release)
-    		# Previous release exists, update it to under construction
-			execute "if [ -f #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php ]; then php #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setUnderConstruction --e=#{fetch(:stage)}; fi"
-		end
-	end
+  on roles(:web) do
+    if fetch(:this_host_last_release)
+        # Previous release exists, update it to under construction
+      execute "if [ -f #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php ]; then php #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setUnderConstruction --e=#{fetch(:stage)}; fi"
+    end
+  end
 end
 
 desc "Disable Under Construction status"
 task :disable_under_construction do
-	on roles(:web) do
-		if fetch(:this_host_last_release)
-			# Previous release exists, remove under construction flag
-			execute "if [ -f #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php ]; then php #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setUnderConstruction false --e=#{fetch(:stage)}; fi"
-		end
-	end
+  on roles(:web) do
+    if fetch(:this_host_last_release)
+      # Previous release exists, remove under construction flag
+      execute "if [ -f #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php ]; then php #{releases_path}/#{fetch(:this_host_last_release)}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setUnderConstruction false --e=#{fetch(:stage)}; fi"
+    end
+  end
 end
 
 desc "Notify Slack"
 task :notify_slack do
     on roles(:app) do
         within release_path do
-            execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Slack sendDeployNotification --branch=#{fetch(:branch)} --user=#{fetch(:local_user)} --git-version=#{capture("cd #{repo_path} && git describe #{fetch(:branch)}")} --e=#{fetch(:stage)}"
+            execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Slack sendDeployNotification --branch=#{fetch(:branch)} --user=#{fetch(:local_user)} --git-version=#{capture("cd #{repo_path} && git describe #{fetch(:branch)} --tags")} --e=#{fetch(:stage)}"
         end
     end
 end
 
 desc "Spawn models"
 task :spawn do
-	# Since there is often a shared database server for multiple web servers,
-	# we distinguish a primary server (with roles 'web' and 'app'),
-	# and secondary servers (with just role 'web').
-	# Only the primary server Spawns database changes, to prevent
-	# race conditions and multiple clients simultaneously trying to update
-	# the same tables and views.
-	on roles(:app) do
-		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Spawn --only=db -b --e=#{fetch(:stage)}"
-	end
+  # Since there is often a shared database server for multiple web servers,
+  # we distinguish a primary server (with roles 'web' and 'app'),
+  # and secondary servers (with just role 'web').
+  # Only the primary server Spawns database changes, to prevent
+  # race conditions and multiple clients simultaneously trying to update
+  # the same tables and views.
+  on roles(:app) do
+    execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Spawn --only=db -b --e=#{fetch(:stage)}"
+  end
 
-	on roles(:web) do
-		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Spawn --only=files -b --e=#{fetch(:stage)}"
-	end
+  on roles(:web) do
+    execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Spawn --only=files -b --e=#{fetch(:stage)}"
+  end
 end
 
 desc "Perform administrative tasks after deploy"
 task :garp_env_setup do
-	on roles(:app) do
-		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setup --e=#{fetch(:stage)}"
-	end
+  on roles(:app) do
+    execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php Env setup --e=#{fetch(:stage)}"
+  end
 end
 
 desc "Install composer dependencies"
@@ -61,14 +61,22 @@ end
 
 desc "Clear all caches"
 task :clear_cache do
-	on roles(:web) do
-		execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php cache clear --opcache --e=#{fetch(:stage)}"
-	end
+  on roles(:web) do
+    execute "php #{release_path}/vendor/grrr-amsterdam/garp3/scripts/garp.php cache clear --opcache --e=#{fetch(:stage)}"
+  end
 end
 
 desc "Clear PHP OPcache on the CLI"
 task :clear_cli_opcache do
-	on roles(:web) do
-		execute "php -r \"if (function_exists('opcache_reset')) opcache_reset();\""
-	end
+  on roles(:web) do
+    execute "php -r \"if (function_exists('opcache_reset')) opcache_reset();\""
+  end
+end
+
+desc "Remove current failed release directory"
+task :remove_failed_release do
+  on roles(:web) do
+    failedPath = "#{releases_path}/#{release_timestamp}"
+    execute "if [ -d #{failedPath} ]; then rm -rf #{failedPath}; fi"
+  end
 end

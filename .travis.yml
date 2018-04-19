@@ -1,8 +1,8 @@
 language: php
 php:
-    - '5.3'
+    - '7.0'
 sudo: false
-dist: precise
+dist: trusty
 script:
     - composer test
     - if [ "$(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php')" != "" ]; then ./vendor/bin/phpcs --standard=phpcs.xml --colors --encoding=utf-8 -n -p $(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php'); fi
