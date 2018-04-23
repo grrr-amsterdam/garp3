@@ -1,4 +1,6 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * Garp_Form
  * class description
@@ -56,6 +58,22 @@ class Garp_Form extends Zend_Form {
      * @var bool
      */
     protected $_ajax = false;
+
+    /**
+     * Extend __clone to also clone attached validators, decorators and filters.
+     *
+     * @return void
+     */
+    public function __clone() {
+        parent::__clone();
+
+        $decorators = array();
+        $oldDecorators = $this->getDecorators();
+        foreach ($oldDecorators as $oldDecorator) {
+            $decorators[] = clone $oldDecorator;
+        }
+        $this->setDecorators($decorators);
+    }
 
     /**
      * Initalize!
@@ -120,18 +138,38 @@ class Garp_Form extends Zend_Form {
             $this->_addIdAttribute($name, $options);
         }
 
+        // Escape the label, since i
+        $escape = $options['escape'] ?? true;
+        if (!empty($options['label']) && $escape) {
+            $options['label'] = htmlspecialchars($options['label'], ENT_COMPAT, 'UTF-8');
+        }
+
+        $decoratorInheritance = $this->_parseDecoratorInheritance($options['decorators']['inherit'] ?? []);
+
+        unset($options['decorators']['inherit']);
+
         // Default to a sensible set of decorators
         if (empty($options['decorators'])) {
             $options['disableLoadDefaultDecorators'] = true;
-            $this->_addDefaultDecorators($type, $options);
+            $options['decorators'] = $this->_getDefaultDecoratorOptions(
+                $type,
+                $options
+            );
         }
+
+        // Class assumed to be used in getDefaultDecoratorOptions.
+        unset($options['parentClass']);
 
         // Add the StringTrim filter by default
         if (empty($options['filters'])) {
-            $options['filters'] = array('StringTrim');
+            $options['filters'] = ['StringTrim'];
         }
 
         $element = parent::createElement($type, $name, $options);
+
+        $this->_mergeDecoratorOptions($element, $decoratorInheritance['merge_options']);
+        $this->_omitDefaultDecorators($element, $decoratorInheritance['omit']);
+        $this->_mergeDecorators($element, $decoratorInheritance['merge']);
 
         // If the Identical validator is given, set a data-attribute so
         // Javascript can validate the two fields as well
@@ -145,20 +183,6 @@ class Garp_Form extends Zend_Form {
         }
 
         return $element;
-    }
-
-    /**
-     * Check if an element needs required attribute
-     *
-     * @param Zend_Form_Element $element
-     * @param array $options
-     * @return bool
-     */
-    protected function _elementNeedsRequiredAttribute(Zend_Form_Element $element, array $options) {
-        return isset($options['required']) &&
-            $options['required'] &&
-            !$element instanceof Zend_Form_Element_MultiCheckbox
-        ;
     }
 
     /**
@@ -299,6 +323,20 @@ class Garp_Form extends Zend_Form {
     }
 
     /**
+     * Check if an element needs required attribute
+     *
+     * @param Zend_Form_Element $element
+     * @param array $options
+     * @return bool
+     */
+    protected function _elementNeedsRequiredAttribute(Zend_Form_Element $element, array $options) {
+        return isset($options['required']) &&
+            $options['required'] &&
+            !$element instanceof Zend_Form_Element_MultiCheckbox
+        ;
+    }
+
+    /**
      * Add id attribute to the options array.
      * Called from Garp_Form::createElement()
      *
@@ -327,54 +365,123 @@ class Garp_Form extends Zend_Form {
     /**
      * Retrieve default decorators
      *
-     * @param string $type Type of element
-     * @param array $options Options given with the element
+     * @param  string $type Type of element
+     * @param  array  $options Options given with the element
      * @return void
      */
-    protected function _addDefaultDecorators($type, array &$options) {
+    protected function _getDefaultDecoratorOptions($type, array $options = []): array {
         // Set default required label suffix
-        $labelOptions = array();
+        $labelOptions = [];
         if ($this->_defaultRequiredLabelSuffix) {
             $labelOptions['requiredSuffix'] = $this->getDefaultRequiredLabelSuffix();
-            $escape = isset($options['escape']) ? $options['escape'] : true;
-            if (!empty($options['label']) && $escape) {
-                $options['label'] = htmlspecialchars($options['label'], ENT_COMPAT, 'UTF-8');
-            }
-            // labeloptions should always be escaped because of required suffix (<i>*</i>)
+            // labeloptions should never be escaped because of required suffix (<i>*</i>)
             $labelOptions['escape'] = false;
         }
-        if (!isset($options['decorators'])) {
-            $options['decorators'] = array(
-                'ViewHelper',
-                array('Label', $labelOptions),
-                'Description',
-                'Errors'
-            );
-        }
+        $decorators = [
+            'ViewHelper',
+            ['Label', $labelOptions],
+            'Description',
+            'Errors'
+        ];
 
         if ($type != 'hidden') {
-            $divWrapperOptions = array('tag' => 'div');
+            $divWrapperOptions = ['tag' => 'div'];
             if (isset($options['parentClass'])) {
                 $divWrapperOptions['class'] = $options['parentClass'];
-                unset($options['parentClass']);
             }
-            $options['decorators'][] = array('HtmlTag', $divWrapperOptions);
+            $decorators[] = ['HtmlTag', $divWrapperOptions];
+        }
+        return $decorators;
+    }
+
+    /**
+     * Overwrite or append existing decorator options.
+     *
+     * @param  Zend_Form_Element $element
+     * @param  array $inheritance Spec describing which options to merge
+     * @return void
+     */
+    protected function _mergeDecoratorOptions(Zend_Form_Element $element, array $inheritance) {
+        foreach ($inheritance as $mergedDecorator) {
+            $name = is_array($mergedDecorator) ? $mergedDecorator[0] : $mergedDecorator;
+            $options = is_array($mergedDecorator) ? $mergedDecorator[1] : [];
+            $existingDecorator = $element->getDecorator($name);
+            if (!$existingDecorator) {
+                continue;
+            }
+            foreach ($options as $key => $value) {
+                $existingDecorator->setOption($key, $value);
+            }
         }
     }
 
     /**
-     * Extend __clone to also clone attached validators, decorators and filters.
+     * Merge a new decorator into the list of default decorators.
+     * Control placement with 'at' or 'after' flags.
      *
+     * @param  Zend_Form_Element $element
+     * @param  array $inheritance
      * @return void
      */
-    public function __clone() {
-        parent::__clone();
-
-        $decorators = array();
-        $oldDecorators = $this->getDecorators();
-        foreach ($oldDecorators as $oldDecorator) {
-            $decorators[] = clone $oldDecorator;
-        }
-        $this->setDecorators($decorators);
+    protected function _mergeDecorators(Zend_Form_Element $element, array $inheritance) {
+        $element->setDecorators(
+            f\reduce(
+                function ($decorators, $mergeSpec) {
+                    if (!isset($mergeSpec['at']) && !isset($mergeSpec['after'])) {
+                        return f\concat($decorators, [$mergeSpec]);
+                    }
+                    if (!isset($mergeSpec['spec'])) {
+                        throw new InvalidArgumentException(
+                            'key "spec" is required to describe decorator'
+                        );
+                    }
+                    $mergeCallback = $this->_getDecoratorMergeCallback(
+                        $mergeSpec['at'] ?? $mergeSpec['after']
+                    );
+                    $mergeFn = isset($mergeSpec['at']) ?
+                        f\merge_at($mergeSpec['spec'], $mergeCallback) :
+                        f\merge_after($mergeSpec['spec'], $mergeCallback);
+                    return $mergeFn($decorators);
+                },
+                $element->getDecorators(),
+                $inheritance
+            )
+        );
     }
+
+    /**
+     * Remove existing decorators.
+     *
+     * @param  Zend_Form_Element $element
+     * @param  array $omitted
+     * @return void
+     */
+    protected function _omitDefaultDecorators(Zend_Form_Element $element, array $omitted) {
+        foreach ($omitted as $name) {
+            $element->removeDecorator($name);
+        }
+    }
+
+    protected function _parseDecoratorInheritance(array $spec): array {
+        $out = [
+            'merge_options' => $spec['merge_options'] ?? [],
+            'merge' => $spec['merge'] ?? [],
+            'omit' => $spec['omit'] ?? [],
+        ];
+        $rest = f\omit(f\keys($out), $spec);
+        if (count($rest) > 0) {
+            throw new InvalidArgumentException(
+                'Unrecognized options ' . implode(', ', f\keys($rest)) . ' encountered'
+            );
+        }
+        return $out;
+    }
+
+    protected function _getDecoratorMergeCallback(string $decoratorIdentifier) {
+        return function ($decoratorValue, $decoratorKey) use ($decoratorIdentifier) {
+            return $decoratorKey === $decoratorIdentifier
+                || f\last(explode('_', $decoratorKey)) === $decoratorIdentifier;
+        };
+    }
+
 }

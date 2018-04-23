@@ -36,30 +36,30 @@ class Garp_Form_Element_Radio extends Zend_Form_Element_Radio {
         }
 
         $this->setOptions(
-            array(
+            [
                 'separator' => '</li><li>',
-                'decorators' => array(
+                'decorators' => [
                     'ViewHelper',
                     'Description',
-                    array(
-                        array('tag1' => 'HtmlTag'),
-                        array('tag' => 'li')
-                    ),
-                    array(
-                        array('tag2' => 'HtmlTag'),
-                        array('tag' => 'ul', 'class' => $ulClass)
-                    ),
-                    array(
+                    [
+                        ['tag1' => 'HtmlTag'],
+                        ['tag' => 'li']
+                    ],
+                    [
+                        ['tag2' => 'HtmlTag'],
+                        ['tag' => 'ul', 'class' => $ulClass]
+                    ],
+                    [
                         'AnyMarkup',
-                        array('markup' => $legendHtml, 'placement' => 'prepend')
-                    ),
+                        ['markup' => $legendHtml, 'placement' => 'prepend']
+                    ],
                     'Errors',
-                    array(
-                        array('tag3' => 'HtmlTag'),
-                        array('tag' => 'div', 'class' => 'multi-input-container')
-                    ),
-                )
-            )
+                    [
+                        ['tag3' => 'HtmlTag'],
+                        ['tag' => 'div', 'class' => 'multi-input-container']
+                    ],
+                ]
+            ]
         );
 
         if ($this->_autoSelectFirstValue) {
