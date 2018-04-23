@@ -21,7 +21,14 @@ class Garp_Model_Db_Snippet extends Model_Base_Snippet {
         if ($result = $this->fetchRow($select)) {
             return $result;
         }
-        throw new Exception('Snippet not found: ' . $identifier);
+        if (!Zend_Registry::get('config')->snippets->ignoreMissing) {
+            throw new Exception('Snippet not found: ' . $identifier);
+        }
+        // Return fallback row, where text is set to $identifier, in order to provide some fallback.
+        return $this->createRow([
+            'has_text' => 1,
+            'text' => $identifier,
+        ]);
     }
 
     /**
