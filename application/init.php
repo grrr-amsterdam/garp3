@@ -57,10 +57,10 @@ defined('MEMCACHE_PORT') || define('MEMCACHE_PORT', '11211');
 
 $isCli = false;
 if (array_key_exists('HTTP_HOST', $_SERVER) && $_SERVER['HTTP_HOST']) {
-    //  h t t p   c o n t e x t
+    //  HTTP context
     define('HTTP_HOST', $_SERVER['HTTP_HOST']);
 } else {
-    //  c l i   c o n t e x t
+    //  CLI context
     define('HTTP_HOST', gethostname());
     $isCli = true;
 }
@@ -92,17 +92,32 @@ $filePrefix = $rootFolder . '_' . APPLICATION_ENV;
 $filePrefix = preg_replace('/[^a-zA-A0-9_]/', '_', $filePrefix) . '_';
 
 $frontendName = 'Core';
-$memcacheIsConfigured = MEMCACHE_PORT && MEMCACHE_HOST;
+$memcacheIsConfigured = MEMCACHE_HOST && MEMCACHE_PORT;
+
+// Memcached (with 'memcache' lib, used in PHP 5.6 and lower)
 $memcacheAvailable = extension_loaded('memcache');
 if ($memcacheAvailable) {
-    // Attempt a connection to memcache, to see if we can use it
+    // Attempt a connection to the memcached server, to see if we can use it
     $memcache = new Memcache;
     $memcacheAvailable = @$memcache->connect(MEMCACHE_HOST, MEMCACHE_PORT);
 }
 
-// Only use 'Memcached' if we can reasonably connect. Otherwise it's not worth it to crash on,
-// we can just fall back to BlackHole
-if ($memcacheIsConfigured && $memcacheAvailable) {
+// Memcached (with 'memcached/libmemcached' lib, used in PHP 7.0+)
+$memcachedAvailable = extension_loaded('memcached');
+if ($memcachedAvailable) {
+    // Attempt a connection to the memcached server, to see if we can use it
+    $memcached = new Memcached;
+    $memcached->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
+    $memcachedAvailable = @$memcached->getVersion();
+}
+
+// Only use 'Memcached' or 'Libmemcached' if we can reasonably connect.
+// Otherwise it's not worth it to crash on, we can just fall back to BlackHole.
+if ($memcacheIsConfigured && $memcachedAvailable) {
+    $backendName       = 'Libmemcached';
+    $cacheStoreEnabled = true;
+    $useWriteControl   = true;
+} elseif ($memcacheIsConfigured && $memcacheAvailable) {
     $backendName       = 'Memcached';
     $cacheStoreEnabled = true;
     $useWriteControl   = true;
