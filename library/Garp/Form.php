@@ -424,10 +424,6 @@ class Garp_Form extends Zend_Form {
      * @return void
      */
     protected function _mergeDecorators(Zend_Form_Element $element, array $inheritance) {
-        // for some reason the getDecorators has a side effect that affects already set decorators
-        // on a custom element. Couldnt find the best solution yet, but returning where there is no
-        // inheritance needed, will fix a problem on subsidieportaal, and merging decorators isn't
-        // even needed when there is no inheritance. Should discuss with Harmen
         if (empty($inheritance)) {
             return;
         }
