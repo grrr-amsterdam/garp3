@@ -10,6 +10,45 @@ function model(string $modelSuffix) {
 }
 
 /**
+ * Grab the rendered output of a snippet.
+ *
+ * @param  string $identifier
+ * @return string
+ */
+function snippet(string $identifier): string {
+    $snippet = model('Snippet')->fetchByIdentifier($identifier);
+    if (!$snippet) {
+        return $identifier;
+    }
+    return strval(
+        $snippet->has_html
+        ? $snippet->html
+        : $snippet->text
+    );
+}
+
+/**
+ * Quick access to the view.
+ *
+ * @return Zend_View_Abstract
+ */
+function view(): Zend_View_Abstract {
+    return Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer')->view;
+}
+
+/**
+ * Render a partial.
+ *
+ * @param  string $filename
+ * @param  array  $params
+ * @param  string $module
+ * @return string
+ */
+function partial(string $filename, array $params = [], string $module = 'default'): string {
+    return view()->partial($filename, $module, $params);
+}
+
+/**
  * Shortcut to logging messages.
  *
  * @param string $file Basename of a log file. Extension may be omitted.
