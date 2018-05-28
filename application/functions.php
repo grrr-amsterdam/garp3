@@ -16,7 +16,11 @@ function model(string $modelSuffix) {
  * @return string
  */
 function snippet(string $identifier): string {
-    $snippet = model('Snippet')->fetchByIdentifier($identifier);
+    $model = model('Snippet');
+    if ($model->isMultilingual()) {
+        $model = (new Garp_I18n_ModelFactory())->getModel('Snippet');
+    }
+    $snippet = $model->fetchByIdentifier($identifier);
     if (!$snippet) {
         return $identifier;
     }
