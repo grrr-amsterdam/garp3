@@ -7,6 +7,12 @@
  * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
+    
+    /**
+     * HTMLPurifier_Config
+     */
+    protected $_config;
+
     /**
      * Fields to work on
      *
@@ -40,27 +46,42 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
      * @param HTMLPurifier_Config $config
      * @return String The filtered string
      */
-    public function filter($string, HTMLPurifier_Config $config = null) {
+    public function filter($string, HTMLPurifier_Config $config) {
         if (!$string) {
             return $string;
         }
-
-        if (!$config) {
-            $config = $this->getConfig();
-        }
-
+        $config->finalize();
         $purifier = new HTMLPurifier($config);
         $string = $purifier->purify($string);
         return $string;
     }
 
     /**
-     * Create config.
+     * Set config.
+     * 
+     * @param HTMLPurifier_Config $config
+     * @return Void
+     */
+    public function setConfig(HTMLPurifier_Config $config) {
+        $this->_config = $config;
+    }
+
+    /**
+     * Get config.
      *
      * @return HTMLPurifier_Config
      */
     public function getConfig() {
+        if (!$this->_config) {
+            return $this->getDefaultConfig();
+        }
+        return $this->_config;
+    }
+
+    public function getDefaultConfig() {
         $config = HTMLPurifier_Config::createDefault();
+        $config->autoFinalize = false;
+
         $config->set('HTML.DefinitionID', 'Garp3');
         $config->set('HTML.DefinitionRev', 5);
         $config->set('HTML.Doctype', 'HTML 4.01 Transitional');
@@ -137,7 +158,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         $data = &$args[1];
         foreach ($this->_fields as $field) {
             if (array_key_exists($field, $data)) {
-                $data[$field] = $this->filter($data[$field]);
+                $data[$field] = $this->filter($data[$field], $this->getConfig());
             }
         }
     }
@@ -152,7 +173,7 @@ class Garp_Model_Behavior_HtmlFilterable extends Garp_Model_Behavior_Abstract {
         $data = &$args[1];
         foreach ($this->_fields as $field) {
             if (!empty($data[$field])) {
-                $data[$field] = $this->filter($data[$field]);
+                $data[$field] = $this->filter($data[$field], $this->getConfig());
             }
         }
     }

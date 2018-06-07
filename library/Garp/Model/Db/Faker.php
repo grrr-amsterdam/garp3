@@ -76,7 +76,8 @@ class Garp_Model_Db_Faker {
         if ($config['type'] === 'html') {
             $value = $this->_faker->randomHtml(2, 3);
             $htmlFilterable = new Garp_Model_Behavior_HtmlFilterable();
-            return $htmlFilterable->filter($value);
+            $config = $htmlFilterable->getDefaultConfig();
+            return $htmlFilterable->filter($value, $config);
         }
 
         if ($config['type'] === 'enum' || $config['type'] === 'set') {
