@@ -33,7 +33,10 @@
   "autoload": {
     "psr-0": {
       "Garp_": "library/"
-    }
+    },
+    "files": [
+      "application/functions.php"
+    ]
   },
   "include-path": [
     "library/"
