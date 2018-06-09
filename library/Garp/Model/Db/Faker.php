@@ -129,10 +129,10 @@ class Garp_Model_Db_Faker {
         if ($name === 'name') {
             return $this->_faker->sentence;
         }
-        if ($name === 'first_name') {
+        if (f\either(f\contains('first_name'), f\contains('voornaam'))($name)) {
             return $this->_faker->firstName;
         }
-        if ($name === 'last_name') {
+        if (f\either(f\contains('last_name'), f\contains('achternaam'))($name)) {
             return $this->_faker->lastName;
         }
         return $this->_faker->text(
@@ -143,5 +143,6 @@ class Garp_Model_Db_Faker {
         );
     }
 }
+
 
 
