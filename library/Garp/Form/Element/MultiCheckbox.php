@@ -1,46 +1,65 @@
 <?php
 /**
- * Garp_Form_Element_MultiCheckbox
- * class description
- * @author Harmen Janssen | grrr.nl
- * @version 1
- * @package Garp
- * @subpackage Form
+ * @package Garp_Form_Element
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Form_Element_MultiCheckbox extends Zend_Form_Element_MultiCheckbox {
 
     public function init() {
         $htmlLegendClass = 'multi-input-legend';
-        if ($this->isRequired()) { 
+        if ($this->isRequired()) {
             $htmlLegendClass .= ' required';
         }
         $labelText = $this->getLabel();
         if ($this->getDecorator('Label')->getRequiredSuffix() && $this->isRequired()) {
             $labelText .= $this->getDecorator('Label')->getRequiredSuffix();
         }
-        $legendHtml = '<p class="'.$htmlLegendClass.'">'.$labelText.'</p>';
+        $legendHtml = "<p class=\"{$htmlLegendClass}\">{$labelText}</p>";
 
         $ulClass = 'multi-input';
-        if ($this->isrequired()) {
+        if ($this->isRequired()) {
             $ulClass .= ' required';
         }
-        if ($defaulthtmltagrenderer = $this->getdecorator('htmltag')) {
-            $parentclass = $defaulthtmltagrenderer->getoption('class');
-            $ulClass .= ' '.$parentclass;
+        if ($defaultHtmlTagRenderer = $this->getDecorator('htmlTag')) {
+            $parentClass = $defaultHtmlTagRenderer->getOption('class');
+            if (is_array($parentClass) && array_key_exists('callback', $parentClass)) {
+                $ulClass = [
+                    'callback' => function ($decorator) use ($parentClass, $ulClass) {
+                        return $ulClass . ' ' . $parentClass['callback']($decorator);
+                    }
+                ];
+            } else {
+                $ulClass .= ' ' . $parentClass;
+            }
         }
 
-        $this->setOptions(array(
-            'separator' => '</li><li>',
-            'decorators' => array(
-                'ViewHelper',
-                'Description',
-                array('Wrapper' => array('tag1' => 'HtmlTag'), array('tag' => 'li')),
-                array(array('tag2' => 'HtmlTag'), array('tag' => 'ul', 'class' => $ulClass)),
-                array('AnyMarkup', array('markup' => $legendHtml, 'placement' => 'prepend')),
-                'Errors',
-                array(array('tag3' => 'HtmlTag'), array('tag' => 'div', 'class' => 'multi-input-container')),
-            )
-        ));
+        $this->setOptions(
+            [
+                'separator' => '</li><li>',
+                'decorators' => [
+                    'ViewHelper',
+                    'Description',
+                    [
+                        'Wrapper' => ['tag1' => 'HtmlTag'],
+                        ['tag' => 'li']
+                    ],
+                    [
+                        ['tag2' => 'HtmlTag'],
+                        ['tag' => 'ul', 'class' => $ulClass]
+                    ],
+                    [
+                        'AnyMarkup',
+                        ['markup' => $legendHtml, 'placement' => 'prepend']
+                    ],
+                    'Errors',
+                    [
+                        ['tag3' => 'HtmlTag'],
+                        ['tag' => 'div', 'class' => 'multi-input-container']
+                    ],
+                ]
+            ]
+        );
     }
 
 }
+

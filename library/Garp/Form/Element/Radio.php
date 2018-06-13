@@ -27,12 +27,20 @@ class Garp_Form_Element_Radio extends Zend_Form_Element_Radio {
         $legendHtml = "<p class=\"{$htmlLegendClass}\">{$labelText}</p>";
 
         $ulClass = 'multi-input';
-        if ($this->isrequired()) {
+        if ($this->isRequired()) {
             $ulClass .= ' required';
         }
-        if ($defaulthtmltagrenderer = $this->getdecorator('htmltag')) {
-            $parentclass = $defaulthtmltagrenderer->getoption('class');
-            $ulClass .= ' ' . $parentclass;
+        if ($defaultHtmlTagRenderer = $this->getDecorator('htmlTag')) {
+            $parentClass = $defaultHtmlTagRenderer->getOption('class');
+            if (is_array($parentClass) && array_key_exists('callback', $parentClass)) {
+                $ulClass = [
+                    'callback' => function ($decorator) use ($parentClass, $ulClass) {
+                        return $ulClass . ' ' . $parentClass['callback']($decorator);
+                    }
+                ];
+            } else {
+                $ulClass .= ' ' . $parentClass;
+            }
         }
 
         $this->setOptions(
@@ -80,3 +88,4 @@ class Garp_Form_Element_Radio extends Zend_Form_Element_Radio {
     }
 
 }
+
