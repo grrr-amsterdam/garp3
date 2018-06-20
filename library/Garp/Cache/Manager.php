@@ -247,6 +247,8 @@ class Garp_Cache_Manager {
             $ch, CURLOPT_HTTPHEADER, array('Host: ' . $hostName)
         );
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 
         curl_exec($ch);
         $curlInfo = curl_getinfo($ch);
