@@ -1,18 +1,34 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * @package Tests
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
+
+    /** @test */
+    public function should_omit_primary_and_foreign_keys() {
+        $fieldConfig = $this->_getFieldConfig();
+
+        $faker = new Garp_Model_Db_Faker();
+        $fakeRow = $faker->createFakeRow($fieldConfig, []);
+
+        $this->assertFalse(array_key_exists('id', $fakeRow));
+        $this->assertFalse(array_key_exists('user_id', $fakeRow));
+    }
+
     /** @test */
     public function should_generate_a_random_row() {
         $fieldConfig = $this->_getFieldConfig();
 
-        $expectedKeys = array_map(array_get('name'), $fieldConfig);
+        $isPrimaryOrForeign = f\either(f\equals('id'), f\equals('user_id'));
+        $expectedKeys = f\filter(f\not($isPrimaryOrForeign), f\map(f\prop('name'), $fieldConfig));
+
         $faker = new Garp_Model_Db_Faker();
         $fakeRow = $faker->createFakeRow($fieldConfig);
 
-        $this->assertEquals(
+        $this->assertEqualsCanonicalized(
             $expectedKeys,
             array_keys($fakeRow)
         );
@@ -57,6 +73,7 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
 
     protected function _getFieldConfig() {
         return array(
+            array('name' => 'id', 'type' => 'numeric', 'primary' => true),
             array('name' => 'name', 'type' => 'text'),
             array('name' => 'excerpt', 'type' => 'text', 'required' => false, 'maxLength' => 255),
             array('name' => 'body', 'type' => 'html'),
@@ -68,6 +85,10 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
                     'deleted',
                     'draft'
                 )
+            ),
+            array(
+                'name' => 'user_id', 'type' => 'numeric',
+                'origin' => 'relation', 'relationType' => 'hasOne'
             )
         );
     }
@@ -81,3 +102,4 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 }
+
