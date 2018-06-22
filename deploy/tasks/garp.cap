@@ -55,7 +55,7 @@ desc "Install composer dependencies"
 task :composer_install do
     on roles(:web) do
         composerPharPath = "#{deploy_to}/shared/composer.phar"
-        execute "if [ -f #{composerPharPath} ]; then php #{composerPharPath} install -d #{release_path} --no-dev; fi"
+        execute "if [ -f #{composerPharPath} ]; then php #{composerPharPath} install -o -d #{release_path} --no-dev; fi"
     end
 end
 
