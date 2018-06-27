@@ -58,7 +58,7 @@ class Garp_Model_Db_Faker {
             // Give optional fields a 10% chance (more or less) to be NULL
             $diceRoll = $this->_faker->numberBetween(1, 100);
             if ($diceRoll < 10) {
-                return null;
+                return $config['default'] ?: null;
             }
         }
 
