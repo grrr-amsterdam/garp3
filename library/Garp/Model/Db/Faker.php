@@ -54,15 +54,15 @@ class Garp_Model_Db_Faker {
      * @return mixed
      */
     public function getFakeValueForField(array $config) {
-        if (!array_get($config, 'required')) {
+        if (!f\prop('required', $config)) {
             // Give optional fields a 10% chance (more or less) to be NULL
             $diceRoll = $this->_faker->numberBetween(1, 100);
             if ($diceRoll < 10) {
-                return $config['default'] ?: null;
+                return f\prop('default', $config) ?: null;
             }
         }
 
-        if (array_get($config, 'origin') === 'relation') {
+        if (f\prop('origin', $config) === 'relation') {
             // TODO Do something intelligent here?
             // I don't want to tightly couple this class to a database or model, but a random
             // integer for a foreign key will most definitely result in an
@@ -138,8 +138,8 @@ class Garp_Model_Db_Faker {
         }
         return $this->_faker->text(
             $this->_faker->numberBetween(
-                max(10, array_get($config, 'minLength', 10)),
-                max(10, array_get($config, 'maxLength', 255))
+                max(10, f\prop('minLength', $config) ?: 10),
+                max(10, f\prop('maxLength', $config) ?: 255)
             )
         );
     }
