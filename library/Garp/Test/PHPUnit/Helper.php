@@ -73,8 +73,7 @@ class Garp_Test_PHPUnit_Helper {
      * @return int The primary key of the newly inserted data
      */
     public function insertMockData(Garp_Model_Db $model, array $defaultData = array()) {
-        $faker = new Garp_Model_Db_Faker();
-        $data = $faker->createFakeRow($model->getFieldConfiguration(), $defaultData);
+        $data = $model->getDataFactory()->make($defaultData);
         $modelSuffix = $model->getNameWithoutNamespace();
         if (!array_key_exists($modelSuffix, $this->_dynamicallyInsertedMockData)) {
             $this->_dynamicallyInsertedMockData[$modelSuffix] = array(

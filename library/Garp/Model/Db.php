@@ -203,6 +203,15 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
     }
 
     /**
+     * Returns a factory that can generate data to use for testing or seeding.
+     *
+     * @return Garp_Model_DataFactory_Interface
+     */
+    public function getDataFactory(): Garp_Model_DataFactory_Interface {
+        return (new Garp_Model_DataFactory_Default())->setModel($this);
+    }
+
+    /**
      * Strip an array of columns that are not part of this model
      *
      * @param array $data
