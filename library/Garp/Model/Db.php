@@ -226,7 +226,10 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
         foreach ($data as $key => $value) {
             $quotedKey = $adapter->quoteIdentifier($key);
             $quotedValue = $adapter->quote($value);
-            $out[] = "$quotedKey = $quotedValue";
+
+            $out[] = is_null($value)
+                ? "$quotedKey IS NULL"
+                : "$quotedKey = $quotedValue";
         }
         $glue = $and ? 'AND' : 'OR';
         $out = implode(" $glue ", $out);
