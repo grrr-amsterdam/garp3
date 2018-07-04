@@ -109,11 +109,14 @@ class Garp_Test_PHPUnit_Helper {
     protected function _truncateFromProfiler() {
         $tables = $this->_getTablesFromProfiler();
         $dbAdapter = $this->getDatabaseAdapter();
-        $dbAdapter->query('SET foreign_key_checks=0;');
+
+        $this->_setForeignKeyChecks($dbAdapter, 0);
+
         foreach ($tables as $table) {
             $dbAdapter->query("TRUNCATE TABLE {$table}");
         }
-        $dbAdapter->query('SET foreign_key_checks=1;');
+
+        $this->_setForeignKeyChecks($dbAdapter, 1);
     }
 
     protected function _truncate($mockData) {
@@ -215,5 +218,11 @@ class Garp_Test_PHPUnit_Helper {
                 $profiles
             )
         );
+    }
+
+    protected function _setForeignKeyChecks(Zend_Db_Adapter_Abstract $dbAdapter, int $setting) {
+        if ($dbAdapter instanceof Zend_Db_Adapter_Pdo_Mysql) {
+            $dbAdapter->query(sprintf('SET foreign_key_checks=%d;', $setting));
+        }
     }
 }
