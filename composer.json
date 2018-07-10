@@ -22,7 +22,7 @@
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "2.0.1",
     "fzaninotto/faker": "dev-master",
-    "grrr-amsterdam/garp-functional": "^1.0",
+    "grrr-amsterdam/garp-functional": "^2.0",
     "phpunit/phpunit": "^6.0",
     "greenlion/php-sql-parser": "^4.1",
     "league/csv": "^8.0"
