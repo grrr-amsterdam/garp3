@@ -38,6 +38,11 @@ class Garp_Model_DbTest extends Garp_Test_PHPUnit_TestCase {
                 ['foo' => null, 'bar' => 'bla'],
                 '"foo" IS NULL OR "bar" = \'bla\'',
                 false
+            ],
+            [
+                ['foo' => ['1', '2', '3'], 'status' => 'published'],
+                '"foo" IN (\'1\', \'2\', \'3\') AND "status" = \'published\'',
+                true
             ]
         ];
     }

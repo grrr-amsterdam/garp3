@@ -236,9 +236,13 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
             $quotedKey = $adapter->quoteIdentifier($key);
             $quotedValue = $adapter->quote($value);
 
-            $out[] = is_null($value)
-                ? "$quotedKey IS NULL"
-                : "$quotedKey = $quotedValue";
+            if (is_null($value)) {
+                $out[] = "$quotedKey IS NULL";
+            } elseif (is_array($value)) {
+                $out[] = "$quotedKey IN ($quotedValue)";
+            } else {
+                $out[] = "$quotedKey = $quotedValue";
+            }
         }
         $glue = $and ? 'AND' : 'OR';
         $out = implode(" $glue ", $out);
