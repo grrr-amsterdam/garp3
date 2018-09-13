@@ -10,7 +10,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
      * Generate scaled versions of uploaded images
      *
      * @param array $args
-     * @return Boolean success
+     * @return bool
      */
     public function generateScaled($args) {
         $overwrite = array_key_exists('overwrite', $args) || array_key_exists('force', $args);
@@ -34,7 +34,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
      * Optimize images
      *
      * @param array $args
-     * @return bool success
+     * @return bool
      */
     public function optimize($args) {
         $imageModel = new Model_Image();
@@ -56,13 +56,35 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
             Garp_Cli::lineOut('Optimized ' . $png->filename);
         }
         Garp_Cli::lineOut('Done.');
+
+        return true;
+    }
+
+    /**
+     * @param array $args
+     * @return bool
+     */
+    public function remove($args) {
+        if (array_key_exists('filename', $args)
+            && !empty($args['filename'])
+        ) {
+            $result = $this->_removeScaledImagesByFilename($args['filename']);
+
+            if ($result) {
+                $result = $this->_removeFile($args['filename']);
+            }
+
+            return $result;
+        }
+
+        return false;
     }
 
     /**
      * Generate scaled versions of all images in all templates.
      *
-     * @param Boolean $overwrite
-     * @return Boolean
+     * @param bool $overwrite
+     * @return bool
      */
     protected function _generateAllScaledImages($overwrite = false) {
         $imageScaler    = new Garp_Image_Scaler();
@@ -79,9 +101,9 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
     /**
      * Generate scaled versions of a specific source file, along all configured templates.
      *
-     * @param String $filename Filename of the source file in need of scaling
-     * @param Boolean $overwrite
-     * @return Void
+     * @param string $filename Filename of the source file in need of scaling
+     * @param bool $overwrite
+     * @return bool
      */
     protected function _generateScaledImagesForFilename($filename, $overwrite = false) {
         Garp_Cli::lineOut('Generating scaled images for file "' . $filename . '".');
@@ -118,9 +140,9 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
     /**
      * Generate scaled versions of a specific source file, along all configured templates.
      *
-     * @param String $id Id of the source file in need of scaling
-     * @param Boolean $overwrite
-     * @return Void
+     * @param string $id Id of the source file in need of scaling
+     * @param bool $overwrite
+     * @return bool
      */
     protected function _generateScaledImagesForId($id, $overwrite = false) {
         if (!$id) {
@@ -135,9 +157,9 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
     /**
      * Generate scaled versions of all source files, along given template.
      *
-     * @param String $template Template name, as it appears in configuration.
-     * @param Boolean $overwrite
-     * @return Void
+     * @param string $template Template name, as it appears in configuration.
+     * @param bool $overwrite
+     * @return bool
      */
     protected function _generateScaledImagesForTemplate($template, $overwrite = false) {
         Garp_Cli::lineOut('Generating scaled images for template "' . $template . '".');
@@ -175,7 +197,13 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
             "to generate scaled versions of a specific file for all templates:\n" .
             "  generateScaled --filename=[filename]\n" .
             "\n" .
-            "Use the --overwrite flag to overwrite existing scaled images.\n"
+            "Use the --overwrite flag to overwrite existing scaled images.\n" .
+            "\n" .
+            "to optimize images with pngquant:\n" .
+            "  optimize\n" .
+            "\n" .
+            "to remove an image from the storage:\n" .
+            "  remove --filename=[filename]"
         );
         return true;
     }
@@ -189,12 +217,12 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 
         if (!$file->exists($filename)) {
             Garp_Cli::errorOut('Warning: ' . $filename . ' is in the database, but not on disk!');
-            return;
+            return false;
         }
 
-        if ($file->exists($scaler->getScaledPath($id, $template, true)) && !$overwrite) {
+        if ($file->exists($scaler->getScaledPath($id, $template)) && !$overwrite) {
             Garp_Cli::lineOut($template . '/' . $id . ' already exists, skipping');
-            return;
+            return false;
         }
 
         try {
@@ -205,6 +233,53 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
             Garp_Cli::errorOut(
                 "Error scaling " . $filename . " (#" . $id . "): " . $e->getMessage()
             );
+            return false;
         }
+    }
+
+    /**
+     * Generate scaled versions of a specific source file, along all configured templates.
+     *
+     * @param string $filename Filename of the source file in need of scaling
+     * @return bool
+     */
+    protected function _removeScaledImagesByFilename($filename) {
+        Garp_Cli::lineOut('Remove scaled images for file "' . $filename . '".');
+
+        $scaler     = new Garp_Image_Scaler();
+        $templates  = $scaler->getTemplateNames();
+        $imageModel = new Garp_Model_Db_Image();
+        $select     = $imageModel->getAdapter()->quoteInto('filename = ?', $filename);
+        $record     = $imageModel->fetchRow($select);
+        $success    = 0;
+
+        if (!$record) {
+            Garp_Cli::errorOut(
+                'I couldn\'t find any records in the database, containing "' .
+                $filename . '" as filename'
+            );
+            return false;
+        }
+
+        foreach ($templates as $template) {
+            $success += $this->_removeFile($scaler->getScaledPath($record->id, $template));
+        }
+
+        return $success == count($templates);
+    }
+
+    protected function _removeFile($path) {
+        $file = new Garp_Image_File();
+        $success = false;
+        Garp_Cli::lineOut('Removing "' . $path . '"');
+        if ($file->exists($path)) {
+            $success = $file->remove($path);
+            if ($success) {
+                Garp_Cli::lineOut('success');
+            } else {
+                Garp_Cli::errorOut('failed');
+            }
+        }
+        return $success;
     }
 }
