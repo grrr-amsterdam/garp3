@@ -18,7 +18,7 @@
     "ezyang/htmlpurifier": "^4.8",
     "sentry/sentry": "^1.1",
     "monolog/monolog": "^1.0",
-    "dompdf/dompdf": "^0.7.0",
+    "dompdf/dompdf": "^0.8.0",
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "2.0.1",
     "fzaninotto/faker": "dev-master",
