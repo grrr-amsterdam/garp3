@@ -16,10 +16,14 @@ class Garp_Store_Session implements Garp_Store_Interface {
      * Class constructor
      *
      * @param string $namespace
+     * @param string $duration
      * @return void
      */
-    public function __construct($namespace) {
+    public function __construct($namespace, $duration = false) {
         $this->_session = new Zend_Session_Namespace($namespace);
+        if ($duration) {
+            $this->_session->setExpirationSeconds($duration);
+        }
     }
 
     /**
