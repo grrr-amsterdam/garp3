@@ -29,6 +29,7 @@ abstract class Garp_Cli_Command {
      * @return void
      */
     public function __construct($stdin = '') {
+        Zend_Session::$_unitTestEnabled = true;
         $this->_stdin = $stdin;
     }
 
