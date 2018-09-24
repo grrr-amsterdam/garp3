@@ -6,9 +6,8 @@
  * @package Garp_Util
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
-class Garp_Util_FullUrl {
-    const INVALID_ROUTE
-        = 'Given route is invalid. Please provide an array with valid keys 0 and 1.';
+class Garp_Util_FullUrl implements JsonSerializable {
+    const INVALID_ROUTE = 'Given route is invalid. Please provide an array with valid keys 0 and 1.';
     const CANNOT_RESOLVE_HTTP_HOST = 'Unable to resolve host. Please configure app.domain.';
 
     /**
@@ -54,8 +53,15 @@ class Garp_Util_FullUrl {
      *
      * @return string
      */
-    public function __toString() {
+    public function __toString(): string {
         return $this->_url;
+    }
+
+    /**
+     * @return string
+     */
+    public function jsonSerialize(): string {
+        return $this->__toString();
     }
 
     /**

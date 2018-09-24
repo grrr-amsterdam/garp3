@@ -109,4 +109,15 @@ class Garp_Util_FullUrlTest extends Garp_Test_PHPUnit_TestCase {
             )
         );
     }
+
+    public function testCanBeJsonSerialized() {
+        $this->assertEquals(
+            '{"url":"http:\/\/example.com\/agenda\/event\/my_slug"}',
+            json_encode([
+                'url' => new Garp_Util_FullUrl(
+                    [['slug' => 'my_slug'], 'event_view']
+                )
+            ])
+        );
+    }
 }
