@@ -6,7 +6,7 @@
  * @package Garp_Util
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
-class Garp_Util_RoutedUrl {
+class Garp_Util_RoutedUrl implements JsonSerializable {
     /**
      * @var string
      */
@@ -34,7 +34,14 @@ class Garp_Util_RoutedUrl {
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString(): string {
         return $this->_url;
+    }
+
+    /**
+     * @return string
+     */
+    public function jsonSerialize(): string {
+        return $this->__toString();
     }
 }
