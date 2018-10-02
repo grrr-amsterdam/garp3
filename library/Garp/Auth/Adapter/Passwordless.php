@@ -224,65 +224,13 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
     }
 
     protected function _sendTokenEmail($email, $userId, $token) {
-        $params = class_exists('App_LoginTokenMailer')
-            ? (new App_LoginTokenMailer($email, $userId, $this->_getLoginUrl($userId, $token)))->getEmailParams()
-            : [
-                'to' => $email,
-                'subject' => $this->_getEmailSubject(),
-                'message' => $this->_getEmailBody($userId, $token),
-            ];
-        $mailer = new Garp_Mailer();
-        return $mailer->send($params);
+        return $this->_getTokenMailer($email, $userId, $token)->send();
     }
 
-    protected function _getEmailBody($userId, $token) {
-        $authVars = $this->_getAuthVars();
-        if (!empty($authVars->email_body_snippet_identifier)
-            && $authVars->email_body_snippet_identifier
-        ) {
-            return $this->_interpolateEmailBody(
-                $this->_getSnippet($authVars->email_body_snippet_identifier), $userId, $token
-            );
-        }
-        if (!empty($authVars->email_body)) {
-            return $this->_interpolateEmailBody($authVars->email_body, $userId, $token);
-        }
-
-        throw new Garp_Auth_Adapter_Passwordless_Exception(
-            'Missing email body: configure a ' .
-            'snippet or hard-code a string.'
-        );
-    }
-
-    protected function _getEmailSubject() {
-        $authVars = $this->_getAuthVars();
-        if (isset($authVars->email_subject_snippet_identifier)
-            && $authVars->email_subject_snippet_identifier
-        ) {
-            return $this->_getSnippet($authVars->email_subject_snippet_identifier);
-        }
-        if (isset($authVars->email_subject) && $authVars->email_subject) {
-            return $authVars->email_subject;
-        }
-
-        throw new Garp_Auth_Adapter_Passwordless_Exception(
-            'Missing email subject: configure a ' .
-            'snippet or hard-code a string.'
-        );
-
-    }
-
-    protected function _interpolateEmailBody($body, $userId, $token) {
-        return Garp_Util_String::interpolate(
-            $body, array(
-                'LOGIN_URL' => $this->_getLoginUrl($userId, $token)
-            )
-        );
-    }
-
-    protected function _getLoginUrl($userId, $token) {
-        return new Garp_Util_FullUrl(array(array('method' => 'passwordless'), 'auth_submit')) .
-            '?uid=' . $userId . '&token=' . $token;
+    protected function _getTokenMailer($email, $userId, $token): Garp_Auth_Adapter_Passwordless_TokenMailerAbstract {
+        return class_exists('App_TokenMailer')
+            ? new App_TokenMailer($email, $userId, $token, $this->_getAuthVars())
+            : new Garp_Auth_Adapter_Passwordless_TokenMailer($email, $userId, $token, $this->_getAuthVars());
     }
 
     protected function _getRedirectUrl() {
@@ -292,14 +240,6 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
             $route = $authVars->requesttoken_redirect_route;
         }
         return new Garp_Util_FullUrl(array(array(), $route));
-    }
-
-    protected function _getSnippet($identifier) {
-        $snippetModel = new Model_Snippet();
-        if ($snippetModel->isMultilingual()) {
-            $snippetModel = instance(new Garp_I18n_ModelFactory)->getModel('Snippet');
-        }
-        return $snippetModel->fetchByIdentifier($identifier)->text;
     }
 
     protected function _getCurrentUserData() {
