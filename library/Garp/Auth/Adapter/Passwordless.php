@@ -228,8 +228,10 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
     }
 
     protected function _getTokenMailer($email, $userId, $token): Garp_Auth_Adapter_Passwordless_TokenMailerAbstract {
-        return class_exists('App_TokenMailer')
-            ? new App_TokenMailer($email, $userId, $token, $this->_getAuthVars())
+        $authVars = $this->_getAuthVars();
+        $className = $authVars->token_mailer_class;
+        return class_exists($className)
+            ? new $className($email, $userId, $token, $authVars)
             : new Garp_Auth_Adapter_Passwordless_TokenMailer($email, $userId, $token, $this->_getAuthVars());
     }
 
