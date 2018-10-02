@@ -67,8 +67,4 @@ class Garp_Auth_Adapter_Passwordless_TokenMailer extends Garp_Auth_Adapter_Passw
         );
 
     }
-
-    protected function _getMessageKey(): string {
-        return 'message';
-    }
 }
