@@ -224,14 +224,15 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
     }
 
     protected function _sendTokenEmail($email, $userId, $token) {
-        $mailer = new Garp_Mailer();
-        return $mailer->send(
-            array(
+        $params = class_exists('App_LoginTokenMailer')
+            ? (new App_LoginTokenMailer($email, $userId, $this->_getLoginUrl($userId, $token)))->getEmailParams()
+            : [
                 'to' => $email,
                 'subject' => $this->_getEmailSubject(),
-                'message' => $this->_getEmailBody($userId, $token)
-            )
-        );
+                'message' => $this->_getEmailBody($userId, $token),
+            ];
+        $mailer = new Garp_Mailer();
+        return $mailer->send($params);
     }
 
     protected function _getEmailBody($userId, $token) {
