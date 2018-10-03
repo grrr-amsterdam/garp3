@@ -46,6 +46,16 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
         return $props;
     }
 
+    public function __wakeup() {
+        parent::__wakeup();
+
+        // Immediately connect the row again, to not be bothered
+        // by "Cannot save row unless it is connected".
+        if ($this->_tableClass) {
+            $this->setTable(new $this->_tableClass);
+        }
+    }
+
     /**
      * ATTENTION:
      * This code is copied and altered from Zend_Db_Table_Abstract::findManyToManyRowset().
