@@ -2,39 +2,41 @@
 /**
  * Garp_Db_Table_Row
  * Custom implementation of Zend_Db_Table_Row. Allows for automagic related result fetching.
- * @author Harmen Janssen, David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
- * @subpackage Table
- * @lastmodified $Date: $
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
     /**
      * Related rowsets
-     * @var Array
+     *
+     * @var array
      */
-    protected $_related = array();
+    protected $_related = [];
 
     /**
      * Virtual properties. Used with setVirtual() when you wish to transport arbitrary values
      * thru Row objects.
-     * @var Array
+     *
+     * @var array
      */
-    protected $_virtual = array();
+    protected $_virtual = [];
 
     public function flatten($column) {
         if (is_array($column)) {
             // Convert so it can be used by array_intersect_key
             $column = array_fill_keys($column, null);
         }
-        return is_array($column) ?
-            array_intersect_key($this->toArray(), $column) : $this->{$column};
+        return is_array($column)
+            ? array_intersect_key($this->toArray(), $column)
+            : $this->{$column};
     }
 
     /**
      * Overwritten to also store $this->_related. This property was not returned, of course,
      * so when serializing it would disappear.
+     *
      * @return array
      */
     public function __sleep() {
@@ -83,8 +85,9 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
         // even if we are interacting between a table defined in a class and a
         // table via extension, ensure to persist the definition
-        if (($tableDefinition = $this->_table->getDefinition()) !== null &&
-            ($intersectionTable->getDefinition() == null)) {
+        if (($tableDefinition = $this->_table->getDefinition()) !== null
+            && ($intersectionTable->getDefinition() == null)
+        ) {
             $intersectionTable->setOptions(array(Zend_Db_Table_Abstract::DEFINITION => $tableDefinition));
         }
 
@@ -102,8 +105,9 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
         // even if we are interacting between a table defined in a class and a
         // table via extension, ensure to persist the definition
-        if (($tableDefinition = $this->_table->getDefinition()) !== null &&
-            ($matchTable->getDefinition() == null)) {
+        if (($tableDefinition = $this->_table->getDefinition()) !== null
+            && ($matchTable->getDefinition() == null)
+        ) {
             $matchTable->setOptions(array(Zend_Db_Table_Abstract::DEFINITION => $tableDefinition));
         }
 
@@ -136,8 +140,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
             $select->from(array('m' => $matchName), Zend_Db_Select::SQL_WILDCARD, $matchSchema);
         }
 
-        $select->joinInner(array('i' => $interName), $joinCond, array(), $interSchema)
-               ->setIntegrityCheck(false);
+        $select->joinInner(['i' => $interName], $joinCond, [], $interSchema)->setIntegrityCheck(false);
 
         $callerMap = $this->_prepareReference($intersectionTable, $this->_getTable(), $callerRefRule);
 
@@ -233,14 +236,14 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
             if ($type == 'object') {
                 $type = get_class($parentTable);
             }
-            require_once 'Zend/Db/Table/Row/Exception.php';
             throw new Zend_Db_Table_Row_Exception("Parent table must be a Zend_Db_Table_Abstract, but it is $type");
         }
 
         // even if we are interacting between a table defined in a class and a
         // table via extension, ensure to persist the definition
         if (($tableDefinition = $this->_table->getDefinition()) !== null
-            && ($parentTable->getDefinition() == null)) {
+            && ($parentTable->getDefinition() == null)
+        ) {
             $parentTable->setOptions(array(Zend_Db_Table_Abstract::DEFINITION => $tableDefinition));
         }
 
@@ -259,7 +262,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
             // Use adapter from parent table to ensure correct query construction
             $parentDb = $parentTable->getAdapter();
             $parentColumnName = $parentDb->foldCase($map[Zend_Db_Table_Abstract::REF_COLUMNS][$i]);
-            $parentColumn = $parentDb->quoteIdentifier($parentTable->getName()).'.';
+            $parentColumn = $parentDb->quoteIdentifier($parentTable->getName()) . '.';
             $parentColumn .= $parentDb->quoteIdentifier($parentColumnName, true);
             $parentInfo = $parentTable->info();
 
@@ -283,7 +286,9 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
      * Return the value of the primary key(s) for this row.
      * Extended to not return arrays when primary key is just one column.
      * (which is true 99 out of a 100 times)
-     * @return Mixed
+     *
+     * @param  bool $useDirty
+     * @return mixed
      */
     public function getPrimaryKey($useDirty = true) {
         $primary = (array)$this->_getTable()->info(Zend_Db_Table::PRIMARY);
@@ -297,11 +302,11 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
         return count($out) > 1 ? $out : $out[0];
     }
 
-
     /**
      * Set a related rowset as property of this row.
-     * @param String $binding An alias for storing the binding name
-     * @param Garp_Db_Table_Row|Garp_Db_Table_Rowset $rowset The related rowset
+     *
+     * @param  string $binding An alias for storing the binding name
+     * @param  Garp_Db_Table_Row|Garp_Db_Table_Rowset $rowset The related rowset
      * @return Garp_Db_Table_Row $this
      */
     public function setRelated($binding, $rowset) {
@@ -311,7 +316,8 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
     /**
      * Get a related rowset.
-     * @param String $binding The alias for the related rowset
+     *
+     * @param  string $binding The alias for the related rowset
      * @return Garp_Db_Table_Row|Garp_Db_Table_Rowset
      */
     public function getRelated($binding = null) {
@@ -323,8 +329,9 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
     /**
      * Set arbitrary virtual value that is not a table column.
-     * @param String $key
-     * @param Mixed $value
+     *
+     * @param  string $key
+     * @param  mixed $value
      * @return Garp_Db_Table_Row $this
      */
     public function setVirtual($key, $value) {
@@ -334,7 +341,8 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
     /**
      * Return all virtual values
-     * @return Array
+     *
+     * @return array
      */
     public function getVirtual() {
         return $this->_virtual;
@@ -342,7 +350,8 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
     /**
      * Retrieve row field value
-     * Modified to also return related rowsets.
+     * Modified to also return related rowsets and virtual fields.
+     *
      * @param  string $columnName The user-specified column name.
      * @return string             The corresponding column value.
      * @throws Zend_Db_Table_Row_Exception if the $columnName is not a column in the row.
@@ -391,8 +400,7 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
      * @return Zend_Db_Table_Row_Abstract
      * @throws Zend_Db_Table_Row_Exception
      */
-    public function __unset($columnName)
-    {
+    public function __unset($columnName) {
         try {
             parent::__unset($columnName);
         } catch (Zend_Db_Table_Row_Exception $e) {
@@ -409,8 +417,9 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
     /**
      * Test existence of row field
-     * @param String $columnName The column key.
-     * @return Boolean
+     *
+     * @param  string $columnName The column key.
+     * @return boolean
      */
     public function __isset($columnName) {
         // Check if native column from database.
@@ -426,14 +435,16 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
     /**
      * Returns the column/value data as an array.
      * Modified to include related and virtual rowsets
+     *
      * @return array
      */
     public function toArray() {
         $data = parent::toArray();
         foreach (array('_related', '_virtual') as $prop) {
             foreach ($this->{$prop} as $key => $val) {
-                if ($val instanceof Zend_Db_Table_Row_Abstract ||
-                    $val instanceof Zend_Db_Table_Rowset_Abstract) {
+                if ($val instanceof Zend_Db_Table_Row_Abstract
+                    || $val instanceof Zend_Db_Table_Rowset_Abstract
+                ) {
                     $data[$key] = $val->toArray();
                 } else {
                     $data[$key] = $val;
