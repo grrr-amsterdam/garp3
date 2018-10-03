@@ -1,15 +1,17 @@
 <?php
+
 /**
  * Garp_Controller_Action
  * Base controller class.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
  * @subpackage Controller
+ * @author Harmen Janssen <harmen@grrr.nl>
+ * @version $Revision: $
+ * @modifiedby $LastChangedBy: $
  * @lastmodified $Date: $
  */
-class Garp_Controller_Action extends Zend_Controller_Action {   
+class Garp_Controller_Action extends Zend_Controller_Action {
     /**
      * Pre-dispatch routines
      *
@@ -22,19 +24,5 @@ class Garp_Controller_Action extends Zend_Controller_Action {
      */
     public function preDispatch() {
         parent::preDispatch();
-        $this->_setFlashMessage();
-    }
-
-
-    /**
-     * Make flash messages known to the view, but only when store.type is Session.
-     * When it is cookie Javascript handles the display (and removal from storage).
-     * @return Void
-     */
-    protected function _setFlashMessage() {
-        $ini = Zend_Registry::get('config');
-        if (!isset($ini->store->type) || strtolower($ini->store->type) == 'session') {
-            $this->view->flashMessages = $this->getHelper('FlashMessenger')->getMessages();
-        }
     }
 }

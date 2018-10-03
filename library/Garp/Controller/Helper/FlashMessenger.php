@@ -1,28 +1,35 @@
 <?php
+
 /**
  * Garp_Controller_Helper_FlashMessenger
  * Based on Zend_Controller_Helper_FlashMessenger, but is configurable to use cookies instead of sessions.
  * NOTE: this variant is by no means as extensive as the Zend one, but who needs that anyway.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
  * @subpackage Controller
+ * @author Harmen Janssen <harmen@grrr.nl>
+ * @version $Revision: $
+ * @modifiedby $LastChangedBy: $
  * @lastmodified $Date: $
  */
 class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helper_Abstract {
+
+    const STORAGE_TYPE = 'cookie';
+
     /**
      * Session or cookie
+     *
      * @var Garp_Store_Interface
      */
     protected static $_store;
 
     /**
      * Class constructor
-     * @return Void 
+     *
+     * @return Void
      */
     public function __construct() {
-        self::$_store = Garp_Store_Factory::getStore('FlashMessenger');
+        self::$_store = Garp_Store_Factory::getStore('FlashMessenger', self::STORAGE_TYPE);
     }
 
     public function postDispatch() {
@@ -33,6 +40,7 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 
     /**
      * Add message
+     *
      * @param String $message
      * @return $this
      */
@@ -52,7 +60,8 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 
     /**
      * Get messages
-     * @param Boolean $preserveMessages Wether to keep the messages. 
+     *
+     * @param Boolean $preserveMessages Wether to keep the messages.
      * Of course this is not the general idea of the FlashMessenger. Usually messages are directly discardable.
      * @return Array
      */
@@ -69,6 +78,7 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 
     /**
      * Check if messages are set
+     *
      * @return Boolean
      */
     public function hasMessages() {
@@ -77,6 +87,7 @@ class Garp_Controller_Helper_FlashMessenger extends Zend_Controller_Action_Helpe
 
     /**
      * Remove messages
+     *
      * @return $this
      */
     public function clearMessages() {
