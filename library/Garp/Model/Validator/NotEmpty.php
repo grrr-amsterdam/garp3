@@ -75,7 +75,7 @@ class Garp_Model_Validator_NotEmpty extends Garp_Model_Validator_Abstract {
      */
     protected function _validateString($value, $column) {
         $value = is_string($value) ? trim($value) : $value;
-        if (empty($value)) {
+        if (empty($value) && $value !== '0') {
             throw new Garp_Model_Validator_Exception(
                 sprintf(__('%s is a required field'), __(Garp_Util_String::underscoredToReadable($column)))
             );
