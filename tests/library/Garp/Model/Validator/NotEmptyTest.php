@@ -61,6 +61,19 @@ class Garp_Model_Validator_NotEmptyTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 
+    public function test_should_accept_string_containing_zero() {
+        $this->assertNull(
+            $this->_getValidator()->validate(
+                [
+                    'string' => '0',
+                    'number' => 0,
+                    'set' => ['value']
+                ],
+                $this->_getMockModel()
+            )
+        );
+    }
+
     protected function _getValidator(): Garp_Model_Validator_NotEmpty {
         return new Garp_Model_Validator_NotEmpty(['string', 'number', 'set']);
     }
