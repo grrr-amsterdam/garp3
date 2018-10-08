@@ -51,9 +51,16 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
 
         // Immediately connect the row again, to not be bothered
         // by "Cannot save row unless it is connected".
-        if ($this->_tableClass) {
-            $this->setTable(new $this->_tableClass);
+        if (!$this->_tableClass) {
+            return;
         }
+        $table = new $this->_tableClass;
+        $info = $table->info();
+
+        if ($info['cols'] != array_keys($this->_data)) {
+            return;
+        }
+        $this->setTable(new $this->_tableClass);
     }
 
     /**
