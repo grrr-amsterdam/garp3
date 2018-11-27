@@ -223,8 +223,12 @@ class Garp_Spawn_MySql_Column {
 
 
     static public function quoteIfNecessary($fieldType, $value): string {
+        if ($value instanceof Zend_Db_Expr) {
+            return strval($value);
+        }
+
         $decorator = '';
-        $isStringLike = !is_numeric($value) && !is_bool($value) && !is_null($value) && !$value instanceof Zend_Db_Expr;
+        $isStringLike = !is_numeric($value) && !is_bool($value) && !is_null($value);
 
         if ($fieldType === 'enum' || $isStringLike) {
             $decorator = "'";
