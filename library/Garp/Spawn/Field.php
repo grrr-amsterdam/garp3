@@ -197,6 +197,13 @@ class Garp_Spawn_Field {
                         throw new Exception(self::UNSUPPORTED_PARAM_OPTIONS);
                     }
                     break;
+                case 'default':
+                    // When "default" is given, but is NULL, we have to differentiate between an
+                    // undefined value and actual purposeful NULL.
+                    if (is_null($config['default'])) {
+                        $paramValue = new Zend_Db_Expr('null');
+                    }
+                    break;
                 }
             }
 
@@ -265,4 +272,5 @@ class Garp_Spawn_Field {
     public function getNameProperty($name) {
     }
 }
+
 
