@@ -201,7 +201,7 @@ class Garp_Spawn_Field {
                     // When "default" is given, but is NULL, we have to differentiate between an
                     // undefined value and actual purposeful NULL.
                     if (is_null($config['default'])) {
-                        $paramValue = new Zend_Db_Expr('null');
+                        $paramValue = new Zend_Db_Expr('NULL');
                     }
                     break;
                 }
