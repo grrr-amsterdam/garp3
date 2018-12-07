@@ -412,7 +412,13 @@ Garp.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 				deferRowRender: false,
 				enableRowBody: true,
 				forceFit: true,
-				contextRowCls: 'garp-contextrow'
+				contextRowCls: 'garp-contextrow',
+				getRowClass: function(rec, rowIdx, params, store) {
+				  var currentModel = Garp.dataTypes[Garp.currentModel];
+				  return currentModel && typeof currentModel.getGridRowClass === 'function'
+				    ? currentModel.getGridRowClass(rec, rowIdx, params, store)
+				    : '';
+				}
 			},
 			store: this.store,
 			border: false,
