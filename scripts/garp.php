@@ -12,7 +12,7 @@ date_default_timezone_set('Europe/Amsterdam');
 // Check if APPLICATION_ENV is passed along as an argument.
 foreach ($_SERVER['argv'] as $key => $arg) {
     if (substr($arg, 0, 17) === '--APPLICATION_ENV'
-        || substr($arg, 0, 3)  === '--e'
+        || $arg === '--e'
     ) {
         $keyAndVal = explode('=', $arg);
         define('APPLICATION_ENV', trim($keyAndVal[1]));
