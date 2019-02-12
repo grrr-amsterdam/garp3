@@ -5,13 +5,13 @@
   "type": "library",
   "config": {
     "platform": {
-      "php": "7.0"
+      "php": "7.1"
     }
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=7.0",
+    "php": ">=7.1",
     "google/apiclient": "^1.1",
     "phpoffice/phpexcel": "1.8.*",
     "zendframework/zendframework1": "^1.12.20",
@@ -22,7 +22,7 @@
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "2.0.1",
     "fzaninotto/faker": "dev-master",
-    "grrr-amsterdam/garp-functional": "^2.0",
+    "grrr-amsterdam/garp-functional": "^3.0",
     "phpunit/phpunit": "^6.0",
     "greenlion/php-sql-parser": "^4.1",
     "league/csv": "^8.0"
