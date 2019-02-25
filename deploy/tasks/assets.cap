@@ -2,7 +2,7 @@ desc "Build assets"
 task :build_assets do
     run_locally do
         env = fetch(:stage)
-        execute "./vendor/bin/g spawn --only=js"
+        execute "./vendor/bin/g spawn --only=js --e=#{env}"
         execute "yarn && gulp --e=#{env}"
     end
 end
