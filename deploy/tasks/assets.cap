@@ -39,7 +39,7 @@ task :distribute_assets do
             return false
         end
         if capture("12g env get -e #{env} --var=CDN_READONLY").empty?
-            execute "12g env list -e #{env} -o json | vendor/bin/g cdn distribute --stdin #{since_argument}"
+            execute "12g env list -e #{env} -o json | vendor/bin/g cdn distribute --e=#{env} --stdin #{since_argument}"
         else
             puts 'CDN is read-only. Not distributing.'
         end
