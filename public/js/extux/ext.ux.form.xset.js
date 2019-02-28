@@ -9,12 +9,12 @@ Ext.ux.form.XSet = Ext.extend(Ext.form.CheckboxGroup, {
   initComponent: function() {
     var items = [];
     var scope = this.ct;
-    Ext.each(this.options, function(item) {
+    Ext.iterate(this.options, function(key, value) {
       items.push({
         allowBlank: true,
-        boxLabel: item.replace(/_/g, ' '),
+        boxLabel: typeof value === 'string' ? value.replace(/_/g, ' ') : key,
         submitValue: false,
-        name: item,
+        name: key,
         checked: true,
         renderTo: scope,
         labelSeparator: ''
@@ -30,7 +30,7 @@ Ext.ux.form.XSet = Ext.extend(Ext.form.CheckboxGroup, {
       return this.getValue() !== this.originalValue;
     }
     return false;
-	},
+  },
 
   setValue: function(value) {
     var val = {};
