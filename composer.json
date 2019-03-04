@@ -25,7 +25,9 @@
     "grrr-amsterdam/garp-functional": "^3.0",
     "phpunit/phpunit": "^6.0",
     "greenlion/php-sql-parser": "^4.1",
-    "league/csv": "^8.0"
+    "league/csv": "^8.0",
+    "aws/aws-sdk-php": "^3.87",
+    "guzzlehttp/promises": "^1.3"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^2.6"

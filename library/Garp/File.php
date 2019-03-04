@@ -367,6 +367,7 @@ class Garp_File {
             'apikey'          => $ini->cdn->s3->apikey,
             'secret'          => $ini->cdn->s3->secret,
             'bucket'          => $ini->cdn->s3->bucket,
+            'region'          => $ini->cdn->s3->region,
             'readonly'        => $ini->cdn->readonly,
             'gzip'            => $ini->cdn->gzip,
             'gzip_exceptions' => $ini->cdn->gzip_exceptions

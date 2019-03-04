@@ -1,5 +1,8 @@
 <?php
+use Aws\Credentials\Credentials;
 use Garp\Functional as f;
+use GuzzleHttp\Promise;
+use Aws\S3\S3Client;
 
 /**
  * Storage and retrieval of user uploads, from Amazon's S3 CDN.
@@ -14,20 +17,16 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
      *
      * @var bool
      */
-    protected $_config = array();
+    protected $_config = [];
 
-    protected $_requiredS3ConfigParams = array('apikey', 'secret', 'bucket');
+    protected $_requiredS3ConfigParams = ['apikey', 'secret', 'bucket', 'region'];
 
     /**
-     * @var Zend_Service_Amazon_S3 $_api
+     * @var Aws\S3\S3Client
      */
     protected $_api;
 
-    protected $_apiInitialized = false;
-
-    protected $_bucketExists = false;
-
-    protected $_knownMimeTypes = array(
+    protected $_knownMimeTypes = [
         'js' => 'text/javascript',
         'css' => 'text/css',
         'html' => 'text/html',
@@ -35,7 +34,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
         'png' => 'image/png',
         'gif' => 'image/gif',
         'svg' => 'image/svg+xml'
-    );
+    ];
 
     /**
      * Number of seconds after which to timeout the S3 action.
@@ -66,9 +65,11 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
         $this->_config['path'] = $path;
     }
 
-    public function exists($filename) {
-        $this->_initApi();
-        return $this->_api->isObjectAvailable($this->_config['bucket'] . $this->_getUri($filename));
+    public function exists($filename): bool {
+        return $this->_getApi()->doesObjectExist(
+            $this->_config['bucket'],
+            $this->_getUri($filename)
+        );
     }
 
     /**
@@ -77,7 +78,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    public function getUrl($filename) {
+    public function getUrl($filename): Garp_Util_AssetUrl {
         $this->_verifyPath();
         return new Garp_Util_AssetUrl($this->_config['path'] . '/' . $filename);
     }
@@ -88,14 +89,11 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    public function fetch($filename) {
-        $this->_initApi();
-        $obj = $this->_api->getObject($this->_config['bucket'] . $this->_getUri($filename));
-        if ($this->_config['gzip'] && $this->_gzipIsAllowedForFilename($filename)) {
-            $unzipper = new Garp_File_Unzipper($obj);
-            $obj = $unzipper->getUnpacked();
-        }
-        return $obj;
+    public function fetch($filename): string {
+        return $this->_getApi()->getObject([
+            'Bucket' => $this->_config['bucket'],
+            'Key' => $this->_getUri($filename),
+        ])->get('Body');
     }
 
     /**
@@ -103,17 +101,15 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
      *
      * @return array
      */
-    public function getList() {
-        $this->_initApi();
+    public function getList(): array {
         $this->_verifyPath();
 
         // strip off preceding slash, add trailing one.
         $path = substr($this->_config['path'], 1) . '/';
-        $objects = $this->_api->getObjectsByBucket(
-            $this->_config['bucket'], array('prefix' => $path)
-        );
-
-        return $objects;
+        return $this->_getApi()->listObjects([
+            'Bucket' => $this->_config['bucket'],
+            'Prefix' => $path
+        ])->get('Contents');
     }
 
     /**
@@ -122,36 +118,38 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    public function getMime($filename) {
-        $this->_initApi();
-        $info = $this->_api->getInfo($this->_config['bucket'] . $this->_getUri($filename));
+    public function getMime($filename): string {
+        $info = $this->_getApi()->getObject([
+            'Bucket' => $this->_config['bucket'],
+            'Key' => $this->_getUri($filename),
+        ]);
 
-        if (array_key_exists('type', $info)) {
-            return $info['type'];
+        if (f\prop('ContentType', $info)) {
+            return $info['ContentType'];
         }
         throw new Exception("Could not retrieve mime type of {$filename}.");
     }
 
-    public function getSize($filename) {
-        $this->_initApi();
-        $info = $this->_api->getInfo($this->_config['bucket'] . $this->_getUri($filename));
+    public function getSize($filename): float {
+        $info = $this->_getApi()->getObject([
+            'Bucket' => $this->_config['bucket'],
+            'Key' => $this->_getUri($filename),
+        ]);
 
-        if (array_key_exists('size', $info)
-            && is_numeric($info['size'])
-        ) {
-            return $info['size'];
+        if (f\prop('ContentLength', $info)) {
+            return $info['ContentLength'];
         }
         throw new Exception("Could not retrieve size of {$filename}.");
     }
 
-    public function getEtag($filename) {
-        $this->_initApi();
-        $path = $this->_config['bucket'] . $this->_getUri($filename);
-        $info = $this->_api->getInfo($path);
+    public function getEtag($filename): string {
+        $info = $this->_getApi()->getObject([
+            'Bucket' => $this->_config['bucket'],
+            'Key' => $this->_getUri($filename),
+        ]);
 
-        if (array_key_exists('etag', $info)) {
-            $info['etag'] = str_replace('"', '', $info['etag']);
-            return $info['etag'];
+        if (f\prop('ETag', $info)) {
+            return str_replace('"', '', $info['ETag']);
         }
         throw new Exception("Could not retrieve eTag of {$filename}.");
     }
@@ -162,12 +160,14 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    public function getTimestamp($filename) {
-        $this->_initApi();
-        $info = $this->_api->getInfo($this->_config['bucket'] . $this->_getUri($filename));
+    public function getTimestamp($filename): string {
+        $info = $this->_getApi()->getObject([
+            'Bucket' => $this->_config['bucket'],
+            'Key' => $this->_getUri($filename),
+        ]);
 
-        if (array_key_exists('mtime', $info)) {
-            return $info['mtime'];
+        if (f\prop('LastModified', $info)) {
+            return $info['LastModified'];
         }
         throw new Exception("Could not retrieve timestamp of {$filename}.");
     }
@@ -180,10 +180,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
      *                               f.i. ensuring lowercase characters.
      * @return string                Destination filename.
      */
-    public function store($filename, $data, $overwrite = false, $formatFilename = true) {
-        $this->_initApi();
-        $this->_createBucketIfNecessary();
-
+    public function store($filename, $data, $overwrite = false, $formatFilename = true): string {
         if ($formatFilename) {
             $filename = Garp_File::formatFilename($filename);
         }
@@ -193,11 +190,6 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
                 $filename = Garp_File::getCumulativeFilename($filename);
             }
         }
-
-        $path = $this->_config['bucket'] . $this->_getUri($filename);
-        $meta = array(
-            Zend_Service_Amazon_S3::S3_ACL_HEADER => Zend_Service_Amazon_S3::S3_ACL_PUBLIC_READ,
-        );
 
         if (false !== strpos($filename, '.')) {
             $ext = substr($filename, strrpos($filename, '.')+1);
@@ -211,23 +203,27 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
             $finfo = new finfo(FILEINFO_MIME);
             $mime  = $finfo->buffer($data);
         }
-        $meta[Zend_Service_Amazon_S3::S3_CONTENT_TYPE_HEADER] = $mime;
+        $awsPayload = [
+            'Bucket' => $this->_config['bucket'],
+            'Key' => $this->_getUri($filename),
+            'Body' => $data,
+            'ACL' => 'public-read',
+            'ContentType' => $mime
+        ];
         if ($this->_config['gzip'] && $this->_gzipIsAllowedForFilename($filename)) {
-            $meta['Content-Encoding'] = 'gzip';
-            $data = gzencode($data);
+            $awsPayload['ContentEncoding'] = 'gzip';
+            $awsPayload['Body'] = gzencode($awsPayload['Body']);
         }
 
-        $success = $this->_api->putObject(
-            $path,
-            $data,
-            $meta
-        );
-        return $success ? $filename : false;
+        $success = $this->_getApi()->putObject($awsPayload);
+        return $success ? $filename : '';
     }
 
-    public function remove($filename) {
-        $this->_initApi();
-        return $this->_api->removeObject($this->_config['bucket'] . $this->_getUri($filename));
+    public function remove(string $filename) {
+        return $this->_getApi()->deleteObject([
+            'Bucket' => $this->_config['bucket'],
+            'Key' =>  $this->_getUri($filename)
+        ]);
     }
 
     /**
@@ -236,23 +232,12 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    protected function _getUri($filename) {
+    protected function _getUri($filename): string {
         $this->_verifyPath();
-        $path = $this->_config['path'];
-
-        return $path .
-            ($path[strlen($path)-1] === '/' ? null : '/') .
-            $filename;
-    }
-
-    protected function _createBucketIfNecessary() {
-        if (!$this->_bucketExists) {
-            if (!$this->_api->isBucketAvailable($this->_config['bucket'])) {
-                $this->_api->createBucket($this->_config['bucket']);
-            }
-
-            $this->_bucketExists = true;
-        }
+        // Note: AWS SDK does not want the URI to start with a slash, as opposed to the old Zend
+        // Framework implementation.
+        $path = trim($this->_config['path'], '/');
+        return $path . '/' . $filename;
     }
 
     protected function _validateConfig(array $config) {
@@ -274,42 +259,43 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
             $this->_config['apikey'] = f\prop('apikey', $config);
             $this->_config['secret'] = f\prop('secret', $config);
             $this->_config['bucket'] = f\prop('bucket', $config);
+            $this->_config['region'] = f\prop('region', $config);
             $this->_config['gzip']   = f\prop('gzip', $config);
             $this->_config['gzip_exceptions'] = (array)f\prop('gzip_exceptions', $config);
         }
     }
 
-
-    protected function _initApi() {
-        if (!$this->_apiInitialized) {
+    protected function _getApi(): S3Client {
+        if (!$this->_api) {
             @ini_set('max_execution_time', self::TIMEOUT);
             @set_time_limit(self::TIMEOUT);
-            if (!$this->_api) {
-                $this->_api = new Garp_Service_Amazon_S3(
-                    $this->_config['apikey'],
-                    $this->_config['secret']
-                );
-            }
-
-            $this->_api->getHttpClient()->setConfig(
-                array(
-                    'timeout' => self::TIMEOUT,
-                    'keepalive' => $this->_config['keepalive']
-                )
-            );
-
-            $this->_apiInitialized = true;
+            $this->_api = new S3Client([
+                'region'      => $this->_config['region'],
+                'version'     => 'latest',
+                'credentials' => $this->_getAwsCredentialsProvider(),
+                'http' => [
+                    'timeout' => self::TIMEOUT
+                ]
+            ]);
         }
+        return $this->_api;
     }
 
+    protected function _getAwsCredentialsProvider(): callable {
+        return function () {
+            return Promise\promise_for(
+                new Credentials($this->_config['apikey'], $this->_config['secret'])
+            );
+        };
+    }
 
     protected function _verifyPath() {
         if (!$this->_config['path']) {
-            throw new Exception("There is not path configured, please do this with setPath().");
+            throw new Exception("There is no path configured, please do this with setPath().");
         }
     }
 
-    protected function _gzipIsAllowedForFilename($filename) {
+    protected function _gzipIsAllowedForFilename($filename): bool {
         $ext = substr($filename, strrpos($filename, '.')+1);
         if (!$ext) {
             return true;
@@ -317,7 +303,7 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
         return !in_array($ext, $this->_getGzipExceptions());
     }
 
-    protected function _getGzipExceptions() {
+    protected function _getGzipExceptions(): array {
         return $this->_config['gzip_exceptions'];
     }
 

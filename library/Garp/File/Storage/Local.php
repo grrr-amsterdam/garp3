@@ -40,7 +40,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
         $this->_path = $path;
     }
 
-    public function exists($filename) {
+    public function exists($filename): bool {
         return file_exists($this->_getFilePath($filename));
     }
 
@@ -48,9 +48,9 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
      * Fetches the url to the file, suitable for public access on the web.
      *
      * @param string $filename
-     * @return string
+     * @return Garp_Util_AssetUrl
      */
-    public function getUrl($filename) {
+    public function getUrl($filename): Garp_Util_AssetUrl {
         return new Garp_Util_AssetUrl($this->_path . '/' . $filename);
     }
 
@@ -60,7 +60,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    public function fetch($filename) {
+    public function fetch($filename): string {
         $data = file_get_contents($this->_getFilePath($filename));
         if ($this->_gzip) {
             $probablyGzipped = bin2hex(substr($data, 0, 2)) == '1f8b';
@@ -74,7 +74,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
      *
      * @return array
      */
-    public function getList() {
+    public function getList(): array {
         $list = array();
         $dir = $this->_docRoot . $this->_path;
         if (is_dir($dir)) {
@@ -101,7 +101,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    public function getMime($filename) {
+    public function getMime($filename): string {
         $imageInfo = @getimagesize($this->_getFilePath($filename));
         if (is_array($imageInfo)) {
             return $imageInfo['mime'];
@@ -112,7 +112,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
         );
     }
 
-    public function getSize($filename) {
+    public function getSize($filename): float {
         return filesize($this->_getFilePath($filename));
     }
 
@@ -122,7 +122,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
      * @param string $filename
      * @return int
      */
-    public function getTimestamp($filename) {
+    public function getTimestamp($filename): string {
         return filemtime($this->_getFilePath($filemtime));
     }
 
@@ -136,7 +136,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
      */
     public function store(
         $filename, $data, $overwrite = false, $formatFilename = true
-    ) {
+    ): string {
         $this->_verifyDirectory($filename);
         if ($formatFilename) {
             $filename = Garp_File::formatFilename($filename);
@@ -160,7 +160,7 @@ class Garp_File_Storage_Local implements Garp_File_Storage_Protocol {
         }
     }
 
-    public function remove($filename) {
+    public function remove(string $filename) {
         return unlink($this->_getFilePath($filename));
     }
 

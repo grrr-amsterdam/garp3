@@ -22,6 +22,8 @@ class Garp_Cli_Command_Aws extends Garp_Cli_Command {
      * @return bool
      */
     public function main(array $args = array()) {
+        Garp_Cli::errorOut('This command is no longer compatible with the AWS Cli tool and should be refactored.');
+        return false;
         if (!$this->_usesAmazon()) {
             Garp_Cli::errorOut(
                 'Clearly this environment does not ' .
