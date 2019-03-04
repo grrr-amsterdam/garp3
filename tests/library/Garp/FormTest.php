@@ -187,4 +187,15 @@ class Garp_FormTest extends Garp_Test_PHPUnit_TestCase {
 
     }
 
+    /** @test */
+    public function should_dynamically_create_html_element_to_allow_custom_namespace() {
+        $form = new Garp_Form();
+        $form->getPluginLoader(Zend_Form::ELEMENT)->removePrefixPath('Zend_Form_Element_');
+        $form->getPluginLoader(Zend_Form::ELEMENT)->removePrefixPath('Garp_Form_Element_');
+        $form->addPrefixPath('Mock_Form', GARP_APPLICATION_PATH . '/../tests/mocks/Mock/Form');
+        $form->addElementPrefixPath('Mock', GARP_APPLICATION_PATH . '/../tests/mocks/Mock');
+        $element = $form->createElement('html', 'foo');
+        $this->assertSame('Mock_Form_Element_Html', get_class($element));
+    }
+
 }
