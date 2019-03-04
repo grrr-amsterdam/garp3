@@ -135,6 +135,7 @@ class Garp_Cli_Command_Cdn extends Garp_Cli_Command {
             'apikey'          => f\prop('apikey', $s3Config),
             'secret'          => f\prop('secret', $s3Config),
             'bucket'          => f\prop('bucket', $s3Config),
+            'region'          => f\prop('region', $s3Config),
             'readonly'        => f\prop('readonly', $cdnConfig),
             'gzip'            => f\prop('gzip', $cdnConfig),
             'gzip_exceptions' => f\prop('gzip_exceptions', $cdnConfig)

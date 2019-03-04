@@ -16,15 +16,15 @@ interface Garp_File_Storage_Protocol {
      */
     public function setPath($path);
 
-    public function exists($filename);
+    public function exists($filename): bool;
 
     /**
      * Fetches the url to the file, suitable for public access on the web.
      *
      * @param string $filename
-     * @return string
+     * @return Garp_Util_AssetUrl
      */
-    public function getUrl($filename);
+    public function getUrl($filename): Garp_Util_AssetUrl;
 
     /**
      * Fetches the file data and returns resource.
@@ -32,14 +32,14 @@ interface Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    public function fetch($filename);
+    public function fetch($filename): string;
 
     /**
      * Lists all valid files in the upload directory.
      *
      * @return array
      */
-    public function getList();
+    public function getList(): array;
 
     /**
      * Returns mime type of given file.
@@ -47,15 +47,15 @@ interface Garp_File_Storage_Protocol {
      * @param string $filename
      * @return string
      */
-    public function getMime($filename);
+    public function getMime($filename): string;
 
     /**
      * Returns file size in bytes
      *
      * @param string $filename
-     * @return int
+     * @return float
      */
-    public function getSize($filename);
+    public function getSize($filename): float;
 
     /**
      * Returns last modified time of file, as a Unix timestamp.
@@ -63,7 +63,7 @@ interface Garp_File_Storage_Protocol {
      * @param string $filename
      * @return int
      */
-    public function getTimestamp($filename);
+    public function getTimestamp($filename): string;
 
     /**
      * @param string $filename
@@ -72,7 +72,7 @@ interface Garp_File_Storage_Protocol {
      * @param bool   $formatFilename
      * @return string Destination filename.
      */
-    public function store($filename, $data, $overwrite = false, $formatFilename = true);
+    public function store($filename, $data, $overwrite = false, $formatFilename = true): string;
 
-    public function remove($filename);
+    public function remove(string $filename);
 }
