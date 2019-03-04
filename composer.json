@@ -38,6 +38,11 @@
       "application/functions.php"
     ]
   },
+  "autoload-dev": {
+    "psr-0": {
+      "Mock_": "tests/mocks"
+    }
+  },
   "include-path": [
     "library/"
   ],

@@ -128,7 +128,8 @@ class Garp_Form extends Zend_Form {
     public function createElement($type, $name, $options = null) {
         if ('html' == strtolower($type)) {
             // For simple HTML elements, skip all the decorator stuff below
-            return new Garp_Form_Element_Html($name, $options);
+            $htmlElementClass = $this->getPluginLoader(self::ELEMENT)->load($type);
+            return new $htmlElementClass($name, $options);
         }
 
         $options = $options ?: array();
