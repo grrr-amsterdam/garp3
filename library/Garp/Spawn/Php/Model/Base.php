@@ -52,10 +52,6 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
         $jointViewProperty = $this->_renderJointViewProperty();
         $out.= $jointViewProperty;
 
-        /* Default order */
-        $defaultOrder = $this->_renderDefaultOrder();
-        $out .= $defaultOrder;
-
         /* Relations */
         $relations = $this->_renderRelations();
         $out .= $relations;
@@ -205,27 +201,6 @@ class Garp_Spawn_Php_Model_Base extends Garp_Spawn_Php_Model_Abstract {
         $tableName  = $this->getTableName();
         $prop       = "protected \$_jointView = '{$tableName}_joint';";
         $out        = $this->_rl($prop, 1, 2);
-
-        return $out;
-    }
-
-    protected function _renderDefaultOrder() {
-        $model                          = $this->getModel();
-        $commaInOrder                   = strpos($model->order, ",") !== false;
-        $noOpeningParenthesisInOrder    = strpos($model->order, "(") === false;
-        $orderFieldNames                = explode(", ", $model->order);
-        $orderFieldNamesStatement       = Garp_Spawn_Util::array2phpStatement($orderFieldNames);
-
-        $orderValueStatement = (
-            $commaInOrder &&
-            $noOpeningParenthesisInOrder
-        ) ?
-            $orderFieldNamesStatement :
-            "'{$model->order}'"
-        ;
-
-        $orderStatement = "protected \$_defaultOrder = {$orderValueStatement};";
-        $out            = $this->_rl($orderStatement, 1, 2);
 
         return $out;
     }
