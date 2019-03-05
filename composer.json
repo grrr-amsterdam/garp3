@@ -8,8 +8,6 @@
       "php": "7.1"
     }
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require": {
     "php": ">=7.1",
     "google/apiclient": "^1.1",
@@ -21,7 +19,7 @@
     "dompdf/dompdf": "^0.8.0",
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "2.0.1",
-    "fzaninotto/faker": "dev-master",
+    "fzaninotto/faker": "^1.8",
     "grrr-amsterdam/garp-functional": "^3.0",
     "phpunit/phpunit": "^6.0",
     "greenlion/php-sql-parser": "^4.1",
