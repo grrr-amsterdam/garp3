@@ -1,4 +1,6 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * Garp_Util_String
  * Various string helpers.
@@ -113,7 +115,7 @@ class Garp_Util_String {
         if ($ucfirst) {
             $str = ucfirst($str);
         }
-        $func = create_function('$c', 'return strtoupper($c[1]);');
+        $func = f\compose('strtoupper', f\prop(1));
         return preg_replace_callback('/_([a-z])/', $func, $str);
     }
 
@@ -128,7 +130,7 @@ class Garp_Util_String {
         if ($ucfirst) {
             $str = ucfirst($str);
         }
-        $func = create_function('$c', 'return strtoupper($c[1]);');
+        $func = f\compose('strtoupper', f\prop(1));
         return preg_replace_callback('/\-([a-z])/', $func, $str);
     }
 

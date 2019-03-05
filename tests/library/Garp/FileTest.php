@@ -125,7 +125,7 @@ class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
      * @return Boolean Whether the provided argument contains only plain characters.
      */
     protected function _containsOnlyPlainCharacters($filename) {
-        return preg_match('/[^\w-\.]/', $filename) === 0;
+        return preg_match('/[^A-Za-z0-9_\.-]/', $filename) === 0;
     }
 
     public function setUp() {
