@@ -25,13 +25,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
     protected $_jointView;
 
     /**
-     * Default sorting of queries
-     *
-     * @var mixed Any type that's accepted by Zend_Db_Select::order()
-     */
-    protected $_defaultOrder = null;
-
-    /**
      * Collection of model names that might be bound to this model in the future.
      * This is used by the core Cachable behavior. Models that are in this array
      * also get their cache cleared when a record of this model is updated.
@@ -109,7 +102,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
          */
         $this->registerObserver($this)
             ->registerObserver(new Garp_Model_Behavior_Bindable())
-            ->registerObserver(new Garp_Model_Behavior_DefaultSortable())
             ->registerObserver(new Garp_Model_Behavior_Cachable());
     }
 
@@ -322,15 +314,6 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
         }
         $bindingModelName = $namespace . implode('', $modelNames);
         return $bindingModelName;
-    }
-
-    /**
-     * Return default order for this model
-     *
-     * @return string|array
-     */
-    public function getDefaultOrder() {
-        return $this->_defaultOrder;
     }
 
     /**
