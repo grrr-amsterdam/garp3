@@ -12,10 +12,6 @@ before_script:
 before_install:
     - composer install
 notifications:
-    email: false
-    slack:
-        rooms:
-            secure: O1r03yV5oM+2t6MgtzPC3n9MM8tUOF0E/GpTYFdc3qPmsMg4mvsR0WbNqKId78PLeVsJW4fetjGT04wyA9MdSeeWHYh+Ey5MF/jl3X8or2zUzegqpiRxIQs9oiqtvdQsyF93lXf0qZlM3OG5XNg6ki/m3nXoiFjUa++G7bjzLpg=
-        on_success: change
-        on_failure: always
-        template: "<%{build_url}|%{repository_name} [%{branch}] #%{build_number}>:\n%{message} (in %{duration})\nBy: %{author}\n<%{compare_url}|%{commit_message}>"
+  email: false
+  slack:
+    secure: BJ9zboETJVX0buQuAJRxyyqPPGJAdmOOJpnfKJnoNF6Douh3D0zUApF9qqQaDYtly8OigOdo/UbZ1elvwB7i4BPQ3LVm9t4b3VFilcciZyUagBOjPjLCVApDQjbdL566AK5qXN8cukRpzqCkBuEsPPGEopdd6lf6ZL1sp0h39gtuYv4Yq++ewmLpJQ94MD/7rLBJ4PcOYhOcqM9Qug50OuuH9VI4bLzN5b3GmpjEAn5xJS+WUWfuT37pHFmF/7b1VDvrbXaZ1b/0VCd8GVmEa9EJi3j7ykcxM73nsr2zzq85dRKmcAhz0x0kJbKoPBYPMRmNbwjh23vTooz4LB8/XqlGMVoXP2ECPdqe9q7Gn3Qtl8wJqvRmBuVkkYb5JgFZ8qHVswY05vMLZ58P+YD6Eyf+lSplvOMBJEKRG61QeTNuPUJ5ALRwU0cTMR+nssQVQF/6vc44Ayc86pcVag7b0vayGkYkckS37J/r0Gp3hXaJXnAMIWxayRUuz2CCx6VEt+kYBu/Fd8mEIKa+BXO8sB5vGUR0cbCZ9WEMqe1DA8Uy28FDYV8qMKqw7az6JHaaDthiwgiW5nv/Rt8cIqY5Oc6OLbRBK+AEelblEo+wvbz5kvGDBvw++ybBzTveff0q0EJuZayTMjMB2BgwAidxvBKgbsrYDkG5xrQ6kk77nyE=
