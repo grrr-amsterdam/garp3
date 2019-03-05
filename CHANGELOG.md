@@ -5,6 +5,16 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.16
+
+The Zend Framework Amazon S3 service has been severed from Garp: it now uses the official AWS PHP SDK from Amazon to interact with the S3 service.  
+Nothing has changed, all interfaces and outputs have remained the same, however, `cdn.s3.region` has become a *required configuration parameter*.
+
+## Version 3.15
+
+The minimum required PHP version has been updated to PHP7.1.  
+Mostly to be able to support Garp\Functional version 3.
+
 ## Version 3.14
 
 `teardown` on our unit test has been greatly optimized to allow for high-precision truncating. 
