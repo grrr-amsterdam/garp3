@@ -5,6 +5,16 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.17
+
+Removes the `DefaultSortable` behavior. It caused more errors than it gave value.  
+How to migrate models using this feature?
+
+1. Check for models specifying the `order` property in their spawn configuration.
+2. For every model, check their queries and add an `ORDER` clause manually.
+
+Note: the CMS is not affected, since the order is still stored in the Javascript models.
+
 ## Version 3.16
 
 The Zend Framework Amazon S3 service has been severed from Garp: it now uses the official AWS PHP SDK from Amazon to interact with the S3 service.  
