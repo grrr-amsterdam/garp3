@@ -7,15 +7,11 @@
  */
 class Garp_Spawn_Util {
     static public function camelcased2underscored($str) {
-        $str[0] = strtolower($str[0]);
-        $func = create_function('$c', 'return "_" . strtolower($c[1]);');
-        return preg_replace_callback('/([A-Z])/', $func, $str);
+        return Garp_Util_String::camelcasedToUnderscored($str);
     }
 
     static public function camelcased2dashed($str) {
-        $str[0] = strtolower($str[0]);
-        $func = create_function('$c', 'return "-" . strtolower($c[1]);');
-        return preg_replace_callback('/([A-Z])/', $func, $str);
+        return Garp_Util_String::camelcasedToDashed($str);
     }
 
     static public function stringEndsIn($needle, $haystack) {

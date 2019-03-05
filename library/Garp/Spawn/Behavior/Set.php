@@ -6,7 +6,7 @@
  * @package Garp_Spawn_Behavior
  * @author David Spreekmeester <david@grrr.nl>
  */
-class Garp_Spawn_Behavior_Set {
+class Garp_Spawn_Behavior_Set implements Countable {
     const ERROR_BEHAVIOR_NOT_FOUND = "Behavior '%s' could not be found in model '%s'.";
 
     /**
@@ -44,6 +44,10 @@ class Garp_Spawn_Behavior_Set {
         $this->_model = $model;
         $this->_loadConfiguredBehaviors($config);
         $this->_loadDefaultConditionalBehaviors();
+    }
+
+    public function count() {
+        return count($this->_behaviors);
     }
 
     public function getBehaviors() {
