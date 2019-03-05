@@ -424,8 +424,8 @@ cdn.path.upload.document = "/uploads/documents"
 cdn.path.static.image = "/2011/media/images"
 cdn.path.static.document = "/2011/documents"
 
-;cdn.s3.apikey = "AKIAJHH2JPAH2R7NIUXA"
-;cdn.s3.secret = "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"
+;cdn.s3.apikey = "XXXXXX"
+;cdn.s3.secret = "XXXXXX"
 ;cdn.s3.bucket = "grrr.nl"
 ```
 
