@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8779d8671c7650ab940dfc5ab47ad276",
+    "content-hash": "51b2cbb04d497a2ceac93c293f9bdaf8",
     "packages": [
         {
             "name": "analog/analog",
@@ -60,16 +60,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.87.20",
+            "version": "3.87.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6d313ff80b1b6084adc088e000dac1eefadd4f83"
+                "reference": "4f042410335c06aa7ab81365194782a30c144bc2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6d313ff80b1b6084adc088e000dac1eefadd4f83",
-                "reference": "6d313ff80b1b6084adc088e000dac1eefadd4f83",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4f042410335c06aa7ab81365194782a30c144bc2",
+                "reference": "4f042410335c06aa7ab81365194782a30c144bc2",
                 "shasum": ""
             },
             "require": {
@@ -138,7 +138,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-02-27T19:20:03+00:00"
+            "time": "2019-03-04T19:19:05+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -309,16 +309,16 @@
         },
         {
             "name": "fzaninotto/faker",
-            "version": "dev-master",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "76b1c25e614c5e09adeb62f1b953536697a41a4b"
+                "reference": "f72816b43e74063c8b10357394b6bba8cb1c10de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/76b1c25e614c5e09adeb62f1b953536697a41a4b",
-                "reference": "76b1c25e614c5e09adeb62f1b953536697a41a4b",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/f72816b43e74063c8b10357394b6bba8cb1c10de",
+                "reference": "f72816b43e74063c8b10357394b6bba8cb1c10de",
                 "shasum": ""
             },
             "require": {
@@ -332,7 +332,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.9-dev"
+                    "dev-master": "1.8-dev"
                 }
             },
             "autoload": {
@@ -355,7 +355,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2019-01-09T06:29:58+00:00"
+            "time": "2018-07-12T10:23:15+00:00"
         },
         {
             "name": "google/apiclient",
@@ -458,16 +458,16 @@
         },
         {
             "name": "grrr-amsterdam/garp-functional",
-            "version": "v3.0.1",
+            "version": "v3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/grrr-amsterdam/garp-functional.git",
-                "reference": "96b8e09cedf5843583d151977fd4d77f79c1a7a9"
+                "reference": "130a833432d77e1e82637889b2d955e62eb8f5df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/grrr-amsterdam/garp-functional/zipball/96b8e09cedf5843583d151977fd4d77f79c1a7a9",
-                "reference": "96b8e09cedf5843583d151977fd4d77f79c1a7a9",
+                "url": "https://api.github.com/repos/grrr-amsterdam/garp-functional/zipball/130a833432d77e1e82637889b2d955e62eb8f5df",
+                "reference": "130a833432d77e1e82637889b2d955e62eb8f5df",
                 "shasum": ""
             },
             "require": {
@@ -584,7 +584,7 @@
                 }
             ],
             "description": "Utility library embracing functional programming paradigms.",
-            "time": "2019-02-08T16:23:26+00:00"
+            "time": "2019-02-13T21:02:02+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -3032,11 +3032,9 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "dev",
-    "stability-flags": {
-        "fzaninotto/faker": 20
-    },
-    "prefer-stable": true,
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.1"
