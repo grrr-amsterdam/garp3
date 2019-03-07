@@ -31,17 +31,23 @@ end
 desc "Distributing assets to CDN"
 task :distribute_assets do
     run_locally do
-        env = fetch(:stage)
-        since_argument = ENV['distribute_since'] ? "--since=#{ENV['distribute_since']}" : ''
-        has_12g = capture('[ -z `which "12g"` ] && echo 0 || echo 1').strip == '1'
-        if not has_12g
-            abort "The command 12g should be executable in order to distribute assets."
-            return false
-        end
-        if capture("12g env get -e #{env} --var=CDN_READONLY").empty?
-            execute "12g env list -e #{env} -o json | vendor/bin/g cdn distribute --e=#{env} --stdin #{since_argument}"
+        # Asset distribution can be disabled using `set :distribute_assets, false` in the stage's
+        # rb file.
+        if fetch(:distribute_assets) == false
+            puts 'Distributing assets has been disabled.'
         else
-            puts 'CDN is read-only. Not distributing.'
+            env = fetch(:stage)
+            since_argument = ENV['distribute_since'] ? "--since=#{ENV['distribute_since']}" : ''
+            has_12g = capture('[ -z `which "12g"` ] && echo 0 || echo 1').strip == '1'
+            if not has_12g
+                abort "The command 12g should be executable in order to distribute assets."
+                return false
+            end
+            if capture("12g env get -e #{env} --var=CDN_READONLY").empty?
+                execute "12g env list -e #{env} -o json | vendor/bin/g cdn distribute --e=#{env} --stdin #{since_argument}"
+            else
+                puts 'CDN is read-only. Not distributing.'
+            end
         end
     end
 end
