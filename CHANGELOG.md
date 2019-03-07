@@ -5,6 +5,24 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.18.1
+
+Not a breaking change, but because of the huge impact on deploy performance interesting to mention nonetheless: as of this version you can configure Capistrano to not distribute assets to the CDN.   
+Put the following in the stage's deploy configuration file, or the general `deploy.rb`:
+
+```rb
+# staging.rb, for example
+:set distribute_assets, false
+```
+
+**Note**: obviously, if you rely on assets being on the CDN, this setting is not for you.  
+This works when you have configured your `cdn.location` to be `local`, for all file types relevant to you. For instance:
+
+```
+cdn.css.location = "local"
+cdn.js.location = "local"
+```
+
 ## Version 3.18
 
 The minimum-stability of Composer packages installed by Garp has changed from `dev` to `stable`. Because `prefer-stable` was in place the impact should be minimal. Nevertheless carefully check and test the changes after running `composer update` in your project.
