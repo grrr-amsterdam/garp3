@@ -10,17 +10,11 @@ end
 desc "Push built assets to the webserver"
 task :push_assets do
     on roles(:web) do |host|
-        execute "mkdir -p "\
-            "#{release_path}/public/css/build/staging "\
-            "#{release_path}/public/css/build/prod "\
-            "#{release_path}/public/js/build/staging "\
-            "#{release_path}/public/js/build/prod "
-
         run_locally do
-            execute "scp rev-manifest-*.json #{host.user}@#{host.hostname}:#{release_path}"
-            execute "scp -r public/css/build/* #{host.user}@#{host.hostname}:#{release_path}"\
+            execute "rsync rev-manifest-*.json #{host.user}@#{host.hostname}:#{release_path}"
+            execute "rsync -r public/css/build/* #{host.user}@#{host.hostname}:#{release_path}"\
                 "/public/css/build/"
-            execute "scp -r public/js/build/* #{host.user}@#{host.hostname}:#{release_path}"\
+            execute "rsync -r public/js/build/* #{host.user}@#{host.hostname}:#{release_path}"\
                 "/public/js/build/"
         end
     end
