@@ -1,16 +1,24 @@
 language: php
+
 php:
     - '7.1'
-sudo: false
-dist: trusty
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+before_install:
+  - phpenv config-rm xdebug.ini
+  - composer install
+
+before_script:
+  - chmod -R +x vendor/bin/phpunit
+  - chmod -R +x vendor/bin/phpcs
+
 script:
     - composer test
     - if [ "$(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php')" != "" ]; then ./vendor/bin/phpcs --standard=phpcs.xml --colors --encoding=utf-8 -n -p $(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php'); fi
-before_script:
-    - chmod -R +x vendor/bin/phpunit
-    - chmod -R +x vendor/bin/phpcs
-before_install:
-    - composer install
+
 notifications:
   email: false
   slack:
