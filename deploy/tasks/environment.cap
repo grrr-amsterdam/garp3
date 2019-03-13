@@ -1,7 +1,7 @@
 desc "Ask for verification when deploying to production"
 task :verify_production_deploy do
 	on roles(:web) do
-		if fetch(:stage) == :production
+		if fetch(:interactive) == true && fetch(:stage) == :production
 			question = 'if you are sure you want to deploy to PRODUCTION?'
 			set :answer, ask(question, nil)
 			answer = fetch(:answer)

@@ -19,3 +19,4 @@ Dir.glob("vendor/grrr-amsterdam/garp3/deploy/tasks/*.cap").each { |r| load r }
 load "vendor/grrr-amsterdam/garp3/deploy/garp3.cap"
 
 set :tmp_dir, "/tmp/#{fetch(:application)}-#{fetch(:stage)}"
+set :interactive, ENV['interactive'] == nil || ENV['interactive'] == 'true'
