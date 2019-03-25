@@ -713,3 +713,8 @@ Ext.override(Ext.grid.PropertyColumnModel, {
 		return (col === 0 ? this.requiredPropertyRenderer.createDelegate(this) : (this.renderCellDelegate || this.renderPropDelegate));
 	}
 });
+
+/**
+ * Fixes a bug in Firefox where keyNav on gridPanel's not working.
+ */
+Ext.KeyNav.prototype.forceKeyDown = true;
