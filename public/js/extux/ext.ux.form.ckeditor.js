@@ -12,7 +12,7 @@ Ext.form.CKEditor = function(config) {
     config.CKEditor = window.WYSIWYG_CKEDITOR_CONFIG || {
         // Allow only these tags (=true for all of them)
         allowedContent: true,
-		customConfig: '',
+        customConfig: '',
         format_tags: 'p;h2;h3',
 
         // Available buttons
@@ -33,9 +33,9 @@ Ext.form.CKEditor = function(config) {
     }
 
     config.CKEditor.height = "400px";
-	config.CKEditor.maxLength = config.maxLength || 0;
+    config.CKEditor.maxLength = config.maxLength || 0;
 
-	var extraPlugins = 'charcount,garpctrlenter';
+    var extraPlugins = 'charcount,garpctrlenter';
 
     // Load the garp content plugins for richwyswig editor types
     if (config.rich) {
@@ -60,32 +60,41 @@ Ext.form.CKEditor = function(config) {
 };
 
 Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
-    onRender: function(ct, position) {
-        Ext.form.CKEditor.superclass.onRender.call(this, ct, position);
 
-		var ckLoaded = function() {
-        	this.editor = CKEDITOR.replace(this.id, this.config.CKEditor);
-
-        	// Closure for quick access in the event listener
-        	var that = this;
-        	this.editor.on('dataReady', function() {
-            	this.resetDirty();
-            	that.waitingForSetData = false;
-        	});
-        	this.setValue(this.orgValue);
-        };
-		if (typeof CKEDITOR === 'undefined') {
-			Ext.Loader.load([ASSET_URL + 'js/garp/ckeditor/ckeditor.js'], ckLoaded, this);
-			return;
-		}
-		ckLoaded.call(this);
+    adjustEditorSize: function() {
+        if (!this.editor || this.waitingForSetData) {
+            return;
+        }
+        var w = this.itemCt.getWidth() - 125 - 30; // 125px padding and 30px margin
+        this.editor.resize(w, parseInt(this.config.CKEditor.height, 10));
     },
 
-	isValid: function(value) {
+    onRender: function(ct, position) {
+        Ext.form.CKEditor.superclass.onRender.call(this, ct, position);
+        var ckLoaded = function() {
+            this.editor = CKEDITOR.replace(this.id, this.config.CKEditor);
+            // Closure for quick access in the event listener
+            var scope = this;
+            this.editor.on('dataReady', function() {
+                this.resetDirty();
+                scope.waitingForSetData = false;
+                scope.on('resize', scope.adjustEditorSize);
+                scope.adjustEditorSize(this);
+            });
+            this.setValue(this.orgValue);
+        };
+        if (typeof CKEDITOR === 'undefined') {
+            Ext.Loader.load([ASSET_URL + 'js/garp/ckeditor/ckeditor.js'], ckLoaded, this);
+            return;
+        }
+        ckLoaded.call(this);
+    },
+
+    isValid: function(value) {
         var charCount = this.getCharCount();
-		if (!this.editor) {
-			return true;
-		}
+        if (!this.editor) {
+            return true;
+        }
 
         if (!this.allowBlank && !charCount) {
             if (this.wasBlank) {
@@ -98,32 +107,32 @@ Ext.extend(Ext.form.CKEditor, Ext.form.TextArea, {
         }
         this.wasBlank = false;
 
-		if (this.maxLength && charCount >= this.maxLength) {
+        if (this.maxLength && charCount >= this.maxLength) {
             if (this.wasTooLong) {
                 return false;
             }
             this.wasTooLong = true;
             this.editor.element.addClass('invalid');
             this.markInvalid(this.maxLengthText);
-			return false;
-		}
+            return false;
+        }
         this.wasTooLong = false;
 
         this.clearInvalid();
         return true;
-	},
+    },
 
-	// Get char count, stripped of HTML tags
-	getCharCount: function() {
+    // Get char count, stripped of HTML tags
+    getCharCount: function() {
         var contentString = "";
-		try {
+        try {
             contentString = this.editor.document.getBody().getText();
-		} catch(e) {
+        } catch(e) {
             contentString = this.getValue().replace(/(<([^>]+)>)/ig,"");
-		}
+        }
         // Trim newlines and count
         return contentString.replace(/^\s+|\s+$/g, '').length;
-	},
+    },
 
     setValue: function(value) {
         // Save the value as the elements original value
