@@ -7,7 +7,6 @@ services:
     privileged: true
   garp_db:
     image: grrrnl/garp3-db
-    restart: always
   garp_dbdata:
     image: grrrnl/garp3-data
     volumes:
