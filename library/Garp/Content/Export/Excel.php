@@ -82,13 +82,12 @@ class Garp_Content_Export_Excel extends Garp_Content_Export_Abstract {
             ),
         );
 
-        // set autosize = true for every column, also add alternate styles to header cells
+        // add alternate styles to header cells
         for ($i = 0, $colCount = count(array_keys($rowset[0])), $char = 'A';
             $i < $colCount;
             $i++, $char++
         ) {
             $phpexcel->getActiveSheet()->getStyle($char . '1')->applyFromArray($styleArray);
-            $phpexcel->getActiveSheet()->getColumnDimension($char)->setAutoSize(true);
         }
 
     }
