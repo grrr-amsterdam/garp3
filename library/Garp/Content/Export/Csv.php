@@ -40,19 +40,12 @@ class Garp_Content_Export_Csv extends Garp_Content_Export_Abstract {
     }
 
     protected function _flatten(array $row): array {
-        return f\reduce_assoc(
-            function ($row, $value, $key) {
-                // In the case of related hasMany or hasAndBelongsToMany
-                // rowsets...
-                return f\prop_set(
-                    $key,
-                    is_array($value)
-                        ? implode(', ', $this->_flatten($value))
-                        : $value,
-                    $row
-                );
+        return f\map(
+            function ($value) {
+                return is_array($value)
+                    ? implode(', ', $this->_flatten($value))
+                    : $value;
             },
-            [],
             $row
         );
     }
