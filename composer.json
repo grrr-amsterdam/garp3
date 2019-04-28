@@ -20,7 +20,7 @@
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "2.0.1",
     "fzaninotto/faker": "^1.8",
-    "grrr-amsterdam/garp-functional": "^3.0",
+    "grrr-amsterdam/garp-functional": "^4.0",
     "phpunit/phpunit": "^6.0",
     "greenlion/php-sql-parser": "^4.1",
     "league/csv": "^8.0",
