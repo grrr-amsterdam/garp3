@@ -218,12 +218,12 @@ class Garp_Content_Manager {
             if (!$isCountQuery) {
                 $select->limit($options['limit'], $options['start']);
             }
-            $results = $this->_model->fetchAll($select)->toArray();
+            $results = $this->_model->fetchAll($select);
         } else {
             $results = $this->_model->fetchAll();
         }
 
-        foreach ($results as &$result) {
+        foreach ($results as $result) {
             foreach ($result as $column => $value) {
                 if (strpos($column, '.') !== false) {
                     $keyParts = explode('.', $column, 2);
@@ -236,7 +236,7 @@ class Garp_Content_Manager {
                 }
             }
         }
-        return $results;
+        return is_array($results) ? $results : $results->toArray();
     }
 
 
