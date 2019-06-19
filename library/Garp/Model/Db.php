@@ -105,6 +105,19 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
             ->registerObserver(new Garp_Model_Behavior_Cachable());
     }
 
+    public function emptyRowset(): Garp_Db_Table_Rowset {
+        $data = [
+            'table'    => $this,
+            'data'     => [],
+            'readOnly' => false,
+            'rowClass' => $this->getRowClass(),
+            'stored'   => true
+        ];
+
+        $rowsetClass = $this->getRowsetClass();
+        return new $rowsetClass($data);
+    }
+
     /**
      * Get the unilingual parent of a model.
      * Used for multilingual models (@see self::isMultilingual)

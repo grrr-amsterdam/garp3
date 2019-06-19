@@ -22,6 +22,12 @@ class Garp_Model_DbTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 
+    public function testEmptyRowset() {
+        $model = new class extends Garp_Model_Db {
+        };
+        $this->assertEmpty($model->emptyRowset());
+    }
+
     public function arrayToWhereClauseData() {
         return [
             [
