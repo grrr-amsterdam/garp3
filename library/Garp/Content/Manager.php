@@ -231,7 +231,13 @@ class Garp_Content_Manager {
                     $relModelKey = Garp_Util_String::strReplaceOnce(
                         $this->_model->getNameWithoutNamespace(), '', $keyParts[0]
                     );
-                    $result['relationMetadata'][$relModelKey][$newKey] = $value;
+                    $relationMetadata = $result->relationMetadata ?? [];
+                    $relationMetadata[$relModelKey] = $relModelKey[$relModelKey] ?? [];
+                    $relationMetadata[$relModelKey][$newKey] = $value;
+                    $result->setVirtual(
+                        'relationMetadata',
+                        $relationMetadata
+                    );
                     unset($result[$column]);
                 }
             }
@@ -1004,4 +1010,5 @@ class Garp_Content_Manager {
         return $model->getJointView() ?: $model->getName();
     }
 }
+
 
