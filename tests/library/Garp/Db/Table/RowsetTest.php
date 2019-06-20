@@ -1,4 +1,6 @@
 <?php
+use Garp\Functional as f;
+
 /**
  * @package Tests
  * @author  Harmen Janssen <harmen@grrr.nl>
@@ -68,6 +70,30 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
         );
         $this->assertEquals('H', $initials[0]['name']);
         $this->assertEquals('K', $initials[1]['name']);
+    }
+
+    public function testShouldConcat() {
+        $these = new Garp_Db_Table_Rowset([
+            'data' => [
+                ['id' => 3, 'name' => 'cat'],
+                ['id' => 2, 'name' => 'dog'],
+                ['id' => 1, 'name' => 'bird']
+            ],
+            'rowClass' => 'Garp_Db_Table_Row',
+        ]);
+        $those = new Garp_Db_Table_Rowset([
+            'data' => [
+                ['id' => 4, 'name' => 'fox'],
+                ['id' => 5, 'name' => 'fish']
+            ],
+            'rowClass' => 'Garp_Db_Table_Row',
+        ]);
+
+        $together = $these->concat($those);
+        $this->assertEquals(
+            ['bird', 'cat', 'dog', 'fish', 'fox'],
+            f\sort($together->flatten('name'))
+        );
     }
 
 }
