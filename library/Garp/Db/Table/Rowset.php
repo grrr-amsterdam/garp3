@@ -1,19 +1,42 @@
 <?php
-/**
- * Garp_Db_Table_Rowset
- * Custom implementation of Zend_Db_Table_Rowset.
- *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
- * @package      Garp_Db_Table
- */
+use Garp\Functional\Types\TypeClasses\Semigroup;
 
-class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract {
+/**
+ * @package Garp3
+ * @author  Harmen Janssen <harmen@grrr.nl>
+ */
+class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semigroup {
+
+    public function getData(): array {
+        return $this->_data;
+    }
+
+    /**
+     * Concatenate two semigroups.
+     *
+     * @param  Semigroup $that
+     * @return Semigroup
+     */
+    public function concat(Semigroup $that): Semigroup {
+        if (!$that instanceof self) {
+            throw new LogicException(
+                sprintf('Unable to concatenate semigroups %s and %s', get_class($this), get_class($that))
+            );
+        }
+        return new self([
+            'table' => $this->_table,
+            'rowClass' => $this->_rowClass,
+            'data' => array_merge($this->_data, $that->getData()),
+            'readOnly' => $this->_readOnly,
+            'stored' => $this->_stored
+        ]);
+    }
 
     /**
      * Flatten a rowset to a simpler array containing the specified columns.
-     * @param Mixed $columns Array of columns or column.
-     * @return Array
+     *
+     * @param  mixed $column Array of columns or column.
+     * @return array
      */
     public function flatten($column) {
         $out = array();
@@ -25,35 +48,37 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract {
 
     /**
      * Project a rowset using $fn
-     * @param Function $fn
+     *
+     * @param  callable $fn
      * @return Garp_Db_Table_Rowset
      */
-    public function map($fn) {
+    public function map(callable $fn) {
         $rows = array_map($fn, $this->toArray());
-        $out = new $this(array(
+        $out = new self([
             'table'    => $this->getTable(),
             'data'     => $rows,
             'readOnly' => $this->_readOnly,
             'rowClass' => $this->_rowClass,
-            'stored'   => true
-        ));
+            'stored'   => $this->_stored
+        ]);
         return $out;
     }
 
     /**
      * Filter a rowset using $fn
-     * @param Function $fn
+     *
+     * @param  callable $fn
      * @return Garp_Db_Table_Rowset
      */
-    public function filter($fn) {
+    public function filter($fn): Garp_Db_Table_Rowset {
         $rows = array_values(array_filter($this->toArray(), $fn));
-        $out = new $this(array(
+        $out = new self([
             'table'    => $this->getTable(),
             'data'     => $rows,
             'readOnly' => $this->_readOnly,
             'rowClass' => $this->_rowClass,
-            'stored'   => true
-        ));
+            'stored'   => $this->_stored
+        ]);
         return $out;
     }
 
