@@ -83,8 +83,8 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
         ]);
         $those = new Garp_Db_Table_Rowset([
             'data' => [
-                ['id' => 4, 'name' => 'fox'],
-                ['id' => 5, 'name' => 'fish']
+                ['id' => 4, 'name' => 'fox', 'foo' => 'bar'],
+                ['id' => 5, 'name' => 'fish', 'foo' => 'bar']
             ],
             'rowClass' => 'Garp_Db_Table_Row',
         ]);
@@ -94,6 +94,9 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
             ['bird', 'cat', 'dog', 'fish', 'fox'],
             f\sort($together->flatten('name'))
         );
+        // Prove that records with different layout can be mixed
+        $this->assertCount(2, $together->filter(f\prop('foo')));
+        $this->assertCount(3, $together->filter(f\not(f\prop('foo'))));
     }
 
 }
