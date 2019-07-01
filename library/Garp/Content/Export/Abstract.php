@@ -1,4 +1,7 @@
 <?php
+
+use function Garp\__;
+
 /**
  * Garp_Content_Export_Abstract
  * Blueprint for content exporters

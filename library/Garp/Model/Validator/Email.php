@@ -1,5 +1,7 @@
 <?php
 
+use function Garp\__;
+
 /**
  * Garp_Model_Validator_Email
  * Check if a value looks like a valid email address
@@ -53,7 +55,7 @@ class Garp_Model_Validator_Email extends Garp_Model_Validator_Abstract {
             }
             if (empty($data[$c]) || !preg_match($regexp, $data[$c])) {
                 $value = !empty($data[$c]) ? $data[$c] : '';
-                $error = sprintf(\Garp\__("'%value%' is not a valid email address in the basic format local-part@hostname"), $value);
+                $error = sprintf(__("'%value%' is not a valid email address in the basic format local-part@hostname"), $value);
                 throw new Garp_Model_Validator_Email_Exception($error);
             }
         };

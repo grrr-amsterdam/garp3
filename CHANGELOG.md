@@ -5,6 +5,37 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.19.0
+
+vlucas/phpdotenv has been upgraded from `v2.0.1` to `^v3.4`. An overview of parsing modifications can be found in [vlucas/phpdotenv/UPGRADING.md](https://github.com/vlucas/phpdotenv/blob/master/UPGRADING.md). Check your `.env` file for possible consequences.
+
+To prevent conflicts between Garp3 and Laravel some global functions have been removed. Most of the functions could be replaced by their [Garp Functional](https://grrr-amsterdam.github.io/garp-functional) equivalent. Some need more attention. The original functions still exist in `application/removed-functions.php`. You could include that file (partially) to stay compatible, but to become compatible with Laravel you can't use that solution. `view()` and some other functions are also implemented by Laravel helpers. 
+
+Removed functions:
+
+- `array_get()`
+- `array_get_subset()`
+- `array_pluck()`
+- `array_set()`
+- `callMethod()`
+- `callLeft()`
+- `callRight()`
+- `compose()`
+- `concatAll()`
+- `dump()`
+- `getProperty()`
+- `id()`
+- `instance()`
+- `model()`
+- `noop()`
+- `not()`
+- `propertyEquals()`
+- `psort()`
+- `some()`
+- `unary()`
+- `view()`
+- `when()`
+
 ## Version 3.18.1
 
 Not a breaking change, but because of the huge impact on deploy performance interesting to mention nonetheless: as of this version you can configure Capistrano to not distribute assets to the CDN.   

@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Cli_Command_Slack
  *
@@ -35,9 +38,9 @@ class Garp_Cli_Command_Slack extends Garp_Cli_Command {
      * @return bool
      */
     public function sendDeployNotification(array $args = array()) {
-        $branch = array_get($args, 'branch', 'unknown');
-        $user = ucfirst(array_get($args, 'user', 'unknown'));
-        $gitVersion = array_get($args, 'git-version', 'unknown');
+        $branch = f\prop('branch', $args) ?? 'unknown';
+        $user = ucfirst(f\prop('user', $args) ?? 'unknown');
+        $gitVersion = f\prop('git-version', $args) ?? 'unknown';
 
         $config = Zend_Registry::get('config');
         $appName = $config->app->name;

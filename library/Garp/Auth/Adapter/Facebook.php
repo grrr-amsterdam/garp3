@@ -1,5 +1,7 @@
 <?php
 
+use function Garp\__;
+
 /**
  * Garp_Auth_Adapter_Facebook
  * Authenticate using Facebook (using oAuth)

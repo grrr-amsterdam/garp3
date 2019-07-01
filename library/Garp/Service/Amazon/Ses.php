@@ -426,7 +426,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
         $logMessage .= $lastResponse . "\n\n";
 
         try {
-            dump($filename, $logMessage);
+            $logger = Garp_Log::factory($filename);
+            $logger->log($logMessage, Garp_Log::INFO);
         } catch (Exception $e) {
             // that's no priority for now, we want
             // the SES exception more than we want this exception.

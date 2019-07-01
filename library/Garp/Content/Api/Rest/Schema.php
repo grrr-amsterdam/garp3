@@ -69,7 +69,7 @@ class Garp_Content_Api_Rest_Schema {
     protected function _getVisibleModels() {
         return array_filter(
             (array)Garp_Spawn_Model_Set::getInstance(),
-            getProperty('visible')
+            f\prop('visible')
         );
     }
 

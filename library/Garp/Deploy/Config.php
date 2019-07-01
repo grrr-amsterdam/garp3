@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Deploy_Config
  * Represents a (Capistrano) deploy configuration.
@@ -100,7 +103,7 @@ class Garp_Deploy_Config {
             if (!count($indices)) {
                 continue;
             }
-            $output[$p] = array_values(array_get_subset($matches['paramValue'], $indices));
+            $output[$p] = array_values(f\pick($indices, $matches['paramValue']));
 
             // For now: only treat the server param as array (since it's common for it to be an
             // array, in the case of a multi-server setup)
@@ -147,7 +150,7 @@ class Garp_Deploy_Config {
 
         return $envConfig;
     }
-    
+
     protected function _createPathFromEnv($env) {
         return BASE_PATH . self::ENV_CONFIG_PATH . $env . '.rb';
     }

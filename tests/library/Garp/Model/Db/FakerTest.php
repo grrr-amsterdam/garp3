@@ -47,7 +47,7 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
         $faker = new Garp_Model_Db_Faker();
         $fakeRow = $faker->createFakeRow($fieldConfig, $defaults);
 
-        $subset = array_get_subset($fakeRow, array_keys($defaults));
+        $subset = f\pick(array_keys($defaults), $fakeRow);
         $this->assertEquals(
             $defaults,
             $subset
@@ -67,7 +67,7 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
 
         $this->assertEquals(
             'bar',
-            array_get($fakeRow, 'foo')
+            f\prop('foo', $fakeRow)
         );
     }
 

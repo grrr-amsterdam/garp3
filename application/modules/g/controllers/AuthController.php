@@ -34,7 +34,7 @@ class G_AuthController extends Garp_Controller_Action {
      * @return void
      */
     public function registerAction() {
-        $this->view->title = __('register page title');
+        $this->view->title = \Garp\__('register page title');
         $authVars = Garp_Auth::getInstance()->getConfigValues();
 
         if (!$this->getRequest()->isPost()) {

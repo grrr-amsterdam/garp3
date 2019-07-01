@@ -171,13 +171,13 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
             $this->assertTrue(true);
             return;
         }
-        instance(new Model_User())->insert(
+        (new Model_User())->insert(
             array(
             'id' => 5,
             'email' => 'henk@grrr.nl'
             )
         );
-        instance(new Model_AuthPasswordless())->insert(
+        (new Model_AuthPasswordless())->insert(
             array(
             'user_id' => 5,
             'token' => 'abc',
@@ -205,8 +205,8 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
         $pwless = new Garp_Auth_Adapter_Passwordless();
         $response = $pwless->requestToken(array('email' => self::TEST_EMAIL));
 
-        $userId = instance(new Model_User)->fetchRow()->id;
-        $token  = instance(new Model_AuthPasswordless)->fetchRow()->token;
+        $userId = (new Model_User)->fetchRow()->id;
+        $token  = (new Model_AuthPasswordless)->fetchRow()->token;
 
         $response = $pwless->acceptToken($token, $userId);
         $this->assertTrue($response instanceof Garp_Db_Table_Row);
@@ -221,10 +221,10 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
         $response = $pwless->requestToken(array('email' => self::TEST_EMAIL));
 
         // manually claim token
-        instance(new Model_AuthPasswordless)->update(array('claimed' => 1), 'id > 0');
+        (new Model_AuthPasswordless)->update(array('claimed' => 1), 'id > 0');
 
-        $userId = instance(new Model_User)->fetchRow()->id;
-        $token  = instance(new Model_AuthPasswordless)->fetchRow()->token;
+        $userId = (new Model_User)->fetchRow()->id;
+        $token  = (new Model_AuthPasswordless)->fetchRow()->token;
 
         $response = $pwless->acceptToken($token, $userId);
         $this->assertFalse($response);

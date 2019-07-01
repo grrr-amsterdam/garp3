@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Model_Db
  * Model implementation for database tables.
@@ -138,7 +141,7 @@ abstract class Garp_Model_Db extends Zend_Db_Table_Abstract
      */
     public function isMultilingual() {
         $fieldConfig = $this->getFieldConfiguration();
-        return count(array_filter($fieldConfig, array_get('multilingual')));
+        return count(array_filter($fieldConfig, f\prop('multilingual')));
     }
 
     /**

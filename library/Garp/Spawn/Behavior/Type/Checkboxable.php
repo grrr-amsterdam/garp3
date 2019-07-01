@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Spawn_Behavior_Type_Checkboxable
  * class description
@@ -17,7 +20,7 @@ class Garp_Spawn_Behavior_Type_Checkboxable extends Garp_Spawn_Behavior_Type_Abs
 
     public function getParams() {
         $checkboxes = self::_getCheckboxesFromModel($this->getModel());
-        return array('columns' => array_map(getProperty('name'), $checkboxes));
+        return array('columns' => array_map(f\prop('name'), $checkboxes));
     }
 
     static protected function _getCheckboxesFromModel(Garp_Spawn_Model_Abstract $model) {

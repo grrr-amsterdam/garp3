@@ -1,4 +1,8 @@
 <?php
+
+use function Garp\__;
+use Garp\Functional as f;
+
 /**
  * Garp_Model_Velidator_MinLength
  * Validates a minimum length of a value
@@ -37,7 +41,7 @@ class Garp_Model_Validator_MinLength extends Garp_Model_Validator_Abstract {
      */
     public function validate(array $data, Garp_Model_Db $model, $onlyIfAvailable = true) {
         $theFields = $this->_fields;
-        $applicableFields = array_keys(array_get_subset($data, array_keys($theFields)));
+        $applicableFields = array_keys(f\pick(array_keys($theFields), $data));
 
         $tooShortFields = array_filter(
             $applicableFields,

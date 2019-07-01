@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Spawn_Behavior_Type_Set
  * class description
@@ -17,7 +20,7 @@ class Garp_Spawn_Behavior_Type_Set extends Garp_Spawn_Behavior_Type_Abstract {
 
     public function getParams() {
         $sets = self::_getSetColumnsFromModel($this->getModel());
-        return array('columns' => array_map(getProperty('name'), $sets));
+        return array('columns' => array_map(f\prop('name'), $sets));
     }
 
     static protected function _getSetColumnsFromModel(Garp_Spawn_Model_Abstract $model) {

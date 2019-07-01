@@ -1,5 +1,7 @@
 <?php
 
+use Garp\Functional as f;
+
 /**
  * Garp_Auth
  * Handles all kinds of authentication related stuff.
@@ -220,7 +222,7 @@ class Garp_Auth {
             $values = array_merge($values, $config->auth->toArray());
         }
         if ($subSection) {
-            return array_get($values, $subSection);
+            return f\prop($subSection, $values);
         }
         return $values;
     }
