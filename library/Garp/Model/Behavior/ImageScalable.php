@@ -1,29 +1,33 @@
 <?php
+
 /**
  * Garp_Model_Behavior_ImageScalable
  * Scales images.
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      1.0
  * @package      Garp_Model_Behavior
+ * @author       Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Model_Behavior_ImageScalable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Which column to read the image's filename from.
+     *
      * @var String
      */
     protected $_filename_column = 'filename';
 
     /**
      * Which templates are scaled synchronously? (default is asynchronously)
+     *
      * @var Array
      */
     protected $_synchronouslyScaledTemplates = array();
 
     /**
      * Configure
+     *
      * @param Array $config
+     * @return void
      */
     protected function _setup($config) {
         if (!empty($config['filename_column'])) {
@@ -36,8 +40,8 @@ class Garp_Model_Behavior_ImageScalable extends Garp_Model_Behavior_Abstract {
     }
 
     public function afterInsert(&$args) {
-        $model      = &$args[0];
-        $data       = &$args[1];
+        $model = &$args[0];
+        $data = &$args[1];
         $primaryKey = &$args[2];
 
         if (!array_key_exists($this->_filename_column, $data)) {
@@ -47,10 +51,10 @@ class Garp_Model_Behavior_ImageScalable extends Garp_Model_Behavior_Abstract {
     }
 
     public function afterUpdate(&$args) {
-        $model        = &$args[0];
+        $model = &$args[0];
         $affectedRows = &$args[1];
-        $data         = &$args[2];
-        $where        = &$args[3];
+        $data = &$args[2];
+        $where = &$args[3];
 
         $row = $model->fetchRow($where);
         if ($row && $row->id && array_key_exists($this->_filename_column, $data)) {
@@ -61,6 +65,10 @@ class Garp_Model_Behavior_ImageScalable extends Garp_Model_Behavior_Abstract {
 
     /**
      * Perform the scaling
+     *
+     * @param string $filename
+     * @param mixed $id
+     * @return void
      */
     public function scale($filename, $id) {
         $templates = instance(new Garp_Image_Scaler)->getTemplateNames();

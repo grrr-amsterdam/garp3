@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Garp_Auth_Factory
  * Create instances of Zend_Auth_Adapter_Interface by using Garp_Auth_Factory_Interface objects.
@@ -6,24 +7,19 @@
  * Note that this factory needs a list of supported adapters in application.ini, under
  * auth.adapters.
  *
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
  * @package Garp
- * @subpackage Auth
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Auth_Factory {
-    const EXCEPTION_NO_ADAPTERS_CONFIGURED =
-        'auth.adapters not found in application.ini, or it is not an array';
-    const EXCEPTION_KEY_NOT_FOUND =
-        'Adapter with key %s not found in auth.adapters in application.ini';
+    const EXCEPTION_NO_ADAPTERS_CONFIGURED = 'auth.adapters not found in application.ini, or it is not an array';
+    const EXCEPTION_KEY_NOT_FOUND = 'Adapter with key %s not found in auth.adapters in application.ini';
     const EXCEPTION_INVALID_CLASS = 'Class %s does not implement Garp_Auth_Adapter.';
 
     const AUTH_NAMESPACE = 'Garp_Auth_Adapter_';
 
     /**
      * Retrieve a specified Zend_Auth_Adapter_Interface object.
+     *
      * @param String $key The authentication key. An adapter must be stored under
      *                    auth.adapters.{$key}.
      * @return Garp_Auth

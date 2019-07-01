@@ -1,17 +1,16 @@
 <?php
+
 /**
  * Garp_Service_Gofilex
  * Service to talk to the Gofilex movie database.
- * @author Harmen 'Greetje' Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
- * @subpackage Gofilex
- * @lastmodified $Date: $
+ * @author Harmen 'Greetje' Janssen <harmen@grrr.nl>
  */
 class Garp_Service_Gofilex extends Zend_Service_Abstract {
     /**
      * Soap client
+     *
      * @var Zend_Soap_Client
      */
     protected $_client;
@@ -19,6 +18,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Class constructor
+     *
      * @param String $wdsl URL to the service's WDSL
      * @return Void
      */
@@ -31,7 +31,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
             $wdsl = $ini->gofilex->wdsl;
         }
         $this->_client = new Zend_Soap_Client($wdsl, array(
-            'compression'  => SOAP_COMPRESSION_ACCEPT,
+            'compression' => SOAP_COMPRESSION_ACCEPT,
             'soap_version' => SOAP_1_1
         ));
     }
@@ -39,6 +39,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Get all movies
+     *
      * @return Array
      */
     public function getMovies() {
@@ -54,6 +55,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Get all theaters
+     *
      * @return Array
      */
     public function getTheaters() {
@@ -69,6 +71,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Fetch unavailability of a given movie
+     *
      * @param Array $args
      * @return Array
      */
@@ -77,8 +80,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
         $args->obligate('movieId')
             ->obligate('distributorId')
             ->setDefault('fromDate', date('Ymd'))
-            ->setDefault('orderId', uniqid())
-            ;
+            ->setDefault('orderId', uniqid());
         try {
             $response = $this->_client->GETPRINTSTATUS(
                 $args['orderId'],
@@ -115,6 +117,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Make a reservation
+     *
      * @param Array $args
      * @return Boolean
      */
@@ -125,6 +128,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Cancel a reservation
+     *
      * @param Array $args
      * @return Boolean
      */
@@ -135,6 +139,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Make a booking
+     *
      * @param Array $args
      * @return Boolean
      */
@@ -145,6 +150,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Cancel a booking
+     *
      * @param Array $args
      * @return Boolean
      */
@@ -155,6 +161,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Make the PRINTBOOKING call, used by $this->makeReservation, $this->cancelReservation, $this->makeBooking and $this->cancelBooking.
+     *
      * @param String $method
      * @param Array $args
      * @return Boolean
@@ -174,8 +181,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
             ->obligate('theaterId')
             ->obligate('medium')
             ->obligate('date')
-            ->setDefault('orderId', uniqid())
-            ;
+            ->setDefault('orderId', uniqid());
         try {
             $response = $this->_client->PRINTBOOKING(
                 $method,
@@ -188,7 +194,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
             );
             $this->_logTraffic();
         } catch (Exception $e) {
-            $this->_throwException($e, 'PRINTBOOKING('.$method.')', $args);
+            $this->_throwException($e, 'PRINTBOOKING(' . $method . ')', $args);
         }
         $response = $response->GETPRINTBOOKINGARRAY[0];
 
@@ -201,6 +207,7 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Throw exception and do some logging.
+     *
      * @param Exception $e
      * @param String $method
      * @param Array $args
@@ -214,10 +221,10 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
         if (!empty($ini->gofilex->errorReportEmailAddress)) {
             $to = $ini->gofilex->errorReportEmailAddress;
             $subject = 'Gofilex error report';
-            $message = "Hallo,\n\r\n\r".
-                "Er is een Gofilex fout opgetreden. Hier vindt u de details:\n\r\n\r".
-                "Fout: ".$e->getMessage()."\n\r".
-                "Gofilex API functie: $method\n\r".
+            $message = "Hallo,\n\r\n\r" .
+                "Er is een Gofilex fout opgetreden. Hier vindt u de details:\n\r\n\r" .
+                "Fout: " . $e->getMessage() . "\n\r" .
+                "Gofilex API functie: $method\n\r" .
                 "Parameters:\n";
             foreach ($args as $key => $value) {
                 $message .= "$key: $value\n\r";
@@ -248,18 +255,19 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
 
     /**
      * Keep track of all requests and their responses in a log file
+     *
      * @return Void
      */
     protected function _logTraffic() {
         if ('testing' !== APPLICATION_ENV) {
             $lastRequest = $this->_client->getLastRequest();
             $lastResponse = $this->_client->getLastResponse();
-            $filename = date('Y-m-d').'-gofilex.log';
-            $logMessage  = "\n";
-            $logMessage .= '[REQUEST]'."\n";
-            $logMessage .= $lastRequest."\n\n";
-            $logMessage .= '[RESPONSE]'."\n";
-            $logMessage .= $lastResponse."\n\n";
+            $filename = date('Y-m-d') . '-gofilex.log';
+            $logMessage = "\n";
+            $logMessage .= '[REQUEST]' . "\n";
+            $logMessage .= $lastRequest . "\n\n";
+            $logMessage .= '[RESPONSE]' . "\n";
+            $logMessage .= $lastResponse . "\n\n";
 
             dump($filename, $logMessage);
         }

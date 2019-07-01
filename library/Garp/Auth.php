@@ -1,13 +1,11 @@
 <?php
+
 /**
  * Garp_Auth
  * Handles all kinds of authentication related stuff.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
- * @subpackage Auth
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Auth {
     /**
@@ -27,32 +25,36 @@ class Garp_Auth {
 
     /**
      * Singleton instance
+     *
      * @var Garp_Auth
      */
     private static $_instance = null;
 
     /**
      * Storage
+     *
      * @var Garp_Auth_Store
      */
     protected $_store;
 
     /**
      * Some config defaults
+     *
      * @var Array
      */
     protected $_defaultConfigValues = array(
-        'loginModule'           => 'default',
-        'loginView'             => 'login',
-        'layoutView'            => 'layout',
-        'loginSuccessUrl'       => '/',
-        'loginSuccessMessage'   => 'You are successfully logged in',
-        'logoutSuccessMessage'  => 'You are now logged out',
-        'salt'                  => 'you should really fill this in application.ini'
+        'loginModule' => 'default',
+        'loginView' => 'login',
+        'layoutView' => 'layout',
+        'loginSuccessUrl' => '/',
+        'loginSuccessMessage' => 'You are successfully logged in',
+        'logoutSuccessMessage' => 'You are now logged out',
+        'salt' => 'you should really fill this in application.ini'
     );
 
     /**
      * Private constructor. Here be Singletons.
+     *
      * @param Garp_Store_Interface $store Session or cookie, for instance
      * @return Void
      */
@@ -62,6 +64,7 @@ class Garp_Auth {
 
     /**
      * Get Garp_Auth instance
+     *
      * @param Garp_Store_Interface $store Session or cookie, for instance
      * @return Garp_Auth
      */
@@ -74,6 +77,7 @@ class Garp_Auth {
 
     /**
      * Return the currently used storage object
+     *
      * @return Garp_Store_Interface
      */
     public function getStore() {
@@ -82,6 +86,8 @@ class Garp_Auth {
 
     /**
      * Set storage object
+     *
+     * @param Garp_Store_Interface $store
      * @return Garp_Auth
      */
     public function setStore(Garp_Store_Interface $store) {
@@ -91,25 +97,27 @@ class Garp_Auth {
 
     /**
      * Check if a user is logged in
+     *
      * @return Boolean
      */
     public function isLoggedIn() {
-        $hasUserData    = isset($this->_store->userData);
+        $hasUserData = isset($this->_store->userData);
         $hasLoginMethod = isset($this->_store->method);
-        $hasValidToken  = isset($this->_store->token) && $this->validateToken();
-        $isLoggedIn     = $hasUserData && $hasLoginMethod && $hasValidToken;
+        $hasValidToken = isset($this->_store->token) && $this->validateToken();
+        $isLoggedIn = $hasUserData && $hasLoginMethod && $hasValidToken;
 
         // Don't leave invalid cookies laying around.
         // Clear data only when data is present, but it is invalid.
         if ($hasUserData && $hasLoginMethod && !$hasValidToken) {
             $this->_store->userData = null;
-            $this->_store->method   = null;
+            $this->_store->method = null;
         }
         return $isLoggedIn;
     }
 
     /**
      * Get data from logged in user
+     *
      * @return Array
      */
     public function getUserData() {
@@ -118,6 +126,7 @@ class Garp_Auth {
 
     /**
      * Convenience method for grabbing id of the currently logged in user
+     *
      * @return Int
      */
     public function getUserId() {
@@ -127,14 +136,15 @@ class Garp_Auth {
 
     /**
      * Create a unique token for the currently logged in user.
+     *
      * @param String $input Serialized user data
      * @return String
      */
     public function createToken($input) {
         $config = $this->getConfigValues();
-        $salt   = $config['salt'];
+        $salt = $config['salt'];
 
-        $token  = '';
+        $token = '';
         $token .= !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
         $token .= md5($input);
         $token .= md5($salt);
@@ -162,6 +172,7 @@ class Garp_Auth {
 
     /**
      * Validate the current token
+     *
      * @return Boolean
      */
     public function validateToken() {
@@ -173,6 +184,7 @@ class Garp_Auth {
 
     /**
      * Store user data in session
+     *
      * @param Mixed $data The user data
      * @param String $method The method used to login
      * @return Void
@@ -187,6 +199,7 @@ class Garp_Auth {
 
     /**
      * Destroy session, effectively logging out the user
+     *
      * @return Void
      */
     public function destroy() {
@@ -195,6 +208,8 @@ class Garp_Auth {
 
     /**
      * Retrieve auth-related config values from application.ini
+     *
+     * @param null $subSection
      * @return Array
      */
     public function getConfigValues($subSection = null) {
@@ -214,6 +229,7 @@ class Garp_Auth {
      * Check if the current user (ARO) has access to a certain controller action or Model CRUD
      * method (ACO).
      * Note that this requires 'Zend_Acl' to be available from Zend_Registry.
+     *
      * @param String $resource A resource
      * @param String $privilege A specific privilege within a resource
      * @return Boolean
@@ -234,6 +250,7 @@ class Garp_Auth {
     /**
      * Get the role associated with the current session.
      * Note that an anonymous session, where nobody is logged in also has a role associated with it.
+     *
      * @return String The role
      */
     public function getCurrentRole() {
@@ -250,6 +267,7 @@ class Garp_Auth {
 
     /**
      * Return all available roles from the ACL tree.
+     *
      * @param Boolean $verbose Wether to include a role's parents
      * @return Array A numeric array consisting of role strings
      */
@@ -273,6 +291,7 @@ class Garp_Auth {
 
     /**
      * Return the parents of a given role
+     *
      * @param String $role
      * @param Boolean $onlyParents Wether to only return direct parents
      * @return Array
@@ -294,6 +313,7 @@ class Garp_Auth {
 
     /**
      * Return the children of a given role
+     *
      * @param String $role
      * @return Array
      */
@@ -314,6 +334,8 @@ class Garp_Auth {
 
     /**
      * Return which columns should be stored in the user session
+     *
+     * @return array
      */
     public function getSessionColumns() {
         $ini = Zend_Registry::get('config');
@@ -343,11 +365,13 @@ class Garp_Auth {
 
     /**
      * Figure out wether the forgot password email message is HTML or plain
+     *
+     * @return string
      */
     public function getForgotPasswordMessageFormat() {
         $authVars = $this->getConfigValues('forgotpassword');
         return !empty($authVars['email_partial']) ? 'html' :
-           (!empty($authVars['email_snippet_column']) ?
+            (!empty($authVars['email_snippet_column']) ?
                 $authVars['email_snippet_column'] : 'text');
 
     }
@@ -356,7 +380,8 @@ class Garp_Auth {
         $authVars = $this->getConfigValues('forgotpassword');
         if (!empty($authVars['email_partial'])) {
             return $this->_renderForgotPasswordPartial(
-                $authVars['email_partial'], $user, $activationUrl);
+                $authVars['email_partial'], $user, $activationUrl
+            );
         }
         return $this->_getForgotPasswordSnippet($user, $activationUrl);
     }
@@ -382,13 +407,15 @@ class Garp_Auth {
         $emailSnippet = $snippetModel->fetchByIdentifier($snippet_identifier);
         $emailMessage = $emailSnippet->{$snippet_column};
         return Garp_Util_String::interpolate($emailMessage, array(
-            'USERNAME'       => (string)new Garp_Util_FullName($user),
+            'USERNAME' => (string)new Garp_Util_FullName($user),
             'ACTIVATION_URL' => (string)new Garp_Util_FullUrl($activationUrl)
         ));
     }
 
     /**
      * Retrieve snippet model for system messages.
+     *
+     * @return object
      */
     protected function _getSnippetModel() {
         $snippetModel = new Model_Snippet();
