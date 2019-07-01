@@ -22,8 +22,7 @@ define('APPLICATION_PATH', BASE_PATH . '/application');
 define('GARP_APPLICATION_PATH', realpath(dirname(__FILE__)));
 
 if (file_exists(APPLICATION_PATH . '/../.env')) {
-    $dotenv = new Dotenv\Dotenv(APPLICATION_PATH . '/..');
-    $dotenv->load();
+    \Dotenv\Dotenv::create(APPLICATION_PATH . '/..')->load();
 }
 
 // Sentry integration
