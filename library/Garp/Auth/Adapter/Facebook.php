@@ -1,26 +1,27 @@
 <?php
+
 /**
  * Garp_Auth_Adapter_Facebook
  * Authenticate using Facebook (using oAuth)
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
- * @subpackage Auth
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
-    protected $_configKey = 'facebook';
 
+    protected $_configKey = 'facebook';
 
     /**
      * Authenticate a user.
+     *
      * @param Zend_Controller_Request_Abstract $request The current request
      * @param Zend_Controller_Response_Abstract $response The current response
      * @return Array|Boolean User data, or FALSE
      */
-    public function authenticate(Zend_Controller_Request_Abstract $request,
-        Zend_Controller_Response_Abstract $response) {
+    public function authenticate(
+        Zend_Controller_Request_Abstract $request,
+        Zend_Controller_Response_Abstract $response
+    ) {
         $facebook = $this->_getFacebookClient();
         $authVars = $this->_getAuthVars();
 
@@ -43,7 +44,9 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
             $redirector->gotoUrl($facebook->getLoginUrl(array(
                 'scope' => $scope
             )));
+            // @codingStandardsIgnoreStart
             exit;
+            // @codingStandardsIgnoreEnd
         }
 
         // Session based API call.
@@ -63,7 +66,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
                 }
                 $facebook->mapFriends(array(
                     'bindingModel' => $bindingModel,
-                    'user_id'      => $userData['id']
+                    'user_id' => $userData['id']
                 ));
             }
             return $userData;
@@ -71,8 +74,9 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
             $this->_addError($e->getMessage());
             return false;
         } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'Duplicate entry') !== false &&
-                strpos($e->getMessage(), 'email_unique') !== false) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false
+                && strpos($e->getMessage(), 'email_unique') !== false
+            ) {
                 $this->_addError(__('this email address already exists'));
                 return false;
             }
@@ -85,6 +89,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 
     /**
      * Store the user's profile data in the database, if it doesn't exist yet.
+     *
      * @param Array $facebookData The profile data received from Facebook
      * @return Void
      */
@@ -105,7 +110,7 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
         ));
         $userData = $model->fetchRow(
             $model->select()
-                  ->where('facebook_uid = ?', $uid)
+                ->where('facebook_uid = ?', $uid)
         );
         if (!$userData || !$userData->Model_User) {
             $userData = $model->createNew(
@@ -127,12 +132,13 @@ class Garp_Auth_Adapter_Facebook extends Garp_Auth_Adapter_Abstract {
 
     /**
      * Load Facebook's own client
+     *
      * @return Facebook
      */
     protected function _getFacebookClient() {
         $authVars = $this->_getAuthVars();
         $facebook = Garp_Social_Facebook::getInstance(array(
-            'appId'  => $authVars->appId,
+            'appId' => $authVars->appId,
             'secret' => $authVars->secret,
             'cookie' => false,
         ));

@@ -1,4 +1,5 @@
 <?php
+
 use Garp\Functional as f;
 
 /**
@@ -28,7 +29,7 @@ class Garp_Content_Cdn_Distributor {
     public function __construct($path = null) {
         $this->_baseDir = realpath(
             $path ?:
-            APPLICATION_PATH . self::RELATIVE_BASEDIR_AFTER_APPLICATION_PATH
+                APPLICATION_PATH . self::RELATIVE_BASEDIR_AFTER_APPLICATION_PATH
         );
     }
 
@@ -42,8 +43,8 @@ class Garp_Content_Cdn_Distributor {
     /**
      * Select assets to be distributed.
      *
-     * @param  string $filterString
-     * @param  mixed  $filterDate         Provide null for default date filter,
+     * @param string $filterString
+     * @param mixed $filterDate Provide null for default date filter,
      *                                    false to disable filter, or a strtotime compatible
      *                                    value to set a specific date filter.
      * @return Garp_Content_Cdn_AssetList A cumulative list of relative paths to the assets.
@@ -53,11 +54,11 @@ class Garp_Content_Cdn_Distributor {
     }
 
     /**
-     * @param array                      $config    Cdn-related configuration
+     * @param array $config Cdn-related configuration
      * @param Garp_Content_Cdn_AssetList $assetList List of asset file paths
-     * @param callable                   $successFn Function to execute after each successful
+     * @param callable $successFn Function to execute after each successful
      *                                              upload). Used to report progress.
-     * @param callable                   $failureFn Function to execute after each failed upload.
+     * @param callable $failureFn Function to execute after each failed upload.
      * @return array Contains successfully uploaded assets.
      */
     public function distribute(

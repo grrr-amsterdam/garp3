@@ -1,32 +1,34 @@
 <?php
+
+use function Garp\__;
+
 /**
  * Garp_Auth_Adapter_Twitter
  * Authenticate using Twitter. Uses Zend_OAuth
  *
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
  * @package Garp
- * @subpackage Auth
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
     /**
      * Config key
+     *
      * @var String
      */
     protected $_configKey = 'twitter';
 
-
     /**
      * Authenticate a user.
+     *
      * @param Zend_Controller_Request_Abstract $request The current request
      * @param Zend_Controller_Response_Abstract $response The current response
      * @return Array|Boolean User data, or FALSE
      */
-    public function authenticate(Zend_Controller_Request_Abstract $request,
-        Zend_Controller_Response_Abstract $response) {
-        $callbackUrl = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://').$_SERVER['HTTP_HOST'].$request->getBaseUrl().'/g/auth/login/process/twitter';
+    public function authenticate(
+        Zend_Controller_Request_Abstract $request,
+        Zend_Controller_Response_Abstract $response
+    ) {
+        $callbackUrl = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $request->getBaseUrl() . '/g/auth/login/process/twitter';
         $authVars = $this->_getAuthVars();
         if (!$authVars->consumerKey || !$authVars->consumerSecret) {
             throw new Garp_Auth_Exception('Required key "consumerKey" or "consumerSecret" not set in application.ini.');
@@ -69,14 +71,17 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
             $this->_addError('App was not authorized. Please try again.');
             return false;
         } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'Duplicate entry') !== false &&
-                strpos($e->getMessage(), 'email_unique') !== false) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false
+                && strpos($e->getMessage(), 'email_unique') !== false
+            ) {
                 $this->_addError(__('this email address already exists'));
                 return false;
             }
             // Provide generic error message
-            $this->_addError(APPLICATION_ENV === 'development' ? $e->getMessage() :
-                __('login error'));
+            $this->_addError(APPLICATION_ENV === 'development'
+                ? $e->getMessage()
+                : __('login error')
+            );
         }
         return false;
     }
@@ -84,8 +89,12 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 
     /**
      * Store the user's profile data in the database, if it doesn't exist yet.
-     * @param Zend_Oauth_Token_Access $accesstoken
+     *
+     * @param Zend_Service_Twitter $twitterService
+     * @param mixed $twitterUserId
      * @return Void
+     * @throws Garp_Auth_Adapter_Exception
+     * @throws Garp_Auth_Exception
      */
     protected function _getUserData(Zend_Service_Twitter $twitterService, $twitterUserId) {
         $twitterUserData = $twitterService->users->show($twitterUserId);
@@ -93,7 +102,8 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
 
         $userModel = new Model_User();
         $userConditions = $userModel->select()->from(
-            $userModel->getName(), $this->_getSessionColumns());
+            $userModel->getName(), $this->_getSessionColumns()
+        );
 
         $model = new Model_AuthTwitter();
         $model->bindModel('Model_User', array(
@@ -102,7 +112,7 @@ class Garp_Auth_Adapter_Twitter extends Garp_Auth_Adapter_Abstract {
         ));
         $userData = $model->fetchRow(
             $model->select()
-                  ->where('twitter_uid = ?', $twitterUserId)
+                ->where('twitter_uid = ?', $twitterUserId)
         );
         if (!$userData || !$userData->Model_User) {
             $userData = $model->createNew($twitterUserId, $userColumns);

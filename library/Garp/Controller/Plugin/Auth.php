@@ -1,13 +1,13 @@
 <?php
+
+use function Garp\__;
+
 /**
  * Garp_Controller_Plugin_Auth
  * Checks wether a visitor is authorized to execute the current action/controller.
- * @author Harmen Janssen | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
+ *
  * @package Garp
- * @subpackage Controller
- * @lastmodified $Date: $
+ * @author Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 
@@ -46,6 +46,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
      * Here we force a write to the Auth cookie. Because user data may be
      * read in the view, the cookie will otherwise not be written until
      * headers are already sent.
+     *
      * @param Zend_Controller_Request_Abstract $request
      * @return Void
      */
@@ -58,6 +59,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 
     /**
      * See if a role is allowed to execute the current request.
+     *
      * @return Boolean
      */
     protected function _isAllowed() {
@@ -71,6 +73,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 
     /**
      * Redirect user to login page
+     *
      * @return Void
      */
     protected function _redirectToLogin() {
@@ -80,12 +83,15 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
         $authVars = $auth->getConfigValues();
 
         $flashMessenger = Zend_Controller_Action_HelperBroker::getStaticHelper('FlashMessenger');
-        $flashMessenger->addMessage(!$auth->isLoggedIn() ?
-            __($authVars['notLoggedInMsg']) : __($authVars['noPermissionMsg']));
+        $flashMessenger->addMessage(!$auth->isLoggedIn()
+            ? __($authVars['notLoggedInMsg'])
+            : __($authVars['noPermissionMsg'])
+        );
 
         // Make sure the redirect is not cached
         Zend_Controller_Action_HelperBroker::getStaticHelper('cache')->setNoCacheHeaders(
-            $this->getResponse());
+            $this->getResponse()
+        );
 
         $redirector = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
         $redirectMethod = 'gotoUrlAndExit';
@@ -100,6 +106,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
 
     /**
      * Check if the current request is for the G_AuthController
+     *
      * @return Boolean
      */
     protected function _isAuthRequest() {
@@ -109,6 +116,7 @@ class Garp_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract {
     /**
      * Store targetUrl in session. After login the user is redirected
      * back to this url.
+     *
      * @return Void
      */
     protected function _storeTargetUrl() {

@@ -1,26 +1,29 @@
 <?php
+
 use LinkedIn\LinkedIn;
+use function Garp\__;
 
 /**
  * Garp_Auth_Adapter_LinkedIn
  * Authenticate using LinkedIn
  *
- * @author       Harmen Janssen | grrr.nl
- * @version      0.1.0
  * @package      Garp_Auth_Adapter
+ * @author       Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
     const LINKED_IN_PROFILE_QUERY = '/people/~:(first_name,last_name,id,email-address,picture-url,formatted-name,positions:(company,is-current))';
 
     /**
-    * @var LinkedIn
-    */
+     * @var LinkedIn
+     */
     protected $_linkedIn;
 
     protected $_configKey = 'linkedin';
 
-    public function authenticate(Zend_Controller_Request_Abstract $request,
-        Zend_Controller_Response_Abstract $response) {
+    public function authenticate(
+        Zend_Controller_Request_Abstract $request,
+        Zend_Controller_Response_Abstract $response
+    ) {
         if ($request->getParam('error')) {
             $this->_addError($request->getParam('error_description'));
             return false;
@@ -54,13 +57,16 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
                 ->gotoUrl($authorizeUrl);
             return false;
         } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'Duplicate entry') !== false &&
-                strpos($e->getMessage(), 'email_unique') !== false) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false
+                && strpos($e->getMessage(), 'email_unique') !== false
+            ) {
                 $this->_addError(__('this email address already exists'));
                 return false;
             }
-            $this->_addError(APPLICATION_ENV === 'development' ? $e->getMessage() :
-                __('login error'));
+            $this->_addError(APPLICATION_ENV === 'development'
+                ? $e->getMessage()
+                : __('login error')
+            );
             return false;
         }
     }
@@ -79,13 +85,12 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
         ));
         $userData = $model->fetchRow(
             $model->select()
-                  ->where('linkedin_uid = ?', $profileData['id'])
+                ->where('linkedin_uid = ?', $profileData['id'])
         );
         if (!$userData || !$userData->Model_User) {
             $userData = $model->createNew($profileData['id'], $newUserData)->toArray();
             // Make sure only the session columns remain
-            $userData = array_intersect_key($userData, array_fill_keys($this->_getSessionColumns(),
-                null));
+            $userData = array_intersect_key($userData, array_fill_keys($this->_getSessionColumns(), null));
         } else {
             $model->getObserver('Authenticatable')->updateLoginStats($userData->user_id);
             $userData = $userData->Model_User;
@@ -96,13 +101,11 @@ class Garp_Auth_Adapter_Linkedin extends Garp_Auth_Adapter_Abstract {
     protected function _getLinkedInInstance() {
         $authVars = $this->_getAuthVars();
         $callbackUrl = new Garp_Util_FullUrl(array(array('method' => 'linkedin'), 'auth_submit'));
-        //if ($authVars->callbackBaseUrl) {
-            //$callbackUrl = $authVars->callbackBaseUrl . '/g/auth/login/process/linkedin';
-        //}
         // Sanity checks
         if (!$authVars->consumerKey || !$authVars->consumerSecret) {
             throw new Garp_Auth_Exception(
-                'Required key "consumerKey" or "consumerSecret" not set in application.ini.');
+                'Required key "consumerKey" or "consumerSecret" not set in application.ini.'
+            );
         }
         if (!$this->_linkedIn) {
             $this->_linkedIn = new LinkedIn(array(
