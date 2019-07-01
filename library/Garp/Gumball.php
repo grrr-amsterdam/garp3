@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Gumball
  * Represents a packaged Garp installation, including data and source files.
@@ -42,8 +45,8 @@ class Garp_Gumball {
      */
     public function __construct(Garp_Version $version, array $options = array()) {
         $this->_version = $version;
-        $this->_useDatabase = array_get($options, 'useDatabase', false);
-        $this->_dbEnv = array_get($options, 'databaseSourceEnvironment');
+        $this->_useDatabase = f\prop('useDatabase', $options) ?? false;
+        $this->_dbEnv = f\prop('databaseSourceEnvironment', $options);
 
         if (!isset($options['gumballDirectory'])) {
             // default to /gumballs

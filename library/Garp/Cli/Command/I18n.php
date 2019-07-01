@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Cli_Command_I18n
  * Perform various internationalization-related tasks.
@@ -82,7 +85,7 @@ class Garp_Cli_Command_I18n extends Garp_Cli_Command {
     protected function _getForeignKeyWhereClause(Garp_Db_Table_Row $record, $model,
         $foreignKeyColumns
     ) {
-        $whereData = array_get_subset($record->toArray(), $foreignKeyColumns);
+        $whereData = f\pick($foreignKeyColumns, $record->toArray());
         // Assume one "id" primary key
         if (count($foreignKeyColumns) > 1) {
             throw new Exception("Can't deal with multiple foreign keys right now!");

@@ -1,4 +1,8 @@
 <?php
+
+use function Garp\__;
+use Garp\Functional as f;
+
 /**
  * Garp_Auth_Adapter_Passwordless
  * Allow token-based, passwordless authentication.
@@ -193,7 +197,7 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
     protected function _getToken($userId = null) {
         if ($userId
             && $this->_getAuthVars()
-            && array_get($this->_getAuthVars()->toArray(), 'reuse_existing_token')
+            && f\prop('reuse_existing_token', $this->_getAuthVars()->toArray())
         ) {
             return $this->_fetchExistingToken($userId) ?: $this->_getToken();
         }
@@ -205,7 +209,7 @@ class Garp_Auth_Adapter_Passwordless extends Garp_Auth_Adapter_Abstract {
 
     protected function _tokenNeverExpires() {
         return $this->_getAuthVars()
-            && array_get($this->_getAuthVars()->toArray(), 'token_never_expires');
+            && f\prop('token_never_expires', $this->_getAuthVars()->toArray());
     }
 
     protected function _tokenIsClaimed(Garp_Db_Table_Row $row) {

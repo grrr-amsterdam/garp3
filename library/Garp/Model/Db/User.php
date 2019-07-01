@@ -1,4 +1,8 @@
 <?php
+
+use Garp\Functional as f;
+use function Garp\__;
+
 /**
  * Garp_Model_Db_User
  * Standard implementation of a User model.
@@ -10,9 +14,9 @@
  * @lastmodified $Date: $
  */
 class Garp_Model_Db_User extends Model_Base_User {
-    const EXCEPTION_CANNOT_ASSIGN_GREATER_ROLE 
+    const EXCEPTION_CANNOT_ASSIGN_GREATER_ROLE
         = 'You are not allowed to assign a role greater than your own.';
-    const EXCEPTION_CANNOT_EDIT_GREATER_ROLE 
+    const EXCEPTION_CANNOT_EDIT_GREATER_ROLE
         = 'You are not allowed to edit users with a role greater than your own.';
 
 
@@ -43,7 +47,7 @@ class Garp_Model_Db_User extends Model_Base_User {
 
     /**
      * Grab only session columns by userid
-     * 
+     *
      * @param int $userId
      * @return Garp_Db_Table_Row
      */
@@ -57,7 +61,7 @@ class Garp_Model_Db_User extends Model_Base_User {
     /**
      * Update user with activation code and expire time.
      * Used when forgot password
-     * 
+     *
      * @param int $userId
      * @param string $activationCode
      * @param string $activationExpiry
@@ -86,7 +90,7 @@ class Garp_Model_Db_User extends Model_Base_User {
     public function beforeInsert(array &$args) {
         $data = &$args[1];
 
-        if (array_key_exists(self::IMAGE_URL_COLUMN, $data) 
+        if (array_key_exists(self::IMAGE_URL_COLUMN, $data)
             && !is_null($data[self::IMAGE_URL_COLUMN])
         ) {
             // Allow passing in of image URLs. These are downloaded and added as image_id
@@ -150,7 +154,7 @@ class Garp_Model_Db_User extends Model_Base_User {
         $authVars = Garp_Auth::getInstance()->getConfigValues('validateemail');
 
         // Check if the email address is about to be changed, and wether we should respond to it
-        if ((!empty($authVars['enabled']) && $authVars['enabled']) 
+        if ((!empty($authVars['enabled']) && $authVars['enabled'])
             && array_key_exists('email', $data)
         ) {
             // Collect the current email addresses to see if they are to be changed
@@ -298,10 +302,10 @@ class Garp_Model_Db_User extends Model_Base_User {
         $validationTokenColumn = $authVars['token_column'];
         $emailValidColumn = $authVars['email_valid_column'];
 
-        if ($updateOrInsert == 'insert' && array_get($user, $emailValidColumn)) {
+        if ($updateOrInsert == 'insert' &&  f\prop($emailValidColumn, $user)) {
             return true;
-        } 
-        
+        }
+
         // Generate the validation code
         $validationToken = uniqid();
         $validationCode = $this->generateEmailValidationCode($user, $validationToken);
@@ -431,8 +435,8 @@ class Garp_Model_Db_User extends Model_Base_User {
     }
 
     public function getPrefilledData(array $data) {
-        if (!isset(Zend_Registry::get('config')->auth->users) 
-            || !array_key_exists('email', $data) 
+        if (!isset(Zend_Registry::get('config')->auth->users)
+            || !array_key_exists('email', $data)
             || is_null($data['email'])
         ) {
             return $data;

@@ -555,7 +555,7 @@ class G_ContentController extends Garp_Controller_Action {
         try {
             $snippetModel = new Model_Snippet();
             if ($snippetModel->isMultilingual()) {
-                $snippetModel = instance(new Garp_I18n_ModelFactory)->getModel('Snippet');
+                $snippetModel = (new Garp_I18n_ModelFactory)->getModel('Snippet');
             }
             $snippet = $snippetModel->fetchByIdentifier('cms closed message');
             $cmsClosedMessage = $snippet->html;

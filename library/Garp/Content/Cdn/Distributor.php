@@ -79,8 +79,11 @@ class Garp_Content_Cdn_Distributor {
             true
         );
 
-        $successFn = $successFn ?: noop();
-        $failureFn = $failureFn ?: noop();
+        $noop = function () {
+        };
+
+        $successFn = $successFn ?: $noop;
+        $failureFn = $failureFn ?: $noop;
 
         return f\reduce(
             function ($successes, $asset) use ($s3, $successFn, $failureFn) {

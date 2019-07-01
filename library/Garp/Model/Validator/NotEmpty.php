@@ -1,4 +1,7 @@
 <?php
+
+use function Garp\__;
+
 /**
  * Garp_Model_Validator_NotEmpty
  * Check if a value is not empty

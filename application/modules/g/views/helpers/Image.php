@@ -117,7 +117,7 @@ class G_View_Helper_Image extends Zend_View_Helper_HtmlElement {
      * @return string
      */
     public function getSourceUrlById($id) {
-        $image = instance(new Model_Image)->fetchById($id);
+        $image = (new Model_Image)->fetchById($id);
         if (!$image) {
             throw new InvalidArgumentException(self::ERROR_IMAGE_NOT_FOUND);
         }

@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Content_Manager
  * Handles various crud methods
@@ -144,7 +147,7 @@ class Garp_Content_Manager {
                 );
             }
 
-            if (array_get($options, 'joinMultilingualModel')) {
+            if (f\prop('joinMultilingualModel', $options)) {
                 /**
                  * Note that this join is meant just to provide a table with its extended columns to
                  * allow, for instance, sorting.
@@ -159,9 +162,9 @@ class Garp_Content_Manager {
                     $i18nModel->getName(),
                     $i18nModel->refmapToOnClause(get_class($this->_model)) . " AND lang = '$lang'",
                     array_map(
-                        array_get('name'),
+                        f\prop('name'),
                         array_filter(
-                            $this->_model->getFieldConfiguration(), array_get('multilingual')
+                            $this->_model->getFieldConfiguration(), f\prop('multilingual')
                         )
                     )
                 );
@@ -836,7 +839,7 @@ class Garp_Content_Manager {
             ' AND ' . $bindingModelTable . '.' . $filterField . ' = ?',
             $options['filterValue']
         );
-        if ($this->_isHomophile($options['filterModel']) && array_get($options, 'bidirectional')) {
+        if ($this->_isHomophile($options['filterModel']) && f\prop('bidirectional', $options)) {
             $bindingCondition .= ' OR ' . $bindingModelTable . '.'
                 . $filterField . ' = ' . $thisTableName . '.' . $foreignKeyField;
             $bindingCondition .= $bindingModel->getAdapter()->quoteInto(
@@ -874,7 +877,7 @@ class Garp_Content_Manager {
                 $options['filterValue']
             );
             if ($this->_isHomophile($options['filterModel'])
-                && array_get($options, 'bidirectional')
+                && f\prop('bidirectional', $options)
             ) {
                 $options['select']->orWhere(
                     $bindingModelTable . '.' . $bindingModelForeignKeyField . ' = ?',

@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Cli_Command_Log
  *
@@ -32,10 +35,10 @@ class Garp_Cli_Command_Log extends Garp_Cli_Command {
      */
     public function clean(array $args = array()) {
         // Resolve parameters
-        $logRoot = array_get($args, 'root', APPLICATION_PATH . '/data/logs');
-        $pattern = array_get($args, 'pattern', '/\.log$/i');
-        $threshold = array_get($args, 'threshold', '1 month ago');
-        $verbose = array_get($args, 'verbose', false);
+        $logRoot = f\prop('root', $args) ?? APPLICATION_PATH . '/data/logs';
+        $pattern = f\prop('pattern', $args) ?? '/\.log$/i';
+        $threshold = f\prop('threshold', $args) ?? '1 month ago';
+        $verbose = f\prop('verbose', $args) ?? false;
 
         $count = 0;
         $leanOut = '';

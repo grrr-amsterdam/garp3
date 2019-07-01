@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Content_Api_Rest
  * RESTful content API
@@ -30,11 +33,11 @@ class Garp_Content_Api_Rest {
     public function get(array $params) {
         $this->_requireDataType($params);
 
-        if (array_get($params, 'datatype') === self::METHOD_DICTIONARY) {
+        if (f\prop('datatype', $params) === self::METHOD_DICTIONARY) {
             return $this->getDictionary();
-        } elseif (array_get($params, 'relatedType') && array_get($params, 'id')) {
+        } elseif (f\prop('relatedType', $params) && f\prop('id', $params)) {
             list($response, $httpCode) = $this->_getRelatedResults($params);
-        } elseif (array_get($params, 'id')) {
+        } elseif (f\prop('id', $params)) {
             list($response, $httpCode) = $this->_getSingleResult($params);
         } else {
             list($response, $httpCode) = $this->_getIndex($params);
@@ -55,20 +58,12 @@ class Garp_Content_Api_Rest {
         $model = $this->_normalizeModelName($params['datatype']);
         $contentManager = $this->_getContentManager($model);
         $primaryKey = $contentManager->create($postData);
-        $record = array_get(
-            array_get(
-                $this->get(
-                    array(
-                        'datatype' => $params['datatype'],
-                        'id' => $primaryKey
-                    )
-                ),
-                'data',
-                array()
-            ),
-            'result',
-            array()
-        );
+        $response = $this->get([
+            'datatype' => $params['datatype'],
+            'id' => $primaryKey,
+        ]);
+
+        $record = f\either(f\prop_in(['data', 'result']), [])($response);
         $response = array(
             'success' => true,
             'result' => $record,
@@ -88,7 +83,7 @@ class Garp_Content_Api_Rest {
      */
     public function put(array $params, array $postData) {
         $this->_requireDataType($params);
-        if (!array_get($params, 'id')) {
+        if (!f\prop('id', $params)) {
             throw new Garp_Content_Api_Rest_Exception(
                 self::EXCEPTION_PUT_WITHOUT_ID
             );
@@ -101,7 +96,7 @@ class Garp_Content_Api_Rest {
             return $this->_formatResponse(array('success' => false), 404);
         }
 
-        if (!array_get($params, 'relatedType')) {
+        if (!f\prop('relatedType', $params)) {
             $this->_updateSingle($params, $postData);
             list($response, $httpCode) = $this->_getSingleResult($params);
         } else {
@@ -109,7 +104,7 @@ class Garp_Content_Api_Rest {
             // Sanity check if related model exists
             list($relatedRecord) = $this->_getSingleResult(
                 array(
-                    'datatype' => getProperty(
+                    'datatype' => f\prop(
                         'model',
                         $schema->getRelation(
                             $params['datatype'],
@@ -150,7 +145,7 @@ class Garp_Content_Api_Rest {
      */
     public function delete(array $params) {
         $this->_requireDataType($params);
-        if (!array_get($params, 'id')) {
+        if (!f\prop('id', $params)) {
             throw new Garp_Content_Api_Rest_Exception(
                 self::EXCEPTION_MISSING_ID
             );
@@ -161,7 +156,7 @@ class Garp_Content_Api_Rest {
             return $this->_formatResponse(array('success' => false), 404);
         }
 
-        if (array_get($params, 'relatedType')) {
+        if (f\prop('relatedType', $params)) {
             $this->_removeRelation($params);
             return $this->_formatResponse(null, 204, false);
         }
@@ -191,7 +186,7 @@ class Garp_Content_Api_Rest {
      */
     public function options(array $params) {
         $schema = new Garp_Content_Api_Rest_Schema('rest');
-        if (!array_get($params, 'datatype')) {
+        if (!f\prop('datatype', $params)) {
             $out = array();
             $out['root'] = (string)new Garp_Util_FullUrl(array(array(), 'rest'));
             $out['i18n'] = array(
@@ -204,7 +199,7 @@ class Garp_Content_Api_Rest {
             $out['models'] = $schema->getModelPaths();
             return $this->_formatResponse($out, 200);
         }
-        if (array_get($params, 'id') || array_get($params, 'relatedType')) {
+        if (f\prop('id', $params) || f\prop('relatedType', $params)) {
             return $this->_formatResponse(null, 200, false);
         }
         return $this->_formatResponse($schema->getModelDetails($params['datatype']), 200);
@@ -261,11 +256,9 @@ class Garp_Content_Api_Rest {
             );
         }
 
-        $options = array_get_subset(
-            $options,
-            array(
-                'sort', 'start', 'limit', 'fields', 'query', 'group', 'with'
-            )
+        $options = f\pick(
+            ['sort', 'start', 'limit', 'fields', 'query', 'group', 'with'],
+            $options
         );
         if (!isset($options['limit'])) {
             $options['limit'] = self::DEFAULT_PAGE_LIMIT;
@@ -274,7 +267,7 @@ class Garp_Content_Api_Rest {
             // Normalize into an array
             $options['with'] = (array)$options['with'];
         }
-        if (array_get($params, 'id')) {
+        if (f\prop('id', $params)) {
             $options['query']['id'] = $params['id'];
         }
         return $options;
@@ -291,7 +284,7 @@ class Garp_Content_Api_Rest {
         $model = $this->_normalizeModelName($params['datatype']);
         $contentManager = $this->_getContentManager($model);
         $options = $this->_extractOptionsForFetch($params);
-        if (instance($model)->isMultilingual()) {
+        if ((new $model)->isMultilingual()) {
             $options['joinMultilingualModel'] = true;
         }
 
@@ -317,7 +310,7 @@ class Garp_Content_Api_Rest {
 
         $options = $this->_extractOptionsForFetch($params);
         $contentManager = $this->_getContentManager($model);
-        if (instance($model)->isMultilingual()) {
+        if ((new $model)->isMultilingual()) {
             $options['joinMultilingualModel'] = true;
         }
         $result = $contentManager->fetch($options);
@@ -392,7 +385,7 @@ class Garp_Content_Api_Rest {
     }
 
     protected function _requireDataType(array $params) {
-        if (!array_get($params, 'datatype')) {
+        if (!f\prop('datatype', $params)) {
             throw new Garp_Content_Api_Rest_Exception(
                 self::EXCEPTION_MISSING_MODEL
             );
@@ -400,7 +393,7 @@ class Garp_Content_Api_Rest {
     }
 
     protected function _validatePostParams(array $params, array $postData) {
-        if (array_get($params, 'id')) {
+        if (f\prop('id', $params)) {
             throw new Garp_Content_Api_Rest_Exception(
                 self::EXCEPTION_POST_WITH_ID
             );
@@ -440,7 +433,7 @@ class Garp_Content_Api_Rest {
     }
 
     protected function _removeRelation(array $params) {
-        if (!array_get($params, 'relatedId')) {
+        if (!f\prop('relatedId', $params)) {
             throw new Garp_Content_Api_Rest_Exception(
                 self::EXCEPTION_MISSING_RELATED_ID
             );
@@ -482,9 +475,9 @@ class Garp_Content_Api_Rest {
     protected function _combineRecords($datatype, array $records, $with) {
         $modelName = $this->_normalizeModelName($datatype);
         $rootModel = new $modelName;
-        $schema = instance(new Garp_Content_Api_Rest_Schema('rest'))->getModelDetails($datatype);
+        $schema = (new Garp_Content_Api_Rest_Schema('rest'))->getModelDetails($datatype);
         $hasOneRelations = array_filter($schema['fields'], propertyEquals('origin', 'relation'));
-        $hasOneRelations = array_map(array_get('relationAlias'), $hasOneRelations);
+        $hasOneRelations = array_map(f\prop('relationAlias'), $hasOneRelations);
 
         // Check validity of 'with'
         $unknowns = array_filter($with, callRight(not('in_array'), $hasOneRelations));
@@ -514,7 +507,7 @@ class Garp_Content_Api_Rest {
                 }
 
                 // Grab foreign key values
-                $foreignKeyValues = array_map(array_get($foreignKey['name']), $acc[$datatype]);
+                $foreignKeyValues = array_map(f\prop($foreignKey['name']), $acc[$datatype]);
                 // No values to filter on? Bail.
                 if (!count(array_filter($foreignKeyValues))) {
                     return $acc;

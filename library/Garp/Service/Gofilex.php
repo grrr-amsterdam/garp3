@@ -269,7 +269,8 @@ class Garp_Service_Gofilex extends Zend_Service_Abstract {
             $logMessage .= '[RESPONSE]' . "\n";
             $logMessage .= $lastResponse . "\n\n";
 
-            dump($filename, $logMessage);
+            $logger = Garp_Log::factory($filename);
+            $logger->log($logMessage, Garp_Log::INFO);
         }
     }
 }

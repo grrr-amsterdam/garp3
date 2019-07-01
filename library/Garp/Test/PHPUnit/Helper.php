@@ -94,9 +94,9 @@ class Garp_Test_PHPUnit_Helper {
             $i18n = isset($data['i18n']) && $data['i18n'];
             unset($data['i18n']);
             foreach ($data as $i => $data) {
-                $readModel = $saveModel = instance('Model_' . $datatype);
+                $readModel = $saveModel = f\instance("Model_$datatype");
                 if ($i18n) {
-                    $readModel = instance(new Garp_I18n_ModelFactory)->getModel($readModel);
+                    $readModel = (new Garp_I18n_ModelFactory)->getModel($readModel);
                 }
                 $saveModel->unregisterObserver('ImageScalable');
                 $primary = $saveModel->insert($data);
@@ -121,11 +121,11 @@ class Garp_Test_PHPUnit_Helper {
     protected function _truncate($mockData) {
         foreach ($mockData as $datatype => $mockData) {
             $i18n = isset($data['i18n']) && $data['i18n'];
-            $model = instance('Model_' . $datatype);
+            $model = f\instance("Model_$datatype");
             $model->getAdapter()->query('SET foreign_key_checks=0;');
             $model->getAdapter()->query('TRUNCATE TABLE ' . $model->getName());
             if ($i18n) {
-                $modelI18n = instance(
+                $modelI18n = f\instance(
                     'Model_' . $datatype . Garp_Model_Behavior_Translatable::I18N_MODEL_SUFFIX
                 );
                 $model->getAdapter()->query('TRUNCATE TABLE ' . $modelI18n->getName());

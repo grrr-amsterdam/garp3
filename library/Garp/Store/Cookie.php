@@ -317,7 +317,8 @@ class Garp_Store_Cookie implements Garp_Store_Interface {
                 break;
             }
 
-            dump('cookie_faulty_json', $jsonErrorStr . ': ' . $_COOKIE[$namespace]);
+            $logger = Garp_Log::factory('cookie_faulty_json.json');
+            $logger->log($jsonErrorStr . ': ' . $_COOKIE[$namespace], Garp_Log::INFO);
         }
     }
 
