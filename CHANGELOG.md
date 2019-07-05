@@ -36,6 +36,11 @@ Removed functions:
 - `view()`
 - `when()`
 
+Removed polyfills:
+
+- `array_column()`
+- `gzdecode()`
+
 ## Version 3.18.1
 
 Not a breaking change, but because of the huge impact on deploy performance interesting to mention nonetheless: as of this version you can configure Capistrano to not distribute assets to the CDN.   
