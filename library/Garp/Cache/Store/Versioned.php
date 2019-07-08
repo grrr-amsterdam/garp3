@@ -57,8 +57,7 @@ class Garp_Cache_Store_Versioned {
     public function read($key) {
         $cache = Zend_Registry::get('CacheFrontend');
         // fetch results from cache
-        if ($cache->test($key)) {
-            $results = $cache->load($key);
+        if (($results = $cache->load($key)) !== false) {
             if (!is_array($results)) {
                 return -1;
             }
