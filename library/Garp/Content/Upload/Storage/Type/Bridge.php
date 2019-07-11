@@ -1,23 +1,17 @@
 <?php
-/**
- * Garp_Content_Upload_Storage_Type_S3
- *
- * @author David Spreekmeester | grrr.nl
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @package Garp
- * @subpackage Content
- * @lastmodified $Date: $
- */
-class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Type_Abstract {
-    protected $_service;
 
+class Garp_Content_Upload_Storage_Type_Bridge extends Garp_Content_Upload_Storage_Type_Abstract {
+
+    /**
+     * @var Garp_File_Storage_Protocol
+     */
+    protected $_service;
 
     public function __construct($environment) {
         parent::__construct($environment);
-        $this->_setService();
-    }
 
+        $this->_service = initializeBridgeStorage();
+    }
 
     public function fetchFileList() {
         $fileList           = new Garp_Content_Upload_FileList();
@@ -34,10 +28,84 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
         return $fileList;
     }
 
+    /**
+     * Calculate the eTag of a file.
+     * @param   string $filename    Filename
+     * @param   string $type        File type, i.e. 'document' or 'image'
+     * @return  string              Content hash (md5 sum of the content)
+     */
+    public function fetchEtag($filename, $type) {
+        $relPath    = $this->_getRelPath($filename, $type);
+        $dir        = $this->_getRelDir($relPath);
+        $service    = $this->_getService();
+
+        $service->setPath($dir);
+
+        return $service->getEtag($filename);
+    }
+
 
     /**
-     * @param Array     $dirList    Array of file paths
-     * @param String    $type       Upload type
+     * Fetches the contents of the given file.
+     * @param   string $filename    Filename
+     * @param   string $type        File type, i.e. 'document' or 'image'
+     * @return  string              Content of the file. Throws an exception if file could not be read.
+     */
+    public function fetchData($filename, $type) {
+        $relPath    = $this->_getRelPath($filename, $type);
+        //return $this->_getService()->fetch($relPath);
+        $ini        = $this->_getIni();
+        $cdnDomain  = $ini->cdn->domain;
+        $url        = 'http://' . $cdnDomain . $relPath;
+
+        $content = @file_get_contents($url);
+        if ($content === false) {
+            throw new Exception("Could not read {$url} on " . $this->getEnvironment());
+        }
+
+        // Check for gzipped content
+        $unpacked = gzdecode($content);
+        $content = null !== $unpacked && false !== $unpacked ? $unpacked : $content;
+        return $content;
+    }
+
+
+    /**
+     * Stores given data in the file, overwriting the existing bytes if necessary.
+     * @param   string $filename    Filename
+     * @param   string $type        File type, i.e. 'document' or 'image'
+     * @param   string &$data       File data to be stored.
+     * @return  Boolean             Success of storage.
+     */
+    public function store($filename, $type, &$data) {
+        $path       = $this->_getRelPath($filename, $type);
+        $dir        = $this->_getRelDir($path);
+        $service    = $this->_getService();
+
+        $service->setPath($dir);
+        return $service->store($filename, $data, true, false);
+    }
+
+
+    /**
+     * @param   string $path    Relative path to the file.
+     * @return  string          The relative path to the directory where the file resides.
+     */
+    protected function _getRelDir($path) {
+        $filename = basename($path);
+        $dir = substr($path, 0, strlen($path) - strlen($filename));
+        return $dir;
+    }
+
+
+    protected function _getService(): Garp_File_Storage_Protocol {
+        return $this->_service;
+    }
+
+    /**
+     * @param array $dirList Array of file paths
+     * @param string $type Upload type
+     * @return Garp_Content_Upload_FileList
      */
     protected function _findFilesByType(array $dirList, $type) {
         $fileList = new Garp_Content_Upload_FileList();
@@ -53,92 +121,8 @@ class Garp_Content_Upload_Storage_Type_S3 extends Garp_Content_Upload_Storage_Ty
         return $fileList;
     }
 
-
     protected function _isFilePath($path) {
         return $path[strlen($path) - 1] !== '/';
     }
 
-
-
-    /**
-     * Calculate the eTag of a file.
-     * @param   String $filename    Filename
-     * @param   String $type        File type, i.e. 'document' or 'image'
-     * @return  String              Content hash (md5 sum of the content)
-     */
-    public function fetchEtag($filename, $type) {
-        $relPath    = $this->_getRelPath($filename, $type);
-        $dir        = $this->_getRelDir($relPath);
-        $service    = $this->_getService();
-
-        $service->setPath($dir);
-
-        return $service->getEtag($filename);
-    }
-
-
-    /**
-     * Fetches the contents of the given file.
-     * @param   String $filename    Filename
-     * @param   String $type        File type, i.e. 'document' or 'image'
-     * @return  String              Content of the file. Throws an exception if file could not be read.
-     */
-    public function fetchData($filename, $type) {
-        $relPath    = $this->_getRelPath($filename, $type);
-        //return $this->_getService()->fetch($relPath);
-        $ini        = $this->_getIni();
-        $cdnDomain  = $ini->cdn->domain;
-        $url        = 'http://' . $cdnDomain . $relPath;
-
-        $content = @file_get_contents($url);
-        if ($content === false) {
-            throw new Exception("Could not read {$url} on " . $this->getEnvironment());
-        }
-
-        // Check for gzipped content
-        $unpacked = @gzdecode($content);
-        $content = null !== $unpacked && false !== $unpacked ? $unpacked : $content;
-        return $content;
-    }
-
-
-    /**
-     * Stores given data in the file, overwriting the existing bytes if necessary.
-     * @param   String $filename    Filename
-     * @param   String $type        File type, i.e. 'document' or 'image'
-     * @param   String &$data       File data to be stored.
-     * @return  Boolean             Success of storage.
-     */
-    public function store($filename, $type, &$data) {
-        $path       = $this->_getRelPath($filename, $type);
-        $dir        = $this->_getRelDir($path);
-        $service    = $this->_getService();
-
-        $service->setPath($dir);
-        return $service->store($filename, $data, true, false);
-    }
-
-
-    /*
-     * @param   String $path    Relative path to the file.
-     * @return  String          The relative path to the directory where the file resides.
-     */
-    protected function _getRelDir($path) {
-        $filename = basename($path);
-        $dir = substr($path, 0, strlen($path) - strlen($filename));
-        return $dir;
-    }
-
-
-    protected function _getService(): Garp_File_Storage_Protocol {
-        return $this->_service;
-    }
-
-
-    protected function _setService() {
-        if (!$this->_service) {
-            $ini = $this->_getIni();
-            $this->_service = new Garp_File_Storage_S3($ini->cdn);
-        }
-    }
 }

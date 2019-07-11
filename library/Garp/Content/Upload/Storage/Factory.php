@@ -29,6 +29,9 @@ class Garp_Content_Upload_Storage_Factory {
             case 's3':
                 return new Garp_Content_Upload_Storage_Type_S3($environment);
             break;
+            case 'bridge':
+                return new Garp_Content_Upload_Storage_Type_Bridge($environment);
+            break;
             default:
                 throw new Exception('Unknown CDN type for environment ' . $environment);
         }

@@ -23,7 +23,7 @@ class Garp_File {
 
     const SEPERATOR = '-';
 
-    protected $_storageTypes = array('local', 's3');
+    protected $_storageTypes = array('local', 's3', 'bridge');
 
     protected $_requiredConfigParams = array('type', 'domain', 'path', 'extensions');
 
@@ -354,6 +354,9 @@ class Garp_File {
                     ),
                     $this->_path
                 );
+                break;
+            case 'bridge':
+                $this->_storage = initializeBridgeStorage();
                 break;
             default:
                 throw new Exception("The '{$ini->cdn->type}' protocol is not yet implemented.");
