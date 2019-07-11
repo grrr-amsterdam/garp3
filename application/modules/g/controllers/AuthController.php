@@ -1,4 +1,6 @@
 <?php
+use function Garp\__;
+
 /**
  * G_AuthController
  * This controller handles logging users in and out.
@@ -34,7 +36,7 @@ class G_AuthController extends Garp_Controller_Action {
      * @return void
      */
     public function registerAction() {
-        $this->view->title = \Garp\__('register page title');
+        $this->view->title = __('register page title');
         $authVars = Garp_Auth::getInstance()->getConfigValues();
 
         if (!$this->getRequest()->isPost()) {
@@ -695,3 +697,4 @@ class G_AuthController extends Garp_Controller_Action {
             $this->getRequest()->getParam('targetUrl');
     }
 }
+
