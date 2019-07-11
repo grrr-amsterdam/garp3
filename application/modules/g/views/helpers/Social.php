@@ -1,4 +1,6 @@
 <?php
+use function \Garp\__;
+
 /**
  * G_View_Helper_Social
  * Helper for generating all kinds of

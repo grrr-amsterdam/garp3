@@ -1,4 +1,6 @@
 <?php
+use function \Garp\__;
+
 /**
  * @package Tests
  * @author  Harmen Janssen <harmen@grrr.nl>
