@@ -41,6 +41,12 @@ Removed polyfills:
 - `array_column()`
 - `gzdecode()`
 
+### Sentry 
+
+Sentry has been updated to version 2.
+This means any manual Sentry error reporting should be updated. [Sentry's own changelog](https://github.com/getsentry/sentry-php/blob/master/UPGRADE-2.0.md) is the best place to start.
+Also: the entry `RavenClient` in `Zend_Registry` has been removed.
+
 ## Version 3.18.1
 
 Not a breaking change, but because of the huge impact on deploy performance interesting to mention nonetheless: as of this version you can configure Capistrano to not distribute assets to the CDN.   

@@ -26,23 +26,14 @@ if (file_exists(APPLICATION_PATH . '/../.env')) {
 }
 
 // Sentry integration
-if (getenv('SENTRY_API_URL') || (defined('SENTRY_API_URL') && APPLICATION_ENV !== 'development')) {
+if (getenv('SENTRY_API_URL') || (defined('SENTRY_API_URL'))) {
     $sentryApiUrl = getenv('SENTRY_API_URL') ?: SENTRY_API_URL;
-    $ravenClient = new Raven_Client(
-        $sentryApiUrl,
-        array(
-            'environment' => APPLICATION_ENV,
-            'release' => (string)new Garp_Version,
-            'tags' => array(
-                'php_version' => phpversion(),
-            ),
-        )
-    );
-    $ravenErrorHandler = new Raven_ErrorHandler($ravenClient);
-    $ravenErrorHandler->registerExceptionHandler();
-    $ravenErrorHandler->registerErrorHandler();
-    $ravenErrorHandler->registerShutdownFunction();
-    Zend_Registry::set('RavenClient', $ravenClient);
+    \Sentry\init([
+        'dsn' => $sentryApiUrl,
+        'release' => strval(new Garp_Version),
+        'environment' => APPLICATION_ENV,
+        'capture_silenced_errors' => true,
+    ]);
 }
 
 $appSpecificInit = APPLICATION_PATH . '/configs/init.php';
@@ -167,3 +158,4 @@ Zend_Registry::set('readFromCache', READ_FROM_CACHE);
 Zend_Registry::set('CacheFrontend', $cache);
 
 require_once 'functions.php';
+
