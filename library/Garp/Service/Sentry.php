@@ -1,4 +1,6 @@
 <?php
+use Sentry\State\Hub;
+
 /**
  * Garp_Service_Sentry
  * Error Monitoring through https://getsentry.com
@@ -31,37 +33,25 @@ class Garp_Service_Sentry {
      *
      * @return bool
      */
-    public function isActive() {
-        return Zend_Registry::isRegistered('RavenClient');
+    public function isActive(): bool {
+        return !is_null(Hub::getCurrent()->getClient());
     }
 
-    public function log(Exception $exception) {
+    public function log(Exception $exception): void {
         if (!$this->isActive()) {
             return;
         }
-
-        $ravenClient = Zend_Registry::get('RavenClient');
-        $event_id = $ravenClient->getIdent(
-            $ravenClient->captureException(
-                $exception,
-                array(
-                    'extra' => $this->_getBasicVars(),
-                    'user' => $this->_getUserVars(),
-                )
-            )
-        );
-    }
-
-    protected function _getBasicVars(): array {
-        return array(
-            'garp_version' => $this->_readGarpVersion(),
-        );
+        \Sentry\configureScope(function (\Sentry\State\Scope $scope): void {
+            $scope->setUser($this->_getUserVars());
+            $scope->setTag('garp_version', $this->_readGarpVersion());
+        });
+        \Sentry\captureException($exception);
     }
 
     protected function _getUserVars(): array {
         // Add logged in user data to log
         $auth = Garp_Auth::getInstance();
-        return $auth->isLoggedIn() ? $auth->getUserData() : array();
+        return $auth->isLoggedIn() ? $auth->getUserData() : [];
     }
 
     /**
@@ -78,7 +68,6 @@ class Garp_Service_Sentry {
         }
         $lockFile = json_decode(file_get_contents($lockFilePath), true);
         $packages = $lockFile['packages'];
-
         return array_reduce(
             $packages,
             function ($prevVersion, $package) {
