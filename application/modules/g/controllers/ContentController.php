@@ -1,4 +1,6 @@
 <?php
+use function \Garp\__;
+
 /**
  * G_ContentController
  * This controller handles content managing actions. The usual crud;
@@ -69,7 +71,7 @@ class G_ContentController extends Garp_Controller_Action {
 
         if (function_exists('apc_clear_cache')) {
             // Always returns true
-            apc_clear_cache(); 
+            apc_clear_cache();
             $output[] = 'APC Opcache cleared';
         }
 
