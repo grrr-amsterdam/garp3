@@ -476,11 +476,11 @@ class Garp_Content_Api_Rest {
         $modelName = $this->_normalizeModelName($datatype);
         $rootModel = new $modelName;
         $schema = (new Garp_Content_Api_Rest_Schema('rest'))->getModelDetails($datatype);
-        $hasOneRelations = array_filter($schema['fields'], propertyEquals('origin', 'relation'));
+        $hasOneRelations = f\filter(f\prop_equals('origin', 'relation'), $schema['fields']);
         $hasOneRelations = array_map(f\prop('relationAlias'), $hasOneRelations);
 
         // Check validity of 'with'
-        $unknowns = array_filter($with, callRight(not('in_array'), $hasOneRelations));
+        $unknowns = f\reject(f\partial_right('in_array', $hasOneRelations), $with);
         if (count($unknowns)) {
             $err = sprintf(
                 Garp_Content_Api_Rest_Schema::EXCEPTION_RELATION_NOT_FOUND, $datatype,
@@ -495,9 +495,9 @@ class Garp_Content_Api_Rest {
             function ($acc, $cur) use ($datatype, $schema, $self) {
                 // Grab foreign key names from the relation
                 $foreignKey = current(
-                    array_filter(
-                        $schema['fields'],
-                        propertyEquals('relationAlias', $cur)
+                    f\filter(
+                        f\prop_equals('relationAlias', $cur),
+                        $schema['fields']
                     )
                 );
 

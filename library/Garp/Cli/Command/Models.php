@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Cli_Command_Models
  * class description
@@ -23,7 +26,7 @@ class Garp_Cli_Command_Models extends Garp_Cli_Command {
         $className = "Model_{$args[0]}";
         $model = new $className();
         $fields = $model->getConfiguration('fields');
-        $fields = array_filter($fields, not(propertyEquals('name', 'id')));
+        $fields = f\reject(f\prop_equals('name', 'id'), $fields);
 
         $mode = $this->_getInsertionMode();
         if ($mode === 'g') {
