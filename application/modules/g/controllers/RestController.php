@@ -30,6 +30,10 @@ class G_RestController extends Garp_Controller_Action {
             'Access-Control-Allow-Methods',
             implode(', ', $this->_validMethods)
         );
+        $this->getResponse()->setHeader(
+            'Content-Type',
+            'application/json'
+        );
     }
 
     public function apiAction() {
