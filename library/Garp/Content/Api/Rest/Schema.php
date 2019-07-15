@@ -1,4 +1,7 @@
 <?php
+
+use Garp\Functional as f;
+
 /**
  * Garp_Content_Api_Rest_Schema
  * class description
@@ -75,7 +78,7 @@ class Garp_Content_Api_Rest_Schema {
 
     protected function _getModelByName($modelName) {
         $models = $this->_getVisibleModels();
-        $modelsWithName = array_filter($models, propertyEquals('id', $modelName));
+        $modelsWithName = f\filter(f\prop_equals('id', $modelName), $models);
         if (!count($modelsWithName)) {
             throw new Garp_Content_Api_Rest_Exception_ModelNotFound(
                 sprintf(self::EXCEPTION_MODEL_NOT_FOUND, $modelName)
