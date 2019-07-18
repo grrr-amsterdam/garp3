@@ -5,6 +5,12 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.19.3
+
+Change API response `Content-Type` to `application/json`.
+
+Add spawn input property [`searchable`](https://github.com/grrr-amsterdam/garp3/wiki/spawn-input-properties#searchable-default-null-boolean).
+
 ## Version 3.19.0
 
 vlucas/phpdotenv has been upgraded from `v2.0.1` to `^v3.4`. An overview of parsing modifications can be found in [vlucas/phpdotenv/UPGRADING.md](https://github.com/vlucas/phpdotenv/blob/master/UPGRADING.md). Check your `.env` file for possible consequences.
