@@ -224,6 +224,10 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 						}
 				endswitch;
 
+                if (isset($field->searchable)):
+                    $nodeParams['searchable'] = $field->searchable;
+                endif;
+
 				if (
 					!$this->spawnJs()->isListField($field->name, $model) ||
 					!$field->visible ||
@@ -439,3 +443,4 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 ?>
 	}]
 });
+

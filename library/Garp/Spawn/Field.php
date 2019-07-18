@@ -42,6 +42,7 @@ class Garp_Spawn_Field {
     public $multilingual = false;
     public $comment;
     public $wysiwyg = false;
+    public $searchable = null;
 
     /**
      * Used for relation foreign key fields. Defines the model related thru this foreign key field.
