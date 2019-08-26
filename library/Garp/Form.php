@@ -368,7 +368,7 @@ class Garp_Form extends Zend_Form {
      *
      * @param  string $type Type of element
      * @param  array  $options Options given with the element
-     * @return void
+     * @return array
      */
     protected function _getDefaultDecoratorOptions($type, array $options = []): array {
         // Set default required label suffix
