@@ -5,6 +5,10 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.19.4
+
+The functions `partial()`, `snippet()` and `__()` where moved to `\Garp\` namespace in `3.19.0`, but not added to `removed-functions.php`. To make `removed-functions.php` a complete drop-in fix when upgrading to `v.3.19` the functions where re-added to that file.
+
 ## Version 3.19.3
 
 Change API response `Content-Type` to `application/json`.
@@ -15,10 +19,20 @@ Add spawn input property [`searchable`](https://github.com/grrr-amsterdam/garp3/
 
 vlucas/phpdotenv has been upgraded from `v2.0.1` to `^v3.4`. An overview of parsing modifications can be found in [vlucas/phpdotenv/UPGRADING.md](https://github.com/vlucas/phpdotenv/blob/master/UPGRADING.md). Check your `.env` file for possible consequences.
 
-To prevent conflicts between Garp3 and Laravel some global functions have been removed. Most of the functions could be replaced by their [Garp Functional](https://grrr-amsterdam.github.io/garp-functional) equivalent. Some need more attention. The original functions still exist in `application/removed-functions.php`. You could include that file (partially) to stay compatible, but to become compatible with Laravel you can't use that solution. `view()` and some other functions are also implemented by Laravel helpers. 
+To prevent conflicts between Garp3 and Laravel some global functions have been removed. Most of the functions could be replaced by their [Garp Functional](https://grrr-amsterdam.github.io/garp-functional) equivalent. Some need more attention. The original functions still exist in `application/removed-functions.php`. You could include that file to stay compatible.
+
+    # composer.json
+    "autoload": {
+        "files": [
+            "vendor/grrr-amsterdam/garp3/application/removed-functions.php"
+        ]
+    }
+
+To become compatible with Laravel you can't use `removed-functions.php`. `view()` and some other functions are also implemented by Laravel helpers. Which causes conflicts.
 
 Removed functions:
 
+- `__()`*
 - `array_get()`
 - `array_get_subset()`
 - `array_pluck()`
@@ -35,12 +49,16 @@ Removed functions:
 - `model()`
 - `noop()`
 - `not()`
+- `partial()`*
 - `propertyEquals()`
 - `psort()`
+- `snippet()`*
 - `some()`
 - `unary()`
 - `view()`
 - `when()`
+
+\* Moved to `\Garp` namespace. 
 
 Removed polyfills:
 
