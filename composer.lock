@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "28121b067531f9a655605634d3048324",
+    "content-hash": "94ac312a80bb04a6153b337e24551220",
     "packages": [
         {
             "name": "analog/analog",
@@ -3508,6 +3508,11 @@
         {
             "name": "sentry/sdk",
             "version": "2.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/getsentry/sentry-php-sdk.git",
+                "reference": "91c36aec83e4c1c5801b64ef4927b78a5aa8ce7f"
+            },
             "require": {
                 "http-interop/http-factory-guzzle": "^1.0",
                 "php-http/curl-client": "^1.0|^2.0",
