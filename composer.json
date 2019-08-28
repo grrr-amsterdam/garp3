@@ -32,7 +32,9 @@
   },
   "autoload": {
     "psr-0": {
-      "Garp_": "library/"
+      "Garp_": "library/",
+      "G_": "application/modules/g/controllers",
+      "G_View_Helpers_": "application/modules/g/views/helpers"
     },
     "files": [
       "application/functions.php"
