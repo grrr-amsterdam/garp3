@@ -82,4 +82,19 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
         return $out;
     }
 
+    /**
+     * Reduce a rowset by $fn from $initial
+     *
+     * @param callable $fn
+     * @param mixed $initial
+     * @return mixed
+     */
+    public function reduce(callable $fn, $initial) {
+        $result = $initial;
+        foreach ($this as $row) {
+            $result = $fn($result, $row);
+        }
+        return $result;
+    }
+
 }

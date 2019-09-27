@@ -99,4 +99,60 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertCount(3, $together->filter(f\not(f\prop('foo'))));
     }
 
+    public function testShouldReduce() {
+        $things = new Garp_Db_Table_Rowset([
+            'data' => [
+                ['amount' => 3],
+                ['amount' => 2],
+                ['amount' => 1],
+            ]
+        ]);
+
+        $actual = $things->reduce(
+            function (int $total, $row) {
+                return $total + $row->amount;
+            },
+            0
+        );
+
+        $this->assertEquals(
+            6,
+            $actual
+        );
+    }
+
+    public function testShouldReduceToRowset() {
+        $things = new Garp_Db_Table_Rowset([
+            'data' => [
+                ['name' => 'koe'],
+                ['name' => 'paard'],
+                ['name' => 'paard'],
+            ],
+        ]);
+
+        $deduplicate = function (Garp_Db_Table_Rowset $acc, $row) {
+            $existingAnimals = $acc->filter(f\prop_equals('name', $row->name));
+            if ($existingAnimals->count() !== 0) {
+                return $acc;
+            }
+            return $acc->concat((new Garp_Db_Table_Rowset(['data' => [$row->toArray()]])));
+        };
+
+        $actual = $things->reduce(
+            $deduplicate,
+            new Garp_Db_Table_Rowset(['rowClass' => Garp_Db_Table_Row::class])
+        );
+
+        $this->assertInstanceOf(Garp_Db_Table_Rowset::class, $actual);
+        $this->assertCount(2, $actual);
+
+        $this->assertInstanceOf(Garp_Db_Table_Row::class, $actual[0]);
+        $this->assertEquals('koe', $actual[0]->name);
+
+        $this->assertInstanceOf(Garp_Db_Table_Row::class, $actual[1]);
+        $this->assertEquals('paard', $actual[1]->name);
+
+        $this->assertArrayNotHasKey(2, $actual);
+    }
+
 }
