@@ -5,6 +5,12 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.20.0
+
+To enable Garp projects to use PHP v7.3 we needed an updated version of Zend Framework 1. Since it is discontinued we rely on a community supported fork of zf1, [shardj/zf1-future](https://github.com/Shardj/zf1-future/), that has replaced all v7.3 deprecated functions. It is intended to adapt to future versions of PHP as they are released.
+
+This does not break Garp for projects still using PHP <v7.3.
+
 ## Version 3.19.4
 
 The functions `partial()`, `snippet()` and `__()` where moved to `\Garp\` namespace in `3.19.0`, but not added to `removed-functions.php`. To make `removed-functions.php` a complete drop-in fix when upgrading to `v.3.19` the functions where re-added to that file.
