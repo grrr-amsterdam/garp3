@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "94ac312a80bb04a6153b337e24551220",
+    "content-hash": "baf31b72471ee0547862963fcaf267c0",
     "packages": [
         {
             "name": "analog/analog",
@@ -3612,6 +3612,56 @@
             "time": "2019-06-13T11:27:23+00:00"
         },
         {
+            "name": "shardj/zf1-future",
+            "version": "1.14.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Shardj/zf1-future.git",
+                "reference": "1d67d306f22a9b45a1d377c4c419c03456dd57a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Shardj/zf1-future/zipball/1d67d306f22a9b45a1d377c4c419c03456dd57a0",
+                "reference": "1d67d306f22a9b45a1d377c4c419c03456dd57a0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.11"
+            },
+            "replace": {
+                "zendframework/zendframework1": "1.*"
+            },
+            "require-dev": {
+                "phpunit/dbunit": "1.3.*",
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.12.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Zend_": "library/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "library/"
+            ],
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "Zend Framework 1 PHP 7.2 and 7.3 compatible",
+            "homepage": "http://framework.zend.com/",
+            "keywords": [
+                "ZF1",
+                "framework"
+            ],
+            "time": "2019-09-23T11:28:21+00:00"
+        },
+        {
             "name": "symfony/options-resolver",
             "version": "v3.4.29",
             "source": {
@@ -3977,54 +4027,6 @@
                 "psr-7"
             ],
             "time": "2019-07-10T16:13:25+00:00"
-        },
-        {
-            "name": "zendframework/zendframework1",
-            "version": "1.12.20",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/zendframework/zf1.git",
-                "reference": "737ef159654fbbef37cf9af742b2c8f9690c2ece"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zf1/zipball/737ef159654fbbef37cf9af742b2c8f9690c2ece",
-                "reference": "737ef159654fbbef37cf9af742b2c8f9690c2ece",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.2.11"
-            },
-            "require-dev": {
-                "phpunit/dbunit": "1.3.*",
-                "phpunit/phpunit": "3.7.*"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.12.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Zend_": "library/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "library/"
-            ],
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "Zend Framework 1",
-            "homepage": "http://framework.zend.com/",
-            "keywords": [
-                "ZF1",
-                "framework"
-            ],
-            "abandoned": "zendframework/zendframework",
-            "time": "2016-09-08T14:50:34+00:00"
         }
     ],
     "packages-dev": [
