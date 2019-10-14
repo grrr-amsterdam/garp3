@@ -127,7 +127,7 @@ class Garp_Content_Manager {
                 $primary = array_values($this->_model->info(Zend_Db_Table_Abstract::PRIMARY));
                 $fields = array_merge($this->_model->getListFields(), $primary);
             } else {
-                $fields = Zend_Db_Table_Select::SQL_WILDCARD;
+                $fields = [Zend_Db_Table_Select::SQL_WILDCARD];
             }
             // If filterForeignKeys is true, filter out the foreign keys
             if ($options['filterForeignKeys']) {
@@ -1013,5 +1013,3 @@ class Garp_Content_Manager {
         return $model->getJointView() ?: $model->getName();
     }
 }
-
-

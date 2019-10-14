@@ -91,7 +91,9 @@ class Garp_Spawn_Util {
      * @return string
      */
     static public function underscored2camelcased($str) {
-        $func = create_function('$c', 'return strtoupper($c[1]);');
+        $func = function ($c) {
+            return strtoupper($c[1]);
+        };
         return preg_replace_callback('/_([a-z])/', $func, $str);
     }
 
