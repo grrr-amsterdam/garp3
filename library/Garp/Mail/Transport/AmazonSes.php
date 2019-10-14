@@ -50,8 +50,7 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
     /**
      * Constructor.
      *
-     * @param  string $endpoint (Default: https://email.us-east-1.amazonaws.com)
-     * @param  array|null $config (Default: null)
+     * @param  array $config
      * @return void
      * @throws Zend_Mail_Transport_Exception if accessKey is not present in the config
      * @throws Zend_Mail_Transport_Exception if privateKey is not present in the config
@@ -70,8 +69,10 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
         }
 
         if (!array_key_exists('host', $config)) {
-            $config['host'] = sprintf(self::HOST_TEMPLATE,
-                isset($config['region']) ? $config['region'] : self::DEFAULT_REGION);
+            $config['host'] = sprintf(
+                self::HOST_TEMPLATE,
+                isset($config['region']) ? $config['region'] : self::DEFAULT_REGION
+            );
         }
 
         $this->_accessKey = $config['accessKey'];
@@ -106,7 +107,7 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
         );
 
         $recipients = explode(',', $this->recipients);
-        while(list($index, $recipient) = each($recipients)){
+        foreach ($recipients as $index => $recipient) {
             $params[sprintf('Destination.ToAddresses.member.%d', $index + 1)] = $recipient;
         }
 
@@ -114,7 +115,7 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
         $client->setParameterPost($params);
         $response = $client->request(Zend_Http_Client::POST);
 
-        if($response->getStatus() != 200){
+        if ($response->getStatus() != 200) {
             throw new Exception($response->getBody());
         }
     }
@@ -125,7 +126,6 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
      *
      * Some SMTP servers do not strip BCC headers. Most clients do it themselves as do we.
      *
-     * @access  protected
      * @param   array $headers
      * @return  void
      * @throws  Zend_Transport_Exception
@@ -136,7 +136,7 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
             /**
              * @see Zend_Mail_Transport_Exception
              */
-            require_once 'Zend/Mail/Transport/Exception.php';
+            include_once 'Zend/Mail/Transport/Exception.php';
             throw new Zend_Mail_Transport_Exception('_prepareHeaders requires a registered Zend_Mail object');
         }
 
@@ -154,6 +154,6 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
      * @return  string
      */
     private function _buildAuthKey($date){
-        return sprintf('AWS3-HTTPS AWSAccessKeyId=%s,Algorithm=HmacSHA256,Signature=%s', $this->_accessKey, base64_encode(hash_hmac('sha256', $date, $this->_privateKey, TRUE)));
+        return sprintf('AWS3-HTTPS AWSAccessKeyId=%s,Algorithm=HmacSHA256,Signature=%s', $this->_accessKey, base64_encode(hash_hmac('sha256', $date, $this->_privateKey, true)));
     }
 }
