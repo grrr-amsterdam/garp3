@@ -21,7 +21,7 @@ class Garp_Validate_Duration extends Zend_Validate_Abstract {
     );
 
     public function isValid($value) {
-        if (time() - $value <= self::MIN_DURATION) {
+        if (!is_numeric($value) || time() - $value <= self::MIN_DURATION) {
             $this->_error(self::DURATION_TOO_SHORT);
             return false;
         }
