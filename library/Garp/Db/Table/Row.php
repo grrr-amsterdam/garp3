@@ -23,6 +23,15 @@ class Garp_Db_Table_Row extends Zend_Db_Table_Row_Abstract {
      */
     protected $_virtual = [];
 
+    public function __construct(array $config = [])
+    {
+        parent::__construct($config);
+
+        if (isset($config['data'])) {
+            $this->setFromArray($config['data']);
+        }
+    }
+
     public function flatten($column) {
         if (is_array($column)) {
             // Convert so it can be used by array_intersect_key
