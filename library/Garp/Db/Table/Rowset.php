@@ -23,7 +23,7 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
                 sprintf('Unable to concatenate semigroups %s and %s', get_class($this), get_class($that))
             );
         }
-        return new self([
+        return new static([
             'table' => $this->_table,
             'rowClass' => $this->_rowClass,
             'data' => array_merge($this->_data, $that->getData()),
@@ -54,7 +54,7 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
      */
     public function map(callable $fn) {
         $rows = array_map($fn, $this->toArray());
-        $out = new self([
+        $out = new static([
             'table'    => $this->getTable(),
             'data'     => $rows,
             'readOnly' => $this->_readOnly,
@@ -72,7 +72,7 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
      */
     public function filter($fn): Garp_Db_Table_Rowset {
         $rows = array_values(array_filter($this->toArray(), $fn));
-        $out = new self([
+        $out = new static([
             'table'    => $this->getTable(),
             'data'     => $rows,
             'readOnly' => $this->_readOnly,
