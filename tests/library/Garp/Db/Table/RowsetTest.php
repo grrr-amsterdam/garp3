@@ -99,6 +99,43 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertCount(3, $together->filter(f\not(f\prop('foo'))));
     }
 
+    public function testShouldShiftAndPush() {
+        $rows = new Garp_Db_Table_Rowset([
+            'data' => [
+                ['id' => 3, 'name' => 'cat'],
+                ['id' => 2, 'name' => 'dog'],
+                ['id' => 1, 'name' => 'bird']
+            ],
+            'rowClass' => 'Garp_Db_Table_Row',
+        ]);
+        $appended = $rows->shift(new Garp_Db_Table_Row([
+            'data' => ['id' => 42, 'name' => 'hyena']
+        ]));
+        $this->assertEquals(
+            [
+                ['id' => 42, 'name' => 'hyena'],
+                ['id' => 3, 'name' => 'cat'],
+                ['id' => 2, 'name' => 'dog'],
+                ['id' => 1, 'name' => 'bird'],
+            ],
+            $appended->toArray()
+        );
+
+        $appended2 = $appended->push(new Garp_Db_Table_Row([
+            'data' => ['id' => 5, 'name' => 'goldfish']
+        ]));
+        $this->assertEquals(
+            [
+                ['id' => 42, 'name' => 'hyena'],
+                ['id' => 3, 'name' => 'cat'],
+                ['id' => 2, 'name' => 'dog'],
+                ['id' => 1, 'name' => 'bird'],
+                ['id' => 5, 'name' => 'goldfish'],
+            ],
+            $appended2->toArray()
+        );
+    }
+
     public function testShouldReduce() {
         $things = new Garp_Db_Table_Rowset([
             'data' => [

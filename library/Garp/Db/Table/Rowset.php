@@ -32,6 +32,36 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
         ]);
     }
 
+    public function push(Garp_Db_Table_Row $row): Garp_Db_Table_Rowset {
+        if (!$row instanceof $this->_rowClass) {
+            throw new LogicException(
+                sprintf('Unable to push row of type %s to this rowset. Expected: %s', get_class($row), $this->_rowClass)
+            );
+        }
+        return $this->concat(new static([
+            'table' => $this->_table,
+            'rowClass' => $this->_rowClass,
+            'data' => [$row->toArray()],
+            'readOnly' => $this->_readOnly,
+            'stored' => $this->_stored
+        ]));
+    }
+
+    public function shift(Garp_Db_Table_Row $row): Garp_Db_Table_Rowset {
+        if (!$row instanceof $this->_rowClass) {
+            throw new LogicException(
+                sprintf('Unable to push row of type %s to this rowset. Expected: %s', get_class($row), $this->_rowClass)
+            );
+        }
+        return (new static([
+            'table' => $this->_table,
+            'rowClass' => $this->_rowClass,
+            'data' => [$row->toArray()],
+            'readOnly' => $this->_readOnly,
+            'stored' => $this->_stored
+        ]))->concat($this);
+    }
+
     /**
      * Flatten a rowset to a simpler array containing the specified columns.
      *
