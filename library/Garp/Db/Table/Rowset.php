@@ -47,10 +47,10 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
         ]));
     }
 
-    public function shift(Garp_Db_Table_Row $row): Garp_Db_Table_Rowset {
+    public function prepend(Garp_Db_Table_Row $row): Garp_Db_Table_Rowset {
         if (!$row instanceof $this->_rowClass) {
             throw new LogicException(
-                sprintf('Unable to push row of type %s to this rowset. Expected: %s', get_class($row), $this->_rowClass)
+                sprintf('Unable to prepend row of type %s to this rowset. Expected: %s', get_class($row), $this->_rowClass)
             );
         }
         return (new static([

@@ -99,7 +99,7 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertCount(3, $together->filter(f\not(f\prop('foo'))));
     }
 
-    public function testShouldShiftAndPush() {
+    public function testShouldPrependAndPush() {
         $rows = new Garp_Db_Table_Rowset([
             'data' => [
                 ['id' => 3, 'name' => 'cat'],
@@ -108,7 +108,7 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
             ],
             'rowClass' => 'Garp_Db_Table_Row',
         ]);
-        $appended = $rows->shift(new Garp_Db_Table_Row([
+        $appended = $rows->prepend(new Garp_Db_Table_Row([
             'data' => ['id' => 42, 'name' => 'hyena']
         ]));
         $this->assertEquals(
