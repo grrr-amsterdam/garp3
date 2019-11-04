@@ -44,6 +44,17 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
                 'rowClass' => 'Garp_Db_Table_Row',
             ]
         );
+        $related = new Garp_Db_Table_Rowset(
+            [
+                'data' =>  [
+                    ['id' => 1, 'name' => 'foo'],
+                    ['id' => 2, 'name' => 'bar']
+                ],
+                'rowClass' => 'Garp_Db_Table_Row',
+            ]
+        );
+
+        $things[0]->setVirtual('Related', $related);
 
         $mappedThings = $things->map(
             function (Garp_Db_Table_Row $item) {
@@ -53,6 +64,7 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
         );
         $this->assertEquals('HENK', $mappedThings[2]->name);
         $this->assertEquals('HENDRIK', $mappedThings[0]->name);
+        $this->assertEquals('foo', $mappedThings[0]->Related[0]->name);
 
         // $things should be unchanged
         $this->assertNotSame($mappedThings->toArray(), $things->toArray());
