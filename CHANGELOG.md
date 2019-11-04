@@ -5,6 +5,12 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.21.0
+
+`Garp_Db_Table_Rowset` methods `filter` and `map` will pass an actual row object into the callback, as opposed to an array.    
+This will break existing implementations that rely on the argument being an array.
+
+
 ## Version 3.20.0
 
 To enable Garp projects to use PHP v7.3 we needed an updated version of Zend Framework 1. Since it is discontinued we rely on a community supported fork of zf1, [shardj/zf1-future](https://github.com/Shardj/zf1-future/), that has replaced all v7.3 deprecated functions. It is intended to adapt to future versions of PHP as they are released.
