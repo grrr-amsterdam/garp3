@@ -97,19 +97,26 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
     /**
      * Filter a rowset using $fn
      *
-     * @param  callable $fn
+     * @param  callable $predicate
      * @return Garp_Db_Table_Rowset
      */
-    public function filter($fn): Garp_Db_Table_Rowset {
-        $rows = array_values(array_filter($this->toArray(), $fn));
-        $out = new static([
+    public function filter(callable $predicate): Garp_Db_Table_Rowset {
+        $filtered = $this->reduce(
+            function (array $acc, Zend_Db_Table_Row $row) use ($predicate): array {
+                if ($predicate($row)) {
+                    $acc[] = $row->toArray();
+                }
+                return $acc;
+            },
+            []
+        );
+        return new static([
             'table'    => $this->getTable(),
-            'data'     => $rows,
+            'data'     => $filtered,
             'readOnly' => $this->_readOnly,
             'rowClass' => $this->_rowClass,
             'stored'   => $this->_stored
         ]);
-        return $out;
     }
 
     /**
