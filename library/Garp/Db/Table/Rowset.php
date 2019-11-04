@@ -86,13 +86,14 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
         $mapped = $this->reduce(
             function (array $acc, Zend_Db_Table_Row_Abstract $row) use ($transform): array {
                 $transformed = $transform($row);
-                if ($transformed instanceof Zend_Db_Table_Row_Abstract) {
-                    $transformedArray = iterator_to_array($transformed);
+                if ($transformed instanceof Garp_Db_Table_Row) {
                     $acc[] = array_merge(
                         $transformed->toArray(),
                         $transformed->getVirtual(),
                         $transformed->getRelated()
                     );
+                } elseif ($transformed instanceof Zend_Db_Table_Row_Abstract) {
+                    $acc[] = $transformed->toArray();
                 } elseif (is_array($transformed)) {
                     $acc[] = $transformed;
                 } else {
