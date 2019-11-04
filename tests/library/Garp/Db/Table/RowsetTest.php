@@ -35,41 +35,40 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
 
     public function testShouldMap() {
         $things = new Garp_Db_Table_Rowset(
-            array(
-            'data'     => array(
-                array('id' => 3, 'name' => 'hendrik', 'intro' => 'lorem ipsum dolor sit amet'),
-                array('id' => 2, 'name' => 'klaas', 'intro' => 'lorem ipsum dolor sit amet'),
-                array('id' => 1, 'name' => 'henk', 'intro' => 'lorem ipsum dolor sit amet')
-            ),
-            'rowClass' => 'Garp_Db_Table_Row',
-            )
+            [
+                'data' => [
+                    ['id' => 3, 'name' => 'hendrik', 'intro' => 'lorem ipsum dolor sit amet'],
+                    ['id' => 2, 'name' => 'klaas', 'intro' => 'lorem ipsum dolor sit amet'],
+                    ['id' => 1, 'name' => 'henk', 'intro' => 'lorem ipsum dolor sit amet']
+                ],
+                'rowClass' => 'Garp_Db_Table_Row',
+            ]
         );
 
         $mappedThings = $things->map(
-            function ($item) {
-                $item['name'] = strtoupper($item['name']);
+            function (Garp_Db_Table_Row $item) {
+                $item->name = strtoupper($item->name);
                 return $item;
             }
         );
-        $this->assertEquals('Garp_Db_Table_Rowset', get_class($mappedThings));
-        $this->assertEquals('HENK', $mappedThings[2]['name']);
-        $this->assertEquals('HENDRIK', $mappedThings[0]['name']);
+        $this->assertEquals('HENK', $mappedThings[2]->name);
+        $this->assertEquals('HENDRIK', $mappedThings[0]->name);
 
         // $things should be unchanged
-        $this->assertFalse($mappedThings === $things);
-        $this->assertEquals('hendrik', $things[0]['name']);
+        $this->assertNotSame($mappedThings->toArray(), $things->toArray());
+        $this->assertEquals('hendrik', $things[0]->name);
 
         // can callback use local vars?
         $start = 0;
         $end = 1;
         $initials = $mappedThings->map(
             function ($item) use ($start, $end) {
-                $item['name'] = substr($item['name'], $start, $end);
+                $item->name = substr($item->name, $start, $end);
                 return $item;
             }
         );
-        $this->assertEquals('H', $initials[0]['name']);
-        $this->assertEquals('K', $initials[1]['name']);
+        $this->assertEquals('H', $initials[0]->name);
+        $this->assertEquals('K', $initials[1]->name);
     }
 
     public function testShouldFilter() {
