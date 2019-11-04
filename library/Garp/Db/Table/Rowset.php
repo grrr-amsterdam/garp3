@@ -79,19 +79,34 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
     /**
      * Project a rowset using $fn
      *
-     * @param  callable $fn
+     * @param  callable $transform
      * @return Garp_Db_Table_Rowset
      */
-    public function map(callable $fn) {
-        $rows = array_map($fn, $this->toArray());
-        $out = new static([
+    public function map(callable $transform): Garp_Db_Table_Rowset {
+        $mapped = $this->reduce(
+            function (array $acc, Zend_Db_Table_Row_Abstract $row) use ($transform): array {
+                $transformed = $transform($row);
+                if ($transformed instanceof Zend_Db_Table_Row_Abstract) {
+                    $acc[] = $transformed->toArray();
+                } elseif (is_array($transformed)) {
+                    $acc[] = $transformed;
+                } else {
+                    throw new LogicException(
+                        'The callback given to Garp_Db_Table_Rowset::map must return either an array or an instance of Zend_Db_Table_Row_Abstract.'
+                    );
+                }
+                return $acc;
+            },
+            []
+        );
+
+        return new static([
             'table'    => $this->getTable(),
-            'data'     => $rows,
+            'data'     => $mapped,
             'readOnly' => $this->_readOnly,
             'rowClass' => $this->_rowClass,
             'stored'   => $this->_stored
         ]);
-        return $out;
     }
 
     /**
@@ -102,7 +117,7 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
      */
     public function filter(callable $predicate): Garp_Db_Table_Rowset {
         $filtered = $this->reduce(
-            function (array $acc, Zend_Db_Table_Row $row) use ($predicate): array {
+            function (array $acc, Zend_Db_Table_Row_Abstract $row) use ($predicate): array {
                 if ($predicate($row)) {
                     $acc[] = $row->toArray();
                 }
@@ -129,7 +144,12 @@ class Garp_Db_Table_Rowset extends Zend_Db_Table_Rowset_Abstract implements Semi
     public function reduce(callable $fn, $initial) {
         $result = $initial;
         foreach ($this as $row) {
-            $result = $fn($result, $row);
+            // Note: we clone the row to ensure the data in the rowset is immutable.
+            // When iterating, Zend_Db_Table_Rowset_Abstract stores the row object internally for
+            // the next iteration. This means anything done to the row in the callback will be
+            // reflected in the original rowset. You would not be able to map, filter or reduce to
+            // a new rowset without mutating the original data.
+            $result = $fn($result, clone $row);
         }
         return $result;
     }
