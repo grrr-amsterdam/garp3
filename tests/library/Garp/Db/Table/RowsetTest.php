@@ -72,6 +72,22 @@ class Garp_Db_Table_RowsetTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertEquals('K', $initials[1]['name']);
     }
 
+    public function testShouldFilter() {
+        $rows = new Garp_Db_Table_Rowset([
+            'data' => [
+                ['name' => 'koe'],
+                ['name' => 'paard'],
+            ],
+        ]);
+        $predicate = function (Zend_Db_Table_Row $row): bool {
+            return strlen($row->name) > 3;
+        };
+
+        $filtered = $rows->filter($predicate);
+        $this->assertCount(1, $filtered);
+        $this->assertSame('paard', $filtered[0]->name);
+    }
+
     public function testShouldConcat() {
         $these = new Garp_Db_Table_Rowset([
             'data' => [
