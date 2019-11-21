@@ -33,7 +33,8 @@ class Garp_File_Storage_S3 implements Garp_File_Storage_Protocol {
         'jpg' => 'image/jpeg',
         'png' => 'image/png',
         'gif' => 'image/gif',
-        'svg' => 'image/svg+xml'
+        'svg' => 'image/svg+xml',
+        'csv' => 'text/csv',
     ];
 
     /**
