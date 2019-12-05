@@ -7,7 +7,7 @@
  * @author  Harmen Janssen <harmen@grrr.nl>
  * @author  David Spreekmeester <david@grrr.nl>
  */
-class Garp_Util_AssetUrl {
+class Garp_Util_AssetUrl implements JsonSerializable {
     /**
      * Statically stored rev-manifest json file
      *
@@ -127,5 +127,8 @@ class Garp_Util_AssetUrl {
         return strval($this->_url);
     }
 
+    public function jsonSerialize() {
+        return $this->__toString();
+    }
 }
 

@@ -10,6 +10,7 @@
   },
   "require": {
     "php": ">=7.1",
+    "ext-json": "*",
     "google/apiclient": "^1.1",
     "phpoffice/phpexcel": "1.8.*",
     "ezyang/htmlpurifier": "^4.8",
