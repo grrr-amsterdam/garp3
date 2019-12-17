@@ -36,7 +36,6 @@ abstract class Garp_Content_Export_Abstract {
 
         $filter = array();
         if (array_key_exists('filter', $params) && $params['filter']) {
-            $filter = urldecode($params['filter']);
             $filter = Zend_Json::decode($params['filter']);
         }
         $fetchOptions = array(
