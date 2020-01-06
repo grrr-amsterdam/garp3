@@ -1,5 +1,6 @@
 <?php
-use Sentry\State\Hub;
+
+use Sentry\SentrySdk;
 
 /**
  * Garp_Service_Sentry
@@ -34,7 +35,7 @@ class Garp_Service_Sentry {
      * @return bool
      */
     public function isActive(): bool {
-        return !is_null(Hub::getCurrent()->getClient());
+        return !is_null(SentrySdk::getCurrentHub()->getClient());
     }
 
     public function log(Exception $exception): void {
