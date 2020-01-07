@@ -5,11 +5,57 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.22.0
+
+Hostname validation has been enabled for `Garp_Form_Element_Email`. Only the local part of the email address was validated. Now domains (except localhost) are allowed, IP addresses are not allowed.
+
+To restore the behavior for one email element overwrite the validator:
+
+```php
+$validator = new Zend_Validate_EmailAddress();
+$validator->setOptions(array('domain' => false));
+$emailElement->addValidator($validator);
+```
+
+To restore it for the whole application create a custom email form element.
+
+```php
+class App_Form_Element_Email extends Garp_Form_Element_Email {
+  public function init() {
+    $validator = new Zend_Validate_EmailAddress();
+    $validator->setOptions(array('domain' => false));
+    $this->addValidator($validator);
+  }
+}
+```
+
+Create an `App_Form` class which contains the location of your custom form elements.
+
+```php
+class App_Form extends Garp_Form {
+    public function init() {
+        parent::init();
+        $this->addPrefixPath('App_Form', APPLICATION_PATH . '/../library/App/Form');
+        $this->addElementPrefixPath('App', APPLICATION_PATH . '/../library/App/');
+    }
+}
+```
+
+Let your form extend from `App_Form`.
+
+```php
+class My_Form extends App_Form {
+    public function init() {
+        parent::init();
+        $this->addElement('email', 'user_email');
+    }
+}
+```
+
 ## Version 3.21.0
 
 `Garp_Db_Table_Rowset` methods `filter` and `map` will pass an actual row object into the callback, as opposed to an array.    
 This will break existing implementations that rely on the argument being an array.
-
 
 ## Version 3.20.0
 
