@@ -285,7 +285,12 @@ class Garp_Image_Scaler {
             $ini = Zend_Registry::get('config');
             self::$_config = $ini->image;
         }
-        $this->_params['bgcolor'] = self::$_config->bgcolor;
+        if (self::$_config->bgcolor) {
+            $this->_params['bgcolor'] = self::$_config->bgcolor;
+        }
+        if (self::$_config->quality) {
+            $this->_params['quality'] = self::$_config->quality;
+        }
     }
 
     /**
