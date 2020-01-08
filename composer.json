@@ -3,11 +3,6 @@
   "description": "Framework and CMS built on top of Zend Framework.",
   "license": "BSD-3-Clause",
   "type": "library",
-  "config": {
-    "platform": {
-      "php": "7.1"
-    }
-  },
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
