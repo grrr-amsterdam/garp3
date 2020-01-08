@@ -27,12 +27,12 @@ abstract class Garp_Spawn_Config_Model_Abstract extends ArrayObject {
 
         $config = $format->parse($id, $rawConfig);
         $this->_setArrayProperties($config);
-        
+
         $this->_addStaticDefaults();
         $this->_addModelLabel($id);
     }
-    
-    
+
+
     protected function _setArrayProperties(array $config) {
         foreach ($config as $key => $val) {
             $this[$key] = $val;
@@ -43,14 +43,14 @@ abstract class Garp_Spawn_Config_Model_Abstract extends ArrayObject {
     protected function _addStaticDefaults() {
         foreach ($this->_defaults as $prop => $defaultValue) {
             if (
-                !array_key_exists($prop, $this) ||
+                !array_key_exists($prop, (array)$this) ||
                 is_null($this[$prop])
             ) {
                 $this[$prop] = $defaultValue;
             }
         }
     }
-    
+
     protected function _addModelLabel($id) {
         $defaults = array(
             'label' => ucfirst(Garp_Spawn_Util::underscored2readable(
@@ -60,7 +60,7 @@ abstract class Garp_Spawn_Config_Model_Abstract extends ArrayObject {
 
         foreach ($defaults as $prop => $defaultValue) {
             if (
-                !array_key_exists($prop, $this) ||
+                !array_key_exists($prop, (array)$this) ||
                 is_null($this[$prop])
             ) {
                 $this[$prop] = $defaultValue;

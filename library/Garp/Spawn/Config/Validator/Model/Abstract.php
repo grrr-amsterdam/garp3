@@ -68,7 +68,7 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 
     protected function _requireMandatoryProps(ArrayObject $config) {
         foreach ($this->_mandatoryProps as $p) {
-            if (!array_key_exists($p, $config))
+            if (!array_key_exists($p, (array)$config))
                 throw new Exception("The '{$p}' property was not defined in the model configuration for ".$config['id']);
         }
     }
@@ -87,7 +87,7 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 
     protected function _validateValueRestrictedProps(ArrayObject $config) {
         foreach ($this->_valueRestrictedProps as $prop => $validValues) {
-            if (array_key_exists($prop, $config)) {
+            if (array_key_exists($prop, (array)$config)) {
                 if (!in_array($config[$prop], $validValues)) {
                     throw new Exception("'{$this[$prop]}' is not a valid value for the {$prop} configuration field. Try: '".implode("', '", $validValues)."'");
                 }
@@ -99,7 +99,7 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
     protected function _validateValueTypeRestrictedProps(ArrayObject $config) {
         foreach ($this->_valueTypeRestrictedProps as $propName => $propSetting) {
             $mandatoryType = $propSetting['type'];
-            if (array_key_exists($propName, $config)) {
+            if (array_key_exists($propName, (array)$config)) {
                 $typeCheckFunction = 'is_'.$mandatoryType;
                 if (!$typeCheckFunction($config[$propName])) {
                     $currentType = gettype($config[$propName]);
@@ -117,12 +117,12 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 
     protected function _validateFieldTypeRestrictedProps(ArrayObject $config) {
         foreach ($config['inputs'] as $fieldName => $fieldConfig) {
-            if (array_key_exists('type', $fieldConfig)) {
+            if (array_key_exists('type', (array)$fieldConfig)) {
                 foreach ($this->_fieldTypeRestrictions as $fieldType => $restrictions) {
                     if ($fieldType === $fieldConfig['type']) {
                         foreach ($restrictions as $paramName => $paramValue) {
                             if (
-                                array_key_exists($paramName, $fieldConfig) &&
+                                array_key_exists($paramName, (array)$fieldConfig) &&
                                 $fieldConfig[$paramName] !== $paramValue
                             ) {
                                 $requiredValue = is_bool($paramValue) ?
@@ -141,7 +141,7 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
 
 
     protected function _validateRelationTypes(ArrayObject $config) {
-        if (array_key_exists('relations', $config)) {
+        if (array_key_exists('relations', (array)$config)) {
             foreach ($config['relations'] as $relationName => &$relation) {
                 if (!array_key_exists('type', $relation)) {
                     $relation['type'] = $this->_defaultRelationType;
@@ -164,7 +164,7 @@ abstract class Garp_Spawn_Config_Validator_Model_Abstract implements Garp_Spawn_
     protected function _validateUniqueKeyLength(ArrayObject $config) {
         $restrictedFieldTypes = array('text', 'html');
 
-        if (array_key_exists('inputs', $config)) {
+        if (array_key_exists('inputs', (array)$config)) {
             foreach ($config['inputs'] as $inputName => $input) {
                 if (
                     array_key_exists('unique', $input) &&

@@ -220,7 +220,7 @@ class Garp_Spawn_Relation_Set {
         $model    = $this->getModel();
         $modelSet = Garp_Spawn_Model_Set::getInstance();
 
-        if (array_key_exists($relation->model, $modelSet)) {
+        if (array_key_exists($relation->model, (array)$modelSet)) {
             return;
         }
 

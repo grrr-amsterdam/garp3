@@ -81,7 +81,7 @@ class Garp_Spawn_MySql_Manager {
         Garp_Spawn_MySql_View_I18n::deleteAll();
 
         //  Stage 1: Spawn the prioritized table first________
-        if (array_key_exists($this->_priorityModel, $modelSet)) {
+        if (array_key_exists($this->_priorityModel, (array)$modelSet)) {
             $this->_createBaseModelTableAndAdvance($modelSet[$this->_priorityModel]);
         }
 

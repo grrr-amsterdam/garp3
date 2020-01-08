@@ -5,17 +5,17 @@
  */
 class Garp_Spawn_Config_Validator_Model_Base extends Garp_Spawn_Config_Validator_Model_Abstract {
     protected $_mandatoryProps = array('id', 'inputs');
-    
-    
+
+
     public function validate(ArrayObject $config) {
         parent::validate($config);
-        
+
         $this->_verifyHabtmIsConfiguredFromCorrectModel($config);
     }
-    
-    
+
+
     protected function _verifyHabtmIsConfiguredFromCorrectModel(ArrayObject $config) {
-        if (array_key_exists('relations', $config)) {
+        if (array_key_exists('relations', (array)$config)) {
             foreach ($config['relations'] as $relationName => $relation) {
                 if (
                     array_key_exists('type', $relation) &&
