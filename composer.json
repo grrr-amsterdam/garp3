@@ -13,7 +13,7 @@
     "ext-json": "*",
     "google/apiclient": "^1.1",
     "phpoffice/phpexcel": "1.8.*",
-    "ezyang/htmlpurifier": "^4.8",
+    "ezyang/htmlpurifier": "^4.12",
     "monolog/monolog": "^1.0",
     "dompdf/dompdf": "^0.8.0",
     "tedivm/jshrink": "1.1.0",
