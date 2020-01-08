@@ -66,7 +66,7 @@ class Garp_Spawn_Util {
         }
 
         $out = "array(";
-        $out .= implode($nodes, ', ');
+        $out .= implode(', ', $nodes);
         $out .= ')';
         return $out;
     }

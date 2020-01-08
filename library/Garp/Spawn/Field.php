@@ -170,7 +170,7 @@ class Garp_Spawn_Field {
                         self::INVALID_PARAMETER,
                         $paramName,
                         $this->name,
-                        implode($publicProps, ', ')
+                        implode(', ', $publicProps)
                     )
                 );
             } else {
@@ -182,7 +182,7 @@ class Garp_Spawn_Field {
                                 self::INVALID_FIELD_TYPE,
                                 $paramValue,
                                 $this->name,
-                                implode($this->_types, ', ')
+                                implode(', ', $this->_types)
                             )
                         );
                     }
