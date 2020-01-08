@@ -19,7 +19,7 @@ class Garp_Util_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         );
     }
 
-    public function toString() {
+    public function testToString() {
         $url = new Garp_Util_AssetUrl();
         $this->assertEquals('example.com', (string)$url);
     }
