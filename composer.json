@@ -18,7 +18,7 @@
     "dompdf/dompdf": "^0.8.0",
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "^3.4",
-    "fzaninotto/faker": "^1.8",
+    "fzaninotto/faker": "^1.9.1",
     "grrr-amsterdam/garp-functional": "^4.0",
     "phpunit/phpunit": "^6|^7",
     "greenlion/php-sql-parser": "^4.1",
