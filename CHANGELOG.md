@@ -5,6 +5,17 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.23.0
+
+PHP 7.4 compatibility has arrived 🥰
+
+Some dependencies got a higher minimal version. When you use lower versions update and test them.
+
+- ezyang/htmlpurifier from `^4.8` to `^4.12`
+- fzaninotto/faker from `^1.8` to `^1.9.1`
+- phpunit/phpunit from `^6.0|^7` to `^6|^7`
+- shardj/zf1-future from `^1.14` to `^1.16.2`
+
 ## Version 3.22.1
 
 Removed the need for a class docblock from `phpcs.xml`. In modern development environments all information is in a version control system. We don't think it's required anymore to have a docblock.   
