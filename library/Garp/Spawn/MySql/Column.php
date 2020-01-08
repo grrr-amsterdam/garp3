@@ -54,7 +54,7 @@ class Garp_Spawn_MySql_Column {
                     }
                 }
                 throw new Exception(
-                    "'{$pName}' is not a valid column property. Try: " . implode($publicProps, ", ")
+                    "'{$pName}' is not a valid column property. Try: " . implode(', ', $publicProps)
                 );
             }
         }
@@ -193,7 +193,7 @@ class Garp_Spawn_MySql_Column {
                 //  but only the values are stored in the database.
                 $options = array_keys((array)$options);
             }
-            return "{$field->type}('" . implode($options, "','") . "')";
+            return "{$field->type}('" . implode("','", $options) . "')";
 
         default:
             throw new Exception(
@@ -218,7 +218,7 @@ class Garp_Spawn_MySql_Column {
             $out[] = 'DEFAULT ' . $default;
         }
 
-        return implode($out, " ");
+        return implode(" ", $out);
     }
 
 

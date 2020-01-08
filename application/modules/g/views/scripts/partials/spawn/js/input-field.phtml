@@ -21,7 +21,7 @@ switch ($field->type) {
 			if (!$field->required) {
 				array_unshift($options, null);
 			}
-			$props[] = "store: ['".implode($options, "', '")."']";
+			$props[] = "store: ['".implode("', '", $options)."']";
 		} else {
 			$labeledEnumOptions = array();
 			if (!$field->required) {
@@ -31,7 +31,7 @@ switch ($field->type) {
 				$labeledEnumOptions[] = "['{$value}', __('{$label}')]";
 			}
 			$options = $labeledEnumOptions;
-			$props[] = "store: [".implode($options, ", ")."]";
+			$props[] = "store: [".implode(", ", $options)."]";
 		}
 	break;
 	case 'html':

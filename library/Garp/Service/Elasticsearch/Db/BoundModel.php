@@ -14,7 +14,7 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
      * @var Garp_Db_Model $_model
      */
     protected $_model;
-    
+
     public function __construct(Garp_Model_Db $model) {
         $this->setModel($model);
     }
@@ -43,7 +43,7 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
     public function getModel() {
         return $this->_model;
     }
-    
+
     /**
      * @param Garp_Db_Model $model
      */
@@ -112,7 +112,7 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
             $relationConfig['model']
         );
         sort($modelNames);
-        $bindingModelName = implode($modelNames);
+        $bindingModelName = implode('', $modelNames);
 
         return $bindingModelName;
     }
@@ -132,7 +132,7 @@ class Garp_Service_Elasticsearch_Db_BoundModel extends Garp_Service_Elasticsearc
         }
 
         $columnNames            = $relatedBehavior->getColumns();
-        
+
         $select = $relatedModel->select()
             ->from($relatedTable, $columnNames)
         ;

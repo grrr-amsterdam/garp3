@@ -11,16 +11,16 @@ class Garp_Spawn_MySql_PrimaryKey extends Garp_Spawn_MySql_Key {
     public static function isPrimaryKeyStatement($line) {
         return stripos($line, 'PRIMARY KEY') !== false;
     }
-    
-    
+
+
     /**
      * @param Array $primaryKeys An array of field names that will serve as primary key.
      */
     public static function renderSqlDefinition(array $primaryKeyNames) {
-        return "  PRIMARY KEY (`".implode($primaryKeyNames, "`,`")."`)";
+        return "  PRIMARY KEY (`".implode('`,`', $primaryKeyNames)."`)";
     }
-    
-    
+
+
     public static function modify($tableName, Garp_Spawn_MySql_PrimaryKey $newPrimaryKey) {
         $tableName  = strtolower($tableName);
         $adapter    = Zend_Db_Table::getDefaultAdapter();
@@ -29,12 +29,12 @@ class Garp_Spawn_MySql_PrimaryKey extends Garp_Spawn_MySql_Key {
         if (self::_liveTableHasPrimaryKey($tableName)) {
             $sql .= "DROP PRIMARY KEY, ";
         }
-        $sql .= "ADD PRIMARY KEY(`" . implode($newPrimaryKey->columns, "`,`") . "`)";
+        $sql .= "ADD PRIMARY KEY(`" . implode('`,`', $newPrimaryKey->columns) . "`)";
 
         return $adapter->query($sql);
     }
-    
-    
+
+
     protected static function _liveTableHasPrimaryKey($tableName) {
         $tableName  = strtolower($tableName);
         $adapter    = Zend_Db_Table::getDefaultAdapter();

@@ -381,7 +381,7 @@ class Garp_Spawn_Relation {
             self::ERROR_RELATION_TYPE_INVALID,
             $param['type'],
             $relName,
-            implode($this->_types, ', ')
+            implode(', ', $this->_types)
         );
         throw new Exception($error);
     }
@@ -409,7 +409,7 @@ class Garp_Spawn_Relation {
             $paramName,
             $this->_localModel->id,
             $relName,
-            implode($publicProps, ", ")
+            implode(', ', $publicProps)
         );
         throw new Exception($error);
     }
