@@ -86,7 +86,7 @@ $memcacheIsConfigured = MEMCACHE_HOST && MEMCACHE_PORT;
 
 // Memcached (with 'memcache' lib, used in PHP 5.6 and lower)
 $memcacheAvailable = extension_loaded('memcache');
-if ($memcacheAvailable) {
+if ($memcacheIsConfigured && $memcacheAvailable) {
     // Attempt a connection to the memcached server, to see if we can use it
     $memcache = new Memcache;
     $memcacheAvailable = @$memcache->connect(MEMCACHE_HOST, MEMCACHE_PORT);
@@ -94,7 +94,7 @@ if ($memcacheAvailable) {
 
 // Memcached (with 'memcached/libmemcached' lib, used in PHP 7.0+)
 $memcachedAvailable = extension_loaded('memcached');
-if ($memcachedAvailable) {
+if ($memcacheIsConfigured && $memcachedAvailable) {
     // Attempt a connection to the memcached server, to see if we can use it
     $memcached = new Memcached;
     $memcached->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
