@@ -23,23 +23,9 @@ class Garp_Spawn_Php_Model_Extended extends Garp_Spawn_Php_Model_Abstract {
         $model = $this->getModel();
         $parentClass = $this->_getParentClass();
 
-        // Grab author information from git
-        $authorName = trim(`git config user.name`);
-        $authorEmail = trim(`git config user.email`);
-
         $out
             = $this->_rl("<?php")
-            . $this->_rl("/**")
-            . $this->_rl(" * Model_{$model->id}")
-            . $this->_rl(" * class description")
-            . $this->_rl(" *")
-            . $this->_rl(" * @package Model")
-            . $this->_rl(" * @author  {$authorName} <{$authorEmail}>")
-            . $this->_rl(" */")
             . $this->_rl("class Model_{$model->id} extends {$parentClass} {", 0)
-            . $this->_rl("public function init() {", 1)
-            . $this->_rl('parent::init();', 2)
-            . $this->_rl('}', 1)
             . $this->_rl("}", 0, 0);
 
         return $out;
