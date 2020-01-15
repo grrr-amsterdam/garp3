@@ -5,6 +5,11 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.22.1
+
+Removed the need for a class docblock from `phpcs.xml`. In modern development environments all information is in a version control system. We don't think it's required anymore to have a docblock.   
+Obviously add one yourself when an explanation of the class is warranted. 
+
 ## Version 3.22.0
 
 Hostname validation has been enabled for `Garp_Form_Element_Email`. Only the local part of the email address was validated. Now domains (except localhost) are allowed, IP addresses are not allowed.

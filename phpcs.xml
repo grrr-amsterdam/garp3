@@ -26,6 +26,7 @@
     <exclude name="PEAR.Commenting.FileComment.MissingVersion"/>
     <exclude name="PEAR.Commenting.FileComment.MissingCategoryTag"/>
     <exclude name="PEAR.Commenting.FileComment.Missing"/>
+    <exclude name="PEAR.Commenting.ClassComment.Missing"/>
     <exclude name="PEAR.Commenting.FunctionComment.Missing"/>
     <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamType"/>
     <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamName"/>
