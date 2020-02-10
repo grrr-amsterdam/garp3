@@ -29,7 +29,7 @@ class Garp_Service_Slack_ConfigTest extends Garp_Test_PHPUnit_TestCase {
     }
 
 
-    public function setUp() {
+    public function setUp(): void {
         $mockConfig = array(
             'token' => 'GLKJKJHF234/234AKDJH/k234kjh324afa',
             'channel' => '#mychannel',

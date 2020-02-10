@@ -53,7 +53,7 @@ class Garp_Model_DbTest extends Garp_Test_PHPUnit_TestCase {
         ];
     }
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
 
         $dbAdapter = $this->_getSqlite();

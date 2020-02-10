@@ -11,30 +11,7 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class Garp_Test_PHPUnit_TestCase extends TestCase {
 
-    /**
-     * @var Garp_Test_PHPUnit_Helper
-     */
-    protected $_helper;
-
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    protected $_mockData = array();
-
-    public function setUp() {
-        $this->_helper = new Garp_Test_PHPUnit_Helper();
-        $this->_helper->setUp($this->_mockData);
-        parent::setUp();
-    }
-
-    public function tearDown() {
-        if ($this->_helper) {
-            $this->_helper->tearDown($this->_mockData);
-        }
-        parent::tearDown();
-    }
+    use Garp_Test_Traits_UsesTestHelper;
 
     /**
      * Assertion for comparing arrays, ignoring the order of values

@@ -29,7 +29,7 @@ class Garp_Service_Elasticsearch_ConfigurationTest extends Garp_Test_PHPUnit_Tes
     }
 
 
-    public function setUp() {
+    public function setUp(): void {
         // only test ElasticSearch in a project that uses ElasticSearch
         if (!isset(Zend_Registry::get('config')->elasticsearch)) {
             return;

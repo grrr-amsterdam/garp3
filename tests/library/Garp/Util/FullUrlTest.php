@@ -6,7 +6,7 @@
  */
 class Garp_Util_FullUrlTest extends Garp_Test_PHPUnit_TestCase {
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->_helper->injectConfigValues(
             array(

@@ -27,7 +27,7 @@ class Garp_File_Storage_LocalTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertEquals($testContent, $storedContents);
     }
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->_helper->injectConfigValues(
             array(
@@ -47,7 +47,7 @@ class Garp_File_Storage_LocalTest extends Garp_Test_PHPUnit_TestCase {
         $this->_storage->setDocRoot(GARP_APPLICATION_PATH . '/../tests/');
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         $this->_storage->remove($this->_gzipTestFile);
     }
 

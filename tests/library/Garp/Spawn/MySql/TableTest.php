@@ -15,7 +15,7 @@ class Garp_Spawn_MySql_TableTest extends Garp_Test_PHPUnit_TestCase {
     );
 
 
-    public function setUp() {
+    public function setUp(): void {
         $this->_mocks['directory'] = GARP_APPLICATION_PATH . "/../tests/model-config/";
         $this->_mocks['sql'] = file_get_contents(
             GARP_APPLICATION_PATH . '/../tests/files/bogus.sql'

@@ -46,7 +46,7 @@ class G_View_Helper_Image_Test extends Garp_Test_PHPUnit_TestCase {
         return $imageHelper;
     }
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->_helper->injectConfigValues(
             array(

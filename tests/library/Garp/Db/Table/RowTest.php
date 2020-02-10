@@ -27,7 +27,7 @@ class Garp_Db_Table_RowTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertFalse($row->isConnected());
     }
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
 
         $dbAdapter = $this->_getSqlite();
@@ -36,7 +36,7 @@ class Garp_Db_Table_RowTest extends Garp_Test_PHPUnit_TestCase {
         $dbAdapter->exec('CREATE TABLE foo (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name VARCHAR, foo TEXT)');
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
 
         $dbAdapter = Zend_Db_Table::getDefaultAdapter();
