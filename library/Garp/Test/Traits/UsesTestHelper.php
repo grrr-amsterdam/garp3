@@ -10,24 +10,20 @@ trait Garp_Test_Traits_UsesTestHelper {
      */
     protected $_helper;
 
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    protected $_mockData = array();
-
     public function setUp(): void {
         $this->_helper = new Garp_Test_PHPUnit_Helper();
-        $this->_helper->setUp($this->_mockData);
+        $mockData = property_exists($this, '_mockData') ? $this->_mockData : [];
+        $this->_helper->setUp($mockData);
         parent::setUp();
     }
 
     public function tearDown(): void {
+        $mockData = property_exists($this, '_mockData') ? $this->_mockData : [];
         if ($this->_helper) {
-            $this->_helper->tearDown($this->_mockData);
+            $this->_helper->tearDown($mockData);
         }
         parent::tearDown();
     }
 
 }
+
