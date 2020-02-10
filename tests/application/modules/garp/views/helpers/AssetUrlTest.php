@@ -170,7 +170,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         return file_exists($this->_getVersionPath());
     }
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->_helper->injectConfigValues(
             array(
@@ -188,7 +188,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         if (!$this->_doesVersionExist()) {
             $this->_usedVersion = static::MOCK_VERSION;
             $this->_clearVersion = true;
-            return file_put_contents(
+            file_put_contents(
                 $this->_getVersionPath(),
                 static::MOCK_VERSION
             );
@@ -197,7 +197,7 @@ class Garp_View_Helper_AssetUrlTest extends Garp_Test_PHPUnit_TestCase {
         }
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         $this->_getView()->clearVars();
         if ($this->_clearVersion) {

@@ -14,7 +14,7 @@ class Garp_Model_Behavior_HtmlFilterableTest extends Garp_Test_PHPUnit_TestCase 
 
         $test = '<banana>This tag does not exist</banana>';
         $this->assertEquals('This tag does not exist', $filterable->filter(
-            $test, 
+            $test,
             $this->_getConfig()
         ));
     }
@@ -42,7 +42,7 @@ class Garp_Model_Behavior_HtmlFilterableTest extends Garp_Test_PHPUnit_TestCase 
         $this->assertEquals($test, $filterable->filter($test, $this->_getConfig()));
     }
 
-    
+
     /**
      * @test
      */
@@ -128,7 +128,7 @@ class Garp_Model_Behavior_HtmlFilterableTest extends Garp_Test_PHPUnit_TestCase 
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->_helper->injectConfigValues(
             array(
@@ -144,7 +144,7 @@ class Garp_Model_Behavior_HtmlFilterableTest extends Garp_Test_PHPUnit_TestCase 
     }
 
     /**
-     * Get default config for HTMLPurifier 
+     * Get default config for HTMLPurifier
      */
     protected function _getConfig() {
         $filterable = new Garp_Model_Behavior_HtmlFilterable(array());

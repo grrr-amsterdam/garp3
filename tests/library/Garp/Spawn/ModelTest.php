@@ -14,7 +14,7 @@ class Garp_Spawn_Model_BaseTest extends Garp_Test_PHPUnit_TestCase {
     );
 
 
-    public function setUp() {
+    public function setUp(): void {
         $this->_mocks['directory'] = GARP_APPLICATION_PATH . "/../tests/model-config/";
     }
 

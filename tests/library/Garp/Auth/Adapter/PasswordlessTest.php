@@ -11,9 +11,9 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
     const TEST_EMAIL = 'thedude@garp.com';
 
     /**
-    * Wether to execute these tests, it only makes sense for projects where
-    * passwordless authentication is actually enabled.
-    */
+     * Wether to execute these tests, it only makes sense for projects where
+     * passwordless authentication is actually enabled.
+     */
     protected $_testsEnabled = false;
 
     protected $_mockData = array(
@@ -242,7 +242,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
         return $transport->recipients . '.tmp';
     }
 
-    public function setUp() {
+    public function setUp(): void {
         // Only execute tests when passwordless is actually one of the configured adapters for
         // this project.
         $this->_testsEnabled = isset(Zend_Registry::get('config')->auth->adapters->passwordless);
@@ -279,7 +279,7 @@ class Garp_Auth_Adapter_PasswordlessTest extends Garp_Test_PHPUnit_TestCase {
 
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         if (!$this->_testsEnabled) {
             return;
         }

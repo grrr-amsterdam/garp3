@@ -23,7 +23,7 @@ class Garp_Service_Elasticsearch_ModelTest extends Garp_Test_PHPUnit_TestCase {
     protected $_model;
 
 
-    public function setUp() {
+    public function setUp(): void {
         $model = new Garp_Service_Elasticsearch_Model(self::BOGUS_MODEL_NAME);
         $this->setModel($model);
     }

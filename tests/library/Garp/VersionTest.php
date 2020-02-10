@@ -26,13 +26,13 @@ class Garp_VersionTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertEquals('v1.0.23-g4390291', $version->getVersion(), 'bustCache() clears the cache');
     }
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         file_put_contents($this->_getVersionLocation(), self::MOCK_VERSION);
         Garp_Version::bustCache();
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         unlink($this->_getVersionLocation());
     }
 

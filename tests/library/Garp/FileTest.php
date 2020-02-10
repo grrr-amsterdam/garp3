@@ -128,7 +128,7 @@ class Garp_FileTest extends Garp_Test_PHPUnit_TestCase {
         return preg_match('/[^A-Za-z0-9_\.-]/', $filename) === 0;
     }
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->_helper->injectConfigValues(
             array(

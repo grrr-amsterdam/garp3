@@ -5,6 +5,12 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.23.1
+
+The functionality previously found in `Garp_Test_PHPUnit_TestCase` is now in `Garp_Test_Traits_UsesTestHelper`.   
+This allows you to extend other TestCase parent classes (like the one provided with Laravel), while still keeping Garp functionality.
+Hopefully this eases the transition to or integration with other frameworks.
+
 ## Version 3.23.0
 
 PHP 7.4 compatibility has arrived 🥰
