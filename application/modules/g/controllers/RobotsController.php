@@ -13,7 +13,9 @@ class G_RobotsController extends Garp_Controller_Action {
      * @return void
      */
     public function indexAction() {
-        $this->_helper->layout->disableLayout();
+        if ($this->_helper->hasHelper('layout')) {
+            $this->_helper->layout->disableLayout();
+        }
         $this->getResponse()->setHeader('Content-Type', 'text/plain');
     }
 }

@@ -15,8 +15,10 @@ class G_RestController extends Garp_Controller_Action {
 
     public function init() {
         $this->_helper->cache->setNoCacheHeaders($this->getResponse());
-        $this->_helper->layout->setLayoutPath(GARP_APPLICATION_PATH . '/modules/g/views/layouts');
-        $this->_helper->layout->setLayout('json');
+        if ($this->_helper->hasHelper('Layout')) {
+            $this->_helper->layout->setLayoutPath(GARP_APPLICATION_PATH . '/modules/g/views/layouts');
+            $this->_helper->layout->setLayout('json');
+        }
 
         if (strtoupper($this->getRequest()->getMethod()) === 'OPTIONS') {
             $this->getResponse()->setHeader(
