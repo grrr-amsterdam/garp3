@@ -28,6 +28,7 @@ class G_ExtController extends G_ContentController {
     protected $_originalRequests = array();
 
     public function init() {
+        parent::init();
         $this->_helper->cache(
             array('smd', 'getlocale'),
             array(),

@@ -23,6 +23,8 @@ class G_ContentController extends Garp_Controller_Action {
      * @return Void
      */
     public function init() {
+        $this->_ensureLayout();
+
         // Do not cache CMS pages. This prevents a common situation where people logout, return to
         // the CMS, and see the interface but none of the content feeds load. Only after a browser
         // refresh they'll get bounced to the login page.
@@ -570,4 +572,25 @@ class G_ContentController extends Garp_Controller_Action {
             $this->view->cmsClosedMessage = '<p>The CMS is closed.</p>';
         }
     }
+
+    /**
+     * Since the CMS needs to be rendered correctly, layout and all, this method ensures the layout
+     * helper is available and initiated.
+     *
+     * @return void
+     */
+    protected function _ensureLayout() {
+        if ($this->_helper->hasHelper('layout')) {
+            return;
+        }
+        $request = $this->getRequest();
+        $moduleName = $request->getModuleName();
+        $frontController = Zend_Controller_Front::getInstance();
+        Zend_Layout::startMvc();
+        $currentModuleDirectory = $frontController->getModuleDirectory($moduleName);
+        $this->_helper->addHelper(new Zend_Layout_Controller_Action_Helper_Layout());
+        $this->_helper->layout->setLayoutPath($currentModuleDirectory . '/views/layouts')->setLayout('layout');
+    }
+
 }
+
