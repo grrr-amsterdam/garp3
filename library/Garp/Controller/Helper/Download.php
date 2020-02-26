@@ -4,20 +4,16 @@
  * Force download dialog for a certain file.
  *
  * @package Garp
- * @subpackage Db
- * @author Harmen Janssen <harmen@grrr.nl>
- * @modifiedby $LastChangedBy: $
- * @version $Revision: $
- * @lastmodified $Date: $
+ * @author  Harmen Janssen <harmen@grrr.nl>
  */
 class Garp_Controller_Helper_Download extends Zend_Controller_Action_Helper_Abstract {
     /**
      * Force download dialog
      *
-     * @param String $bytes The bytes that are to be downloaded
-     * @param String $filename The filename of the downloaded file
+     * @param string $bytes The bytes that are to be downloaded
+     * @param string $filename The filename of the downloaded file
      * @param Zend_Controller_Response_Abstract $response The response object
-     * @return Void
+     * @return void
      */
     public function force($bytes, $filename, Zend_Controller_Response_Abstract $response) {
         if (!strlen($bytes)) {
@@ -25,39 +21,41 @@ class Garp_Controller_Helper_Download extends Zend_Controller_Action_Helper_Abst
         } else {
             // Disable view and layout rendering
             Zend_Controller_Action_HelperBroker::getExistingHelper('viewRenderer')->setNoRender();
-            Zend_Controller_Action_HelperBroker::getExistingHelper('layout')->disableLayout();
-            
+            if (Zend_Controller_Action_HelperBroker::hasHelper('layout')) {
+                Zend_Controller_Action_HelperBroker::getExistingHelper('layout')->disableLayout();
+            }
+
             // Process the download
             $this->_setHeaders($bytes, $filename, $response);
             $response->setBody($bytes);
         }
     }
-    
-    
+
+
     /**
      * Set the neccessary headers for forcing the download dialog
      *
-     * @param String $bytes The bytes that are to be downloaded
-     * @param String $filename The filename of the downloaded file
+     * @param string $bytes The bytes that are to be downloaded
+     * @param string $filename The filename of the downloaded file
      * @param Zend_Controller_Response_Abstract $response The response object
-     * @return Void
+     * @return void
      */
     protected function _setHeaders($bytes, $filename, Zend_Controller_Response_Abstract $response) {
         // fix for IE catching or PHP bug issue
         $response->setHeader('Pragma', 'public');
         // set expiration time
-        $response->setHeader('Expires', '0'); 
+        $response->setHeader('Expires', '0');
         // browser must download file from server instead of cache
         $response->setHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0');
-    
+
         // force download dialog
         $response->setHeader('Content-Type', 'application/octet-stream');
-    
+
         // use the Content-Disposition header to supply a recommended filename and
         // force the browser to display the save dialog.
         $response->setHeader(
             'Content-Disposition',
-            'attachment; filename="'.basename($filename).'"'
+            'attachment; filename="' . basename($filename) . '"'
         );
 
         /*
