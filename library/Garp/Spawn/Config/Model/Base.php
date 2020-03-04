@@ -1,7 +1,9 @@
 <?php
 /**
  * Configuration scheme for a 'base' model, as opposed to binding models.
- * @author David Spreekmeester | grrr.nl
+ *
+ * @package Garp
+ * @author  David Spreekmeester <david@grrr.nl>
  */
 class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
     protected $_defaultBehaviors = array(
@@ -28,6 +30,8 @@ class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
     /**
      * Adds an 'id' field to the model structure.
      * Make it the primary key if there is no other primary key defined yet.
+     *
+     * @return void
      */
     protected function _addIdField() {
         $params = array(
@@ -63,14 +67,14 @@ class Garp_Spawn_Config_Model_Base extends Garp_Spawn_Config_Model_Abstract {
 
 
     protected function _addDefaultBehaviors() {
-        $this['behaviors'] = $this['behaviors'] ?
-            array_merge($this['behaviors'], $this->_defaultBehaviors) :
-            $this->_defaultBehaviors
-        ;
+        $this['behaviors'] = $this['behaviors']
+            ? array_merge($this->_defaultBehaviors, $this['behaviors'])
+            : $this->_defaultBehaviors;
     }
 
+
     public function isMultilingual() {
-        return count(array_filter($this['inputs'], function($input) {
+        return count(array_filter($this['inputs'], function ($input) {
             return array_key_exists('multilingual', $input) ?
                 $input['multilingual'] : false;
         })) > 0;

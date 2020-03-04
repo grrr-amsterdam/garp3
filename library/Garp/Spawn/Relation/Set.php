@@ -55,11 +55,10 @@ class Garp_Spawn_Relation_Set {
 
     public function __construct(Garp_Spawn_Model_Abstract $model, array $config) {
         $this->_setModel($model);
-        $this->_addDefaultBaseRelations();
-
         foreach ($config as $relationName => &$relationParams) {
             $this->add($relationName, $relationParams);
         }
+        $this->_addDefaultBaseRelations();
     }
 
     /**
@@ -132,6 +131,14 @@ class Garp_Spawn_Relation_Set {
     public function addRaw(Garp_Spawn_Relation $relation) {
         $this->_relations[$relation->name] = $relation;
         ksort($this->_relations);
+    }
+
+    public function has(string $name): bool {
+        return array_key_exists($name, $this->_relations);
+    }
+
+    public function remove(string $name) {
+        unset($this->_relations[$name]);
     }
 
     /**
