@@ -24,6 +24,8 @@ use Garp\Functional as f;
 	$dashedModelId = Garp_Spawn_Util::camelcased2dashed($model->id);
 	$rolesThatShouldntSeeThisModelInTheirMenu = $this->spawnJs()->getAclRolesThatAreNotAllowedModelPrivilege($model, 'menu');
 
+    $authorColumns = $model->behaviors->getBehavior('Authorable')->getColumns();
+
 ?>Ext.ns('Garp.dataTypes');
 Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 	text: __('<?php echo $model->label ?>'),
@@ -385,8 +387,7 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 		foreach ($singularRelations as $relName => $rel) {
 			if (
 				$rel->model !== 'Image' &&
-				$rel->column !== 'author_id' &&
-				$rel->column !== 'modifier_id' &&
+                !in_array($rel->column, $authorColumns) &&
 				!$rel->multilingual
 			) {
 				$formFields[] = $this->partial('partials/spawn/js/singular-relation-field.phtml', 'g', array(
@@ -443,4 +444,5 @@ Garp.dataTypes.<?php echo $model->id ?> = new Garp.DataType({
 ?>
 	}]
 });
+
 
