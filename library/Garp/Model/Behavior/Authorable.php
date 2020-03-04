@@ -10,7 +10,16 @@ class Garp_Model_Behavior_Authorable extends Garp_Model_Behavior_Abstract {
     const _AUTHOR_COLUMN = 'author_id';
     const _MODIFIER_COLUMN = 'modifier_id';
 
+    protected $_columns;
+
     protected function _setup($config) {
+        if (!isset($config['authorField'])) {
+            $config['authorField'] = self::_AUTHOR_COLUMN;
+        }
+        if (!isset($config['modifierField'])) {
+            $config['modifierField'] = self::_MODIFIER_COLUMN;
+        }
+        $this->_columns = $config;
     }
 
     /**
@@ -30,7 +39,7 @@ class Garp_Model_Behavior_Authorable extends Garp_Model_Behavior_Abstract {
         ) {
             $currentUserData = Garp_Auth::getInstance()->getUserData();
             $currentUserId   = $currentUserData['id'];
-            $select->where(self::_AUTHOR_COLUMN . ' = ?', $currentUserId);
+            $select->where($this->_columns['authorField'] . ' = ?', $currentUserId);
         }
     }
 
@@ -46,7 +55,7 @@ class Garp_Model_Behavior_Authorable extends Garp_Model_Behavior_Abstract {
         $auth = Garp_Auth::getInstance();
         if ($auth->isLoggedIn()) {
             $userData = $auth->getUserData();
-            $data[self::_AUTHOR_COLUMN] = $userData['id'];
+            $data[$this->_columns['authorField']] = $userData['id'];
         }
     }
 
@@ -56,8 +65,9 @@ class Garp_Model_Behavior_Authorable extends Garp_Model_Behavior_Abstract {
         $auth = Garp_Auth::getInstance();
         if ($auth->isLoggedIn()) {
             $userData = $auth->getUserData();
-            $data[self::_MODIFIER_COLUMN] = $userData['id'];
+            $data[$this->_columns['modifierField']] = $userData['id'];
         }
     }
 
 }
+

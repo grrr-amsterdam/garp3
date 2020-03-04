@@ -157,7 +157,7 @@ class Garp_Spawn_Relation {
             $this->{$paramName} = $paramValue;
         }
 
-        $this->_addRelationColumn();
+        $this->_addRelationColumn($params);
         $this->_addRelationFieldInLocalModel();
         $this->_addOppositeRule();
 
@@ -287,8 +287,10 @@ class Garp_Spawn_Relation {
             $relations = $bindingModel->relations->getRelations();
             $rules = array_keys($relations);
 
-            /* 	Now sort egocentrically, because current sorting is alphabetical
-            (since $relations is an associative array) */
+            /**
+             * Now sort egocentrically, because current sorting is alphabetical
+             * (since $relations is an associative array)
+             */
             $firstRel = current($relations);
             if ($firstRel->model !== $subjectModel) {
                 $rules = array_reverse($rules);
@@ -463,7 +465,12 @@ class Garp_Spawn_Relation {
         }
     }
 
-    protected function _addRelationColumn() {
+    protected function _addRelationColumn(array $params) {
+        if (isset($params['column'])) {
+            $this->column = $params['column'];
+            return;
+        }
+        // Automagically determine foreign key column.
         $this->column = $this->isSingular() ?
             Garp_Spawn_Relation_Set::getRelationColumn($this->name) :
             Garp_Spawn_Relation_Set::getRelationColumn($this->_localModel->id);
@@ -479,7 +486,8 @@ class Garp_Spawn_Relation {
             return;
         }
 
-        $column = Garp_Spawn_Relation_Set::getRelationColumn($this->name);
+        //$column = Garp_Spawn_Relation_Set::getRelationColumn($this->name);
+        $column = $this->column;
         $fieldParams = array(
             'model' => $this->model,
             'type' => 'numeric',
