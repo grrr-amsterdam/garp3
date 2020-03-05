@@ -80,7 +80,7 @@ if (isset($this->relation->simpleSelect) && $this->relation->simpleSelect):
 						echo $this->relation->label;
 					endif;
 				?>'),
-				allowBlank: <?php echo $this->relation->type === 'belongsTo' ? 'false' : 'true' ?>,
+				allowBlank: <?php echo $this->relation->type === 'belongsTo' || $this->relation->required ? 'false' : 'true' ?>,
 				<?php if (!$this->relation->editable): ?>
 				disabled: true,
 				<?php endif; ?>
