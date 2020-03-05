@@ -282,7 +282,9 @@ class Garp_Spawn_Relation_Set {
         }
 
         foreach ($this->_defaultBaseRelations as $defRelName => $defRelParams) {
-            $this->add($defRelName, $defRelParams);
+            if (!$this->has($defRelName)) {
+                $this->add($defRelName, $defRelParams);
+            }
         }
     }
 }
