@@ -253,7 +253,12 @@ class Garp_Spawn_Relation {
         $new->editable      = $old->type === 'belongsTo' ? false : $old->editable;
         $new->type          = $this->isSingular() ? 'hasMany' : 'hasAndBelongsToMany';
         $new->model         = $this->_localModel->id;
-        $new->column        = 'id';
+        // Mysterious! This property is set to "id", but as you can see in the constructor, after
+        // setting `$this->column` in the foreach loop, `$this->_addRelationColumn` is executed,
+        // which will immediately override the `$this->column`.
+        // Since this appears to be useless and conflicts with the `if` statement meant for
+        // overriding the foreign key column in the spawn config, I wil remove it.
+        //$new->column        = 'id';
         $new->oppositeRule  = $old->name;
         $new->label         = $old->inverseLabel;
         $new->inverseLabel  = $old->label;
@@ -531,3 +536,4 @@ class Garp_Spawn_Relation {
     }
 
 }
+
