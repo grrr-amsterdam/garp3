@@ -121,7 +121,7 @@ class Garp_Model_Behavior_DefaultSortable extends Garp_Model_Behavior_Core {
                  * bindingModel. So we just... skip that if the name starts with an underscore?
                  * This'll keep me up at night. We should nuke this entire shitty component.
                  */
-                if (is_string($fromPart['alias']) && $fromPart['alias'][0] === '_') {
+                if (is_string($fromPart['tableName']) && $fromPart['tableName'][0] === '_') {
                     return array_set(
                         'columns',
                         array(),
