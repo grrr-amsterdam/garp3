@@ -151,7 +151,7 @@ class Garp_Cli_Command_Image extends Garp_Cli_Command {
 
         $imageModel = new Model_Image();
         $record     = $imageModel->fetchById($id);
-        return $this->_generateScaledImagesForFilename($record->filename);
+        return $this->_generateScaledImagesForFilename($record->filename, $overwrite);
     }
 
     /**
