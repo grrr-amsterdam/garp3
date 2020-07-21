@@ -43,6 +43,11 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     protected $_region;
 
     /**
+     * @var \Aws\Ses\SesClient
+     */
+    protected $client;
+
+    /**
      * Create Amazon client.
      *
      * @param string $accessKey Override the default Access Key
@@ -67,6 +72,17 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
         }
         $this->setRegion($region);
         parent::__construct($accessKey, $secretKey);
+
+        $this->client = new \Aws\Ses\SesClient(
+            [
+                'version' => 'latest',
+                'region' => $this->getRegion(),
+                'credentials' => [
+                    'key' => $this->_getAccessKey(),
+                    'secret' => $this->_getSecretKey(),
+                ],
+            ]
+        );
     }
 
     /**
