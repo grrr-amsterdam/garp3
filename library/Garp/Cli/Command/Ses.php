@@ -61,16 +61,6 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command
         return true;
     }
 
-    public function stats(array $args = [])
-    {
-        $ses = new Garp_Service_Amazon_Ses();
-        $stats = $ses->getSendStatistics();
-        foreach ($stats as $key => $value) {
-            Garp_Cli::lineOut("$key: $value");
-        }
-        return true;
-    }
-
     public function help()
     {
         Garp_Cli::lineOut('Usage:');
@@ -85,9 +75,6 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command
         Garp_Cli::lineOut('');
         Garp_Cli::lineOut('See send quota:');
         Garp_Cli::lineOut('  g Ses quota');
-        Garp_Cli::lineOut('');
-        Garp_Cli::lineOut('See send statistics:');
-        Garp_Cli::lineOut('  g Ses stats');
         Garp_Cli::lineOut('');
         return true;
     }
