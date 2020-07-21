@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Garp_Cli_Command_Ses
  * Perform administrative SES functions.
@@ -6,8 +7,10 @@
  * @package Garp_Cli_Command
  * @author  Harmen Janssen <harmen@grrr.nl>
  */
-class Garp_Cli_Command_Ses extends Garp_Cli_Command {
-    public function verify(array $args = array()) {
+class Garp_Cli_Command_Ses extends Garp_Cli_Command
+{
+    public function verify(array $args = [])
+    {
         if (empty($args)) {
             Garp_Cli::errorOut('No email address given. See g Ses help for help.');
             return false;
@@ -20,7 +23,8 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command {
         return true;
     }
 
-    public function delete(array $args = array()) {
+    public function delete(array $args = [])
+    {
         if (empty($args)) {
             Garp_Cli::errorOut('No email address given. See g Ses help for help.');
             return false;
@@ -33,7 +37,8 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command {
         return true;
     }
 
-    public function listAddresses(array $args = array()) {
+    public function listAddresses(array $args = [])
+    {
         $ses = new Garp_Service_Amazon_Ses();
         $list = $ses->listVerifiedEmailAddresses();
         if (empty($list)) {
@@ -46,7 +51,8 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command {
         return true;
     }
 
-    public function quota(array $args = array()) {
+    public function quota(array $args = [])
+    {
         $ses = new Garp_Service_Amazon_Ses();
         $quota = $ses->getSendQuota();
         foreach ($quota as $key => $value) {
@@ -55,7 +61,8 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command {
         return true;
     }
 
-    public function stats(array $args = array()) {
+    public function stats(array $args = [])
+    {
         $ses = new Garp_Service_Amazon_Ses();
         $stats = $ses->getSendStatistics();
         foreach ($stats as $key => $value) {
@@ -64,7 +71,8 @@ class Garp_Cli_Command_Ses extends Garp_Cli_Command {
         return true;
     }
 
-    public function help() {
+    public function help()
+    {
         Garp_Cli::lineOut('Usage:');
         Garp_Cli::lineOut('Verify email address:');
         Garp_Cli::lineOut('  g Ses verify <email address>');
