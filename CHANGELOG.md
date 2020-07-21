@@ -5,6 +5,21 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.24
+
+Custom HTTP calls to AWS API are replaced by AWS SDK for PHP calls to add support for signature version 4. So `Garp_Mailer` uses AWS SDK for PHP instead of Zend http client. No breaking changes, but `Garp_Mailer` will throw `SesException`'s instead of `Exception`.
+
+When the key `host` is in your AWS configuration remove it and replace it by `region` with the region part from the original host.
+
+Deprecated:
+
+- `Garp_Service_Amazon_Ses->sendEmail()` use `Garp_Mailer->send()`
+- `Garp_Service_Amazon_Ses->sendRawEmail()` use `Garp_Mailer->send()`
+
+Removed:
+
+- Cli command: `g ses Stats`
+
 ## Version 3.23.1
 
 The functionality previously found in `Garp_Test_PHPUnit_TestCase` is now in `Garp_Test_Traits_UsesTestHelper`.   
