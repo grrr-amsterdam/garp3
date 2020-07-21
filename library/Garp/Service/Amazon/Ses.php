@@ -149,19 +149,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
      */
     public function listVerifiedEmailAddresses()
     {
-        $response = $this->_makeRequest(
-            [
-                'Action' => 'ListVerifiedEmailAddresses',
-            ]
-        );
-        $dom = new DOMDocument();
-        $dom->loadXML($response);
-        $members = $dom->getElementsByTagName('member');
-        $out = [];
-        foreach ($members as $member) {
-            $out[] = $member->nodeValue;
-        }
-        return $out;
+        $response = $this->client->listVerifiedEmailAddresses();
+        return $response->get('VerifiedEmailAddresses');
     }
 
     /**
