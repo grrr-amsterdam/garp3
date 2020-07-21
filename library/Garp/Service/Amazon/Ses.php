@@ -137,19 +137,12 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
      */
     public function getSendQuota()
     {
-        $response = $this->_makeRequest(
-            [
-                'Action' => 'GetSendQuota',
-            ]
-        );
-        $dom = new DOMDocument();
-        $dom->loadXML($response);
-        $out = [
-            'Max24HourSend' => $dom->getElementsByTagName('Max24HourSend')->item(0)->nodeValue,
-            'MaxSendRate' => $dom->getElementsByTagName('MaxSendRate')->item(0)->nodeValue,
-            'SentLast24Hours' => $dom->getElementsByTagName('SentLast24Hours')->item(0)->nodeValue,
+        $response = $this->client->getSendQuota();
+        return [
+            'Max24HourSend' => $response->get('Max24HourSend'),
+            'MaxSendRate' => $response->get('MaxSendRate'),
+            'SentLast24Hours' => $response->get('SentLast24Hours'),
         ];
-        return $out;
     }
 
     /**
