@@ -137,35 +137,6 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     }
 
     /**
-     * Returns the user's sending statistics. The result is a list of data points, representing the last two weeks of sending activity.
-     * Each data point in the list contains statistics for a 15-minute interval.
-     *
-     * @return Array
-     */
-    public function getSendStatistics()
-    {
-        $response = $this->_makeRequest(
-            [
-                'Action' => 'GetSendStatistics',
-            ]
-        );
-        $dom = new DOMDocument();
-        $dom->loadXML($response);
-        $members = $dom->getElementsByTagName('member');
-        $out = [];
-        foreach ($members as $member) {
-            $out[] = [
-                'DeliveryAttempts' => $member->getElementsByTagName('DeliveryAttempts')->item(0)->nodeValue,
-                'Timestamp' => $member->getElementsByTagName('Timestamp')->item(0)->nodeValue,
-                'Rejects' => $member->getElementsByTagName('Rejects')->item(0)->nodeValue,
-                'Bounces' => $member->getElementsByTagName('Bounces')->item(0)->nodeValue,
-                'Complaints' => $member->getElementsByTagName('Complaints')->item(0)->nodeValue,
-            ];
-        }
-        return $out;
-    }
-
-    /**
      * Returns a list containing all of the email addresses that have been verified.
      *
      * @return Array
