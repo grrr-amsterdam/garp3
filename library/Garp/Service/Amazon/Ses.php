@@ -333,12 +333,10 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
      */
     public function verifyEmailAddress($email)
     {
-        $response = $this->_makeRequest(
-            [
-                'Action' => 'VerifyEmailAddress',
-                'EmailAddress' => $email,
-            ]
-        );
+        $this->client->VerifyEmailIdentity([
+            'EmailAddress' => $email
+        ]);
+
         return true;
     }
 
