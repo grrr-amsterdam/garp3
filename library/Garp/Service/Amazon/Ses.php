@@ -9,12 +9,6 @@
  */
 class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
 {
-    /**
-     * Amazon web service url
-     *
-     * @var String
-     */
-    const ENDPOINT = 'https://email.%s.amazonaws.com/';
 
     /**
      * Default region
@@ -22,20 +16,6 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
      * @var String
      */
     const DEFAULT_REGION = 'us-east-1';
-
-    /**
-     * What hash method to use when creating the signature
-     *
-     * @var String
-     */
-    const SIGNATURE_HASH_METHOD = 'sha256';
-
-    /**
-     * SES API version
-     *
-     * @var String
-     */
-    const API_VERSION = '2010-12-01';
 
     /**
      * Region to use in the endpoint
@@ -88,7 +68,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     /**
      * Get region
      *
-     * @return String
+     * @return string
      */
     public function getRegion()
     {
@@ -98,7 +78,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     /**
      * Set region
      *
-     * @param String $region
+     * @param string $region
      * @return $this
      */
     public function setRegion($region)
@@ -115,8 +95,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     /**
      * Deletes the specified email address from the list of verified addresses.
      *
-     * @param String $email An email address to be removed from the list of verified addreses.
-     * @return Boolean
+     * @param string $email An email address to be removed from the list of verified addreses.
+     * @return boolean
      */
     public function deleteVerifiedEmailAddress($email)
     {
@@ -129,7 +109,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     /**
      * Returns the user's current activity limits.
      *
-     * @return Array Describing various statistics about your usage. The keys correspond to
+     * @return array Describing various statistics about your usage. The keys correspond to
      *               nodes in Amazon's response
      */
     public function getSendQuota()
@@ -145,7 +125,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     /**
      * Returns a list containing all of the email addresses that have been verified.
      *
-     * @return Array
+     * @return array
      */
     public function listVerifiedEmailAddresses()
     {
@@ -314,8 +294,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
      * Verifies an email address.
      * This action causes a confirmation email message to be sent to the specified address.
      *
-     * @param String $email The email address to be verified.
-     * @return String
+     * @param string $email The email address to be verified.
+     * @return string
      */
     public function verifyEmailAddress($email)
     {
@@ -324,113 +304,5 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
         ]);
 
         return true;
-    }
-
-    /**
-     * Makes the actual AWS request.
-     *
-     * @param Array $args
-     * @return Mixed
-     */
-    protected function _makeRequest($args = [])
-    {
-        $date = date(DATE_RFC1123);
-        $sig = $this->_createSignature($date);
-        $amznAuthHeader = 'AWS3-HTTPS ' .
-            'AWSAccessKeyId=' . $this->_accessKey .
-            ', Algorithm=Hmac' . strtoupper(self::SIGNATURE_HASH_METHOD) .
-            ', Signature=' . $sig;
-
-        $client = $this->getHttpClient()->resetParameters();
-        $endpoint = sprintf(self::ENDPOINT, $this->_region);
-        $client->setUri($endpoint);
-        $client->setHeaders(
-            [
-                'Date' => $date,
-                'X-Amzn-Authorization' => $amznAuthHeader,
-            ]
-        );
-
-        // required parameters for each request
-        $args['Signature'] = $sig;
-        $args['SignatureMethod'] = 'Hmac' . self::SIGNATURE_HASH_METHOD;
-        $args['SignatureVersion'] = 2;
-        $args['Version'] = self::API_VERSION;
-
-        $client->setParameterPost($args);
-        $response = $client->request(Zend_Http_Client::POST);
-
-        if ($response->getStatus() !== 200) {
-            $this->throwException($response->getBody());
-        }
-        return $response->getBody();
-    }
-
-    /**
-     * Create the HMAC-SHA signature required for every request.
-     *
-     * @param mixed $date
-     * @return String
-     */
-    protected function _createSignature($date)
-    {
-        $sig = Zend_Crypt_Hmac::compute($this->_secretKey, self::SIGNATURE_HASH_METHOD, $date, Zend_Crypt_Hmac::BINARY);
-        return base64_encode($sig);
-    }
-
-    /**
-     * Create AWS String List from array (which is also an array, but with
-     * specific Amazonesque keys)
-     *
-     * @param Array $args
-     * @param String $namespace The base namespace that groups all entries
-     * @return Array
-     */
-    protected function _arrayToStringList(array $args, $namespace)
-    {
-        $out = [];
-        foreach ($args as $key => $value) {
-            $out[$namespace . '.member.' . ($key + 1)] = $value;
-        }
-        return $out;
-    }
-
-    /**
-     * Throw exceptions
-     *
-     * @param String $body XML body containing error response from AWS
-     * @return Void
-     * @throws Garp_Service_Amazon_Exception
-     */
-    public function throwException($body)
-    {
-        $dom = new DOMDocument();
-        $dom->loadXML($body);
-        $code = $dom->getElementsByTagName('Code')->item(0);
-        $msg = $dom->getElementsByTagName('Message')->item(0);
-
-        // Log last request and response in case of an error
-        $lastRequest = $this->getHttpClient()->getLastRequest();
-        $lastResponse = $this->getHttpClient()->getLastResponse();
-        $filename = date('Y-m-d') . '-amazon-ses.log';
-        $logMessage = "\n";
-        $logMessage .= '[REQUEST]' . "\n";
-        $logMessage .= $lastRequest . "\n\n";
-        $logMessage .= '[RESPONSE]' . "\n";
-        $logMessage .= $lastResponse . "\n\n";
-
-        try {
-            $logger = Garp_Log::factory($filename);
-            $logger->log($logMessage, Garp_Log::INFO);
-        } catch (Exception $e) {
-            // that's no priority for now, we want
-            // the SES exception more than we want this exception.
-        }
-
-        $msg = $msg->nodeValue;
-        if (is_object($code)) {
-            $msg = $code->nodeValue . ': ' . $msg;
-        }
-        throw new Garp_Service_Amazon_Exception($msg);
     }
 }
