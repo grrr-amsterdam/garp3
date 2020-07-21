@@ -11,6 +11,8 @@ Custom HTTP calls to AWS API are replaced by AWS SDK for PHP calls to add suppor
 
 When the key `host` is in your AWS configuration remove it and replace it by `region` with the region part from the original host.
 
+Guzzle 5 isn't compatible with PHP 7.3 and above. Garp now requires Guzzle 6 or 7.
+
 Deprecated:
 
 - `Garp_Service_Amazon_Ses->sendEmail()` use `Garp_Mailer->send()`
