@@ -120,12 +120,9 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
      */
     public function deleteVerifiedEmailAddress($email)
     {
-        $response = $this->_makeRequest(
-            [
-                'Action' => 'DeleteVerifiedEmailAddress',
-                'EmailAddress' => $email,
-            ]
-        );
+        $this->client->deleteVerifiedEmailAddress([
+            'EmailAddress' => $email,
+        ]);
         return true;
     }
 
