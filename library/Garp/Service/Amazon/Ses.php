@@ -3,11 +3,12 @@
 /**
  * Garp_Service_Amazon_Ses
  * Wrapper around Amazon Simple Email Service
-
+ *
  * @package Garp
  * @author Harmen Janssen <harmen@grrr.nl>
  */
-class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
+class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
+{
     /**
      * Amazon web service url
      *
@@ -49,7 +50,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @param string $region Override the default Region
      * @return void
      */
-    public function __construct($accessKey = null, $secretKey = null, $region = null) {
+    public function __construct($accessKey = null, $secretKey = null, $region = null)
+    {
         $ini = Zend_Registry::get('config');
         if (!$accessKey || !$secretKey) {
             if (!$accessKey && isset($ini->amazon->ses->accessKey)) {
@@ -72,7 +74,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      *
      * @return String
      */
-    public function getRegion() {
+    public function getRegion()
+    {
         return $this->_region;
     }
 
@@ -82,7 +85,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @param String $region
      * @return $this
      */
-    public function setRegion($region) {
+    public function setRegion($region)
+    {
         $this->_region = $region;
         return $this;
     }
@@ -98,11 +102,14 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @param String $email An email address to be removed from the list of verified addreses.
      * @return Boolean
      */
-    public function deleteVerifiedEmailAddress($email) {
-        $response = $this->_makeRequest(array(
-            'Action' => 'DeleteVerifiedEmailAddress',
-            'EmailAddress' => $email
-        ));
+    public function deleteVerifiedEmailAddress($email)
+    {
+        $response = $this->_makeRequest(
+            [
+                'Action' => 'DeleteVerifiedEmailAddress',
+                'EmailAddress' => $email,
+            ]
+        );
         return true;
     }
 
@@ -112,17 +119,20 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @return Array Describing various statistics about your usage. The keys correspond to
      *               nodes in Amazon's response
      */
-    public function getSendQuota() {
-        $response = $this->_makeRequest(array(
-            'Action' => 'GetSendQuota'
-        ));
+    public function getSendQuota()
+    {
+        $response = $this->_makeRequest(
+            [
+                'Action' => 'GetSendQuota',
+            ]
+        );
         $dom = new DOMDocument();
         $dom->loadXML($response);
-        $out = array(
+        $out = [
             'Max24HourSend' => $dom->getElementsByTagName('Max24HourSend')->item(0)->nodeValue,
             'MaxSendRate' => $dom->getElementsByTagName('MaxSendRate')->item(0)->nodeValue,
-            'SentLast24Hours' => $dom->getElementsByTagName('SentLast24Hours')->item(0)->nodeValue
-        );
+            'SentLast24Hours' => $dom->getElementsByTagName('SentLast24Hours')->item(0)->nodeValue,
+        ];
         return $out;
     }
 
@@ -132,22 +142,25 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      *
      * @return Array
      */
-    public function getSendStatistics() {
-        $response = $this->_makeRequest(array(
-            'Action' => 'GetSendStatistics'
-        ));
+    public function getSendStatistics()
+    {
+        $response = $this->_makeRequest(
+            [
+                'Action' => 'GetSendStatistics',
+            ]
+        );
         $dom = new DOMDocument();
         $dom->loadXML($response);
         $members = $dom->getElementsByTagName('member');
-        $out = array();
+        $out = [];
         foreach ($members as $member) {
-            $out[] = array(
+            $out[] = [
                 'DeliveryAttempts' => $member->getElementsByTagName('DeliveryAttempts')->item(0)->nodeValue,
                 'Timestamp' => $member->getElementsByTagName('Timestamp')->item(0)->nodeValue,
                 'Rejects' => $member->getElementsByTagName('Rejects')->item(0)->nodeValue,
                 'Bounces' => $member->getElementsByTagName('Bounces')->item(0)->nodeValue,
                 'Complaints' => $member->getElementsByTagName('Complaints')->item(0)->nodeValue,
-            );
+            ];
         }
         return $out;
     }
@@ -157,14 +170,17 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      *
      * @return Array
      */
-    public function listVerifiedEmailAddresses() {
-        $response = $this->_makeRequest(array(
-            'Action' => 'ListVerifiedEmailAddresses'
-        ));
+    public function listVerifiedEmailAddresses()
+    {
+        $response = $this->_makeRequest(
+            [
+                'Action' => 'ListVerifiedEmailAddresses',
+            ]
+        );
         $dom = new DOMDocument();
         $dom->loadXML($response);
         $members = $dom->getElementsByTagName('member');
-        $out = array();
+        $out = [];
         foreach ($members as $member) {
             $out[] = $member->nodeValue;
         }
@@ -172,6 +188,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
     }
 
     /**
+     * @phpcs:disable
      * Composes an email message based on input data, and then immediately queues the message for sending.
      *
      * @param Array|Garp_Util_Configuration $args Might contain;
@@ -197,7 +214,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      *                                                  will then be forwarded to the email address specified by the ReturnPath parameter.
      * @return String
      */
-    public function sendEmail($args) {
+    public function sendEmail($args)
+    {
         $args = $args instanceof Garp_Util_Configuration ? $args : new Garp_Util_Configuration($args);
         $args['Action'] = 'SendEmail';
         $args->obligate('Destination')->obligate('Message')->obligate('Subject')->obligate('Source');
@@ -205,8 +223,10 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
 
         // Allow global overriding of the To property to funnel emails only to a safe address
         if (isset(Zend_Registry::get('config')->amazon->ses->forceToAddress)) {
-            $args['Destination'] = array('To' =>
-                Zend_Registry::get('config')->amazon->ses->forceToAddress);
+            $args['Destination'] = [
+                'To' =>
+                    Zend_Registry::get('config')->amazon->ses->forceToAddress,
+            ];
         }
 
         if (is_array($args['Message'])) {
@@ -304,7 +324,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      *  ['Destinations']    [optional]  Array   Email addresses of recipients (optional because TO fields may be present in raw message)
      * @return Boolean
      */
-    public function sendRawEmail($args) {
+    public function sendRawEmail($args)
+    {
         $args = $args instanceof Garp_Util_Configuration ? $args : new Garp_Util_Configuration($args);
         $args['Action'] = 'SendRawEmail';
         $args->obligate('RawMessage');
@@ -330,11 +351,14 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @param String $email The email address to be verified.
      * @return String
      */
-    public function verifyEmailAddress($email) {
-        $response = $this->_makeRequest(array(
-            'Action' => 'VerifyEmailAddress',
-            'EmailAddress' => $email
-        ));
+    public function verifyEmailAddress($email)
+    {
+        $response = $this->_makeRequest(
+            [
+                'Action' => 'VerifyEmailAddress',
+                'EmailAddress' => $email,
+            ]
+        );
         return true;
     }
 
@@ -344,7 +368,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @param Array $args
      * @return Mixed
      */
-    protected function _makeRequest($args = array()) {
+    protected function _makeRequest($args = [])
+    {
         $date = date(DATE_RFC1123);
         $sig = $this->_createSignature($date);
         $amznAuthHeader = 'AWS3-HTTPS ' .
@@ -355,10 +380,12 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
         $client = $this->getHttpClient()->resetParameters();
         $endpoint = sprintf(self::ENDPOINT, $this->_region);
         $client->setUri($endpoint);
-        $client->setHeaders(array(
-            'Date' => $date,
-            'X-Amzn-Authorization' => $amznAuthHeader
-        ));
+        $client->setHeaders(
+            [
+                'Date' => $date,
+                'X-Amzn-Authorization' => $amznAuthHeader,
+            ]
+        );
 
         // required parameters for each request
         $args['Signature'] = $sig;
@@ -381,7 +408,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @param mixed $date
      * @return String
      */
-    protected function _createSignature($date) {
+    protected function _createSignature($date)
+    {
         $sig = Zend_Crypt_Hmac::compute($this->_secretKey, self::SIGNATURE_HASH_METHOD, $date, Zend_Crypt_Hmac::BINARY);
         return base64_encode($sig);
     }
@@ -394,8 +422,9 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @param String $namespace The base namespace that groups all entries
      * @return Array
      */
-    protected function _arrayToStringList(array $args, $namespace) {
-        $out = array();
+    protected function _arrayToStringList(array $args, $namespace)
+    {
+        $out = [];
         foreach ($args as $key => $value) {
             $out[$namespace . '.member.' . ($key + 1)] = $value;
         }
@@ -409,7 +438,8 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract {
      * @return Void
      * @throws Garp_Service_Amazon_Exception
      */
-    public function throwException($body) {
+    public function throwException($body)
+    {
         $dom = new DOMDocument();
         $dom->loadXML($body);
         $code = $dom->getElementsByTagName('Code')->item(0);
