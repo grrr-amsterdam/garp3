@@ -4,47 +4,17 @@
  *
  * Integration between Zend Framework and Amazon Simple Email Service
  *
- * @category    Zend
- * @package     Zend_Mail
- * @subpackage  Transport
- * @author      Christopher Valles <info@christophervalles.com>
- * @license     http://framework.zend.com/license/new-bsd New BSD License
+ * @package     Garp
+ * @author      Martijn Gastkemper <martijn@grrr.nl>
  */
 class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
 {
     const DEFAULT_REGION = 'eu-west-1';
-    const HOST_TEMPLATE = 'https://email.%s.amazonaws.com';
 
     /**
-     * Template of the webservice body request
-     *
-     * @var string
+     * @var \Aws\Ses\SesClient
      */
-    protected $_bodyRequestTemplate = 'Action=SendRawEmail&Source=%s&%s&RawMessage.Data=%s';
-
-
-    /**
-     * Remote smtp hostname or i.p.
-     *
-     * @var string
-     */
-    protected $_host;
-
-
-    /**
-     * Amazon Access Key
-     *
-     * @var string|null
-     */
-    protected $_accessKey;
-
-
-    /**
-     * Amazon private key
-     *
-     * @var string|null
-     */
-    protected $_privateKey;
+    protected $client;
 
 
     /**
@@ -68,16 +38,18 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
             throw new Zend_Mail_Transport_Exception('This transport requires the Amazon private key');
         }
 
-        if (!array_key_exists('host', $config)) {
-            $config['host'] = sprintf(
-                self::HOST_TEMPLATE,
-                isset($config['region']) ? $config['region'] : self::DEFAULT_REGION
-            );
-        }
+        $region = isset($config['region']) ? $config['region'] : self::DEFAULT_REGION;
 
-        $this->_accessKey = $config['accessKey'];
-        $this->_privateKey = $config['privateKey'];
-        $this->_host = Zend_Uri::factory($config['host']);
+        $this->client = new \Aws\Ses\SesClient(
+            [
+                'version' => 'latest',
+                'region' => $region,
+                'credentials' => [
+                    'key' => $config['accessKey'],
+                    'secret' => $config['privateKey'],
+                ],
+            ]
+        );
     }
 
 
@@ -88,36 +60,15 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
      */
     public function _sendMail()
     {
-        $date = gmdate('D, d M Y H:i:s O');
-
-        //Send the request
-        $client = new Zend_Http_Client($this->_host);
-        $client->setMethod(Zend_Http_Client::POST);
-        $client->setHeaders(array(
-            'Date' => $date,
-            'X-Amzn-Authorization' => $this->_buildAuthKey($date)
-        ));
-        $client->setEncType('application/x-www-form-urlencoded');
-
-        //Build the parameters
-        $params = array(
-            'Action' => 'SendRawEmail',
+        $params = [
             'Source' => $this->_mail->getFrom(),
-            'RawMessage.Data' => base64_encode(sprintf("%s\n%s\n", $this->header, $this->body))
-        );
+            'RawMessage' => [
+                'Data' => sprintf("%s\n%s\n", $this->header, $this->body),
+            ],
+            'Destinations' => explode(',', $this->recipients),
+        ];
 
-        $recipients = explode(',', $this->recipients);
-        foreach ($recipients as $index => $recipient) {
-            $params[sprintf('Destination.ToAddresses.member.%d', $index + 1)] = $recipient;
-        }
-
-        $client->resetParameters();
-        $client->setParameterPost($params);
-        $response = $client->request(Zend_Http_Client::POST);
-
-        if ($response->getStatus() != 200) {
-            throw new Exception($response->getBody());
-        }
+        $this->client->sendRawEmail($params);
     }
 
 
@@ -146,14 +97,4 @@ class Garp_Mail_Transport_AmazonSes extends Zend_Mail_Transport_Abstract
         parent::_prepareHeaders($headers);
     }
 
-
-    /**
-     * Returns header string containing encoded authentication key
-     *
-     * @param   date $date
-     * @return  string
-     */
-    private function _buildAuthKey($date){
-        return sprintf('AWS3-HTTPS AWSAccessKeyId=%s,Algorithm=HmacSHA256,Signature=%s', $this->_accessKey, base64_encode(hash_hmac('sha256', $date, $this->_privateKey, true)));
-    }
 }
