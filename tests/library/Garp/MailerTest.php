@@ -25,7 +25,8 @@ class Garp_MailerTest extends Garp_Test_PHPUnit_TestCase {
             array(
             'amazon' => array(
                 'ses' => array(
-                    'accessKey' => '1234567890'
+                    'accessKey' => '1234567890',
+                    'secretKey' => 'abc',
                 )
             ),
             'mailer' => array(
@@ -85,20 +86,18 @@ class Garp_MailerTest extends Garp_Test_PHPUnit_TestCase {
         $mailer->send($params);
     }
 
-    /**
-     * @expectedException Garp_Util_Configuration_Exception
-     */
     public function test_mailer_should_throw_exception_on_missing_param_message() {
+        $this->expectException(Garp_Util_Configuration_Exception::class);
+
         $mailer = new Garp_Mailer();
         $params = $this->_getParams();
         unset($params['message']);
         $mailer->send($params);
     }
 
-    /**
-     * @expectedException Garp_Mailer_Exception_CannotResolveFromAddress
-     */
     public function test_mailer_should_throw_exception_when_from_address_unknown() {
+        $this->expectException(Garp_Mailer_Exception_CannotResolveFromAddress::class);
+
         $this->_helper->injectConfigValues(
             array(
             'mailer' => array(
