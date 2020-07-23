@@ -1,5 +1,7 @@
 <?php
 
+use Garp\Functional as f;
+
 /**
  * Garp_Service_Amazon_Ses
  * Wrapper around Amazon Simple Email Service
@@ -13,7 +15,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     /**
      * Default region
      *
-     * @var String
+     * @var string
      */
     const DEFAULT_REGION = 'us-east-1';
 
@@ -134,36 +136,38 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
     }
 
     /**
-     * @phpcs:disable
      * Composes an email message based on input data, and then immediately queues the message for sending.
      *
-     * @param Array|Garp_Util_Configuration $args Might contain;
-     *  ['Destination']     [required]  Array|String    Email address(es) for To field, or if array, it might contain;
-     *      ['To']          [required]  Array|String    Email address(es) for To field
-     *      ['Cc']          [optional]  Array|String    Email address(es) for Cc field
-     *      ['Bcc']         [optional]  Array|String    Email address(es) for Bcc field
-     *  ['Message']         [required]  Array|String    The email message (Text format), or if array, it might contain;
-     *      ['Html']        [optional]  Array|String    HTML content for the message, or if array, it might contain;
-     *          ['Charset'] [optional]  String          The characterset used for the HTML body
-     *          ['Data']    [required]  String          The actual content of the HTML body
-     *      ['Text']        [optional]  Array|String    Textual content for the message, or if array, it might contain;
-     *          ['Charset]  [optional]  String          The characterset used for the textual body
-     *          ['Data']    [required]  String          The actual content of the textual body
-     *  ['Subject']         [required]  Array|String    The email subject, or if string, it might contain;
-     *      ['Charset']     [optional]  String          The characterset used for the subject
-     *      ['Data']        [required]  String          The actual subject
-     *  ['Source']          [required]  String          The sender's email address
-     *  ['ReplyToAddresses'][optional]  Array|String    The reply-to email address(es) for the message
-     *  ['ReturnPath']      [optional]  String          The email address to which bounce notifications are to be forwarded.
+     * @phpcs:disable
+     * @param array|Garp_Util_Configuration $args Might contain;
+     *  ['Destination']     [required]  array|string    Email address(es) for To field, or if array, it might contain;
+     *      ['To']          [required]  array|string    Email address(es) for To field
+     *      ['Cc']          [optional]  array|string    Email address(es) for Cc field
+     *      ['Bcc']         [optional]  array|string    Email address(es) for Bcc field
+     *  ['Message']         [required]  array|string    The email message (Text format), or if array, it might contain;
+     *      ['Html']        [optional]  array|string    HTML content for the message, or if array, it might contain;
+     *          ['Charset'] [optional]  string          The characterset used for the HTML body
+     *          ['Data']    [required]  string          The actual content of the HTML body
+     *      ['Text']        [optional]  array|string    Textual content for the message, or if array, it might contain;
+     *          ['Charset]  [optional]  string          The characterset used for the textual body
+     *          ['Data']    [required]  string          The actual content of the textual body
+     *  ['Subject']         [required]  array|string    The email subject, or if string, it might contain;
+     *      ['Charset']     [optional]  string          The characterset used for the subject
+     *      ['Data']        [required]  string          The actual subject
+     *  ['Source']          [required]  string          The sender's email address
+     *  ['ReplyToAddresses'][optional]  array|string    The reply-to email address(es) for the message
+     *  ['ReturnPath']      [optional]  string          The email address to which bounce notifications are to be forwarded.
      *                                                  If the message cannot be delivered to the recipient, then an
      *                                                  error message will be returned from the recipient's ISP; this message
      *                                                  will then be forwarded to the email address specified by the ReturnPath parameter.
-     * @return String
+     * @phpcs:enable
+     *
+     * @deprecated Use Garp_Mailer->send();
+     * @return bool
      */
     public function sendEmail($args)
     {
         $args = $args instanceof Garp_Util_Configuration ? $args : new Garp_Util_Configuration($args);
-        $args['Action'] = 'SendEmail';
         $args->obligate('Destination')->obligate('Message')->obligate('Subject')->obligate('Source');
         $args = (array)$args;
 
@@ -184,79 +188,59 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
                         if (empty($args['Message']['Html']['Data'])) {
                             throw new Garp_Service_Amazon_Exception('Data is a required key for Html.');
                         } else {
-                            $args['Message.Body.Html.Data'] = $args['Message']['Html']['Data'];
-                            if (!empty($args['Message']['Html']['Charset'])) {
-                                $args['Message.Body.Html.Charset'] = $args['Message']['Html']['Charset'];
-                            }
+                            $message = $args['Message'];
                         }
                     } else {
-                        $args['Message.Body.Html.Data'] = $args['Message']['Html'];
+                        $message = ['Html' => ['Data' => $args['Message']['Html']]];
                     }
-                    unset($args['Message']['Html']);
                 }
                 if (!empty($args['Message']['Text'])) {
                     if (is_array($args['Message']['Text'])) {
                         if (empty($args['Message']['Text']['Data'])) {
                             throw new Garp_Service_Amazon_Exception('Data is a required key for Text.');
                         } else {
-                            $args['Message.Body.Text.Data'] = $args['Message']['Text']['Data'];
-                            if (!empty($args['Message']['Text']['Charset'])) {
-                                $args['Message.Body.Text.Charset'] = $args['Message']['Text']['Charset'];
-                            }
+                            $message = $args['Text'];
                         }
                     } else {
-                        $args['Message.Body.Text.Data'] = $args['Message']['Text'];
+                        $message = ['Text' => ['Data' => $args['Message']['Text']]];
                     }
-                    unset($args['Message']['Text']);
                 }
             }
         } else {
-            $args['Message.Body.Text.Data'] = $args['Message'];
+            $message = ['Text' => ['Data' => $args['Message']]];
         }
-        unset($args['Message']);
+        $args['Message'] = ['Body' => $message];
 
         if (is_array($args['Subject'])) {
             if (empty($args['Subject']['Data'])) {
                 throw new Garp_Service_Amazon_Exception('Data is a required key for Subject.');
             } else {
-                $args['Message.Subject.Data'] = $args['Subject']['Data'];
-                if (!empty($args['Subject']['Charset'])) {
-                    $args['Message.Subject.Charset'] = $args['Subject']['Charset'];
-                }
+                $subject = $args['Subject'];
             }
         } else {
-            $args['Message.Subject.Data'] = $args['Subject'];
+            $subject = ['Data' => $args['Subject']];
         }
+        $args['Message']['Subject'] = $subject;
         unset($args['Subject']);
 
         if (is_array($args['Destination'])) {
             if (empty($args['Destination']['To'])) {
                 throw new Garp_Service_Amazon_Exception('To is a required key for Destination');
             } else {
-                $tos = $this->_arrayToStringList((array)$args['Destination']['To'], 'Destination.ToAddresses');
-                $args += $tos;
-                if (!empty($args['Destination']['Cc'])) {
-                    $ccs = $this->_arrayToStringList((array)$args['Destination']['Cc'], 'Destination.CcAddresses');
-                    $args += $ccs;
-                }
-                if (!empty($args['Destination']['Bcc'])) {
-                    $bccs = $this->_arrayToStringList((array)$args['Destination']['Bcc'], 'Destination.BccAddresses');
-                    $args += $bccs;
-                }
+                $renameKeys = f\rename_keys(['To' => 'ToAddresses', 'Cc' => 'CcAddresses', 'Bcc' => 'BccAddresses']);
+                $destination = $renameKeys($args['Destination']);
+
+                $toArray = function ($mixed) {
+                    return (array)$mixed;
+                };
+                $destination = f\map($toArray, $destination);
             }
         } else {
-            $to = $this->_arrayToStringList((array)$args['Destination'], 'Destination.ToAddresses');
-            $args += $to;
+            $destination = (array)$args['Destination'];
         }
-        unset($args['Destination']);
+        $args['Destination'] = $destination;
 
-        if (!empty($args['ReplyToAddresses'])) {
-            $replyTos = $this->_arrayToStringList((array)$args['ReplyToAddresses'], 'ReplyToAddresses');
-            $args += $replyTos;
-            unset($args['ReplyToAddresses']);
-        }
-
-        $response = $this->_makeRequest((array)$args);
+        $this->client->sendEmail($args);
         return true;
     }
 
@@ -264,29 +248,19 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
      * Sends an email message, with header and content specified by the client. The SendRawEmail action is useful for sending multipart MIME emails.
      * The raw text of the message must comply with Internet email standards; otherwise, the message cannot be sent.
      *
-     * @param Array|Garp_Util_Configuration $args Might contain;
-     *  ['RawMessage']      [required]  String  The raw email message (headers and body)
-     *  ['Source']          [optional]  String  A FROM address
-     *  ['Destinations']    [optional]  Array   Email addresses of recipients (optional because TO fields may be present in raw message)
+     * @phpcs:disable
+     * @param array|Garp_Util_Configuration $args Might contain;
+     *  ['RawMessage']      [required]  string  The raw email message (headers and body)
+     *  ['Source']          [optional]  string  A FROM address
+     *  ['Destinations']    [optional]  array   Email addresses of recipients (optional because TO fields may be present in raw message)
+     * @phpcs:enable
+     *
      * @return Boolean
+     * @deprecated Use Garp_Mailer->sendMail()
      */
     public function sendRawEmail($args)
     {
-        $args = $args instanceof Garp_Util_Configuration ? $args : new Garp_Util_Configuration($args);
-        $args['Action'] = 'SendRawEmail';
-        $args->obligate('RawMessage');
-        $args = (array)$args;
-
-        // normalize so-called "String List" parameters
-        if (!empty($args['Destinations'])) {
-            $destinations = $this->_arrayToStringList((array)$args['Destinations'], 'Destinations');
-            $args += $destinations;
-            unset($args['Destinations']);
-        }
-        $args['RawMessage.Data'] = $args['RawMessage'];
-        unset($args['RawMessage']);
-
-        $response = $this->_makeRequest((array)$args);
+        $this->client->sendRawEmail($args);
         return true;
     }
 
@@ -299,7 +273,7 @@ class Garp_Service_Amazon_Ses extends Zend_Service_Amazon_Abstract
      */
     public function verifyEmailAddress($email)
     {
-        $this->client->VerifyEmailIdentity([
+        $this->client->verifyEmailIdentity([
             'EmailAddress' => $email
         ]);
 
