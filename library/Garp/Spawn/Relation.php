@@ -473,10 +473,14 @@ class Garp_Spawn_Relation {
     }
 
     protected function _addRelationColumn(array $params) {
-        if (isset($params['column'])) {
-            $this->column = $params['column'];
-            return;
-        }
+        /**
+         * This also causes problems in multilingual sites. Since the feature is not in use right
+         * now, I'm removing it. See also v3.24.1
+         */
+        //if (isset($params['column'])) {
+            //$this->column = $params['column'];
+            //return;
+        //}
         // Automagically determine foreign key column.
         $this->column = $this->isSingular() ?
             Garp_Spawn_Relation_Set::getRelationColumn($this->name) :
