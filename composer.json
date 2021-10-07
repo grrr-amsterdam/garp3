@@ -10,7 +10,7 @@
     "phpoffice/phpexcel": "1.8.*",
     "ezyang/htmlpurifier": "^4.12",
     "monolog/monolog": "^1.0",
-    "dompdf/dompdf": "^0.8.0",
+    "dompdf/dompdf": "^0.8.0|^1.0",
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "^3.4",
     "fzaninotto/faker": "^1.9.1",
