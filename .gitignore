@@ -7,3 +7,4 @@ scripts/scaffold/application/configs/application.ini
 library/Garp/3rdParty/amazon_ses_scripts
 vendor
 .idea
+composer.lock
