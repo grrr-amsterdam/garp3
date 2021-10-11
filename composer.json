@@ -28,12 +28,53 @@
   },
   "autoload": {
     "psr-0": {
-      "Garp_": "library/",
-      "G_": "application/modules/g/controllers",
-      "G_View_Helpers_": "application/modules/g/views/helpers"
+      "Garp_": "library/"
     },
     "files": [
       "application/functions.php"
+    ],
+    "classmap": [
+      "application/modules/g/controllers/AuthController.php",
+      "application/modules/g/controllers/BrowseboxController.php",
+      "application/modules/g/controllers/ContentController.php",
+      "application/modules/g/controllers/ErrorController.php",
+      "application/modules/g/controllers/ExtController.php",
+      "application/modules/g/controllers/ImagesController.php",
+      "application/modules/g/controllers/RestController.php",
+      "application/modules/g/controllers/RobotsController.php",
+      "application/modules/g/views/helpers/AssetUrl.php",
+      "application/modules/g/views/helpers/Auth.php",
+      "application/modules/g/views/helpers/Breadcrumbs.php",
+      "application/modules/g/views/helpers/Browsebox.php",
+      "application/modules/g/views/helpers/Chapter.php",
+      "application/modules/g/views/helpers/Config.php",
+      "application/modules/g/views/helpers/Date.php",
+      "application/modules/g/views/helpers/Exception.php",
+      "application/modules/g/views/helpers/FileSize.php",
+      "application/modules/g/views/helpers/FormFile.php",
+      "application/modules/g/views/helpers/FormText.php",
+      "application/modules/g/views/helpers/FullName.php",
+      "application/modules/g/views/helpers/FullTitle.php",
+      "application/modules/g/views/helpers/FullUrl.php",
+      "application/modules/g/views/helpers/GoogleStaticMap.php",
+      "application/modules/g/views/helpers/Html.php",
+      "application/modules/g/views/helpers/HtmlImage.php",
+      "application/modules/g/views/helpers/HtmlLink.php",
+      "application/modules/g/views/helpers/HtmlTime.php",
+      "application/modules/g/views/helpers/I18n.php",
+      "application/modules/g/views/helpers/Image.php",
+      "application/modules/g/views/helpers/NormalizeUrl.php",
+      "application/modules/g/views/helpers/Request.php",
+      "application/modules/g/views/helpers/Script.php",
+      "application/modules/g/views/helpers/Sitemap.php",
+      "application/modules/g/views/helpers/Snippet.php",
+      "application/modules/g/views/helpers/Social.php",
+      "application/modules/g/views/helpers/SpawnJs.php",
+      "application/modules/g/views/helpers/String.php",
+      "application/modules/g/views/helpers/Video.php",
+      "application/modules/g/views/helpers/Vimeo.php",
+      "application/modules/g/views/helpers/YouTube.php"
+
     ]
   },
   "autoload-dev": {
