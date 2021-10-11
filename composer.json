@@ -3,11 +3,12 @@
   "description": "Framework and CMS built on top of Zend Framework.",
   "license": "BSD-3-Clause",
   "type": "library",
+  "minimum-stability": "dev",
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
     "google/apiclient": "^1.1",
-    "phpoffice/phpexcel": "1.8.*",
+    "phpoffice/phpexcel": "@dev",
     "ezyang/htmlpurifier": "^4.12",
     "monolog/monolog": "^1.0",
     "dompdf/dompdf": "^0.8.0",
@@ -50,5 +51,11 @@
     "test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/",
     "phpcs": "vendor/bin/phpcs --standard=./phpcs.xml --extensions=php --colors ."
   },
-  "bin": ["scripts/g"]
+  "bin": ["scripts/g"],
+  "repositories": [
+    {
+      "type": "path",
+      "url": "./packages/phpoffice-phpexcel"
+    }
+  ]
 }

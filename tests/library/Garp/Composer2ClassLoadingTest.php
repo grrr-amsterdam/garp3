@@ -15,4 +15,8 @@ class Garp_Composer2ClassLoadingTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertTrue(class_exists(G_View_Helper_Html::class));
     }
 
+    public function testPHPExcel() {
+        $this->assertTrue(class_exists(PHPExcel_IOFactory::class));
+    }
+
 }
