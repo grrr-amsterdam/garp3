@@ -5,7 +5,18 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
-## Version 3.24
+## Version 3.25.0
+
+Composer 2 compatibility is finally there. `autoload` rules in `composer.json` have been changed. Some classes previously loaded by PSR-0 have been moved to `classmap`, because Composer 2 is stricter about PSR-0 class loading. Garp uses an old version of `phpoffice/phpexcel`, this package is not compatible with PHP 7.4 and Composer 1. By including it in the repository, changing `autoload` rules and fixing some PHP 7.4 syntax errors the package is working again.
+
+When upgrading to this version:
+
+- Run Composer 1 `composer dumpautoload --optimize`, all autoloading warnings from Garp should be gone. All warnings should be fixed before your application can use Composer 2.
+- Test code that uses `phpoffice/phpexcel`.
+
+> We advise you to refactor code that's using `phpoffice/phpexcel` to use `phpoffice/spreadsheet` instead.
+
+## Version 3.24.0
 
 Custom HTTP calls to AWS API are replaced by AWS SDK for PHP calls to add support for signature version 4. So `Garp_Mailer` uses AWS SDK for PHP instead of Zend http client. No breaking changes, but `Garp_Mailer` will throw `SesException`'s instead of `Exception`.
 
