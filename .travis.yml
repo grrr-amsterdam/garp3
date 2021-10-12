@@ -28,7 +28,7 @@ before_install:
 
 before_script:
   - composer require phpunit/phpunit:$PHPUNIT --no-interaction --no-update
-  - composer update $COMPOSER_FLAGS --no-interaction --no-suggest
+  - composer update $COMPOSER_FLAGS --no-interaction
   - chmod -R +x vendor/bin/phpunit
   - chmod -R +x vendor/bin/phpcs
 
