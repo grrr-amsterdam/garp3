@@ -2,6 +2,9 @@
 
 /**
  * Test some files that used to be loaded by Composer 1 as PSR-0, but Composer 2 is more strict.
+ *
+ * @package Tests
+ * @author  Martijn Gastkemper <martijn.gastkemper@grrr.nl>
  */
 class Garp_Composer2ClassLoadingTest extends Garp_Test_PHPUnit_TestCase {
 
