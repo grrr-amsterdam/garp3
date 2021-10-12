@@ -6,6 +6,7 @@
     <exclude-pattern>application/data/cache/*</exclude-pattern>
     <exclude-pattern>application/modules/default/Model/Base/*</exclude-pattern>
     <exclude-pattern>ckeditor</exclude-pattern>
+    <exclude-pattern>packages/*</exclude-pattern>
 
     <arg value="s"/>
     <arg value="p"/>
