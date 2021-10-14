@@ -8,7 +8,6 @@
     "php": ">=7.1",
     "ext-json": "*",
     "google/apiclient": "^1.1",
-    "phpoffice/phpexcel": "@dev",
     "ezyang/htmlpurifier": "^4.12",
     "monolog/monolog": "^1.0",
     "dompdf/dompdf": "^0.8.0",
@@ -36,7 +35,8 @@
     ],
     "classmap": [
       "application/modules/g/controllers",
-      "application/modules/g/views/helpers"
+      "application/modules/g/views/helpers",
+      "packages/phpoffice-phpexcel/Classes"
     ]
   },
   "autoload-dev": {
@@ -51,11 +51,5 @@
     "test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/",
     "phpcs": "vendor/bin/phpcs --standard=./phpcs.xml --extensions=php --colors ."
   },
-  "bin": ["scripts/g"],
-  "repositories": [
-    {
-      "type": "path",
-      "url": "./packages/phpoffice-phpexcel"
-    }
-  ]
+  "bin": ["scripts/g"]
 }
