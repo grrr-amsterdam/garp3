@@ -5,6 +5,10 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.26.0
+
+Monolog is not used by Garp and therefore removed. Before upgrading, add `monolog/monolog:^1.0` to your projects `composer.json`, if you use Monolog.
+
 ## Version 3.25.0
 
 Composer 2 compatibility is finally there. `autoload` rules in `composer.json` have been changed. Some classes previously loaded by PSR-0 have been moved to `classmap`, because Composer 2 is stricter about PSR-0 class loading. Garp uses an old version of `phpoffice/phpexcel`, this package is not compatible with PHP 7.4 and Composer 1. By including it in the repository, changing `autoload` rules and fixing some PHP 7.4 syntax errors the package is working again.
