@@ -11,7 +11,7 @@
     "ezyang/htmlpurifier": "^4.12",
     "dompdf/dompdf": "^0.8.0",
     "tedivm/jshrink": "1.1.0",
-    "vlucas/phpdotenv": "^3.4",
+    "vlucas/phpdotenv": "^4.0|^v5.4",
     "fzaninotto/faker": "^1.9.1",
     "grrr-amsterdam/garp-functional": "^4.0",
     "phpunit/phpunit": "^6|^7",
