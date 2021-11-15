@@ -9,7 +9,9 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 Monolog is not used by Garp and therefore removed. Before upgrading, add `monolog/monolog:^1.0` to your projects `composer.json`, if you use Monolog.
 
-Remove support voor phpdotenv 3 and add support for version 4 and 5.
+Remove support voor phpdotenv 3 and add support for version 4 and 5. When your application calls phpdotenv (not very likely) follow the upgrade instruction provided by phpdotenv: https://github.com/vlucas/phpdotenv
+
+PHPUnit is now a dev dependency. When your application `composer.json` doesn't require `phpunit/phpunit` add `"phpunit/phpunit": "^6|^7"` to `require-dev`.
 
 ## Version 3.25.0
 
