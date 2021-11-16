@@ -50,5 +50,8 @@
     "test": "phpunit --verbose --colors --bootstrap tests/TestHelper.php tests/",
     "phpcs": "vendor/bin/phpcs --standard=./phpcs.xml --extensions=php --colors ."
   },
+  "suggest": {
+    "phpunit/phpunit": "Required to use assertions and run tests (^6|^7)."
+  },
   "bin": ["scripts/g"]
 }
