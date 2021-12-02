@@ -13,7 +13,7 @@
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "^4.0|^v5.4",
     "fzaninotto/faker": "^1.9.1",
-    "grrr-amsterdam/garp-functional": "^4.0",
+    "grrr-amsterdam/garp-functional": "^5.0",
     "greenlion/php-sql-parser": "^4.1",
     "league/csv": "^8.0",
     "aws/aws-sdk-php": "^3.87",
@@ -53,5 +53,7 @@
   "suggest": {
     "phpunit/phpunit": "Required to use assertions and run tests (^6|^7)."
   },
-  "bin": ["scripts/g"]
+  "bin": [
+    "scripts/g"
+  ]
 }
