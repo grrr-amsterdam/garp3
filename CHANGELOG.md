@@ -5,6 +5,10 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.27.0
+
+Removed support for Dotenv version 4.  
+You're unlikely to notice a difference, but if you load env files yourself, please update your calls to use `createUnsafeImmutable`. See also [DotEnv's Upgrading Guide](https://github.com/vlucas/phpdotenv/blob/master/UPGRADING.md#details).
 ## Version 3.26.0
 
 Monolog is not used by Garp and therefore removed. Before upgrading, add `monolog/monolog:^1.0` to your projects `composer.json`, if you use Monolog.
