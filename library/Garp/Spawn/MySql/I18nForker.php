@@ -99,6 +99,9 @@ class Garp_Spawn_MySql_I18nForker {
     }
 
     protected function _executeSql($sql) {
+        if (!$sql) {
+            return null;
+        }
         $adapter = Zend_Db_Table::getDefaultAdapter();
         return $adapter->query($sql);
     }
