@@ -12,7 +12,7 @@
     "dompdf/dompdf": "^0.8.0",
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "^v5.4",
-    "fzaninotto/faker": "^1.9.1",
+    "fzaninotto/faker": "^1.9.2",
     "grrr-amsterdam/garp-functional": "^5.0",
     "greenlion/php-sql-parser": "^4.1",
     "league/csv": "^8.0",
