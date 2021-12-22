@@ -3,7 +3,13 @@ language: php
 matrix:
   include:
     - php: 7.4
+      env: COMPOSER_FLAGS="--prefer-lowest"
+    - php: 7.4
+      env: COMPOSER_FLAGS="--prefer-stable"
     - php: 8.0
+      env: COMPOSER_FLAGS="--prefer-lowest"
+    - php: 8.0
+      env: COMPOSER_FLAGS="--prefer-stable"
 
 cache:
   directories:
@@ -13,7 +19,7 @@ before_install:
   - phpenv config-rm xdebug.ini
 
 before_script:
-  - composer update --no-interaction
+  - composer update $COMPOSER_FLAGS --no-interaction
   - chmod -R +x vendor/bin/phpunit
   - chmod -R +x vendor/bin/phpcs
 
