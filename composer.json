@@ -12,18 +12,18 @@
     "dompdf/dompdf": "^0.8.0",
     "tedivm/jshrink": "1.1.0",
     "vlucas/phpdotenv": "^v5.4",
-    "fzaninotto/faker": "^1.9.2",
+    "fzaninotto/faker": "dev-master",
     "grrr-amsterdam/garp-functional": "^5.0",
     "greenlion/php-sql-parser": "^4.1",
     "league/csv": "^8.0",
     "aws/aws-sdk-php": "^3.87",
-    "sentry/sdk": "^2.0",
+    "sentry/sdk": "^3.0",
     "shardj/zf1-future": "^1.16.1",
     "guzzlehttp/guzzle": "^6|^7"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.5",
-    "phpunit/phpunit": "^6|^7"
+    "phpunit/phpunit": "^8"
   },
   "autoload": {
     "psr-0": {
