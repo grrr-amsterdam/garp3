@@ -66,20 +66,16 @@ class Garp_MailerTest extends Garp_Test_PHPUnit_TestCase {
         $this->assertTrue($mailer->getTransport() instanceof Zend_Mail_Transport_File);
     }
 
-    /**
-     * @expectedException Garp_Util_Configuration_Exception
-     */
     public function test_mailer_should_throw_exception_on_missing_param_to() {
+        $this->expectException(Garp_Util_Configuration_Exception::class);
         $mailer = new Garp_Mailer();
         $params = $this->_getParams();
         unset($params['to']);
         $mailer->send($params);
     }
 
-    /**
-     * @expectedException Garp_Util_Configuration_Exception
-     */
     public function test_mailer_should_throw_exception_on_missing_param_subject() {
+        $this->expectException(Garp_Util_Configuration_Exception::class);
         $mailer = new Garp_Mailer();
         $params = $this->_getParams();
         unset($params['subject']);

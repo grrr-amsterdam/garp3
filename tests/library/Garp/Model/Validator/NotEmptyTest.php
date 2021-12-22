@@ -7,9 +7,9 @@ class Garp_Model_Validator_NotEmptyTest extends Garp_Test_PHPUnit_TestCase {
 
     /**
      * @test
-     * @expectedException Garp_Model_Validator_Exception
      */
     public function should_throw_on_empty_data() {
+        $this->expectException(Garp_Model_Validator_Exception::class);
         $this->_getValidator()->validate(
             [],
             $this->_getMockModel()
@@ -18,9 +18,9 @@ class Garp_Model_Validator_NotEmptyTest extends Garp_Test_PHPUnit_TestCase {
 
     /**
      * @test
-     * @expectedException Garp_Model_Validator_Exception
      */
     public function should_throw_on_empty_string() {
+        $this->expectException(Garp_Model_Validator_Exception::class);
         $this->_getValidator()->validate(
             ['string' => '  '],
             $this->_getMockModel()
@@ -29,20 +29,20 @@ class Garp_Model_Validator_NotEmptyTest extends Garp_Test_PHPUnit_TestCase {
 
     /**
      * @test
-     * @expectedException Garp_Model_Validator_Exception
      */
     public function should_throw_on_empty_number() {
+        $this->expectException(Garp_Model_Validator_Exception::class);
         $this->_getValidator()->validate(
             ['number' => null],
             $this->_getMockModel()
         );
     }
-
+    
     /**
      * @test
-     * @expectedException Garp_Model_Validator_Exception
      */
     public function should_throw_on_empty_set() {
+        $this->expectException(Garp_Model_Validator_Exception::class);
         $this->_getValidator()->validate(
             ['set' => []],
             $this->_getMockModel()

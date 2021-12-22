@@ -22,7 +22,7 @@ class Garp_Model_DataFactory_AbstractTest extends Garp_Test_PHPUnit_TestCase
 
         $data = $dataFactory->make(['fieldB' => 'default']);
 
-        $this->assertInternalType('string', f\prop('fieldA', $data));
+        $this->assertIsString(f\prop('fieldA', $data));
         $this->assertEquals('default', f\prop('fieldB', $data));
         $this->assertArrayNotHasKey('fieldC', $data);
     }
