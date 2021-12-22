@@ -2,22 +2,8 @@ language: php
 
 matrix:
   include:
-    - php: 7.1
-      env: COMPOSER_FLAGS="--prefer-lowest" PHPUNIT="^6"
-    - php: 7.1
-      env: COMPOSER_FLAGS="--prefer-stable" PHPUNIT="^6"
-    - php: 7.2
-      env: COMPOSER_FLAGS="--prefer-lowest" PHPUNIT="^6"
-    - php: 7.2
-      env: COMPOSER_FLAGS="--prefer-stable" PHPUNIT="^6"
-    - php: 7.3
-      env: COMPOSER_FLAGS="--prefer-lowest" PHPUNIT="^6"
-    - php: 7.3
-      env: COMPOSER_FLAGS="--prefer-stable" PHPUNIT="^6"
     - php: 7.4
-      env: COMPOSER_FLAGS="--prefer-lowest" PHPUNIT="^7.5.20"
-    - php: 7.4
-      env: COMPOSER_FLAGS="--prefer-stable" PHPUNIT="^7.5"
+    - php: 8.0
 
 cache:
   directories:
@@ -27,14 +13,13 @@ before_install:
   - phpenv config-rm xdebug.ini
 
 before_script:
-  - composer require phpunit/phpunit:$PHPUNIT --no-interaction --no-update
-  - composer update $COMPOSER_FLAGS --no-interaction
+  - composer update --no-interaction
   - chmod -R +x vendor/bin/phpunit
   - chmod -R +x vendor/bin/phpcs
 
 script:
-    - composer test
-    - if [ "$(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php')" != "" ]; then ./vendor/bin/phpcs --standard=phpcs.xml --colors --encoding=utf-8 -n -p $(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php'); fi
+  - composer test
+  - if [ "$(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php')" != "" ]; then ./vendor/bin/phpcs --standard=phpcs.xml --colors --encoding=utf-8 -n -p $(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php'); fi
 
 notifications:
   email: false

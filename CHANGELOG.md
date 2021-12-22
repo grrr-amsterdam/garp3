@@ -8,7 +8,8 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 ## Version 3.29.0
 
-Garp is now compatible with PHP 8.0.
+Garp is now compatible with PHP 8.0.  
+The minimally required version is PHP 7.4.
 
 Mostly thanks to upgrading these dependencies:
 
