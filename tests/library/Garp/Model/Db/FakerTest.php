@@ -28,7 +28,7 @@ class Garp_Model_Db_FakerTest extends Garp_Test_PHPUnit_TestCase {
         $faker = new Garp_Model_Db_Faker();
         $fakeRow = $faker->createFakeRow($fieldConfig);
 
-        $this->assertEqualsCanonicalized(
+        $this->assertEqualsCanonicalizing(
             $expectedKeys,
             array_keys($fakeRow)
         );

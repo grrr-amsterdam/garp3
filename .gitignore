@@ -8,3 +8,4 @@ library/Garp/3rdParty/amazon_ses_scripts
 vendor
 .idea
 composer.lock
+.phpunit.result.cache
