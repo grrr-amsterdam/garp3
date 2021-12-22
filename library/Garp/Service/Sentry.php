@@ -12,7 +12,7 @@ use Sentry\SentrySdk;
 class Garp_Service_Sentry {
     private static $_instance;
 
-    public static function getInstance() {
+    public static function getInstance(): Garp_Service_Sentry {
         if (null === static::$_instance) {
             static::$_instance = new static();
         }
@@ -23,19 +23,13 @@ class Garp_Service_Sentry {
     protected function __construct() {
     }
 
-    private function __clone() {
-    }
-
-    private function __wakeup() {
-    }
-
     /**
      * Returns whether the Raven client (needed for Sentry) is configured / enabled.
      *
      * @return bool
      */
     public function isActive(): bool {
-        return !is_null(SentrySdk::getCurrentHub()->getClient());
+        return !is_null(\Sentry\SentrySdk::getCurrentHub()->getClient());
     }
 
     public function log(Exception $exception): void {
