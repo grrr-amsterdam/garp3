@@ -35,10 +35,8 @@ class Garp_Content_Cdn_Distributor_Test extends Garp_Test_PHPUnit_TestCase {
         $this->assertSame(count($assetList), 1);
     }
 
-    /**
-     * @expectedException Garp_File_Exception
-     */
     public function test_should_throw_when_given_readonly_config() {
+        $this->expectException(Garp_File_Exception::class);
         $distributor = $this->_getDistributor();
         $distributor->distribute(
             array('apikey' => 'abc', 'bucket' => 'bouquet', 'secret' => 'xxx', 'readonly' => '1'),

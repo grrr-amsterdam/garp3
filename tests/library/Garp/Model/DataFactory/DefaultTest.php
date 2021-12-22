@@ -34,10 +34,10 @@ class Garp_Model_DataFactory_DefaultTest extends Garp_Test_PHPUnit_TestCase
 
     /**
      * @test
-     * @expectedException Garp_Model_DataFactory_Exception
      */
     public function should_throw_exception_when_model_is_empty()
     {
+        $this->expectException(Garp_Model_DataFactory_Exception::class);
         (new Garp_Model_DataFactory_Default())->make();
     }
 }

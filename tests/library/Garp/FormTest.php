@@ -50,10 +50,10 @@ class Garp_FormTest extends Garp_Test_PHPUnit_TestCase {
 
     /**
      * @test
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Unrecognized options fluffy, flooflap encountered
      */
     public function should_throw_on_unrecognized_merge_options() {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unrecognized options fluffy, flooflap encountered');
         $form = new Garp_Form();
         $form->addElement(
             'text', 'foo', [
