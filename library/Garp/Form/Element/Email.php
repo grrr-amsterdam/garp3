@@ -9,7 +9,11 @@
 class Garp_Form_Element_Email extends Garp_Form_Element_Text {
 
     public function init() {
-        $this->addFilter('PregReplace', array('match' => '/\s+/', 'replace' => ''));
+        $this->addFilter(
+            new Zend_Filter_PregReplace([
+                'match' => '/\s+/', 'replace' => ''
+            ])
+        );
         $this->addValidator('EmailAddress', false);
     }
 
