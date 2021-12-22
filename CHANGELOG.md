@@ -6,6 +6,16 @@ For every (necessary) backward-incompatible Garp update we create a new tag, wit
 
 (not entirely semver-compatible, we know, but historically more compatible with how we came to Garp version 3 in the first place)
 
+## Version 3.29.0
+
+Garp is now compatible with PHP 8.0.
+
+Mostly thanks to upgrading these dependencies:
+
+- fzaninotto/faker: using `dev-master`, so make sure your `minimum-stability` is set to `dev` to allow this.
+- phpunit: a ton of assertion methods, as well as the `@expectedException` directive in docblocks, have been removed, so make sure you're not using those. You'll know because your test suite will fail.
+- shardj/zf1-future: should be backward-compatible, but your mileage may vary. We had to update the loading of filters in `Garp_Form_Element_Email` for instance, due to a `ReflectionClass` peculiarity.
+
 ## Version 3.28.0
 
 Removed support for Dotenv version 4.  
