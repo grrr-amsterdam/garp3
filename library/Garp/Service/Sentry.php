@@ -1,7 +1,5 @@
 <?php
 
-use Sentry\SentrySdk;
-
 /**
  * Garp_Service_Sentry
  * Error Monitoring through https://getsentry.com
@@ -32,7 +30,7 @@ class Garp_Service_Sentry {
         return !is_null(\Sentry\SentrySdk::getCurrentHub()->getClient());
     }
 
-    public function log(Exception $exception): void {
+    public function log(Throwable $exception): void {
         if (!$this->isActive()) {
             return;
         }
