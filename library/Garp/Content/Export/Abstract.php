@@ -35,7 +35,7 @@ abstract class Garp_Content_Export_Abstract {
             ->setDefault('rule2', null);
 
         $filter = array();
-        if (array_key_exists('filter', $params) && $params['filter']) {
+        if ($params->offsetExists('filter') && $params['filter']) {
             $filter = Zend_Json::decode($params['filter']);
         }
         $fetchOptions = array(
@@ -149,6 +149,9 @@ abstract class Garp_Content_Export_Abstract {
             }
             foreach ($datum as $column => $value) {
                 $field = $model->getFieldConfiguration($column);
+                if (!$field) {
+                    continue;
+                }
                 if ($field['type'] === 'checkbox') {
                     $value = $value ? __('yes') : __('no');
                 }
