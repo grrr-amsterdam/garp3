@@ -3995,10 +3995,10 @@ class PHPExcel_Calculation
         }
 
         //    Simple validate the two operands if they are string values
-        if (is_string($operand1) && $operand1 > '' && $operand1{0} == '"') {
+        if (is_string($operand1) && $operand1 > '' && $operand1[0] == '"') {
             $operand1 = self::unwrapResult($operand1);
         }
-        if (is_string($operand2) && $operand2 > '' && $operand2{0} == '"') {
+        if (is_string($operand2) && $operand2 > '' && $operand2[0] == '"') {
             $operand2 = self::unwrapResult($operand2);
         }
 
