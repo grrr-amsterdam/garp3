@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/grrr-amsterdam/garp3.svg?branch=master)](https://travis-ci.com/grrr-amsterdam/garp3)
+[![CI](https://github.com/grrr-amsterdam/garp3/actions/workflows/ci.yml/badge.svg)](https://github.com/grrr-amsterdam/garp3/actions/workflows/ci.yml)
 
 # Garp 3
 
