@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  php-tests:
+    name: CI
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        php-version: ["7.4", "8.0"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Validate Composer files
+        run: composer validate --ansi
+
+      - name: Install PHP dependencies
+        run: |
+          composer install --prefer-dist --no-interaction --ansi
+
+      - name: Run PHP tests
+        run: composer test
+
+      - name: Run PHPCS
+        run: |
+          if [ "$(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php')" != "" ]; then 
+            ./vendor/bin/phpcs --standard=phpcs.xml --colors --encoding=utf-8 -n -p $(git diff --diff-filter=ACMR --name-only HEAD^..HEAD -- '*.php'); 
+          fi
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: Laravel logs
+          path: storage/logs/laravel.log
+
+  notification:
+    name: Slack notification
+    runs-on: ubuntu-20.04
+    if: always()
+    needs: [php-tests]
+
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+      - name: Send notification
+        uses: edge/simple-slack-notify@master
+        with:
+          channel: "#ci"
+          username: CI
+          status: ${{ (contains(needs.*.result, 'cancelled') && 'cancelled') || (contains(needs.*.result, 'failure') && 'failure') || 'success' }}
+          success_text: ":octocat: <${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}|Build #${env.GITHUB_RUN_NUMBER}> of *${env.GITHUB_REPOSITORY}@${{ github.ref_name }}* by *${env.GITHUB_ACTOR}* completed successfully."
+          failure_text: ":octocat: <${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}|Build #${env.GITHUB_RUN_NUMBER}> of *${env.GITHUB_REPOSITORY}@${{ github.ref_name }}* by *${env.GITHUB_ACTOR}* failed."
+          cancelled_text: ":octocat: <${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}|Build #${env.GITHUB_RUN_NUMBER}> of *${env.GITHUB_REPOSITORY}@${{ github.ref_name }}* by *${env.GITHUB_ACTOR}* was cancelled."
