@@ -13,6 +13,7 @@ jobs:
     strategy:
       matrix:
         php-version: ["7.4", "8.0"]
+        composer-flags: ["--prefer-lowest", "--prefer-stable"]
 
     steps:
       - uses: actions/checkout@v2
@@ -36,7 +37,7 @@ jobs:
 
       - name: Install PHP dependencies
         run: |
-          composer install --prefer-dist --no-interaction --ansi
+          composer update --prefer-dist --no-interaction --ansi ${{ matrix.composer-flags }}
 
       - name: Run PHP tests
         run: composer test
