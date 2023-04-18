@@ -8,7 +8,7 @@ on:
 jobs:
   php-tests:
     name: CI
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -16,17 +16,17 @@ jobs:
         composer-flags: ["--prefer-lowest", "--prefer-stable"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
 
       - name: Get Composer Cache Directory
         id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -49,7 +49,7 @@ jobs:
           fi
 
       - name: Upload logs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: Laravel logs
@@ -57,20 +57,40 @@ jobs:
 
   notification:
     name: Slack notification
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: always()
     needs: [php-tests]
 
-    env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
     steps:
       - name: Send notification
-        uses: edge/simple-slack-notify@master
-        with:
-          channel: "#ci"
-          username: CI
-          status: ${{ (contains(needs.*.result, 'cancelled') && 'cancelled') || (contains(needs.*.result, 'failure') && 'failure') || 'success' }}
-          success_text: ":octocat: <${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}|Build #${env.GITHUB_RUN_NUMBER}> of *${env.GITHUB_REPOSITORY}@${{ github.ref_name }}* by *${env.GITHUB_ACTOR}* completed successfully."
-          failure_text: ":octocat: <${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}|Build #${env.GITHUB_RUN_NUMBER}> of *${env.GITHUB_REPOSITORY}@${{ github.ref_name }}* by *${env.GITHUB_ACTOR}* failed."
-          cancelled_text: ":octocat: <${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}|Build #${env.GITHUB_RUN_NUMBER}> of *${env.GITHUB_REPOSITORY}@${{ github.ref_name }}* by *${env.GITHUB_ACTOR}* was cancelled."
+        run: |
+          # Steps to setup this job:
+          # 1. Copy this job to your workflow file.
+          # 2. Add all the jobs after which the notification must be send to `needs`.
+          # 3. For sending notifications to #CI channel you're now done.
+          # Optionally: Change the message `successText`, `failureText` and `cancelledText` to your needs.
+          #
+          # To send notification to another channel:
+          # 1. Create a webhook url in the Slack app: https://api.slack.com/apps/A04DZLM3C78
+          # 2. Add the URL to the repository secrets with the name `SLACK_WEBHOOK_URL`.
+          # 3. Swap the `webhookUrl` variables.
+          #
+          webhookUrl="${{ secrets.SLACK_WEBHOOK_URL }}"
+          successText=":octocat: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Build #${{ github.run_number }}> of *${{ github.repository }}@${{ github.ref_name }}* by *${{ github.actor }}* completed successfully."
+          failureText=":octocat: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Build #${{ github.run_number }}> of *${{ github.repository }}@${{ github.ref_name }}* by *${{ github.actor }}* failed."
+          cancelledText=":octocat: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Build #${{ github.run_number }}> of *${{ github.repository }}@${{ github.ref_name }}* by *${{ github.actor }}* was cancelled.😥"
+          status="${{ (contains(needs.*.result, 'cancelled') && 'cancelled') || (contains(needs.*.result, 'failure') && 'failure') || 'success' }}"
+
+          if [ "$status" = 'success' ]; then
+            color='good'
+            text=$successText
+          elif [ "$status" = 'failure' ]; then
+            color='danger'
+            text=$failureText
+          elif [ "$status" = "cancelled" ]; then
+            color='warning'
+            text=$cancelledText
+          fi
+
+          curl "$webhookUrl" -X "POST" --header "Content-Type: application/json" \
+            --data "{attachments: [{text: \"$text\", color: \"$color\"}]}"
