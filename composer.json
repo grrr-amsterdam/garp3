@@ -55,5 +55,11 @@
   },
   "bin": [
     "scripts/g"
-  ]
+  ],
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true,
+      "ocramius/package-versions": true
+    }
+  }
 }
