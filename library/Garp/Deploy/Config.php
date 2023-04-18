@@ -17,7 +17,7 @@ class Garp_Deploy_Config {
     protected $_genericContent;
 
     protected $_deployParams = array(
-        'server', 'deploy_to', 'user', 'application', 'repo_url', 'branch'
+        'server', 'deploy_to', 'user', 'application', 'repo_url', 'branch', 'rsync_options'
     );
 
     public function __construct() {
