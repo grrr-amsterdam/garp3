@@ -11,11 +11,12 @@ desc "Push built assets to the webserver"
 task :push_assets do
     on roles(:web) do |host|
         run_locally do
-            execute "rsync rev-manifest-*.json #{host.user}@#{host.hostname}:#{release_path}"
-            execute "rsync -r public/css/build/* #{host.user}@#{host.hostname}:#{release_path}"\
-                "/public/css/build/"
-            execute "rsync -r public/js/build/* #{host.user}@#{host.hostname}:#{release_path}"\
-                "/public/js/build/"
+            options = fetch(:rsync_options)
+            execute "rsync #{options} rev-manifest-*.json #{host.user}@#{host.hostname}:#{release_path}"
+            execute "rsync #{options} -r public/css/build/* #{host.user}@#{host.hostname}:#{release_path}"\
+                 "/public/css/build/"
+            execute "rsync #{options} -r public/js/build/* #{host.user}@#{host.hostname}:#{release_path}"\
+                 "/public/js/build/"
         end
     end
 end
